@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Yuruicamp 會員中心 - 管理訂單、折價券、個人資料">
+  <meta name="theme-color" content="#244d4d">
+  <title>會員中心 - Yuruicamp 露營選物</title>
+  <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
+  <link rel="preconnect" href="https://picsum.photos">
+  <link rel="dns-prefetch" href="https://picsum.photos">
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>">
+</head>
+<body>
+
+  <!-- ===================================================
+       導航欄 Navbar
+       =================================================== -->
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <div class="navbar-brand"><a href="../index.html" style="text-decoration:none;color:inherit;">🏕️ Yuruicamp</a></div>
+        <div class="navbar-menu hidden-mobile">
+          <ul class="navbar-items">
+            <li><a href="home.html">首頁</a></li>
+            <li><a href="products.html">商品</a></li>
+            <li><a href="blog.html">部落格</a></li>
+            <li><a href="branches.html">分店</a></li>
+            <li><a href="faq.html">常見問題</a></li>
+          </ul>
+        </div>
+        <div class="navbar-actions">
+          <div class="navbar-search-wrapper hidden-mobile">
+            <form class="navbar-search-form" role="search">
+              <input type="text" class="navbar-search-input" placeholder="搜尋商品、品牌..." autocomplete="off">
+              <button type="submit" class="navbar-search-btn">🔍</button>
+            </form>
+            <div class="navbar-search-dropdown"></div>
+          </div>
+          <a href="cart.html" class="navbar-cart-btn">🛒<span class="cart-badge" style="display:none;">0</span></a>
+          <button class="navbar-login-btn" onclick="window.openModal('loginModal')">登入</button>
+          <div class="navbar-user-menu" style="display:none;">
+            <div class="user-avatar">?</div>
+            <span class="user-name">用戶</span>
+            <a href="member-center.html" style="font-size:1.1rem;text-decoration:none;">⚙️</a>
+          </div>
+          <button class="navbar-hamburger hidden-desktop">☰</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 手機版 Offcanvas 側邊欄 -->
+  <div class="navbar-offcanvas">
+    <div class="offcanvas-header">
+      <span style="font-size:1.1rem;font-weight:700;color:#244d4d;">🏕️ Yuruicamp</span>
+      <button class="offcanvas-close">✕</button>
+    </div>
+    <div class="offcanvas-body">
+      <div class="navbar-search-wrapper" style="margin-bottom:1rem;">
+        <form class="navbar-search-form" style="width:100%;" role="search">
+          <input type="text" class="navbar-search-input" placeholder="搜尋..." autocomplete="off">
+          <button type="submit" class="navbar-search-btn">🔍</button>
+        </form>
+        <div class="navbar-search-dropdown"></div>
+      </div>
+      <ul class="navbar-items">
+        <li><a href="home.html">🏠 首頁</a></li>
+        <li><a href="products.html">🛍️ 商品</a></li>
+        <li><a href="blog.html">📖 部落格</a></li>
+        <li><a href="branches.html">📍 分店</a></li>
+        <li><a href="faq.html">❓ 常見問題</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="offcanvas-backdrop"></div>
+
+  <!-- ===================================================
+       主要內容區
+       =================================================== -->
+  <main>
+    <div class="container">
+      <!-- 手機版水平 Tab（手機才顯示，PC 隱藏）-->
+      <div class="member-tabs-mobile">
+        <button class="member-tab-mobile active" data-tab="overview">🏠 總覽</button>
+        <button class="member-tab-mobile" data-tab="profile">👤 資料</button>
+        <button class="member-tab-mobile" data-tab="orders">📦 訂單</button>
+        <button class="member-tab-mobile" data-tab="coupons">🎫 折價券</button>
+        <button class="member-tab-mobile" data-tab="notifications">🔔 通知</button>
+      </div>
+
+      <!-- 左右兩欄版面 -->
+      <div class="member-layout">
+
+        <!-- ──────────────────────────────────
+             左側：固定側邊欄（PC 才顯示）
+             ────────────────────────────────── -->
+        <aside class="member-sidebar">
+          <!-- 用戶頭像 + 姓名 + email -->
+          <div class="member-sidebar-user">
+            <div class="member-sidebar-avatar" id="sidebarAvatar">?</div>
+            <div>
+              <div class="member-sidebar-name" id="sidebarName">會員</div>
+              <div class="member-sidebar-email" id="sidebarEmail">loading...</div>
+            </div>
+          </div>
+          <!-- 導覽清單 -->
+          <ul class="member-nav-list">
+            <li class="member-nav-item active" data-tab="overview">
+              <span class="nav-icon">🏠</span> 總覽
+            </li>
+            <li class="member-nav-item" data-tab="profile">
+              <span class="nav-icon">👤</span> 個人資料
+            </li>
+            <li class="member-nav-item" data-tab="orders">
+              <span class="nav-icon">📦</span> 我的訂單
+            </li>
+            <li class="member-nav-item" data-tab="coupons">
+              <span class="nav-icon">🎫</span> 折價券
+            </li>
+            <li class="member-nav-item" data-tab="notifications">
+              <span class="nav-icon">🔔</span> 通知
+            </li>
+          </ul>
+        </aside>
+
+        <!-- ──────────────────────────────────
+             右側：各 Panel 內容
+             ────────────────────────────────── -->
+        <div class="member-content">
+
+          <!-- ========================================
+               Panel 1：總覽 (overview)
+               ======================================== -->
+          <div class="member-panel active" data-panel="overview">
+
+            <!-- 數位會員卡 -->
+            <div class="member-card">
+              <div class="member-card-top">
+                <span class="member-card-brand">🏕️ Yuruicamp</span>
+                <span class="member-card-tier">探險家</span>
+              </div>
+              <div class="member-card-name" id="cardName">露友小明</div>
+              <div class="member-card-since" id="cardSince">加入日期：2026-01-01</div>
+              <div style="margin-top:1.5rem;">
+                <div class="member-card-progress-label">升等進度 — 距下一等級還差 <strong>NT$3,000</strong></div>
+                <div class="member-card-progress">
+                  <div class="member-card-progress-bar" style="width:70%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 快捷統計方塊 -->
+            <div class="row" style="gap:0;">
+              <div class="col-md-4 mb-md" style="padding:0 0.5rem;">
+                <div class="card text-center" style="padding:1.25rem;border-radius:12px;">
+                  <div style="font-size:2rem;font-weight:800;color:#244d4d;" id="statPendingOrders">1</div>
+                  <div style="font-size:0.8rem;color:#777;margin-top:0.25rem;">待處理訂單</div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-md" style="padding:0 0.5rem;">
+                <div class="card text-center" style="padding:1.25rem;border-radius:12px;">
+                  <div style="font-size:2rem;font-weight:800;color:#244d4d;" id="statCoupons">2</div>
+                  <div style="font-size:0.8rem;color:#777;margin-top:0.25rem;">可用折價券</div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-md" style="padding:0 0.5rem;">
+                <div class="card text-center" style="padding:1.25rem;border-radius:12px;">
+                  <div style="font-size:2rem;font-weight:800;color:#e74c3c;" id="statUnread">2</div>
+                  <div style="font-size:0.8rem;color:#777;margin-top:0.25rem;">未讀通知</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 最近活動 -->
+            <div class="card" style="margin-top:0.5rem;border-radius:12px;">
+              <div class="card-body" style="padding:1.25rem;">
+                <h6 style="margin-bottom:1rem;color:#244d4d;">最近活動</h6>
+                <div id="recentActivity">
+                  <div style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid #f0f0f0;">
+                    <span style="font-size:1.2rem;">📦</span>
+                    <div>
+                      <div style="font-size:0.85rem;font-weight:600;">訂單 #ORD-20260310 處理中</div>
+                      <div style="font-size:0.75rem;color:#999;">2026-03-10</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0;border-bottom:1px solid #f0f0f0;">
+                    <span style="font-size:1.2rem;">✅</span>
+                    <div>
+                      <div style="font-size:0.85rem;font-weight:600;">訂單 #ORD-20260215 已出貨</div>
+                      <div style="font-size:0.75rem;color:#999;">2026-02-15</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 0;">
+                    <span style="font-size:1.2rem;">🎫</span>
+                    <div>
+                      <div style="font-size:0.85rem;font-weight:600;">獲得折價券 YURUI100</div>
+                      <div style="font-size:0.75rem;color:#999;">2026-01-05</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               Panel 2：個人資料 (profile)
+               ======================================== -->
+          <div class="member-panel" data-panel="profile">
+            <div class="card" style="border-radius:12px;">
+              <div class="card-body" style="padding:1.5rem;">
+                <h5 style="color:#244d4d;margin-bottom:1.5rem;">👤 個人資料</h5>
+                <form id="profileForm" novalidate>
+                  <div class="row">
+                    <div class="col-md-6 mb-md" style="padding:0 0.5rem;">
+                      <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">姓名</label>
+                      <input type="text" id="profileName" name="name" placeholder="露友小明" value="露友小明">
+                    </div>
+                    <div class="col-md-6 mb-md" style="padding:0 0.5rem;">
+                      <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">電話</label>
+                      <input type="tel" id="profilePhone" name="phone" placeholder="0912-345-678" value="0912-345-678">
+                    </div>
+                    <div class="col-md-6 mb-md" style="padding:0 0.5rem;">
+                      <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">電子郵件</label>
+                      <input type="email" id="profileEmail" name="email" placeholder="your@email.com" value="camper@example.com">
+                    </div>
+                    <div class="col-md-6 mb-md" style="padding:0 0.5rem;">
+                      <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">生日</label>
+                      <input type="date" id="profileBirthday" name="birthday" value="1990-06-15">
+                    </div>
+                    <div class="col-12 mb-md" style="padding:0 0.5rem;">
+                      <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">常用地址</label>
+                      <input type="text" id="profileAddress" name="address" placeholder="台北市信義區信義路五段100號" value="台北市信義區信義路五段100號">
+                    </div>
+                  </div>
+
+                  <!-- 喜好標籤 -->
+                  <div class="mb-md" style="padding:0 0.5rem;">
+                    <label style="display:block;font-weight:600;margin-bottom:0.75rem;font-size:0.875rem;">露營喜好（可多選）</label>
+                    <div class="survey-tags" id="prefTags">
+                      <span class="survey-tag active" data-value="glamping">✨ 豪華露營</span>
+                      <span class="survey-tag" data-value="backpacking">🎒 背包客</span>
+                      <span class="survey-tag active" data-value="family">👨‍👩‍👧 親子家庭</span>
+                      <span class="survey-tag" data-value="survival">🌿 野外求生</span>
+                      <span class="survey-tag" data-value="fishing">🎣 釣魚露營</span>
+                    </div>
+                  </div>
+
+                  <div style="padding:0 0.5rem;">
+                    <button type="submit" class="btn btn-primary">💾 儲存修改</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               Panel 3：我的訂單 (orders)
+               ======================================== -->
+          <div class="member-panel" data-panel="orders">
+            <div class="card" style="border-radius:12px;">
+              <div class="card-body" style="padding:1.5rem;">
+                <h5 style="color:#244d4d;margin-bottom:1.25rem;">📦 我的訂單</h5>
+
+                <!-- 狀態篩選 Tab -->
+                <div class="order-status-tabs">
+                  <button class="order-status-tab active" data-filter="all">全部</button>
+                  <button class="order-status-tab" data-filter="processing">處理中</button>
+                  <button class="order-status-tab" data-filter="shipped">已出貨</button>
+                  <button class="order-status-tab" data-filter="delivered">已完成</button>
+                  <button class="order-status-tab" data-filter="cancelled">已取消</button>
+                </div>
+
+                <!-- 訂單清單（由 JS 動態渲染）-->
+                <div id="ordersList">
+                  <div style="text-align:center;padding:2rem;color:#999;">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;">📦</div>
+                    載入訂單中...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               Panel 4：折價券 (coupons)
+               ======================================== -->
+          <div class="member-panel" data-panel="coupons">
+            <div class="card" style="border-radius:12px;">
+              <div class="card-body" style="padding:1.5rem;">
+                <h5 style="color:#244d4d;margin-bottom:1.25rem;">🎫 我的折價券</h5>
+
+                <!-- 折價券狀態切換 Tab -->
+                <div class="order-status-tabs" style="margin-bottom:1.5rem;">
+                  <button class="order-status-tab active" data-coupon-tab="active">可使用</button>
+                  <button class="order-status-tab" data-coupon-tab="expired">已失效</button>
+                </div>
+
+                <!-- 可使用折價券清單 -->
+                <div id="activeCoupons">
+                  <!-- 由 JS 渲染 -->
+                </div>
+
+                <!-- 已失效折價券清單 -->
+                <div id="expiredCoupons" style="display:none;">
+                  <!-- 由 JS 渲染 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ========================================
+               Panel 5：通知 (notifications)
+               ======================================== -->
+          <div class="member-panel" data-panel="notifications">
+            <div class="card" style="border-radius:12px;">
+              <div class="card-body" style="padding:1.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                  <h5 style="color:#244d4d;margin-bottom:0;">🔔 通知中心</h5>
+                  <button class="btn btn-outline" style="font-size:0.8rem;padding:0.35rem 0.85rem;" id="markAllReadBtn">全部標為已讀</button>
+                </div>
+
+                <!-- 通知清單（由 JS 渲染）-->
+                <div id="notificationList">
+                  <!-- 由 JS 渲染 -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /member-content -->
+      </div><!-- /member-layout -->
+    </div><!-- /container -->
+  </main>
+
+  <!-- ===================================================
+       登入 Modal
+       =================================================== -->
+  <div id="loginModal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:420px;">
+      <div class="modal-header"><h5 class="modal-title">歡迎加入 🏕️</h5><button class="modal-close">✕</button></div>
+      <div class="modal-body">
+        <div class="modal-tabs"><button class="modal-tab-btn active" data-tab="login">登入</button><button class="modal-tab-btn" data-tab="register">免費註冊</button></div>
+        <div class="modal-tab-panel active" data-panel="login">
+          <form id="loginEmailForm" novalidate>
+            <div class="mb-md"><label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">電子郵件</label><input type="email" name="email" placeholder="your@email.com" required></div>
+            <div class="mb-lg"><label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">密碼</label><input type="password" name="password" placeholder="輸入密碼" required></div>
+            <button type="submit" class="btn btn-primary btn-block">登入</button>
+          </form>
+          <div class="divider-or">或使用社群帳號登入</div>
+          <button class="btn-google-login" type="button"><svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>使用 Google 登入</button>
+          <button class="btn-line-login" type="button"><svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386a.631.631 0 0 1-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016a.63.63 0 0 1-.63.629.622.622 0 0 1-.601-.452l-1.59-2.161v1.984a.629.629 0 1 1-1.258 0V8.108c0-.345.282-.63.63-.63.261 0 .487.162.592.397l1.598 2.162V8.108a.63.63 0 1 1 1.259 0v4.771zm-5.822 0a.631.631 0 0 1-1.261 0V8.108a.63.63 0 1 1 1.261 0v4.771zm-2.475.629H4.827a.631.631 0 0 1-.63-.629V8.108c0-.345.283-.63.63-.63a.63.63 0 0 1 .63.63v4.141h1.756a.63.63 0 0 1 0 1.259zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314z"/></svg>使用 LINE 登入</button>
+        </div>
+        <div class="modal-tab-panel" data-panel="register">
+          <form id="registerForm" novalidate>
+            <div class="mb-md"><label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">姓名</label><input type="text" name="name" placeholder="露友小明" required></div>
+            <div class="mb-md"><label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">電子郵件</label><input type="email" name="email" placeholder="your@email.com" required></div>
+            <div class="mb-lg"><label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">設定密碼</label><input type="password" name="password" placeholder="至少 8 個字元" minlength="8" required></div>
+            <button type="submit" class="btn btn-primary btn-block">立即註冊</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       個人化問卷 Modal
+       =================================================== -->
+  <div id="personalizationModal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:480px;">
+      <div class="modal-header"><h5 class="modal-title">告訴我們你的喜好 🎯</h5><button class="modal-close">✕</button></div>
+      <div class="modal-body">
+        <div class="stepper-header"><div class="stepper-dot active">1</div><div class="stepper-line"></div><div class="stepper-dot">2</div><span class="stepper-text">1 / 2</span></div>
+        <div class="survey-step active" data-step="1">
+          <p class="survey-question">你喜歡哪種露營風格？</p>
+          <div class="survey-tags"><span class="survey-tag" data-value="glamping">✨ 豪華露營</span><span class="survey-tag" data-value="backpacking">🎒 輕量背包客</span><span class="survey-tag" data-value="family">👨‍👩‍👧 親子家庭</span></div>
+          <button id="surveyNextBtn" class="btn btn-primary btn-block">下一步 →</button>
+        </div>
+        <div class="survey-step" data-step="2">
+          <p class="survey-question">你最想添購哪類裝備？</p>
+          <div class="survey-tags"><span class="survey-tag" data-value="tent">⛺ 帳篷</span><span class="survey-tag" data-value="backpack">🎒 登山背包</span><span class="survey-tag" data-value="cooking">🍳 炊具</span></div>
+          <button id="surveyFinishBtn" class="btn btn-primary btn-block">完成設定 ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       訂單詳情 Modal
+       =================================================== -->
+  <div id="orderDetailModal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:540px;">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderDetailTitle">訂單詳情</h5>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="orderDetailBody">
+        <!-- 由 JS 動態填充 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       寫評價 Modal
+       =================================================== -->
+  <div id="reviewModal" class="modal" role="dialog" aria-modal="true">
+    <div class="modal-content" style="max-width:460px;">
+      <div class="modal-header">
+        <h5 class="modal-title">⭐ 商品評價</h5>
+        <button class="modal-close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="reviewProductName" style="font-size:0.875rem;font-weight:600;color:#244d4d;margin-bottom:1rem;"></div>
+        <!-- 星星評分（CSS 技巧：direction:rtl 實現 hover 效果）-->
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-weight:600;margin-bottom:0.5rem;font-size:0.875rem;">評分</label>
+          <div class="star-input-group" id="starInputGroup">
+            <input type="radio" name="reviewRating" id="star5" value="5"><label for="star5">★</label>
+            <input type="radio" name="reviewRating" id="star4" value="4"><label for="star4">★</label>
+            <input type="radio" name="reviewRating" id="star3" value="3"><label for="star3">★</label>
+            <input type="radio" name="reviewRating" id="star2" value="2"><label for="star2">★</label>
+            <input type="radio" name="reviewRating" id="star1" value="1"><label for="star1">★</label>
+          </div>
+        </div>
+        <div class="mb-md">
+          <label style="display:block;font-weight:600;margin-bottom:0.35rem;font-size:0.875rem;">評論內容</label>
+          <textarea id="reviewContent" rows="4" placeholder="分享你的使用心得..." style="width:100%;padding:0.65rem;border:1px solid #e0e0e0;border-radius:8px;font-size:0.875rem;resize:vertical;"></textarea>
+        </div>
+        <button class="btn btn-primary btn-block" id="submitReviewBtn">送出評價</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================
+       頁腳 Footer
+       =================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 mb-lg"><h5>🏕️ Yuruicamp</h5><p class="text-sm text-muted">探索戶外，從這裡開始</p></div>
+        <div class="col-lg-3 col-md-6 mb-lg"><h6>快速連結</h6><ul class="list-unstyled"><li><a href="home.html">首頁</a></li><li><a href="products.html">商品</a></li><li><a href="blog.html">部落格</a></li></ul></div>
+        <div class="col-lg-3 col-md-6 mb-lg"><h6>聯絡方式</h6><p class="text-sm">電話：0800-123-456</p><p class="text-sm">信箱：support@yuruicamp.com</p></div>
+        <div class="col-lg-3 col-md-6 mb-lg"><h6>關注我們</h6><div class="social-links"><a href="https://facebook.com" target="_blank" style="color:#1877f2;">Facebook</a><a href="https://instagram.com" target="_blank" style="color:#e1306c;">Instagram</a></div></div>
+      </div>
+      <hr>
+      <div class="text-center text-sm text-muted"><p>&copy; 2026 Yuruicamp 露營選物品牌. 版權所有。</p></div>
+    </div>
+  </footer>
+
+  <!-- 浮動 LINE 客服按鈕 -->
+  <a href="https://line.me/R/ti/p/@yuruicamp" target="_blank" rel="noopener" class="floating-line-btn" title="LINE 客服"><svg width="28" height="28" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386a.631.631 0 0 1-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016a.63.63 0 0 1-.63.629.622.622 0 0 1-.601-.452l-1.59-2.161v1.984a.629.629 0 1 1-1.258 0V8.108c0-.345.282-.63.63-.63.261 0 .487.162.592.397l1.598 2.162V8.108a.63.63 0 1 1 1.259 0v4.771zm-5.822 0a.631.631 0 0 1-1.261 0V8.108a.63.63 0 1 1 1.261 0v4.771zm-2.475.629H4.827a.631.631 0 0 1-.63-.629V8.108c0-.345.283-.63.63-.63a.63.63 0 0 1 .63.63v4.141h1.756a.63.63 0 0 1 0 1.259zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314z"/></svg></a>
+
+  <!-- ===================================================
+       Script 載入順序（順序很重要！）
+       =================================================== -->
+  <script src="../js/config.js" defer></script>
+  <script src="../js/api-mock.js" defer></script>
+  <script src="../js/components/toast.js" defer></script>
+  <script src="../js/components/modal.js" defer></script>
+  <script src="../js/components/navbar.js" defer></script>
+  <script src="../js/components/cart.js" defer></script>
+  <script src="../js/pages/member-center.js" defer></script>
+  <script src="../js/main.js" defer></script>
+
+</body>
+</html>
+
+
