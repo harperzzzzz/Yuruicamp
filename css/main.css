@@ -1768,15 +1768,13 @@ hr {
   background: linear-gradient(135deg, #1a3838 0%, #244d4d 40%, #316868 70%, #4a7777 100%);
 }
 
-/* 背景影片 */
+/* 背景影片：inset:0 = top/right/bottom/left 全部設為 0，讓影片撐滿整個 section */
 .hero-banner video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  transform: translate(-50%, -50%);
-  object-fit: cover;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 等比例縮放填滿，不變形 */
   z-index: 0;
 }
 
@@ -3577,7 +3575,8 @@ hr {
   background: #fff;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
-  padding: 1.25rem;
+  /* padding 由子區塊各自控制 / padding handled by child blocks */
+  overflow: hidden;
   cursor: pointer;
   transition: border-color 200ms, box-shadow 200ms;
 }
@@ -3585,9 +3584,23 @@ hr {
 .branch-card:hover { border-color: #779999; box-shadow: 0 4px 15px rgba(36,77,77,0.1); }
 .branch-card.active { border-color: #244d4d; box-shadow: 0 4px 15px rgba(36,77,77,0.15); }
 
-.branch-card-name { font-size: 1rem; font-weight: 700; color: #244d4d; margin-bottom: 0.5rem; }
+/* 上區塊：店名（淺綠底色）/ Top block: branch name with light green background */
+.branch-card-header {
+  background: #f0f7f7;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #244d4d;
+}
+
+/* 下區塊：聯絡資訊 + 標籤 / Bottom block: contact info + tags */
+.branch-card-body {
+  padding: 0.85rem 1.25rem;
+}
+
 .branch-card-info { font-size: 0.8rem; color: #666; margin-bottom: 0.25rem; display: flex; gap: 0.5rem; }
-.branch-card-features { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
+/* 標籤橫排 / Feature tags in a horizontal row */
+.branch-card-features { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
 .branch-feature-tag { font-size: 0.7rem; background: #f6fbf6; color: #244d4d; border: 1px solid #c3dede; padding: 0.15rem 0.5rem; border-radius: 50px; }
 
 .branch-map-wrap {
@@ -4079,8 +4092,9 @@ img {
   .order-card { padding: 0.75rem; }
   .order-card-products { flex-wrap: wrap; gap: 0.5rem; }
 
-  /* 分店卡片：縮小 */
-  .branch-card { padding: 0.75rem; }
+  /* 分店卡片：縮小內距 / Reduce branch card inner padding on small screens */
+  .branch-card-header { padding: 0.6rem 0.85rem; }
+  .branch-card-body { padding: 0.6rem 0.85rem; }
 
   /* 部落格卡片文字縮小 */
   .blog-card-title { font-size: 0.875rem; }

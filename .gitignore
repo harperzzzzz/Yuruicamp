@@ -42,3 +42,6 @@ temp/
 *.css（若使用自動編譯 SCSS）
 # 保留 main.css 用於生產環境
 !css/main.css
+
+# 影片檔案
+assets/videos/hero_video.mp4

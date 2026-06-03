@@ -77,27 +77,33 @@ function buildBranchCard(branch, isFirst) {
          data-branch-id="${branch.id}"
          data-map-query="${encodeURIComponent(branch.mapQuery)}"
          data-address="${encodeURIComponent(branch.address)}">
-      <!-- 店名 -->
-      <div class="branch-card-name">${branch.name}</div>
-      <!-- 地址 -->
-      <div class="branch-card-info">
-        <span>📍</span>
-        <span>${branch.address}</span>
+
+      <!-- 上區塊：店名（淺綠底色）/ Top block: branch name (light green background) -->
+      <div class="branch-card-header">${branch.name}</div>
+
+      <!-- 下區塊：聯絡資訊 + 特色標籤 / Bottom block: contact info + feature tags -->
+      <div class="branch-card-body">
+        <!-- 地址 / Address -->
+        <div class="branch-card-info">
+          <span>📍</span>
+          <span>${branch.address}</span>
+        </div>
+        <!-- 電話 / Phone -->
+        <div class="branch-card-info">
+          <span>📞</span>
+          <span>${branch.phone}</span>
+        </div>
+        <!-- 營業時間 / Hours -->
+        <div class="branch-card-info">
+          <span>🕐</span>
+          <span>${branch.hours}</span>
+        </div>
+        <!-- 特色標籤（橫排）/ Feature tags (horizontal row) -->
+        <div class="branch-card-features">
+          ${featureTagsHTML}
+        </div>
       </div>
-      <!-- 電話 -->
-      <div class="branch-card-info">
-        <span>📞</span>
-        <span>${branch.phone}</span>
-      </div>
-      <!-- 營業時間 -->
-      <div class="branch-card-info">
-        <span>🕐</span>
-        <span>${branch.hours}</span>
-      </div>
-      <!-- 特色標籤 -->
-      <div class="branch-card-features">
-        ${featureTagsHTML}
-      </div>
+
     </div>
   `;
 }

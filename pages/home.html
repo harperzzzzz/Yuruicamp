@@ -206,19 +206,11 @@
          ================================================ -->
     <section class="hero-banner" id="heroBanner">
 
-      <!-- 可替換為真實影片（需放 assets/videos/hero.mp4）-->
-      <!-- <video autoplay loop muted playsinline>
-        <source src="../assets/videos/hero.mp4" type="video/mp4">
-      </video> -->
-
-      <!-- 背景圖（使用 picsum 隨機自然風景） -->
-      <img
-        src="https://picsum.photos/seed/camping-hero/1600/900"
-        alt=""
-        aria-hidden="true"
-        style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0;"
-        loading="eager"
-      >
+      <!-- 背景影片（檔案路徑：assets/videos/hero_video.mp4）
+           影片載入前或不支援時，會顯示 .hero-banner 的漸層背景色作為備援 -->
+      <video autoplay loop muted playsinline>
+        <source src="../assets/videos/hero_video.mp4" type="video/mp4">
+      </video>
 
       <div class="hero-content">
         <p class="hero-tagline">探索台灣戶外</p>
@@ -230,9 +222,6 @@
         </div>
       </div>
 
-      <div class="hero-scroll-hint">
-        ↓ 向下探索
-      </div>
     </section>
 
     <!-- ================================================

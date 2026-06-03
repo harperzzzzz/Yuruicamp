@@ -776,6 +776,7 @@ window.AppState = {
 1. ✅ 分店卡片點擊更新地圖 — `js/pages/branches.js` → `updateMap(mapQuery, address)`
 2. ✅ 「規劃路線」按鈕正常 — `branches.html` → `maps.google.com/maps/search/` href
 3. ✅ 合作店家卡片彈出 Modal — `branches.js` → partner detail modal
+4. ✅ 分店卡片上下區塊排版正確 — 上方 `.branch-card-header`（淺綠底色店名）/ 下方 `.branch-card-body`（地址、電話、時間各一行，標籤橫排）
 
 **客服**：
 1. ✅ QA Accordion 展開/收合 — `pages/faq.html` + `js/pages/faq.js` → custom accordion
@@ -821,7 +822,7 @@ window.AppState = {
 
 ## 進度追蹤
 
-> **最後更新**：2026/06/03　**整體完成度**：✅ 100%（所有 14 階段已完成並驗證）
+> **最後更新**：2026/06/03　**整體完成度**：✅ 100%（所有 14 階段已完成並驗證）+ Hero Banner 清理
 
 | 階段 | 主要產出物 | 狀態 | 完成日期 |
 |------|-----------|------|---------|
@@ -840,7 +841,9 @@ window.AppState = {
 | **第 13 階段**（RWD 完善） | `main.css` 新增 600+ 行 RWD：5 個斷點、Touch Target 44px、iOS Safe Area、Body Scroll Lock | ✅ 已完成 | 2026/06/03 |
 | **第 14 階段**（效能優化） | 12 頁 `preconnect` + `theme-color`、全站 `defer`、Lazy Loading Fallback、瀏覽器相容 CSS、`pages/verify.html`（51 項驗證） | ✅ 已完成 | 2026/06/03 |
 | **修復：Navbar Offcanvas** | `main.css` 補齊 `.navbar-offcanvas` 定位 CSS（`position:fixed; left:0; transform:translateX(-100%)`），修復手機側欄直接顯示在頁面的問題；同步清除 12 個 HTML 頁面 offcanvas 內帶 inline style 的重複導覽 `<ul>`，改由 CSS class 統一控制樣式 | ✅ 已完成 | 2026/06/03 |
-| **總計** | **48 個檔案**、**4489 行 CSS**、**11 頁 HTML**、**17 個 JS 模組** | ✅ 全部完成 | 2026/06/03 |
+| **修復：Hero Banner 清理** | `pages/home.html` 移除 picsum `<img>` 備援層（與 video 同 z-index 導致圖片蓋住影片）；`css/main.css` 的 `.hero-banner video` 改用 `inset:0` 現代定位寫法，移除舊式 `top:50%/left:50%/transform` 組合 | ✅ 已完成 | 2026/06/03 |
+| **調整：分店卡片排版** | `js/pages/branches.js` `buildBranchCard()` 拆成 `.branch-card-header`（店名）+ `.branch-card-body`（資訊+標籤）；`css/main.css` 新增對應樣式，上方淺綠底色（`#f0f7f7`），標籤橫排 | ✅ 已完成 | 2026/06/03 |
+| **總計** | **48 個檔案**、**11 頁 HTML**、**17 個 JS 模組** | ✅ 全部完成 | 2026/06/03 |
 
 ### 關鍵數字統計
 
@@ -865,6 +868,7 @@ window.AppState = {
 6. ✅ 效能優化與瀏覽器相容性（第 14 階段）
 7. ✅ 驗證步驟執行與進度更新（2026/06/03）
 8. ✅ 修復 Navbar Offcanvas CSS 定位缺失問題，清除 12 個頁面的重複 inline-style 導覽清單（2026/06/03）
+9. ✅ 修復 Hero Banner img 層蓋住 video 的問題，移除 picsum 備援圖片，更新 video CSS 為現代 inset 寫法（2026/06/03）
 
 ### 若需後續擴展，建議方向
 
