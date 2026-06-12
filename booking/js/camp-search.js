@@ -26,6 +26,9 @@ $(document).ready(function () {
   // 步驟 2：綁定篩選器事件 / Step 2: Bind filter events
   bindFilterEvents();
 
+  // 日期欄位限制 / Date range constraints
+  initDateRangeValidation();
+
   // 步驟 3：行動版篩選器展開/收合 / Step 3: Mobile filter toggle
   $('#filterToggle').on('click', function () {
     const $body = $('#filterBody');
@@ -182,6 +185,34 @@ function bindFilterEvents() {
     $('#regionFilter').val('');
     filterCampgrounds();
   });
+}
+
+/**
+ * 讓結束日期不能早於預約日期。
+ * Keep the end date from being earlier than the booking date.
+ */
+function initDateRangeValidation() {
+  const $checkInDate = $('#checkInDate');
+  const $checkOutDate = $('#checkOutDate');
+
+  function syncCheckOutMinDate() {
+    const checkInValue = $checkInDate.val();
+
+    if (checkInValue) {
+      $checkOutDate.attr('min', checkInValue);
+    } else {
+      $checkOutDate.removeAttr('min');
+    }
+
+    if (checkInValue && $checkOutDate.val() && $checkOutDate.val() < checkInValue) {
+      $checkOutDate.val(checkInValue);
+    }
+  }
+
+  $checkInDate.on('change', syncCheckOutMinDate);
+  $checkOutDate.on('change', syncCheckOutMinDate);
+
+  syncCheckOutMinDate();
 }
 
 /**
