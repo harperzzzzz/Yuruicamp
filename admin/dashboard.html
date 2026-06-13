@@ -46,6 +46,11 @@
         <span>訂單管理</span>
       </a>
       <a href="#" class="sidebar-link"
+         data-section="movement" data-title="庫存異動紀錄">
+        <i class="fas fa-right-left"></i>
+        <span>庫存異動紀錄</span>
+      </a>
+      <a href="#" class="sidebar-link"
          data-section="products" data-title="商品與庫存">
         <i class="fas fa-box-open"></i>
         <span>商品與庫存</span>
@@ -103,6 +108,10 @@
         <a href="#" class="sidebar-link"
            data-section="orders" data-title="訂單管理">
           <i class="fas fa-shopping-bag"></i><span>訂單管理</span>
+        </a>
+        <a href="#" class="sidebar-link"
+           data-section="movement" data-title="庫存異動紀錄">
+          <i class="fas fa-right-left"></i><span>庫存異動紀錄</span>
         </a>
         <a href="#" class="sidebar-link"
            data-section="products" data-title="商品與庫存">
@@ -309,6 +318,15 @@
               <div class="invalid-feedback">請輸入商品名稱</div>
             </div>
 
+            <!-- 商品描述：只作為表單輸入欄位，不寫回 JSON、不渲染到商品列表 -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="newProductDescription">
+                商品描述
+              </label>
+              <textarea class="form-control" id="newProductDescription"
+                        rows="3" placeholder="請填入商品描述"></textarea>
+            </div>
+
             <!-- 商品圖片 -->
             <div class="row g-2 mb-3">
               <div class="col-6">
@@ -365,6 +383,21 @@
               </div>
             </div>
 
+            <!-- 租借商品設定 -->
+            <div class="mb-3">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="newProductIsRental">
+                <label class="form-check-label fw-semibold" for="newProductIsRental">
+                  是否為租借商品
+                </label>
+              </div>
+              <div class="mt-2 d-none" id="rentalCampField">
+                <label class="form-label fw-semibold" for="newRentalCamp">存放營地: </label>
+                <input type="text" class="form-control" id="newRentalCamp"
+                       placeholder="例：湖畔星空營地">
+              </div>
+            </div>
+
             <!-- Modal Footer 放在 form 內部，確保 submit 可觸發 -->
             <div class="d-flex justify-content-end gap-2 pt-2 border-top mt-3">
               <button type="button" class="btn btn-secondary"
@@ -395,6 +428,7 @@
   <script src="js/core.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/orders.js"></script>
+  <script src="js/movement.js"></script>
   <script src="js/products.js"></script>
   <script src="js/customers.js"></script>
   <script src="js/discounts.js"></script>
