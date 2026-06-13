@@ -42,13 +42,14 @@
             <th>庫存</th>
             <th>狀態</th>
             <th>上架切換</th>
+            <th>操作</th>
           </tr>
         </thead>
         <!-- tbody 由 products.js 的 renderProductsTable() 動態填入 -->
         <!-- 庫存 < 5 的列：JS 會自動加上 table-danger class（淡紅底色） -->
         <tbody id="productsTableBody">
           <tr>
-            <td colspan="7" class="text-center py-4">
+            <td colspan="8" class="text-center py-4">
               <div class="spinner-border spinner-border-sm me-2"
                    style="color: var(--admin-brand-accent);"></div>
               <span class="text-muted">載入商品中...</span>

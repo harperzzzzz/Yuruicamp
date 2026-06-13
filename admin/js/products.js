@@ -7,17 +7,28 @@
  * 低庫存（stock < 5）的 <tr> 加上 table-danger class，整列顯示淡紅色背景
  */
 
+var PRODUCT_IMAGE_PLACEHOLDER = 'https://placehold.co/48x48/cccccc/555555?text=No+Image';
+var adminProductsCache = [];
+
 window.initProducts = function () {
   $(document).off('.products');
 
   $.getJSON('data/products.json', function (products) {
+    adminProductsCache = products || [];
     renderProductsTable(products);
   }).fail(function () {
     $('#productsTableBody').html(
-      '<tr><td colspan="7" class="text-center text-danger py-4">' +
+      '<tr><td colspan="8" class="text-center text-danger py-4">' +
       '<i class="fas fa-exclamation-triangle me-2"></i>載入商品數據失敗' +
       '</td></tr>'
     );
+  });
+
+  loadProductSpecOptions();
+
+  // 從列表開啟新增商品 Modal 時，清空上一次編輯狀態
+  $(document).on('click.products', '[data-bs-target="#addProductModal"]:not(.edit-product-btn)', function () {
+    resetProductModalForm();
   });
 
   // 庫存 inline editing：點擊鉛筆圖示進入編輯
@@ -98,48 +109,286 @@ window.initProducts = function () {
     window.showAdminToast('商品 ' + productId + ' 已更新為' + (isOnline ? '「上架中」' : '「已下架」'));
   });
 
+  // 編輯商品：使用同一個新增商品 Modal，並從 admin/data/products.json 帶入資料
+  $(document).on('click.products', '.edit-product-btn', function () {
+    var productId = $(this).closest('tr').data('product-id');
+    var product = findAdminProductById(productId);
+
+    if (!product) {
+      window.showAdminToast('找不到商品 ' + productId + ' 的資料', 'danger');
+      return;
+    }
+
+    fillProductModal(product);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addProductModal')).show();
+  });
+
+  // 新增規格欄位
+  $(document).on('click.products', '#addSpec', function () {
+    var specKey = $('#newProductSpec').val().trim();
+    if (!specKey) {
+      window.showAdminToast('請先輸入或選擇規格名稱', 'danger');
+      return;
+    }
+
+    var isDuplicate = $('#productSpecFields input[data-spec-key]').toArray().some(function (input) {
+      return input.id === specKey;
+    });
+
+    if (isDuplicate) {
+      window.showAdminToast('此規格欄位已存在', 'danger');
+      return;
+    }
+
+    var $field = $('<div>', { class: 'mb-2 product-spec-field' });
+    var $label = $('<label>', { class: 'form-label small text-muted mb-1' })
+      .attr('for', specKey)
+      .text(specKey);
+    var $input = $('<input>', {
+      type: 'text',
+      class: 'form-control form-control-sm'
+    })
+      .attr('id', specKey)
+      .attr('data-spec-key', specKey);
+
+    $field.append($label, $input);
+    $('#productSpecFields').append($field);
+    $('#newProductSpec').val('').trigger('focus');
+  });
+
   // 新增商品
   $(document).on('click.products', '#submitAddProduct', function () {
-    var name     = $('#newProductName').val().trim();
-    var price    = parseInt($('#newProductPrice').val(), 10) || 0;
-    var stock    = parseInt($('#newProductStock').val(), 10) || 0;
-    var category = $('#newProductCategory').val().trim();
+    var name               = $('#newProductName').val().trim();
+    var price              = parseInt($('#newProductPrice').val(), 10) || 0;
+    var stock              = parseInt($('#newProductStock').val(), 10) || 0;
+    var category           = $('#newProductCategory').val().trim();
+    var mainImageInput     = $('#newProductMainImage')[0];
+    var secondaryImageInput = $('#newProductImages')[0];
+    var mainImageFile      = mainImageInput && mainImageInput.files.length > 0
+      ? mainImageInput.files[0]
+      : null;
+    var secondaryImageFiles = secondaryImageInput
+      ? Array.prototype.slice.call(secondaryImageInput.files)
+      : [];
+    var specifications = getAddedSpecifications();
+    var $form = $('#addProductForm');
+    var editProductId = $form.data('edit-product-id');
+    var existingThumbnail = $form.data('existing-thumbnail');
+    var existingImages = $form.data('existing-images') || [];
+    var existingStatus = $form.data('existing-status') || 'active';
 
     if (!name || price <= 0) {
       window.showAdminToast('請填寫商品名稱和有效的價格', 'danger');
       return;
     }
 
-    var isLow = stock < 5;
-    var qtyDisplay = isLow
-      ? '<span class="text-danger fw-bold">' + stock + ' <i class="fas fa-exclamation-triangle"></i></span>'
-      : '<span>' + stock + '</span>';
+    var newProduct = {
+      id: editProductId || 'P-NEW-' + Date.now(),
+      thumbnail: mainImageFile ? URL.createObjectURL(mainImageFile) : (existingThumbnail || PRODUCT_IMAGE_PLACEHOLDER),
+      name: name,
+      category: category || '其他',
+      spec: $('#newProductSpec').val().trim(),
+      price: price,
+      stock: stock,
+      status: existingStatus,
+      images: secondaryImageFiles.length > 0
+        ? secondaryImageFiles.map(function (file) {
+          return file.name;
+        })
+        : existingImages,
+      specifications: specifications
+    };
 
-    var tempId = 'P-NEW-' + Date.now();
-    var newRow =
-      '<tr data-product-id="' + tempId + '"' + (isLow ? ' class="table-danger"' : '') + '>' +
-      '<td><img src="https://placehold.co/48x48/cccccc/555555?text=No+Image"' +
-      ' width="48" height="48" class="rounded object-fit-cover"></td>' +
-      '<td>' + name + '</td>' +
-      '<td><span class="badge bg-light text-dark border">' + (category || '其他') + '</span></td>' +
-      '<td>NT$ ' + price.toLocaleString() + '</td>' +
-      '<td class="stock-cell">' +
-      qtyDisplay +
-      ' <button class="btn btn-link btn-sm p-0 ms-1 stock-edit-btn" data-qty="' + stock + '" title="編輯庫存">' +
-      '<i class="fas fa-pencil-alt text-secondary"></i></button>' +
-      '</td>' +
-      '<td><span class="badge bg-success status-badge">上架中</span></td>' +
-      '<td><div class="form-check form-switch">' +
-      '<input class="form-check-input product-status-toggle" type="checkbox" checked>' +
-      '</div></td>' +
-      '</tr>';
+    upsertAdminProductCache(newProduct);
 
-    $('#productsTableBody').prepend($(newRow).hide().fadeIn(400));
-    $('#addProductForm')[0].reset();
-    bootstrap.Modal.getInstance('#addProductModal').hide();
-    window.showAdminToast('商品「' + name + '」已新增');
+    if (editProductId) {
+      $('#productsTableBody tr[data-product-id="' + escapeSelector(editProductId) + '"]')
+        .replaceWith($(buildProductRow(newProduct)).hide().fadeIn(400));
+    } else {
+      $('#productsTableBody').prepend($(buildProductRow(newProduct)).hide().fadeIn(400));
+    }
+
+    resetProductModalForm();
+
+    var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('addProductModal'));
+    modal.hide();
+
+    window.showAdminToast('商品「' + name + '」已' + (editProductId ? '更新' : '新增'));
   });
 };
+
+/**
+ * 從前台 data/products.json 的 specifications 物件收集不重複 key，填入 datalist。
+ */
+function loadProductSpecOptions() {
+  var $specOptions = $('#productSpecOptions');
+  if ($specOptions.length === 0) {
+    return;
+  }
+
+  $.getJSON('../data/products.json', function (products) {
+    var keyMap = {};
+    (products || []).forEach(function (product) {
+      if (!product.specifications || typeof product.specifications !== 'object') {
+        return;
+      }
+
+      Object.keys(product.specifications).forEach(function (key) {
+        keyMap[key] = true;
+      });
+    });
+
+    var optionsHtml = Object.keys(keyMap).sort().map(function (key) {
+      return '<option value="' + escapeHtml(key) + '"></option>';
+    }).join('');
+
+    $specOptions.html(optionsHtml);
+  }).fail(function () {
+    window.showAdminToast('載入規格選項失敗', 'danger');
+  });
+}
+
+function getAddedSpecifications() {
+  var specifications = {};
+
+  $('#productSpecFields input[data-spec-key]').each(function () {
+    var key = $(this).attr('data-spec-key');
+    var value = $(this).val().trim();
+
+    if (key && value) {
+      specifications[key] = value;
+    }
+  });
+
+  return specifications;
+}
+
+function findAdminProductById(productId) {
+  return (adminProductsCache || []).find(function (product) {
+    return product.id === productId;
+  });
+}
+
+function fillProductModal(product) {
+  resetProductModalForm();
+
+  $('#addProductForm')
+    .data('edit-product-id', product.id)
+    .data('existing-thumbnail', product.thumbnail || PRODUCT_IMAGE_PLACEHOLDER)
+    .data('existing-images', product.images || [])
+    .data('existing-status', product.status || 'active');
+
+  $('#newProductName').val(product.name || '');
+  $('#newProductCategory').val(product.category || '');
+  $('#newProductSpec').val(product.spec || '');
+  $('#newProductPrice').val(product.price || '');
+  $('#newProductStock').val(product.stock || 0);
+
+  if (product.specifications && typeof product.specifications === 'object') {
+    Object.keys(product.specifications).forEach(function (key) {
+      addSpecificationField(key, product.specifications[key]);
+    });
+  }
+}
+
+function resetProductModalForm() {
+  var form = $('#addProductForm')[0];
+  if (form) {
+    form.reset();
+  }
+
+  $('#addProductForm')
+    .removeData('edit-product-id')
+    .removeData('existing-thumbnail')
+    .removeData('existing-images')
+    .removeData('existing-status');
+  $('#productSpecFields').empty();
+}
+
+function addSpecificationField(specKey, value) {
+  if (!specKey) {
+    return;
+  }
+
+  var $field = $('<div>', { class: 'mb-2 product-spec-field' });
+  var $label = $('<label>', { class: 'form-label small text-muted mb-1' })
+    .attr('for', specKey)
+    .text(specKey);
+  var $input = $('<input>', {
+    type: 'text',
+    class: 'form-control form-control-sm'
+  })
+    .attr('id', specKey)
+    .attr('data-spec-key', specKey)
+    .val(value || '');
+
+  $field.append($label, $input);
+  $('#productSpecFields').append($field);
+}
+
+function upsertAdminProductCache(product) {
+  var index = adminProductsCache.findIndex(function (item) {
+    return item.id === product.id;
+  });
+
+  if (index >= 0) {
+    adminProductsCache[index] = product;
+  } else {
+    adminProductsCache.unshift(product);
+  }
+}
+
+function buildProductRow(p) {
+  var isLow    = p.stock < 5;
+  var isActive = p.status === 'active';
+  var rowClass = isLow ? ' class="table-danger"' : '';
+  var stockDisplay = isLow
+    ? '<span class="text-danger fw-bold">' + p.stock +
+      ' <i class="fas fa-exclamation-triangle" title="低庫存警告"></i></span>'
+    : '<span>' + p.stock + '</span>';
+  var statusBadge = isActive
+    ? '<span class="badge bg-success status-badge">上架中</span>'
+    : '<span class="badge bg-secondary status-badge">已下架</span>';
+  var imgSrc = p.thumbnail || PRODUCT_IMAGE_PLACEHOLDER;
+
+  return '<tr data-product-id="' + escapeHtml(p.id) + '"' + rowClass + '>' +
+    '<td><img src="' + escapeHtml(imgSrc) + '" width="48" height="48" class="rounded object-fit-cover"' +
+    ' onerror="this.src=\'' + PRODUCT_IMAGE_PLACEHOLDER + '\'"></td>' +
+    '<td class="fw-semibold">' + escapeHtml(p.name) + '</td>' +
+    '<td><span class="badge bg-light text-dark border">' + escapeHtml(p.category || '—') + '</span></td>' +
+    '<td>NT$ ' + p.price.toLocaleString() + '</td>' +
+    '<td class="stock-cell">' +
+    stockDisplay +
+    ' <button class="btn btn-link btn-sm p-0 ms-1 stock-edit-btn" data-qty="' + p.stock + '" title="編輯庫存">' +
+    '<i class="fas fa-pencil-alt text-secondary"></i></button>' +
+    '</td>' +
+    '<td>' + statusBadge + '</td>' +
+    '<td><div class="form-check form-switch">' +
+    '<input class="form-check-input product-status-toggle" type="checkbox" ' + (isActive ? 'checked' : '') + '>' +
+    '</div></td>' +
+    '<td>' +
+    '<button type="button" class="btn btn-sm btn-outline-secondary edit-product-btn" title="編輯商品">' +
+    '<i class="fas fa-pen me-1"></i>編輯' +
+    '</button>' +
+    '</td>' +
+    '</tr>';
+}
+
+function escapeSelector(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, function (char) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[char];
+  });
+}
 
 /**
  * 將 products 陣列渲染成 HTML 表格列，填入 #productsTableBody
@@ -148,45 +397,13 @@ window.initProducts = function () {
 function renderProductsTable(products) {
   if (!products || products.length === 0) {
     $('#productsTableBody').html(
-      '<tr><td colspan="7" class="text-center text-muted py-4">目前沒有商品</td></tr>'
+      '<tr><td colspan="8" class="text-center text-muted py-4">目前沒有商品</td></tr>'
     );
     return;
   }
 
   var html = products.map(function (p) {
-    var isLow    = p.stock < 5;
-    var isActive = p.status === 'active';
-
-    // 低庫存整列套用 Bootstrap table-danger（淡紅色背景）
-    var rowClass = isLow ? ' class="table-danger"' : '';
-
-    var stockDisplay = isLow
-      ? '<span class="text-danger fw-bold">' + p.stock +
-        ' <i class="fas fa-exclamation-triangle" title="低庫存警告"></i></span>'
-      : '<span>' + p.stock + '</span>';
-
-    var statusBadge = isActive
-      ? '<span class="badge bg-success status-badge">上架中</span>'
-      : '<span class="badge bg-secondary status-badge">已下架</span>';
-
-    var imgSrc = p.thumbnail || 'https://placehold.co/48x48/cccccc/555555?text=No+Image';
-
-    return '<tr data-product-id="' + p.id + '"' + rowClass + '>' +
-      '<td><img src="' + imgSrc + '" width="48" height="48" class="rounded object-fit-cover"' +
-      ' onerror="this.src=\'https://placehold.co/48x48/cccccc/555555?text=No+Image\'"></td>' +
-      '<td class="fw-semibold">' + p.name + '</td>' +
-      '<td><span class="badge bg-light text-dark border">' + (p.category || '—') + '</span></td>' +
-      '<td>NT$ ' + p.price.toLocaleString() + '</td>' +
-      '<td class="stock-cell">' +
-      stockDisplay +
-      ' <button class="btn btn-link btn-sm p-0 ms-1 stock-edit-btn" data-qty="' + p.stock + '" title="編輯庫存">' +
-      '<i class="fas fa-pencil-alt text-secondary"></i></button>' +
-      '</td>' +
-      '<td>' + statusBadge + '</td>' +
-      '<td><div class="form-check form-switch">' +
-      '<input class="form-check-input product-status-toggle" type="checkbox" ' + (isActive ? 'checked' : '') + '>' +
-      '</div></td>' +
-      '</tr>';
+    return buildProductRow(p);
   }).join('');
 
   $('#productsTableBody').html(html);
