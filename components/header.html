@@ -36,9 +36,20 @@
           </a>
           <button class="navbar-login-btn" onclick="window.openModal('loginModal')" title="登入">登入</button>
           <div class="navbar-user-menu" style="display:none;">
-            <div class="user-avatar" title="個人資料">?</div>
-            <span class="user-name">用戶</span>
-            <a href="member-center.html" title="會員中心" style="font-size:1.1rem; text-decoration:none;">⚙️</a>
+            <div class="user-info" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+              <div class="user-avatar" title="個人資料">?</div>
+              <span class="user-name">用戶</span>
+              <span style="font-size:0.8rem;">▼</span>
+            </div>
+            <!-- 用戶選單下拉菜單 -->
+            <div class="navbar-user-dropdown" style="display:none; position:absolute; top:100%; right:0; background:#fff; border:1px solid #e0e0e0; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); min-width:200px; z-index:1000; margin-top:0.5rem;">
+              <a href="member-center.html" class="dropdown-item" style="display:block; padding:0.75rem 1rem; text-decoration:none; color:#333; border-bottom:1px solid #f0f0f0; transition:background-color 0.2s;">
+                👤 會員中心
+              </a>
+              <button class="navbar-logout-btn" style="width:100%; text-align:left; background:none; border:none; padding:0.75rem 1rem; color:#d32f2f; cursor:pointer; font-size:0.95rem; transition:background-color 0.2s;">
+                🚪 登出
+              </button>
+            </div>
           </div>
           <button class="navbar-hamburger hidden-desktop" title="展開菜單">☰</button>
         </div>

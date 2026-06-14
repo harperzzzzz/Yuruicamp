@@ -212,11 +212,16 @@ window.API = {
     
     /**
      * 登出
+     * 設計說明：登出時只清除認證狀態（isLoggedIn、currentUser）
+     *           購物車數據（cart）保留在 localStorage，不清空
+     *           用戶可在登出後再次登入時看到原有的購物車
      * @returns {Promise<void>}
      */
     logout: async () => {
+      // 只清除認證相關狀態，保留購物車
       window.AppState.isLoggedIn = false;
       window.AppState.currentUser = null;
+      // 注意：不清空 window.AppState.cart，購物車數據保留
       window.saveAppState();
       return Promise.resolve();
     },

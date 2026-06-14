@@ -2138,6 +2138,8 @@ hr {
   text-transform: uppercase;
   color: #779999;
   margin-bottom: 0.25rem;
+  height: 0.9rem;
+  line-height: 0.9rem;
 }
 
 .product-card-name {
@@ -2146,6 +2148,8 @@ hr {
   color: #333333;
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
+  /* 固定高度：2 行 × 1.4 line-height × 0.9rem = 2.52rem */
+  height: 2.52rem;
   /* 最多顯示 2 行，超出截斷 */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2160,6 +2164,8 @@ hr {
   margin-bottom: 0.75rem;
   font-size: 0.78rem;
   color: #999999;
+  height: 1.1rem;
+  line-height: 1.1rem;
 }
 
 .product-card-stars {
@@ -2173,27 +2179,34 @@ hr {
   align-items: baseline;
   gap: 0.5rem;
   margin-top: auto;
+  margin-bottom: 0.5rem;
+  min-height: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .price-current {
   font-size: 1.1rem;
   font-weight: 700;
   color: #244d4d;
+  flex-shrink: 0;
 }
 
 .price-original {
   font-size: 0.78rem;
   color: #bbbbbb;
   text-decoration: line-through;
+  flex-shrink: 0;
 }
 
 .price-discount {
+  display: block;
   font-size: 0.72rem;
   font-weight: 700;
   color: #e74c3c;
   background-color: #fef2f2;
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
+  width: fit-content;
 }
 
 /* 加入購物車按鈕（卡片底部） */
