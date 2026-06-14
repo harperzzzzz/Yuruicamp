@@ -5,14 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#244d4d">
   <meta name="description" content="搜尋並篩選台灣最美露營區，選擇最適合你的營地。">
-  <title>搜尋營區 - Yuruicamp 露營選物</title>
+  <link rel="icon" href="../assets/images/brand_icon.png" type="image/png">
+  <title> 搜尋營區 - Yuruicamp 露營選物</title>
 
   <!-- 主樣式 / Main stylesheet -->
-  <link rel="stylesheet" href="../css/main.css">
+  <!-- <link rel="stylesheet" href="../css/main.css"> -->
   <!-- 預約模組專屬樣式 / Booking module stylesheet -->
+   <link rel="stylesheet" href="./css/layout.css">
   <link rel="stylesheet" href="./css/booking.css">
+  <link rel="stylesheet" href="./css/base.css">
+  
   <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 
@@ -67,23 +72,23 @@
           <!-- 篩選區塊 A：環境特徵 / Filter Group A: Environment Tags -->
           <div class="filter-group">
             <h4 class="filter-group__title">環境特徵</h4>
-            <label><input type="checkbox" name="env" value="高海拔"> 🏔 高海拔</label>
-            <label><input type="checkbox" name="env" value="低海拔"> 🌿 低海拔</label>
-            <label><input type="checkbox" name="env" value="有雲海"> ☁️ 有雲海</label>
-            <label><input type="checkbox" name="env" value="有溪流"> 💧 有溪流</label>
-            <label><input type="checkbox" name="env" value="森林系"> 🌲 森林系</label>
+            <label><input type="checkbox" name="env" value="高海拔"> 高海拔</label>
+            <label><input type="checkbox" name="env" value="低海拔"> 低海拔</label>
+            <label><input type="checkbox" name="env" value="有雲海"> 有雲海</label>
+            <label><input type="checkbox" name="env" value="有溪流"> 有溪流</label>
+            <label><input type="checkbox" name="env" value="森林系"> 森林系</label>
           </div>
 
           <!-- 篩選區塊 B：營區設施 / Filter Group B: Facility Tags -->
           <div class="filter-group">
             <h4 class="filter-group__title">營區設施</h4>
-            <label><input type="checkbox" name="facility" value="有雨棚"> 🌂 有雨棚</label>
-            <label><input type="checkbox" name="facility" value="裝備租借"> 🎒 裝備租借</label>
-            <label><input type="checkbox" name="facility" value="小木屋"> 🏠 小木屋</label>
-            <label><input type="checkbox" name="facility" value="寵物友善"> 🐾 寵物友善</label>
-            <label><input type="checkbox" name="facility" value="兒童遊樂設施"> 🎠 兒童遊樂設施</label>
-            <label><input type="checkbox" name="facility" value="獨立衛浴"> 🚿 獨立衛浴</label>
-            <label><input type="checkbox" name="facility" value="可包區"> 🔒 可包區</label>
+            <label><input type="checkbox" name="facility" value="有雨棚">有雨棚</label>
+            <label><input type="checkbox" name="facility" value="裝備租借">裝備租借</label>
+            <label><input type="checkbox" name="facility" value="小木屋">小木屋</label>
+            <label><input type="checkbox" name="facility" value="寵物友善"> 寵物友善</label>
+            <label><input type="checkbox" name="facility" value="兒童遊樂設施">兒童遊樂設施</label>
+            <label><input type="checkbox" name="facility" value="獨立衛浴">獨立衛浴</label>
+            <label><input type="checkbox" name="facility" value="可包區"> 可包區</label>
           </div>
 
           <button id="resetFilterBtn" class="btn btn--outline">
@@ -121,6 +126,7 @@
        依賴順序：jQuery → 共用 JS → 頁面邏輯
        Load order: jQuery → shared JS → page logic
        ===================================================== -->
+       <script src="./js/layout.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
     // 載入共用的 Header / Footer
@@ -131,6 +137,8 @@
       $('#booking-footer').load('./components/booking-footer.html');
     });
   </script>
+  
+  
   <script src="./js/camp-search.js"></script>
 
 </body>

@@ -1675,7 +1675,7 @@
 
 .bk-footer__links a:hover { color: #fff; }
 
-/* 重要連結（⚠️ 取消退款等）加強調 */
+/* 重要連結（ 取消退款等）加強調 */
 .bk-footer__links a.important { color: #ffd580; }
 .bk-footer__links a.important:hover { color: #fff; }
 
@@ -1690,19 +1690,26 @@
 .bk-footer__contact-item strong { color: #cde0e0; }
 
 /* 社群連結 */
-.bk-footer__social {
+.social {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 18px;
 }
 
-.bk-footer__social a {
-  font-size: 0.875rem;
-  text-decoration: none;
-  transition: opacity 0.2s;
+.social a i {
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+  padding: 20px;
 }
 
-.bk-footer__social a:hover { opacity: 0.85; }
+.social a i:hover {
+  color: #111;
+}
+
+.site-footer p {
+  margin-bottom: 10px;
+}
 
 /* 分隔線 */
 .bk-footer__divider {

@@ -11,3 +11,10 @@
 
 ## 刪除首頁連結，新增預約體驗連結，連結到booking-search.html
 ## camp-search.html 的id checkInDate, checkOutDate 判斷checkOutDate 不會小於checkInDate
+
+---
+[2026-06-14]
+### 預約體驗的頁面
+- 新增 CSS 、Javascript 檔案
+- 新增line、回到頂部的懸浮按鈕
+- 更改社群與付款的圖示
