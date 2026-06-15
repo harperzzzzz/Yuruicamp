@@ -136,6 +136,55 @@ function renderBookingCartPage(cart) {
 }
 
 // ============================================================
+// 登入守衛（Header 載入後由 booking-cart.html 觸發）
+// ============================================================
+
+/**
+ * 由 booking-cart.html 的 $.load() 回呼觸發。
+ * Header 的 booking-header.js 此時已執行，window.openModal 可用。
+ */
+window.onBookingHeaderReady = function () {
+  initLoginGuard();
+};
+
+function initLoginGuard() {
+
+  function isLoggedIn() {
+    try {
+      var user = JSON.parse(localStorage.getItem('yuruiUser'));
+      return !!(user && user.name);
+    } catch (e) { return false; }
+  }
+
+  function showNotice() { $('#loginNotice').slideDown(250); }
+  function hideNotice() { $('#loginNotice').slideUp(250); }
+
+  // 未登入 → 自動彈出登入 Modal + 顯示提示橫幅
+  if (!isLoggedIn()) {
+    setTimeout(function () {
+      if (typeof window.openModal === 'function') {
+        window.openModal('loginModal');
+      }
+      showNotice();
+    }, 400);
+  }
+
+  // 提示橫幅的「立即登入 / 註冊」按鈕
+  $('#loginNoticeBtn').on('click', function () {
+    if (typeof window.openModal === 'function') {
+      window.openModal('loginModal');
+    }
+  });
+
+  // 其他頁籤完成登入後同步更新
+  window.addEventListener('storage', function (e) {
+    if (e.key === 'yuruiUser') {
+      isLoggedIn() ? hideNotice() : showNotice();
+    }
+  });
+}
+
+// ============================================================
 // 手風琴面板
 // ============================================================
 
@@ -206,6 +255,18 @@ function initPaymentMethod() {
  * @param {Object} cart - bookingCart 物件（附加聯絡資訊後送出）
  */
 function handleCheckout(cart) {
+
+  // 登入驗證：未登入時重新彈出 Modal
+  try {
+    var u = JSON.parse(localStorage.getItem('yuruiUser'));
+    if (!u || !u.name) {
+      if (typeof window.openModal === 'function') window.openModal('loginModal');
+      return;
+    }
+  } catch (e) {
+    if (typeof window.openModal === 'function') window.openModal('loginModal');
+    return;
+  }
 
   // 表單驗證 / Form validation
   const name  = $('#contactName').val().trim();

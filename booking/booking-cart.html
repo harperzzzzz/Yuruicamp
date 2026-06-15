@@ -204,6 +204,41 @@
       margin-top: 0.6rem;
     }
 
+    /* 未登入提示橫幅 */
+    .bk-login-notice {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.875rem 1rem;
+      background: #fff8e1;
+      border: 1.5px solid #ffc107;
+      border-radius: var(--bk-radius);
+      font-size: 0.875rem;
+      color: #856404;
+      margin-bottom: 1rem;
+    }
+
+    .bk-login-notice__btn {
+      margin-left: auto;
+      padding: 0.35rem 0.9rem;
+      border: 1.5px solid var(--bk-primary);
+      background: var(--bk-white);
+      color: var(--bk-primary);
+      border-radius: var(--bk-radius-sm);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .bk-login-notice__btn:hover {
+      background: var(--bk-primary);
+      color: #fff;
+    }
+
     /* RWD */
     @media (max-width: 900px) {
       .bk-checkout-layout { grid-template-columns: 1fr; }
@@ -372,6 +407,16 @@
 
         <!-- ── 確認送出區 ── -->
         <div class="bk-confirm-area">
+
+          <!-- 未登入提示（由 JS 控制顯示） -->
+          <div id="loginNotice" class="bk-login-notice" style="display:none;">
+            <i class="bi bi-person-exclamation"></i>
+            您尚未登入，登入後即可完成預約
+            <button type="button" id="loginNoticeBtn" class="bk-login-notice__btn">
+              立即登入 / 註冊
+            </button>
+          </div>
+
           <button class="btn btn--primary btn--full" id="confirmPayBtn"
                   style="font-size:1.05rem;padding:1rem;">
             <i class="bi bi-lock-fill"></i> 確認預約並送出
@@ -441,7 +486,14 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
     $(function () {
-      $('#booking-header').load('./components/booking-header.html');
+      // Header 載入完成後，明確以 $.getScript 執行 booking-header.js，再呼叫登入守衛
+      $('#booking-header').load('./components/booking-header.html', function () {
+        $.getScript('./js/booking-header.js', function () {
+          if (typeof window.onBookingHeaderReady === 'function') {
+            window.onBookingHeaderReady();
+          }
+        });
+      });
       $('#booking-footer').load('./components/booking-footer.html');
     });
   </script>

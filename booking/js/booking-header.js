@@ -159,29 +159,14 @@
   }
 
   /* ============================================================
-     4. Modal 開關邏輯（登入 Modal）
+     4. Modal 開關邏輯（第三方登入 Modal）
      ============================================================ */
   function initLoginModal() {
-    var loginBtn     = document.getElementById('bkLoginBtn');
+    var loginBtn      = document.getElementById('bkLoginBtn');
     var modalBackdrop = document.getElementById('bkModalBackdrop');
-    var modal        = document.getElementById('loginModal');
+    var modal         = document.getElementById('loginModal');
 
     if (!modal) return;
-
-    // 切換 Tab（登入 / 免費註冊）
-    var tabBtns   = modal.querySelectorAll('.modal-tab-btn');
-    var tabPanels = modal.querySelectorAll('.modal-tab-panel');
-
-    tabBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var target = btn.getAttribute('data-tab');
-        tabBtns.forEach(function (b) { b.classList.remove('active'); });
-        tabPanels.forEach(function (p) { p.classList.remove('active'); });
-        btn.classList.add('active');
-        var targetPanel = modal.querySelector('[data-panel="' + target + '"]');
-        if (targetPanel) targetPanel.classList.add('active');
-      });
-    });
 
     // 開啟 Modal
     function openModal() {
@@ -197,12 +182,12 @@
       document.body.style.overflow = '';
     }
 
-    // 掛載全域方法，讓其他頁面也可呼叫 openModal('loginModal')
+    // 掛載全域方法，讓其他頁面可呼叫 openModal('loginModal')
     window.openModal = function (modalId) {
       if (modalId === 'loginModal') openModal();
     };
 
-    // 登入按鈕點擊事件（作為 onclick 的備用）
+    // Header 登入按鈕
     if (loginBtn) {
       loginBtn.addEventListener('click', function (e) {
         e.preventDefault();
@@ -210,7 +195,7 @@
       });
     }
 
-    // 點 X 關閉
+    // X 關閉
     var closeBtn = modal.querySelector('.modal-close');
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
 
@@ -221,6 +206,23 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && modal.style.display === 'flex') closeModal();
     });
+
+    // ── 第三方登入按鈕（佔位，未來對接 OAuth 2.0）──
+    function handleOAuth(provider) {
+      // TODO: 實際專案替換為對應的 OAuth redirect URL
+      // 例如 Google: window.location.href = '/auth/google';
+      // 例如 LINE:   window.location.href = '/auth/line';
+      console.log('[OAuth] 準備使用', provider, '登入');
+      alert('【開發中】即將導向 ' + provider + ' 授權頁面');
+    }
+
+    var btnGoogle   = document.getElementById('oauthGoogle');
+    var btnLine     = document.getElementById('oauthLine');
+    var btnFacebook = document.getElementById('oauthFacebook');
+
+    if (btnGoogle)   btnGoogle.addEventListener('click',   function () { handleOAuth('Google'); });
+    if (btnLine)     btnLine.addEventListener('click',     function () { handleOAuth('LINE'); });
+    if (btnFacebook) btnFacebook.addEventListener('click', function () { handleOAuth('Facebook'); });
   }
 
   /* ============================================================
@@ -262,3 +264,9 @@
   });
 
 })();
+
+// booking-header.html 以 jQuery.getScript 載入此檔後，通知頁面層級的 ready callback。
+// 目前僅 booking-cart.js 有定義 window.onBookingHeaderReady；其他頁面不存在，跳過。
+if (typeof window.onBookingHeaderReady === 'function') {
+  window.onBookingHeaderReady();
+}

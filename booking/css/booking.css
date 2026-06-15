@@ -1570,31 +1570,49 @@
 
 .modal-body { padding: 1.5rem; }
 
-/* Tab 切換 */
-.modal-tabs {
+/* OAuth 登入按鈕 */
+.oauth-desc {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.oauth-btn {
   display: flex;
-  gap: 0;
-  margin-bottom: 1.25rem;
-  border-bottom: 2px solid #eee;
-}
-
-.modal-tab-btn {
-  flex: 1;
-  padding: 0.6rem;
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  color: #999;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  transition: color 0.2s, border-color 0.2s;
+  border: none;
+  margin-bottom: 0.75rem;
+  transition: opacity 0.2s, transform 0.15s;
+  font-family: inherit;
+  text-decoration: none;
 }
 
-.modal-tab-btn.active { color: #244d4d; border-bottom-color: #244d4d; font-weight: 600; }
+.oauth-btn:last-of-type { margin-bottom: 0; }
+.oauth-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
+.oauth-btn:active { transform: translateY(0); }
 
-.modal-tab-panel { display: none; }
-.modal-tab-panel.active { display: block; }
+.oauth-btn--google   { background: #fff; border: 1.5px solid #dadce0; color: #3c4043; }
+.oauth-btn--line     { background: #00b900; color: #fff; }
+.oauth-btn--facebook { background: #1877f2; color: #fff; }
+
+.oauth-privacy {
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--bk-text-muted);
+  margin-top: 1.25rem;
+  line-height: 1.6;
+}
+
+.oauth-privacy a { color: var(--bk-primary); text-decoration: underline; }
 
 /* ============================================================
    22-C. Header RWD（≤ 768px）
