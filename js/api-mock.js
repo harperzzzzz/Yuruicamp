@@ -174,42 +174,10 @@ window.API = {
     },
   },
   
-  /**
+/**
    * 用戶相關 API
    */
   users: {
-    /**
-     * 登入（模擬）
-     * @param {string} email - 電子郵件
-     * @param {string} password - 密碼
-     * @returns {Promise<Object>}
-     */
-    login: async (email, password) => {
-      try {
-        const response = await fetch(`${window.API._getDataPath()}/users.json`);
-        const users = await response.json();
-        
-        const user = users.find(u => u.email === email && u.password === password);
-        
-        if (!user) {
-          return Promise.reject(new Error('Invalid credentials'));
-        }
-        
-        const loggedInUser = { ...user };
-        delete loggedInUser.password; // 不返回密碼
-        
-        // 更新全局狀態
-        window.AppState.isLoggedIn = true;
-        window.AppState.currentUser = loggedInUser;
-        window.saveAppState();
-        
-        return Promise.resolve(loggedInUser);
-      } catch (error) {
-        console.error('Error logging in:', error);
-        return Promise.reject(error);
-      }
-    },
-    
     /**
      * 登出
      * 設計說明：登出時只清除認證狀態（isLoggedIn、currentUser）
@@ -224,39 +192,6 @@ window.API = {
       // 注意：不清空 window.AppState.cart，購物車數據保留
       window.saveAppState();
       return Promise.resolve();
-    },
-    
-    /**
-     * 註冊（模擬）
-     * @param {Object} userData - 用戶數據
-     * @returns {Promise<Object>}
-     */
-    register: async (userData) => {
-      try {
-        const newUser = {
-          id: window.generateId(),
-          ...userData,
-          createdAt: new Date().toISOString(),
-          tier: 'beginner',
-        };
-        
-        // 模擬保存
-        const users = JSON.parse(localStorage.getItem('mockUsers') || '[]');
-        users.push(newUser);
-        localStorage.setItem('mockUsers', JSON.stringify(users));
-        
-        // 自動登入
-        window.AppState.isLoggedIn = true;
-        const userCopy = { ...newUser };
-        delete userCopy.password;
-        window.AppState.currentUser = userCopy;
-        window.saveAppState();
-        
-        return Promise.resolve(userCopy);
-      } catch (error) {
-        console.error('Error registering:', error);
-        return Promise.reject(error);
-      }
     },
     
     /**
