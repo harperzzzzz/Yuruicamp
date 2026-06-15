@@ -36,9 +36,20 @@
           </a>
           <button class="navbar-login-btn" onclick="window.openModal('loginModal')" title="登入">登入</button>
           <div class="navbar-user-menu" style="display:none;">
-            <div class="user-avatar" title="個人資料">?</div>
-            <span class="user-name">用戶</span>
-            <a href="member-center.html" title="會員中心" style="font-size:1.1rem; text-decoration:none;">⚙️</a>
+            <div class="user-info" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+              <div class="user-avatar" title="個人資料">?</div>
+              <span class="user-name">用戶</span>
+              <span style="font-size:0.8rem;">▼</span>
+            </div>
+            <!-- 用戶選單下拉菜單 -->
+            <div class="navbar-user-dropdown" style="display:none; position:absolute; top:100%; right:0; background:#fff; border:1px solid #e0e0e0; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.1); min-width:200px; z-index:1000; margin-top:0.5rem;">
+              <a href="member-center.html" class="dropdown-item" style="display:block; padding:0.75rem 1rem; text-decoration:none; color:#333; border-bottom:1px solid #f0f0f0; transition:background-color 0.2s;">
+                👤 會員中心
+              </a>
+              <button class="navbar-logout-btn" style="width:100%; text-align:left; background:none; border:none; padding:0.75rem 1rem; color:#d32f2f; cursor:pointer; font-size:0.95rem; transition:background-color 0.2s;">
+                🚪 登出
+              </button>
+            </div>
           </div>
           <button class="navbar-hamburger hidden-desktop" title="展開菜單">☰</button>
         </div>
@@ -69,6 +80,9 @@
   <!-- ===================================================
        登入 Modal - 步驟 3.2
        =================================================== -->
+  <!-- ===================================================
+       登入 Modal - 步驟 3.2
+       =================================================== -->
   <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
     <div class="modal-content" style="max-width:420px;">
       <div class="modal-header">
@@ -76,23 +90,7 @@
         <button class="modal-close" title="關閉">✕</button>
       </div>
       <div class="modal-body">
-        <div class="modal-tabs">
-          <button class="modal-tab-btn active" data-tab="login">登入</button>
-          <button class="modal-tab-btn" data-tab="register">免費註冊</button>
-        </div>
         <div class="modal-tab-panel active" data-panel="login">
-          <form id="loginEmailForm" novalidate>
-            <div class="mb-md">
-              <label for="loginEmail" style="display:block; font-weight:600; margin-bottom:0.35rem; font-size:0.875rem;">電子郵件</label>
-              <input id="loginEmail" type="email" name="email" placeholder="your@email.com" required>
-            </div>
-            <div class="mb-lg">
-              <label for="loginPassword" style="display:block; font-weight:600; margin-bottom:0.35rem; font-size:0.875rem;">密碼</label>
-              <input id="loginPassword" type="password" name="password" placeholder="輸入密碼" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">登入</button>
-          </form>
-          <div class="divider-or">或使用社群帳號登入</div>
           <button class="btn-google-login" type="button">
             <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
             使用 Google 登入
@@ -100,32 +98,6 @@
           <button class="btn-line-login" type="button">
             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386a.631.631 0 0 1-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016a.63.63 0 0 1-.63.629.622.622 0 0 1-.601-.452l-1.59-2.161v1.984a.629.629 0 1 1-1.258 0V8.108c0-.345.282-.63.63-.63.261 0 .487.162.592.397l1.598 2.162V8.108a.63.63 0 1 1 1.259 0v4.771zm-5.822 0a.631.631 0 0 1-1.261 0V8.108a.63.63 0 1 1 1.261 0v4.771zm-2.475.629H4.827a.631.631 0 0 1-.63-.629V8.108c0-.345.283-.63.63-.63a.63.63 0 0 1 .63.63v4.141h1.756a.63.63 0 0 1 0 1.259zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314z"/></svg>
             使用 LINE 登入
-          </button>
-        </div>
-        <div class="modal-tab-panel" data-panel="register">
-          <form id="registerForm" novalidate>
-            <div class="mb-md">
-              <label for="registerName" style="display:block; font-weight:600; margin-bottom:0.35rem; font-size:0.875rem;">您的姓名</label>
-              <input id="registerName" type="text" name="name" placeholder="露友小明" required>
-            </div>
-            <div class="mb-md">
-              <label for="registerEmail" style="display:block; font-weight:600; margin-bottom:0.35rem; font-size:0.875rem;">電子郵件</label>
-              <input id="registerEmail" type="email" name="email" placeholder="your@email.com" required>
-            </div>
-            <div class="mb-lg">
-              <label for="registerPassword" style="display:block; font-weight:600; margin-bottom:0.35rem; font-size:0.875rem;">設定密碼</label>
-              <input id="registerPassword" type="password" name="password" placeholder="至少 8 個字元" minlength="8" required>
-            </div>
-            <button type="submit" class="btn btn-primary btn-block">立即註冊</button>
-          </form>
-          <div class="divider-or">或使用社群帳號快速註冊</div>
-          <button class="btn-google-login" type="button">
-            <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/><path d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-            使用 Google 快速註冊
-          </button>
-          <button class="btn-line-login" type="button">
-            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#fff"><path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386a.631.631 0 0 1-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.349 0 .63.285.63.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016a.63.63 0 0 1-.63.629.622.622 0 0 1-.601-.452l-1.59-2.161v1.984a.629.629 0 1 1-1.258 0V8.108c0-.345.282-.63.63-.63.261 0 .487.162.592.397l1.598 2.162V8.108a.63.63 0 1 1 1.259 0v4.771zm-5.822 0a.631.631 0 0 1-1.261 0V8.108a.63.63 0 1 1 1.261 0v4.771zm-2.475.629H4.827a.631.631 0 0 1-.63-.629V8.108c0-.345.283-.63.63-.63a.63.63 0 0 1 .63.63v4.141h1.756a.63.63 0 0 1 0 1.259zM24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314z"/></svg>
-            使用 LINE 快速註冊
           </button>
         </div>
       </div>
