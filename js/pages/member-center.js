@@ -310,7 +310,7 @@ function renderOrders(orders, filter = "all") {
   if (filtered.length === 0) {
     container.innerHTML = `
       <div style="text-align:center;padding:3rem;color:#999;">
-        <div style="font-size:3rem;margin-bottom:0.75rem;">📭</div>
+        <div style="font-size:3rem;margin-bottom:0.75rem;"><i class="bi bi-envelope-open"></i></div>
         <div>沒有符合條件的訂單</div>
       </div>`;
     return;
@@ -347,7 +347,7 @@ function renderOrders(orders, filter = "all") {
       const reviewBtnHTML =
         order.status === "delivered" && order.canReview && !order.reviewed
           ? `<button class="btn btn-outline" style="font-size:0.75rem;padding:0.3rem 0.75rem;"
-           onclick="openReviewModal('${order.id}', '${order.items[0].name}')">⭐ 寫評價</button>`
+           onclick="openReviewModal('${order.id}', '${order.items[0].name}')"><i class="bi bi-star-fill"></i> 寫評價</button>`
           : "";
 
       return `
@@ -473,15 +473,15 @@ window.openOrderDetail = function (orderId) {
   // Shipping info
   const shippingHTML = order.trackingNumber
     ? `<div style="font-size:0.8rem;color:#555;margin-top:0.75rem;">
-         🚚 物流追蹤號：<strong>${order.trackingNumber}</strong>
+         <i class="bi bi-truck"></i> 物流追蹤號：<strong>${order.trackingNumber}</strong>
        </div>`
     : "";
 
   // 取貨地址
   const addressHTML = order.shippingAddress
-    ? `<div style="font-size:0.8rem;color:#555;">📍 配送地址：${order.shippingAddress}</div>`
+    ? `<div style="font-size:0.8rem;color:#555;"><i class="bi bi-geo-alt-fill"></i> 配送地址：${order.shippingAddress}</div>`
     : order.storeAddress
-      ? `<div style="font-size:0.8rem;color:#555;">🏪 門市取貨：${order.storeAddress}</div>`
+      ? `<div style="font-size:0.8rem;color:#555;"><i class="bi bi-shop"></i> 門市取貨：${order.storeAddress}</div>`
       : "";
 
   // 填充 Modal 標題

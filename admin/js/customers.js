@@ -1,6 +1,6 @@
 ﻿/**
  * admin/js/customers.js
- * 客戶管理模組
+ * 客戶管理模組（已適配最新訂單 JSON 結構）
  * 使用 jQuery Event Namespace (.customers) 防止重複導覽時事件堆疊
  *
  * tagColorMap 的鍵值必須與 customers.json 的 tags 陣列完全一致（含中文）
@@ -15,23 +15,91 @@ var tagColorMap = {
   高退貨率: "bg-danger",
 };
 
+// 全域快取，避免切換頁面時重新 fetch 導致修改消失
+window.customersData = window.customersData || null;
+window.ordersData = window.ordersData || null; // 訂單資料全域快取
+
+// ============================================================
+// 工具函數 (已針對新訂單 JSON 調整)
+// ============================================================
+function _getStatusInfo(orderStatus) {
+  var map = {
+    unshipped: { label: "待出貨", cls: "bg-warning text-dark" },
+    shipped: { label: "已出貨", cls: "bg-info text-dark" },
+    delivered: { label: "已完成", cls: "bg-success" },
+    returned: { label: "已退貨", cls: "bg-danger" },
+    cancelled: { label: "已取消", cls: "bg-secondary" },
+  };
+  return map[orderStatus] || { label: orderStatus, cls: "bg-secondary" };
+}
+
+function _getPaymentLabel(paymentStatus) {
+  var map = {
+    paid: "已付款 (線上支付)",
+    unpaid: "未付款",
+    cod: "貨到付款",
+  };
+  return map[paymentStatus] || paymentStatus;
+}
+
 function getTagBadge(tag) {
   var cls = tagColorMap[tag] || "bg-secondary";
   return '<span class="badge ' + cls + ' me-1">' + tag + "</span>";
 }
 
+// ============================================================
+// 主初始化函數
+// ============================================================
 window.initCustomers = function () {
   $(document).off(".customers");
 
-  $.getJSON("data/customers.json", function (customers) {
-    renderCustomersAccordion(customers);
-  }).fail(function () {
-    $("#customersAccordion").html(
-      '<div class="alert alert-danger">' +
-        '<i class="fas fa-exclamation-triangle me-2"></i>載入客戶數據失敗' +
-        "</div>",
-    );
-  });
+  var customersDeferred = $.Deferred();
+  var ordersDeferred = $.Deferred();
+
+  // 1. 檢查/載入 客戶資料
+  if (window.customersData) {
+    customersDeferred.resolve(window.customersData);
+  } else {
+    $.getJSON("data/customers.json", function (customers) {
+      window.customersData = customers;
+      customersDeferred.resolve(customers);
+    }).fail(function () {
+      customersDeferred.reject();
+    });
+  }
+
+  // 2. 檢查/載入 訂單資料 (自動相容相對路徑與絕對路徑)
+  if (window.ordersData) {
+    ordersDeferred.resolve(window.ordersData);
+  } else {
+    // 優先嘗試後台目錄下的 data/orders.json
+    $.getJSON("data/orders.json", function (orders) {
+      window.ordersData = orders;
+      ordersDeferred.resolve(orders);
+    }).fail(function () {
+      // 失敗則嘗試前台相對路徑 ../data/orders.json
+      $.getJSON("../data/orders.json", function (orders) {
+        window.ordersData = orders;
+        ordersDeferred.resolve(orders);
+      }).fail(function () {
+        console.error("【後台提示】找不到訂單 JSON 檔案，請確認路徑。");
+        ordersDeferred.resolve([]); // 避免卡死客戶列表
+      });
+    });
+  }
+
+  // 3. 兩者都完成後進行渲染
+  $.when(customersDeferred, ordersDeferred)
+    .done(function (customers) {
+      renderCustomersAccordion(customers);
+    })
+    .fail(function () {
+      $("#customersAccordion").html(
+        '<div class="alert alert-danger">' +
+          '<i class="fas fa-exclamation-triangle me-2"></i>載入客戶或訂單數據失敗' +
+          "</div>",
+      );
+    });
 
   // === Enter 鍵觸發儲存（適用所有 inline input）===
   $(document).on(
@@ -74,6 +142,14 @@ window.initCustomers = function () {
     var $wrap = $(this).closest(".tier-wrap");
     var newTier = $wrap.find(".tier-select").val();
     var customerId = $(this).closest("tr").data("customer-id");
+
+    if (window.customersData) {
+      var customer = window.customersData.find(function (c) {
+        return c.id == customerId;
+      });
+      if (customer) customer.tier = newTier;
+    }
+
     $wrap
       .find(".tier-select")
       .replaceWith('<span class="tier-display">' + newTier + "</span>");
@@ -113,6 +189,14 @@ window.initCustomers = function () {
     var $wrap = $(this).closest(".points-wrap");
     var newVal = parseInt($wrap.find(".points-input").val(), 10) || 0;
     var customerId = $(this).closest("tr").data("customer-id");
+
+    if (window.customersData) {
+      var customer = window.customersData.find(function (c) {
+        return c.id == customerId;
+      });
+      if (customer) customer.points = newVal;
+    }
+
     $wrap
       .find(".points-input")
       .replaceWith('<span class="points-display">' + newVal + "</span>");
@@ -152,6 +236,14 @@ window.initCustomers = function () {
     var $wrap = $(this).closest(".coupons-wrap");
     var newVal = parseInt($wrap.find(".coupons-input").val(), 10) || 0;
     var customerId = $(this).closest("tr").data("customer-id");
+
+    if (window.customersData) {
+      var customer = window.customersData.find(function (c) {
+        return c.id == customerId;
+      });
+      if (customer) customer.coupons = newVal;
+    }
+
     $wrap
       .find(".coupons-input")
       .replaceWith('<span class="coupons-display">' + newVal + "</span>");
@@ -173,7 +265,239 @@ window.initCustomers = function () {
     $wrap.find(".coupons-save-btn").hide();
     $wrap.find(".coupons-edit-btn").show();
   });
+
+  // === 標籤 inline 編輯 ===
+  $(document).on("click.customers", ".tags-edit-btn", function () {
+    var $wrap = $(this).closest(".tags-wrap");
+    var $display = $wrap.find(".tags-display");
+
+    var currentTags = [];
+    $display.find(".badge").each(function () {
+      currentTags.push($(this).text().trim());
+    });
+
+    var checkboxesHtml =
+      '<div class="tags-editor d-inline-flex flex-wrap gap-2">';
+    Object.keys(tagColorMap).forEach(function (tag) {
+      var isChecked = currentTags.indexOf(tag) !== -1 ? "checked" : "";
+      checkboxesHtml +=
+        '<div class="form-check form-check-inline mb-0 me-0">' +
+        '<input class="form-check-input tag-checkbox" type="checkbox" value="' +
+        tag +
+        '" id="tag-' +
+        tag +
+        '" ' +
+        isChecked +
+        ">" +
+        '<label class="form-check-label small" for="tag-' +
+        tag +
+        '">' +
+        tag +
+        "</label>" +
+        "</div>";
+    });
+    checkboxesHtml += "</div>";
+
+    $display.hide();
+    $wrap.find(".tags-edit-container").prepend(checkboxesHtml);
+    $(this).hide();
+    $wrap.find(".tags-save-btn").removeClass("d-none");
+    $wrap.find(".tags-cancel-btn").removeClass("d-none");
+  });
+
+  $(document).on("click.customers", ".tags-save-btn", function () {
+    var $wrap = $(this).closest(".tags-wrap");
+    var customerId = $(this).closest("tr").data("customer-id");
+
+    var newTags = [];
+    $wrap.find(".tag-checkbox:checked").each(function () {
+      newTags.push($(this).val());
+    });
+
+    if (window.customersData) {
+      var customer = window.customersData.find(function (c) {
+        return c.id == customerId;
+      });
+      if (customer) customer.tags = newTags;
+    }
+
+    var tagsHtml =
+      newTags.length > 0
+        ? newTags.map(getTagBadge).join("")
+        : '<span class="text-muted small">無標籤</span>';
+
+    $("#heading-" + customerId)
+      .find(".d-none.d-md-block")
+      .html(tagsHtml);
+
+    var $display = $wrap.find(".tags-display");
+    $display.html(tagsHtml).show();
+
+    $wrap.find(".tags-editor").remove();
+    $(this).addClass("d-none");
+    $wrap.find(".tags-cancel-btn").addClass("d-none");
+    $wrap.find(".tags-edit-btn").show();
+
+    window.showAdminToast("客戶 " + customerId + " 標籤已更新");
+  });
+
+  $(document).on("click.customers", ".tags-cancel-btn", function () {
+    var $wrap = $(this).closest(".tags-wrap");
+    $wrap.find(".tags-editor").remove();
+    $wrap.find(".tags-display").show();
+    $(this).addClass("d-none");
+    $wrap.find(".tags-save-btn").addClass("d-none");
+    $wrap.find(".tags-edit-btn").show();
+  });
+
+  // === 監聽點擊「查看明細」按鈕事件 ===
+  $(document).on("click.customers", ".view-order-detail-btn", function () {
+    var orderId = $(this).data("order-id");
+    openAdminOrderDetail(orderId);
+  });
 };
+
+/**
+ * 開啟訂單詳情 Modal (已對接最新 JSON 格式欄位)
+ * @param {string} orderId - 訂單 ID (例如：#0001)
+ */
+function openAdminOrderDetail(orderId) {
+  if (!window.ordersData || window.ordersData.length === 0) {
+    alert("目前沒有任何訂單快取資料，請檢查 orders.json 載入路徑是否正確。");
+    return;
+  }
+
+  // 尋找對應的訂單
+  var order = window.ordersData.find(function (o) {
+    return o.id === orderId;
+  });
+
+  if (!order) {
+    alert("找不到該筆訂單的詳細紀錄 (" + orderId + ")");
+    return;
+  }
+
+  var statusInfo = _getStatusInfo(order.orderStatus);
+
+  // 1. 解析商品明細 HTML（對應欄位：item.name, item.qty, item.price）
+  var itemsHTML = "";
+  if (order.items && order.items.length > 0) {
+    itemsHTML = order.items
+      .map(function (item) {
+        var subTotal = (
+          item.price * (item.qty || item.quantity || 0)
+        ).toLocaleString();
+        return (
+          '<div class="d-flex align-items-center gap-3 mb-2 pb-2 border-bottom">' +
+          '<div class="bg-secondary rounded text-white d-flex align-items-center justify-content-center" style="width:45px; height:45px; font-size:12px;">🏕️</div>' +
+          '<div class="flex-grow-1">' +
+          '<div class="fw-semibold small">' +
+          item.name +
+          "</div>" +
+          '<div class="text-muted" style="font-size:0.75rem;">單價: NT$ ' +
+          item.price.toLocaleString() +
+          " &nbsp;｜&nbsp; 數量: " +
+          (item.qty || item.quantity) +
+          "</div>" +
+          "</div>" +
+          '<div class="fw-bold text-dark small">NT$ ' +
+          subTotal +
+          "</div>" +
+          "</div>"
+        );
+      })
+      .join("");
+  } else {
+    itemsHTML = '<div class="text-muted small py-2">無商品明細</div>';
+  }
+
+  // 2. 歷史狀態時間軸 (History Timeline)
+  var historyHTML = "";
+  if (order.history && order.history.length > 0) {
+    historyHTML =
+      '<div class="mt-3 bg-white p-2 rounded border" style="max-height: 120px; overflow-y: auto;">' +
+      '<div class="fw-bold text-secondary mb-1" style="font-size:0.75rem;"><i class="fas fa-history me-1"></i> 訂單處理狀態紀錄</div>' +
+      order.history
+        .map(function (h) {
+          return (
+            '<div class="d-flex justify-content-between text-muted" style="font-size:0.7rem; line-height: 1.4;">' +
+            "<span>• " +
+            h.action +
+            "</span><span>" +
+            h.time +
+            "</span>" +
+            "</div>"
+          );
+        })
+        .join("") +
+      "</div>";
+  }
+
+  // 3. 檢查或建立 Modal 彈窗結構
+  var $modal = $("#adminOrderDetailModal");
+  if ($modal.length === 0) {
+    var modalStructure =
+      '<div class="modal fade" id="adminOrderDetailModal" tabindex="-1" aria-hidden="true">' +
+      '<div class="modal-dialog modal-dialog-centered">' +
+      '<div class="modal-content">' +
+      '<div class="modal-header py-2 bg-light">' +
+      '<h5 class="modal-title fs-6 fw-bold" id="adminOrderDetailTitle"></h5>' +
+      '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
+      "</div>" +
+      '<div class="modal-body bg-light-subtle" id="adminOrderDetailBody"></div>' +
+      "</div>" +
+      "</div>" +
+      "</div>";
+    $("body").append(modalStructure);
+    $modal = $("#adminOrderDetailModal");
+  }
+
+  // 4. 填充 Modal 抬頭與主體內容
+  $("#adminOrderDetailTitle").text("訂單管理詳情 — " + order.id);
+
+  var bodyContent =
+    '<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-2 rounded border">' +
+    "<div>" +
+    '<div class="small text-muted">成立時間: ' +
+    order.createdAt +
+    "</div>" +
+    '<div class="small text-dark fw-semibold">購買人: ' +
+    (order.buyerName || "未知客戶") +
+    "</div>" +
+    "</div>" +
+    '<span class="badge ' +
+    statusInfo.cls +
+    ' fs-7 py-2 px-2">' +
+    statusInfo.label +
+    "</span>" +
+    "</div>" +
+    '<div class="bg-white p-2 rounded border mb-3">' +
+    '<div class="fw-bold small text-success border-bottom pb-1 mb-2"><i class="fas fa-shopping-bag me-1"></i> 商品清單</div>' +
+    itemsHTML +
+    "</div>" +
+    '<div class="bg-dark text-white p-2 rounded small mb-3 shadow-sm">' +
+    '<div class="d-flex justify-content-between fw-bold fs-6"><span>訂單應繳總計</span><span>NT$ ' +
+    order.total.toLocaleString() +
+    "</span></div>" +
+    "</div>" +
+    '<div class="bg-white p-2 rounded border small text-secondary">' +
+    '<div class="mb-1"><i class="fas fa-wallet me-1"></i> 付款狀態：<strong class="text-dark">' +
+    _getPaymentLabel(order.paymentStatus) +
+    "</strong></div>" +
+    '<div><i class="fas fa-map-marker-alt me-1"></i> 配送地址：' +
+    (order.address || "未提供配送地址") +
+    "</div>" +
+    "</div>" +
+    historyHTML;
+
+  $("#adminOrderDetailBody").html(bodyContent);
+
+  // 5. 呼叫開彈窗
+  var bsModal = new bootstrap.Modal(
+    document.getElementById("adminOrderDetailModal"),
+  );
+  bsModal.show();
+}
 
 /**
  * 渲染客戶管理頁面的 Accordion
@@ -199,14 +523,18 @@ function renderCustomersAccordion(customers) {
           ? c.orders
               .map(function (orderId) {
                 return (
-                  '<li class="list-group-item list-group-item-action py-1 small">' +
-                  '<i class="fas fa-receipt me-2 text-muted"></i>' +
+                  '<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 small">' +
+                  '<div><i class="fas fa-receipt me-2 text-muted"></i>' +
                   orderId +
+                  "</div>" +
+                  '<button class="btn btn-outline-success btn-sm py-0 px-2 view-order-detail-btn" style="font-size: 0.75rem" data-order-id="' +
+                  orderId +
+                  '">查看明細</button>' +
                   "</li>"
                 );
               })
               .join("")
-          : '<li class="list-group-item text-muted small">無購買記錄</li>';
+          : '<li class="list-group-item text-muted small py-1 px-2">無購買記錄</li>';
 
       var collapseId = "collapse-" + c.id;
       var headingId = "heading-" + c.id;
@@ -301,7 +629,16 @@ function renderCustomersAccordion(customers) {
         (c.phone || "—") +
         "</td></tr>" +
         '<tr><th class="text-muted">標籤</th><td colspan="5">' +
+        '<div class="tags-wrap d-flex align-items-center gap-1">' +
+        '<div class="tags-edit-container d-inline-flex align-items-center gap-1">' +
+        '<span class="tags-display">' +
         tagsHtml +
+        "</span>" +
+        "</div>" +
+        '<button class="btn btn-link btn-sm p-0 tags-edit-btn"><i class="fas fa-pencil-alt text-secondary"></i></button>' +
+        '<button class="btn btn-sm btn-success tags-save-btn d-none py-0 px-1"><i class="fas fa-check"></i></button>' +
+        '<button class="btn btn-sm btn-secondary tags-cancel-btn d-none py-0 px-1"><i class="fas fa-times"></i></button>' +
+        "</div>" +
         "</td></tr>" +
         "</tbody></table>" +
         '<p class="mb-1 fw-semibold small text-muted">購買記錄</p>' +
