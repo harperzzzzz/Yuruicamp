@@ -115,6 +115,54 @@ function _getPaymentLabel(payment) {
   return map[payment] || payment;
 }
 
+/**
+ * 取得訂單使用過的 coupon 清單
+ * 重點：優先讀取 data/orders.json 的 coupons 陣列，也相容單一 coupon 欄位，讓一張或多張折扣券都能顯示。
+ * @param {Object} order - 訂單資料
+ * @returns {Array} coupon 陣列
+ */
+function _getOrderCoupons(order) {
+  if (Array.isArray(order.coupons)) return order.coupons;
+  if (order.coupon) return [order.coupon];
+  return [];
+}
+
+/**
+ * 格式化訂單 coupon 顯示文字
+ * 重點：金額券顯示折抵 NT$ 金額，百分比券顯示折數 / 百分比，並補上實際折抵金額。
+ * @param {Object} coupon - 訂單 coupon 資料
+ * @returns {string} 顯示文字
+ */
+function _formatOrderCoupon(coupon) {
+  const code = coupon.code || '未命名折扣碼';
+
+  if (coupon.type === 'percent') {
+    const percentText = `${coupon.discount}%`;
+    const amountText = coupon.amount ? `，折抵 NT$ ${Number(coupon.amount).toLocaleString('zh-TW')}` : '';
+    return `${code}（${percentText}${amountText}）`;
+  }
+
+  const discountAmount = Number(coupon.amount || coupon.discount || 0).toLocaleString('zh-TW');
+  return `${code}（折抵 NT$ ${discountAmount}）`;
+}
+
+/**
+ * 建立訂單明細中的 coupon 列
+ * 重點：只有訂單資料存在 coupon 時才顯示「使用折扣卷：」，避免無折扣訂單出現空列。
+ * @param {Object} order - 訂單資料
+ * @returns {string} HTML 字串
+ */
+function _buildOrderCouponRow(order) {
+  const coupons = _getOrderCoupons(order);
+  if (coupons.length === 0) return '';
+
+  return `
+        <div style="display:flex;justify-content:space-between;gap:1rem;margin-bottom:0.35rem;color:#16a34a;">
+          <span style="white-space:nowrap;">使用折扣卷：</span>
+          <span style="text-align:right;">${coupons.map(_formatOrderCoupon).join('、')}</span>
+        </div>`;
+}
+
 /** 回饋點數比例：訂單商品小計 subtotal 的 10% */
 const REWARD_POINT_RATE = 0.1;
 
@@ -466,6 +514,7 @@ window.openOrderDetail = function(orderId) {
   if (!order) return;
 
   const { label, cls } = _getStatusInfo(order.status);
+  const couponRowHTML = _buildOrderCouponRow(order);
 
   // 產生商品明細列表 HTML
   // Build items detail HTML
@@ -531,6 +580,7 @@ window.openOrderDetail = function(orderId) {
         <div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;color:#e74c3c;">
           <span>折扣優惠</span><span>- NT$ ${order.discount.toLocaleString()}</span>
         </div>` : ''}
+        ${couponRowHTML}
         <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.95rem;color:#244d4d;margin-top:0.5rem;border-top:1px solid #f0f0f0;padding-top:0.5rem;">
           <span>訂單總計</span><span>NT$ ${order.total.toLocaleString()}</span>
         </div>
