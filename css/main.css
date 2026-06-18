@@ -3506,6 +3506,8 @@ hr {
 .member-card-tier { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 0.2rem 0.6rem; border-radius: 50px; font-weight: 600; }
 .member-card-name { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.25rem; }
 .member-card-since { font-size: 0.75rem; opacity: 0.7; }
+/* 會員卡回饋點數：讓動態點數與加入日期有明確層級差異 */
+.member-card-points { margin-top: 0.45rem; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.02em; }
 .member-card-progress-label { font-size: 0.75rem; opacity: 0.75; margin-bottom: 0.35rem; }
 .member-card-progress { height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; }
 .member-card-progress-bar { height: 6px; background: #fff; border-radius: 3px; }

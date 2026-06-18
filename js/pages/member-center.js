@@ -115,6 +115,38 @@ function _getPaymentLabel(payment) {
   return map[payment] || payment;
 }
 
+/** 回饋點數比例：訂單商品小計 subtotal 的 10% */
+const REWARD_POINT_RATE = 0.1;
+
+/**
+ * 計算會員回饋點數
+ * 重點：只採計 data/orders.json 中 status 為 delivered 的訂單 subtotal，未完成或取消訂單不給點。
+ * @param {Array} orders - 訂單資料陣列
+ * @returns {number} subtotal 加總後的 10% 回饋點數
+ */
+function _calculateRewardPoints(orders) {
+  const deliveredSubtotal = (Array.isArray(orders) ? orders : []).reduce((sum, order) => {
+    if (order.status !== 'delivered') return sum;
+    return sum + (Number(order.subtotal) || 0);
+  }, 0);
+
+  // 重點：保留 10% 計算結果，最多顯示 1 位小數，避免浮點數尾差出現在畫面上。
+  return Number((deliveredSubtotal * REWARD_POINT_RATE).toFixed(1));
+}
+
+/**
+ * 更新會員卡上的回饋點數
+ * 重點：點數顯示跟訂單快取共用同一份資料，避免會員卡與訂單列表數字不同步。
+ * @param {Array} orders - 已載入的會員訂單資料
+ */
+function _renderMemberRewardPoints(orders) {
+  const pointsEl = document.getElementById('cardPoints');
+  if (!pointsEl) return;
+
+  const points = _calculateRewardPoints(orders);
+  pointsEl.textContent = `回饋點數：${points.toLocaleString('zh-TW', { maximumFractionDigits: 1 })} 點`;
+}
+
 // ============================================================
 // Tab 切換邏輯
 // Tab switching logic
@@ -372,6 +404,7 @@ async function loadOrders() {
   if (_ordersCache) {
     // 已有快取，直接渲染
     renderOrders(_ordersCache);
+    _renderMemberRewardPoints(_ordersCache); // 同步更新會員卡回饋點數
     return;
   }
 
@@ -387,8 +420,10 @@ async function loadOrders() {
       _ordersCache = await res.json();
     }
     renderOrders(_ordersCache);
+    _renderMemberRewardPoints(_ordersCache); // 訂單載入後依 delivered subtotal 更新點數
   } catch (err) {
     console.error('載入訂單失敗 / Failed to load orders:', err);
+    _renderMemberRewardPoints([]); // 載入失敗時顯示 0 點，避免停留在載入中
     const container = document.getElementById('ordersList');
     if (container) {
       container.innerHTML = `
