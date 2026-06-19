@@ -298,3 +298,16 @@
   .hero-subtitle { font-size: 0.95rem; }
   .btn-hero-primary, .btn-hero-outline { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
 }
+
+.logo {
+  height: 64px;       /* 請依照你 Header 的高度調整數字（例如 40px ~ 60px） */
+  width: auto;        /* 讓寬度隨著高度自動等比例縮放 */
+  display: block;     /* 消除圖片下方預設的微小空白間隙 */
+  object-fit: contain;
+}
+.brand {
+  display: flex;          /* 讓裡面的元素變成橫向排版 */
+  align-items: center;    /* 關鍵！讓裡面的 Logo 和文字「垂直置中」對齊 */
+  gap: 12px;              /* (選用) 用來調整 Logo 和文字之間的左右間距 */
+  text-decoration: none;  /* 如果是用 <a> 標籤，這行可以去掉底線 */
+}
