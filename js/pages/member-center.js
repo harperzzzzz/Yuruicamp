@@ -84,8 +84,8 @@ const MOCK_NOTIFICATIONS = [
 // Utility functions
 // ============================================================
 
-/** 重點：購買訂單篩選顯示順序固定，實際按鈕仍只會依 orders.json 出現過的 status / paymentStatus 動態渲染。 */
-const PURCHASE_ORDER_FILTER_META = [
+/** 重點：購買訂單狀態顯示字典保留 returned badge，但 returned 不會渲染成篩選按鈕。 */
+const PURCHASE_ORDER_STATUS_META = [
   { value: 'paid', label: '待付款', cls: 'status-paid' },
   { value: 'unpaid', label: '已付款', cls: 'status-unpaid' },
   { value: 'unshipped', label: '待出貨', cls: 'status-unshipped' },
@@ -95,7 +95,10 @@ const PURCHASE_ORDER_FILTER_META = [
   { value: 'cancelled', label: '已取消', cls: 'status-cancelled' },
 ];
 
-/** 重點：租借訂單篩選顯示順序固定，實際按鈕仍只會依 reantalOrders.json 出現過的 status / paymentStatus 動態渲染。 */
+/** 重點：購買訂單篩選顯示順序固定，已退貨 returned 保留為可點選篩選標籤。 */
+const PURCHASE_ORDER_FILTER_META = PURCHASE_ORDER_STATUS_META;
+
+/** 重點：租借訂單篩選顯示順序固定，實際按鈕仍只會依 rentalOrders.json 出現過的 status / paymentStatus 動態渲染。 */
 const RENTAL_ORDER_FILTER_META = [
   { value: 'refunded', label: '已退款', cls: 'status-refunded' },
   { value: 'paid', label: '已付款', cls: 'status-unpaid' },
@@ -105,7 +108,7 @@ const RENTAL_ORDER_FILTER_META = [
   { value: 'cancelled', label: '已取消', cls: 'status-cancelled' },
 ];
 
-const PURCHASE_ORDER_FILTER_MAP = Object.fromEntries(PURCHASE_ORDER_FILTER_META.map(item => [item.value, item]));
+const PURCHASE_ORDER_FILTER_MAP = Object.fromEntries(PURCHASE_ORDER_STATUS_META.map(item => [item.value, item]));
 const RENTAL_ORDER_FILTER_MAP = Object.fromEntries(RENTAL_ORDER_FILTER_META.map(item => [item.value, item]));
 
 /** 重點：舊購買訂單狀態不再獨立顯示，processing 併入待出貨，cod 併入待付款。 */
@@ -546,7 +549,7 @@ function initProfilePanel() {
  *  Current order data cache */
 let _ordersCache = null;
 
-/** 重點：租借訂單使用獨立快取，避免切換類型時重複讀取 data/reantalOrders.json。 */
+/** 重點：租借訂單使用獨立快取，避免切換類型時重複讀取 data/rentalOrders.json。 */
 let _rentalOrdersCache = null;
 
 /** 重點：記錄目前顯示的訂單類型，讓狀態篩選只重繪當前清單。 */
@@ -605,6 +608,11 @@ function _orderMatchesFilter(order, filter, orderType = _activeOrderType) {
   if (!filter || filter === 'all') return true;
   const normalizedStatus = _normalizeOrderFilterValue(orderType, order.status);
   const normalizedPayment = _normalizeOrderFilterValue(orderType, order.paymentStatus);
+
+  // 重點：已退貨訂單可由「已退貨」篩選查到，但不能因 paymentStatus=paid 混入「待付款」清單。
+  if (_normalizeOrderType(orderType) === 'purchase' && filter === 'paid' && normalizedStatus === 'returned') {
+    return false;
+  }
 
   return normalizedStatus === filter || normalizedPayment === filter;
 }
@@ -687,7 +695,7 @@ function _showOrderTypePanel(orderType) {
  * 渲染訂單卡片列表
  * Render order cards into #ordersList container
  * @param {Array} orders - 訂單資料陣列
- * @param {string} filter - 狀態篩選 (all/refunded/paid/pending/confirmed/completed/cancelled)
+ * @param {string} filter - 狀態篩選 (all/paid/unpaid/unshipped/shipped/delivered/returned)
  */
 function renderOrders(orders, filter = 'all') {
   const container = document.getElementById('ordersList');
@@ -754,7 +762,7 @@ function renderOrders(orders, filter = 'all') {
  * 渲染租借訂單列表
  * 重點：結構參照 renderOrders，但資料來源、狀態文案與明細事件改為租借訂單專用。
  * @param {Array} orders - 租借訂單資料陣列
- * @param {string} filter - 狀態篩選 (all/paid/unpaid/unshipped/shipped/delivered/returned)
+ * @param {string} filter - 狀態篩選 (all/refunded/paid/pending/confirmed/completed/cancelled)
  */
 function renderRentalOrders(orders, filter = 'all') {
   const container = document.getElementById('rentalOrdersList');
@@ -849,7 +857,7 @@ async function loadOrders() {
 
 /**
  * 載入租借訂單
- * 重點：租借訂單固定讀取 data/reantalOrders.json，並使用獨立清單渲染避免覆蓋購買訂單。
+ * 重點：租借訂單固定讀取 data/rentalOrders.json，並使用獨立清單渲染避免覆蓋購買訂單。
  */
 async function loadRentalOrders() {
   if (_rentalOrdersCache) {
@@ -859,7 +867,7 @@ async function loadRentalOrders() {
   }
 
   try {
-    const res = await fetch('../data/reantalOrders.json');
+    const res = await fetch('../data/rentalOrders.json');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     _rentalOrdersCache = await res.json();
