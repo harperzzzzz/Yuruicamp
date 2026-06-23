@@ -25,6 +25,8 @@ const _state = {
   sortBy: 'default',    // 排序方式
 };
 
+let _adCarouselTimer = null; // 重點：輪播可因 survey-tags 更新而重算，需保留 timer 供重置。
+
 // ----------------------------------------
 // 工具：計算折扣百分比
 // ----------------------------------------
@@ -43,6 +45,85 @@ function _renderStars(rating) {
   for (let i = 0; i < full; i++)  html += '<span class="star">★</span>';
   for (let i = 0; i < empty; i++) html += '<span class="star empty">★</span>';
   return `<span class="star-rating">${html}</span>`;
+}
+
+/**
+ * Normalize survey preference storage from AppState or profile localStorage.
+ * @param {Array|string|Object} preferences - Survey preferences saved by the shared header modal
+ * @returns {string[]} Flat survey-tag values
+ */
+function _normalizeSurveyTagValues(preferences) {
+  if (Array.isArray(preferences)) return preferences;
+  if (typeof preferences === 'string' && preferences) return [preferences];
+  if (!preferences || typeof preferences !== 'object') return [];
+
+  // 重點：header 問卷用 styles / equipment 分開存，member-center 與商品推薦使用同一份攤平後的 survey-tags。
+  return [
+    ...(preferences.styles || []),
+    ...(preferences.equipment || []),
+  ];
+}
+
+/**
+ * Read JSON from localStorage without breaking carousel rendering on corrupt values.
+ * @param {string} key - localStorage key
+ * @param {*} fallback - Value used when parsing fails
+ * @returns {*}
+ */
+function _readStorageJson(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    console.warn(`讀取 ${key} 偏好失敗，改用預設推薦`, error);
+    return fallback;
+  }
+}
+
+/**
+ * Get the same survey-tag values that pages/member-center.html displays as active.
+ * @returns {string[]} Saved survey-tag values
+ */
+function _getSavedSurveyTags() {
+  const appPrefs = _normalizeSurveyTagValues(window.AppState && window.AppState.preferences);
+  if (appPrefs.length > 0) return appPrefs;
+
+  const profilePrefs = _normalizeSurveyTagValues(_readStorageJson('yurui_profile', {}).preferences);
+  if (profilePrefs.length > 0) return profilePrefs;
+
+  return _normalizeSurveyTagValues(_readStorageJson('preferences', {}));
+}
+
+/**
+ * Randomize carousel products so matching interest_tags do not always show in JSON order.
+ * @param {Array} products - Products selected for the ad carousel
+ * @returns {Array} Shuffled products
+ */
+function _shuffleProducts(products) {
+  const shuffled = [...products];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Select ad-carousel products by matching saved survey-tags with products.interest_tags.
+ * @returns {Array} Personalized products, or NEW products when no preference match exists
+ */
+function _selectAdCarouselProducts() {
+  const selectedTags = new Set(_getSavedSurveyTags());
+
+  // 重點：products.json 的 interest_tags 直接對應 header.partial / member-center 的 survey-tag data-value。
+  const matchedProducts = selectedTags.size === 0 ? [] : _state.allProducts.filter(product => {
+    const interestTags = Array.isArray(product.interest_tags) ? product.interest_tags : [];
+    return interestTags.some(tag => selectedTags.has(tag));
+  });
+
+  // 重點：沒有使用者偏好或沒有符合 interest_tags 時，維持原本 NEW 商品輪播作為備援。
+  const fallbackProducts = _state.allProducts.filter(product => product.isNew);
+  return _shuffleProducts(matchedProducts.length > 0 ? matchedProducts : fallbackProducts);
 }
 
 // ----------------------------------------
@@ -564,29 +645,31 @@ async function _handleAddToCart(productId) {
 }
 
 // ========================================
-// 廣告輪播初始化（抓取 NEW 商品）
+// 廣告輪播初始化（依 survey-tags 對應 interest_tags）
 // ========================================
 function _initAdCarousel() {
-  const newProducts = _state.allProducts.filter(p => p.isNew);
-  if (!newProducts || newProducts.length === 0) {
-    // 如果沒有 NEW 商品，隱藏廣告輪播
-    const container = document.querySelector('.ad-carousel-container');
-    if (container) container.style.display = 'none';
-    return;
-  }
-
   const slidesContainer = document.getElementById('adCarouselSlides');
   const dotsContainer = document.getElementById('adCarouselDots');
   
   if (!slidesContainer || !dotsContainer) return;
 
+  const adProducts = _selectAdCarouselProducts();
+  const container = document.querySelector('.ad-carousel-container');
+  if (!adProducts || adProducts.length === 0) {
+    // 重點：偏好與 NEW 商品都沒有資料時才隱藏廣告輪播容器。
+    if (container) container.style.display = 'none';
+    return;
+  }
+  if (container) container.style.display = '';
+
   let currentSlide = 0;
+  slidesContainer.style.transform = 'translateX(0%)';
 
   // 生成 slides 和 dots
-  slidesContainer.innerHTML = newProducts.map((product, idx) => `
+  slidesContainer.innerHTML = adProducts.map((product, idx) => `
     <div class="ad-carousel-slide" data-product-id="${product.id}">
       <div class="ad-carousel-content">
-        <span class="ad-carousel-badge">🆕 NEW</span>
+        <span class="ad-carousel-badge">${product.isNew ? '🆕 NEW' : '推薦'}</span>
         <h3 class="ad-carousel-title">${product.name}</h3>
         <p class="ad-carousel-desc">${product.brand}</p>
         <p class="ad-carousel-price">NT$ ${product.price.toLocaleString('zh-TW')}</p>
@@ -595,14 +678,14 @@ function _initAdCarousel() {
     </div>
   `).join('');
 
-  dotsContainer.innerHTML = newProducts.map((_, idx) => 
+  dotsContainer.innerHTML = adProducts.map((_, idx) =>
     `<button class="ad-carousel-dot ${idx === 0 ? 'active' : ''}" data-slide="${idx}" title="第 ${idx + 1} 個廣告"></button>`
   ).join('');
 
   // 輪播邏輯
   function goToSlide(n) {
-    if (n >= newProducts.length) currentSlide = 0;
-    else if (n < 0) currentSlide = newProducts.length - 1;
+    if (n >= adProducts.length) currentSlide = 0;
+    else if (n < 0) currentSlide = adProducts.length - 1;
     else currentSlide = n;
 
     const offset = -currentSlide * 100;
@@ -615,8 +698,10 @@ function _initAdCarousel() {
   }
 
   // 按鈕事件
-  document.getElementById('adCarouselPrev').addEventListener('click', () => goToSlide(currentSlide - 1));
-  document.getElementById('adCarouselNext').addEventListener('click', () => goToSlide(currentSlide + 1));
+  const prevBtn = document.getElementById('adCarouselPrev');
+  const nextBtn = document.getElementById('adCarouselNext');
+  if (prevBtn) prevBtn.onclick = () => goToSlide(currentSlide - 1);
+  if (nextBtn) nextBtn.onclick = () => goToSlide(currentSlide + 1);
 
   // Dots 點擊
   document.querySelectorAll('.ad-carousel-dot').forEach(dot => {
@@ -624,15 +709,29 @@ function _initAdCarousel() {
   });
 
   // Slide 點擊進入商品詳情
-  slidesContainer.addEventListener('click', (e) => {
+  slidesContainer.onclick = (e) => {
     const slide = e.target.closest('.ad-carousel-slide');
     if (slide) {
       window.location.href = `product-detail.html?id=${slide.dataset.productId}`;
     }
-  });
+  };
 
   // 自動輪播（可選）
-  setInterval(() => goToSlide(currentSlide + 1), 5000);
+  if (_adCarouselTimer) clearInterval(_adCarouselTimer);
+  _adCarouselTimer = setInterval(() => goToSlide(currentSlide + 1), 5000);
+}
+
+/**
+ * Rebuild the ad carousel when the shared header survey updates preferences.
+ */
+function _initAdCarouselPreferenceListener() {
+  if (window.__productInterestCarouselBound) return;
+  window.__productInterestCarouselBound = true;
+
+  // 重點：使用者在商品頁完成問卷時，立即用新的 survey-tags 重算 interest_tags 輪播。
+  window.addEventListener('yurui:preferences-updated', () => {
+    _initAdCarousel();
+  });
 }
 
 // ========================================
@@ -665,8 +764,9 @@ window.initProductListPage = async () => {
     // ④ 套用初始篩選（可能來自 URL 參數）並渲染
     _applyFilters();
 
-    // ⑤ 初始化廣告輪播（抓取 NEW 商品）
+    // ⑤ 初始化廣告輪播（優先抓取符合 survey-tags / interest_tags 的商品）
     _initAdCarousel();
+    _initAdCarouselPreferenceListener();
 
     console.log(`✓ 商品列表載入完成，共 ${_state.allProducts.length} 件商品`);
 

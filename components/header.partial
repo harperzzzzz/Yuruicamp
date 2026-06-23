@@ -144,6 +144,7 @@
         <div class="survey-step" data-step="2">
           <p class="survey-question">你最想添購哪類裝備？</p>
           <p class="survey-hint">告訴我們，我們為你精準推薦 🛍️</p>
+          <!-- 重點：這裡的 data-value 會寫入 products.json 的 interest_tags，供商品頁廣告輪播比對推薦。 -->
           <div class="survey-tags">
             <span class="survey-tag" data-value="tent">⛺ 帳篷</span>
             <span class="survey-tag" data-value="sleeping-bag">🛏️ 睡袋</span>
