@@ -93,6 +93,7 @@
               <label style="display:block;font-weight:600;font-size:0.875rem;color:#374151;margin-bottom:0.4rem;">
                 備註（選填）
               </label>
+              <!-- 重點：#confirmOrderBtn 會把此欄位同步為 orders.json 的 userNote。 -->
               <textarea id="buyerNote"
                         name="buyerNote"
                         placeholder="有什麼需要告知賣家的嗎？"
@@ -128,6 +129,7 @@
 
             <!-- 物流選項：宅配 -->
             <label class="radio-option" style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;border:2px solid #244d4d;border-radius:8px;cursor:pointer;margin-bottom:0.75rem;background:#f0faf8;">
+              <!-- 重點：被選取時會同步為 orders.json 的 shippingMethod = delivery。 -->
               <input type="radio"
                      name="shippingMethod"
                      value="delivery"
@@ -143,6 +145,7 @@
 
             <!-- 物流選項：門市取貨 -->
             <label class="radio-option" style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;background:#fff;">
+              <!-- 重點：被選取時會同步為 orders.json 的 shippingMethod = store，shippingAddress 預設台北門市。 -->
               <input type="radio"
                      name="shippingMethod"
                      value="store"
@@ -189,6 +192,7 @@
 
             <!-- 付款選項：信用卡 -->
             <label class="radio-option" style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;border:2px solid #244d4d;border-radius:8px;cursor:pointer;margin-bottom:0.75rem;background:#f0faf8;">
+              <!-- 重點：被選取時會同步為 orders.json 的 payment = credit-card。 -->
               <input type="radio"
                      name="paymentMethod"
                      value="credit"
@@ -203,6 +207,7 @@
 
             <!-- 付款選項：LINE Pay -->
             <label class="radio-option" style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;margin-bottom:0.75rem;background:#fff;">
+              <!-- 重點：被選取時會同步為 orders.json 的 payment = line-pay。 -->
               <input type="radio"
                      name="paymentMethod"
                      value="linepay"
@@ -218,6 +223,7 @@
 
             <!-- 付款選項：貨到付款 -->
             <label class="radio-option" style="display:flex;align-items:flex-start;gap:0.875rem;padding:1rem;border:2px solid #e5e7eb;border-radius:8px;cursor:pointer;background:#fff;">
+              <!-- 重點：被選取時會同步為 orders.json 的 payment = cod。 -->
               <input type="radio"
                      name="paymentMethod"
                      value="cod"
@@ -263,7 +269,7 @@
           </div>
         </div><!-- /panel-payment -->
 
-        <!-- 重點：點擊後由 checkout.js 依畫面摘要建立訂單，並以 checkoutSubtotal 的 10% 無條件進位計算 points -->
+        <!-- 重點：點擊後由 checkout.js 產生不重複 orderNumber，並依畫面商品、金額、物流、付款與備註建立訂單快照。 -->
         <div style="margin-top:1.5rem;">
           <button id="confirmOrderBtn"
                   type="button"

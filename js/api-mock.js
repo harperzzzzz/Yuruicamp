@@ -243,13 +243,17 @@ window.API = {
           payment: orderData.payment || orderData.paymentMethod || 'credit-card',
           paymentStatus: orderData.paymentStatus || ((orderData.payment || orderData.paymentMethod) === 'cod' ? 'paid' : 'unpaid'),
           createdAt: orderData.createdAt || _formatLocalDate(now),
+          // 重點：checkout 傳入的空字串也要保留，讓會員中心訂單詳細欄位結構固定。
+          deliveredAt: orderData.deliveredAt || '',
+          trackingNumber: orderData.trackingNumber || '',
           canReview: false,
           review: false,
           reviewed: false,
           buyerName: orderData.buyerName || '',
           buyerPhone: orderData.buyerPhone || '',
           buyerEmail: orderData.buyerEmail || '',
-          buyerNote: orderData.buyerNote || '',
+          userNote: orderData.userNote || orderData.buyerNote || '',
+          buyerNote: orderData.buyerNote || orderData.userNote || '',
         };
         
         // 重點：瀏覽器無法直接寫回 data/orders.json，這裡以 mockOrders 模擬追加後的 orders.json。

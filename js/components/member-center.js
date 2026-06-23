@@ -23,6 +23,8 @@
 
   var REWARD_POINT_RATE = 0.1;
   var REVIEW_STORAGE_KEY = 'member_center_reviews';
+  var MOCK_ORDERS_STORAGE_KEY = 'mockOrders';
+  var MOCK_USER_POINT_DELTAS_STORAGE_KEY = 'mockUserPointDeltas';
 
   var state = {
     root: null,
@@ -96,6 +98,39 @@
     } catch (error) {
       return fallback;
     }
+  }
+
+  /** 重點：安全讀取 localStorage 陣列，避免 checkout 暫存資料壞掉時影響會員中心。 */
+  function readStorageArray(key) {
+    var value = safeJsonParse(localStorage.getItem(key), []);
+    return Array.isArray(value) ? value : [];
+  }
+
+  /** 重點：安全讀取 localStorage 物件，用來套用 checkout 增加的會員點數。 */
+  function readStorageObject(key) {
+    var value = safeJsonParse(localStorage.getItem(key), {});
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
+
+  /** 重點：data/orders.json 與 mockOrders 以 id 合併，讓結帳後的新訂單可即時出現在會員中心。 */
+  function mergeOrders(baseOrders, mockOrders) {
+    var orderMap = new Map();
+    (Array.isArray(baseOrders) ? baseOrders : [])
+      .concat(Array.isArray(mockOrders) ? mockOrders : [])
+      .forEach(function (order) {
+        if (order && order.id) orderMap.set(order.id, order);
+      });
+    return Array.from(orderMap.values());
+  }
+
+  /** 重點：users.json points 搭配 mockUserPointDeltas，讓 checkout 新增點數後會員卡同步更新。 */
+  function applyUserPointDeltas(users) {
+    var deltas = readStorageObject(MOCK_USER_POINT_DELTAS_STORAGE_KEY);
+    return (Array.isArray(users) ? users : []).map(function (user) {
+      return Object.assign({}, user, {
+        points: (Number(user.points) || 0) + (Number(deltas[user.id]) || 0)
+      });
+    });
   }
 
   function escapeHtml(value) {
@@ -487,6 +522,8 @@
       + '<div class="bk-detail-note"><i class="bi bi-credit-card"></i> 付款方式：' + escapeHtml(getPaymentLabel(order.payment)) + '</div>'
       + (order.shippingAddress ? '<div class="bk-detail-note"><i class="bi bi-geo-alt"></i> 配送地址：' + escapeHtml(order.shippingAddress) + '</div>' : '')
       + (order.trackingNumber ? '<div class="bk-detail-note"><i class="bi bi-truck"></i> 物流追蹤：' + escapeHtml(order.trackingNumber) + '</div>' : '')
+      // 重點：checkout 寫入的 userNote 只在有內容時顯示，避免舊訂單產生空白備註列。
+      + (order.userNote ? '<div class="bk-detail-note"><i class="bi bi-chat-left-text"></i> 使用者備註：' + escapeHtml(order.userNote) + '</div>' : '')
       + buildLineSupportLink('詢問訂單'));
   };
 
@@ -550,9 +587,9 @@
 
   async function refreshMemberRewardPoints() {
     // 重點：點數以 users.json 為唯一顯示來源，讓結帳後更新 JSON 時會員卡可定時同步。
-    var users = await fetchJson(DATA_PATHS.users, []);
+    var users = applyUserPointDeltas(await fetchJson(DATA_PATHS.users, []));
     var user = selectUser(users);
-    state.users = Array.isArray(users) ? users : [];
+    state.users = users;
     state.user = user || state.user;
     renderMemberRewardPoints(state.user && state.user.points);
   }
@@ -1141,9 +1178,10 @@
     window.__memberCenterGlobalEventsBound = true;
 
     window.addEventListener('storage', function (event) {
-      if (['currentUser', 'yuruiUser', 'isLoggedIn', 'yurui_profile', 'preferences', 'mockUserPointDeltas'].includes(event.key)) {
+      if (['currentUser', 'yuruiUser', 'isLoggedIn', 'yurui_profile', 'preferences', MOCK_USER_POINT_DELTAS_STORAGE_KEY, MOCK_ORDERS_STORAGE_KEY].includes(event.key)) {
         applyLoginState();
-        if (event.key === 'mockUserPointDeltas') refreshMemberRewardPoints();
+        if (event.key === MOCK_USER_POINT_DELTAS_STORAGE_KEY) refreshMemberRewardPoints();
+        if (event.key === MOCK_ORDERS_STORAGE_KEY) loadMemberData();
       }
     });
 
@@ -1172,9 +1210,9 @@
     ]);
     var memberId = getCurrentMemberId();
 
-    state.users = Array.isArray(results[0]) ? results[0] : [];
+    state.users = applyUserPointDeltas(results[0]);
     state.user = selectUser(state.users);
-    state.orders = (Array.isArray(results[1]) ? results[1] : []).filter(function (order) {
+    state.orders = mergeOrders(results[1], readStorageArray(MOCK_ORDERS_STORAGE_KEY)).filter(function (order) {
       return !order.userId || order.userId === memberId || (state.user && order.userId === state.user.id);
     });
     state.rentalOrders = (Array.isArray(results[2]) ? results[2] : []).filter(function (order) {

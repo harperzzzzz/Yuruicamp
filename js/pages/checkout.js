@@ -29,6 +29,12 @@ const DEFAULT_CHECKOUT_USER_ID = 'user-001';
 /** 重點：門市取貨的 shippingAddress 依需求固定寫入台北門市。 */
 const STORE_PICKUP_ADDRESS = '台北門市';
 
+/** 重點：checkout 建立的新訂單先寫入 mockOrders，讓會員中心可立即查詢。 */
+const CHECKOUT_MOCK_ORDERS_STORAGE_KEY = 'mockOrders';
+
+/** 重點：成功頁只顯示 checkout 產生的最後一筆訂單編號，不再自行亂數生成。 */
+const CHECKOUT_LAST_ORDER_STORAGE_KEY = 'lastCheckoutOrder';
+
 /**
  * 從金額文字讀取數字
  * 重點：結帳確認時依畫面上的 span 金額建立訂單，免費運費會轉成 0。
@@ -108,6 +114,97 @@ function getCheckoutTodayString() {
   const mm = String(today.getMonth() + 1).padStart(2, '0');
   const dd = String(today.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
+}
+
+/** 重點：統一取得目前登入者 id，找不到登入資料時才使用測試預設會員。 */
+function getCheckoutUserId() {
+  const currentUser = window.AppState?.currentUser || {};
+  return currentUser.id || currentUser.userId || DEFAULT_CHECKOUT_USER_ID;
+}
+
+/** 重點：安全讀取 checkout 暫存訂單，避免 localStorage 壞資料中斷結帳流程。 */
+function readCheckoutStoredOrders() {
+  try {
+    const orders = JSON.parse(localStorage.getItem(CHECKOUT_MOCK_ORDERS_STORAGE_KEY) || '[]');
+    return Array.isArray(orders) ? orders : [];
+  } catch (error) {
+    console.warn('mockOrders 讀取失敗，改以空陣列繼續建立訂單。', error);
+    return [];
+  }
+}
+
+/** 重點：把 checkout 建立的訂單回寫 mockOrders，提供會員中心立即渲染。 */
+function writeCheckoutStoredOrders(orders) {
+  localStorage.setItem(CHECKOUT_MOCK_ORDERS_STORAGE_KEY, JSON.stringify(Array.isArray(orders) ? orders : []));
+}
+
+/** 重點：從既有訂單 id 或 orderNumber 取出流水號，用於計算下一筆 id。 */
+function getCheckoutOrderSerial(order) {
+  const idMatch = String(order?.id || '').match(/^ord-(\d+)$/);
+  if (idMatch) return Number(idMatch[1]);
+
+  const numberMatch = String(order?.orderNumber || '').match(/(\d{3,4})$/);
+  return numberMatch ? Number(numberMatch[1]) : 0;
+}
+
+/** 重點：orders.json 的 id 固定使用 ord-### 格式，checkout 新訂單也沿用。 */
+function formatCheckoutOrderId(serial) {
+  return `ord-${String(serial).padStart(3, '0')}`;
+}
+
+/** 重點：orderNumber 固定由 checkout 依當天日期與流水號產生，成功頁只負責顯示。 */
+function formatCheckoutOrderNumber(dateString, serial) {
+  return `#ORD-${String(dateString).replace(/-/g, '')}-${String(serial).padStart(4, '0')}`;
+}
+
+/** 重點：訂單序號在 checkout 點擊確認時產生，並避開 orders.json 與 mockOrders 的所有 orderNumber。 */
+async function createCheckoutOrderIdentity() {
+  let existingOrders = readCheckoutStoredOrders();
+
+  if (window.API?.orders?.getAll) {
+    try {
+      existingOrders = await window.API.orders.getAll();
+    } catch (error) {
+      console.warn('讀取既有訂單失敗，改用 mockOrders 計算下一筆訂單序號。', error);
+    }
+  }
+
+  const usedOrderNumbers = new Set(
+    existingOrders
+      .map(order => String(order?.orderNumber || '').replace(/^#/, '').toUpperCase())
+      .filter(Boolean)
+  );
+  let serial = Math.max(0, ...existingOrders.map(getCheckoutOrderSerial)) + 1;
+  const today = getCheckoutTodayString();
+  let orderNumber = formatCheckoutOrderNumber(today, serial);
+
+  while (usedOrderNumbers.has(orderNumber.replace(/^#/, '').toUpperCase())) {
+    serial += 1;
+    orderNumber = formatCheckoutOrderNumber(today, serial);
+  }
+
+  return {
+    id: formatCheckoutOrderId(serial),
+    orderNumber,
+  };
+}
+
+/** 重點：成功頁與會員中心共用同一筆 checkout 快照，避免頁面間訂單編號不同步。 */
+function syncCheckoutOrderSnapshot(order) {
+  const storedOrders = readCheckoutStoredOrders();
+  const syncedOrder = {
+    ...order,
+    userNote: order.userNote || order.buyerNote || '',
+    deliveredAt: order.deliveredAt || '',
+    trackingNumber: order.trackingNumber || '',
+  };
+  const nextOrders = storedOrders
+    .filter(item => item.id !== syncedOrder.id && item.orderNumber !== syncedOrder.orderNumber)
+    .concat(syncedOrder);
+
+  writeCheckoutStoredOrders(nextOrders);
+  localStorage.setItem(CHECKOUT_LAST_ORDER_STORAGE_KEY, JSON.stringify(syncedOrder));
+  return syncedOrder;
 }
 
 /**
@@ -593,6 +690,10 @@ function initConfirmOrderBtn() {
     }
 
     // ---- Step 2: 準備訂單資料 Prepare order data ----
+    // 重點：驗證通過後立即鎖定按鈕，避免連點重複建立訂單。
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = '訂單建立中...';
+
     const cart = window.AppState.cart;
     const subtotal = readCheckoutMoney('checkoutSubtotal', window.calculateCartTotal(cart));
     const shipping = readCheckoutMoney('checkoutShipping', window.calculateShippingFee(subtotal, selectedShippingMethod));
@@ -601,15 +702,19 @@ function initConfirmOrderBtn() {
     const points = calculateCheckoutPointsFromSummary();
     const payment = getSelectedPaymentCode();
     const shippingAddress = selectedShippingMethod === 'delivery' ? deliveryAddress : STORE_PICKUP_ADDRESS;
-    const buyerNote = document.getElementById('buyerNote')?.value.trim() || '';
+    const userNote = document.getElementById('buyerNote')?.value.trim() || '';
+    const orderIdentity = await createCheckoutOrderIdentity();
 
     // 重點：訂單資料欄位對齊 data/orders.json，畫面摘要金額與本次 points 會一起交給 mock API 保存。
     const orderData = {
-      userId: window.AppState.currentUser?.id || DEFAULT_CHECKOUT_USER_ID,
+      id: orderIdentity.id,
+      orderNumber: orderIdentity.orderNumber,
+      userId: getCheckoutUserId(),
       buyerName,
       buyerPhone,
       buyerEmail,
-      buyerNote,
+      userNote,
+      buyerNote: userNote,
       shippingMethod: selectedShippingMethod,
       shippingAddress,
       payment,
@@ -631,6 +736,8 @@ function initConfirmOrderBtn() {
       total,
       status: 'unshipped',
       createdAt: getCheckoutTodayString(),
+      deliveredAt: '',
+      trackingNumber: '',
       canReview: false,
       review: false,
       reviewed: false,
@@ -643,7 +750,8 @@ function initConfirmOrderBtn() {
 
     try {
       const newOrder = await window.API.orders.create(orderData);
-      console.log('✅ 訂單建立成功:', newOrder);
+      const syncedOrder = syncCheckoutOrderSnapshot(newOrder);
+      console.log('✅ 訂單建立成功:', syncedOrder);
 
       // Step 4: 清空購物車 Clear cart
       window.clearCart();
@@ -653,7 +761,7 @@ function initConfirmOrderBtn() {
       // Step 5: 跳轉到成功頁，帶上訂單編號
       // Redirect to success page with order number
       // 重點：成功頁會在 orderNum 前補上 #，因此傳入時先移除 orders.json orderNumber 的 #。
-      const orderNum = String(newOrder.orderNumber || newOrder.id || `ORD-${Date.now()}`).replace(/^#/, '');
+      const orderNum = String(syncedOrder.orderNumber || syncedOrder.id).replace(/^#/, '');
       window.location.href = `checkout-success.html?orderNum=${orderNum}`;
 
     } catch (error) {
