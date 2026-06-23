@@ -669,6 +669,22 @@
   color: #fff;
 }
 
+/* 重點：前台頁會同時載入 main.css，這裡用 component 範圍移除舊會員中心 tabs 的底線樣式。 */
+.member-center-component .order-status-tabs {
+  border-bottom: none;
+  gap: 0.4rem;
+}
+
+.member-center-component .order-status-tab {
+  margin-bottom: 0;
+  text-decoration: none;
+  border: 2px solid var(--bk-border);
+}
+
+.member-center-component .order-status-tab.active {
+  border-color: var(--bk-primary);
+}
+
 /* ============================================================
    查看明細按鈕
 ============================================================ */
