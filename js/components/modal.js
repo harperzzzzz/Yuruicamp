@@ -151,6 +151,10 @@ window.initModalListeners = () => {
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
       const activeModal = document.querySelector('.modal.active');
+      if (!activeModal && document.getElementById('loginModal')?.classList.contains('active')) {
+        window.closeModal('loginModal');
+        return;
+      }
       if (!activeModal || activeModal.id === 'personalizationModal') return;
       window.closeModal(activeModal.id);
     });
@@ -175,11 +179,29 @@ function _initLoginModal() {
   const loginModal = document.getElementById('loginModal');
   if (!loginModal) return;
 
+  _normalizeLoginModalContent(loginModal);
+  loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login, .btn-line-login').forEach(btn => {
+    if (btn.dataset.unifiedLoginBound === 'true') return;
+    btn.dataset.unifiedLoginBound = 'true';
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const provider = _getLoginProvider(btn);
+      _handleLoginSuccess({
+        name: `${provider} 會員`,
+        email: `user@${provider.toLowerCase()}.example`,
+        avatar: null,
+        provider: provider.toLowerCase(),
+      });
+    }, true);
+  });
+
   // Google 登入按鈕（模擬）
-  const googleBtns = loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login');
+  const googleBtns = loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login, .btn-line-login');
   googleBtns.forEach(btn => {
     if (btn.dataset.loginBound === 'true') return;
     btn.dataset.loginBound = 'true';
+    const provider = _getLoginProvider(btn);
     btn.addEventListener('click', () => {
       _handleLoginSuccess({
         name: 'Google 用戶',
@@ -216,11 +238,78 @@ function _initLoginModal() {
  *
  * @param {{ name: string, email: string, avatar: string|null, provider: string }} user
  */
+function _getLoginProvider(btn) {
+  if (btn.classList.contains('btn-line-login')) return 'LINE';
+  if (btn.classList.contains('btn-facebook-login')) return 'Facebook';
+  return 'Google';
+}
+
+function _setButtonLabel(btn, label) {
+  Array.from(btn.childNodes).forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) node.remove();
+  });
+  let labelEl = btn.querySelector('.oauth-btn-label');
+  if (!labelEl) {
+    labelEl = document.createElement('span');
+    labelEl.className = 'oauth-btn-label';
+    btn.appendChild(labelEl);
+  }
+  labelEl.textContent = label;
+}
+
+function _createFacebookLoginButton() {
+  const btn = document.createElement('button');
+  btn.className = 'btn-facebook-login';
+  btn.type = 'button';
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1877F2"/><path d="M15.117 8.004h-1.528c-.454 0-.773.319-.773.904v1.178h2.227l-.336 2.186h-1.891V18h-2.269v-5.728H8.656v-2.186h1.891V8.694C10.547 6.82 11.662 6 13.302 6c.79 0 1.473.059 1.815.085v1.919z" fill="#fff"/></svg>';
+  return btn;
+}
+
+function _normalizeLoginModalContent(loginModal) {
+  const loginPanel = loginModal.querySelector('[data-panel="login"]') || loginModal.querySelector('.modal-body');
+  if (!loginPanel) return;
+
+  loginModal.querySelector('.modal-tabs')?.remove();
+  loginModal.querySelector('[data-panel="register"]')?.remove();
+  loginModal.querySelector('#loginEmailForm')?.remove();
+  loginPanel.querySelector('.divider-or')?.remove();
+
+  let desc = loginPanel.querySelector('.oauth-desc');
+  if (!desc) {
+    desc = document.createElement('p');
+    desc.className = 'oauth-desc';
+    loginPanel.insertBefore(desc, loginPanel.firstChild);
+  }
+  desc.textContent = '使用社群帳號快速登入 / 註冊';
+
+  const googleBtn = loginPanel.querySelector('.btn-google-login');
+  let facebookBtn = loginPanel.querySelector('.btn-facebook-login');
+  const lineBtn = loginPanel.querySelector('.btn-line-login');
+  if (!facebookBtn && googleBtn && lineBtn) {
+    facebookBtn = _createFacebookLoginButton();
+    loginPanel.insertBefore(facebookBtn, lineBtn);
+  }
+
+  if (googleBtn) _setButtonLabel(googleBtn, '使用 Google 帳號登入');
+  if (facebookBtn) _setButtonLabel(facebookBtn, '使用 Facebook 帳號登入');
+  if (lineBtn) _setButtonLabel(lineBtn, '使用 LINE 帳號登入');
+
+  let privacy = loginPanel.querySelector('.oauth-privacy');
+  if (!privacy) {
+    privacy = document.createElement('p');
+    privacy.className = 'oauth-privacy';
+    loginPanel.appendChild(privacy);
+  }
+  privacy.innerHTML = '登入即代表您同意 Yuruicamp 的 <a href="#">隱私政策</a> 與 <a href="#">服務條款</a>';
+}
+
 function _handleLoginSuccess(user) {
   // 1. 更新全局狀態
   // 社群登入成功後必須標記為已登入，Navbar 才會顯示使用者頭像與名稱。
   window.AppState.isLoggedIn = true;
   window.AppState.currentUser = user;
+  localStorage.setItem('currentUser', JSON.stringify(user));
+  localStorage.setItem('yuruiUser', JSON.stringify(user));
   window.saveAppState();
 
   // 2. 更新導航欄（顯示用戶名稱，隱藏登入按鈕）

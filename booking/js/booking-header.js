@@ -252,6 +252,108 @@
     document.body.style.overflow = '';
   }
 
+  var personalizationCompleted = false;
+
+  function flattenSurveyPreferences(preferences) {
+    return (preferences.styles || []).concat(preferences.equipment || []);
+  }
+
+  function syncProfilePreferenceStorage(preferences) {
+    var profile = {};
+    try { profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}'); } catch (e) {}
+    profile.preferences = flattenSurveyPreferences(preferences);
+    localStorage.setItem('yurui_profile', JSON.stringify(profile));
+    window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: preferences }));
+  }
+
+  function validateSurveySelection(count) {
+    if (count >= 2) return true;
+    window.showToast('請至少選擇 2 個偏好項目', 'warning');
+    return false;
+  }
+
+  function goToSurveyStep(step) {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal) return;
+    modal.querySelectorAll('.survey-step').forEach(function (panel) {
+      panel.classList.toggle('active', parseInt(panel.dataset.step, 10) === step);
+    });
+    modal.querySelectorAll('.stepper-dot').forEach(function (dot, index) {
+      dot.classList.toggle('active', index + 1 <= step);
+    });
+    var stepText = modal.querySelector('.stepper-text');
+    if (stepText) stepText.textContent = step + ' / 2';
+  }
+
+  function openPersonalizationModal() {
+    var modal = document.getElementById('personalizationModal');
+    var backdrop = document.getElementById('bkPanelBackdrop');
+    if (!modal) return;
+    personalizationCompleted = false;
+    modal.querySelectorAll('.survey-tag.active').forEach(function (tag) {
+      tag.classList.remove('active');
+    });
+    goToSurveyStep(1);
+    modal.classList.add('is-open');
+    if (backdrop) backdrop.classList.add('is-visible');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePersonalizationModal(options) {
+    options = options || {};
+    if (!options.force && !personalizationCompleted && !window.confirm('偏好設定尚未完成，確定要關閉嗎？')) return;
+    var modal = document.getElementById('personalizationModal');
+    if (modal) modal.classList.remove('is-open');
+    var backdrop = document.getElementById('bkPanelBackdrop');
+    if (backdrop) backdrop.classList.remove('is-visible');
+    document.body.style.overflow = '';
+  }
+
+  function initPersonalizationModal() {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal || modal._personalizationBound) return;
+    modal._personalizationBound = true;
+
+    window.openPersonalizationModal = openPersonalizationModal;
+
+    var closeBtn = document.getElementById('bkPersonalizationClose');
+    if (closeBtn) closeBtn.addEventListener('click', function () { closePersonalizationModal(); });
+
+    modal.addEventListener('click', function (e) {
+      if (e.target.classList.contains('survey-tag')) {
+        e.target.classList.toggle('active');
+      }
+
+      if (e.target.id === 'surveyNextBtn') {
+        var step1Tags = modal.querySelectorAll('[data-step="1"] .survey-tag.active');
+        if (!validateSurveySelection(step1Tags.length)) return;
+        goToSurveyStep(2);
+      }
+
+      if (e.target.id === 'surveyFinishBtn') {
+        var step1 = Array.from(modal.querySelectorAll('[data-step="1"] .survey-tag.active'));
+        var step2 = Array.from(modal.querySelectorAll('[data-step="2"] .survey-tag.active'));
+        if (!validateSurveySelection(step1.length)) {
+          goToSurveyStep(1);
+          return;
+        }
+        if (!validateSurveySelection(step2.length)) return;
+        var preferences = {
+          styles: step1.map(function (tag) { return tag.dataset.value; }),
+          equipment: step2.map(function (tag) { return tag.dataset.value; })
+        };
+        syncProfilePreferenceStorage(preferences);
+        personalizationCompleted = true;
+        closePersonalizationModal({ force: true });
+        window.showToast('偏好設定已儲存，之後會用來推薦合適內容', 'success');
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) closePersonalizationModal();
+    });
+  }
+
   /* ============================================================
      5. Login Slide Panel
      ============================================================ */
@@ -298,9 +400,37 @@
       window.showToast('已使用 Google 帳號登入（測試模式）', 'success');
     }
 
+    function handleUnifiedOAuthLogin(provider) {
+      var mockUser = {
+        name: provider + ' 會員',
+        email: 'user@' + provider.toLowerCase() + '.example',
+        avatar: provider.charAt(0),
+        provider: provider.toLowerCase()
+      };
+      localStorage.setItem('yuruiUser', JSON.stringify(mockUser));
+      localStorage.setItem('currentUser', JSON.stringify(mockUser));
+      closePanels();
+      checkLoginState();
+      window.showToast('已使用 ' + provider + ' 登入', 'success');
+      setTimeout(openPersonalizationModal, 300);
+    }
+
+    function bindUnifiedOAuthButton(btn, provider) {
+      if (!btn || btn._unifiedOAuthBound) return;
+      btn._unifiedOAuthBound = true;
+      btn.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        handleUnifiedOAuthLogin(provider);
+      }, true);
+    }
+
     var btnGoogle   = document.getElementById('oauthGoogle');
     var btnLine     = document.getElementById('oauthLine');
     var btnFacebook = document.getElementById('oauthFacebook');
+    bindUnifiedOAuthButton(btnGoogle, 'Google');
+    bindUnifiedOAuthButton(btnLine, 'LINE');
+    bindUnifiedOAuthButton(btnFacebook, 'Facebook');
     if (btnGoogle)   btnGoogle.addEventListener('click',   handleGoogleTestLogin);
     if (btnLine)     btnLine.addEventListener('click',     function () { handleOAuth('LINE'); });
     if (btnFacebook) btnFacebook.addEventListener('click', function () { handleOAuth('Facebook'); });
@@ -446,16 +576,27 @@
   checkLoginState();
   initOffcanvas();
   initLoginPanel();
+  initPersonalizationModal();
   initCartPanel();
   setActiveNavLink();
 
   // 共用：點背景遮罩關閉所有 Panel
   var panelBackdrop = document.getElementById('bkPanelBackdrop');
-  if (panelBackdrop) panelBackdrop.addEventListener('click', closePanels);
+  if (panelBackdrop) panelBackdrop.addEventListener('click', function () {
+    var personalizationModal = document.getElementById('personalizationModal');
+    if (personalizationModal && personalizationModal.classList.contains('is-open')) {
+      closePersonalizationModal();
+      return;
+    }
+    closePanels();
+  });
 
   // 共用：Esc 鍵關閉所有 Panel
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') closePanels();
+    if (e.key !== 'Escape') return;
+    var personalizationModal = document.getElementById('personalizationModal');
+    if (personalizationModal && personalizationModal.classList.contains('is-open')) return;
+    closePanels();
   });
 
   // 監聽 storage 事件：跨頁籤同步 Badge 與登入狀態

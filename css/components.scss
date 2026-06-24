@@ -270,6 +270,60 @@
   padding: $spacing-lg;
 }
 
+#loginModal {
+  display: block;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  align-items: initial;
+  justify-content: initial;
+  transition: opacity 0.32s ease, visibility 0s linear 0.32s;
+}
+
+#loginModal.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+#loginModal .modal-content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#loginModal.active .modal-content {
+  transform: translateX(0);
+}
+
+#loginModal .modal-header {
+  flex-shrink: 0;
+}
+
+#loginModal .modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@supports (height: 100dvh) {
+  #loginModal .modal-content {
+    height: 100dvh;
+    max-height: 100dvh;
+  }
+}
+
 #personalizationModal {
   box-sizing: border-box;
   padding: $spacing-md;

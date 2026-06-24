@@ -1887,6 +1887,158 @@
 
 .oauth-privacy a { color: var(--bk-primary); text-decoration: underline; }
 
+.bk-personalization-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bk-personalization-modal.is-open {
+  display: flex;
+}
+
+.bk-personalization-modal__box {
+  width: min(480px, 100%);
+  max-height: calc(100vh - 2rem);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.bk-personalization-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+  flex-shrink: 0;
+}
+
+.bk-personalization-modal__title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+}
+
+.bk-personalization-modal__close {
+  background: none;
+  border: none;
+  color: var(--bk-text-muted);
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+  line-height: 1;
+}
+
+.bk-personalization-modal__close:hover {
+  background: rgba(36, 77, 77, 0.08);
+  color: var(--bk-primary);
+}
+
+.bk-personalization-modal__body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.bk-personalization-modal .stepper-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bk-personalization-modal .stepper-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bk-surface);
+  color: var(--bk-text-muted);
+  border: 1px solid var(--bk-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.bk-personalization-modal .stepper-dot.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+.bk-personalization-modal .stepper-line {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+.bk-personalization-modal .stepper-text {
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+}
+
+.bk-personalization-modal .survey-step {
+  display: none;
+}
+
+.bk-personalization-modal .survey-step.active {
+  display: block;
+}
+
+.bk-personalization-modal .survey-question {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+}
+
+.bk-personalization-modal .survey-hint {
+  margin: 0 0 1.25rem;
+  font-size: 0.82rem;
+  color: var(--bk-text-muted);
+  line-height: 1.5;
+}
+
+.bk-personalization-modal .survey-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bk-personalization-modal .survey-tag {
+  padding: 0.42rem 0.85rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: var(--bk-text);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.bk-personalization-modal .survey-tag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+.bk-personalization-modal .survey-tag.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
 /* ============================================================
    22-C. Header RWD（≤ 768px）
    ============================================================ */
