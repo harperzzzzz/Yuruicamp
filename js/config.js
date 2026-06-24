@@ -7,10 +7,13 @@
  * 存儲應用運行時的狀態數據
  * 可使用 localStorage 持久化
  */
+const _storedAuthUser = localStorage.getItem('currentUser') || localStorage.getItem('yuruiUser');
+const _storedLoginFlag = localStorage.getItem('isLoggedIn');
+
 window.AppState = {
   // 認證狀態
-  isLoggedIn: JSON.parse(localStorage.getItem('isLoggedIn') || 'false'),
-  currentUser: JSON.parse(localStorage.getItem('currentUser') || 'null'),
+  isLoggedIn: JSON.parse(_storedLoginFlag || (_storedAuthUser ? 'true' : 'false')),
+  currentUser: JSON.parse(_storedAuthUser || 'null'),
   
   // 購物車
   cart: JSON.parse(localStorage.getItem('cart') || '[]'),
@@ -81,6 +84,11 @@ window.AppConfig = {
 window.saveAppState = () => {
   localStorage.setItem('isLoggedIn', JSON.stringify(window.AppState.isLoggedIn));
   localStorage.setItem('currentUser', JSON.stringify(window.AppState.currentUser));
+  if (window.AppState.currentUser) {
+    localStorage.setItem('yuruiUser', JSON.stringify(window.AppState.currentUser));
+  } else {
+    localStorage.removeItem('yuruiUser');
+  }
   localStorage.setItem('cart', JSON.stringify(window.AppState.cart));
   localStorage.setItem('preferences', JSON.stringify(window.AppState.preferences));
 };
@@ -91,11 +99,20 @@ window.saveAppState = () => {
  * 用於正常的登出流程
  */
 window.logout = () => {
+  if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
+    window.YuruiAuth.logout({ showToast: false });
+    return;
+  }
+
   window.AppState.isLoggedIn = false;
   window.AppState.currentUser = null;
   // 保留 cart 與 preferences
   localStorage.setItem('isLoggedIn', 'false');
   localStorage.removeItem('currentUser');
+  localStorage.removeItem('yuruiUser');
+  window.dispatchEvent(new CustomEvent('yurui:auth-changed', {
+    detail: { type: 'logout', user: null },
+  }));
   // 不清空 localStorage 中的 cart 和 preferences
 };
 

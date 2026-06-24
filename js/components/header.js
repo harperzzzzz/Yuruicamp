@@ -24,6 +24,7 @@ window.initNavbar = () => {
 
   // 初始化登入狀態顯示
   window.updateNavbarLoginState();
+  _bindAuthStateEvents();
 
   // 初始化購物車 Badge
   window.updateCartBadge();
@@ -184,16 +185,19 @@ window.updateCartBadge = () => {
 window.updateNavbarLoginState = () => {
   const loginBtn = document.querySelector('.navbar-login-btn');
   const userMenu = document.querySelector('.navbar-user-menu');
+  const user = window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function'
+    ? window.YuruiAuth.getUser()
+    : (window.AppState.isLoggedIn && window.AppState.currentUser ? window.AppState.currentUser : null);
 
-  if (window.AppState.isLoggedIn && window.AppState.currentUser) {
+  if (user) {
     // 已登入：隱藏「登入」按鈕，顯示用戶選單
     if (loginBtn) loginBtn.style.display = 'none';
     if (userMenu) {
       userMenu.style.display = 'flex';
       const userName = userMenu.querySelector('.user-name');
       const userAvatar = userMenu.querySelector('.user-avatar');
-      if (userName) userName.textContent = window.AppState.currentUser.name;
-      if (userAvatar) userAvatar.textContent = window.AppState.currentUser.name.charAt(0).toUpperCase();
+      if (userName) userName.textContent = user.name;
+      if (userAvatar) userAvatar.textContent = (user.avatar || user.name.charAt(0)).toUpperCase();
       
       // 初始化用戶選單下拉功能
       _initUserMenuDropdown(userMenu);
@@ -206,6 +210,21 @@ window.updateNavbarLoginState = () => {
 };
 
 /**
+ * 綁定共用 auth 事件，讓主站與 booking 的登入狀態即時同步。
+ */
+function _bindAuthStateEvents() {
+  if (document.body.dataset.mainAuthStateBound === 'true') return;
+  document.body.dataset.mainAuthStateBound = 'true';
+
+  window.addEventListener('yurui:auth-changed', window.updateNavbarLoginState);
+  window.addEventListener('storage', (event) => {
+    if (['isLoggedIn', 'currentUser', 'yuruiUser'].includes(event.key)) {
+      window.updateNavbarLoginState();
+    }
+  });
+}
+
+/**
  * 私有函數：初始化用戶選單下拉菜單
  * Private: Initialize user menu dropdown
  */
@@ -215,6 +234,8 @@ function _initUserMenuDropdown(userMenu) {
   const logoutBtn = userMenu.querySelector('.navbar-logout-btn');
 
   if (!userInfo || !dropdown) return;
+  if (userMenu.dataset.dropdownBound === 'true') return;
+  userMenu.dataset.dropdownBound = 'true';
 
   // 點擊用戶信息區 → 打開/關閉下拉菜單
   userInfo.addEventListener('click', (e) => {
@@ -255,107 +276,24 @@ console.log('✓ Navbar 組件已初始化');
  */
 
 /**
- * 顯示登出確認對話框
- * Show logout confirmation dialog
- * @returns {Promise<boolean>} - 用戶是否確認登出
+ * 關閉共用會員下拉選單。
  */
-function _showLogoutConfirmation() {
-  return new Promise((resolve) => {
-    // 建立確認對話框（模態 HTML）
-    const confirmDialog = document.createElement('div');
-    confirmDialog.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    `;
-
-    confirmDialog.innerHTML = `
-      <div style="background: white; border-radius: 12px; padding: 2rem; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); text-align: center;">
-        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🚪</div>
-        <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #244d4d;">確認登出？</h3>
-        <p style="color: #666; margin-bottom: 1.5rem; font-size: 0.95rem;">登出後，個人設定將被清除。</p>
-        <div style="display: flex; gap: 0.75rem;">
-          <button class="logout-confirm-cancel" style="flex: 1; padding: 0.75rem; border: 1px solid #e0e0e0; border-radius: 8px; background: #f5f5f5; cursor: pointer; font-weight: 600; color: #333; transition: all 0.2s;">取消</button>
-          <button class="logout-confirm-ok" style="flex: 1; padding: 0.75rem; border: 1px solid #d32f2f; border-radius: 8px; background: #d32f2f; color: white; cursor: pointer; font-weight: 600; transition: all 0.2s;">確認登出</button>
-        </div>
-      </div>
-    `;
-
-    document.body.appendChild(confirmDialog);
-
-    // 點擊背景 → 取消
-    confirmDialog.addEventListener('click', (e) => {
-      if (e.target === confirmDialog) {
-        confirmDialog.remove();
-        resolve(false);
-      }
-    });
-
-    // 點擊「取消」按鈕
-    confirmDialog.querySelector('.logout-confirm-cancel').addEventListener('click', () => {
-      confirmDialog.remove();
-      resolve(false);
-    });
-
-    // 點擊「確認登出」按鈕
-    confirmDialog.querySelector('.logout-confirm-ok').addEventListener('click', () => {
-      confirmDialog.remove();
-      resolve(true);
-    });
-
-    // ESC 鍵 → 取消
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') {
-        document.removeEventListener('keydown', handleEsc);
-        confirmDialog.remove();
-        resolve(false);
-      }
-    };
-    document.addEventListener('keydown', handleEsc);
-  });
+function _closeNavbarUserDropdown() {
+  const dropdown = document.querySelector('.navbar-user-dropdown');
+  if (dropdown) dropdown.style.display = 'none';
 }
 
 /**
- * 執行登出邏輯
- * Handle logout process:
- * 1. 顯示確認對話框
- * 2. 清除應用狀態和 localStorage
- * 3. 更新導航欄 UI
- * 4. 清空購物車 Badge
- * 5. 顯示成功提示
- * 6. 可選：重導到首頁或商品頁
+ * 執行主站與 booking 共用登出流程。
  */
-window.handleLogout = async () => {
-  // 1. 顯示確認對話框
-  const isConfirmed = await _showLogoutConfirmation();
-  if (!isConfirmed) return;
-
-  try {
-    // 2. 調用 API Mock 的 logout（更新 AppState）
-    await window.API.users.logout();
-
-    // 3. 更新導航欄 UI
-    window.updateNavbarLoginState();
-
-    // 4. 清空購物車 Badge
-    window.updateCartBadge();
-
-    // 5. 顯示成功提示
-    window.showToast('已成功登出，期待下次光臨！👋', 'success');
-
-    // 6. 延遲 1.5 秒後跳轉回首頁（讓用戶看到提示）
-    setTimeout(() => {
-      window.location.href = '../pages/home.html';
-    }, 1500);
-  } catch (error) {
-    console.error('登出失敗:', error);
-    window.showToast('登出失敗，請稍後重試', 'error');
+window.handleLogout = () => {
+  if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
+    window.YuruiAuth.logout({ close: _closeNavbarUserDropdown });
+    return;
   }
+
+  window.logout();
+  _closeNavbarUserDropdown();
+  window.updateNavbarLoginState();
+  window.showToast && window.showToast('已成功登出', 'success');
 };

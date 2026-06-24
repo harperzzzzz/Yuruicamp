@@ -181,62 +181,20 @@ function _initLoginModal() {
 
   _normalizeLoginModalContent(loginModal);
   loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login, .btn-line-login').forEach(btn => {
-    if (btn.dataset.unifiedLoginBound === 'true') return;
-    btn.dataset.unifiedLoginBound = 'true';
+    if (btn.dataset.authLoginBound === 'true') return;
+    btn.dataset.authLoginBound = 'true';
     btn.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      const provider = _getLoginProvider(btn);
-      _handleLoginSuccess({
-        name: `${provider} 會員`,
-        email: `user@${provider.toLowerCase()}.example`,
-        avatar: null,
-        provider: provider.toLowerCase(),
-      });
+      _handleLoginSuccess(_getLoginProvider(btn));
     }, true);
-  });
-
-  // Google 登入按鈕（模擬）
-  const googleBtns = loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login, .btn-line-login');
-  googleBtns.forEach(btn => {
-    if (btn.dataset.loginBound === 'true') return;
-    btn.dataset.loginBound = 'true';
-    const provider = _getLoginProvider(btn);
-    btn.addEventListener('click', () => {
-      _handleLoginSuccess({
-        name: 'Google 用戶',
-        email: 'user@gmail.com',
-        avatar: null,
-        provider: 'google',
-      });
-    });
-  });
-
-  // LINE 登入按鈕（模擬）
-  const lineBtns = loginModal.querySelectorAll('.btn-line-login');
-  lineBtns.forEach(btn => {
-    if (btn.dataset.loginBound === 'true') return;
-    btn.dataset.loginBound = 'true';
-    btn.addEventListener('click', () => {
-      _handleLoginSuccess({
-        name: 'LINE 用戶',
-        email: 'user@line.me',
-        avatar: null,
-        provider: 'line',
-      });
-    });
   });
 }
 
 /**
- * 處理登入成功後的一系列動作
- * Handle post-login actions:
- * 1. 更新全局狀態
- * 2. 更新導航欄顯示
- * 3. 關閉登入 Modal
- * 4. 開啟個人化問卷 Modal
- *
- * @param {{ name: string, email: string, avatar: string|null, provider: string }} user
+ * 依按鈕 class 判斷社群登入 provider。
+ * @param {HTMLElement} btn - 被點擊的登入按鈕。
+ * @returns {string} Provider 顯示名稱。
  */
 function _getLoginProvider(btn) {
   if (btn.classList.contains('btn-line-login')) return 'LINE';
@@ -244,6 +202,11 @@ function _getLoginProvider(btn) {
   return 'Google';
 }
 
+/**
+ * 將 OAuth 按鈕文字統一包進 span，避免文字節點重複。
+ * @param {HTMLElement} btn - OAuth button。
+ * @param {string} label - 顯示文字。
+ */
 function _setButtonLabel(btn, label) {
   Array.from(btn.childNodes).forEach(node => {
     if (node.nodeType === Node.TEXT_NODE) node.remove();
@@ -257,6 +220,10 @@ function _setButtonLabel(btn, label) {
   labelEl.textContent = label;
 }
 
+/**
+ * 建立 Facebook 登入按鈕，讓舊版 partial 也能自動補齊。
+ * @returns {HTMLButtonElement} Facebook button。
+ */
 function _createFacebookLoginButton() {
   const btn = document.createElement('button');
   btn.className = 'btn-facebook-login';
@@ -265,6 +232,10 @@ function _createFacebookLoginButton() {
   return btn;
 }
 
+/**
+ * 將舊登入/註冊內容簡化為純社群登入內容。
+ * @param {HTMLElement} loginModal - 登入 modal root。
+ */
 function _normalizeLoginModalContent(loginModal) {
   const loginPanel = loginModal.querySelector('[data-panel="login"]') || loginModal.querySelector('.modal-body');
   if (!loginPanel) return;
@@ -303,25 +274,36 @@ function _normalizeLoginModalContent(loginModal) {
   privacy.innerHTML = '登入即代表您同意 Yuruicamp 的 <a href="#">隱私政策</a> 與 <a href="#">服務條款</a>';
 }
 
-function _handleLoginSuccess(user) {
-  // 1. 更新全局狀態
-  // 社群登入成功後必須標記為已登入，Navbar 才會顯示使用者頭像與名稱。
+/**
+ * 處理登入成功流程，主站與 booking 共用 YuruiAuth。
+ * @param {string} provider - 社群登入 provider。
+ */
+function _handleLoginSuccess(provider) {
+  if (window.YuruiAuth && typeof window.YuruiAuth.loginWithProvider === 'function') {
+    window.YuruiAuth.loginWithProvider(provider, {
+      close: () => window.closeModal('loginModal'),
+    });
+    return;
+  }
+
+  const user = {
+    id: 'user-001',
+    name: `${provider} 會員`,
+    email: `user@${provider.toLowerCase()}.example`,
+    avatar: provider.charAt(0),
+    provider: provider.toLowerCase(),
+  };
   window.AppState.isLoggedIn = true;
   window.AppState.currentUser = user;
+  localStorage.setItem('isLoggedIn', 'true');
   localStorage.setItem('currentUser', JSON.stringify(user));
   localStorage.setItem('yuruiUser', JSON.stringify(user));
   window.saveAppState();
-
-  // 2. 更新導航欄（顯示用戶名稱，隱藏登入按鈕）
+  window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'login', user } }));
   window.updateNavbarLoginState();
-
-  // 3. 關閉登入 Modal
   window.closeModal('loginModal');
-
-  // 4. 延遲 300ms 再開啟問卷（視覺上更流暢）
-  setTimeout(() => {
-    window.openPersonalizationModal();
-  }, 300);
+  window.showToast && window.showToast(`已使用 ${provider} 登入`, 'success');
+  setTimeout(() => window.openPersonalizationModal(), 300);
 }
 
 // ----------------------------------------

@@ -133,6 +133,21 @@ window.initBodyScrollLock = () => {
 // Shared layout fragments use `.partial` instead of `.html` because VS Code
 // Live Server injects reload scripts into HTML responses and can corrupt
 // fragment-only files that are fetched into the page.
+
+/**
+ * 回傳目前頁面到專案根目錄的相對前綴。
+ * @returns {string} 根目錄頁面為 "."，pages 子頁為 ".."。
+ */
+function getRootPathPrefix() {
+  return window.location.pathname.includes('/pages/') ? '..' : '.';
+}
+
+/**
+ * 載入指定 partial 區塊並取代目標容器內容。
+ * @param {string} targetId - 目標容器 id。
+ * @param {string} url - partial 檔案路徑。
+ * @param {string} partSelector - 要載入的 data-layout-part selector。
+ */
 async function loadPartial(targetId, url, partSelector) {
   const target = document.getElementById(targetId);
   if (!target) return;
@@ -154,7 +169,33 @@ async function loadPartial(targetId, url, partSelector) {
   }
 }
 
-// 輔助函式：動態載入 JS 腳本
+/**
+ * 將指定 partial 區塊附加到既有容器中。
+ * @param {string} targetId - 目標容器 id。
+ * @param {string} url - partial 檔案路徑。
+ * @param {string} partSelector - 要附加的 data-layout-part selector。
+ */
+async function appendPartial(targetId, url, partSelector) {
+  const target = document.getElementById(targetId);
+  if (!target) return;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`無法載入組件: ${url}`);
+    const html = await response.text();
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    const part = template.content.querySelector(partSelector);
+    if (part) target.insertAdjacentHTML('beforeend', part.innerHTML);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * 輔助函式：動態載入 JS 腳本。
+ * @param {string} src - Script 路徑。
+ * @returns {Promise<void>} 載入完成 promise。
+ */
 function loadComponentScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
@@ -167,16 +208,20 @@ function loadComponentScript(src) {
 
 // 主初始化流程
 async function initGlobalLayout() {
+  const rootPrefix = getRootPathPrefix();
+
   // 1. 根據目錄樹，從 pages/* 往上找頂層的 components/
   await Promise.all([
-    loadPartial("header", "../components/header.partial", '[data-layout-part="main-header"]'),
-    loadPartial("footer", "../components/footer.partial", '[data-layout-part="main-footer"]')
+    loadPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="main-header"]'),
+    loadPartial("footer", `${rootPrefix}/components/footer.partial`, '[data-layout-part="main-footer"]')
   ]);
+  await appendPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="shared-auth"]');
 
   // 2. 確定 HTML 結構長到網頁上後，才動態載入原本的互動 JS
   try {
+    await loadComponentScript(`${rootPrefix}/js/components/auth.js`);
     // 這樣可以確保手機版漢堡選單、登入彈出視窗的功能不會失效
-    await loadComponentScript("../js/components/header.js");
+    await loadComponentScript(`${rootPrefix}/js/components/header.js`);
     
   } catch (error) {
     console.error("組件腳本載入失敗:", error);

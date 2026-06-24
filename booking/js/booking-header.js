@@ -1,277 +1,423 @@
 /**
  * booking-header.js
- * 預約系統 Header 專屬邏輯
- * 功能：
- *   1. updateBookingBadge()  — 讀取 localStorage.bookingCart，計算並更新背包 Badge
- *   2. checkLoginState()     — 讀取登入狀態，切換「登入按鈕 ↔ 用戶頭像」
- *   3. initOffcanvas()       — 手機版漢堡選單展開 / 收起
- *   4. openPanel() / closePanels() — 共用 Slide Panel 開關
- *   5. initLoginPanel()      — 登入 Slide Panel（右側滑入）
- *   6. renderCartPanel()     — 渲染預約背包 Panel 內容
- *   7. initCartPanel()       — 預約背包 Slide Panel（右側滑入）
- *   8. setActiveNavLink()    — 根據目前頁面 URL，自動為對應導覽連結加上 active 樣式
+ * Controls the Booking header shell while sharing auth state with the main site.
  */
-
 (function () {
   'use strict';
 
-  /* 若頁面未載入 booking-utils.js（如 camp-search、faq、rental-guide），
-     在此定義 showToast，確保 OAuth 按鈕仍可正常顯示提示。 */
-  if (typeof window.showToast !== 'function') {
-    window.showToast = (function () {
-      var ICONS = {
-        info: 'bi bi-info-circle-fill', warning: 'bi bi-exclamation-triangle-fill',
-        error: 'bi bi-x-octagon-fill',  success: 'bi bi-check-circle-fill'
-      };
-      function getContainer() {
-        var el = document.getElementById('bk-toast-container');
-        if (!el) { el = document.createElement('div'); el.id = 'bk-toast-container'; document.body.appendChild(el); }
-        return el;
-      }
-      function dismiss(t) {
-        t.classList.add('bk-toast--hiding');
-        setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 300);
-      }
-      return function showToast(message, type) {
-        type = (type && ICONS[type]) ? type : 'info';
-        var c = getContainer();
-        var toast = document.createElement('div');
-        toast.className = 'bk-toast bk-toast--' + type;
-        var icon = document.createElement('i'); icon.className = ICONS[type]; icon.setAttribute('aria-hidden','true');
-        var text = document.createElement('span'); text.className = 'bk-toast__text'; text.textContent = message;
-        var btn = document.createElement('button'); btn.className = 'bk-toast__close'; btn.setAttribute('aria-label','關閉'); btn.innerHTML = '&times;';
-        btn.addEventListener('click', function () { dismiss(toast); });
-        toast.appendChild(icon); toast.appendChild(text); toast.appendChild(btn); c.appendChild(toast);
-        var timer = setTimeout(function () { dismiss(toast); }, 3500);
-        toast.addEventListener('mouseenter', function () { clearTimeout(timer); });
-        toast.addEventListener('mouseleave', function () { timer = setTimeout(function () { dismiss(toast); }, 2000); });
-      };
-    }());
+  var personalizationCompleted = false;
+
+  /**
+   * Creates the toast container when booking utility scripts are not loaded yet.
+   */
+  function getToastContainer() {
+    var el = document.getElementById('bk-toast-container');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'bk-toast-container';
+      document.body.appendChild(el);
+    }
+    return el;
   }
 
-  /* ============================================================
-     1. Badge 更新
-     ============================================================ */
-  function updateBookingBadge() {
-    var badge       = document.getElementById('bookingBadge');
-    var badgeMobile = document.getElementById('bookingBadgeMobile');
+  /**
+   * Removes a toast with the same exit animation used by booking pages.
+   */
+  function dismissToast(toast) {
+    toast.classList.add('bk-toast--hiding');
+    setTimeout(function () {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }
 
-    if (!badge && !badgeMobile) return;
+  /**
+   * Installs a small toast fallback for pages that have not loaded booking-utils.js.
+   */
+  function ensureToastFallback() {
+    if (typeof window.showToast === 'function') return;
 
-    var stored = localStorage.getItem('bookingCart');
-    if (!stored) {
-      if (badge)       badge.style.display       = 'none';
-      if (badgeMobile) badgeMobile.style.display = 'none';
-      return;
+    window.showToast = function showToast(message, type) {
+      var icons = {
+        info: 'bi bi-info-circle-fill',
+        warning: 'bi bi-exclamation-triangle-fill',
+        error: 'bi bi-x-octagon-fill',
+        success: 'bi bi-check-circle-fill'
+      };
+      var toastType = icons[type] ? type : 'info';
+      var container = getToastContainer();
+      var toast = document.createElement('div');
+      var icon = document.createElement('i');
+      var text = document.createElement('span');
+      var closeBtn = document.createElement('button');
+
+      toast.className = 'bk-toast bk-toast--' + toastType;
+      icon.className = icons[toastType];
+      icon.setAttribute('aria-hidden', 'true');
+      text.className = 'bk-toast__text';
+      text.textContent = message;
+      closeBtn.className = 'bk-toast__close';
+      closeBtn.setAttribute('aria-label', '關閉');
+      closeBtn.innerHTML = '&times;';
+      closeBtn.addEventListener('click', function () { dismissToast(toast); });
+
+      toast.appendChild(icon);
+      toast.appendChild(text);
+      toast.appendChild(closeBtn);
+      container.appendChild(toast);
+
+      var timer = setTimeout(function () { dismissToast(toast); }, 3500);
+      toast.addEventListener('mouseenter', function () { clearTimeout(timer); });
+      toast.addEventListener('mouseleave', function () {
+        timer = setTimeout(function () { dismissToast(toast); }, 2000);
+      });
+    };
+  }
+
+  /**
+   * Reads JSON from localStorage and returns a fallback when parsing fails.
+   */
+  function readJsonStorage(key, fallback) {
+    try {
+      var value = localStorage.getItem(key);
+      return value ? JSON.parse(value) : fallback;
+    } catch (error) {
+      return fallback;
     }
+  }
 
-    var cart;
-    try { cart = JSON.parse(stored); } catch (e) {
-      if (badge)       badge.style.display       = 'none';
-      if (badgeMobile) badgeMobile.style.display = 'none';
-      return;
-    }
-
+  /**
+   * Counts the total selected booking and rental items stored in the cart.
+   */
+  function getBookingCartTotal(cart) {
     var zoneCount = (cart.selected_zones || []).reduce(function (sum, zone) {
       return sum + (zone.quantity || 0);
     }, 0);
     var rentalCount = (cart.selected_rentals || []).reduce(function (sum, rental) {
       return sum + (rental.quantity || 0);
     }, 0);
-    var total = zoneCount + rentalCount;
-
-    if (total > 0) {
-      var displayText = total > 9 ? '9+' : String(total);
-      if (badge)       { badge.textContent       = displayText; badge.style.display       = 'inline-flex'; }
-      if (badgeMobile) { badgeMobile.textContent = displayText; badgeMobile.style.display = 'inline-flex'; }
-    } else {
-      if (badge)       badge.style.display       = 'none';
-      if (badgeMobile) badgeMobile.style.display = 'none';
-    }
+    return zoneCount + rentalCount;
   }
 
-  /* ============================================================
-     2. 登入狀態判斷
-     ============================================================ */
+  /**
+   * Updates desktop and mobile booking-cart badges from localStorage.bookingCart.
+   */
+  function updateBookingBadge() {
+    var badge = document.getElementById('bookingBadge');
+    var badgeMobile = document.getElementById('bookingBadgeMobile');
+    var cart = readJsonStorage('bookingCart', null);
+    var total = cart ? getBookingCartTotal(cart) : 0;
+    var displayText = total > 9 ? '9+' : String(total);
+
+    [badge, badgeMobile].forEach(function (el) {
+      if (!el) return;
+      el.textContent = displayText;
+      el.style.display = total > 0 ? 'inline-flex' : 'none';
+    });
+  }
+
+  /**
+   * Gets the current shared auth user from YuruiAuth or legacy storage.
+   */
+  function getCurrentUser() {
+    if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
+      return window.YuruiAuth.getUser();
+    }
+    if (localStorage.getItem('isLoggedIn') !== 'true') return null;
+    return readJsonStorage('currentUser', null) || readJsonStorage('yuruiUser', null);
+  }
+
+  /**
+   * Hides the shared user dropdown in the booking header.
+   */
+  function closeUserDropdown() {
+    var dropdown = document.querySelector('.booking-header .navbar-user-dropdown');
+    if (dropdown) dropdown.style.display = 'none';
+  }
+
+  /**
+   * Logs the user out through the shared auth service and refreshes booking UI.
+   */
   function logout() {
+    if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
+      window.YuruiAuth.logout({ close: closeUserDropdown });
+      return;
+    }
+
+    localStorage.setItem('isLoggedIn', 'false');
+    localStorage.removeItem('currentUser');
     localStorage.removeItem('yuruiUser');
+    window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'logout', user: null } }));
     closeUserDropdown();
     checkLoginState();
-    window.showToast('已成功登出', 'success');
+    window.showToast('已登出', 'success');
   }
 
-  function closeUserDropdown() {
-    var dropdown = document.getElementById('bkUserDropdown');
-    var toggle   = document.getElementById('bkUserDropdownToggle');
-    if (dropdown) dropdown.classList.remove('is-open');
-    if (toggle)   toggle.setAttribute('aria-expanded', 'false');
-  }
-
+  /**
+   * Wires the shared user dropdown and logout button for the booking header.
+   */
   function initUserDropdown() {
-    var toggle   = document.getElementById('bkUserDropdownToggle');
-    var dropdown = document.getElementById('bkUserDropdown');
-    var logoutBtn = document.getElementById('bkLogoutBtn');
+    var userMenu = document.querySelector('.booking-header .navbar-user-menu');
+    var userInfo = userMenu ? userMenu.querySelector('.user-info') : null;
+    var dropdown = userMenu ? userMenu.querySelector('.navbar-user-dropdown') : null;
+    var logoutBtn = userMenu ? userMenu.querySelector('.navbar-logout-btn') : null;
 
-    if (!toggle || !dropdown) return;
-    if (toggle._dropdownBound) return;
-    toggle._dropdownBound = true;
+    if (!userMenu || !userInfo || !dropdown) return;
+    if (userMenu.dataset.dropdownBound === 'true') return;
+    userMenu.dataset.dropdownBound = 'true';
 
-    toggle.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var isOpen = dropdown.classList.toggle('is-open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
+    userInfo.addEventListener('click', function (event) {
+      event.stopPropagation();
+      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
     });
 
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', logout);
+      logoutBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        logout();
+      });
     }
-
-    // 點選下拉選單以外的地方關閉
-    document.addEventListener('click', function (e) {
-      var userMenu = document.getElementById('bkUserMenu');
-      if (userMenu && !userMenu.contains(e.target)) {
-        closeUserDropdown();
-      }
-    });
-
-    // Esc 關閉
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeUserDropdown();
-    });
   }
 
+  /**
+   * Refreshes login button, user menu, and mobile logout visibility from auth state.
+   */
   function checkLoginState() {
-    var loginBtn         = document.getElementById('bkLoginBtn');
-    var userMenu         = document.getElementById('bkUserMenu');
-    var userAvatar       = document.getElementById('bkUserAvatar');
-    var userName         = document.getElementById('bkUserName');
-    var logoutBtnMobile  = document.getElementById('bkLogoutBtnMobile');
+    var loginBtn = document.querySelector('.booking-header .navbar-login-btn');
+    var userMenu = document.querySelector('.booking-header .navbar-user-menu');
     var logoutItemMobile = document.getElementById('bkOffcanvasLogoutItem');
+    var user = getCurrentUser();
 
     if (!loginBtn || !userMenu) return;
 
-    var user = null;
-    try { user = JSON.parse(localStorage.getItem('yuruiUser')); } catch (e) {}
-
     if (user && user.name) {
+      var userName = userMenu.querySelector('.user-name');
+      var userAvatar = userMenu.querySelector('.user-avatar');
       loginBtn.style.display = 'none';
       userMenu.style.display = 'flex';
-      if (userAvatar) userAvatar.textContent = user.name.charAt(0).toUpperCase();
-      if (userName)   userName.textContent   = user.name;
+      if (userName) userName.textContent = user.name;
+      if (userAvatar) userAvatar.textContent = (user.avatar || user.name.charAt(0)).toUpperCase();
       if (logoutItemMobile) logoutItemMobile.style.display = '';
       initUserDropdown();
     } else {
       loginBtn.style.display = 'inline-flex';
       userMenu.style.display = 'none';
       if (logoutItemMobile) logoutItemMobile.style.display = 'none';
+      closeUserDropdown();
     }
+  }
 
-    if (logoutBtnMobile && !logoutBtnMobile._logoutBound) {
-      logoutBtnMobile._logoutBound = true;
+  /**
+   * Closes the booking mobile offcanvas from any event handler.
+   */
+  function closeOffcanvasFromAnywhere() {
+    var offcanvas = document.getElementById('bkOffcanvas');
+    var backdrop = document.getElementById('bkBackdrop');
+    var hamburger = document.getElementById('bkHamburger');
+    if (offcanvas) offcanvas.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-visible');
+    if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  /**
+   * Opens the booking mobile offcanvas and locks page scrolling.
+   */
+  function openOffcanvas() {
+    var offcanvas = document.getElementById('bkOffcanvas');
+    var backdrop = document.getElementById('bkBackdrop');
+    var hamburger = document.getElementById('bkHamburger');
+    if (!offcanvas || !hamburger) return;
+    offcanvas.classList.add('is-open');
+    if (backdrop) backdrop.classList.add('is-visible');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Binds the booking hamburger, offcanvas close controls, and mobile cart/logout buttons.
+   */
+  function initOffcanvas() {
+    var hamburger = document.getElementById('bkHamburger');
+    var backdrop = document.getElementById('bkBackdrop');
+    var closeBtn = document.getElementById('bkOffcanvasClose');
+    var cartBtnMobile = document.getElementById('bkCartBtnMobile');
+    var logoutBtnMobile = document.getElementById('bkLogoutBtnMobile');
+
+    if (hamburger && hamburger.dataset.offcanvasBound !== 'true') {
+      hamburger.dataset.offcanvasBound = 'true';
+      hamburger.addEventListener('click', openOffcanvas);
+    }
+    if (closeBtn && closeBtn.dataset.offcanvasBound !== 'true') {
+      closeBtn.dataset.offcanvasBound = 'true';
+      closeBtn.addEventListener('click', closeOffcanvasFromAnywhere);
+    }
+    if (backdrop && backdrop.dataset.offcanvasBound !== 'true') {
+      backdrop.dataset.offcanvasBound = 'true';
+      backdrop.addEventListener('click', closeOffcanvasFromAnywhere);
+    }
+    if (cartBtnMobile && cartBtnMobile.dataset.cartBound !== 'true') {
+      cartBtnMobile.dataset.cartBound = 'true';
+      cartBtnMobile.addEventListener('click', function () {
+        closeOffcanvasFromAnywhere();
+        renderCartPanel();
+        openPanel(document.getElementById('cartPanel'));
+      });
+    }
+    if (logoutBtnMobile && logoutBtnMobile.dataset.logoutBound !== 'true') {
+      logoutBtnMobile.dataset.logoutBound = 'true';
       logoutBtnMobile.addEventListener('click', function () {
-        var offcanvas = document.getElementById('bkOffcanvas');
-        var backdrop  = document.getElementById('bkBackdrop');
-        var hamburger = document.getElementById('bkHamburger');
-        if (offcanvas) offcanvas.classList.remove('is-open');
-        if (backdrop)  backdrop.classList.remove('is-visible');
-        if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
+        closeOffcanvasFromAnywhere();
         logout();
       });
     }
   }
 
-  /* ============================================================
-     3. Offcanvas 開關邏輯（手機版漢堡選單）
-     ============================================================ */
-  function initOffcanvas() {
-    var hamburger = document.getElementById('bkHamburger');
-    var offcanvas = document.getElementById('bkOffcanvas');
-    var backdrop  = document.getElementById('bkBackdrop');
-    var closeBtn  = document.getElementById('bkOffcanvasClose');
-
-    if (!hamburger || !offcanvas) return;
-
-    function openOffcanvas() {
-      offcanvas.classList.add('is-open');
-      if (backdrop) backdrop.classList.add('is-visible');
-      hamburger.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeOffcanvas() {
-      offcanvas.classList.remove('is-open');
-      if (backdrop) backdrop.classList.remove('is-visible');
-      hamburger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-    }
-
-    hamburger.addEventListener('click', openOffcanvas);
-    if (closeBtn) closeBtn.addEventListener('click', closeOffcanvas);
-    if (backdrop) backdrop.addEventListener('click', closeOffcanvas);
-
-    // Esc 關閉 offcanvas
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && offcanvas.classList.contains('is-open')) {
-        closeOffcanvas();
-      }
-    });
-
-    // 手機版「預約背包」按鈕：關閉 offcanvas 再開啟 Cart Panel
-    var cartBtnMobile = document.getElementById('bkCartBtnMobile');
-    if (cartBtnMobile) {
-      cartBtnMobile.addEventListener('click', function () {
-        closeOffcanvas();
-        var cartPanel = document.getElementById('cartPanel');
-        if (cartPanel) {
-          renderCartPanel();
-          openPanel(cartPanel);
-        }
-      });
-    }
-  }
-
-  /* ============================================================
-     4. 共用 Slide Panel 開關
-     ============================================================ */
+  /**
+   * Opens a booking slide panel such as the cart panel.
+   */
   function openPanel(panelEl) {
+    var backdrop = document.getElementById('bkPanelBackdrop');
+    if (!panelEl) return;
     panelEl.classList.add('is-open');
-    console.log('[BK] openPanel — id:', panelEl.id, 'right (computed):', getComputedStyle(panelEl).right);
-    var bd = document.getElementById('bkPanelBackdrop');
-    if (bd) bd.classList.add('is-visible');
+    if (backdrop) backdrop.classList.add('is-visible');
     document.body.style.overflow = 'hidden';
   }
 
+  /**
+   * Closes booking slide panels without touching shared auth modals.
+   */
   function closePanels() {
-    var loginPanel = document.getElementById('loginModal');
-    var cartPanel  = document.getElementById('cartPanel');
-    if (loginPanel) loginPanel.classList.remove('is-open');
-    if (cartPanel)  cartPanel.classList.remove('is-open');
-    var bd = document.getElementById('bkPanelBackdrop');
-    if (bd) bd.classList.remove('is-visible');
+    var cartPanel = document.getElementById('cartPanel');
+    var backdrop = document.getElementById('bkPanelBackdrop');
+    if (cartPanel) cartPanel.classList.remove('is-open');
+    if (backdrop) backdrop.classList.remove('is-visible');
     document.body.style.overflow = '';
   }
 
-  var personalizationCompleted = false;
+  /**
+   * Opens a shared modal and marks it active for either main or booking pages.
+   */
+  function openSharedModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
 
+  /**
+   * Closes a shared modal, optionally bypassing personalization confirmation.
+   */
+  function closeSharedModal(modalId, options) {
+    var modal = document.getElementById(modalId);
+    var shouldConfirm = modalId === 'personalizationModal' && !personalizationCompleted && !(options && options.force);
+    if (!modal) return;
+    if (shouldConfirm && !window.confirm('尚未完成偏好設定，確定要關閉嗎？')) return;
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  /**
+   * Derives the shared auth provider name from a clicked login button.
+   */
+  function getLoginProvider(button) {
+    if (button.classList.contains('btn-google-login')) return 'Google';
+    if (button.classList.contains('btn-facebook-login')) return 'Facebook';
+    if (button.classList.contains('btn-line-login')) return 'LINE';
+    return 'Google';
+  }
+
+  /**
+   * Logs in with the shared auth service and opens personalization afterwards.
+   */
+  function loginWithProvider(provider) {
+    if (window.YuruiAuth && typeof window.YuruiAuth.loginWithProvider === 'function') {
+      window.YuruiAuth.loginWithProvider(provider, {
+        close: function () { closeSharedModal('loginModal', { force: true }); }
+      });
+      return;
+    }
+
+    var user = {
+      name: provider + ' 使用者',
+      email: 'user@' + provider.toLowerCase() + '.example',
+      avatar: provider.charAt(0),
+      provider: provider.toLowerCase()
+    };
+    localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('yuruiUser', JSON.stringify(user));
+    window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'login', user: user } }));
+    closeSharedModal('loginModal', { force: true });
+    checkLoginState();
+    setTimeout(openPersonalizationModal, 300);
+  }
+
+  /**
+   * Resets the two-step personalization survey to its initial state.
+   */
+  function resetPersonalizationModal() {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal) return;
+    personalizationCompleted = false;
+    modal.querySelectorAll('.survey-tag.active').forEach(function (tag) {
+      tag.classList.remove('active');
+    });
+    goToSurveyStep(1);
+  }
+
+  /**
+   * Opens the shared personalization modal from login flows or page actions.
+   */
+  function openPersonalizationModal() {
+    resetPersonalizationModal();
+    openSharedModal('personalizationModal');
+  }
+
+  /**
+   * Returns selected survey values grouped by the shared modal step.
+   */
+  function getSurveySelections() {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal) return { styles: [], equipment: [] };
+    return {
+      styles: Array.from(modal.querySelectorAll('[data-step="1"] .survey-tag.active')).map(function (tag) {
+        return tag.dataset.value;
+      }),
+      equipment: Array.from(modal.querySelectorAll('[data-step="2"] .survey-tag.active')).map(function (tag) {
+        return tag.dataset.value;
+      })
+    };
+  }
+
+  /**
+   * Flattens survey values for legacy member-center profile storage.
+   */
   function flattenSurveyPreferences(preferences) {
     return (preferences.styles || []).concat(preferences.equipment || []);
   }
 
+  /**
+   * Persists personalization results and notifies pages that use preference data.
+   */
   function syncProfilePreferenceStorage(preferences) {
-    var profile = {};
-    try { profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}'); } catch (e) {}
+    var profile = readJsonStorage('yurui_profile', {});
     profile.preferences = flattenSurveyPreferences(preferences);
     localStorage.setItem('yurui_profile', JSON.stringify(profile));
     window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: preferences }));
   }
 
+  /**
+   * Validates that a survey step has enough selected tags.
+   */
   function validateSurveySelection(count) {
     if (count >= 2) return true;
-    window.showToast('請至少選擇 2 個偏好項目', 'warning');
+    window.showToast('請至少選擇 2 個項目', 'warning');
     return false;
   }
 
+  /**
+   * Switches the personalization modal to the requested step.
+   */
   function goToSurveyStep(step) {
     var modal = document.getElementById('personalizationModal');
     if (!modal) return;
@@ -285,245 +431,183 @@
     if (stepText) stepText.textContent = step + ' / 2';
   }
 
-  function openPersonalizationModal() {
-    var modal = document.getElementById('personalizationModal');
-    var backdrop = document.getElementById('bkPanelBackdrop');
-    if (!modal) return;
-    personalizationCompleted = false;
-    modal.querySelectorAll('.survey-tag.active').forEach(function (tag) {
-      tag.classList.remove('active');
-    });
-    goToSurveyStep(1);
-    modal.classList.add('is-open');
-    if (backdrop) backdrop.classList.add('is-visible');
-    document.body.style.overflow = 'hidden';
+  /**
+   * Completes personalization and closes the shared modal.
+   */
+  function finishPersonalization() {
+    var preferences = getSurveySelections();
+    if (!validateSurveySelection(preferences.styles.length)) {
+      goToSurveyStep(1);
+      return;
+    }
+    if (!validateSurveySelection(preferences.equipment.length)) return;
+
+    syncProfilePreferenceStorage(preferences);
+    personalizationCompleted = true;
+    closeSharedModal('personalizationModal', { force: true });
+    window.showToast('偏好設定已儲存', 'success');
   }
 
-  function closePersonalizationModal(options) {
-    options = options || {};
-    if (!options.force && !personalizationCompleted && !window.confirm('偏好設定尚未完成，確定要關閉嗎？')) return;
-    var modal = document.getElementById('personalizationModal');
-    if (modal) modal.classList.remove('is-open');
-    var backdrop = document.getElementById('bkPanelBackdrop');
-    if (backdrop) backdrop.classList.remove('is-visible');
-    document.body.style.overflow = '';
-  }
+  /**
+   * Binds shared login and personalization modal controls for booking pages.
+   */
+  function initSharedAuthModals() {
+    var loginModal = document.getElementById('loginModal');
+    var personalizationModal = document.getElementById('personalizationModal');
+    var loginBtn = document.querySelector('.booking-header .navbar-login-btn');
 
-  function initPersonalizationModal() {
-    var modal = document.getElementById('personalizationModal');
-    if (!modal || modal._personalizationBound) return;
-    modal._personalizationBound = true;
-
+    window.openModal = openSharedModal;
+    window.closeModal = closeSharedModal;
     window.openPersonalizationModal = openPersonalizationModal;
 
-    var closeBtn = document.getElementById('bkPersonalizationClose');
-    if (closeBtn) closeBtn.addEventListener('click', function () { closePersonalizationModal(); });
-
-    modal.addEventListener('click', function (e) {
-      if (e.target.classList.contains('survey-tag')) {
-        e.target.classList.toggle('active');
-      }
-
-      if (e.target.id === 'surveyNextBtn') {
-        var step1Tags = modal.querySelectorAll('[data-step="1"] .survey-tag.active');
-        if (!validateSurveySelection(step1Tags.length)) return;
-        goToSurveyStep(2);
-      }
-
-      if (e.target.id === 'surveyFinishBtn') {
-        var step1 = Array.from(modal.querySelectorAll('[data-step="1"] .survey-tag.active'));
-        var step2 = Array.from(modal.querySelectorAll('[data-step="2"] .survey-tag.active'));
-        if (!validateSurveySelection(step1.length)) {
-          goToSurveyStep(1);
-          return;
-        }
-        if (!validateSurveySelection(step2.length)) return;
-        var preferences = {
-          styles: step1.map(function (tag) { return tag.dataset.value; }),
-          equipment: step2.map(function (tag) { return tag.dataset.value; })
-        };
-        syncProfilePreferenceStorage(preferences);
-        personalizationCompleted = true;
-        closePersonalizationModal({ force: true });
-        window.showToast('偏好設定已儲存，之後會用來推薦合適內容', 'success');
-      }
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && modal.classList.contains('is-open')) closePersonalizationModal();
-    });
-  }
-
-  /* ============================================================
-     5. Login Slide Panel
-     ============================================================ */
-  function initLoginPanel() {
-    var loginBtn = document.getElementById('bkLoginBtn');
-    var panel    = document.getElementById('loginModal');
-
-    if (!panel) return;
-
-    // 對外暴露：member-center.js / booking-cart.js 可呼叫 window.openModal('loginModal')
-    window.openModal = function (modalId) {
-      if (modalId === 'loginModal') openPanel(panel);
-    };
-
-    // Header 登入按鈕
-    if (loginBtn) {
-      loginBtn.addEventListener('click', function (e) {
-        e.preventDefault();
-        openPanel(panel);
+    if (loginBtn && loginBtn.dataset.loginBound !== 'true') {
+      loginBtn.dataset.loginBound = 'true';
+      loginBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        openSharedModal('loginModal');
       });
     }
 
-    // ✕ 關閉按鈕
-    var closeBtn = document.getElementById('loginPanelClose');
-    if (closeBtn) closeBtn.addEventListener('click', closePanels);
-
-    // OAuth 佔位邏輯（未來替換為真實 OAuth redirect）
-    function handleOAuth(provider) {
-      console.log('[OAuth] 準備使用', provider, '登入');
-      window.showToast('【開發中】即將導向 ' + provider + ' 授權頁面', 'info');
+    if (loginModal && loginModal.dataset.sharedBound !== 'true') {
+      loginModal.dataset.sharedBound = 'true';
+      loginModal.querySelectorAll('.btn-google-login, .btn-facebook-login, .btn-line-login').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          loginWithProvider(getLoginProvider(button));
+        });
+      });
     }
 
-    // 測試用：Google 按鈕直接模擬登入，不走真實 OAuth
-    function handleGoogleTestLogin() {
-      var mockUser = {
-        name: 'Google 測試用戶',
-        email: 'test@gmail.com',
-        avatar: 'G',
-        provider: 'google'
-      };
-      localStorage.setItem('yuruiUser', JSON.stringify(mockUser));
-      closePanels();
-      checkLoginState();
-      window.showToast('已使用 Google 帳號登入（測試模式）', 'success');
+    if (personalizationModal && personalizationModal.dataset.sharedBound !== 'true') {
+      personalizationModal.dataset.sharedBound = 'true';
+      personalizationModal.addEventListener('click', function (event) {
+        if (event.target.classList.contains('survey-tag')) {
+          event.target.classList.toggle('active');
+          return;
+        }
+        if (event.target.id === 'surveyNextBtn') {
+          var preferences = getSurveySelections();
+          if (validateSurveySelection(preferences.styles.length)) goToSurveyStep(2);
+          return;
+        }
+        if (event.target.id === 'surveyFinishBtn') finishPersonalization();
+      });
     }
 
-    function handleUnifiedOAuthLogin(provider) {
-      var mockUser = {
-        name: provider + ' 會員',
-        email: 'user@' + provider.toLowerCase() + '.example',
-        avatar: provider.charAt(0),
-        provider: provider.toLowerCase()
-      };
-      localStorage.setItem('yuruiUser', JSON.stringify(mockUser));
-      localStorage.setItem('currentUser', JSON.stringify(mockUser));
-      closePanels();
-      checkLoginState();
-      window.showToast('已使用 ' + provider + ' 登入', 'success');
-      setTimeout(openPersonalizationModal, 300);
-    }
+    document.querySelectorAll('#loginModal .modal-close, #personalizationModal .modal-close').forEach(function (button) {
+      if (button.dataset.closeBound === 'true') return;
+      button.dataset.closeBound = 'true';
+      button.addEventListener('click', function () {
+        closeSharedModal(button.closest('.modal').id);
+      });
+    });
 
-    function bindUnifiedOAuthButton(btn, provider) {
-      if (!btn || btn._unifiedOAuthBound) return;
-      btn._unifiedOAuthBound = true;
-      btn.addEventListener('click', function (event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        handleUnifiedOAuthLogin(provider);
-      }, true);
-    }
-
-    var btnGoogle   = document.getElementById('oauthGoogle');
-    var btnLine     = document.getElementById('oauthLine');
-    var btnFacebook = document.getElementById('oauthFacebook');
-    bindUnifiedOAuthButton(btnGoogle, 'Google');
-    bindUnifiedOAuthButton(btnLine, 'LINE');
-    bindUnifiedOAuthButton(btnFacebook, 'Facebook');
-    if (btnGoogle)   btnGoogle.addEventListener('click',   handleGoogleTestLogin);
-    if (btnLine)     btnLine.addEventListener('click',     function () { handleOAuth('LINE'); });
-    if (btnFacebook) btnFacebook.addEventListener('click', function () { handleOAuth('Facebook'); });
+    document.querySelectorAll('#loginModal, #personalizationModal').forEach(function (modal) {
+      if (modal.dataset.backdropBound === 'true') return;
+      modal.dataset.backdropBound = 'true';
+      modal.addEventListener('click', function (event) {
+        if (event.target === modal) closeSharedModal(modal.id);
+      });
+    });
   }
 
-  /* ============================================================
-     6. 渲染 Cart Panel 內容（從 localStorage 讀取）
-     ============================================================ */
-  function renderCartPanel() {
-    var body   = document.getElementById('cartPanelBody');
-    var footer = document.getElementById('cartPanelFooter');
-    if (!body) return;
+  /**
+   * Escapes cart text before rendering it into panel HTML.
+   */
+  function escapeHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char];
+    });
+  }
 
-    var stored = localStorage.getItem('bookingCart');
-    if (!stored) {
+  /**
+   * Formats a number as a localized currency fragment.
+   */
+  function formatMoney(value) {
+    return 'NT$' + Number(value || 0).toLocaleString();
+  }
+
+  /**
+   * Renders one selected cart row for zones or rentals.
+   */
+  function renderCartRow(label, amount) {
+    return '<div class="cart-panel__row"><span>' + escapeHtml(label) + '</span><span>' + formatMoney(amount) + '</span></div>';
+  }
+
+  /**
+   * Renders the booking cart slide panel from localStorage.bookingCart.
+   */
+  function renderCartPanel() {
+    var body = document.getElementById('cartPanelBody');
+    var footer = document.getElementById('cartPanelFooter');
+    var cart = readJsonStorage('bookingCart', null);
+    var html = '';
+
+    if (!body) return;
+    if (!cart) {
       body.innerHTML = [
         '<div class="cart-panel__empty">',
         '  <i class="bi bi-bag-x"></i>',
-        '  <p>背包是空的</p>',
-        '  <a href="./camp-search.html" class="btn btn--outline" style="margin-top:0.75rem;">去探索營地</a>',
+        '  <p>預約背包目前是空的</p>',
+        '  <a href="./camp-search.html" class="btn btn--outline" style="margin-top:0.75rem;">前往找營地</a>',
         '</div>'
       ].join('');
       if (footer) footer.style.display = 'none';
       return;
     }
 
-    var cart;
-    try { cart = JSON.parse(stored); } catch (e) { return; }
-
-    var info    = cart.booking_info     || {};
-    var zones   = cart.selected_zones   || [];
+    var info = cart.booking_info || {};
+    var zones = cart.selected_zones || [];
     var rentals = cart.selected_rentals || [];
-    var summary = cart.summary          || {};
-    var html    = '';
+    var summary = cart.summary || {};
 
-    // ── 住宿區塊 ──
     if (zones.length > 0) {
       html += '<div class="cart-panel__section">';
-      html += '<div class="cart-panel__label">住宿</div>';
-      zones.forEach(function (z) {
-        html += '<div class="cart-panel__row">';
-        html += '<span>' + (info.campground_name || '') + '・' + (z.zone_type || '') + ' ×' + z.quantity + '</span>';
-        html += '<span>NT$' + ((z.subtotal || 0).toLocaleString()) + '</span>';
-        html += '</div>';
+      html += '<div class="cart-panel__label">營位</div>';
+      zones.forEach(function (zone) {
+        html += renderCartRow((info.campground_name || '') + ' - ' + (zone.zone_type || '') + ' x' + (zone.quantity || 0), zone.subtotal);
       });
       if (info.check_in) {
-        html += '<div class="cart-panel__meta">'
-              + '<i class="bi bi-calendar3"></i> '
-              + info.check_in + ' ～ ' + info.check_out
-              + '（' + (info.total_days || 0) + ' 晚）'
-              + '</div>';
+        html += '<div class="cart-panel__meta"><i class="bi bi-calendar3"></i> '
+          + escapeHtml(info.check_in) + ' 至 ' + escapeHtml(info.check_out || '')
+          + '，' + escapeHtml(info.total_days || 0) + ' 晚</div>';
       }
       if (info.guest_count) {
-        html += '<div class="cart-panel__meta">'
-              + '<i class="bi bi-people"></i> ' + info.guest_count + ' 人'
-              + (info.region ? '&nbsp;&nbsp;<i class="bi bi-geo-alt"></i> ' + info.region : '')
-              + '</div>';
+        html += '<div class="cart-panel__meta"><i class="bi bi-people"></i> '
+          + escapeHtml(info.guest_count) + ' 人'
+          + (info.region ? '&nbsp;&nbsp;<i class="bi bi-geo-alt"></i> ' + escapeHtml(info.region) : '')
+          + '</div>';
       }
       html += '</div>';
     }
 
-    // ── 裝備租借區塊 ──
     if (rentals.length > 0) {
       html += '<div class="cart-panel__section">';
-      html += '<div class="cart-panel__label">裝備租借</div>';
-      rentals.forEach(function (r) {
-        html += '<div class="cart-panel__row">';
-        html += '<span>' + (r.name || '') + ' ×' + r.quantity + '</span>';
-        html += '<span>NT$' + ((r.subtotal || 0).toLocaleString()) + '</span>';
-        html += '</div>';
+      html += '<div class="cart-panel__label">租借裝備</div>';
+      rentals.forEach(function (rental) {
+        html += renderCartRow((rental.name || '') + ' x' + (rental.quantity || 0), rental.subtotal);
       });
       html += '</div>';
     }
 
-    // ── 合計 ──
     if (summary.final_amount !== undefined) {
-      html += '<div class="cart-panel__total">'
-            + '<span>合計</span>'
-            + '<span>NT$' + summary.final_amount.toLocaleString() + '</span>'
-            + '</div>';
+      html += '<div class="cart-panel__total"><span>總計</span><span>' + formatMoney(summary.final_amount) + '</span></div>';
     }
-
-    // ── 清除背包 ──
-    html += '<button class="cart-panel__clear" id="cartPanelClear">清除背包</button>';
+    html += '<button class="cart-panel__clear" id="cartPanelClear" type="button">清空預約背包</button>';
 
     body.innerHTML = html;
     if (footer) footer.style.display = '';
 
-    // 清除背包按鈕
     var clearBtn = document.getElementById('cartPanelClear');
     if (clearBtn) {
       clearBtn.addEventListener('click', function () {
-        showConfirmToast('確定清除背包中的所有預約資料？', function () {
+        showConfirmToast('確定要清空預約背包嗎？', function () {
           localStorage.removeItem('bookingCart');
           updateBookingBadge();
           renderCartPanel();
@@ -532,36 +616,43 @@
     }
   }
 
-  /* ============================================================
-     7. Cart Slide Panel 初始化
-     ============================================================ */
+  /**
+   * Binds the desktop cart button and panel close controls.
+   */
   function initCartPanel() {
-    var cartBtn  = document.getElementById('bkCartBtn');
-    var panel    = document.getElementById('cartPanel');
+    var cartBtn = document.getElementById('bkCartBtn');
+    var panel = document.getElementById('cartPanel');
     var closeBtn = document.getElementById('cartPanelClose');
+    var backdrop = document.getElementById('bkPanelBackdrop');
 
-    console.log('[BK] initCartPanel — cartBtn:', cartBtn, 'panel:', panel);
-    if (!cartBtn || !panel) return;
-
-    cartBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      console.log('[BK] cart button clicked');
-      try { renderCartPanel(); } catch (err) { console.error('[CartPanel] render error:', err); }
-      openPanel(panel);
-    });
-
-    if (closeBtn) closeBtn.addEventListener('click', closePanels);
+    if (cartBtn && cartBtn.dataset.cartBound !== 'true') {
+      cartBtn.dataset.cartBound = 'true';
+      cartBtn.addEventListener('click', function (event) {
+        event.preventDefault();
+        renderCartPanel();
+        openPanel(panel);
+      });
+    }
+    if (closeBtn && closeBtn.dataset.closeBound !== 'true') {
+      closeBtn.dataset.closeBound = 'true';
+      closeBtn.addEventListener('click', closePanels);
+    }
+    if (backdrop && backdrop.dataset.panelBound !== 'true') {
+      backdrop.dataset.panelBound = 'true';
+      backdrop.addEventListener('click', closePanels);
+    }
   }
 
-  /* ============================================================
-     8. Active 導覽連結標記
-     ============================================================ */
+  /**
+   * Highlights the current booking navigation link from the active URL.
+   */
   function setActiveNavLink() {
     var path = window.location.pathname;
     var navMap = [
-      ['navSearch',      'camp-search'],
+      ['navSearch', 'camp-search'],
       ['navRentalGuide', 'rental-guide'],
-      ['navFaq',         'booking-faq'],
+      ['navFaq', 'booking-faq'],
+      ['navMember', 'member-center']
     ];
     navMap.forEach(function (item) {
       var el = document.getElementById(item[0]);
@@ -569,95 +660,104 @@
     });
   }
 
-  /* ============================================================
-     初始化
-     ============================================================ */
-  updateBookingBadge();
-  checkLoginState();
-  initOffcanvas();
-  initLoginPanel();
-  initPersonalizationModal();
-  initCartPanel();
-  setActiveNavLink();
-
-  // 共用：點背景遮罩關閉所有 Panel
-  var panelBackdrop = document.getElementById('bkPanelBackdrop');
-  if (panelBackdrop) panelBackdrop.addEventListener('click', function () {
-    var personalizationModal = document.getElementById('personalizationModal');
-    if (personalizationModal && personalizationModal.classList.contains('is-open')) {
-      closePersonalizationModal();
+  /**
+   * Closes open booking UI layers on Escape.
+   */
+  function handleEscapeKey(event) {
+    if (event.key !== 'Escape') return;
+    var activeModal = document.querySelector('#loginModal.active, #personalizationModal.active');
+    if (activeModal) {
+      closeSharedModal(activeModal.id);
       return;
     }
+    closeOffcanvasFromAnywhere();
     closePanels();
-  });
-
-  // 共用：Esc 鍵關閉所有 Panel
-  document.addEventListener('keydown', function (e) {
-    if (e.key !== 'Escape') return;
-    var personalizationModal = document.getElementById('personalizationModal');
-    if (personalizationModal && personalizationModal.classList.contains('is-open')) return;
-    closePanels();
-  });
-
-  // 監聽 storage 事件：跨頁籤同步 Badge 與登入狀態
-  window.addEventListener('storage', function (e) {
-    if (e.key === 'bookingCart') updateBookingBadge();
-    if (e.key === 'yuruiUser')   checkLoginState();
-  });
-
-})();
-
-/* ============================================================
-   showConfirmToast — 帶確認 / 取消按鈕的 Toast（取代 window.confirm）
-   ============================================================ */
-function showConfirmToast(message, onConfirm) {
-  var container = document.getElementById('bk-toast-container');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'bk-toast-container';
-    document.body.appendChild(container);
   }
 
-  var toast = document.createElement('div');
-  toast.className = 'bk-toast bk-toast--warning bk-toast--confirm';
-
-  var icon = document.createElement('i');
-  icon.className = 'bi bi-exclamation-triangle-fill';
-  icon.setAttribute('aria-hidden', 'true');
-
-  var text = document.createElement('span');
-  text.className = 'bk-toast__text';
-  text.textContent = message;
-
-  var actions = document.createElement('div');
-  actions.className = 'bk-toast__actions';
-
-  var confirmBtn = document.createElement('button');
-  confirmBtn.className = 'bk-toast__action-btn bk-toast__action-btn--confirm';
-  confirmBtn.textContent = '確定清除';
-
-  var cancelBtn = document.createElement('button');
-  cancelBtn.className = 'bk-toast__action-btn bk-toast__action-btn--cancel';
-  cancelBtn.textContent = '取消';
-
-  function dismiss() {
-    toast.classList.add('bk-toast--hiding');
-    setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+  /**
+   * Keeps booking UI synchronized when another tab or shared auth flow changes storage.
+   */
+  function handleStorageChange(event) {
+    if (event.key === 'bookingCart') updateBookingBadge();
+    if (['isLoggedIn', 'currentUser', 'yuruiUser'].indexOf(event.key) !== -1) checkLoginState();
   }
 
-  confirmBtn.addEventListener('click', function () { dismiss(); onConfirm(); });
-  cancelBtn.addEventListener('click', dismiss);
+  /**
+   * Refreshes booking header user UI after shared auth events.
+   */
+  function handleAuthChanged() {
+    checkLoginState();
+  }
 
-  actions.appendChild(confirmBtn);
-  actions.appendChild(cancelBtn);
-  toast.appendChild(icon);
-  toast.appendChild(text);
-  toast.appendChild(actions);
-  container.appendChild(toast);
-}
+  /**
+   * Builds a confirm-style toast for destructive booking actions.
+   */
+  function showConfirmToast(message, onConfirm) {
+    var container = getToastContainer();
+    var toast = document.createElement('div');
+    var icon = document.createElement('i');
+    var text = document.createElement('span');
+    var actions = document.createElement('div');
+    var confirmBtn = document.createElement('button');
+    var cancelBtn = document.createElement('button');
 
-// 重點：統一 header partial 載入完成並執行本檔後，通知頁面層級的 ready callback。
-// 目前僅 booking-checkout.js 有定義 window.onBookingHeaderReady；其他頁面不存在，跳過。
-if (typeof window.onBookingHeaderReady === 'function') {
-  window.onBookingHeaderReady();
-}
+    toast.className = 'bk-toast bk-toast--warning bk-toast--confirm';
+    icon.className = 'bi bi-exclamation-triangle-fill';
+    icon.setAttribute('aria-hidden', 'true');
+    text.className = 'bk-toast__text';
+    text.textContent = message;
+    actions.className = 'bk-toast__actions';
+    confirmBtn.className = 'bk-toast__action-btn bk-toast__action-btn--confirm';
+    confirmBtn.textContent = '確認清空';
+    cancelBtn.className = 'bk-toast__action-btn bk-toast__action-btn--cancel';
+    cancelBtn.textContent = '取消';
+
+    confirmBtn.addEventListener('click', function () {
+      dismissToast(toast);
+      onConfirm();
+    });
+    cancelBtn.addEventListener('click', function () { dismissToast(toast); });
+
+    actions.appendChild(confirmBtn);
+    actions.appendChild(cancelBtn);
+    toast.appendChild(icon);
+    toast.appendChild(text);
+    toast.appendChild(actions);
+    container.appendChild(toast);
+  }
+
+  /**
+   * Binds global document/window listeners once for the booking header runtime.
+   */
+  function bindGlobalEvents() {
+    if (window.__bookingHeaderGlobalEventsBound) return;
+    window.__bookingHeaderGlobalEventsBound = true;
+
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.booking-header .navbar-user-menu')) closeUserDropdown();
+    });
+    document.addEventListener('keydown', handleEscapeKey);
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('yurui:auth-changed', handleAuthChanged);
+  }
+
+  /**
+   * Initializes the Booking header after its partial and shared auth markup are available.
+   */
+  function initBookingHeader() {
+    ensureToastFallback();
+    updateBookingBadge();
+    initOffcanvas();
+    initSharedAuthModals();
+    initCartPanel();
+    setActiveNavLink();
+    checkLoginState();
+    bindGlobalEvents();
+  }
+
+  initBookingHeader();
+
+  if (typeof window.onBookingHeaderReady === 'function') {
+    window.onBookingHeaderReady();
+  }
+}());

@@ -360,11 +360,22 @@ window.API = {
      * @returns {Promise<void>}
      */
     logout: async () => {
+      if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
+        window.YuruiAuth.logout({ showToast: false });
+        return Promise.resolve();
+      }
+
       // 只清除認證相關狀態，保留購物車
       window.AppState.isLoggedIn = false;
       window.AppState.currentUser = null;
       // 注意：不清空 window.AppState.cart，購物車數據保留
       window.saveAppState();
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('yuruiUser');
+      localStorage.setItem('isLoggedIn', 'false');
+      window.dispatchEvent(new CustomEvent('yurui:auth-changed', {
+        detail: { type: 'logout', user: null },
+      }));
       return Promise.resolve();
     },
     
