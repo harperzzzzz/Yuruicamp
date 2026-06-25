@@ -49,10 +49,10 @@
             <!-- 用戶選單下拉菜單 -->
             <div class="navbar-user-dropdown" hidden>
               <a href="member-center.html" class="dropdown-item">
-                👤 會員中心
+                <i class="bi bi-person"></i> 會員中心
               </a>
               <button class="navbar-logout-btn">
-                🚪 登出
+                <i class="bi bi-box-arrow-right"></i> 登出
               </button>
             </div>
           </div>
@@ -263,7 +263,7 @@
                 class="bk-cart-btn"
                 title="預約背包"
                 aria-label="預約背包">
-          <span aria-hidden="true">🛒</span>
+          <i class="bi bi-bag-heart"></i>
           <span class="bk-badge" id="bookingBadge" hidden>0</span>
         </button>
 
@@ -283,9 +283,11 @@
           </div>
           <div class="navbar-user-dropdown" hidden>
             <a href="./member-center.html" class="dropdown-item">
+            <i class="bi bi-person"></i>
               會員中心
             </a>
             <button class="navbar-logout-btn">
+            <i class="bi bi-box-arrow-right"></i>
               登出
             </button>
           </div>
