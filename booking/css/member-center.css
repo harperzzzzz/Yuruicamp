@@ -288,7 +288,7 @@
 }
 
 .mc-activity-item__title--button:hover {
-  color: var(--bk-cta);
+  color: var(--bk-primary);
   text-decoration: underline;
 }
 .mc-activity-item__date { font-size: 0.75rem; color: var(--bk-text-muted); margin-top: 0.1rem; }
@@ -598,7 +598,7 @@
 .notif-item__link {
   background: none;
   border: none;
-  color: var(--bk-cta);
+  color: var(--bk-primary);
   cursor: pointer;
   font: inherit;
   font-weight: 700;

@@ -37,8 +37,8 @@
       align-items: center;
       gap: .5rem;
       padding: .85rem 2rem;
-      background: var(--yc-cta, #A96352);
-      color: #fff;
+      background: var(--yc-cta, #E2D39A);
+      color: var(--yc-on-cta, #4A4537);
       font-weight: 700;
       font-size: 1rem;
       border-radius: 8px;
@@ -47,7 +47,7 @@
     }
 
     .rg-hero__cta:hover {
-      background: var(--yc-cta-hover, #925342);
+      background: var(--yc-cta-hover, #D4C27E);
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0,0,0,.2);
     }

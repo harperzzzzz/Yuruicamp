@@ -18,7 +18,7 @@ button, input, select, textarea {
   --color-primary-dark: var(--yc-sage-dark, #62705D);
   --color-bg:           var(--yc-bg, #F8F5EE);
   --color-bg-soft:      var(--yc-surface-soft, #F0ECE3);
-  --color-cta:          var(--yc-cta, #A96352);
+  --color-cta:          var(--yc-cta, #E2D39A);
   --color-black:        #000;
   --font-main:          var(--yc-font-heading, "Noto Serif TC", serif);
   --header-height:      70px;

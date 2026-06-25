@@ -11,7 +11,7 @@
    ============================================================ */
 /* ============================================================
    Yuruicamp v3 — Design Tokens
-   奶油暖白 × 奶油鼠尾草綠 × 柔霧赤陶
+   奶油暖白 × 奶油鼠尾草綠 × 暖光奶油金
 ============================================================ */
 :root {
   /* Base / Cream */
@@ -29,12 +29,13 @@
   --yc-sage-action:     #73816E;
   --yc-sage-dark:       #62705D;
 
-  /* Conversion CTA — 柔霧赤陶 */
-  --yc-cta:             #A96352;
-  --yc-cta-hover:       #925342;
-  --yc-cta-active:      #7E4638;
-  --yc-cta-soft:        #F3E5DE;
-  --yc-cta-line:        #C38E7C;
+  /* Conversion CTA — 暖光奶油金 */
+  --yc-cta:             #E2D39A;
+  --yc-cta-hover:       #D4C27E;
+  --yc-cta-active:      #C4AF62;
+  --yc-cta-soft:        #FBF3D1;
+  --yc-cta-line:        #D9C98F;
+  --yc-on-cta:          #4A4537;
 
   /* Text */
   --yc-text:            #3E473D;
@@ -60,16 +61,18 @@
   /* Shadow */
   --yc-shadow-soft:     0 5px 20px rgba(60, 70, 59, 0.065);
   --yc-shadow-hover:    0 16px 38px rgba(60, 70, 59, 0.13);
-  --yc-shadow-cta:      0 9px 24px rgba(126, 70, 56, 0.17);
+  --yc-shadow-cta:      0 8px 22px rgba(129, 111, 54, 0.14);
 
   /* Radius */
   --yc-radius-sm:       10px;
   --yc-radius-control:  12px;
   --yc-radius-button:   12px;
   --yc-radius-card:     19px;
+  --yc-radius-section:  24px;
   --yc-radius-pill:     999px;
 
   /* Typography */
+  --yc-font-global:     "Noto Serif TC", "Source Han Serif TC", serif;
   --yc-font-heading:    "Noto Serif TC", "Source Han Serif TC", serif;
   --yc-font-body:       "Noto Sans TC", "Source Han Sans TC", sans-serif;
 
@@ -93,7 +96,7 @@
   --bk-text:            var(--yc-text);
   --bk-text-muted:      var(--yc-text-muted);
   --bk-accent:          var(--yc-sage);
-  --bk-gold:            var(--yc-cta);
+  --bk-gold:            var(--yc-sage-action); /* 用於 inline text，維持可讀對比 */
   --bk-sage:            var(--yc-sage-light);
   --bk-orange:          var(--yc-warning);
   --bk-success:         var(--yc-success);
@@ -250,12 +253,21 @@
   cursor: pointer;
 }
 
-/* 重設按鈕 */
+/* 重設按鈕 — Secondary 樣式：暖白底＋綠框（規格指定） */
 #resetFilterBtn {
   width: 100%;
   padding: 0.5rem;
   font-size: 0.875rem;
   margin-top: 0.5rem;
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-color: var(--yc-sage);
+}
+
+#resetFilterBtn:hover {
+  background: var(--yc-sage-mist);
+  color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-action);
 }
 
 /* ============================================================
@@ -315,7 +327,7 @@
   top: 0.75rem;
   left: 0.75rem;
   background: var(--bk-cta);
-  color: #fff;
+  color: var(--yc-on-cta);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.2rem 0.6rem;
@@ -340,7 +352,7 @@
   margin-bottom: 0.75rem;
 }
 
-.camp-card__price strong { color: var(--bk-cta); }
+.camp-card__price strong { color: var(--yc-sage-dark); }
 
 .camp-card__tags {
   display: flex;
@@ -379,8 +391,8 @@
 
 .tag--recommend {
   background: var(--yc-cta-soft);
-  color: var(--yc-cta);
-  border: 1px solid rgba(169, 99, 82, 0.32);
+  color: var(--yc-on-cta);
+  border: 1px solid var(--yc-cta-line);
 }
 
 /* ============================================================
@@ -405,25 +417,33 @@
 
 .btn--primary {
   background: var(--bk-cta);
-  color: #fff;
+  color: var(--yc-on-cta);
   border-color: var(--bk-cta);
 }
 
 .btn--primary:hover {
   background: var(--bk-cta-hover);
   border-color: var(--bk-cta-hover);
-  color: #fff;
+  color: var(--yc-on-cta);
 }
 
+.btn--primary:active {
+  background: var(--yc-cta-active);
+  border-color: var(--yc-cta-active);
+  color: var(--yc-on-cta);
+}
+
+/* Soft Conversion：大量卡片預設樣式，hover 轉為實心 CTA */
 .btn--outline {
-  background: transparent;
-  color: var(--bk-cta);
-  border-color: var(--bk-cta);
+  background: var(--yc-cta-soft);
+  color: var(--yc-on-cta);
+  border-color: var(--yc-cta-line);
 }
 
 .btn--outline:hover {
   background: var(--bk-cta);
-  color: #fff;
+  color: var(--yc-on-cta);
+  border-color: var(--bk-cta);
 }
 
 .btn--full { width: 100%; }
@@ -1782,7 +1802,7 @@
   height: 18px;
   padding: 0 4px;
   background: var(--yc-cta);
-  color: #fff;
+  color: var(--yc-on-cta);
   font-size: 0.68rem;
   font-weight: 700;
   border-radius: 9px;
@@ -2023,9 +2043,9 @@
   margin: 0.5rem 1.5rem;
 }
 
-/* 系統切換連結（赤陶 CTA 強調） */
+/* 系統切換連結（奶油金 CTA 強調 → 改用品牌綠確保可讀性） */
 .bk-offcanvas__switch {
-  color: var(--yc-cta) !important;
+  color: var(--yc-sage-action) !important;
   font-weight: 600 !important;
 }
 

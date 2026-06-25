@@ -233,9 +233,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 2.25rem;
-  background-color: var(--yc-cta, #A96352);
-  color: #fff;
-  border: 2px solid var(--yc-cta, #A96352);
+  background-color: var(--yc-cta, #E2D39A);
+  color: var(--yc-on-cta, #4A4537);
+  border: 2px solid var(--yc-cta, #E2D39A);
   border-radius: 50px;
   font-size: 1rem;
   font-weight: 700;
@@ -245,9 +245,9 @@
 }
 
 .btn-hero-primary:hover {
-  background-color: var(--yc-cta-hover, #925342);
-  border-color: var(--yc-cta-hover, #925342);
-  color: #ffffff;
+  background-color: var(--yc-cta-hover, #D4C27E);
+  border-color: var(--yc-cta-hover, #D4C27E);
+  color: var(--yc-on-cta, #4A4537);
   text-decoration: none;
 }
 
