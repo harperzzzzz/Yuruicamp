@@ -195,7 +195,7 @@ function _initSubmitFeedback() {
 
     // 成功送出 Successfully submitted
     if (typeof window.showToast === 'function') {
-      window.showToast('感謝您的回饋！我們會持續改善服務 😊', 'success');
+      window.showToast('感謝您的回饋！我們會持續改善服務', 'success');
     }
 
     // 重置表單 Reset form

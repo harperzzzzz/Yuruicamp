@@ -2,6 +2,109 @@
   overflow-x: clip;
 }
 
+.yr-theme .yr-site-header .navbar {
+  min-height: 90px;
+  background: rgba(255, 253, 248, 0.96);
+  border-bottom: 1px solid var(--yr-header-border);
+  box-shadow: none;
+  backdrop-filter: blur(10px);
+}
+
+.yr-theme .yr-site-header .navbar .container {
+  min-height: 90px;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.yr-theme .yr-site-header__logo {
+  color: var(--yr-header-brand);
+}
+
+.yr-theme .yr-site-header__logo:hover,
+.yr-theme .yr-site-header__logo:focus-visible {
+  color: var(--yr-header-brand);
+  text-decoration: none;
+}
+
+.yr-theme .yr-site-header__logo-image {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+}
+
+.yr-theme .yr-site-header__brand-text {
+  color: var(--yr-header-brand);
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.yr-theme .yr-site-header__icon-button,
+.yr-theme .yr-site-header .navbar-cart-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--yr-header-icon);
+  box-shadow: none;
+}
+
+.yr-theme .yr-site-header__icon-button > i,
+.yr-theme .yr-site-header .navbar-cart-btn > i {
+  color: var(--yr-header-icon);
+  font-size: 1.1rem;
+}
+
+.yr-theme .yr-site-header__icon-button:hover,
+.yr-theme .yr-site-header__icon-button:focus-visible,
+.yr-theme .yr-site-header .navbar-cart-btn:hover,
+.yr-theme .yr-site-header .navbar-cart-btn:focus-visible {
+  background: #eef2ea;
+  transform: none;
+}
+
+.yr-theme .yr-site-header__icon-button:hover > i,
+.yr-theme .yr-site-header__icon-button:focus-visible > i,
+.yr-theme .yr-site-header .navbar-cart-btn:hover > i,
+.yr-theme .yr-site-header .navbar-cart-btn:focus-visible > i {
+  color: var(--yr-header-icon-hover);
+}
+
+.yr-theme .yr-site-header__booking-link {
+  color: var(--yr-header-sage);
+  background: transparent;
+  border: 1px solid var(--yr-header-sage);
+  border-radius: 10px;
+}
+
+.yr-theme .yr-site-header__booking-link:hover,
+.yr-theme .yr-site-header__booking-link:focus-visible {
+  color: #fffdf8;
+  background: var(--yr-header-sage);
+  border-color: var(--yr-header-sage);
+  text-decoration: none;
+}
+
+.yr-theme .yr-site-header__login-link {
+  color: var(--yr-header-text);
+  background: #fffdf8;
+  border: 1px solid #e0d4c6;
+  border-radius: 8px;
+}
+
+.yr-theme .yr-site-header__login-link:hover,
+.yr-theme .yr-site-header__login-link:focus-visible {
+  color: var(--yr-header-text);
+  background: #f3ebdd;
+  border-color: #d1c2b1;
+}
+
+.yr-theme .yr-site-header__cart-count {
+  background: var(--yr-header-cart-badge);
+  color: #fffdf8;
+  border: 1px solid #fffdf8;
+}
+
 .yr-theme .yr-products-shell {
   display: flex;
   gap: 1.5rem;

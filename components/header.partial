@@ -9,25 +9,25 @@
      Keep this as .partial so Live Server does not inject reload scripts into it.
      可在所有頁面中引用或複製
      ======================================== -->
-<header class="header" id="header">
-    <nav class="navbar">
-    <div class="container">
-      <div class="navbar-content">
+<header class="header yr-site-header">
+    <nav class="navbar yr-site-header__nav">
+    <div class="container yr-site-header__inner">
+      <div class="navbar-content yr-site-header__content">
         <!-- Main hamburger: opens the same left-side dialog on desktop and mobile. -->
-        <button class="navbar-hamburger" type="button" title="展開菜單" aria-label="展開菜單" aria-expanded="false">☰</button>
+        <button class="navbar-hamburger" type="button" title="展開菜單" aria-label="展開菜單" aria-expanded="false"><i class="bi bi-list" aria-hidden="true"></i></button>
 
         <!-- Center logo: CSS keeps the brand centered while menus and actions stay on both sides. -->
-        <div class="navbar-brand">
-          <a href="/pages/home.html" class="logo-link" aria-label="回到首頁">
-            <img src="/assets/icons/brand_icon.png" alt="" class="logo">
-            <span>Yuruicamp</span>
+        <div class="navbar-brand yr-site-header__brand">
+          <a href="/pages/home.html" class="logo-link yr-site-header__logo" aria-label="回到首頁">
+            <img src="" data-logo-path="assets/icons/brand_icon.png" alt="" class="logo yr-site-header__logo-image">
+            <span class="yr-site-header__brand-text">Yuruicamp</span>
           </a>
         </div>
 
         <!-- 右側操作按鈕 -->
-        <div class="navbar-actions">
+        <div class="navbar-actions yr-site-header__actions">
           <div class="navbar-search-wrapper hidden-mobile">
-            <button type="button" class="navbar-search-btn navbar-search-toggle" title="搜尋" aria-expanded="false">🔍</button>
+            <button type="button" class="navbar-search-btn navbar-search-toggle yr-site-header__icon-button" title="搜尋" aria-expanded="false"><i class="bi bi-search" aria-hidden="true"></i></button>
             <form class="navbar-search-form" role="search" aria-hidden="true">
               <input type="text" class="navbar-search-input" placeholder="搜尋商品、品牌..." autocomplete="off" aria-label="搜尋">
               <button type="submit" class="navbar-search-submit" title="送出搜尋">搜尋</button>
@@ -35,11 +35,11 @@
             <div class="navbar-search-dropdown"></div>
           </div>
           <!-- 重點：露營預訂從側欄清單拉出，固定放在 header 右側操作區、購物車前方。 -->
-          <a href="/booking/pages/camp-search.html" class="navbar-booking-link">露營預訂</a>
+          <a href="/booking/pages/camp-search.html" class="navbar-booking-link yr-site-header__booking-link">露營預訂</a>
           <button type="button" class="navbar-cart-btn" title="購物車" aria-controls="siteCartDrawer" aria-expanded="false">
-            🛒<span class="cart-badge" hidden>0</span>
+            <i class="bi bi-bag" aria-hidden="true"></i><span class="cart-badge yr-site-header__cart-count" hidden>0</span>
           </button>
-          <button class="navbar-login-btn" onclick="window.openModal('loginModal')" title="登入">登入</button>
+          <button class="navbar-login-btn yr-site-header__login-link" onclick="window.openModal('loginModal')" title="登入">登入</button>
           <div class="navbar-user-menu" hidden>
             <div class="user-info">
               <div class="user-avatar" title="個人資料">?</div>
@@ -49,10 +49,10 @@
             <!-- 用戶選單下拉菜單 -->
             <div class="navbar-user-dropdown" hidden>
               <a href="member-center.html" class="dropdown-item">
-                👤 會員中心
+                <i class="bi bi-person" aria-hidden="true"></i> 會員中心
               </a>
               <button class="navbar-logout-btn">
-                🚪 登出
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i> 登出
               </button>
             </div>
           </div>
@@ -69,7 +69,7 @@
   <div class="navbar-offcanvas">
     <div class="offcanvas-header">
       <h5 class="offcanvas-title">菜單</h5>
-      <button class="offcanvas-close" type="button" aria-label="關閉菜單">✕</button>
+      <button class="offcanvas-close" type="button" aria-label="關閉菜單"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
     </div>
     <div class="offcanvas-body">
       <ul class="navbar-items navbar-items--stacked">
@@ -86,8 +86,8 @@
   <!-- Cart drawer: clicking .navbar-cart-btn opens this panel instead of navigating. -->
   <aside id="siteCartDrawer" class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="siteCartDrawerTitle">
     <div class="cart-drawer__header">
-      <h5 class="cart-drawer__title" id="siteCartDrawerTitle">🛒 我的購物車</h5>
-      <button class="cart-drawer__close" type="button" aria-label="關閉購物車">✕</button>
+      <h5 class="cart-drawer__title" id="siteCartDrawerTitle"><i class="bi bi-bag" aria-hidden="true"></i> 我的購物車</h5>
+      <button class="cart-drawer__close" type="button" aria-label="關閉購物車"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
     </div>
     <div class="cart-drawer__body" id="siteCartDrawerBody"></div>
     <div class="cart-drawer__footer" id="siteCartDrawerFooter">
@@ -119,7 +119,7 @@
     <div class="modal-content modal-content--login">
       <div class="modal-header">
         <h5 class="modal-title" id="loginModalTitle">歡迎加入 Yuruicamp</h5>
-        <button class="modal-close" type="button" title="關閉">✕</button>
+        <button class="modal-close" type="button" title="關閉"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <div class="modal-body">
         <div class="modal-tab-panel active" data-panel="login">
@@ -150,7 +150,7 @@
     <div class="modal-content modal-content--survey">
       <div class="modal-header">
         <h5 class="modal-title" id="personalizationTitle">告訴我們你的露營偏好</h5>
-        <button class="modal-close" type="button" title="跳過">✕</button>
+        <button class="modal-close" type="button" title="跳過"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <div class="modal-body">
         <div class="stepper-header">
@@ -200,7 +200,7 @@
     <div class="modal-content modal-content--confirm">
       <div class="modal-header">
         <h5 class="modal-title" id="surveyCloseConfirmTitle">偏好設定尚未完成</h5>
-        <button class="modal-close" type="button" title="關閉">✕</button>
+        <button class="modal-close" type="button" title="關閉"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       </div>
       <div class="modal-body">
         <p class="modal-confirm-message">選項還未完成，要關閉視窗之後再來填寫嗎?</p>

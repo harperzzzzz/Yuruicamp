@@ -206,6 +206,14 @@ function loadComponentScript(src) {
   });
 }
 
+function syncMainHeaderAssetPaths(rootPrefix) {
+  document.querySelectorAll('.yr-site-header__logo-image[data-logo-path]').forEach((img) => {
+    const relativePath = img.getAttribute('data-logo-path');
+    if (!relativePath) return;
+    img.src = `${rootPrefix}/${relativePath}`.replace('/./', '/');
+  });
+}
+
 /**
  * Loads the shared header/footer fragments and the scripts that operate on them.
  */
@@ -218,12 +226,15 @@ async function initGlobalLayout() {
     loadPartial("footer", `${rootPrefix}/components/footer.partial`, '[data-layout-part="main-footer"]')
   ]);
   await appendPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="shared-auth"]');
+  syncMainHeaderAssetPaths(rootPrefix);
 
   // 2. 確定 HTML 結構長到網頁上後，才動態載入原本的互動 JS
   try {
     await loadComponentScript(`${rootPrefix}/js/components/auth.js`);
-    // 這樣可以確保手機版漢堡選單、登入彈出視窗的功能不會失效
-    await loadComponentScript(`${rootPrefix}/js/components/header.js`);
+    // 若頁面尚未以 <script defer> 載入 header.js，才補動態載入，避免同頁重複綁定。
+    if (typeof window.initNavbar !== 'function') {
+      await loadComponentScript(`${rootPrefix}/js/components/header.js`);
+    }
     
   } catch (error) {
     console.error("組件腳本載入失敗:", error);

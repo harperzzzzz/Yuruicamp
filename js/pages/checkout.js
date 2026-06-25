@@ -212,7 +212,7 @@ function syncCheckoutOrderSnapshot(order) {
  * Initialize checkout page
  */
 window.initCheckoutPage = () => {
-  console.log('📋 結帳頁面初始化...');
+  console.log('結帳頁面初始化...');
 
   // 若購物車為空，導回商品列表，因為主站 cart.html 已移除。
   // If cart is empty, redirect to products because the legacy cart page was removed.
@@ -354,7 +354,7 @@ function updateCheckoutSummary() {
   const shippingEl = document.getElementById('checkoutShipping');
   if (shippingEl) {
     if (shipping === 0) {
-      shippingEl.textContent = '免費 🎉';
+      shippingEl.textContent = '免費';
       shippingEl.style.color = '#16a34a';
     } else {
       shippingEl.textContent = window.formatCurrency(shipping);
@@ -608,7 +608,7 @@ async function applyCheckoutCouponCode({ showToast = true } = {}) {
 
   if (!result.valid) {
     // 重點：無效輸入只顯示錯誤，不影響已成功套用並顯示在 input 下方的 coupon。
-    showMsg(couponMsg, `❌ ${result.message}`, 'error');
+    showMsg(couponMsg, `${result.message}`, 'error');
     updateCheckoutSummary();
     return;
   }
@@ -621,7 +621,7 @@ async function applyCheckoutCouponCode({ showToast = true } = {}) {
 
   appliedCheckoutCouponCodes.push(result.code);
   syncCheckoutAppliedCoupons();
-  showMsg(couponMsg, `✅ 折抵 NT$${result.discount.toLocaleString('zh-TW')}（${result.label}）`, 'success');
+  showMsg(couponMsg, `折抵 NT$${result.discount.toLocaleString('zh-TW')}（${result.label}）`, 'success');
   // 重點：成功後清空 input，不停用欄位，讓 checkoutCouponInput 可繼續套用其他 coupon。
   couponInput.value = '';
   updateCheckoutSummary();
@@ -752,12 +752,12 @@ function initConfirmOrderBtn() {
     // ---- Step 3: 送出訂單 Submit order ----
     // 顯示載入中狀態 Show loading state
     confirmBtn.disabled = true;
-    confirmBtn.textContent = '⏳ 處理中...';
+    confirmBtn.textContent = '處理中...';
 
     try {
       const newOrder = await window.API.orders.create(orderData);
       const syncedOrder = syncCheckoutOrderSnapshot(newOrder);
-      console.log('✅ 訂單建立成功:', syncedOrder);
+      console.log('訂單建立成功:', syncedOrder);
 
       // Step 4: 清空購物車 Clear cart
       window.clearCart();
@@ -771,10 +771,10 @@ function initConfirmOrderBtn() {
       window.location.href = `checkout-success.html?orderNum=${orderNum}`;
 
     } catch (error) {
-      console.error('❌ 訂單建立失敗:', error);
+      console.error('訂單建立失敗:', error);
       window.showToast('訂單提交失敗，請稍後再試', 'error');
       confirmBtn.disabled = false;
-      confirmBtn.textContent = '🔒 確認結帳';
+      confirmBtn.textContent = '確認結帳';
     }
   });
 }

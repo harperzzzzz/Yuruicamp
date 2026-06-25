@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="../css/theme/theme-components.css">
   <link rel="stylesheet" href="../css/theme/theme-layout.css">
   <link rel="stylesheet" href="../css/theme/pages/products.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2374846F'/><path d='M18 16h10l4 9 4-9h10L37 34v14h-10V34L18 16z' fill='%23FFFDF8'/></svg>">
 </head>
 <body class="yr-theme yr-products-page">
 
@@ -253,113 +253,6 @@
   
   <script src="../js/pages/product-list.js" defer></script>
   <script src="../js/main.js" defer></script>
-  <script>
-    (function () {
-      function replaceNodeIcon(target, iconClass) {
-        if (!target) return;
-        const current = target.querySelector('i');
-        if (current) current.className = 'bi ' + iconClass;
-        else {
-          const icon = document.createElement('i');
-          icon.className = 'bi ' + iconClass;
-          icon.setAttribute('aria-hidden', 'true');
-          target.insertBefore(icon, target.firstChild);
-        }
-      }
-
-      function normalizeSearchIcon(headerRoot) {
-        const searchBtn = headerRoot.querySelector('.navbar-search-btn.navbar-search-toggle');
-        if (!searchBtn) return false;
-        searchBtn.childNodes.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) node.remove();
-        });
-        replaceNodeIcon(searchBtn, 'bi-search');
-        return true;
-      }
-
-      function normalizeCartIcon(headerRoot) {
-        const cartBtn = headerRoot.querySelector('.navbar-cart-btn');
-        if (!cartBtn) return false;
-        cartBtn.childNodes.forEach((node) => {
-          if (node.nodeType === Node.TEXT_NODE) node.remove();
-        });
-        const badge = cartBtn.querySelector('.cart-badge');
-        const icon = cartBtn.querySelector('i');
-        if (icon) {
-          icon.className = 'bi bi-bag';
-          icon.setAttribute('aria-hidden', 'true');
-          if (badge) cartBtn.insertBefore(icon, badge);
-        } else if (badge) {
-          const created = document.createElement('i');
-          created.className = 'bi bi-bag';
-          created.setAttribute('aria-hidden', 'true');
-          cartBtn.insertBefore(created, badge);
-        }
-        return true;
-      }
-
-      function normalizeFooterPayments(footerRoot) {
-        const paymentWrap = footerRoot.querySelector('.text-center.mt-lg > div');
-        if (!paymentWrap) return false;
-        const mapping = [
-          { title: '信用卡', icon: 'bi-credit-card', label: '信用卡' },
-          { title: 'LINE Pay', icon: 'bi-phone', label: '行動支付' },
-          { title: '貨到付款', icon: 'bi-box-seam', label: '宅配' }
-        ];
-        paymentWrap.classList.add('yr-products-payment-list');
-        let allFound = true;
-        mapping.forEach((item) => {
-          const entry = paymentWrap.querySelector('span[title="' + item.title + '"]');
-          if (!entry) {
-            allFound = false;
-            return;
-          }
-          entry.classList.add('yr-products-payment-item');
-          entry.textContent = '';
-          const icon = document.createElement('i');
-          icon.className = 'bi ' + item.icon;
-          icon.setAttribute('aria-hidden', 'true');
-          const text = document.createElement('span');
-          text.className = 'yr-products-payment-label';
-          text.textContent = item.label;
-          entry.appendChild(icon);
-          entry.appendChild(text);
-        });
-        return allFound;
-      }
-
-      function setupProductPageIconOverride() {
-        if (!document.body.classList.contains('yr-products-page')) return;
-        const headerRoot = document.getElementById('header');
-        const footerRoot = document.getElementById('footer');
-        if (!headerRoot || !footerRoot) return;
-
-        let headerDone = false;
-        let footerDone = false;
-
-        const tryApply = function () {
-          if (!headerDone) headerDone = normalizeSearchIcon(headerRoot) && normalizeCartIcon(headerRoot);
-          if (!footerDone) footerDone = normalizeFooterPayments(footerRoot);
-          if (headerDone && footerDone) {
-            headerObserver.disconnect();
-            footerObserver.disconnect();
-          }
-        };
-
-        const headerObserver = new MutationObserver(tryApply);
-        const footerObserver = new MutationObserver(tryApply);
-        headerObserver.observe(headerRoot, { childList: true, subtree: true });
-        footerObserver.observe(footerRoot, { childList: true, subtree: true });
-        tryApply();
-      }
-
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupProductPageIconOverride, { once: true });
-      } else {
-        setupProductPageIconOverride();
-      }
-    })();
-  </script>
 
 </body>
 </html>

@@ -90,7 +90,7 @@ function _buildInlineProductCard(product) {
     <div class="inline-product-card" onclick="window.location='product-detail.html?id=${product.id}'" title="查看商品">
       <img src="${image}" alt="${product.name || '商品圖片'}">
       <div class="inline-product-info">
-        <div class="inline-product-label">📦 文章推薦商品</div>
+        <div class="inline-product-label"><i class="bi bi-box-seam" aria-hidden="true"></i> 文章推薦商品</div>
         <h4>${product.name || '商品名稱'}</h4>
         ${price ? `<div class="price">${price}</div>` : ''}
         <div style="font-size:0.8rem; color:#888; margin-top:0.25rem;">點擊查看詳情 →</div>
@@ -167,7 +167,7 @@ function _renderContentItems(contentItems, allProducts) {
  * Blog detail page initialization function
  */
 window.initBlogDetailPage = async function () {
-  console.log('📄 文章閱讀頁初始化開始 Blog detail page init start');
+  console.log('文章閱讀頁初始化開始 Blog detail page init start');
 
   // 設定旗標，告知 main.js 全局組件已在此頁面初始化
   window._appComponentsInitialized = true;

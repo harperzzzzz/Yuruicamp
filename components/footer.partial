@@ -69,10 +69,10 @@
     <!-- 支付方式 Icon （可選） -->
     <div class="text-center mt-lg">
       <p class="text-sm text-muted mb-md">我們接受以下付款方式：</p>
-      <div style="display: flex; justify-content: center; gap: 1rem; font-size: 1.5rem;">
-        <span title="信用卡">💳</span>
-        <span title="LINE Pay">📱</span>
-        <span title="貨到付款">📦</span>
+      <div class="yr-payment-methods" aria-label="付款與配送方式">
+        <span class="yr-payment-method" title="信用卡"><i class="bi bi-credit-card" aria-hidden="true"></i>信用卡</span>
+        <span class="yr-payment-method" title="LINE Pay"><i class="bi bi-phone" aria-hidden="true"></i>行動支付</span>
+        <span class="yr-payment-method" title="貨到付款"><i class="bi bi-box-seam" aria-hidden="true"></i>宅配</span>
       </div>
     </div>
   </div>

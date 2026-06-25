@@ -85,17 +85,17 @@ function buildBranchCard(branch, isFirst) {
       <div class="branch-card-body">
         <!-- 地址 / Address -->
         <div class="branch-card-info">
-          <span>📍</span>
+          <span><i class="bi bi-geo-alt" aria-hidden="true"></i></span>
           <span>${branch.address}</span>
         </div>
         <!-- 電話 / Phone -->
         <div class="branch-card-info">
-          <span>📞</span>
+          <span><i class="bi bi-telephone" aria-hidden="true"></i></span>
           <span>${branch.phone}</span>
         </div>
         <!-- 營業時間 / Hours -->
         <div class="branch-card-info">
-          <span>🕐</span>
+          <span><i class="bi bi-clock" aria-hidden="true"></i></span>
           <span>${branch.hours}</span>
         </div>
         <!-- 特色標籤（橫排）/ Feature tags (horizontal row) -->
@@ -156,7 +156,7 @@ async function loadBranches() {
     console.error('載入分店失敗 / Failed to load branches:', err);
     container.innerHTML = `
       <div style="text-align:center;padding:2rem;color:#e74c3c;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">⚠️</div>
+        <div style="font-size:2rem;margin-bottom:0.5rem;"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></div>
         載入失敗，請稍後再試
       </div>`;
     return;
@@ -233,7 +233,7 @@ function buildPartnerCard(partner, idx) {
         <div class="partner-tags">${tagsHTML}</div>
         <!-- 優惠碼預覽 -->
         <div style="margin-top:0.5rem;font-size:0.72rem;color:#244d4d;font-weight:700;">
-          🎁 ${partner.discount}
+          <i class="bi bi-gift" aria-hidden="true"></i> ${partner.discount}
         </div>
       </div>
     </div>
@@ -303,7 +303,7 @@ window.openPartnerDetail = function(idx) {
  * Called early so global components are registered before main.js runs
  */
 window.initBranchesPage = function() {
-  console.log('📍 初始化分店頁面 / Initializing branches page...');
+  console.log('初始化分店頁面 / Initializing branches page...');
 
   // 告訴 main.js：全局組件由這個頁面 JS 負責初始化
   // Signal main.js that global components are initialized here
@@ -321,7 +321,7 @@ window.initBranchesPage = function() {
   loadBranches();   // 載入分店資料並渲染地圖
   renderPartners(); // 渲染合作店家網格
 
-  console.log('✅ 分店頁面初始化完成 / Branches page initialized');
+  console.log('分店頁面初始化完成 / Branches page initialized');
 };
 
 // ============================================================

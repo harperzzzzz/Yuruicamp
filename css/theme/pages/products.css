@@ -117,19 +117,6 @@
   color: var(--yr-theme-brand-strong);
 }
 
-.yr-theme #header .navbar-brand .logo-link span {
-  color: var(--yr-theme-text);
-}
-
-.yr-theme #header .navbar-login-btn {
-  background: var(--yr-theme-surface);
-  border: 1px solid var(--yr-theme-border);
-  color: var(--yr-theme-text);
-}
-
-.yr-theme #header .navbar-login-btn:hover {
-  background: var(--yr-theme-surface-oat);
-}
 
 @media (max-width: 1024px) {
   .yr-theme .ad-carousel-slide {
@@ -206,69 +193,4 @@
 
 .yr-products-page .price-original {
   color: #b8afa5;
-}
-
-.yr-products-page .cart-badge {
-  background-color: #9a675d;
-  color: #fffdf8;
-  border: 1px solid #fffdf8;
-  box-shadow: none;
-}
-
-.yr-products-page .navbar-search-btn.navbar-search-toggle,
-.yr-products-page .navbar-cart-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: transparent;
-  box-shadow: none;
-}
-
-.yr-products-page .navbar-search-btn.navbar-search-toggle i,
-.yr-products-page .navbar-cart-btn > i {
-  font-size: 17px;
-  color: #7b8577;
-  line-height: 1;
-}
-
-.yr-products-page .navbar-search-btn.navbar-search-toggle:hover,
-.yr-products-page .navbar-search-btn.navbar-search-toggle:focus-visible,
-.yr-products-page .navbar-cart-btn:hover,
-.yr-products-page .navbar-cart-btn:focus-visible {
-  background: #eef2ea;
-  transform: none;
-}
-
-.yr-products-page .navbar-search-btn.navbar-search-toggle:hover i,
-.yr-products-page .navbar-search-btn.navbar-search-toggle:focus-visible i,
-.yr-products-page .navbar-cart-btn:hover > i,
-.yr-products-page .navbar-cart-btn:focus-visible > i {
-  color: #5f6b5c;
-}
-
-.yr-products-page .yr-products-payment-list {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.65rem 1rem;
-  font-size: 0.8125rem;
-}
-
-.yr-products-page .yr-products-payment-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #746f67;
-}
-
-.yr-products-page .yr-products-payment-item i {
-  font-size: 17px;
-  color: #7b8577;
-  line-height: 1;
-}
-
-.yr-products-page .yr-products-payment-label {
-  color: #746f67;
-  font-size: 0.8125rem;
 }

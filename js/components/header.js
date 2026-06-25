@@ -185,7 +185,7 @@ function _renderDropdown(items, dropdown, title) {
     <ul class="search-dropdown-list">
       ${items.map(item => `
         <li class="search-dropdown-item" data-keyword="${item}">
-          🔍 ${item}
+          <i class="bi bi-search" aria-hidden="true"></i> ${item}
         </li>
       `).join('')}
     </ul>

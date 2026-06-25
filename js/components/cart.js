@@ -46,7 +46,7 @@ function _getMainPageUrl(pageName) {
 function _renderCartDrawerEmpty() {
   return [
     '<div class="cart-drawer-empty">',
-    '  <div class="cart-drawer-empty__icon">🛒</div>',
+    '  <div class="cart-drawer-empty__icon"><i class="bi bi-bag" aria-hidden="true"></i></div>',
     '  <h3 class="cart-drawer-empty__title">購物車還是空的</h3>',
     '  <p class="cart-drawer-empty__text">去探索一些露營好物，加入購物車吧。</p>',
     '</div>',
@@ -78,7 +78,7 @@ function _renderCartDrawerItem(item) {
           <span class="cart-drawer-item__qty">${Number(item.quantity || 0)}</span>
           <button class="cart-qty-increase" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="增加數量">+</button>
           <strong class="cart-drawer-item__subtotal">${window.formatCurrency(itemTotal)}</strong>
-          <button class="cart-remove-btn" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="移除商品">🗑️</button>
+          <button class="cart-remove-btn" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="移除商品"><i class="bi bi-trash3" aria-hidden="true"></i></button>
         </div>
       </div>
     </article>

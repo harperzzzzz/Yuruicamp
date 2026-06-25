@@ -10,10 +10,14 @@
   <link rel="preconnect" href="https://picsum.photos">
   <link rel="dns-prefetch" href="https://picsum.photos">
   <link rel="stylesheet" href="../css/main.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/theme/theme-tokens.css">
+  <link rel="stylesheet" href="../css/theme/theme-base.css">
+  <link rel="stylesheet" href="../css/theme/theme-components.css">
+  <link rel="stylesheet" href="../css/theme/theme-layout.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2374846F'/><path d='M18 16h10l4 9 4-9h10L37 34v14h-10V34L18 16z' fill='%23FFFDF8'/></svg>">
 </head>
-<body>
+<body class="yr-theme">
 
   <div id="header"></div>
 
@@ -29,7 +33,7 @@
          ----------------------------------------------- -->
     <section class="page-banner" style="background:linear-gradient(135deg, #1a3a2a 0%, #244d4d 50%, #2d6060 100%);">
       <div class="container">
-        <h1 class="page-banner-title">📖 露營生活誌</h1>
+        <h1 class="page-banner-title"><i class="bi bi-journal-richtext" aria-hidden="true"></i> 露營生活誌</h1>
         <p class="page-banner-subtitle">探索戶外的每一步，都是故事</p>
       </div>
     </section>
@@ -61,7 +65,7 @@
 
       <!-- 若沒有文章則顯示空狀態 -->
       <div id="noArticles" style="display:none; text-align:center; padding:3rem; color:#999;">
-        <div style="font-size:3rem; margin-bottom:1rem;">📭</div>
+        <div style="font-size:3rem; margin-bottom:1rem;"><i class="bi bi-inbox" aria-hidden="true"></i></div>
         <p>目前沒有符合條件的文章</p>
       </div>
 
@@ -96,5 +100,3 @@
 
 </body>
 </html>
-
-

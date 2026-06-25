@@ -17,7 +17,7 @@
  * 這是頁面的主入口函數，會在 DOMContentLoaded 後呼叫
  */
 window.initProductDetailPage = async () => {
-  console.log('🛍️ 商品詳情頁初始化...');
+  console.log('商品詳情頁初始化...');
 
   // -----------------------------------------------
   // Step 1: 從 URL 讀取商品 ID
@@ -33,7 +33,7 @@ window.initProductDetailPage = async () => {
     productId = 'prod-001';
   }
 
-  console.log(`📦 正在載入商品 ID: ${productId}`);
+  console.log(`正在載入商品 ID: ${productId}`);
 
   // 顯示載入中狀態 / Show loading state
   document.getElementById('productLoading').style.display = 'block';
@@ -46,7 +46,7 @@ window.initProductDetailPage = async () => {
     // Call API to get product data
     // -----------------------------------------------
     const product = await window.API.products.getById(productId);
-    console.log('✅ 商品資料取得成功:', product);
+    console.log('商品資料取得成功:', product);
 
     // 隱藏載入中，顯示商品內容
     // Hide loading, show content
@@ -80,7 +80,7 @@ window.initProductDetailPage = async () => {
   } catch (error) {
     // 發生錯誤：顯示錯誤狀態
     // Error occurred: show error state
-    console.error('❌ 商品載入失敗:', error);
+    console.error('商品載入失敗:', error);
     document.getElementById('productLoading').style.display = 'none';
     document.getElementById('productError').style.display = 'block';
   }
@@ -113,7 +113,7 @@ function renderProductInfo(product) {
 
   const starsEl = document.getElementById('productStars');
   if (starsEl) {
-    starsEl.textContent = renderStars(rating);
+    starsEl.innerHTML = renderStars(rating);
     starsEl.setAttribute('data-rating', rating.toFixed(2));
     // 設定 CSS 變數以支援進度條背景
     const ratingPercent = (rating / 5) * 100;
@@ -166,19 +166,20 @@ function renderProductInfo(product) {
 }
 
 /**
- * 把數字評分轉成星星字串（純★☆格式）
- * Convert numeric rating to star string (★ and ☆ only)
+ * 把數字評分轉成星星 icon HTML
+ * Convert numeric rating to star icon HTML
  * @param {number} rating - 評分（0~5）
- * @returns {string} - 星星字串，例：'★★★☆☆'
+ * @returns {string}
  */
 function renderStars(rating) {
-  const filledStars = Math.round(rating);    // 四捨五入到整數星星數
-  const emptyStars = 5 - filledStars;        // 空心星星數
-
-  return (
-    '★'.repeat(filledStars) +
-    '☆'.repeat(Math.max(0, emptyStars))
-  );
+  const full = Math.floor(rating);
+  const half = rating - full >= 0.5;
+  const empty = 5 - full - (half ? 1 : 0);
+  let html = '';
+  for (let i = 0; i < full; i++) html += '<i class="bi bi-star-fill star" aria-hidden="true"></i>';
+  if (half) html += '<i class="bi bi-star-half star" aria-hidden="true"></i>';
+  for (let i = 0; i < empty; i++) html += '<i class="bi bi-star star empty" aria-hidden="true"></i>';
+  return `<span class="yr-rating-stars" aria-label="評分 ${rating.toFixed(1)} 分">${html}</span>`;
 }
 
 /**
@@ -191,6 +192,15 @@ function getReviewCardRatings() {
   const ratings = [];
 
   ratingElements.forEach(card => {
+    const ratedEl = card.querySelector('[data-rating]');
+    if (ratedEl) {
+      const parsed = parseFloat(ratedEl.getAttribute('data-rating'));
+      if (Number.isFinite(parsed)) {
+        ratings.push(parsed);
+        return;
+      }
+    }
+
     const starText = Array.from(card.querySelectorAll('*'))
       .map(el => el.textContent || '')
       .join(' ')
@@ -419,7 +429,7 @@ function renderSpecTable(product) {
   const featuresEl = document.getElementById('productFeatures');
   if (featuresEl && product.tags && product.tags.length > 0) {
     featuresEl.innerHTML = `
-      <h4 style="font-size:0.95rem;font-weight:700;color:#374151;margin-bottom:0.75rem;">✨ 商品特色</h4>
+      <span class="yr-product-feature-heading"><i class="bi bi-stars" aria-hidden="true"></i> 商品特色</span>
       <ul style="padding-left:1.25rem;color:#4b5563;font-size:0.9rem;line-height:2;">
         ${product.tags.map(tag => `<li>${tag}</li>`).join('')}
       </ul>
@@ -457,7 +467,7 @@ function renderShippingProgress() {
   }
 
   if (progressText) {
-    progressText.textContent = cartTotal >= threshold ? '已達免運！🎉' : `${progressPct}%`;
+    progressText.textContent = cartTotal >= threshold ? '已達免運！' : `${progressPct}%`;
   }
 
   if (progressHint) {
@@ -467,7 +477,7 @@ function renderShippingProgress() {
     } else if (cartTotal === 0) {
       progressHint.textContent = `購物滿 NT$${threshold.toLocaleString()} 享免運費，還差 NT$${remaining.toLocaleString()}`;
     } else {
-      progressHint.textContent = `還差 NT$${remaining.toLocaleString()} 即可享免運費 🚚`;
+      progressHint.textContent = `還差 NT$${remaining.toLocaleString()} 即可享免運費`;
     }
   }
 }

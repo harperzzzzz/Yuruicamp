@@ -22,4 +22,13 @@
   --yr-theme-shadow-md: 0 12px 28px rgba(63, 70, 61, 0.1);
   --yr-theme-radius-md: 12px;
   --yr-theme-radius-lg: 18px;
+  --yr-header-bg: #fffdf8;
+  --yr-header-text: #4b433b;
+  --yr-header-text-muted: #756d64;
+  --yr-header-brand: #4a4037;
+  --yr-header-icon: #788274;
+  --yr-header-icon-hover: #5e695b;
+  --yr-header-border: #e5dbce;
+  --yr-header-sage: #74846f;
+  --yr-header-cart-badge: #9a675d;
 }
