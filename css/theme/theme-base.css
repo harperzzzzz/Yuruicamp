@@ -1,0 +1,42 @@
+.yr-theme {
+  background: var(--yr-theme-bg);
+  color: var(--yr-theme-text);
+}
+
+.yr-theme .yr-products-main {
+  background: transparent;
+  color: var(--yr-theme-text);
+}
+
+.yr-theme .container {
+  width: min(100% - 2rem, 1200px);
+}
+
+.yr-theme .yr-page-banner {
+  background: linear-gradient(180deg, var(--yr-theme-surface) 0%, var(--yr-theme-surface-oat) 100%);
+  border-bottom: 1px solid var(--yr-theme-border);
+}
+
+.yr-theme .yr-page-banner-title {
+  color: var(--yr-theme-brand-strong);
+}
+
+.yr-theme .yr-page-banner-sub {
+  color: var(--yr-theme-text-muted);
+}
+
+.yr-theme #header .navbar {
+  background: rgba(255, 253, 248, 0.94);
+  border-bottom: 1px solid rgba(229, 219, 206, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.yr-theme #header .navbar-booking-link {
+  color: var(--yr-theme-brand-strong);
+}
+
+.yr-theme #header .navbar-hamburger,
+.yr-theme #header .navbar-search-btn,
+.yr-theme #header .navbar-cart-btn {
+  color: var(--yr-theme-brand-strong);
+}
