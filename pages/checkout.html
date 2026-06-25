@@ -15,26 +15,27 @@
   <link rel="stylesheet" href="../css/theme/theme-base.css">
   <link rel="stylesheet" href="../css/theme/theme-components.css">
   <link rel="stylesheet" href="../css/theme/theme-layout.css">
+  <link rel="stylesheet" href="../css/theme/pages/checkout.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2374846F'/><path d='M18 16h10l4 9 4-9h10L37 34v14h-10V34L18 16z' fill='%23FFFDF8'/></svg>">
 </head>
-<body class="yr-theme">
+<body class="yr-theme yr-checkout-page">
 
   <div id="header"></div>
   <!-- ===================================================
        頁面主體 Main Content
        =================================================== -->
-  <main class="container" style="padding-top:2rem;padding-bottom:4rem;">
+  <main class="container yr-checkout-main" style="padding-top:2rem;padding-bottom:4rem;">
 
     <!-- 頁面標題 Page Title -->
-    <div style="margin-bottom:2rem;">
+    <div class="yr-checkout-heading" style="margin-bottom:2rem;">
       <h1 style="font-size:1.75rem;font-weight:800;color:#1a1a1a;margin:0 0 0.5rem 0;"><i class="bi bi-card-checklist" aria-hidden="true"></i> 結帳</h1>
       <!-- 步驟進度條 Step progress indicator -->
-      <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:#6b7280;">
-        <span style="color:#244d4d;font-weight:700;"><i class="bi bi-bag" aria-hidden="true"></i> 購物車</span>
+      <div class="yr-checkout-steps" style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:#6b7280;">
+        <span class="yr-checkout-step is-active" style="color:#244d4d;font-weight:700;"><i class="bi bi-bag" aria-hidden="true"></i> 購物車</span>
         <span><i class="bi bi-chevron-right" aria-hidden="true"></i></span>
-        <span style="color:#244d4d;font-weight:700;"><i class="bi bi-card-checklist" aria-hidden="true"></i> 結帳</span>
+        <span class="yr-checkout-step is-active" style="color:#244d4d;font-weight:700;"><i class="bi bi-card-checklist" aria-hidden="true"></i> 填寫資料</span>
         <span><i class="bi bi-chevron-right" aria-hidden="true"></i></span>
-        <span><i class="bi bi-check-circle" aria-hidden="true"></i> 完成</span>
+        <span class="yr-checkout-step"><i class="bi bi-check-circle" aria-hidden="true"></i> 完成訂單</span>
       </div>
     </div>
 
@@ -51,10 +52,10 @@
           <div class="checkout-panel-header" data-panel="buyer"
                style="display:flex;align-items:center;justify-content:space-between;padding:1.125rem 1.25rem;cursor:pointer;background:#fff;border:1px solid #e5e7eb;border-radius:12px 12px 0 0;">
             <div style="display:flex;align-items:center;gap:0.75rem;">
-              <div style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">1</div>
+              <div class="yr-checkout-panel-index" style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">1</div>
               <span style="font-weight:700;color:#1a1a1a;font-size:1rem;">買家資訊</span>
             </div>
-            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;">▼</span>
+            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
           </div>
           <div class="checkout-panel-body"
                style="background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:1.5rem;">
@@ -109,7 +110,7 @@
             <!-- 帶入會員資料按鈕 Fill from profile button -->
             <button id="fillProfileBtn"
                     type="button"
-                    class="btn btn-secondary"
+                    class="btn btn-secondary yr-member-fill-btn"
                     style="font-size:0.875rem;padding:0.5rem 1rem;">
               <i class="bi bi-person" aria-hidden="true"></i> 帶入會員資料
             </button>
@@ -125,10 +126,10 @@
           <div class="checkout-panel-header" data-panel="shipping"
                style="display:flex;align-items:center;justify-content:space-between;padding:1.125rem 1.25rem;cursor:pointer;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
             <div style="display:flex;align-items:center;gap:0.75rem;">
-              <div style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">2</div>
+              <div class="yr-checkout-panel-index" style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">2</div>
               <span style="font-weight:700;color:#1a1a1a;font-size:1rem;">物流選擇</span>
             </div>
-            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;transform:rotate(-90deg);">▼</span>
+            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;transform:rotate(-90deg);"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
           </div>
           <div class="checkout-panel-body"
                style="display:none;background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:1.5rem;">
@@ -188,10 +189,10 @@
           <div class="checkout-panel-header" data-panel="payment"
                style="display:flex;align-items:center;justify-content:space-between;padding:1.125rem 1.25rem;cursor:pointer;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
             <div style="display:flex;align-items:center;gap:0.75rem;">
-              <div style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">3</div>
+              <div class="yr-checkout-panel-index" style="width:28px;height:28px;border-radius:50%;background:#244d4d;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">3</div>
               <span style="font-weight:700;color:#1a1a1a;font-size:1rem;">付款方式</span>
             </div>
-            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;transform:rotate(-90deg);">▼</span>
+            <span class="panel-arrow" style="font-size:1.2rem;transition:transform 0.2s;color:#6b7280;transform:rotate(-90deg);"><i class="bi bi-chevron-down" aria-hidden="true"></i></span>
           </div>
           <div class="checkout-panel-body"
                style="display:none;background:#fff;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 12px 12px;padding:1.5rem;">
@@ -221,7 +222,7 @@
                      style="margin-top:0.15rem;accent-color:#244d4d;width:18px;height:18px;flex-shrink:0;">
               <div>
                 <div style="font-weight:700;color:#1a1a1a;font-size:0.95rem;">
-                  <span style="color:#00b900;">LINE</span> Pay
+                  <i class="bi bi-phone" aria-hidden="true"></i> 行動支付（LINE Pay）
                 </div>
                 <div style="font-size:0.85rem;color:#6b7280;margin-top:0.25rem;">使用 LINE Pay 電子錢包付款，快速便利</div>
               </div>
@@ -236,7 +237,7 @@
                      id="payCod"
                      style="margin-top:0.15rem;accent-color:#244d4d;width:18px;height:18px;flex-shrink:0;">
               <div>
-                <div style="font-weight:700;color:#1a1a1a;font-size:0.95rem;"><i class="bi bi-cash-stack" aria-hidden="true"></i> 貨到付款</div>
+                <div style="font-weight:700;color:#1a1a1a;font-size:0.95rem;"><i class="bi bi-cash" aria-hidden="true"></i> 貨到付款</div>
                 <div style="font-size:0.85rem;color:#6b7280;margin-top:0.25rem;">收到商品時以現金付款（限宅配）</div>
               </div>
             </label>
@@ -275,24 +276,11 @@
           </div>
         </div><!-- /panel-payment -->
 
-        <!-- 重點：點擊後由 checkout.js 產生不重複 orderNumber，並依畫面商品、金額、物流、付款與備註建立訂單快照。 -->
-        <div style="margin-top:1.5rem;">
-          <button id="confirmOrderBtn"
-                  type="button"
-                  class="btn btn-primary btn-block"
-                  style="font-size:1.1rem;padding:1.125rem;font-weight:700;">
-            <i class="bi bi-shield-lock" aria-hidden="true"></i> 確認結帳
-          </button>
-          <p style="text-align:center;font-size:0.78rem;color:#9ca3af;margin-top:0.75rem;">
-            點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策
-          </p>
-        </div>
-
       </div><!-- /checkout-form-column -->
 
       <!-- ===== 右側：訂單摘要 Order Summary (Sticky) ===== -->
       <div class="checkout-summary-column">
-        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.5rem;position:sticky;top:5rem;">
+        <div class="yr-checkout-summary-card" style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1.5rem;position:sticky;top:calc(var(--yr-header-height, 88px) + 24px);align-self:start;">
 
           <h3 style="font-size:1.05rem;font-weight:700;color:#1a1a1a;margin:0 0 1.25rem 0;">訂單摘要</h3>
 
@@ -359,6 +347,19 @@
 
         </div>
       </div><!-- /checkout-summary-column -->
+
+      <!-- 重點：點擊後由 checkout.js 產生不重複 orderNumber，並依畫面商品、金額、物流、付款與備註建立訂單快照。 -->
+      <div class="yr-checkout-submit-wrap" style="margin-top:1.5rem;">
+        <button id="confirmOrderBtn"
+                type="button"
+                class="btn btn-primary btn-block"
+                style="font-size:1.1rem;padding:1.125rem;font-weight:700;">
+          <i class="bi bi-shield-lock" aria-hidden="true"></i> 確認結帳
+        </button>
+        <p style="text-align:center;font-size:0.78rem;color:#9ca3af;margin-top:0.75rem;">
+          點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策
+        </p>
+      </div>
 
     </div><!-- /checkout-layout -->
 
