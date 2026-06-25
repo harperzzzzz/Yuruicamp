@@ -9,6 +9,89 @@
 /* 主色調、副色調、背景色、狀態色等已在 CSS 變量中定義 */
 
 /* ========================================
+   Design Tokens — Yuruicamp v3.2
+   ======================================== */
+:root {
+  /* Base / Cream */
+  --yc-bg: #F8F5EE;
+  --yc-surface: #FFFDF9;
+  --yc-surface-soft: #F0ECE3;
+  --yc-oat: #E8E0D5;
+  --yc-border: #D8CFC3;
+
+  /* Sage Brand */
+  --yc-sage-mist: #EEF2EC;
+  --yc-sage-soft: #DCE5DA;
+  --yc-sage-light: #B7C3B3;
+  --yc-sage: #8F9D8B;
+  --yc-sage-action: #73816E;
+  --yc-sage-dark: #62705D;
+
+  /* Conversion CTA — Warm Cream Gold */
+  --yc-cta: #E2D39A;
+  --yc-cta-hover: #D4C27E;
+  --yc-cta-active: #C4AF62;
+  --yc-cta-soft: #FBF3D1;
+  --yc-cta-line: #D9C98F;
+  --yc-on-cta: #4A4537;
+
+  /* Text */
+  --yc-text: #3E473D;
+  --yc-text-secondary: #625E56;
+  --yc-text-muted: #7B756D;
+
+  /* Status */
+  --yc-success: #73816E;
+  --yc-success-soft: #EEF2EC;
+  --yc-warning: #9A7455;
+  --yc-warning-soft: #F4ECE2;
+  --yc-error: #A65F58;
+  --yc-error-soft: #F4E7E4;
+
+  /* Header / Footer */
+  --yc-header-bg: #73816E;
+  --yc-footer-bg: #71806D;
+  --yc-footer-bottom: #62705D;
+  --yc-on-dark: #FFFDF9;
+  --yc-on-dark-muted: rgba(255, 253, 249, 0.76);
+
+  /* Shadow */
+  --yc-shadow-soft: 0 5px 20px rgba(60, 70, 59, 0.065);
+  --yc-shadow-hover: 0 16px 38px rgba(60, 70, 59, 0.13);
+  --yc-shadow-cta: 0 8px 22px rgba(129, 111, 54, 0.14);
+
+  /* Radius */
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-pill: 999px;
+
+  /* Spacing */
+  --yc-space-1: 4px;
+  --yc-space-2: 8px;
+  --yc-space-3: 12px;
+  --yc-space-4: 16px;
+  --yc-space-5: 24px;
+  --yc-space-6: 32px;
+  --yc-space-7: 48px;
+  --yc-space-8: 64px;
+  --yc-space-9: 80px;
+  --yc-space-10: 96px;
+
+  /* Typography */
+  --yc-font-global: "Noto Serif TC", "Source Han Serif TC", serif;
+  --yc-font-heading: "Noto Serif TC", "Source Han Serif TC", serif;
+  --yc-font-body: "Noto Sans TC", "Source Han Sans TC", sans-serif;
+
+  /* Motion */
+  --yc-duration-fast: 180ms;
+  --yc-duration-normal: 220ms;
+  --yc-ease-soft: cubic-bezier(.2, .7, .2, 1);
+}
+
+/* ========================================
    CSS Reset 和全局樣式
    ======================================== */
 
@@ -1291,7 +1374,7 @@ hr {
   background-color: #f6fbf6;
   border-top: 1px solid #e0e0e0;
   padding: 2rem 0;
-  margin-top: 4rem;
+  
 }
 
 .footer h5 {
@@ -2288,8 +2371,8 @@ hr {
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #e74c3c;
-  background-color: #fef2f2;
+  color: #eb8b8b;
+  background-color: transparent;
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
   width: fit-content;
@@ -5566,3 +5649,595 @@ body {
   transform: translateX(0);
 }
 
+/* ============================================================
+   Yuruicamp Home Page v3.2
+   依照全站設計系統母規範 v3.2 重構
+   ============================================================ */
+
+/* --- Section 背景修正 --- */
+.home-section--white {
+  background-color: var(--yc-surface) !important;
+}
+
+.home-section--muted,
+.home-section--sage {
+  background-color: var(--yc-sage-mist) !important;
+}
+
+/* --- Hero 奶油遮罩 + 左對齊版本 --- */
+.hero-banner--home {
+  justify-content:center;
+
+}
+
+
+
+.hero-content--left {
+  
+  text-align: center;
+  color: var( --yc-on-dark);
+  padding: 2rem 2rem 2rem 6rem;
+  max-width: 640px;
+}
+
+@media (max-width: 992px) {
+  .hero-content--left {
+    padding: 2rem 2rem 2rem 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-content--left {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+    text-align: center;
+  }
+}
+
+.hero-content--left .hero-tagline {
+  color: var(--yc-on-dark);
+  font-family: var(--yc-font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: none;
+}
+
+.hero-content--left .hero-title {
+  color: var(--yc-on-dark);
+  font-family: var(--yc-font-heading);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.hero-content--left .hero-subtitle {
+  color: var( --yc-on-dark);
+  font-family: var(--yc-font-body);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+/* --- Hero CTA 按鈕（Conversion Gold） --- */
+.btn-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-cta);
+  color: var(--yc-on-cta);
+  border: 1px solid var(--yc-cta);
+  border-radius: var(--yc-radius-pill);
+  font-family: var(--yc-font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              box-shadow var(--yc-duration-normal) var(--yc-ease-soft),
+              transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.btn-hero-cta:hover {
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta);
+  box-shadow: var(--yc-shadow-cta);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.btn-hero-cta:active {
+  background-color: var(--yc-cta-active);
+  transform: translateY(0);
+}
+
+/* --- Hero 次要按鈕（Warm White + Sage Border） --- */
+.btn-hero-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border: 1px solid var(--yc-sage);
+  border-radius: var(--yc-radius-pill);
+  font-family: var(--yc-font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              border-color var(--yc-duration-normal) var(--yc-ease-soft),
+              transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.btn-hero-secondary:hover {
+  background-color: var(--yc-sage-mist);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-sage-dark);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .btn-hero-cta,
+  .btn-hero-secondary {
+    padding: 0.75rem 1.75rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* --- 品牌輪播 修正背景與顏色 --- */
+.brand-carousel-section {
+  background-color: var(--yc-sage-mist) !important;
+  border-top: 1px solid var(--yc-sage-soft) !important;
+  border-bottom: 1px solid var(--yc-sage-soft) !important;
+}
+
+.brand-carousel-title {
+  color: var(--yc-sage-action) !important;
+}
+
+.brand-logo-item {
+  color: var(--yc-sage-action) !important;
+  border-color: var(--yc-sage-soft) !important;
+  background-color: var(--yc-surface) !important;
+  font-family: var(--yc-font-body);
+}
+
+.brand-logo-item:hover {
+  color: var(--yc-sage-dark) !important;
+  border-color: var(--yc-sage) !important;
+}
+
+/* --- 導購快速入口 --- */
+.guide-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 992px) {
+  .guide-entry-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .guide-entry-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+}
+
+.guide-entry-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1.25rem 1.75rem;
+  background-color: var(--yc-surface);
+  border: 1px solid rgba(216, 207, 195, 0.82);
+  border-radius: var(--yc-radius-card);
+  box-shadow: var(--yc-shadow-soft);
+  text-decoration: none;
+  color: var(--yc-text);
+  transition: transform var(--yc-duration-normal) var(--yc-ease-soft),
+              box-shadow var(--yc-duration-normal) var(--yc-ease-soft),
+              border-color var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.guide-entry-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--yc-shadow-hover);
+  border-color: var(--yc-sage-light);
+  text-decoration: none;
+  color: var(--yc-text);
+}
+
+.guide-entry-card--highlight {
+  background-color: var(--yc-cta-soft);
+  border-color: var(--yc-cta-line);
+}
+
+.guide-entry-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--yc-radius-sm);
+  background-color: var(--yc-sage-mist);
+  color: var(--yc-sage-action);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.guide-entry-card--highlight .guide-entry-icon {
+  background-color: var(--yc-surface);
+  color: var(--yc-sage-action);
+}
+
+.guide-entry-title {
+  font-family: var(--yc-font-heading);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--yc-text);
+  margin: 0 0 0.5rem;
+}
+
+.guide-entry-text {
+  font-family: var(--yc-font-body);
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --- Section 標題修正 --- */
+.section-title {
+  font-family: var(--yc-font-heading) !important;
+  color: var(--yc-text) !important;
+}
+
+.section-title::before {
+  background-color: var(--yc-sage-action) !important;
+}
+
+.section-link {
+  font-family: var(--yc-font-body) !important;
+  color: var(--yc-sage-action) !important;
+}
+
+.section-link:hover {
+  color: var(--yc-sage-dark) !important;
+}
+
+/* --- 商品卡片 Soft Conversion 按鈕 --- */
+.product-card-add-btn {
+  background-color: var(--yc-cta-soft) !important;
+  color: var(--yc-on-cta) !important;
+  border: 1px solid var(--yc-cta-line) !important;
+  border-radius: var(--yc-radius-button) !important;
+  font-family: var(--yc-font-body);
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              box-shadow var(--yc-duration-normal) var(--yc-ease-soft) !important;
+}
+
+.product-card-add-btn:hover {
+  background-color: var(--yc-cta) !important;
+  border-color: var(--yc-cta) !important;
+  color: var(--yc-on-cta) !important;
+  box-shadow: var(--yc-shadow-cta) !important;
+}
+
+/* --- 信任資訊區塊（取代舊 brand-benefits 深綠背景） --- */
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .trust-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .trust-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.25rem;
+  background-color: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: 16px;
+}
+
+.trust-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--yc-radius-sm);
+  background-color: var(--yc-sage-mist);
+  color: var(--yc-sage-action);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 0.85rem;
+  flex-shrink: 0;
+}
+
+.trust-title {
+  font-family: var(--yc-font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--yc-text);
+  margin: 0 0 0.4rem;
+}
+
+.trust-text {
+  font-family: var(--yc-font-body);
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* --- 品牌故事 --- */
+.brand-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .brand-story {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .brand-story__visual {
+    order: -1;
+  }
+}
+
+.brand-story__eyebrow {
+  font-family: var(--yc-font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.brand-story__title {
+  font-family: var(--yc-font-heading);
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  font-weight: 600;
+  color: var(--yc-text);
+  line-height: 1.3;
+  margin-bottom: 1.25rem;
+}
+
+.brand-story__body {
+  font-family: var(--yc-font-body);
+  font-size: 0.95rem;
+  color: var(--yc-text-secondary);
+  line-height: 1.9;
+  margin-bottom: 1.75rem;
+}
+
+.brand-story__visual img {
+  width: 100%;
+  border-radius: var(--yc-radius-section);
+  display: block;
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+
+/* --- Brand Action 按鈕 --- */
+.btn-brand-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  border: 1px solid var(--yc-sage-action);
+  border-radius: var(--yc-radius-button);
+  font-family: var(--yc-font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.btn-brand-action:hover {
+  background-color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-dark);
+  color: var(--yc-on-dark);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* --- 最終導購 CTA 區塊 --- */
+.home-final-cta {
+  background-color: var(--yc-sage-mist);
+  border-top: 1px solid var(--yc-sage-soft);
+  padding: 5rem 0;
+  text-align: center;
+}
+
+.home-final-cta__eyebrow {
+  font-family: var(--yc-font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.75rem;
+}
+
+.home-final-cta__title {
+  font-family: var(--yc-font-heading);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 600;
+  color: var(--yc-text);
+  margin-bottom: 2rem;
+}
+
+.home-final-cta__actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* --- Conversion CTA 實心按鈕 --- */
+.btn-cta-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-cta);
+  color: var(--yc-on-cta);
+  border: 1px solid var(--yc-cta);
+  border-radius: var(--yc-radius-button);
+  font-family: var(--yc-font-body);
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              box-shadow var(--yc-duration-normal) var(--yc-ease-soft),
+              transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.btn-cta-solid:hover {
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta);
+  box-shadow: var(--yc-shadow-cta);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.btn-cta-solid:active {
+  background-color: var(--yc-cta-active);
+  transform: translateY(0);
+}
+
+/* --- Secondary Sage 按鈕 --- */
+.btn-secondary-sage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border: 1px solid var(--yc-sage);
+  border-radius: var(--yc-radius-button);
+  font-family: var(--yc-font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft),
+              border-color var(--yc-duration-normal) var(--yc-ease-soft),
+              transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.btn-secondary-sage:hover {
+  background-color: var(--yc-sage-mist);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-sage-dark);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+/* ==================================================
+   商品圖片標籤共用樣式
+   ================================================== */
+
+.product-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+
+  font-family: var(--yc-font-body, "Noto Sans TC", sans-serif);
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+
+  box-shadow: 0 3px 10px rgba(62, 71, 61, 0.10);
+}
+
+/* 新品 */
+.product-badge--new {
+  background: #62705D;
+  color: #FFFDF9;
+  border-color: rgba(255, 253, 249, 0.18);
+}
+
+/* 熱銷 */
+.product-badge--bestseller {
+  background: #EBCB8E;
+  color: #594D2F;
+  border-color: #D2BF78;
+}
+
+/* 推薦 */
+.product-badge--recommended {
+  background: #FBF3D1;
+  color: #6A5A2E;
+  border-color: #D9C98F;
+}
+
+/* 即將售罄 */
+.product-badge--low-stock {
+  background: #F4E7E4;
+  color: #8A4842;
+  border-color: #D4A29D;
+}
+
+/* 折扣 */
+.product-badge--discount {
+  background: #FFDCDC;
+  color: #8A4842;
+  border: 1px solid #D9AAA5;
+}
+
+/* --- 全站 Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

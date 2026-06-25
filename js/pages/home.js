@@ -47,9 +47,9 @@ function _buildProductCard(product, badgeType = '') {
   // Badge label based on type
   let badgeHTML = '';
   if (badgeType === 'new') {
-    badgeHTML = '<span class="product-card-badge badge-new">NEW</span>';
+    badgeHTML = '<span class="product-badge product-badge--new">新品</span>';
   } else if (badgeType === 'hot') {
-    badgeHTML = '<span class="product-card-badge badge-hot">熱銷</span>';
+    badgeHTML = '<span class="product-badge product-badge--bestseller">熱銷</span>';
   }
 
   // 格式化價格（加千分位）

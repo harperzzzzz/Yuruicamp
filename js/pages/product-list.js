@@ -134,8 +134,8 @@ function _buildCard(product) {
   const discount = _calcDiscount(product.originalPrice, product.price);
 
   let badgeHTML = '';
-  if (product.isNew)          badgeHTML = '<span class="product-card-badge badge-new">NEW</span>';
-  else if (product.isBestSeller) badgeHTML = '<span class="product-card-badge badge-hot">熱銷</span>';
+  if (product.isNew)             badgeHTML = '<span class="product-badge product-badge--new">新品</span>';
+  else if (product.isBestSeller) badgeHTML = '<span class="product-badge product-badge--bestseller">熱銷</span>';
 
   const priceFormatted    = product.price.toLocaleString('zh-TW');
   const origPriceFormatted = product.originalPrice

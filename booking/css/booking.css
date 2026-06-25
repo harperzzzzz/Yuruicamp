@@ -1681,11 +1681,6 @@
   white-space: nowrap;
 }
 
-.bk-navbar__brand .logo {
-  height: 28px;
-  width: 28px;
-}
-
 .bk-brand-link {
   font-size: 1.25rem;
   font-weight: 700;

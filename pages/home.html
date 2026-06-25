@@ -1,57 +1,60 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Yuruicamp 露營選物品牌 - 探索戶外，從這裡開始。精選露營裝備、登山背包、帳篷睡袋一次購足。">
-  <meta name="theme-color" content="#244d4d">
+  <meta name="description" content="Yuruicamp 露營選物品牌 - 按照自己的步調去露營。精選露營裝備、帳篷睡袋、導購指南，一站購齊。">
+  <meta name="theme-color" content="#73816E">
   <title>首頁 - Yuruicamp 露營選物</title>
-  <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
+
+  <!-- Google Fonts — Noto Serif TC / Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600&family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+
   <link rel="preconnect" href="https://picsum.photos">
   <link rel="dns-prefetch" href="https://picsum.photos">
   <link rel="stylesheet" href="../css/main.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
 
   <div id="header"></div>
 
-  
   <!-- ===================================================
        主要內容
        =================================================== -->
   <main>
 
     <!-- ================================================
-         步驟 4.1：Hero Banner
-         - 全螢幕背景（漸層色，預留 video 位置）
-         - 中央標題 + CTA 按鈕
+         Hero Banner
+         - 奶油漸層遮罩（左不透明 → 右透明），符合設計系統 §11
+         - 左對齊內容，標題使用思源宋體
+         - 主要 CTA：暖光奶油金；次要 CTA：暖白底＋綠框
          ================================================ -->
-    <section class="hero-banner" id="heroBanner">
+    <section class="hero-banner hero-banner--home" id="heroBanner">
 
-      <!-- 背景影片（檔案路徑：assets/videos/hero_video.mp4）
-           影片載入前或不支援時，會顯示 .hero-banner 的漸層背景色作為備援 -->
+      <!-- 背景影片：載入前以奶油鼠尾草漸層作備援 -->
       <video autoplay loop muted playsinline>
         <source src="../assets/videos/hero_video.mp4" type="video/mp4">
       </video>
 
-      <div class="hero-content">
-        <p class="hero-tagline">探索台灣戶外</p>
-        <h1 class="hero-title">每次出走，<br>都是最好的選擇</h1>
-        <p class="hero-subtitle">精選頂級露營裝備、登山背包、帳篷睡袋<br>一站式購齊，讓冒險毫無後顧之憂</p>
+      <div class="hero-content hero-content--left">
+        <p class="hero-tagline">Camp at Your Own Pace</p>
+        <h1 class="hero-title">每次出走<br>都是最好的選擇</h1>
+        <p class="hero-subtitle"><br>從這裡開始，按自己的步調出發。</p>
         <div class="hero-cta-group">
-          <a href="products.html" class="btn-hero-primary">立刻探索 →</a>
-          <a href="blog.html" class="btn-hero-outline">露營指南</a>
+          <a href="products.html" class="btn-hero-cta">立刻探索 →</a>
+          <a href="blog.html" class="btn-hero-secondary">露營指南</a>
         </div>
       </div>
 
     </section>
 
     <!-- ================================================
-         步驟 4.2：品牌輪播
-         - CSS 跑馬燈無縫動畫
-         - 8 個知名露營品牌
+         品牌輪播
+         - 淺鼠尾草背景，奶油白品牌卡
          ================================================ -->
     <section class="brand-carousel-section">
       <p class="brand-carousel-title">精選合作品牌</p>
@@ -59,37 +62,40 @@
         <!-- 複製兩次以實現無縫循環 -->
         <div class="brand-marquee-track">
           <!-- 第一組 -->
-          <div class="brand-logo-item">⛺ Snow Peak</div>
-          <div class="brand-logo-item">🏔️ Osprey</div>
-          <div class="brand-logo-item">🔥 MSR</div>
-          <div class="brand-logo-item">🌲 Coleman</div>
-          <div class="brand-logo-item">🌍 Patagonia</div>
-          <div class="brand-logo-item">🎒 Deuter</div>
-          <div class="brand-logo-item">💧 Sawyer</div>
-          <div class="brand-logo-item">⚡ Black Diamond</div>
-          <div class="brand-logo-item">🪑 Helinox</div>
-          <div class="brand-logo-item">☀️ Columbia</div>
-          <div class="brand-logo-item">🏕️ Ogawa</div>
-          <div class="brand-logo-item">🌟 Therm-a-Rest</div>
+          <div class="brand-logo-item">Snow Peak</div>
+          <div class="brand-logo-item">Osprey</div>
+          <div class="brand-logo-item">MSR</div>
+          <div class="brand-logo-item">Coleman</div>
+          <div class="brand-logo-item">Patagonia</div>
+          <div class="brand-logo-item">Deuter</div>
+          <div class="brand-logo-item">Sawyer</div>
+          <div class="brand-logo-item">Black Diamond</div>
+          <div class="brand-logo-item">Helinox</div>
+          <div class="brand-logo-item">Columbia</div>
+          <div class="brand-logo-item">Ogawa</div>
+          <div class="brand-logo-item">Therm-a-Rest</div>
           <!-- 第二組（複製，實現無縫銜接） -->
-          <div class="brand-logo-item">⛺ Snow Peak</div>
-          <div class="brand-logo-item">🏔️ Osprey</div>
-          <div class="brand-logo-item">🔥 MSR</div>
-          <div class="brand-logo-item">🌲 Coleman</div>
-          <div class="brand-logo-item">🌍 Patagonia</div>
-          <div class="brand-logo-item">🎒 Deuter</div>
-          <div class="brand-logo-item">💧 Sawyer</div>
-          <div class="brand-logo-item">⚡ Black Diamond</div>
-          <div class="brand-logo-item">🪑 Helinox</div>
-          <div class="brand-logo-item">☀️ Columbia</div>
-          <div class="brand-logo-item">🏕️ Ogawa</div>
-          <div class="brand-logo-item">🌟 Therm-a-Rest</div>
+          <div class="brand-logo-item">Snow Peak</div>
+          <div class="brand-logo-item">Osprey</div>
+          <div class="brand-logo-item">MSR</div>
+          <div class="brand-logo-item">Coleman</div>
+          <div class="brand-logo-item">Patagonia</div>
+          <div class="brand-logo-item">Deuter</div>
+          <div class="brand-logo-item">Sawyer</div>
+          <div class="brand-logo-item">Black Diamond</div>
+          <div class="brand-logo-item">Helinox</div>
+          <div class="brand-logo-item">Columbia</div>
+          <div class="brand-logo-item">Ogawa</div>
+          <div class="brand-logo-item">Therm-a-Rest</div>
         </div>
       </div>
     </section>
 
+  
     <!-- ================================================
-         步驟 4.3：精選商品 - 最新商品
+         最新商品
+         - 奶油白背景
+         - 商品卡由 JS 動態生成
          ================================================ -->
     <section class="home-section home-section--white">
       <div class="container">
@@ -97,9 +103,8 @@
           <h2 class="section-title">最新商品</h2>
           <a href="products.html?filter=new" class="section-link">查看更多 →</a>
         </div>
-        <!-- 商品卡片由 JS 動態生成，加載前顯示骨架屏 -->
+        <!-- 骨架屏（JS 載入前顯示） -->
         <div class="products-scroll-row" id="newProductsRow">
-          <!-- 骨架屏加載佔位 -->
           <div class="skeleton-card skeleton-card--product">
             <div class="skeleton-img"></div>
             <div class="skeleton-body">
@@ -137,16 +142,17 @@
     </section>
 
     <!-- ================================================
-         步驟 4.3：精選商品 - 熱銷商品
+         熱銷商品
+         - 淺鼠尾草背景（製造節奏交替）
+         - 商品卡由 JS 動態生成
          ================================================ -->
     <section class="home-section home-section--muted">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">🔥 熱銷商品</h2>
+          <h2 class="section-title">熱銷商品</h2>
           <a href="products.html?filter=bestseller" class="section-link">查看更多 →</a>
         </div>
         <div class="products-scroll-row" id="bestsellerProductsRow">
-          <!-- 骨架屏加載佔位 -->
           <div class="skeleton-card skeleton-card--product">
             <div class="skeleton-img"></div>
             <div class="skeleton-body">
@@ -184,33 +190,60 @@
     </section>
 
     <!-- ================================================
-         品牌特色區塊（三個賣點 Icon + 文字）
+         信任資訊（設計系統 §15）
+         - 奶油白背景
+         - Icon 使用淺綠底＋品牌綠
+         - 不使用暖光奶油金，不使用深綠背景
          ================================================ -->
-    <section class="brand-benefits">
+    <section class="home-section home-section--white">
       <div class="container">
-        <div class="brand-benefits__grid">
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🚚</div>
-            <h3 class="brand-benefits__title">滿 NT$3,000 免運費</h3>
-            <p class="brand-benefits__text">全台宅配，門市取貨也免費</p>
+        <div class="trust-grid">
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true"><i class="bi bi-truck"></i></div>
+            <h3 class="trust-title">滿 NT$3,000 免運費</h3>
+            <p class="trust-text">全台宅配，門市取貨也免費</p>
           </div>
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🏅</div>
-            <h3 class="brand-benefits__title">品牌正品保證</h3>
-            <p class="brand-benefits__text">直接品牌授權，每件附原廠保固</p>
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true"><i class="bi bi-patch-check"></i></div>
+            <h3 class="trust-title">品牌正品保證</h3>
+            <p class="trust-text">直接品牌授權，每件附原廠保固</p>
           </div>
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🔄</div>
-            <h3 class="brand-benefits__title">30 天無憂退換貨</h3>
-            <p class="brand-benefits__text">不滿意免費退，保障您的購物體驗</p>
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></div>
+            <h3 class="trust-title">7天無憂退換貨</h3>
+            <p class="trust-text">不滿意免費退，保障您的購物體驗</p>
           </div>
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true"><i class="bi bi-chat-dots"></i></div>
+            <h3 class="trust-title">免費新手諮詢</h3>
+            <p class="trust-text">選購前後都可以問，無摩擦開始所有體驗</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ================================================
+         最終導購 CTA（設計系統 §14.1 最終導購 CTA）
+         - 淺鼠尾草背景
+         - 主 CTA：實心暖光奶油金
+         - 次 CTA：暖白底＋鼠尾草綠框
+         ================================================ -->
+    <section class="home-final-cta">
+      <div class="container">
+        <p class="home-final-cta__eyebrow">Camp at Your Own Pace</p>
+        <h2 class="home-final-cta__title">按照自己的步調，開始第一次露營</h2>
+        <div class="home-final-cta__actions">
+          <a href="products.html" class="btn-cta-solid">開始挑選裝備</a>
+          <a href="campsite.html" class="btn-secondary-sage">找一個營地</a>
         </div>
       </div>
     </section>
 
   </main>
 
- <div id="footer"></div>
+  <div id="footer"></div>
 
 
   <!-- ===================================================
@@ -225,14 +258,10 @@
   <script src="../js/api-mock.js" defer></script>
   <script src="../js/components/toast.js" defer></script>
   <script src="../js/components/modal.js" defer></script>
-
   <script src="../js/components/cart.js" defer></script>
   <script src="../js/components/carousel.js" defer></script>
-
-  <script src="../js/main.js" defer></script> 
+  <script src="../js/main.js" defer></script>
   <script src="../js/pages/home.js" defer></script>
-  
 
 </body>
 </html>
-
