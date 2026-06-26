@@ -45,21 +45,18 @@
   border-bottom-color: #62715e;
 }
 
-.yr-booking-theme .bk-hamburger,
 .yr-booking-theme .bk-cart-btn,
 .yr-booking-theme .booking-header .user-info,
 .yr-booking-theme .booking-header .navbar-login-btn {
   color: #738071;
 }
 
-.yr-booking-theme .bk-hamburger,
 .yr-booking-theme .bk-cart-btn {
   width: 40px;
   height: 40px;
   border-radius: 8px;
 }
 
-.yr-booking-theme .bk-hamburger:hover,
 .yr-booking-theme .bk-cart-btn:hover {
   background: #eef2ea;
   color: #566554;
@@ -110,23 +107,6 @@
 
 .yr-booking-theme .booking-header .navbar-user-dropdown .dropdown-item:hover,
 .yr-booking-theme .booking-header .navbar-user-dropdown .navbar-logout-btn:hover {
-  background: #eef2ea;
-  color: #566554;
-}
-
-.yr-booking-theme .bk-offcanvas {
-  background: #fffdf8;
-  border-right: 1px solid #e5dbce;
-  box-shadow: 0 12px 26px rgba(63, 70, 61, 0.12);
-}
-
-.yr-booking-theme .bk-offcanvas__title,
-.yr-booking-theme .bk-offcanvas__list li a {
-  color: #4f554d;
-}
-
-.yr-booking-theme .bk-offcanvas__list li a:hover,
-.yr-booking-theme .bk-offcanvas__cart-btn:hover {
   background: #eef2ea;
   color: #566554;
 }

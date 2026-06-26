@@ -224,17 +224,6 @@ async function _loadArticles() {
 window.initBlogPage = async function () {
   console.log('📖 部落格頁初始化開始 Blog page init start');
 
-  // 設定旗標，告知 main.js 全局組件已在此頁面初始化
-  // Set flag to tell main.js that global components are initialized on this page
-  window._appComponentsInitialized = true;
-
-  // 初始化全局組件（導航欄、Modal、購物車）
-  // Initialize global components (navbar, modal, cart)
-  if (typeof window.initNavbar === 'function') window.initNavbar();
-  if (typeof window.initModalListeners === 'function') window.initModalListeners();
-  if (typeof window.initCartListeners === 'function') window.initCartListeners();
-  if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-
   // 載入文章資料
   // Load article data
   _allArticles = await _loadArticles();

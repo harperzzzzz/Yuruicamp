@@ -77,21 +77,6 @@ function loadScriptOnce(src, flagName) {
 }
 
 /**
- * Loads booking header runtime scripts in legacy mode.
- */
-function loadBookingHeaderScriptLegacy() {
-  return loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded')
-    .then(function () {
-      if (typeof window.initAuth === 'function') window.initAuth();
-      return loadScriptOnce('../js/booking-header.js', '__bookingHeaderScriptLoaded');
-    })
-    .catch(function (error) {
-      console.error(error);
-      return false;
-    });
-}
-
-/**
  * Loads shared-header runtime first, then booking utilities.
  */
 function loadBookingHeaderScriptShared() {
@@ -154,45 +139,25 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
 }
 
 /**
- * Loads the booking header, shared auth modal, and footer for booking pages.
+ * Loads the booking shared header, shared auth modal, and booking footer.
  */
 function resolveBookingHeaderTarget() {
-  const sharedHeader = document.querySelector('#header[data-header-context="camp"]');
-  if (sharedHeader) {
-    return {
-      selector: '#header',
-      target: sharedHeader,
-      useSharedController: true,
-    };
-  }
-
-  const legacyHeader = document.querySelector('#booking-header');
-  if (legacyHeader) {
-    return {
-      selector: '#booking-header',
-      target: legacyHeader,
-      useSharedController: false,
-    };
-  }
-
-  return null;
+  return document.querySelector('#header[data-header-context="camp"]');
 }
 
 function loadBookingHeader() {
-  const targetInfo = resolveBookingHeaderTarget();
-  if (!targetInfo) return Promise.resolve(false);
-
-  const target = targetInfo.target;
-  if (targetInfo.useSharedController && !target.dataset.headerContext) {
-    target.dataset.headerContext = 'camp';
+  const target = resolveBookingHeaderTarget();
+  if (!target) {
+    console.error('Booking pages must provide #header[data-header-context="camp"] for shared-site-header.');
+    return Promise.resolve(false);
   }
 
   const injectHeader = target.dataset.bookingHeaderLoaded === 'true'
     ? Promise.resolve(true)
     : loadBookingLayoutPartial(
-      targetInfo.selector,
+      '#header',
       '../../components/header.partial',
-      targetInfo.useSharedController ? '[data-layout-part="shared-site-header"]' : '[data-layout-part="booking-header"]'
+      '[data-layout-part="shared-site-header"]'
     )
       .then(function (ok) {
         if (!ok) return false;
@@ -204,7 +169,7 @@ function loadBookingHeader() {
     .then(function (ok) {
       if (!ok) return false;
       if (target.dataset.sharedAuthLoaded === 'true') return true;
-      return loadBookingLayoutPartial(targetInfo.selector, '../../components/header.partial', '[data-layout-part="shared-auth"]')
+      return loadBookingLayoutPartial('#header', '../../components/header.partial', '[data-layout-part="shared-auth"]')
         .then(function (authOk) {
           if (authOk) target.dataset.sharedAuthLoaded = 'true';
           return authOk;
@@ -212,19 +177,16 @@ function loadBookingHeader() {
     })
     .then(function (ok) {
       if (!ok) return false;
-      if (!targetInfo.useSharedController) return true;
       if (document.getElementById('cartPanel')) return true;
       return loadBookingLayoutPartial(
-        targetInfo.selector,
+        '#header',
         '../../components/header.partial',
         '[data-layout-part="shared-booking-cart-panel"]'
       );
     })
     .then(function (ok) {
       if (!ok) return false;
-      return targetInfo.useSharedController
-        ? loadBookingHeaderScriptShared()
-        : loadBookingHeaderScriptLegacy();
+      return loadBookingHeaderScriptShared();
     });
 }
 
@@ -243,8 +205,7 @@ function loadBookingFooter() {
 window.loadBookingHeader = loadBookingHeader;
 window.loadBookingFooter = loadBookingFooter;
 window.loadBookingSharedLayout = function () {
-  loadBookingHeader();
-  loadBookingFooter();
+  return Promise.all([loadBookingHeader(), loadBookingFooter()]);
 };
 
 document.addEventListener('DOMContentLoaded', initFloatingActions);

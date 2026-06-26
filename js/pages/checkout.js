@@ -248,14 +248,6 @@ window.initCheckoutPage = () => {
   // 初始化折扣碼 Initialize coupon code
   initCheckoutCoupon();
 
-  // 初始化全局組件 Initialize global components
-  window.initNavbar();
-  window.initModalListeners();
-  window.initCartListeners();
-  window.initPersonalizationModal();
-
-  // 標記已初始化 Flag as initialized
-  window._appComponentsInitialized = true;
 };
 
 async function loadCheckoutCouponCatalog() {

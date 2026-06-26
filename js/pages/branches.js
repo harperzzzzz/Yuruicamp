@@ -305,17 +305,6 @@ window.openPartnerDetail = function(idx) {
 window.initBranchesPage = function() {
   console.log('初始化分店頁面 / Initializing branches page...');
 
-  // 告訴 main.js：全局組件由這個頁面 JS 負責初始化
-  // Signal main.js that global components are initialized here
-  window._appComponentsInitialized = true;
-
-  // 初始化全局組件
-  // Initialize global components (navbar, modal, cart)
-  if (window.initNavbar)               window.initNavbar();
-  if (window.initModalListeners)       window.initModalListeners();
-  if (window.initCartListeners)        window.initCartListeners();
-  if (window.initPersonalizationModal) window.initPersonalizationModal();
-
   // 初始化頁面專屬功能
   // Initialize page-specific features
   loadBranches();   // 載入分店資料並渲染地圖

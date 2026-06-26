@@ -102,12 +102,12 @@ window.initGlobalListeners = () => {
 window.initBodyScrollLock = () => {
   let scrollY = 0; // 記錄捲動位置，關閉時還原
 
-  // 觀察 body 是否有 offcanvas-open class
-  // Watch for offcanvas-open class on body
+  // 觀察 shared header drawer 是否開啟（body.yr-site-drawer-open）
+  // Watch shared drawer open state via body class
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const isOpen = document.body.classList.contains('offcanvas-open');
+        const isOpen = document.body.classList.contains('yr-site-drawer-open');
         if (isOpen) {
           // 記住目前捲動位置，套用固定
           // Remember scroll position and fix body
@@ -220,14 +220,22 @@ function syncMainHeaderAssetPaths(rootPrefix) {
 async function initGlobalLayout() {
   const rootPrefix = getRootPathPrefix();
   const headerRoot = document.getElementById('header');
+  if (!headerRoot) {
+    console.error('Missing #header root: shared-site-header requires #header[data-header-context].');
+    return;
+  }
+
   const contextAttr = headerRoot && headerRoot.dataset
     ? (headerRoot.dataset.headerContext || '').toLowerCase()
     : '';
-  const headerPartSelector = contextAttr ? '[data-layout-part="shared-site-header"]' : '[data-layout-part="main-header"]';
+  if (!['shop', 'camp'].includes(contextAttr)) {
+    console.error('Missing or invalid data-header-context on #header. Expected "shop" or "camp".');
+    return;
+  }
 
   // 1. 根據目錄樹，從 pages/* 往上找頂層的 components/
   await Promise.all([
-    loadPartial("header", `${rootPrefix}/components/header.partial`, headerPartSelector),
+    loadPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="shared-site-header"]'),
     loadPartial("footer", `${rootPrefix}/components/footer.partial`, '[data-layout-part="main-footer"]')
   ]);
   if (!document.getElementById('loginModal')) {

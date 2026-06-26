@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Yuruicamp ?銝剖? - 蝞∠?閮???孵?犖鞈?">
+  <meta name="description" content="Yuruicamp 會員中心 - 管理個人資料、訂單與偏好設定。">
   <meta name="theme-color" content="#244d4d">
-  <title>?銝剖? - Yuruicamp ?脩??貊</title>
+  <title>會員中心 - Yuruicamp 露營選物</title>
   <link rel="preconnect" href="https://picsum.photos">
   <link rel="dns-prefetch" href="https://picsum.photos">
   <link rel="stylesheet" href="../css/main.css">
@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../css/theme/theme-base.css">
   <link rel="stylesheet" href="../css/theme/theme-components.css">
   <link rel="stylesheet" href="../css/theme/theme-layout.css">
+  <link rel="stylesheet" href="../css/theme/theme-header.css">
   <link rel="stylesheet" href="../booking/css/base.css">
   <link rel="stylesheet" href="../booking/css/layout.css">
   <link rel="stylesheet" href="../booking/css/booking.css">
@@ -22,15 +23,16 @@
 </head>
 <body class="yr-theme">
 
-  <div id="header"></div>
+  <div id="header" data-header-context="shop"></div>
 
-  <!-- ??嚗??唳??∩葉敹靽??憭挺嚗祕?＊蝷箄?鈭?蝯曹?頛 components/member-center.partial??-->
+  <!-- 會員中心內容掛載點，實際內容由 components/member-center.partial 動態載入 -->
   <div id="memberCenterMount" data-component-mount="member-center"></div>
 
   <div id="footer"></div>
 
   <script>
-    // ??嚗??唳??∩葉敹蝙?冽?桅? data嚗?亦??? currentUser嚗蒂靽? yuruiUser 雿 booking ?詨捆靘???    window.MemberCenterConfig = {
+    // 設定會員中心資料來源與登入資訊 storage key
+    window.MemberCenterConfig = {
       dataBasePath: '../data',
       authStorageKey: 'currentUser',
       fallbackAuthStorageKey: 'yuruiUser',
@@ -47,8 +49,8 @@
         mount.innerHTML = await response.text();
         window.initMemberCenterComponent && window.initMemberCenterComponent();
       } catch (error) {
-        console.error('?銝剖??辣頛憭望?', error);
-        mount.innerHTML = '<div class="mc-login-guard" style="display:flex;"><div class="mc-login-guard__box"><h2 class="mc-login-guard__title">?銝剖?頛憭望?</h2><p class="mc-login-guard__desc">隢Ⅱ隤???ａ??祆?隡箸??券???/p></div></div>';
+        console.error('會員中心元件載入失敗:', error);
+        mount.innerHTML = '<div class="mc-login-guard" style="display:flex;"><div class="mc-login-guard__box"><h2 class="mc-login-guard__title">會員中心載入失敗</h2><p class="mc-login-guard__desc">請重新整理頁面，或稍後再試。</p></div></div>';
       }
     };
 

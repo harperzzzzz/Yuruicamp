@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="../css/theme/theme-base.css" />
     <link rel="stylesheet" href="../css/theme/theme-components.css" />
     <link rel="stylesheet" href="../css/theme/theme-layout.css" />
+    <link rel="stylesheet" href="../css/theme/theme-header.css" />
     <link rel="stylesheet" href="../css/theme/pages/checkout-success.css" />
     <link
       rel="icon"
@@ -25,7 +26,7 @@
     />
   </head>
   <body class="yr-theme yr-success-page">
-    <div id="header"></div>
+    <div id="header" data-header-context="shop"></div>
 
     <!-- ===================================================
        成功主體 Success Main Content
@@ -158,24 +159,8 @@
         }
 
         if (document.readyState === 'loading') {
-          document.addEventListener(
-            'DOMContentLoaded',
-            function () {
-              if (typeof window.initNavbar === 'function') window.initNavbar();
-              if (typeof window.initModalListeners === 'function') window.initModalListeners();
-              if (typeof window.initCartListeners === 'function') window.initCartListeners();
-              if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-              window._appComponentsInitialized = true;
-              launchGentleCelebration();
-            },
-            { once: true }
-          );
+          document.addEventListener('DOMContentLoaded', launchGentleCelebration, { once: true });
         } else {
-          if (typeof window.initNavbar === 'function') window.initNavbar();
-          if (typeof window.initModalListeners === 'function') window.initModalListeners();
-          if (typeof window.initCartListeners === 'function') window.initCartListeners();
-          if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-          window._appComponentsInitialized = true;
           launchGentleCelebration();
         }
       })();

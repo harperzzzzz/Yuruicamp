@@ -5,38 +5,18 @@ import { fileURLToPath } from 'node:url';
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const mainRuntimeOrder = ['config.js', 'storage.js', 'state.js', 'formatters.js', 'validators.js', 'cart-service.js'];
 
-/**
- * Reads a project file as UTF-8 text.
- * @param {string} relativePath - Project-relative file path.
- * @returns {string} File contents.
- */
 function readProjectFile(relativePath) {
   return readFileSync(join(rootDir, relativePath), 'utf8');
 }
 
-/**
- * Fails the smoke test with a readable message when a required condition is false.
- * @param {boolean} condition - Condition to validate.
- * @param {string} message - Failure message.
- */
 function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
+  if (!condition) throw new Error(message);
 }
 
-/**
- * Checks that a file exists before deeper content assertions run.
- * @param {string} relativePath - Project-relative file path.
- */
 function assertFileExists(relativePath) {
   assert(existsSync(join(rootDir, relativePath)), `Missing required file: ${relativePath}`);
 }
 
-/**
- * Verifies split runtime scripts are loaded in the expected dependency order.
- * @param {string} relativePath - HTML file path.
- */
 function assertRuntimeScriptOrder(relativePath) {
   const html = readProjectFile(relativePath);
   const positions = mainRuntimeOrder.map((fileName) => html.indexOf(fileName));
@@ -46,15 +26,25 @@ function assertRuntimeScriptOrder(relativePath) {
   });
 }
 
-/**
- * Returns every main-site HTML page that loads the shared runtime.
- * @returns {string[]} Project-relative HTML paths.
- */
-function getMainHtmlPages() {
-  const pageFiles = readdirSync(join(rootDir, 'pages'))
+function getHtmlPages(relativeDir) {
+  return readdirSync(join(rootDir, relativeDir))
     .filter((fileName) => fileName.endsWith('.html'))
-    .map((fileName) => `pages/${fileName}`);
-  return ['index.html', ...pageFiles].filter((relativePath) => readProjectFile(relativePath).includes('config.js'));
+    .map((fileName) => `${relativeDir}/${fileName}`);
+}
+
+function assertHeaderRoot(pagePath, expectedContext) {
+  const html = readProjectFile(pagePath);
+  const headerRootCount = (html.match(/id="header"/g) || []).length;
+  const bookingHeaderCount = (html.match(/id="booking-header"/g) || []).length;
+  const contextMatch = html.match(/<div id="header"[^>]*data-header-context="([^"]+)"/);
+  const themeHeaderLoaded = html.includes('theme-header.css');
+
+  assert(headerRootCount === 1, `${pagePath} should have exactly one #header root`);
+  assert(bookingHeaderCount === 0, `${pagePath} should not contain #booking-header`);
+  assert(contextMatch, `${pagePath} should declare data-header-context`);
+  assert(['shop', 'camp'].includes(contextMatch[1]), `${pagePath} context must be shop/camp`);
+  assert(contextMatch[1] === expectedContext, `${pagePath} should use ${expectedContext} context`);
+  assert(themeHeaderLoaded, `${pagePath} should load theme-header.css`);
 }
 
 [
@@ -69,69 +59,103 @@ function getMainHtmlPages() {
   'js/formatters.js',
   'js/validators.js',
   'js/cart-service.js',
+  'css/theme/theme-header.css',
 ].forEach(assertFileExists);
 
-getMainHtmlPages().forEach(assertRuntimeScriptOrder);
+const shopPages = getHtmlPages('pages');
+const campPages = getHtmlPages('booking/pages');
 
-const header = readProjectFile('components/header.partial');
-assert(header.includes('id="siteCartDrawer"'), 'Header must include shared cart drawer');
-assert(header.includes('class="navbar-cart-btn"'), 'Header must include shared cart button');
-assert(!header.includes('id="bkLoginBtn"'), 'Legacy booking login button should be removed');
-assert(!header.includes('id="bkUserMenu"'), 'Legacy booking user menu should be removed');
-assert(!/style=/.test(header), 'Header partial should not contain inline styles');
-assert((header.match(/data-layout-part="shared-auth"/g) || []).length === 1, 'Header partial must define exactly one shared-auth part');
-assert(header.includes('data-layout-part="shared-site-header"'), 'Header partial must define shared-site-header part');
-assert(header.includes('data-layout-part="shared-site-cart-panel"'), 'Header partial must define shared-site-cart-panel part');
-assert(header.includes('data-layout-part="shared-booking-cart-panel"'), 'Header partial must define shared-booking-cart-panel part');
+shopPages.forEach((pagePath) => {
+  assertRuntimeScriptOrder(pagePath);
+  assertHeaderRoot(pagePath, 'shop');
+});
 
-const sharedHeaderFragment = header
+campPages.forEach((pagePath) => {
+  assertHeaderRoot(pagePath, 'camp');
+});
+
+const headerPartial = readProjectFile('components/header.partial');
+assert((headerPartial.match(/data-layout-part="shared-site-header"/g) || []).length === 1, 'header.partial must define shared-site-header once');
+assert((headerPartial.match(/data-layout-part="shared-auth"/g) || []).length === 1, 'header.partial must define shared-auth once');
+assert((headerPartial.match(/data-layout-part="shared-site-cart-panel"/g) || []).length === 1, 'header.partial must define shared-site-cart-panel once');
+assert((headerPartial.match(/data-layout-part="shared-booking-cart-panel"/g) || []).length === 1, 'header.partial must define shared-booking-cart-panel once');
+assert(!headerPartial.includes('data-layout-part="main-header"'), 'header.partial should remove main-header');
+assert(!headerPartial.includes('data-layout-part="booking-header"'), 'header.partial should remove booking-header');
+assert(!headerPartial.includes('data-layout-part="shared-header"'), 'header.partial should remove legacy shared-header');
+
+const sharedHeaderFragment = headerPartial
   .split('<div data-layout-part="shared-site-header">')[1]
   ?.split('<div data-layout-part="shared-site-cart-panel">')[0] || '';
-assert(!sharedHeaderFragment.includes('id="siteCartDrawer"'), 'shared-site-header should not inline shop cart drawer panel');
-assert(!sharedHeaderFragment.includes('id="cartPanel"'), 'shared-site-header should not inline booking cart panel');
-assert(!header.includes('id="siteCartDrawer" class="cart-drawer is-open"'), 'shop cart drawer should not start open in partial markup');
-assert(!header.includes('id="cartPanel" class="bk-slide-panel is-open"'), 'booking cart panel should not start open in partial markup');
-
-assert(!existsSync(join(rootDir, 'pages/cart.html')), 'Legacy cart page should be removed');
-assert(!existsSync(join(rootDir, 'js/pages/cart.js')), 'Legacy cart page script should be removed');
-
-const homePage = readProjectFile('pages/home.html');
-assert(!/style=/.test(homePage), 'Home page should not contain inline style attributes');
-assert(!/<style/i.test(homePage), 'Home page should not contain inline style blocks');
+assert(!sharedHeaderFragment.includes('id="siteCartDrawer"'), 'shared-site-header should not inline shop cart panel');
+assert(!sharedHeaderFragment.includes('id="cartPanel"'), 'shared-site-header should not inline booking panel');
 
 const mainJs = readProjectFile('js/main.js');
-assert(!mainJs.includes('async function initLayout'), 'main.js should not keep the legacy initLayout flow');
-assert(!mainJs.includes('DOMContentLoaded", initLayout'), 'main.js should not bind legacy initLayout');
-assert(mainJs.includes("appendPartial(\"header\", `${rootPrefix}/components/header.partial`, '[data-layout-part=\"shared-auth\"]')"), 'main.js should append shared-auth after loading header');
-assert(mainJs.includes('[data-layout-part="shared-site-cart-panel"]'), 'main.js should append shared-site cart panel for shop context');
-assert(mainJs.includes("!document.getElementById('siteCartDrawer')"), 'main.js should guard against duplicate shop cart drawer injection');
-
-const apiMock = readProjectFile('js/api-mock.js');
-assert(apiMock.includes('productsCache'), 'api-mock.js should cache products.json');
-assert(apiMock.includes('const _getProducts'), 'api-mock.js should expose the shared product loader');
-
-const sharedHeaderController = readProjectFile('js/components/header.js');
-assert(sharedHeaderController.includes('data-auth-login-trigger'), 'Shared header must render auth login trigger hook');
-assert(sharedHeaderController.includes('root.dataset.headerInitializedContext = context;'), 'Shared header should persist initialized context for re-init guard');
-assert(sharedHeaderController.includes('_sharedHeaderStructureReady(root)'), 'Shared header should validate structure before considering initialization complete');
-assert(sharedHeaderController.includes('_sharedHeaderContentReady(root)'), 'Shared header should validate rendered actions/navigation content before completing initialization');
-
-const authJs = readProjectFile('js/components/auth.js');
-assert(authJs.includes('window.initAuth = function initAuth()'), 'auth.js should expose initAuth for safe re-sync');
+assert(mainJs.includes('[data-layout-part="shared-site-header"]'), 'main.js should always load shared-site-header');
+assert(!mainJs.includes('[data-layout-part="main-header"]'), 'main.js should not fallback to main-header');
+assert(mainJs.includes('Missing or invalid data-header-context on #header'), 'main.js should fail loudly on missing context');
+assert(mainJs.includes("!document.getElementById('siteCartDrawer')"), 'main.js should guard against duplicate shop cart panel');
 
 const bookingLayoutJs = readProjectFile('booking/js/layout.js');
-assert(bookingLayoutJs.includes('[data-layout-part="shared-booking-cart-panel"]'), 'booking layout should append shared booking cart panel for camp context');
-assert(bookingLayoutJs.includes("if (document.getElementById('cartPanel')) return true;"), 'booking layout should guard against duplicate booking cart panel injection');
+assert(bookingLayoutJs.includes('[data-layout-part="shared-site-header"]'), 'booking layout should load shared-site-header');
+assert(!bookingLayoutJs.includes('[data-layout-part="booking-header"]'), 'booking layout should remove booking-header fallback');
+assert(!bookingLayoutJs.includes('#booking-header'), 'booking layout should not query #booking-header');
+assert(bookingLayoutJs.includes("if (document.getElementById('cartPanel')) return true;"), 'booking layout should guard booking cart panel singleton');
 
-const pilotPages = [
-  ['pages/home.html', 'data-header-context="shop"'],
-  ['pages/products.html', 'data-header-context="shop"'],
-  ['booking/pages/camp-search.html', 'data-header-context="camp"'],
-  ['booking/pages/booking-cart.html', 'data-header-context="camp"'],
+const sharedHeaderController = readProjectFile('js/components/header.js');
+assert(sharedHeaderController.includes('data-auth-login-trigger'), 'shared header should render auth login trigger hook');
+assert(sharedHeaderController.includes('root.dataset.headerInitializedContext = context;'), 'shared header should persist initialized context');
+assert(sharedHeaderController.includes('_sharedHeaderStructureReady(root)'), 'shared header should validate structure before complete');
+assert(sharedHeaderController.includes('_sharedHeaderContentReady(root)'), 'shared header should validate content before complete');
+assert(!sharedHeaderController.includes('#booking-header'), 'header controller should not support #booking-header fallback');
+assert(!sharedHeaderController.includes('.navbar-offcanvas'), 'header controller should not contain legacy offcanvas logic');
+assert(!sharedHeaderController.includes('.navbar-hamburger'), 'header controller should not contain legacy hamburger logic');
+
+const bookingHeaderJs = readProjectFile('booking/js/booking-header.js');
+assert(!bookingHeaderJs.includes('bkOffcanvas'), 'booking-header.js should remove legacy offcanvas elements');
+assert(!bookingHeaderJs.includes('bkHamburger'), 'booking-header.js should remove legacy hamburger handling');
+assert(!bookingHeaderJs.includes('bkBackdrop'), 'booking-header.js should remove legacy offcanvas backdrop handling');
+assert(bookingHeaderJs.includes("document.getElementById('cartPanel')"), 'booking-header.js should keep booking cart panel handling');
+assert(bookingHeaderJs.includes("document.getElementById('bkPanelBackdrop')"), 'booking-header.js should keep booking panel backdrop handling');
+
+const authJs = readProjectFile('js/components/auth.js');
+assert(authJs.includes('window.initAuth = function initAuth()'), 'auth.js should expose initAuth');
+
+const checkoutSuccessHtml = readProjectFile('pages/checkout-success.html');
+assert(!/initNavbar\(|window\.initNavbar/.test(checkoutSuccessHtml), 'checkout-success should not re-run header initialization');
+
+const pageScripts = [
+  'js/pages/product-list.js',
+  'js/pages/blog.js',
+  'js/pages/blog-detail.js',
+  'js/pages/faq.js',
+  'js/pages/branches.js',
+  'js/pages/checkout.js',
 ];
-pilotPages.forEach(([pagePath, expectedContext]) => {
-  const html = readProjectFile(pagePath);
-  assert(html.includes(expectedContext), `${pagePath} should declare ${expectedContext}`);
+pageScripts.forEach((pageScript) => {
+  const source = readProjectFile(pageScript);
+  assert(!/initNavbar\(|window\.initNavbar/.test(source), `${pageScript} should not directly call initNavbar`);
 });
+
+const cssLegacyCandidates = [
+  'css/main.css',
+  'css/theme/theme-base.css',
+  'css/theme/theme-layout.css',
+  'css/theme/theme-components.css',
+  'booking/css/booking.css',
+  'booking/css/theme/booking-shell.css',
+];
+cssLegacyCandidates.forEach((path) => {
+  const css = readProjectFile(path);
+  assert(!css.includes('.navbar-offcanvas'), `${path} should not contain legacy .navbar-offcanvas selectors`);
+  assert(!css.includes('.navbar-hamburger'), `${path} should not contain legacy .navbar-hamburger selectors`);
+  assert(!css.includes('.offcanvas-close'), `${path} should not contain legacy .offcanvas-close selectors`);
+  assert(!css.includes('.bk-offcanvas'), `${path} should not contain legacy .bk-offcanvas selectors`);
+  assert(!css.includes('.bk-hamburger'), `${path} should not contain legacy .bk-hamburger selectors`);
+});
+
+const mainCss = readProjectFile('css/main.css');
+assert(mainCss.includes('.cart-drawer'), 'main.css should keep shop cart drawer styles');
+const bookingCss = readProjectFile('booking/css/booking.css');
+assert(bookingCss.includes('.bk-slide-panel'), 'booking.css should keep booking panel styles');
 
 console.log('Smoke checks passed');

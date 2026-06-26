@@ -184,7 +184,6 @@
   function checkLoginState() {
     var loginBtn = document.querySelector('.booking-header .navbar-login-btn');
     var userMenu = document.querySelector('.booking-header .navbar-user-menu');
-    var logoutItemMobile = document.getElementById('bkOffcanvasLogoutItem');
     var user = getCurrentUser();
 
     if (!loginBtn || !userMenu) return;
@@ -196,82 +195,11 @@
       userMenu.hidden = false;
       if (userName) userName.textContent = user.name;
       if (userAvatar) userAvatar.textContent = (user.avatar || user.name.charAt(0)).toUpperCase();
-      if (logoutItemMobile) logoutItemMobile.hidden = false;
       initUserDropdown();
     } else {
       loginBtn.hidden = false;
       userMenu.hidden = true;
-      if (logoutItemMobile) logoutItemMobile.hidden = true;
       closeUserDropdown();
-    }
-  }
-
-  /**
-   * Closes the booking mobile offcanvas from any event handler.
-   */
-  function closeOffcanvasFromAnywhere() {
-    var offcanvas = document.getElementById('bkOffcanvas');
-    var backdrop = document.getElementById('bkBackdrop');
-    var hamburger = document.getElementById('bkHamburger');
-    if (offcanvas) offcanvas.classList.remove('is-open');
-    if (backdrop) backdrop.classList.remove('is-visible');
-    if (hamburger) hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
-
-  /**
-   * Opens the booking mobile offcanvas and locks page scrolling.
-   */
-  function openOffcanvas() {
-    var offcanvas = document.getElementById('bkOffcanvas');
-    var backdrop = document.getElementById('bkBackdrop');
-    var hamburger = document.getElementById('bkHamburger');
-    if (!offcanvas || !hamburger) return;
-    closePanels();
-    closeSharedModal('loginModal', { force: true });
-    closeSharedModal('personalizationModal', { force: true });
-    offcanvas.classList.add('is-open');
-    if (backdrop) backdrop.classList.add('is-visible');
-    hamburger.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  }
-
-  /**
-   * Binds the booking hamburger, offcanvas close controls, and mobile cart/logout buttons.
-   */
-  function initOffcanvas() {
-    var hamburger = document.getElementById('bkHamburger');
-    var backdrop = document.getElementById('bkBackdrop');
-    var closeBtn = document.getElementById('bkOffcanvasClose');
-    var cartBtnMobile = document.getElementById('bkCartBtnMobile');
-    var logoutBtnMobile = document.getElementById('bkLogoutBtnMobile');
-
-    if (hamburger && hamburger.dataset.offcanvasBound !== 'true') {
-      hamburger.dataset.offcanvasBound = 'true';
-      hamburger.addEventListener('click', openOffcanvas);
-    }
-    if (closeBtn && closeBtn.dataset.offcanvasBound !== 'true') {
-      closeBtn.dataset.offcanvasBound = 'true';
-      closeBtn.addEventListener('click', closeOffcanvasFromAnywhere);
-    }
-    if (backdrop && backdrop.dataset.offcanvasBound !== 'true') {
-      backdrop.dataset.offcanvasBound = 'true';
-      backdrop.addEventListener('click', closeOffcanvasFromAnywhere);
-    }
-    if (cartBtnMobile && cartBtnMobile.dataset.cartBound !== 'true') {
-      cartBtnMobile.dataset.cartBound = 'true';
-      cartBtnMobile.addEventListener('click', function () {
-        closeOffcanvasFromAnywhere();
-        renderCartPanel();
-        openPanel(document.getElementById('cartPanel'));
-      });
-    }
-    if (logoutBtnMobile && logoutBtnMobile.dataset.logoutBound !== 'true') {
-      logoutBtnMobile.dataset.logoutBound = 'true';
-      logoutBtnMobile.addEventListener('click', function () {
-        closeOffcanvasFromAnywhere();
-        logout();
-      });
     }
   }
 
@@ -688,9 +616,6 @@
       closeSharedModal(activeModal.id);
       return;
     }
-    if (!window.__sharedHeaderControllerActive) {
-      closeOffcanvasFromAnywhere();
-    }
     closePanels();
   }
 
@@ -767,9 +692,6 @@
   function initBookingHeader() {
     ensureToastFallback();
     updateBookingBadge();
-    if (!window.__sharedHeaderControllerActive) {
-      initOffcanvas();
-    }
     initSharedAuthModals();
     initCartPanel();
     setActiveNavLink();

@@ -169,15 +169,6 @@ function _renderContentItems(contentItems, allProducts) {
 window.initBlogDetailPage = async function () {
   console.log('文章閱讀頁初始化開始 Blog detail page init start');
 
-  // 設定旗標，告知 main.js 全局組件已在此頁面初始化
-  window._appComponentsInitialized = true;
-
-  // 初始化全局組件（導航欄、Modal、購物車）
-  if (typeof window.initNavbar === 'function') window.initNavbar();
-  if (typeof window.initModalListeners === 'function') window.initModalListeners();
-  if (typeof window.initCartListeners === 'function') window.initCartListeners();
-  if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-
   // 從 URL 取得文章 id
   // Get article id from URL query string
   const articleId = _getUrlParam('id');

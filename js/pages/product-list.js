@@ -745,14 +745,6 @@ function _initAdCarouselPreferenceListener() {
 window.initProductListPage = async () => {
   console.log('📌 商品列表頁初始化中...');
 
-  // 初始化全局組件，並設旗標告知 main.js 已完成
-  // Initialize global components, set flag so main.js won't run them again
-  window.initNavbar();
-  window.initModalListeners();
-  window.initPersonalizationModal();
-  window.initCartListeners();
-  window._appComponentsInitialized = true;
-
   try {
     // ① 從 Mock API 取得所有商品
     _state.allProducts = await window.API.products.getAll();

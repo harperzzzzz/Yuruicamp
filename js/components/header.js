@@ -61,31 +61,28 @@ function _getUser() {
 
 function _resolveHeaderRoot() {
   const sharedRoot = document.getElementById('header');
-  if (sharedRoot) {
-    const contextAttr = (sharedRoot.dataset.headerContext || '').toLowerCase();
-    const context = HEADER_CONTEXTS[contextAttr] ? contextAttr : 'shop';
+  if (!sharedRoot) return null;
+
+  const contextAttr = (sharedRoot.dataset.headerContext || '').toLowerCase();
+  if (HEADER_CONTEXTS[contextAttr]) {
     return {
       root: sharedRoot,
-      context,
-      fallbackSource: contextAttr ? '' : '#header -> shop (compat)',
+      context: contextAttr,
+      fallbackSource: '',
     };
   }
 
-  const legacyBookingRoot = document.getElementById('booking-header');
-  if (legacyBookingRoot) {
-    return {
-      root: legacyBookingRoot,
-      context: 'camp',
-      fallbackSource: '#booking-header -> camp (compat)',
-    };
-  }
-
-  return null;
+  console.warn('Missing or invalid #header[data-header-context], fallback to "shop".');
+  return {
+    root: sharedRoot,
+    context: 'shop',
+    fallbackSource: '#header context invalid -> shop (compat)',
+  };
 }
 
 function _findNearestHeaderRoot(node) {
   if (node && typeof node.closest === 'function') {
-    const scopedRoot = node.closest('#header, #booking-header');
+    const scopedRoot = node.closest('#header');
     if (scopedRoot) return scopedRoot;
   }
   const resolved = _resolveHeaderRoot();
@@ -374,55 +371,6 @@ function _initSharedHeader(root, contextKey) {
   return true;
 }
 
-function _initLegacyHeader(root) {
-  const hamburger = root.querySelector('.navbar-hamburger');
-  const drawer = root.querySelector('.navbar-offcanvas');
-  const backdrop = root.querySelector('.offcanvas-backdrop');
-  const close = root.querySelector('.offcanvas-close');
-  if (!hamburger || !drawer) return false;
-
-  const openLegacy = () => {
-    drawer.classList.add('active');
-    backdrop?.classList.add('active');
-    hamburger.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('offcanvas-open');
-    document.body.style.overflow = 'hidden';
-  };
-  const closeLegacy = () => {
-    drawer.classList.remove('active');
-    backdrop?.classList.remove('active');
-    hamburger.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('offcanvas-open');
-    document.body.style.overflow = '';
-  };
-
-  if (hamburger.dataset.legacyBound !== 'true') {
-    hamburger.dataset.legacyBound = 'true';
-    hamburger.addEventListener('click', (event) => {
-      event.preventDefault();
-      openLegacy();
-    });
-  }
-  if (close && close.dataset.legacyBound !== 'true') {
-    close.dataset.legacyBound = 'true';
-    close.addEventListener('click', closeLegacy);
-  }
-  if (backdrop && backdrop.dataset.legacyBound !== 'true') {
-    backdrop.dataset.legacyBound = 'true';
-    backdrop.addEventListener('click', closeLegacy);
-  }
-
-  window.openDrawer = openLegacy;
-  window.closeDrawer = closeLegacy;
-  window.toggleDrawer = () => {
-    if (drawer.classList.contains('active')) closeLegacy();
-    else openLegacy();
-  };
-  window.closeMainNavOffcanvas = closeLegacy;
-  _initSearchBar(root);
-  return true;
-}
-
 window.openDrawer = () => {
   const root = _resolveHeaderRoot()?.root;
   if (!root || !_isSharedHeader(root)) return;
@@ -474,23 +422,10 @@ window.initNavbar = () => {
     }
     window.__sharedHeaderControllerActive = true;
   } else {
-    if (root.dataset.headerInitialized === 'true' && root.dataset.headerInitializedContext === context) {
-      _highlightActiveLinks(root);
-      window.updateNavbarLoginState();
-      if (context === 'shop') {
-        window.updateCartBadge();
-        _syncShopDrawerUtilityBadge(root);
-      }
-      return;
-    }
-
-    const legacyInitialized = _initLegacyHeader(root);
-    if (!legacyInitialized) {
-      root.dataset.headerInitialized = 'false';
-      delete root.dataset.headerInitializedContext;
-      return;
-    }
-    window.__sharedHeaderControllerActive = false;
+    root.dataset.headerInitialized = 'false';
+    delete root.dataset.headerInitializedContext;
+    console.error('shared-site-header structure missing: expected [data-header-drawer].');
+    return;
   }
 
   window.updateNavbarLoginState();
