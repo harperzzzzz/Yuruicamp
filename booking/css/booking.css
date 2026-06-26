@@ -1947,9 +1947,125 @@
   position: relative;
 }
 
+/* 漢堡按鈕（手機版） */
+.bk-hamburger {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  padding: 0.3rem;
+  border-radius: 6px;
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-right: auto;
+  line-height: 1;
+  transition: background 0.2s;
+  z-index: 2;
+}
+
+.bk-hamburger:hover { background: rgba(255, 253, 249, 0.14); }
+
 /* 桌機版隱藏 / 手機版隱藏輔助 class */
 .bk-hidden-mobile  { display: flex; }   /* 桌機顯示 */
 .bk-hidden-desktop { display: none; }  /* 桌機隱藏 */
+
+/* ============================================================
+   22-A. Offcanvas 側邊選單（手機版）
+   ============================================================ */
+.bk-offcanvas {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  background: var(--yc-bg);
+  box-shadow: -4px 0 20px rgba(60, 70, 59, 0.18);
+  z-index: 2000;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.bk-offcanvas.is-open { left: 0; }
+
+.bk-offcanvas__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bk-offcanvas__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--yc-sage-action);
+}
+
+.bk-offcanvas__close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--yc-sage);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.bk-offcanvas__close:hover { background: rgba(115, 129, 110, 0.1); }
+
+.bk-offcanvas__body { padding: 1rem 0; flex: 1; overflow-y: auto; }
+
+.bk-offcanvas__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bk-offcanvas__list li a {
+  display: block;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--yc-text);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bk-offcanvas__list li a:hover { background: rgba(115, 129, 110, 0.08); color: var(--yc-sage-action); }
+
+/* Offcanvas 分隔線 */
+.bk-offcanvas__divider {
+  height: 1px;
+  background: var(--yc-border);
+  margin: 0.5rem 1.5rem;
+}
+
+/* 系統切換連結（奶油金 CTA 強調 → 改用品牌綠確保可讀性） */
+.bk-offcanvas__switch {
+  color: var(--yc-sage-action) !important;
+  font-weight: 600 !important;
+}
+
+/* 預約背包連結 */
+.bk-offcanvas__cart {
+  display: flex !important;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Offcanvas 背景遮罩 */
+.bk-offcanvas-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 1999;
+}
+
+.bk-offcanvas-backdrop.is-visible { display: block; }
 
 /* ============================================================
    22-B. Slide-out Panels — 登入 & 預約背包
@@ -2123,6 +2239,49 @@
 }
 
 .cart-panel__clear:hover { color: var(--bk-danger); }
+
+/* ── 手機版 offcanvas 內的背包 button（樣式對齊 list link） ── */
+.bk-offcanvas__cart-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.95rem;
+  color: var(--yc-text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.bk-offcanvas__cart-btn:hover {
+  background: rgba(115, 129, 110, 0.08);
+  color: var(--yc-sage-action);
+}
+
+/* 手機版 offcanvas 登出按鈕 */
+.bk-offcanvas__logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.85rem 1.5rem;
+  font-size: 1rem;
+  color: var(--yc-error);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.bk-offcanvas__logout-btn:hover {
+  background: var(--yc-error-soft);
+}
 
 /* OAuth 登入按鈕 */
 .oauth-desc {

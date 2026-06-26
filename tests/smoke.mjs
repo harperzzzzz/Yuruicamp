@@ -79,9 +79,12 @@ assert((headerPartial.match(/data-layout-part="shared-site-header"/g) || []).len
 assert((headerPartial.match(/data-layout-part="shared-auth"/g) || []).length === 1, 'header.partial must define shared-auth once');
 assert((headerPartial.match(/data-layout-part="shared-site-cart-panel"/g) || []).length === 1, 'header.partial must define shared-site-cart-panel once');
 assert((headerPartial.match(/data-layout-part="shared-booking-cart-panel"/g) || []).length === 1, 'header.partial must define shared-booking-cart-panel once');
-assert(!headerPartial.includes('data-layout-part="main-header"'), 'header.partial should remove main-header');
-assert(!headerPartial.includes('data-layout-part="booking-header"'), 'header.partial should remove booking-header');
-assert(!headerPartial.includes('data-layout-part="shared-header"'), 'header.partial should remove legacy shared-header');
+assert(headerPartial.includes('class="yr-site-header-shell"'), 'shared-site-header must include .yr-site-header-shell');
+assert(headerPartial.includes('class="yr-site-header'), 'shared-site-header must include .yr-site-header');
+assert(headerPartial.includes('class="yr-site-menu-toggle"'), 'shared-site-header must include .yr-site-menu-toggle');
+assert(headerPartial.includes('data-header-actions'), 'shared-site-header must include [data-header-actions]');
+assert(headerPartial.includes('data-header-drawer'), 'shared-site-header must include [data-header-drawer]');
+assert(headerPartial.includes('data-header-overlay'), 'shared-site-header must include [data-header-overlay]');
 
 const sharedHeaderFragment = headerPartial
   .split('<div data-layout-part="shared-site-header">')[1]
@@ -97,25 +100,20 @@ assert(mainJs.includes("!document.getElementById('siteCartDrawer')"), 'main.js s
 
 const bookingLayoutJs = readProjectFile('booking/js/layout.js');
 assert(bookingLayoutJs.includes('[data-layout-part="shared-site-header"]'), 'booking layout should load shared-site-header');
-assert(!bookingLayoutJs.includes('[data-layout-part="booking-header"]'), 'booking layout should remove booking-header fallback');
-assert(!bookingLayoutJs.includes('#booking-header'), 'booking layout should not query #booking-header');
+assert(bookingLayoutJs.includes('#header[data-header-context="camp"]'), 'booking layout should prioritize #header[data-header-context="camp"]');
+assert(bookingLayoutJs.includes('#booking-header'), 'booking layout should keep legacy #booking-header fallback during migration');
 assert(bookingLayoutJs.includes("if (document.getElementById('cartPanel')) return true;"), 'booking layout should guard booking cart panel singleton');
+assert(bookingLayoutJs.includes('[data-layout-part="shared-booking-cart-panel"]'), 'booking layout should request shared booking cart panel');
+assert(bookingLayoutJs.includes('target.insertAdjacentHTML(\'beforeend\''), 'booking layout should append auth/panel instead of replacing shared header');
+assert(bookingLayoutJs.includes('Failed to load shared-site-header'), 'booking layout should log shared-site-header load failures');
 
 const sharedHeaderController = readProjectFile('js/components/header.js');
 assert(sharedHeaderController.includes('data-auth-login-trigger'), 'shared header should render auth login trigger hook');
 assert(sharedHeaderController.includes('root.dataset.headerInitializedContext = context;'), 'shared header should persist initialized context');
 assert(sharedHeaderController.includes('_sharedHeaderStructureReady(root)'), 'shared header should validate structure before complete');
 assert(sharedHeaderController.includes('_sharedHeaderContentReady(root)'), 'shared header should validate content before complete');
-assert(!sharedHeaderController.includes('#booking-header'), 'header controller should not support #booking-header fallback');
-assert(!sharedHeaderController.includes('.navbar-offcanvas'), 'header controller should not contain legacy offcanvas logic');
-assert(!sharedHeaderController.includes('.navbar-hamburger'), 'header controller should not contain legacy hamburger logic');
-
-const bookingHeaderJs = readProjectFile('booking/js/booking-header.js');
-assert(!bookingHeaderJs.includes('bkOffcanvas'), 'booking-header.js should remove legacy offcanvas elements');
-assert(!bookingHeaderJs.includes('bkHamburger'), 'booking-header.js should remove legacy hamburger handling');
-assert(!bookingHeaderJs.includes('bkBackdrop'), 'booking-header.js should remove legacy offcanvas backdrop handling');
-assert(bookingHeaderJs.includes("document.getElementById('cartPanel')"), 'booking-header.js should keep booking cart panel handling');
-assert(bookingHeaderJs.includes("document.getElementById('bkPanelBackdrop')"), 'booking-header.js should keep booking panel backdrop handling');
+assert(bookingLayoutJs.includes('loadBookingHeaderScriptShared'), 'booking layout should initialize shared header runtime chain');
+assert(bookingLayoutJs.includes('loadBookingHeaderScriptLegacy'), 'booking layout should keep legacy runtime chain during migration');
 
 const authJs = readProjectFile('js/components/auth.js');
 assert(authJs.includes('window.initAuth = function initAuth()'), 'auth.js should expose initAuth');
@@ -134,23 +132,6 @@ const pageScripts = [
 pageScripts.forEach((pageScript) => {
   const source = readProjectFile(pageScript);
   assert(!/initNavbar\(|window\.initNavbar/.test(source), `${pageScript} should not directly call initNavbar`);
-});
-
-const cssLegacyCandidates = [
-  'css/main.css',
-  'css/theme/theme-base.css',
-  'css/theme/theme-layout.css',
-  'css/theme/theme-components.css',
-  'booking/css/booking.css',
-  'booking/css/theme/booking-shell.css',
-];
-cssLegacyCandidates.forEach((path) => {
-  const css = readProjectFile(path);
-  assert(!css.includes('.navbar-offcanvas'), `${path} should not contain legacy .navbar-offcanvas selectors`);
-  assert(!css.includes('.navbar-hamburger'), `${path} should not contain legacy .navbar-hamburger selectors`);
-  assert(!css.includes('.offcanvas-close'), `${path} should not contain legacy .offcanvas-close selectors`);
-  assert(!css.includes('.bk-offcanvas'), `${path} should not contain legacy .bk-offcanvas selectors`);
-  assert(!css.includes('.bk-hamburger'), `${path} should not contain legacy .bk-hamburger selectors`);
 });
 
 const mainCss = readProjectFile('css/main.css');

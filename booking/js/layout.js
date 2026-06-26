@@ -80,13 +80,28 @@ function loadScriptOnce(src, flagName) {
  * Loads shared-header runtime first, then booking utilities.
  */
 function loadBookingHeaderScriptShared() {
+  return loadScriptOnce('../../js/components/header.js', '__sharedHeaderScriptLoaded')
+    .then(function () {
+      if (typeof window.initNavbar === 'function') window.initNavbar();
+      return loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded');
+    })
+    .then(function () {
+      if (typeof window.initAuth === 'function') window.initAuth();
+      return loadScriptOnce('../js/booking-header.js', '__bookingHeaderScriptLoaded');
+    })
+    .catch(function (error) {
+      console.error(error);
+      return false;
+    });
+}
+
+/**
+ * Loads booking header runtime scripts in legacy mode.
+ */
+function loadBookingHeaderScriptLegacy() {
   return loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded')
     .then(function () {
       if (typeof window.initAuth === 'function') window.initAuth();
-      return loadScriptOnce('../../js/components/header.js', '__sharedHeaderScriptLoaded');
-    })
-    .then(function () {
-      if (typeof window.initNavbar === 'function') window.initNavbar();
       return loadScriptOnce('../js/booking-header.js', '__bookingHeaderScriptLoaded');
     })
     .catch(function (error) {
@@ -121,8 +136,12 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
       const part = template.content.querySelector(partSelector);
       const content = part ? part.innerHTML : html;
 
-      // Shared auth is appended after the booking header so both systems use one modal.
-      if (partSelector === '[data-layout-part="shared-auth"]') {
+      // Shared auth and business panels are appended; header/footer fragments replace the target shell.
+      if (
+        partSelector === '[data-layout-part="shared-auth"]'
+        || partSelector === '[data-layout-part="shared-booking-cart-panel"]'
+        || partSelector === '[data-layout-part="shared-site-cart-panel"]'
+      ) {
         target.insertAdjacentHTML('beforeend', content);
       } else {
         target.innerHTML = content;
@@ -132,32 +151,60 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
       return true;
     })
     .catch(function (error) {
-      console.error(error);
+      if (partSelector === '[data-layout-part="shared-site-header"]') {
+        console.error('[Booking Layout] Failed to load shared-site-header', error);
+      } else {
+        console.error(error);
+      }
       if (callback) callback(false);
       return false;
     });
 }
 
 /**
- * Loads the booking shared header, shared auth modal, and booking footer.
+ * Loads the booking header, shared auth modal, and footer for booking pages.
  */
 function resolveBookingHeaderTarget() {
-  return document.querySelector('#header[data-header-context="camp"]');
+  const sharedHeader = document.querySelector('#header[data-header-context="camp"]');
+  if (sharedHeader) {
+    return {
+      selector: '#header',
+      target: sharedHeader,
+      useSharedController: true,
+    };
+  }
+
+  const legacyHeader = document.querySelector('#booking-header');
+  if (legacyHeader) {
+    console.warn('[Booking Layout] Legacy #booking-header is still in use.');
+    return {
+      selector: '#booking-header',
+      target: legacyHeader,
+      useSharedController: false,
+    };
+  }
+
+  return null;
 }
 
 function loadBookingHeader() {
-  const target = resolveBookingHeaderTarget();
-  if (!target) {
-    console.error('Booking pages must provide #header[data-header-context="camp"] for shared-site-header.');
+  const targetInfo = resolveBookingHeaderTarget();
+  if (!targetInfo) {
+    console.error('[Booking Layout] Missing header root: expected #header[data-header-context="camp"] or #booking-header.');
     return Promise.resolve(false);
+  }
+
+  const target = targetInfo.target;
+  if (targetInfo.useSharedController && !target.dataset.headerContext) {
+    target.dataset.headerContext = 'camp';
   }
 
   const injectHeader = target.dataset.bookingHeaderLoaded === 'true'
     ? Promise.resolve(true)
     : loadBookingLayoutPartial(
-      '#header',
+      targetInfo.selector,
       '../../components/header.partial',
-      '[data-layout-part="shared-site-header"]'
+      targetInfo.useSharedController ? '[data-layout-part="shared-site-header"]' : '[data-layout-part="booking-header"]'
     )
       .then(function (ok) {
         if (!ok) return false;
@@ -169,7 +216,7 @@ function loadBookingHeader() {
     .then(function (ok) {
       if (!ok) return false;
       if (target.dataset.sharedAuthLoaded === 'true') return true;
-      return loadBookingLayoutPartial('#header', '../../components/header.partial', '[data-layout-part="shared-auth"]')
+      return loadBookingLayoutPartial(targetInfo.selector, '../../components/header.partial', '[data-layout-part="shared-auth"]')
         .then(function (authOk) {
           if (authOk) target.dataset.sharedAuthLoaded = 'true';
           return authOk;
@@ -177,17 +224,15 @@ function loadBookingHeader() {
     })
     .then(function (ok) {
       if (!ok) return false;
+      if (!targetInfo.useSharedController) return true;
       if (document.getElementById('cartPanel')) return true;
       return loadBookingLayoutPartial(
-        '#header',
+        targetInfo.selector,
         '../../components/header.partial',
         '[data-layout-part="shared-booking-cart-panel"]'
       );
     })
-    .then(function (ok) {
-      if (!ok) return false;
-      return loadBookingHeaderScriptShared();
-    });
+    .then(function (ok) { return !!ok; });
 }
 
 function loadBookingFooter() {
@@ -205,7 +250,19 @@ function loadBookingFooter() {
 window.loadBookingHeader = loadBookingHeader;
 window.loadBookingFooter = loadBookingFooter;
 window.loadBookingSharedLayout = function () {
-  return Promise.all([loadBookingHeader(), loadBookingFooter()]);
+  return loadBookingHeader()
+    .then(function (headerOk) {
+      if (!headerOk) return false;
+      return loadBookingFooter().then(function () { return true; });
+    })
+    .then(function (ok) {
+      if (!ok) return false;
+      const targetInfo = resolveBookingHeaderTarget();
+      if (!targetInfo) return false;
+      return targetInfo.useSharedController
+        ? loadBookingHeaderScriptShared()
+        : loadBookingHeaderScriptLegacy();
+    });
 };
 
 document.addEventListener('DOMContentLoaded', initFloatingActions);
