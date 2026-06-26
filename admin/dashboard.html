@@ -481,7 +481,7 @@
   <!-- ============================================================
        全域 Modal：新增商品（靜態放在 dashboard，由 products.js 處理）
        ============================================================ -->
-  <div class="modal fade" id="addProductModal" tabindex="-1"
+  <div class="modal fade yr-admin-product-modal" id="addProductModal" tabindex="-1"
        aria-labelledby="addProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -495,7 +495,7 @@
           <form id="addProductForm" novalidate>
 
             <!-- 商品名稱 -->
-            <div class="mb-3">
+            <div class="mb-3 yr-admin-product-modal-section">
               <label class="form-label fw-semibold" for="newProductName">
                 商品名稱 <span class="yr-admin-danger-text">*</span>
               </label>
@@ -505,7 +505,7 @@
             </div>
 
             <!-- 商品描述：只作為表單輸入欄位，不寫回 JSON、不渲染到商品列表 -->
-            <div class="mb-3">
+            <div class="mb-3 yr-admin-product-modal-section">
               <label class="form-label fw-semibold" for="newProductDescription">
                 商品描述
               </label>
@@ -514,21 +514,23 @@
             </div>
 
             <!-- 商品圖片 -->
-            <div class="row g-2 mb-3">
-              <div class="col-6">
+            <div class="row g-2 mb-3 yr-admin-product-modal-section yr-admin-product-image-upload">
+              <div class="col-6 yr-admin-product-image-upload__item">
                 <label class="form-label fw-semibold" for="newProductMainImage">主要圖片</label>
                 <input type="file" class="form-control" id="newProductMainImage"
                        accept="image/*">
+                <small class="form-text yr-admin-product-image-upload__hint">支援 JPG / PNG，低飽和預覽框</small>
               </div>
-              <div class="col-6">
+              <div class="col-6 yr-admin-product-image-upload__item">
                 <label class="form-label fw-semibold" for="newProductImages">次要圖片（可多選）</label>
                 <input type="file" class="form-control" id="newProductImages"
                        accept="image/*" multiple>
+                <small class="form-text yr-admin-product-image-upload__hint">可多選上傳</small>
               </div>
             </div>
 
             <!-- 分類 + 規格/顏色 -->
-            <div class="row g-2 mb-3">
+            <div class="row g-2 mb-3 yr-admin-product-modal-section">
               <div class="col-6">
                 <label class="form-label fw-semibold" for="newProductCategory">分類</label>
                 <select class="form-select" id="newProductCategory">
@@ -542,18 +544,18 @@
               </div>
               <div class="col-6">
                 <label class="form-label fw-semibold" for="newProductSpec">規格 / 顏色</label>
-                <div class="input-group">
+                <div class="input-group yr-admin-product-spec-input-group">
                   <input type="text" class="form-control" id="newProductSpec"
                          list="productSpecOptions" placeholder="例：weight">
                   <button type="button" class="btn btn-outline-secondary" id="addSpec">新增</button>
                 </div>
                 <datalist id="productSpecOptions"></datalist>
-                <div id="productSpecFields" class="mt-2"></div>
+                <div id="productSpecFields" class="mt-2 yr-admin-product-spec-fields"></div>
               </div>
             </div>
 
             <!-- 售價 + 主倉進貨量（主倉進貨量欄位在編輯模式下由 JS 隱藏） -->
-            <div class="row g-2 mb-3">
+            <div class="row g-2 mb-3 yr-admin-product-modal-section">
               <div class="col-6">
                 <label class="form-label fw-semibold" for="newProductPrice">
                   售價 (NT$) <span class="yr-admin-danger-text">*</span>
@@ -575,12 +577,12 @@
 
             <!-- [新增] 編輯商店商品時顯示的分店庫存區塊，新增模式預設隱藏 -->
             <!-- Branch stock section: visible only in store-product edit mode -->
-            <div class="mb-3 d-none" id="editBranchStockField">
+            <div class="mb-3 d-none yr-admin-product-modal-section yr-admin-stock-distribution" id="editBranchStockField">
               <label class="form-label fw-semibold">各分店庫存</label>
 
               <!-- 總庫存唯讀顯示：由各分店數量自動加總 -->
               <!-- Read-only total: auto-computed from branch inputs -->
-              <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="d-flex align-items-center gap-2 mb-2 yr-admin-stock-total">
                 <span class="text-muted small">總庫存：</span>
                 <span id="editBranchTotalStock" class="fw-semibold">0</span>
                 <span class="text-muted small">件</span>
@@ -590,27 +592,27 @@
               <!-- Fixed 4 rows: main warehouse + branch A/B/C with editable qty inputs -->
               <div class="vstack gap-2" id="editBranchPresetList">
 
-                <div class="input-group input-group-sm edit-branch-row" data-branch-id="main">
-                  <span class="input-group-text" style="min-width:80px;">商店主倉</span>
-                  <input type="number" class="form-control edit-branch-quantity-input"
+                <div class="input-group input-group-sm edit-branch-row yr-admin-stock-location" data-branch-id="main">
+                  <span class="input-group-text yr-admin-stock-location__name" style="min-width:80px;">商店主倉</span>
+                  <input type="number" class="form-control edit-branch-quantity-input yr-admin-stock-location__quantity"
                          min="0" value="0" aria-label="商店主倉存放數量">
                 </div>
 
-                <div class="input-group input-group-sm edit-branch-row" data-branch-id="branch-001">
-                  <span class="input-group-text" style="min-width:80px;">分店 A</span>
-                  <input type="number" class="form-control edit-branch-quantity-input"
+                <div class="input-group input-group-sm edit-branch-row yr-admin-stock-location" data-branch-id="branch-001">
+                  <span class="input-group-text yr-admin-stock-location__name" style="min-width:80px;">分店 A</span>
+                  <input type="number" class="form-control edit-branch-quantity-input yr-admin-stock-location__quantity"
                          min="0" value="0" aria-label="分店 A 存放數量">
                 </div>
 
-                <div class="input-group input-group-sm edit-branch-row" data-branch-id="branch-002">
-                  <span class="input-group-text" style="min-width:80px;">分店 B</span>
-                  <input type="number" class="form-control edit-branch-quantity-input"
+                <div class="input-group input-group-sm edit-branch-row yr-admin-stock-location" data-branch-id="branch-002">
+                  <span class="input-group-text yr-admin-stock-location__name" style="min-width:80px;">分店 B</span>
+                  <input type="number" class="form-control edit-branch-quantity-input yr-admin-stock-location__quantity"
                          min="0" value="0" aria-label="分店 B 存放數量">
                 </div>
 
-                <div class="input-group input-group-sm edit-branch-row" data-branch-id="branch-003">
-                  <span class="input-group-text" style="min-width:80px;">分店 C</span>
-                  <input type="number" class="form-control edit-branch-quantity-input"
+                <div class="input-group input-group-sm edit-branch-row yr-admin-stock-location" data-branch-id="branch-003">
+                  <span class="input-group-text yr-admin-stock-location__name" style="min-width:80px;">分店 C</span>
+                  <input type="number" class="form-control edit-branch-quantity-input yr-admin-stock-location__quantity"
                          min="0" value="0" aria-label="分店 C 存放數量">
                 </div>
 
@@ -620,7 +622,7 @@
             </div><!-- end #editBranchStockField -->
 
             <!-- 租借商品設定 -->
-            <div class="mb-3">
+            <div class="mb-3 yr-admin-product-modal-section">
               <!-- [wrapper] 讓 JS 在編輯模式可整塊隱藏 toggle -->
               <!-- Wrapper lets JS hide/show the rental toggle per mode -->
               <div id="newProductIsRentalWrapper">
