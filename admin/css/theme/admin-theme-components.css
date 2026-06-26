@@ -229,6 +229,282 @@
   color: var(--yr-admin-text-muted);
 }
 
+/* p2: dashboard component palette unification (card/button/table/form/badge/modal/dropdown) */
+.yr-admin-dashboard-page .card,
+.yr-admin-dashboard-page .yr-admin-card {
+  background: var(--yr-admin-card-bg);
+  border: 1px solid var(--yr-admin-card-border);
+  box-shadow: var(--yr-admin-card-shadow);
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .card-header,
+.yr-admin-dashboard-page .card-footer {
+  background: var(--yr-admin-surface);
+  color: var(--yr-admin-text);
+  border-color: var(--yr-admin-divider);
+}
+
+.yr-admin-dashboard-page .card-body {
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .btn-primary,
+.yr-admin-dashboard-page .yr-admin-primary-action {
+  background: var(--yr-admin-primary-hover);
+  border-color: var(--yr-admin-primary-hover);
+  color: var(--yr-admin-primary-text);
+}
+
+.yr-admin-dashboard-page .btn-primary:hover,
+.yr-admin-dashboard-page .btn-primary:focus-visible,
+.yr-admin-dashboard-page .yr-admin-primary-action:hover,
+.yr-admin-dashboard-page .yr-admin-primary-action:focus-visible {
+  background: var(--yr-admin-primary-active);
+  border-color: var(--yr-admin-primary-active);
+  color: var(--yr-admin-primary-text);
+}
+
+.yr-admin-dashboard-page .btn-primary:active,
+.yr-admin-dashboard-page .btn-primary.active,
+.yr-admin-dashboard-page .yr-admin-primary-action:active,
+.yr-admin-dashboard-page .yr-admin-primary-action.active {
+  background: var(--yr-admin-primary-active);
+  border-color: var(--yr-admin-primary-active);
+}
+
+.yr-admin-dashboard-page .btn-secondary,
+.yr-admin-dashboard-page .btn-outline-secondary {
+  background: var(--yr-admin-surface);
+  border-color: var(--yr-admin-border-strong);
+  color: var(--yr-admin-text-muted);
+}
+
+.yr-admin-dashboard-page .btn-secondary:hover,
+.yr-admin-dashboard-page .btn-outline-secondary:hover {
+  background: var(--yr-admin-surface-muted);
+  border-color: var(--yr-admin-border);
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .btn-outline-primary {
+  background: var(--yr-admin-surface);
+  border-color: var(--yr-admin-primary);
+  color: var(--yr-admin-primary-hover);
+}
+
+.yr-admin-dashboard-page .btn-outline-primary:hover {
+  background: var(--yr-admin-primary-soft);
+  border-color: var(--yr-admin-primary-hover);
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .btn-danger {
+  background: var(--yr-admin-danger-bg);
+  border-color: var(--yr-admin-danger-border);
+  color: var(--yr-admin-danger-text);
+}
+
+.yr-admin-dashboard-page .btn-outline-danger {
+  background: var(--yr-admin-surface);
+  border-color: var(--yr-admin-danger-border);
+  color: var(--yr-admin-danger-text);
+}
+
+.yr-admin-dashboard-page .btn-danger:hover,
+.yr-admin-dashboard-page .btn-outline-danger:hover {
+  background: var(--yr-admin-danger-bg);
+  border-color: var(--yr-admin-danger);
+  color: var(--yr-admin-danger-text);
+}
+
+.yr-admin-dashboard-page .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--yr-admin-focus-ring);
+}
+
+.yr-admin-dashboard-page .btn:disabled,
+.yr-admin-dashboard-page .btn.disabled {
+  background: var(--yr-admin-surface-subtle);
+  border-color: var(--yr-admin-border);
+  color: var(--yr-admin-text-muted);
+  opacity: 1;
+}
+
+.yr-admin-dashboard-page .table {
+  --bs-table-bg: var(--yr-admin-table-bg);
+  --bs-table-color: var(--yr-admin-text);
+  --bs-table-border-color: var(--yr-admin-table-border);
+  --bs-table-striped-bg: var(--yr-admin-surface-subtle);
+  --bs-table-hover-bg: var(--yr-admin-table-row-hover);
+}
+
+.yr-admin-dashboard-page .table > thead th,
+.yr-admin-dashboard-page .table-light > :not(caption) > * > * {
+  background: var(--yr-admin-table-header-bg);
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .table > :not(caption) > * > * {
+  border-color: var(--yr-admin-table-border);
+}
+
+.yr-admin-dashboard-page .table-hover > tbody > tr:hover > * {
+  background: var(--yr-admin-table-row-hover);
+}
+
+.yr-admin-dashboard-page .table-active > :not(caption) > * > * {
+  background: var(--yr-admin-table-row-selected);
+}
+
+.yr-admin-dashboard-page .form-control,
+.yr-admin-dashboard-page .form-select {
+  background: var(--yr-admin-input-bg);
+  border: 1px solid var(--yr-admin-input-border);
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .form-control::placeholder {
+  color: var(--yr-admin-input-placeholder);
+}
+
+.yr-admin-dashboard-page .form-control:focus,
+.yr-admin-dashboard-page .form-select:focus {
+  background: var(--yr-admin-input-bg);
+  border-color: var(--yr-admin-input-border-focus);
+  box-shadow: 0 0 0 3px var(--yr-admin-focus-ring);
+}
+
+.yr-admin-dashboard-page .form-control:disabled,
+.yr-admin-dashboard-page .form-control[readonly],
+.yr-admin-dashboard-page .form-select:disabled {
+  background: var(--yr-admin-surface-subtle);
+  border-color: var(--yr-admin-border);
+  color: var(--yr-admin-text-muted);
+}
+
+.yr-admin-dashboard-page .form-check-input {
+  border-color: var(--yr-admin-input-border);
+}
+
+.yr-admin-dashboard-page .form-check-input:checked {
+  background-color: var(--yr-admin-primary-hover);
+  border-color: var(--yr-admin-primary-hover);
+}
+
+.yr-admin-dashboard-page .form-check-input:focus {
+  box-shadow: 0 0 0 3px var(--yr-admin-focus-ring);
+}
+
+.yr-admin-dashboard-page .input-group-text {
+  background: var(--yr-admin-surface-muted);
+  border-color: var(--yr-admin-input-border);
+  color: var(--yr-admin-text-muted);
+}
+
+.yr-admin-dashboard-page .form-text {
+  color: var(--yr-admin-text-muted);
+}
+
+.yr-admin-dashboard-page .invalid-feedback {
+  color: var(--yr-admin-danger-text);
+}
+
+.yr-admin-dashboard-page .is-invalid,
+.yr-admin-dashboard-page .is-invalid:focus {
+  border-color: var(--yr-admin-danger);
+  box-shadow: 0 0 0 3px var(--yr-admin-focus-ring);
+}
+
+.yr-admin-dashboard-page .badge {
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-weight: 600;
+}
+
+.yr-admin-dashboard-page .badge.bg-success,
+.yr-admin-dashboard-page .badge.bg-primary {
+  background: var(--yr-admin-success-bg) !important;
+  border: 1px solid var(--yr-admin-success-border);
+  color: var(--yr-admin-success-text) !important;
+}
+
+.yr-admin-dashboard-page .badge.bg-warning {
+  background: var(--yr-admin-warning-bg) !important;
+  border: 1px solid var(--yr-admin-warning-border);
+  color: var(--yr-admin-warning-text) !important;
+}
+
+.yr-admin-dashboard-page .badge.bg-danger {
+  background: var(--yr-admin-danger-bg) !important;
+  border: 1px solid var(--yr-admin-danger-border);
+  color: var(--yr-admin-danger-text) !important;
+}
+
+.yr-admin-dashboard-page .badge.bg-info {
+  background: var(--yr-admin-info-bg) !important;
+  border: 1px solid var(--yr-admin-info-border);
+  color: var(--yr-admin-info-text) !important;
+}
+
+.yr-admin-dashboard-page .badge.bg-secondary {
+  background: var(--yr-admin-neutral-bg) !important;
+  border: 1px solid var(--yr-admin-neutral-border);
+  color: var(--yr-admin-neutral-text) !important;
+}
+
+.yr-admin-dashboard-page .modal-content {
+  background: var(--yr-admin-modal-bg);
+  border: 1px solid var(--yr-admin-modal-border);
+}
+
+.yr-admin-dashboard-page .modal-header,
+.yr-admin-dashboard-page .modal-footer {
+  border-color: var(--yr-admin-divider);
+}
+
+.yr-admin-dashboard-page .modal-title {
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .modal-backdrop.show {
+  background: var(--yr-admin-modal-backdrop);
+  opacity: 1;
+}
+
+.yr-admin-dashboard-page .modal .btn-close {
+  opacity: 0.7;
+}
+
+.yr-admin-dashboard-page .modal .btn-close:hover {
+  opacity: 1;
+}
+
+.yr-admin-dashboard-page .dropdown-menu {
+  background: var(--yr-admin-dropdown-bg);
+  border: 1px solid var(--yr-admin-dropdown-border);
+  box-shadow: var(--yr-admin-shadow-sm);
+}
+
+.yr-admin-dashboard-page .dropdown-item {
+  color: var(--yr-admin-text);
+}
+
+.yr-admin-dashboard-page .dropdown-item:hover,
+.yr-admin-dashboard-page .dropdown-item:focus {
+  color: var(--yr-admin-text);
+  background: var(--yr-admin-surface-muted);
+}
+
+.yr-admin-dashboard-page .dropdown-item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--yr-admin-focus-ring);
+}
+
+.yr-admin-dashboard-page .dropdown-divider {
+  border-color: var(--yr-admin-divider);
+}
+
 .yr-admin-products {
   background: var(--yr-admin-surface);
   border: 1px solid var(--yr-admin-border) !important;
