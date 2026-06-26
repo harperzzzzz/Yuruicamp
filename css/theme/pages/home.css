@@ -12,71 +12,46 @@
   position: relative;
   isolation: isolate;
   width: min(calc(100% - 48px), 1200px);
-  min-height: 620px;
+  height: clamp(680px, 72vh, 760px);
   margin: 28px auto 2rem;
+  padding: 28px;
   border: 1px solid var(--yr-theme-border);
-  border-radius: 32px;
+  border-radius: 24px;
   overflow: hidden;
-  background:
-    radial-gradient(circle at 84% 18%, rgba(199, 212, 193, 0.58), transparent 34%),
-    radial-gradient(circle at 20% 88%, rgba(226, 207, 185, 0.52), transparent 32%),
-    linear-gradient(135deg, #fffdf8 0%, #f8f1e6 48%, #eef1e8 100%);
-  box-shadow: var(--yr-theme-shadow-md);
-  display: block;
+  background: linear-gradient(135deg, #fffdf8 0%, #f7f2e8 46%, #eef2ea 100%);
+  box-shadow: 0 16px 36px rgba(63, 70, 61, 0.08);
 }
 
-.yr-home-page .hero-banner::before {
-  content: '';
-  position: absolute;
-  width: 420px;
-  height: 420px;
-  right: 28%;
-  top: -180px;
-  background: rgba(255, 244, 221, 0.72);
-  border-radius: 50%;
-  filter: blur(10px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.yr-home-page .hero-banner::after {
-  content: '';
-  position: absolute;
-  top: 76px;
-  right: 28px;
-  bottom: 28px;
-  width: 53%;
+.yr-home-page .yr-home-hero__layout {
+  position: relative;
   z-index: 1;
-  background: rgba(184, 196, 174, 0.3);
-  border-radius: 32px 32px 92px 32px;
-  transform: rotate(1.8deg);
-  pointer-events: none;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  gap: 1.5rem;
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
 }
 
 .yr-home-page .yr-home-hero__video {
-  position: absolute;
-  top: 52px;
-  right: 48px;
-  bottom: 52px;
-  width: 55%;
-  height: auto;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: center;
-  border: 10px solid rgba(255, 253, 248, 0.72);
-  border-radius: 28px 28px 84px 28px;
-  filter: saturate(0.82) contrast(0.93) brightness(1.04);
-  box-shadow: 0 24px 60px rgba(76, 81, 70, 0.14);
-  z-index: 2;
+  object-position: center 60%;
+  filter: saturate(0.84) contrast(0.95) brightness(1.03);
+  background: transparent;
+  display: block;
   opacity: 0;
   animation: yrHomeHeroMediaIn 650ms ease-out forwards;
 }
 
 .yr-home-page .hero-content {
   position: relative;
-  z-index: 3;
-  width: 42%;
-  max-width: 580px;
-  padding: clamp(76px, 8vw, 124px) 0 clamp(72px, 7vw, 108px) clamp(48px, 6vw, 88px);
+  z-index: 2;
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(1.25rem, 1.6vw, 1.8rem);
+  align-self: center;
   text-align: left;
   opacity: 0;
   animation: yrHomeHeroTextIn 600ms ease-out forwards;
@@ -85,48 +60,51 @@
 .yr-home-page .hero-tagline {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   color: var(--yr-theme-brand-strong);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin: 0 0 1rem;
+  margin: 0 0 0.9rem;
 }
 
 .yr-home-page .hero-tagline::before {
   content: '';
-  width: 34px;
+  width: 24px;
   height: 1px;
   background: var(--yr-theme-brand-strong);
 }
 
 .yr-home-page .hero-title {
   color: #3f463d;
-  font-size: clamp(3.2rem, 5.2vw, 5rem);
+  font-size: clamp(2.45rem, 3.65vw, 3.5rem);
   font-weight: 600;
-  line-height: 1.16;
-  letter-spacing: -0.045em;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
 .yr-home-page .yr-home-hero__title-accent {
-  background: linear-gradient(transparent 70%, rgba(184, 198, 175, 0.42) 70%);
+  background: none;
 }
 
 .yr-home-page .hero-subtitle {
-  max-width: 520px;
-  margin-top: 28px;
+  max-width: 42ch;
+  margin-top: 1.1rem;
   color: #68635c;
-  font-size: 1.0625rem;
-  line-height: 1.9;
-  letter-spacing: 0.02em;
+  font-size: 1rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
 }
 
 .yr-home-page .hero-cta-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   justify-content: flex-start;
-  gap: 0.9rem;
-  margin-top: 1.65rem;
+  gap: 0.75rem;
+  margin-top: 1.45rem;
 }
 
 .yr-home-page .btn-hero-primary,
@@ -141,7 +119,7 @@
   background: #74846f;
   border-color: #74846f;
   color: #fffdf8;
-  box-shadow: 0 10px 24px rgba(89, 105, 84, 0.16);
+  box-shadow: 0 8px 18px rgba(89, 105, 84, 0.14);
 }
 
 .yr-home-page .btn-hero-primary:hover {
@@ -164,21 +142,41 @@
   transform: translateY(-1px);
 }
 
+.yr-home-page .yr-home-hero__assurance {
+  margin: 0.95rem 0 0;
+  color: #6f685d;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.yr-home-page .yr-home-hero__media {
+  position: relative;
+  min-height: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background-image:
+    linear-gradient(180deg, rgba(25, 31, 28, 0.1), rgba(25, 31, 28, 0.2)),
+    url('../../../assets/images/home-hero-fallback.svg');
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 14px 28px rgba(63, 70, 61, 0.12);
+}
+
 .yr-home-page .yr-home-hero__stamp {
   position: absolute;
-  right: 52px;
-  bottom: 42px;
+  right: 14px;
+  top: 14px;
   z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
-  padding: 0.7rem 0.9rem;
+  padding: 0.4rem 0.55rem;
   border: 1px solid rgba(222, 208, 193, 0.95);
-  border-radius: 12px;
-  background: rgba(255, 253, 248, 0.86);
-  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.82);
+  backdrop-filter: blur(4px);
   color: #6d6a62;
-  box-shadow: 0 10px 20px rgba(63, 70, 61, 0.06);
+  box-shadow: 0 4px 10px rgba(63, 70, 61, 0.08);
   text-align: right;
   pointer-events: none;
   opacity: 0;
@@ -187,14 +185,14 @@
 }
 
 .yr-home-page .yr-home-hero__stamp span {
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.15em;
 }
 
 .yr-home-page .yr-home-hero__stamp small {
-  font-size: 0.65rem;
-  letter-spacing: 0.16em;
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
 }
 
 .yr-home-page .brand-carousel-section {
@@ -489,28 +487,29 @@
 @media (max-width: 1024px) {
   .yr-home-page .hero-banner {
     width: min(calc(100% - 32px), 1200px);
-    min-height: 560px;
+    height: clamp(660px, 78vh, 720px);
+    padding: 22px;
+  }
+
+  .yr-home-page .yr-home-hero__layout {
+    grid-template-columns: 43% 57%;
+    gap: 1.1rem;
   }
 
   .yr-home-page .hero-content {
-    width: 44%;
-    padding: clamp(62px, 7vw, 92px) 0 clamp(56px, 6vw, 84px) clamp(38px, 4.5vw, 56px);
+    padding: 1rem 0.8rem;
   }
 
   .yr-home-page .hero-title {
-    font-size: clamp(2.8rem, 4.4vw, 4.2rem);
+    font-size: clamp(2.2rem, 4vw, 3rem);
   }
 
-  .yr-home-page .yr-home-hero__video {
-    top: 44px;
-    right: 36px;
-    bottom: 44px;
-    width: 52%;
+  .yr-home-page .hero-subtitle {
+    max-width: 38ch;
   }
 
-  .yr-home-page .yr-home-hero::after {
-    width: 56%;
-    right: 22px;
+  .yr-home-page .yr-home-hero__media {
+    border-radius: 16px;
   }
 
   .yr-home-page .products-scroll-row .product-card,
@@ -524,48 +523,68 @@
 @media (max-width: 768px) {
   .yr-home-page .hero-banner {
     width: min(calc(100% - 24px), 1200px);
-    min-height: auto;
+    height: auto;
     margin-top: 1rem;
-    padding: 1.5rem 0 1.25rem;
-    display: flex;
-    flex-direction: column;
+    padding: 14px;
   }
 
-  .yr-home-page .hero-content {
-    width: 100%;
-    max-width: 100%;
-    padding: 2rem 1.5rem 1.25rem;
+  .yr-home-page .yr-home-hero__layout {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .yr-home-page .yr-home-hero__media {
     order: 1;
-  }
-
-  .yr-home-page .hero-banner::before,
-  .yr-home-page .hero-banner::after {
-    display: none;
+    min-height: 0;
+    aspect-ratio: 16 / 11;
+    border-radius: 14px;
   }
 
   .yr-home-page .yr-home-hero__video {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    width: calc(100% - 3rem);
-    height: 340px;
-    margin: 0 1.5rem 0;
-    order: 2;
+    width: 100%;
+    height: 100%;
+    object-position: center;
   }
 
-  .yr-home-page .yr-home-hero__stamp {
-    right: 2rem;
-    bottom: 1.3rem;
+  .yr-home-page .hero-content {
+    order: 2;
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem 0.25rem 0.75rem;
+  }
+
+  .yr-home-page .hero-title {
+    font-size: clamp(1.9rem, 7.2vw, 2.4rem);
+    line-height: 1.3;
+  }
+
+  .yr-home-page .hero-subtitle {
+    max-width: 100%;
+    font-size: 0.98rem;
+    line-height: 1.7;
+  }
+
+  .yr-home-page .yr-home-hero__assurance {
+    font-size: 0.86rem;
+    margin-top: 0.8rem;
   }
 
   .yr-home-page .hero-cta-group {
-    flex-wrap: wrap;
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .yr-home-page .hero-cta-group .btn-hero-primary,
   .yr-home-page .hero-cta-group .btn-hero-outline {
-    min-width: 180px;
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .yr-home-page .yr-home-hero__stamp {
+    right: 10px;
+    top: 10px;
   }
 
   .yr-home-page .products-scroll-row .product-card,
@@ -587,34 +606,23 @@
 @media (max-width: 480px) {
   .yr-home-page .hero-banner {
     width: calc(100% - 16px);
-    min-height: auto;
-    border-radius: 22px;
+    border-radius: 16px;
     margin-top: 0.75rem;
-    padding: 1.25rem 0 1rem;
+    padding: 10px;
   }
 
   .yr-home-page .hero-content {
-    padding: 2rem 1.1rem 1.1rem;
+    padding: 0.45rem 0.15rem 0.6rem;
   }
 
   .yr-home-page .hero-title {
-    font-size: clamp(2.6rem, 10vw, 3rem);
+    font-size: clamp(1.72rem, 8.5vw, 2.1rem);
+    max-width: 12ch;
   }
 
   .yr-home-page .hero-subtitle {
-    font-size: 0.98rem;
-  }
-
-  .yr-home-page .hero-cta-group {
-    flex-direction: column;
-    align-items: stretch;
-    margin-top: 1.2rem;
-  }
-
-  .yr-home-page .btn-hero-primary,
-  .yr-home-page .btn-hero-outline {
-    width: 100%;
-    justify-content: center;
+    font-size: 0.93rem;
+    line-height: 1.65;
   }
 
   .yr-home-page .section-header {
@@ -627,17 +635,12 @@
   }
 
   .yr-home-page .yr-home-hero__video {
-    width: calc(100% - 1.4rem);
-    height: 280px;
-    margin: 0 0.7rem 0;
-    border-width: 8px;
-    border-radius: 20px;
+    border-radius: 0;
   }
 
   .yr-home-page .yr-home-hero__stamp {
-    right: 1rem;
-    bottom: 1rem;
-    padding: 0.58rem 0.7rem;
+    right: 8px;
+    top: 8px;
   }
 
   .yr-home-page .brand-benefits__grid {
