@@ -258,8 +258,27 @@
 }
 
 .yr-product-detail-page #productSpecTable {
-  border-color: #ddd1c2 !important;
+  border-color: var(--yr-color-border) !important;
+  background-color: var(--yr-color-surface);
   border-radius: 10px !important;
+}
+
+.yr-product-detail-page #productSpecTable > div {
+  border-bottom-color: var(--yr-color-border) !important;
+}
+
+.yr-product-detail-page #productSpecTable > div > div:first-child {
+  background-color: var(--yr-color-surface-oat) !important;
+  color: var(--yr-color-brand-strong) !important;
+}
+
+.yr-product-detail-page #productSpecTable > div > div:last-child {
+  background-color: var(--yr-color-surface) !important;
+  color: var(--yr-color-text-muted) !important;
+}
+
+.yr-product-detail-page .product-tab-panel[data-panel="description"] .yr-pd-tab-grid > div:last-child > h3 {
+  color: var(--yr-color-brand-strong) !important;
 }
 
 .yr-product-detail-page .review-card {
