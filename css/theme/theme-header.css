@@ -208,16 +208,23 @@
   box-shadow: 0 0 0 3px var(--yr-color-focus-ring);
 }
 
-.yr-site-user-menu .user-avatar,
-.yr-site-user-menu .yr-site-account-avatar {
+.yr-site-header .yr-site-user-menu .user-avatar,
+.yr-site-header .yr-site-user-menu .yr-site-account-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  max-width: 2.5rem;
+  max-height: 2.5rem;
   flex: 0 0 2.5rem;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  box-sizing: border-box;
   border: 1px solid var(--yr-color-brand-soft);
-  border-radius: 999px;
+  border-radius: 50%;
   background: var(--yr-color-brand-pale);
   color: var(--yr-color-brand-hover);
   font-size: 1rem;

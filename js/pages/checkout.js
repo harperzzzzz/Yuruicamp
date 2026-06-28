@@ -157,6 +157,49 @@ function formatCheckoutOrderNumber(dateString, serial) {
   return `#ORD-${String(dateString).replace(/-/g, '')}-${String(serial).padStart(4, '0')}`;
 }
 
+let checkoutProductsByIdPromise = null;
+
+function getCheckoutProductPrimaryImage(product) {
+  if (!product || typeof product !== 'object') return '';
+  const image = String(product.image || product.imageUrl || product.thumbnail || '').trim();
+  if (image) return image;
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    return String(product.images[0] || '').trim();
+  }
+  return '';
+}
+
+async function getCheckoutProductsById() {
+  if (checkoutProductsByIdPromise) return checkoutProductsByIdPromise;
+
+  checkoutProductsByIdPromise = (async () => {
+    if (!window.API?.products?.getAll) return new Map();
+
+    try {
+      const products = await window.API.products.getAll();
+      return (Array.isArray(products) ? products : []).reduce((map, product) => {
+        const productId = String(product?.id || product?.productId || product?.product_id || '').trim();
+        if (productId) map.set(productId, product);
+        return map;
+      }, new Map());
+    } catch (error) {
+      console.warn('checkout 商品主檔讀取失敗，訂單圖片將退回購物車快照。', error);
+      return new Map();
+    }
+  })();
+
+  return checkoutProductsByIdPromise;
+}
+
+async function resolveCheckoutOrderItemImage(item) {
+  const productId = String(item?.id || item?.productId || item?.product_id || '').trim();
+  if (!productId) return item.image;
+
+  const productsById = await getCheckoutProductsById();
+  const latestImage = getCheckoutProductPrimaryImage(productsById.get(productId));
+  return latestImage || item.image;
+}
+
 /** 重點：訂單序號在 checkout 點擊確認時產生，並避開 orders.json 與 mockOrders 的所有 orderNumber。 */
 async function createCheckoutOrderIdentity() {
   let existingOrders = readCheckoutStoredOrders();
@@ -704,6 +747,16 @@ function initConfirmOrderBtn() {
     const orderIdentity = await createCheckoutOrderIdentity();
 
     // 重點：訂單資料欄位對齊 data/orders.json，畫面摘要金額與本次 points 會一起交給 mock API 保存。
+    const orderItems = await Promise.all(cart.map(async item => ({
+      productId: item.id || item.productId,
+      name: item.name,
+      brand: item.brand,
+      price: item.price,
+      quantity: item.quantity,
+      image: await resolveCheckoutOrderItemImage(item),
+      subtotal: item.price * item.quantity,
+    })));
+
     const orderData = {
       id: orderIdentity.id,
       orderNumber: orderIdentity.orderNumber,
@@ -717,15 +770,7 @@ function initConfirmOrderBtn() {
       shippingAddress,
       payment,
       paymentStatus: getCheckoutPaymentStatus(),
-      items: cart.map(item => ({
-        productId: item.id || item.productId,
-        name: item.name,
-        brand: item.brand,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image,
-        subtotal: item.price * item.quantity,
-      })),
+      items: orderItems,
       subtotal,
       points,
       shippingFee: shipping,
