@@ -24,13 +24,11 @@
   <div class="page-banner">
     <div class="container">
       <!-- 麵包屑 -->
-      <nav aria-label="麵包屑">
-        <ol class="breadcrumb" style="margin-bottom:0.75rem;">
-          <li class="breadcrumb-item"><a href="home.html">首頁</a></li>
-          <li class="breadcrumb-sep">/</li>
-          <li class="breadcrumb-item active">全部商品</li>
-        </ol>
-      </nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="home.html">首頁</a></li>
+        <li class="breadcrumb-item">/</li>
+        <li class="breadcrumb-item active">全部商品</li>
+      </ol>
       <h1 class="page-banner-title">全部商品</h1>
       <p class="page-banner-sub">精選 18 款頂級露營裝備，探索你的下一個冒險</p>
     </div>
@@ -56,15 +54,15 @@
   <!-- ===================================================
        主內容：側邊欄 + 商品網格
        =================================================== -->
-  <main style="padding: 0 0 4rem 0;">
+  <main class="productsPageMain">
     <div class="container">
-      <div style="display:flex; gap:1.5rem; align-items:flex-start;">
+      <div class="productsPageLayout">
 
         <!-- =============================================
              步驟 5.1：PC 版篩選側邊欄
              在手機版會被隱藏（CSS .hidden-mobile for sidebar）
              ============================================= -->
-        <aside class="filter-sidebar" style="width:240px; flex-shrink:0;" id="filterSidebar">
+        <aside class="filter-sidebar" id="filterSidebar">
 
           <!-- 側邊欄標題 + 重置按鈕 -->
           <div class="filter-sidebar-title">
@@ -105,9 +103,8 @@
                 >
               </div>
               <button
-                class="btn btn-outline btn-sm"
+                class="btn btn-outline btn-sm productPriceApply"
                 id="applyPriceBtn"
-                style="margin-top:0.5rem;"
               >
                 套用
               </button>
@@ -136,7 +133,7 @@
         <!-- =============================================
              步驟 5.2：商品主區域（工具列 + 網格）
              ============================================= -->
-        <div style="flex:1; min-width:0;">
+        <div class="productsListContent">
 
           <!-- 工具列：商品數量 + 排序下拉 -->
           <div class="product-list-toolbar">
@@ -162,7 +159,7 @@
           </div>
 
           <!-- 分頁 -->
-          <div class="pagination" id="pagination" style="display:none;">
+          <div class="pagination productPagination" id="pagination">
             <!-- 由 JS 動態生成 -->
           </div>
         </div>
@@ -218,8 +215,8 @@
 
     <!-- 底部：重置 + 應用 -->
     <div class="filter-sheet-footer">
-      <button class="btn btn-outline" id="mobileResetBtn" style="flex:1;">重置篩選</button>
-      <button class="btn btn-primary" id="mobileApplyBtn" style="flex:2;">套用篩選</button>
+      <button class="btn btn-outline mobileFilterReset" id="mobileResetBtn">重置篩選</button>
+      <button class="btn btn-primary mobileFilterApply" id="mobileApplyBtn">套用篩選</button>
     </div>
   </div>
 

@@ -29,14 +29,14 @@
       <!-- 中央單欄佈局（限制最大寬度 720px）-->
       <!-- Single column layout with max-width 720px -->
       <div class="container u-migrated-001">
-        <div class="u-migrated-002">
+        <div class="articleContainer">
           <!-- 麵包屑導航 Breadcrumb -->
           <nav class="breadcrumb" id="breadcrumb" aria-label="麵包屑">
             <a href="home.html">首頁</a>
             <span class="breadcrumb-sep">›</span>
             <a href="blog.html">部落格</a>
             <span class="breadcrumb-sep">›</span>
-            <span class="u-migrated-003" id="breadcrumbTitle">載入中...</span>
+            <span id="breadcrumbTitle">載入中...</span>
           </nav>
 
           <!-- 文章 Hero 圖片 Article hero image -->
@@ -58,34 +58,34 @@
                 alt="作者頭像"
                 loading="lazy"
               />
-              <span class="u-migrated-004" id="articleAuthorName">作者</span>
+              <span class="authorName" id="articleAuthorName">作者</span>
             </div>
-            <span class="u-migrated-005" id="articleDate">日期</span>
-            <span class="u-migrated-005" id="articleReadTime">閱讀時間</span>
+            <span class="articleMeta" id="articleDate">日期</span>
+            <span class="articleMeta" id="articleReadTime">閱讀時間</span>
           </div>
 
           <!-- 文章標題 Article title -->
-          <h1 class="u-migrated-006" id="articleTitle">載入中...</h1>
+          <h1 class="articleTitle" id="articleTitle">載入中...</h1>
 
           <!-- 文章內容 Article content (rendered by JS) -->
           <div class="article-content" id="articleContent">
-            <div class="u-migrated-007">
+            <div class="loadingText">
               <div class="u-migrated-008">📄</div>
               <p>正在載入文章內容...</p>
             </div>
           </div>
 
           <!-- 文章標籤 Article tags -->
-          <div class="u-migrated-009" id="articleTags">
+          <div class="articleTags" id="articleTags">
             <!-- JS 渲染標籤 -->
           </div>
 
           <!-- 分隔線 Divider -->
-          <hr class="u-migrated-010" />
+          <hr class="divider" />
 
           <!-- 相關文章推薦 Related articles -->
-          <section class="u-migrated-011" id="relatedArticlesSection">
-            <h3 class="u-migrated-012">📖 相關文章</h3>
+          <section class="relatedArticlesSection" id="relatedArticlesSection">
+            <h3 class="relatedText">📖 相關文章</h3>
             <div class="related-articles-grid" id="relatedArticlesGrid">
               <!-- JS 渲染相關文章 -->
             </div>

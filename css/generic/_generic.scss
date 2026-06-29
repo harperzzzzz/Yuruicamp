@@ -25,3 +25,19 @@ section {
 *::after {
   box-sizing: border-box;
 }
+
+/* home.html 的hero 標題  */
+.hero-banner {
+  /* 針對不支援 -webkit-fill-available 的瀏覽器的回退方案 */
+    min-height: 85vh;
+
+    /* iOS Safari 修正 */
+      min-height: -webkit-fill-available;
+}
+
+/* header 菜單、商品卡片 */
+.navbar-items, .product-card {
+  display: -webkit-box;    /* Chrome 舊版 */
+  display: flexbox;    /* IE 10 */
+  display: flex;   /* Safari 舊版、現代瀏覽器 */
+}

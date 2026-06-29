@@ -303,26 +303,26 @@ function renderCheckoutItems() {
   const cart = window.AppState.cart;
 
   listEl.innerHTML = cart.map(item => `
-    <div style="display:flex;gap:0.75rem;align-items:flex-start;padding-bottom:0.875rem;margin-bottom:0.875rem;border-bottom:1px solid #f0f0f0;">
+    <div class="checkoutSummaryItem">
       <!-- 商品圖片 Product image -->
-      <div style="position:relative;flex-shrink:0;">
+      <div class="checkoutSummaryImageWrap">
         <img src="${item.image || 'https://picsum.photos/seed/default/60/60'}"
              alt="${item.name}"
-             style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;">
+             class="checkoutSummaryImage">
         <!-- 數量小標籤 Quantity badge -->
-        <span style="position:absolute;top:-6px;right:-6px;background:#244d4d;color:#fff;font-size:0.7rem;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;">${item.quantity}</span>
+        <span class="checkoutSummaryQuantity">${item.quantity}</span>
       </div>
 
       <!-- 商品名稱和價格 Name and price -->
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:0.875rem;font-weight:600;color:#1a1a1a;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.name}">
+      <div class="checkoutSummaryInfo">
+        <div class="checkoutSummaryName" title="${item.name}">
           ${item.name}
         </div>
-        ${item.brand ? `<div style="font-size:0.75rem;color:#9ca3af;margin-top:0.1rem;">${item.brand}</div>` : ''}
+        ${item.brand ? `<div class="checkoutSummaryBrand">${item.brand}</div>` : ''}
       </div>
 
       <!-- 小計 Subtotal -->
-      <div style="font-weight:700;color:#374151;font-size:0.9rem;flex-shrink:0;">
+      <div class="checkoutSummarySubtotal">
         ${window.formatCurrency(item.price * item.quantity)}
       </div>
     </div>

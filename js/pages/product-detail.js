@@ -160,7 +160,7 @@ function renderProductInfo(product) {
   const tagsEl = document.getElementById('productTags');
   if (tagsEl && product.tags && product.tags.length > 0) {
     tagsEl.innerHTML = product.tags
-      .map(tag => `<span style="background:#e8f5e9;color:#2e7d32;font-size:0.8rem;padding:0.25rem 0.6rem;border-radius:99px;font-weight:600;">#${tag}</span>`)
+      .map(tag => `<span class="productTag">#${tag}</span>`)
       .join('');
   }
 }
@@ -250,11 +250,10 @@ function renderGallery(product) {
   thumbsContainer.innerHTML = images.map((imgSrc, index) => `
     <div class="gallery-thumb ${index === 0 ? 'active' : ''}"
          data-index="${index}"
-         data-src="${imgSrc}"
-         style="cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid ${index === 0 ? '#244d4d' : '#e5e7eb'};flex-shrink:0;width:72px;height:72px;transition:border-color 0.2s;">
+         data-src="${imgSrc}">
       <img src="${imgSrc}"
-           alt="商品圖片 ${index + 1}"
-           style="width:100%;height:100%;object-fit:cover;">
+            alt="商品圖片 ${index + 1}"
+           class="galleryThumbImage">
     </div>
   `).join('');
 
@@ -313,8 +312,7 @@ function renderColorOptions(product) {
     colorContainer.innerHTML = colorOptions.map((color, index) => `
       <button class="spec-btn ${index === 0 ? 'active' : ''}"
               data-color="${color}"
-              type="button"
-              style="margin:0.2rem;">${color}</button>
+              type="button">${color}</button>
     `).join('');
 
     // 顏色按鈕點擊事件 Color button click event
@@ -361,8 +359,7 @@ function renderSizeOptions(product) {
     sizeContainer.innerHTML = sizeOptions.map((size, index) => `
       <button class="spec-btn ${index === 0 ? 'active' : ''}"
               data-size="${size}"
-              type="button"
-              style="margin:0.2rem;">${size}</button>
+              type="button">${size}</button>
     `).join('');
 
     // 尺寸按鈕點擊事件 Size button click event
@@ -406,21 +403,21 @@ function renderSpecTable(product) {
   const rows = Object.entries(specs).map(([key, value]) => {
     const label = specLabels[key] || key; // 若找不到對應中文，就直接顯示 key
     return `
-      <div style="display:flex;border-bottom:1px solid #e5e7eb;">
-        <div style="width:40%;background:#f9fafb;padding:0.6rem 0.875rem;font-weight:600;color:#374151;font-size:0.875rem;">${label}</div>
-        <div style="flex:1;padding:0.6rem 0.875rem;color:#4b5563;font-size:0.875rem;">${value}</div>
+      <div class="productSpecRow">
+        <div class="productSpecLabel">${label}</div>
+        <div class="productSpecValue">${value}</div>
       </div>
     `;
   }).join('');
 
-  specTable.innerHTML = rows || '<div style="padding:1rem;color:#9ca3af;">暫無規格資料</div>';
+  specTable.innerHTML = rows || '<div class="productSpecEmpty">暫無規格資料</div>';
 
   // 渲染商品特色 Render product features
   const featuresEl = document.getElementById('productFeatures');
   if (featuresEl && product.tags && product.tags.length > 0) {
     featuresEl.innerHTML = `
-      <h4 style="font-size:0.95rem;font-weight:700;color:#374151;margin-bottom:0.75rem;">✨ 商品特色</h4>
-      <ul style="padding-left:1.25rem;color:#4b5563;font-size:0.9rem;line-height:2;">
+      <h4 class="productFeaturesTitle">✨ 商品特色</h4>
+      <ul class="productFeaturesList">
         ${product.tags.map(tag => `<li>${tag}</li>`).join('')}
       </ul>
     `;

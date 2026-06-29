@@ -196,11 +196,11 @@ function _renderGrid() {
   // 沒有商品 → 顯示空狀態
   if (_state.filteredProducts.length === 0) {
     grid.innerHTML = `
-      <div class="empty-state" style="grid-column:1/-1;">
+      <div class="empty-state productGridEmptyState">
         <span class="empty-state-icon">🔍</span>
         <p class="empty-state-title">沒有符合條件的商品</p>
         <p class="empty-state-desc">試著調整篩選條件看看</p>
-        <button class="btn btn-outline" style="margin-top:1rem;" onclick="_resetAllFilters()">
+        <button class="btn btn-outline productFilterResetAction" onclick="_resetAllFilters()">
           清除篩選
         </button>
       </div>
@@ -260,7 +260,7 @@ function _renderPagination() {
       i === _state.currentPage - range - 1 ||
       i === _state.currentPage + range + 1
     ) {
-      html += `<span style="padding:0 0.25rem; color:#999;">…</span>`;
+      html += `<span class="paginationEllipsis">…</span>`;
     }
   }
 
@@ -775,7 +775,7 @@ window.initProductListPage = async () => {
     const grid = document.getElementById('productsGrid');
     if (grid) {
       grid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1;">
+        <div class="empty-state productGridEmptyState">
           <span class="empty-state-icon">⚠️</span>
           <p class="empty-state-title">商品載入失敗</p>
           <p class="empty-state-desc">請重新整理頁面，或稍後再試</p>

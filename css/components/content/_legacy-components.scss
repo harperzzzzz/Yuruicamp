@@ -1,5 +1,3 @@
-/* stylelint-disable scss/no-global-function-names, selector-id-pattern, keyframes-name-pattern */
-// 來源：css/components.scss。
 // 用途：共用內容元件樣式，包含按鈕、卡片、modal、toast、accordion 與 progress。
 // 套用：前台所有頁面共用 .btn、.card、.modal、.toast、.accordion、.progress 等元件。
 // ========================================
@@ -9,7 +7,8 @@
 // ========================================
 // 按鈕 (Buttons)
 // ========================================
-
+/* #region */
+/* #endregion */
 .btn {
   display: inline-flex;
   align-items: center;

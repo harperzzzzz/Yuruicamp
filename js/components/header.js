@@ -87,16 +87,37 @@ function _initSearchBar() {
 
   if (!searchInput || !searchDropdown || !searchWrapper) return;
 
+  /**
+   * 關閉搜尋表單與搜尋建議，讓搜尋層回到不佔畫面的收合狀態。
+   */
+  const closeSearchLayer = () => {
+    searchWrapper.classList.remove('is-open');
+    searchForm?.setAttribute('aria-hidden', 'true');
+    searchToggle?.setAttribute('aria-expanded', 'false');
+    searchDropdown.classList.remove('active');
+  };
+
+  /**
+   * 對外提供搜尋層關閉入口，供購物車、選單與其他 dialog 開啟前共用。
+   */
+  window.closeMainSearchLayer = closeSearchLayer;
+
   // Search form starts collapsed; clicking the icon reveals it under the header.
   if (searchToggle && searchToggle.dataset.searchBound !== 'true') {
     searchToggle.dataset.searchBound = 'true';
     searchToggle.addEventListener('click', (e) => {
       e.preventDefault();
+      e.stopPropagation();
       const willOpen = !searchWrapper.classList.contains('is-open');
       searchWrapper.classList.toggle('is-open', willOpen);
       searchForm?.setAttribute('aria-hidden', String(!willOpen));
       searchToggle.setAttribute('aria-expanded', String(willOpen));
-      if (willOpen) searchInput.focus();
+      if (willOpen) {
+        _renderDropdown(SEARCH_SUGGESTIONS.slice(0, 6), searchDropdown, '熱門搜尋');
+        searchInput.focus();
+      } else {
+        searchDropdown.classList.remove('active');
+      }
     });
   }
 
@@ -124,13 +145,10 @@ function _initSearchBar() {
     searchDropdown.classList.add('active');
   });
 
-  // 點擊頁面其他地方 → 隱藏下拉
+  // 點擊頁面其他地方 → 關閉搜尋按鈕展開狀態與下拉視窗
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.navbar-search-wrapper')) {
-      searchWrapper.classList.remove('is-open');
-      searchForm?.setAttribute('aria-hidden', 'true');
-      searchToggle?.setAttribute('aria-expanded', 'false');
-      searchDropdown.classList.remove('active');
+      closeSearchLayer();
     }
   });
 
@@ -141,12 +159,9 @@ function _initSearchBar() {
       const query = searchInput.value.trim();
       if (query) {
         window.showToast(`搜尋：${query}`, 'info');
-        searchWrapper.classList.remove('is-open');
-        searchForm?.setAttribute('aria-hidden', 'true');
-        searchToggle?.setAttribute('aria-expanded', 'false');
-        searchDropdown.classList.remove('active');
         // 實際頁面跳轉：window.location.href = `/pages/products.html?q=${encodeURIComponent(query)}`;
       }
+      closeSearchLayer();
     });
   }
 }
@@ -155,10 +170,7 @@ function _initSearchBar() {
  * Closes visible main-site dialogs before opening another layer.
  */
 window.closeMainHeaderDialogs = () => {
-  document.querySelector('.navbar-search-wrapper')?.classList.remove('is-open');
-  document.querySelector('.navbar-search-form')?.setAttribute('aria-hidden', 'true');
-  document.querySelector('.navbar-search-toggle')?.setAttribute('aria-expanded', 'false');
-  document.querySelector('.navbar-search-dropdown')?.classList.remove('active');
+  window.closeMainSearchLayer?.();
   document.querySelector('.navbar-user-dropdown')?.setAttribute('hidden', '');
   window.closeMainNavOffcanvas?.();
   document.querySelectorAll('#loginModal.active, #personalizationModal.active').forEach((modal) => {
@@ -200,7 +212,7 @@ function _renderDropdown(items, dropdown, title) {
       const keyword = el.dataset.keyword;
       const searchInput = document.querySelector('.navbar-search-input');
       if (searchInput) searchInput.value = keyword;
-      dropdown.classList.remove('active');
+      window.closeMainSearchLayer?.();
       window.showToast(`搜尋：${keyword}`, 'info');
     });
   });
@@ -227,29 +239,29 @@ window.updateCartBadge = () => {
  * Update navbar UI based on login state
  */
 window.updateNavbarLoginState = () => {
-  const loginBtn = document.querySelector('.navbar-login-btn');
-  const userMenu = document.querySelector('.navbar-user-menu');
+  const loginButtons = document.querySelectorAll('.navbar-login-btn');
+  const userMenus = document.querySelectorAll('.navbar-user-menu');
   const user = window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function'
     ? window.YuruiAuth.getUser()
     : (window.AppState.isLoggedIn && window.AppState.currentUser ? window.AppState.currentUser : null);
 
   if (user) {
     // 已登入：隱藏「登入」按鈕，顯示用戶選單
-    if (loginBtn) loginBtn.hidden = true;
-    if (userMenu) {
+    loginButtons.forEach(loginBtn => { loginBtn.hidden = true; });
+    userMenus.forEach(userMenu => {
       userMenu.hidden = false;
       const userName = userMenu.querySelector('.user-name');
       const userAvatar = userMenu.querySelector('.user-avatar');
       if (userName) userName.textContent = user.name;
       if (userAvatar) userAvatar.textContent = (user.avatar || user.name.charAt(0)).toUpperCase();
-      
+
       // 初始化用戶選單下拉功能
       _initUserMenuDropdown(userMenu);
-    }
+    });
   } else {
     // 未登入：顯示「登入」按鈕，隱藏用戶選單
-    if (loginBtn) loginBtn.hidden = false;
-    if (userMenu) userMenu.hidden = true;
+    loginButtons.forEach(loginBtn => { loginBtn.hidden = false; });
+    userMenus.forEach(userMenu => { userMenu.hidden = true; });
   }
 };
 

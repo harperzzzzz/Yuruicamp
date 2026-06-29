@@ -1,0 +1,940 @@
+/* 頁首佈局 */
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+}
+
+/* header 設定圖層、固定位置 */
+.navbar {
+  background-color: #fff;
+  border-bottom: 1px solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+/* ========================================
+    左側菜單
+  ======================================== */
+
+/* #region */
+.navbar-hamburger {
+  align-items: center;
+  background: none;
+  border: none;
+  color: $primary;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.4rem;
+  height: 40px;
+  justify-content: center;
+  margin-right: auto;
+  width: 40px;
+  z-index: 2;
+}
+
+/* 套用：components/header.partial 的主站 .navbar-offcanvas。 */
+
+/* 用途：關閉時完全不佔版面空間，開啟時以最高層級覆蓋頁面元素。 */
+.navbar-offcanvas {
+  background: $white;
+  display: none;
+  inset: 0 auto 0 0;
+  max-width: 420px;
+  position: fixed;
+  transform: translateX(-100%);
+  width: min(86vw, 420px);
+  z-index: $z-tooltip + 200;
+
+  /* 套用：components/header.partial 的 .navbar-offcanvas.active。 */
+
+  /* 用途：漢堡選單點擊後才佔用畫面並從左側滑入。 */
+  &.active {
+    display: block;
+    transform: translateX(0);
+  }
+}
+
+.offcanvas-header {
+  padding: $spacing-lg;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.offcanvas-title {
+  color: $primary;
+  font-weight: 800;
+  margin: 0;
+}
+
+.offcanvas-close {
+  background: none;
+  border: none;
+  color: $text-light;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.offcanvas-body {
+  padding: $spacing-lg;
+  overflow-y: auto;
+  height: calc(100% - 70px);
+}
+
+/* ul 樣式 */
+.navbar-items--stacked {
+  flex-direction: column;
+  gap: 0;
+}
+
+.navbar-items {
+  list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+}
+
+.navbar-items a {
+  font-weight: 600;
+    color: #333;
+    transition: color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-items a:hover {
+  color: #244d4d;
+}
+
+.navbar-offcanvas .navbar-items {
+  flex-direction: column;
+    gap: 0;
+}
+
+.navbar-offcanvas .navbar-items li {
+  border-bottom: 1px solid #f0f0f0;
+    padding: 0.75rem 0;
+}
+
+.navbar-offcanvas .navbar-items li:last-child {
+  border-bottom: none;
+}
+
+.navbar-offcanvas .navbar-items a {
+  font-size: 1rem;
+}
+
+
+/* 背景遮罩 */
+.offcanvas-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(0 0 0 / 50%);
+  z-index: $z-tooltip + 190;
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+/* #endregion */
+
+
+/* ========================================
+    Logo
+  ======================================== */
+
+/* #region */
+.navbar-brand {
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.logo {
+  width: 105px;
+  height: auto;
+}
+
+.logo-link {
+  align-items: center;
+  color: $primary;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.45rem;
+  text-decoration: none;
+
+  .logo {
+    display: inline-block;
+    height: 30px;
+    object-fit: contain;
+    width: 30px;
+  }
+}
+
+/* #endregion */
+
+
+/* header 右側佈局容器 */
+.navbar-content {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+/* search、camp anchor、cart、login 容器 */
+.navbar-actions {
+  display: flex;
+  gap: 2rem;
+  margin-left: auto;
+  z-index: 2;
+}
+
+  /* ===================================================
+       搜尋欄
+    =================================================== */
+
+/* #region */
+.navbar-search-form:focus-within {
+  border-color: #244d4d; /* 聚焦時顯示主色邊框 */
+    background-color: #fff;
+}
+
+.navbar-search-input {
+  flex: 1;
+    border: none !important;
+    background: transparent !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.875rem;
+    outline: none !important;
+    box-shadow: none !important;
+    width: auto !important;
+}
+
+.navbar-search-btn {
+  padding: 0.4rem 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #666;
+}
+
+.navbar-search-btn:hover {
+  color: #244d4d;
+}
+
+.navbar-search-dropdown.active {
+  display: block;
+    animation: fadeInDown 200ms ease;
+}
+
+.navbar-search-wrapper {
+  position: relative;
+}
+
+.navbar-search-form {
+  background: $white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  display: none;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.65rem);
+  width: min(320px, 80vw);
+  z-index: $z-tooltip + 260;
+}
+
+/* 開啟狀態 */
+.navbar-search-wrapper.is-open .navbar-search-form {
+  display: flex;
+}
+
+.navbar-search-submit {
+  background: $primary;
+  border: none;
+  border-radius: $radius-sm;
+  color: $white;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0.45rem 0.7rem;
+}
+
+.navbar-search-dropdown {
+  background: $white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  display: none;
+  max-height: min(320px, 60vh);
+  overflow-y: auto;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 3.7rem);
+  width: min(320px, 80vw);
+  z-index: $z-tooltip + 250;
+}
+
+.search-dropdown-title {
+  padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.search-dropdown-list {
+  list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+}
+
+.search-dropdown-item {
+  padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 150ms;
+}
+
+.search-dropdown-item:hover {
+  background-color: #f6fbf6;
+    color: #244d4d;
+}
+
+/* #endregion */
+
+/* 露營預訂 */
+.navbar-booking-link {
+  border: 1px solid #244d4d;
+    border-radius: 999px;
+    color: #244d4d;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.45rem 0.85rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.navbar-booking-link:hover {
+  background-color: #244d4d;
+    color: #fff;
+}
+
+  /* ===================================================
+       Cart
+    =================================================== */
+
+/* #region */
+
+/* cart 數字徽章 */
+.cart-badge {
+  position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #d32f2f;
+    color: #fff;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.navbar-cart-btn {
+  align-items: center;
+  background: none;
+  border: none;
+  color: $primary;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1.2rem;
+  position: relative;
+}
+
+.cart-drawer {
+  background: $white;
+  box-shadow: -8px 0 28px rgb(0 0 0 / 18%);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 92vw;
+  position: fixed;
+  right: -420px;
+  top: 0;
+  transition: right 0.28s ease;
+  width: 400px;
+  z-index: 2100;
+
+  &.is-open {
+    right: 0;
+  }
+}
+
+.cart-drawer__header,
+.cart-drawer__footer {
+  flex-shrink: 0;
+  padding: 1rem 1.25rem;
+}
+
+.cart-drawer__header {
+  align-items: center;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cart-drawer__title {
+  color: $primary;
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.cart-drawer__close {
+  background: none;
+  border: none;
+  color: $text-light;
+  cursor: pointer;
+  font-size: 1.25rem;
+}
+
+.cart-drawer__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.cart-drawer__footer {
+  border-top: 1px solid $border-color;
+}
+
+.cart-drawer__summary {
+  align-items: center;
+  color: $text-light;
+  display: flex;
+  font-size: 0.9rem;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+}
+
+.cart-drawer__summary--total {
+  border-top: 1px solid $border-color;
+  color: $primary;
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin-top: 0.65rem;
+  padding-top: 0.85rem;
+}
+
+.cart-drawer-backdrop {
+  background: rgb(0 0 0 / 45%);
+  display: none;
+  inset: 0;
+  position: fixed;
+  z-index: 2090;
+
+  &.is-visible {
+    display: block;
+  }
+}
+
+.cart-drawer-empty {
+  color: $text-light;
+  padding: 4rem 1.25rem;
+  text-align: center;
+}
+
+.cart-drawer-empty__icon {
+  font-size: 3.5rem;
+  margin-bottom: 1rem;
+}
+
+.cart-drawer-empty__title {
+  color: $text-dark;
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+}
+
+.cart-drawer-empty__text {
+  color: $text-light;
+  margin: 0;
+}
+
+.cart-drawer-item {
+  border-bottom: 1px solid $light-gray;
+  display: flex;
+  gap: 0.9rem;
+  padding: 1rem 1.25rem;
+}
+
+.cart-drawer-item__image {
+  border: 1px solid $light-gray;
+  border-radius: $radius-md;
+  height: 78px;
+  object-fit: cover;
+  width: 78px;
+}
+
+.cart-drawer-item__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.cart-drawer-item__brand {
+  color: $primary;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  min-height: 1em;
+  text-transform: uppercase;
+}
+
+.cart-drawer-item__name {
+  color: $text-dark;
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cart-drawer-item__price {
+  color: $text-light;
+  font-size: 0.84rem;
+  margin: 0.25rem 0 0.6rem;
+}
+
+.cart-drawer-item__actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.cart-qty-decrease,
+.cart-qty-increase {
+  align-items: center;
+  background: $light-gray;
+  border: 1px solid $border-color;
+  border-radius: $radius-sm;
+  color: $text-dark;
+  cursor: pointer;
+  display: inline-flex;
+  height: 30px;
+  justify-content: center;
+  width: 30px;
+}
+
+.cart-drawer-item__qty {
+  font-weight: 800;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.cart-drawer-item__subtotal {
+  color: $primary;
+  margin-left: auto;
+}
+
+.cart-remove-btn {
+  background: none;
+  border: none;
+  color: $text-light;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+/* #endregion */
+
+
+  /* ===================================================
+       Login
+    =================================================== */
+
+/* #region */
+.navbar-login-btn {
+  padding: 0.5rem 1rem;
+    background-color: #244d4d;
+    color: #fff;
+    border: none;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-login-btn:hover {
+  background-color: #1a3838;
+}
+
+.navbar-user-menu:not([hidden]) {
+  display: block;
+  position: relative;
+}
+
+.user-info {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.user-menu-chevron {
+  color: $text-light;
+  font-size: 0.8rem;
+}
+
+.navbar-user-dropdown {
+  background: $white;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  margin-top: 0.5rem;
+  min-width: 200px;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 1000;
+}
+
+.navbar-user-dropdown .dropdown-item,
+.navbar-user-dropdown .navbar-logout-btn {
+  background: none;
+  border: none;
+  color: $text-dark;
+  cursor: pointer;
+  display: block;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color $transition-base $timing-function;
+  width: 100%;
+}
+
+.navbar-user-dropdown .dropdown-item {
+  border-bottom: 1px solid $light-gray;
+}
+
+.navbar-user-dropdown .navbar-logout-btn {
+  color: $danger;
+}
+
+.navbar-user-dropdown .dropdown-item:hover,
+.navbar-user-dropdown .navbar-logout-btn:hover {
+  background-color: $light-bg;
+}
+
+/* 登入側邊欄 */
+.modal-content--login {
+  max-width: 420px;
+}
+
+/* google、line、facebook button 容器 */
+.modal-tab-panel {
+  display: none;
+}
+
+.modal-tab-panel.active {
+  display: block;
+}
+
+/* 可簡化 */
+.btn-google-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: #fff;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 200ms, box-shadow 200ms;
+  margin-bottom: 0.75rem;
+}
+
+.btn-google-login:hover {
+  background-color: #f8f8f8;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+}
+
+/* 可簡化 */
+.btn-facebook-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: #1877F2;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 200ms, box-shadow 200ms;
+  margin-bottom: 0.75rem;
+}
+
+.btn-facebook-login:hover {
+  background-color: #166FE5;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+}
+
+/* 可簡化 */
+.btn-line-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background-color: #00b900; /* LINE 綠 */
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 200ms;
+}
+
+.btn-line-login:hover {
+  background-color: #009a00;
+}
+
+
+/* 使用社群帳號快速登入 / 註冊 */
+.oauth-desc {
+  text-align: center;
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 1.25rem;
+}
+
+/* 登入的 隱私政策 與 服務條款 */
+.oauth-privacy {
+  text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+    line-height: 1.6;
+    margin-top: 1rem;
+}
+
+.oauth-privacy a {
+  color: #244d4d;
+    text-decoration: underline;
+}
+
+/* user 顯示容器 */
+.navbar-user-menu {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* user 頭像 */
+.user-avatar {
+  width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #244d4d;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 200ms;
+}
+
+.user-avatar:hover {
+  background-color: #1a3838;
+}
+
+.user-name {
+  font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+/* #endregion */
+
+
+  /* ===================================================
+       喜好問卷視窗
+    =================================================== */
+
+/* #region
+/* 喜好問卷關閉提示視窗 */
+
+/* 喜好視窗 */
+.modal-content--survey {
+  max-width: 480px;
+}
+
+[id='surveyCloseConfirmModal'] .modal-content--confirm {
+  max-width: 420px;
+}
+
+[id='surveyCloseConfirmModal'] .modal-confirm-message {
+  color: #3f4f4f;
+  margin: 0;
+}
+
+[id='surveyCloseConfirmModal'] .modal-footer {
+  justify-content: flex-end;
+}
+
+/* 喜好問卷步驟進度條 */
+.stepper-header {
+  display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.stepper-dot {
+  width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: all 300ms;
+}
+
+.stepper-dot.active {
+  background-color: #244d4d;
+    color: #fff;
+}
+
+.stepper-line {
+  flex: 1;
+    max-width: 60px;
+    height: 2px;
+    background-color: #e0e0e0;
+    transition: background-color 300ms;
+}
+
+.stepper-text {
+  font-size: 0.875rem;
+    color: #999;
+    margin-left: 0.5rem;
+}
+
+/* 步驟 */
+.survey-step {
+  display: none;
+}
+
+.survey-step.active {
+  display: block;
+    animation: fadeIn 300ms ease;
+}
+
+/* 問題文字樣式 */
+.survey-question {
+  font-size: 1.1rem;
+    font-weight: 700;
+    color: #244d4d;
+    margin-bottom: 0.5rem;
+}
+
+/* 提示文字樣式 */
+.survey-hint {
+  font-size: 0.8rem;
+    color: #999;
+    margin-bottom: 1.25rem;
+}
+
+/* 文字選項 類button */
+.survey-tags {
+  display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.survey-tag {
+  padding: 0.4rem 0.9rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    color: #555;
+    cursor: pointer;
+    user-select: none;          /* 防止選取文字 */
+    transition: all 200ms;
+}
+
+.survey-tag:hover {
+  border-color: #244d4d;
+    color: #244d4d;
+}
+
+.survey-tag.active {
+  background-color: #244d4d;
+    border-color: #244d4d;
+    color: #fff;
+}
+
+/* #endregion */
+
+@media (width <= 767px) {
+  .navbar .container {
+    padding: 1rem 1.25rem;
+  }
+
+  .navbar {
+    height: auto;
+  }
+
+  .navbar-items a {
+        padding: 0.5rem 0.25rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+  }
+}
+
+@media (width <= 575px) {
+  .cart-badge {
+    font-size: 0.6rem; width: 16px; height: 16px;
+  }
+}
+

@@ -1,0 +1,540 @@
+// container 為共用class ，需額外用class 調整位置
+.containerPosition {
+  padding-top:2rem;
+  padding-bottom:4rem;
+}
+
+// 結帳
+.checkoutTitle {
+  font-size:1.75rem;
+  font-weight:800;
+  color:#1a1a1a;
+  margin:0 0 0.5rem;
+}
+
+// 麵包屑
+.checkoutBreadcrumb {
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  font-size:0.875rem;
+  color:#6b7280;
+}
+
+// 步驟一文字容器
+.dataBox {
+  display:flex;
+  align-items:center;
+  gap:0.75rem;
+}
+
+// 步驟123 icon
+.stepIcon {
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#244d4d;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  font-size:0.85rem;
+  flex-shrink:0;
+}
+
+// icon text at right side
+.stepText {
+  font-weight:700;
+  color:#1a1a1a;
+  font-size:1rem;
+}
+
+// 下拉icon
+.panel-arrow {
+  font-size:1.2rem;
+  transition:transform 0.2s;
+  color:#6b7280;
+}
+
+// 買家input 布局
+.formLayout {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:1rem;
+  margin-bottom:1rem;
+}
+
+
+.labelLayout {
+  display:block;
+  font-weight:600;
+  font-size:0.875rem;
+  color:#374151;
+  margin-bottom:0.4rem;
+}
+
+// 重點提醒*
+.importantStar { color:#ef4444; }
+
+// input 樣式
+.inputStyle {
+  width:100%;
+  padding:0.6rem 0.875rem;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  font-size:0.9rem;
+  box-sizing:border-box;
+  outline:none;
+  transition:border-color 0.2s;
+}
+
+// textarea
+.bottomSpace { margin-bottom:0.5rem; }
+
+// textarea
+.textareaStyle {
+  width:100%;
+  padding:0.6rem 0.875rem;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  font-size:0.9rem;
+  resize:vertical;
+  box-sizing:border-box;
+  outline:none;
+  font-family:inherit;
+}
+
+// 各步驟之間的間隔
+.divSpace { height:0.75rem; }
+
+// 載入時正確的顯示物流、金流
+.closeBody {
+  display:none;
+}
+
+.radio-option {
+  display:flex;
+  align-items:flex-start;
+  gap:0.875rem;
+  padding:1rem;
+  border:2px solid #244d4d;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:0.75rem;
+  background:#f0faf8;
+}
+
+.radioStyle {
+  margin-top:0.15rem;
+  accent-color:#244d4d;
+  width:18px;
+  height:18px;
+  flex-shrink:0;
+}
+
+.radioDesc {
+  font-size:0.85rem;
+  color:#6b7280;
+  margin-top:0.25rem;
+}
+
+.radioDesc2 {
+  font-size:0.85rem;
+  color:#244d4d;
+  font-weight:600;
+  margin-top:0.25rem;
+}
+
+// 消除radio option 樣式
+.notOption {
+  border:2px solid #e5e7eb;
+  background: #fff;
+}
+
+.shippingText {
+  font-size:0.85rem;
+  color:#16a34a;
+  font-weight:600;
+  margin-top:0.25rem;
+}
+
+.marginTop { margin-top:1rem; }
+
+// LINE text color
+.textColor { color:#00b900; }
+
+// 信用卡資訊 box style
+.creditCardBox {
+  margin-top:1.25rem;
+  padding:1.25rem;
+  background:#f9fafb;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+}
+
+// 信用卡資訊 text
+.creditCardText {
+  font-size:0.875rem;
+  font-weight:600;
+  color:#374151;
+  margin-bottom:1rem;
+}
+
+// 卡號、到期日 容器
+.creditCardDataContainer { margin-bottom:0.875rem; }
+
+.cardDataText {
+  display:block;
+  font-size:0.8rem;
+  color:#6b7280;
+  margin-bottom:0.35rem;
+}
+
+// 卡號、CVV 布局
+.creditCardDataContainer2 {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0.875rem;
+}
+
+.checkoutBtnContainer { margin-top:1.5rem; }
+
+.bottomText {
+  text-align:center;
+  font-size:0.78rem;
+  color:#9ca3af;
+  margin-top:0.75rem;
+}
+
+.checkoutSummaryContainer {
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  padding:1.5rem;
+  position:sticky;
+  top:5rem;
+}
+
+// 訂單商品列表
+.checkoutItemsList {
+  max-height:300px;
+  overflow-y:auto;
+  margin-bottom:1.25rem;
+  border-bottom:1px solid #f0f0f0;
+  padding: 0.4rem;
+  padding-bottom:1.25rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-100。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-100 { margin-bottom:1.25rem; }
+
+// 套用：對應 HTML 內的 .u-migrated-101。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-101 {
+  display:block;
+  font-size:0.875rem;
+  font-weight:600;
+  color:#374151;
+  margin-bottom:0.5rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-103。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-103 {
+  flex:1;
+  padding:0.55rem 0.75rem;
+  border:1px solid #d1d5db;
+  border-radius:6px;
+  font-size:0.875rem;
+  outline:none;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-104。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-104 {
+  padding:0.55rem 0.875rem;
+  font-size:0.875rem;
+  white-space:nowrap;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-105。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-105 {
+  font-size:0.8rem;
+  margin-top:0.4rem;
+  color:#16a34a;
+  line-height:1.6;
+  display:none;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-106。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-106 {
+  font-size:0.8rem;
+  margin-top:0.35rem;
+  display:none;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-107。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-107 {
+  border:none;
+  border-top:1px solid #f0f0f0;
+  margin:0 0 1rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-108。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-108 {
+  display:flex;
+  flex-direction:column;
+  gap:0.625rem;
+  margin-bottom:1rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-109。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-109 {
+  display:flex;
+  justify-content:space-between;
+  font-size:0.875rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-111。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-111 {
+  font-weight:600;
+  color:#374151;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-112。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-112 {
+  display:none;
+  justify-content:space-between;
+  font-size:0.875rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-113。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-113 { color:#16a34a; }
+
+// 套用：對應 HTML 內的 .u-migrated-114。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-114 {
+  font-weight:600;
+  color:#16a34a;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-115。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-115 {
+  border:none;
+  border-top:2px solid #e5e7eb;
+  margin:0 0 1rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-116。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-116 {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:1.5rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-117。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-117 {
+  font-weight:800;
+  color:#244d4d;
+  font-size:1.4rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-118。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-118 {
+  border-top:1px solid #f0f0f0;
+  padding-top:1rem;
+  text-align:center;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-119。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-119 {
+  font-size:0.78rem;
+  color:#9ca3af;
+  margin:0 0 0.25rem;
+}
+
+// 套用：對應 HTML 內的 .u-migrated-120。
+// 用途：依 _inline-migration.scss 指示承接原 inline style，放回對應 page SCSS 管理。
+.u-migrated-120 {
+  font-size:0.78rem;
+  color:#9ca3af;
+  margin:0;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryItem。
+// 用途：排列結帳摘要中的單一商品列，取代 JS inline style。
+.checkoutSummaryItem {
+  align-items: flex-start;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
+  padding-bottom: 0.875rem;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryImageWrap。
+// 用途：建立商品圖片與數量徽章的定位基準。
+.checkoutSummaryImageWrap {
+  flex-shrink: 0;
+  position: relative;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryImage。
+// 用途：固定結帳摘要商品圖片尺寸與外框。
+.checkoutSummaryImage {
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  height: 56px;
+  object-fit: cover;
+  width: 56px;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryQuantity。
+// 用途：顯示商品數量小徽章。
+.checkoutSummaryQuantity {
+  align-items: center;
+  background: #244d4d;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  font-size: 0.7rem;
+  font-weight: 700;
+  height: 18px;
+  justify-content: center;
+  position: absolute;
+  right: -6px;
+  top: -6px;
+  width: 18px;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryInfo。
+// 用途：讓商品名稱與品牌佔用剩餘寬度並可截斷。
+.checkoutSummaryInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryName。
+// 用途：顯示商品名稱並在過長時以省略號截斷。
+.checkoutSummaryName {
+  color: #1a1a1a;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummaryBrand。
+// 用途：顯示商品品牌輔助文字。
+.checkoutSummaryBrand {
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-top: 0.1rem;
+}
+
+// 套用：checkout.js 產生的 .checkoutSummarySubtotal。
+// 用途：固定商品小計文字樣式，並避免被商品名稱擠壓。
+.checkoutSummarySubtotal {
+  color: #374151;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+
+/* 佈局 */
+.checkout-layout {
+  display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    padding: 2.5rem 0 4rem;
+}
+
+
+  /* ===================================================
+       填寫form
+    =================================================== */
+
+/* #region 填寫資訊欄 */
+.checkout-panel {
+  background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+
+.checkout-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background:#fff;
+  padding:1.125rem 1.25rem;
+  border:1px solid #e5e7eb;
+  border-radius:12px 12px 0 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkout-panel-header:hover {
+  background: #f6fbf6;
+}
+
+.checkout-panel.open .checkout-panel-icon {
+  transform: rotate(180deg);
+}
+
+.checkout-panel-body {
+  padding: 0 1.25rem;
+  background:#fff;
+  max-height: 0;
+  border:1px solid #e5e7eb;
+  border-top:none;
+  border-radius:0 0 12px 12px;
+  padding:1.5rem;
+  transition: max-height 350ms ease, padding 350ms ease;
+  overflow: hidden;
+}
+
+.checkout-panel.open .checkout-panel-body {
+  padding: 0 1.25rem 1.25rem;
+    max-height: 600px;
+}
+
+/* #endregion */
+
+
+@media (width >= 768px) and (width <= 992px) {
+  .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 575px) {
+  .checkout-panel {
+    padding: 1rem;
+  }
+
+    .checkout-panel-header {
+    font-size: 0.875rem;
+  }
+}

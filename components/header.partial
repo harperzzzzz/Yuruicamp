@@ -12,27 +12,26 @@
   <header class="header" id="header">
     <nav class="navbar">
       <div class="container">
+        <!-- Main hamburger: opens the same left-side dialog on desktop and mobile. -->
+        <button
+          class="navbar-hamburger"
+          type="button"
+          title="展開菜單"
+          aria-label="展開菜單"
+          aria-expanded="false"
+        >
+          ☰
+        </button>
+
+        <!-- Center logo: CSS keeps the brand centered while menus and actions stay on both sides. -->
+        <div class="navbar-brand">
+          <a href="/pages/home.html" class="logo-link" aria-label="回到首頁">
+            <img src="/assets/icons/brand_icon.png" alt="" class="logo" />
+            <span>Yuruicamp</span>
+          </a>
+        </div>
+
         <div class="navbar-content">
-          <!-- Main hamburger: opens the same left-side dialog on desktop and mobile. -->
-          <button
-            class="navbar-hamburger"
-            type="button"
-            title="展開菜單"
-            aria-label="展開菜單"
-            aria-expanded="false"
-          >
-            ☰
-          </button>
-
-          <!-- Center logo: CSS keeps the brand centered while menus and actions stay on both sides. -->
-          <div class="navbar-brand">
-            <a href="/pages/home.html" class="logo-link" aria-label="回到首頁">
-              <img src="/assets/icons/brand_icon.png" alt="" class="logo" />
-              <span>Yuruicamp</span>
-            </a>
-          </div>
-
-
           <!-- 右側操作按鈕：搜尋、露營預訂、購物車與會員功能共用同一容器。 -->
           <div class="navbar-actions">
             <div class="navbar-search-wrapper hidden-mobile">
@@ -398,22 +397,6 @@
             <li><a href="./rental-guide.html">租借體驗說明</a></li>
             <li><a href="./booking-faq.html">常見問題</a></li>
             <li><a href="./member-center.html">會員中心</a></li>
-            <li class="bk-offcanvas__divider"></li>
-            <li>
-              <a href="../../pages/home.html" class="bk-offcanvas__switch"> 前往裝備商城 </a>
-            </li>
-            <li>
-              <!-- 手機版預約背包：點擊關閉 offcanvas 並開啟 Cart Panel -->
-              <button id="bkCartBtnMobile" class="bk-offcanvas__cart-btn">
-                <span aria-hidden="true">🛒</span> 預約背包
-                <span class="bk-badge bk-badge--inline" id="bookingBadgeMobile" hidden>0</span>
-              </button>
-            </li>
-            <li id="bkOffcanvasLogoutItem" hidden>
-              <button id="bkLogoutBtnMobile" class="bk-offcanvas__logout-btn">
-                <i class="bi bi-box-arrow-right"></i> 登出
-              </button>
-            </li>
           </ul>
         </nav>
       </div>

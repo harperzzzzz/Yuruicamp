@@ -1,0 +1,275 @@
+/* 文章佈局 */
+.articleContainer {
+  max-width:720px;
+  margin:0 auto;
+}
+
+// (JS渲染)：顯示文章沒有內容時的提示。
+.articleEmptyContent {
+    color: #999;
+}
+
+// (JS渲染)用途：置中顯示文章不存在或 URL 缺少 ID 的錯誤訊息。 
+.articleErrorMessage {
+    color: #999;
+    padding: 3rem;
+    text-align: center;
+}
+
+    /* ============================================
+        麵包屑導航
+    ============================================ */
+/* #region 麵包屑導航 Breadcrumb navigation */
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #888;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: #244d4d;
+    text-decoration: none;
+}
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb-sep { color: #ccc; }
+/* #endregion */
+
+
+    /* ============================================
+       文章閱讀頁專用樣式 Article Detail Styles
+    ============================================ */
+/* #region 文章 Hero 圖片 Article hero image */
+.article-hero-img {
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    display: block;
+}
+
+/* 文章 Metadata 區塊(容器) */
+.article-detail-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* 文章標籤 */
+.article-detail-badge {
+    background: #4caf76;
+    color: #fff;
+    padding: 0.2rem 0.7rem;
+    border-radius: 99px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.authorName {
+  font-weight:600;
+  color:#333;
+}
+
+.article-detail-author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.article-detail-author img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+/* 日期、閱讀時間 */
+.articleMeta {
+  color:#888;
+  font-size:0.875rem;
+}
+
+.articleTitle {
+  color:#244d4d;
+  font-size:1.75rem;
+  font-weight:800;
+  margin-bottom:1.5rem;
+  line-height:1.35;
+}
+
+/* 文章主體內容 Article body content */
+.article-content {
+    line-height: 1.9;
+    color: #333;
+    font-size: 1.05rem;
+}
+
+.article-content h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #244d4d;
+    margin: 2rem 0 0.75rem;
+}
+
+.article-content p {
+    margin-bottom: 1.25rem;
+}
+
+/* 底部標籤 */
+.articleTags {
+  margin-top:2rem;
+  display:flex;
+  gap:0.5rem;
+  flex-wrap:wrap;
+}
+
+// 用途：顯示文章標籤 badge。
+.articleTagBadge {
+    background: #f0f9f4;
+    border-radius: 99px;
+    color: #244d4d;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+}
+/* #endregion */
+
+
+    /* ============================================
+       推銷卡片
+    ============================================ */
+
+/* #region 推銷卡片 */
+.inline-product-card {
+    display: flex;
+    gap: 1rem;
+    background: #f8fffe;
+    border: 1.5px solid #d1ede3;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    align-items: center;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+
+.inline-product-card:hover {
+    box-shadow: 0 4px 16px rgb(36 77 77 / 12%);
+}
+
+.inline-product-card img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.inline-product-info h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #244d4d;
+    margin: 0 0 0.35rem;
+}
+
+.inline-product-info .price {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e05c2a;
+}
+
+.inline-product-label {
+    font-size: 0.75rem;
+    color: #4caf76;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+/* 卡片 點擊查看詳情 */
+.inlineProductHint {
+    color: #888;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+/* #endregion */
+
+
+    /* ============================================
+       相關文章
+    ============================================ */
+/* #region 相關文章 */
+/* 相關文章區塊佈局 */
+.related-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+// 分隔線
+.divider {
+  margin:2.5rem 0;
+  border:none;
+  border-top:1px solid #f0f0f0;
+}
+
+.relatedArticlesSection { 
+    margin-top:2rem; 
+}
+
+// 相關文章
+.relatedText {
+  font-size:1.1rem;
+  font-weight:700;
+  color:#244d4d;
+  margin-bottom:1rem;
+}
+
+.related-article-card {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+}
+
+.related-article-card:hover {
+    box-shadow: 0 4px 16px rgb(36 77 77 / 10%);
+}
+
+.related-article-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+
+.related-article-card-body {
+    padding: 0.75rem;
+}
+
+.related-article-card-body .article-tag {
+    font-size: 0.75rem;
+    margin-bottom: 0.35rem;
+    display: inline-block;
+}
+
+.related-article-card-body h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #244d4d;
+    margin: 0;
+    line-height: 1.4;
+}
+/* #endregion */
+
+
+@media (width <= 600px) {
+    .related-articles-grid { grid-template-columns: 1fr; }
+}

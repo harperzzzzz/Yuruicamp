@@ -2036,19 +2036,6 @@
 
 .bk-offcanvas__list li a:hover { background: rgba(115, 129, 110, 0.08); color: var(--yc-sage-action); }
 
-/* Offcanvas 分隔線 */
-.bk-offcanvas__divider {
-  height: 1px;
-  background: var(--yc-border);
-  margin: 0.5rem 1.5rem;
-}
-
-/* 系統切換連結（奶油金 CTA 強調 → 改用品牌綠確保可讀性） */
-.bk-offcanvas__switch {
-  color: var(--yc-sage-action) !important;
-  font-weight: 600 !important;
-}
-
 /* 預約背包連結 */
 .bk-offcanvas__cart {
   display: flex !important;
@@ -2239,49 +2226,6 @@
 }
 
 .cart-panel__clear:hover { color: var(--bk-danger); }
-
-/* ── 手機版 offcanvas 內的背包 button（樣式對齊 list link） ── */
-.bk-offcanvas__cart-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.85rem 1.5rem;
-  font-size: 0.95rem;
-  color: var(--yc-text);
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-
-.bk-offcanvas__cart-btn:hover {
-  background: rgba(115, 129, 110, 0.08);
-  color: var(--yc-sage-action);
-}
-
-/* 手機版 offcanvas 登出按鈕 */
-.bk-offcanvas__logout-btn {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  width: 100%;
-  background: none;
-  border: none;
-  padding: 0.85rem 1.5rem;
-  font-size: 1rem;
-  color: var(--yc-error);
-  cursor: pointer;
-  text-align: left;
-  font-family: inherit;
-  transition: background 0.15s;
-}
-
-.bk-offcanvas__logout-btn:hover {
-  background: var(--yc-error-soft);
-}
 
 /* OAuth 登入按鈕 */
 .oauth-desc {

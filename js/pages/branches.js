@@ -155,8 +155,8 @@ async function loadBranches() {
   } catch (err) {
     console.error('載入分店失敗 / Failed to load branches:', err);
     container.innerHTML = `
-      <div style="text-align:center;padding:2rem;color:#e74c3c;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">⚠️</div>
+      <div class="branchesErrorState">
+        <div class="branchesErrorIcon">⚠️</div>
         載入失敗，請稍後再試
       </div>`;
     return;
@@ -232,7 +232,7 @@ function buildPartnerCard(partner, idx) {
         <div class="partner-card-name">${partner.name}</div>
         <div class="partner-tags">${tagsHTML}</div>
         <!-- 優惠碼預覽 -->
-        <div style="margin-top:0.5rem;font-size:0.72rem;color:#244d4d;font-weight:700;">
+        <div class="partnerDiscountPreview">
           🎁 ${partner.discount}
         </div>
       </div>
@@ -282,7 +282,7 @@ window.openPartnerDetail = function(idx) {
   }
   if (tagsEl) {
     tagsEl.innerHTML = partner.tags
-      .map(t => `<span class="partner-tag" style="font-size:0.78rem;">${t}</span>`)
+      .map(t => `<span class="partner-tag partnerModalTag">${t}</span>`)
       .join('');
   }
   if (descEl)     descEl.textContent    = partner.desc;

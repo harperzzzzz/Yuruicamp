@@ -32,10 +32,10 @@
       <!-- -----------------------------------------------
          頁面 Banner：深綠漸層背景
          ----------------------------------------------- -->
-      <section class="page-banner u-migrated-013">
+      <section class="page-banner">
         <div class="container">
           <h1 class="page-banner-title">📖 露營生活誌</h1>
-          <p class="page-banner-subtitle">探索戶外的每一步，都是故事</p>
+          <p class="page-banner-sub">探索戶外的每一步，都是故事</p>
         </div>
       </section>
 
@@ -44,18 +44,18 @@
          ----------------------------------------------- -->
       <div class="container u-migrated-001">
         <!-- 精選文章（Featured Article）- 由 JS 動態渲染 -->
-        <section id="featuredArticle" class="blog-featured u-migrated-014">
+        <section id="featuredArticle" class="blog-featured">
           <!-- JS 會把精選文章渲染到這裡 -->
-          <div class="u-migrated-015">載入中...</div>
+          <div class="loadingText">載入中...</div>
         </section>
 
         <!-- 分類篩選 Tab -->
-        <div class="category-tabs u-migrated-016" id="categoryTabs">
-          <button class="filter-btn active" data-cat="all">全部</button>
-          <button class="filter-btn" data-cat="新手教學">新手教學</button>
-          <button class="filter-btn" data-cat="景點推薦">景點推薦</button>
-          <button class="filter-btn" data-cat="生活技巧">生活技巧</button>
-          <button class="filter-btn" data-cat="裝備評測">裝備評測</button>
+        <div class="category-tabs" id="categoryTabs">
+          <button class="filter-btn rec-tab active" data-cat="all">全部</button>
+          <button class="filter-btn rec-tab" data-cat="新手教學">新手教學</button>
+          <button class="filter-btn rec-tab" data-cat="景點推薦">景點推薦</button>
+          <button class="filter-btn rec-tab" data-cat="生活技巧">生活技巧</button>
+          <button class="filter-btn rec-tab" data-cat="裝備評測">裝備評測</button>
         </div>
 
         <!-- 文章網格 - 由 JS 動態渲染 -->
@@ -64,8 +64,8 @@
         </div>
 
         <!-- 若沒有文章則顯示空狀態 -->
-        <div class="u-migrated-017" id="noArticles">
-          <div class="u-migrated-018">📭</div>
+        <div class="loadingText" id="noArticles">
+          <div class="u-migrated-008">📭</div>
           <p>目前沒有符合條件的文章</p>
         </div>
       </div>

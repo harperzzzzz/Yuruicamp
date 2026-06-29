@@ -93,7 +93,7 @@ function _buildInlineProductCard(product) {
         <div class="inline-product-label">📦 文章推薦商品</div>
         <h4>${product.name || '商品名稱'}</h4>
         ${price ? `<div class="price">${price}</div>` : ''}
-        <div style="font-size:0.8rem; color:#888; margin-top:0.25rem;">點擊查看詳情 →</div>
+        <div class="inlineProductHint">點擊查看詳情 →</div>
       </div>
     </div>
   `;
@@ -131,7 +131,7 @@ function _buildRelatedArticleCard(article) {
  */
 function _renderContentItems(contentItems, allProducts) {
   if (!Array.isArray(contentItems) || contentItems.length === 0) {
-    return '<p style="color:#999;">此文章尚無內容。</p>';
+    return '<p class="articleEmptyContent">此文章尚無內容。</p>';
   }
 
   return contentItems.map(item => {
@@ -183,7 +183,7 @@ window.initBlogDetailPage = async function () {
   const articleId = _getUrlParam('id');
   if (!articleId) {
     document.getElementById('articleContent').innerHTML =
-      '<div style="text-align:center;padding:3rem;color:#999;">找不到文章 ID，請回到<a href="blog.html">部落格</a>重新選擇。</div>';
+      '<div class="articleErrorMessage">找不到文章 ID，請回到<a href="blog.html">部落格</a>重新選擇。</div>';
     return;
   }
 
@@ -200,7 +200,7 @@ window.initBlogDetailPage = async function () {
 
   if (!article) {
     document.getElementById('articleContent').innerHTML =
-      `<div style="text-align:center;padding:3rem;color:#999;">找不到文章 "${articleId}"，請回到<a href="blog.html">部落格</a>重新選擇。</div>`;
+      `<div class="articleErrorMessage">找不到文章 "${articleId}"，請回到<a href="blog.html">部落格</a>重新選擇。</div>`;
     return;
   }
 
@@ -277,7 +277,7 @@ window.initBlogDetailPage = async function () {
   const tagsEl = document.getElementById('articleTags');
   if (tagsEl && Array.isArray(article.tags)) {
     tagsEl.innerHTML = article.tags.map(tag =>
-      `<span style="background:#f0f9f4; color:#244d4d; padding:0.25rem 0.75rem; border-radius:99px; font-size:0.8rem; font-weight:600;"># ${tag}</span>`
+      `<span class="articleTagBadge"># ${tag}</span>`
     ).join('');
   }
 

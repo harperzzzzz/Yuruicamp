@@ -1,14 +1,15 @@
 // 用途：ITCSS content 匯總入口，連接共用內容元件與頁面內容元件。
-@import 'legacy-main-fallback';
-@import 'legacy-components';
-@import 'home-cart';
-@import 'page-inline-blocks';
+@import 'pages/blog-detail';
+@import 'pages/blog';
+@import 'pages/branches';
+@import 'pages/checkout-success';
+@import 'pages/checkout';
+@import 'pages/faq';
+@import 'pages/header';
+@import 'pages/home';
+@import 'pages/member-center';
+@import 'pages/product-details';
+@import 'pages/products';
 
-// 來源：pages/blog.html。
-// 用途：承接原露營生活誌 banner 副標樣式，對齊既有 .page-banner-sub 視覺。
-// 套用：blog.html 的 .page-banner-subtitle。
-.page-banner-subtitle {
-  font-size: 1rem;
-  color: rgb(255 255 255 / 90%);
-  margin: 0;
-}
+@import 'legacy-components';
+@import 'shared-content';

@@ -45,7 +45,7 @@ function _formatDate(dateStr) {
  */
 function _buildArticleCard(article) {
   return `
-    <div class="article-card" onclick="window.location='blog-detail.html?id=${article.id}'" style="cursor:pointer;">
+    <div class="article-card" onclick="window.location='blog-detail.html?id=${article.id}'">
       <div class="article-card-img">
         <img src="${article.image}" alt="${article.title}" loading="lazy">
       </div>
@@ -79,39 +79,35 @@ function _renderFeaturedArticle(article) {
   // 使用絕對定位讓文字疊加在圖片右下角
   container.innerHTML = `
     <div class="blog-featured-img" 
-         onclick="window.location='blog-detail.html?id=${article.id}'"
-         style="cursor:pointer; position:relative; border-radius:16px; overflow:hidden; min-height:400px; background:#1a3a2a;">
+         onclick="window.location='blog-detail.html?id=${article.id}'">
       
       <!-- 背景圖片 Background image -->
       <img 
         src="${article.image}" 
         alt="${article.title}" 
-        style="width:100%; height:100%; object-fit:cover; display:block; min-height:400px;"
         loading="eager"
       >
       
       <!-- 漸層遮罩（從透明到深色）Gradient overlay -->
-      <div class="blog-featured-overlay" 
-           style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);">
+      <div class="blog-featured-overlay">
       </div>
       
       <!-- 右下角文字資訊 Text info at bottom right -->
-      <div style="position:absolute; bottom:0; left:0; right:0; padding:2rem;">
+      <div class="blogFeaturedContent">
         <!-- 分類標籤 Category tag -->
-        <span class="blog-featured-tag" 
-              style="display:inline-block; background:#4caf76; color:#fff; padding:0.25rem 0.75rem; border-radius:99px; font-size:0.8rem; font-weight:600; margin-bottom:0.75rem;">
+        <span class="blog-featured-tag">
           ${article.category}
         </span>
         
         <!-- 文章標題 Article title -->
-        <h2 style="color:#fff; font-size:1.75rem; font-weight:700; margin:0 0 0.75rem; line-height:1.3; text-shadow:0 1px 3px rgba(0,0,0,0.5);">
+        <h2 class="blogFeaturedTitle">
           ${article.title}
         </h2>
         
         <!-- 作者與日期 Author and date -->
-        <div class="blog-featured-meta" style="display:flex; align-items:center; gap:0.75rem; color:rgba(255,255,255,0.85); font-size:0.875rem;">
+        <div class="blog-featured-meta">
           <img src="${article.authorAvatar}" alt="${article.author}" 
-               style="width:32px; height:32px; border-radius:50%; border:2px solid rgba(255,255,255,0.5);">
+               class="blogFeaturedAvatar">
           <span>${article.author}</span>
           <span>·</span>
           <span>${dateStr}</span>
@@ -242,7 +238,7 @@ window.initBlogPage = async function () {
 
   if (_allArticles.length === 0) {
     document.getElementById('featuredArticle').innerHTML =
-      '<div style="text-align:center;padding:3rem;color:#999;">暫無文章資料</div>';
+      '<div class="blogEmptyMessage">暫無文章資料</div>';
     return;
   }
 

@@ -1053,8 +1053,14 @@
         });
         var active = document.getElementById('activeCoupons');
         var expired = document.getElementById('expiredCoupons');
-        if (active) active.style.display = selected === 'active' ? '' : 'none';
-        if (expired) expired.style.display = selected === 'expired' ? '' : 'none';
+        if (active) {
+          active.hidden = selected !== 'active';
+          active.style.display = selected === 'active' ? '' : 'none';
+        }
+        if (expired) {
+          expired.hidden = selected !== 'expired';
+          expired.style.display = selected === 'expired' ? '' : 'none';
+        }
       });
     });
   }
@@ -1198,8 +1204,14 @@
     var page = document.getElementById('mcPage');
     var loggedIn = isLoggedIn();
 
-    if (guard) guard.style.display = loggedIn ? 'none' : 'flex';
-    if (page) page.style.display = loggedIn ? '' : 'none';
+    if (guard) {
+      guard.hidden = loggedIn;
+      guard.style.display = loggedIn ? 'none' : 'flex';
+    }
+    if (page) {
+      page.hidden = !loggedIn;
+      page.style.display = loggedIn ? '' : 'none';
+    }
 
     if (loggedIn) {
       applyProfileData();
