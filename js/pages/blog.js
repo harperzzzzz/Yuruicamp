@@ -109,23 +109,6 @@ function blogArticleHref(article) {
 
 function blogBuildArticleCard(article) {
   return `
-<<<<<<< Updated upstream
-    <div class="article-card" onclick="window.location='blog-detail.html?id=${article.id}'">
-      <div class="article-card-img">
-        <img src="${article.image}" alt="${article.title}" loading="lazy">
-      </div>
-      <div class="article-card-body">
-        <span class="article-tag">${article.category}</span>
-        <h3 class="article-title">${article.title}</h3>
-        <p class="article-excerpt">${article.excerpt}</p>
-        <div class="article-meta">
-          <img class="article-author-img" src="${article.authorAvatar}" alt="${article.author}">
-          <span>${article.author}</span>
-          <span class="article-read-time">${article.readTime} 分鐘閱讀</span>
-        </div>
-      </div>
-    </div>
-=======
     <article class="blogArticleCard">
       <a class="blogArticleLink" href="${blogArticleHref(article)}" aria-label="閱讀 ${blogEscape(article.title)}">
         <span class="blogArticleImageWrap">
@@ -145,7 +128,6 @@ function blogBuildArticleCard(article) {
         </span>
       </a>
     </article>
->>>>>>> Stashed changes
   `;
 }
 
@@ -155,46 +137,6 @@ function blogRenderFeaturedArticle(article) {
 
   container.classList.remove('isLoading');
   container.innerHTML = `
-<<<<<<< Updated upstream
-    <div class="blog-featured-img" 
-         onclick="window.location='blog-detail.html?id=${article.id}'">
-      
-      <!-- 背景圖片 Background image -->
-      <img 
-        src="${article.image}" 
-        alt="${article.title}" 
-        loading="eager"
-      >
-      
-      <!-- 漸層遮罩（從透明到深色）Gradient overlay -->
-      <div class="blog-featured-overlay">
-      </div>
-      
-      <!-- 右下角文字資訊 Text info at bottom right -->
-      <div class="blogFeaturedContent">
-        <!-- 分類標籤 Category tag -->
-        <span class="blog-featured-tag">
-          ${article.category}
-        </span>
-        
-        <!-- 文章標題 Article title -->
-        <h2 class="blogFeaturedTitle">
-          ${article.title}
-        </h2>
-        
-        <!-- 作者與日期 Author and date -->
-        <div class="blog-featured-meta">
-          <img src="${article.authorAvatar}" alt="${article.author}" 
-               class="blogFeaturedAvatar">
-          <span>${article.author}</span>
-          <span>·</span>
-          <span>${dateStr}</span>
-          <span>·</span>
-          <span>${article.readTime} 分鐘閱讀</span>
-        </div>
-      </div>
-    </div>
-=======
     <article class="blogFeaturedCard">
       <a class="blogFeaturedLink" href="${blogArticleHref(article)}" aria-label="閱讀精選文章 ${blogEscape(article.title)}">
         <img class="blogFeaturedImage" src="${blogEscape(article.image)}" alt="${blogEscape(article.title)}" loading="eager">
@@ -213,7 +155,6 @@ function blogRenderFeaturedArticle(article) {
         </span>
       </a>
     </article>
->>>>>>> Stashed changes
   `;
 }
 
@@ -327,12 +268,6 @@ window.initBlogPage = async function () {
 
   blogBindCategoryTabs();
 
-<<<<<<< Updated upstream
-  if (_allArticles.length === 0) {
-    document.getElementById('featuredArticle').innerHTML =
-      '<div class="blogEmptyMessage">暫無文章資料</div>';
-    return;
-=======
   try {
     const loadedArticles = await blogLoadArticles();
     blogAllArticles = loadedArticles.filter(blogIsValidArticle).map(blogNormalizeArticle);
@@ -348,7 +283,6 @@ window.initBlogPage = async function () {
   } catch (error) {
     console.error('Blog page init failed:', error);
     blogRenderErrorState('請稍後再試，或返回首頁重新載入。');
->>>>>>> Stashed changes
   }
 };
 

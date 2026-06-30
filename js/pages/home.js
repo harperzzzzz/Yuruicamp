@@ -195,13 +195,8 @@ async function _initProductSections() {
     console.error('商品載入失敗 | Failed to load products:', error);
 
     // 若載入失敗，顯示錯誤提示
-<<<<<<< Updated upstream
-    if (newRow) newRow.innerHTML = '<p class="text-muted text-center homeProductLoadError">商品載入失敗，請重新整理頁面</p>';
-    if (bestsellerRow) bestsellerRow.innerHTML = '<p class="text-muted text-center homeProductLoadError">商品載入失敗，請重新整理頁面</p>';
-=======
     if (newRow) newRow.innerHTML = '<p class="homeProductLoadError">商品載入失敗，請重新整理頁面</p>';
     if (bestsellerRow) bestsellerRow.innerHTML = '<p class="homeProductLoadError">商品載入失敗，請重新整理頁面</p>';
->>>>>>> Stashed changes
   }
 }
 

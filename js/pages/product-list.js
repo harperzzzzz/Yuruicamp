@@ -133,21 +133,11 @@ function _renderGrid() {
 
   if (_state.filteredProducts.length === 0) {
     grid.innerHTML = `
-<<<<<<< Updated upstream
-      <div class="empty-state productGridEmptyState">
-        <span class="empty-state-icon">🔍</span>
-        <p class="empty-state-title">沒有符合條件的商品</p>
-        <p class="empty-state-desc">試著調整篩選條件看看</p>
-        <button class="btn btn-outline productFilterResetAction" onclick="_resetAllFilters()">
-          清除篩選
-        </button>
-=======
       <div class="emptyState productGridEmptyState">
         <span class="emptyState-icon">!</span>
         <p class="emptyState-title">\u6c92\u6709\u7b26\u5408\u689d\u4ef6\u7684\u5546\u54c1</p>
         <p class="emptyState-desc">\u8abf\u6574\u7be9\u9078\u689d\u4ef6\u5f8c\u518d\u8a66\u4e00\u6b21</p>
         <button class="btn btnOutline productFilterResetAction" onclick="_resetAllFilters()">\u6e05\u9664\u7be9\u9078</button>
->>>>>>> Stashed changes
       </div>
     `;
     _renderPagination();
@@ -193,63 +183,11 @@ function _renderPagination() {
     return;
   }
 
-<<<<<<< Updated upstream
-  paginationEl.style.display = 'flex';
-
-  let html = '';
-
-  // 上一頁按鈕
-  html += `<button
-    class="pagination-btn"
-    ${_state.currentPage === 1 ? 'disabled' : ''}
-    data-page="${_state.currentPage - 1}"
-    aria-label="上一頁"
-  >‹</button>`;
-
-  // 頁碼按鈕（最多顯示 5 頁）
-  const range = 2;
-  for (let i = 1; i <= totalPages; i++) {
-    if (
-      i === 1 ||
-      i === totalPages ||
-      (i >= _state.currentPage - range && i <= _state.currentPage + range)
-    ) {
-      html += `<button
-        class="pagination-btn${i === _state.currentPage ? ' active' : ''}"
-        data-page="${i}"
-        aria-label="第 ${i} 頁"
-        ${i === _state.currentPage ? 'aria-current="page"' : ''}
-      >${i}</button>`;
-    } else if (
-      i === _state.currentPage - range - 1 ||
-      i === _state.currentPage + range + 1
-    ) {
-      html += `<span class="paginationEllipsis">…</span>`;
-    }
-  }
-
-  // 下一頁按鈕
-  html += `<button
-    class="pagination-btn"
-    ${_state.currentPage === totalPages ? 'disabled' : ''}
-    data-page="${_state.currentPage + 1}"
-    aria-label="下一頁"
-  >›</button>`;
-
-  paginationEl.innerHTML = html;
-
-  // 綁定頁碼點擊
-  paginationEl.querySelectorAll('.pagination-btn:not([disabled])').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const page = parseInt(btn.dataset.page, 10);
-      _goToPage(page);
-=======
   const pageItems = _getPaginationItems(totalPages).map(item => {
     if (item.type === 'ellipsis') return '<span class="paginationEllipsis">...</span>';
     return _buildPaginationButton(item.page, item.page, {
       active: item.page === _state.currentPage,
       ariaLabel: `? ${item.page} ?`,
->>>>>>> Stashed changes
     });
   });
 
@@ -626,17 +564,10 @@ window.initProductListPage = async () => {
     const grid = document.getElementById('productsGrid');
     if (grid) {
       grid.innerHTML = `
-<<<<<<< Updated upstream
-        <div class="empty-state productGridEmptyState">
-          <span class="empty-state-icon">⚠️</span>
-          <p class="empty-state-title">商品載入失敗</p>
-          <p class="empty-state-desc">請重新整理頁面，或稍後再試</p>
-=======
         <div class="emptyState productGridEmptyState">
           <span class="emptyState-icon">!</span>
           <p class="emptyState-title">\u5546\u54c1\u8f09\u5165\u5931\u6557</p>
           <p class="emptyState-desc">\u91cd\u65b0\u6574\u7406\u9801\u9762\uff0c\u6216\u7a0d\u5f8c\u518d\u8a66</p>
->>>>>>> Stashed changes
         </div>
       `;
     }

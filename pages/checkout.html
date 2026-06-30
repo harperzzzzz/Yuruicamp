@@ -20,92 +20,6 @@
   </head>
   <body>
     <div id="header"></div>
-<<<<<<< Updated upstream
-    <!-- ===================================================
-       頁面主體 Main Content
-       =================================================== -->
-    <main class="container containerPosition">
-      <!-- 頁面標題 Page Title -->
-      <div>
-        <h1 class="checkoutTitle">📋 結帳</h1>
-        <!-- 步驟進度條 Step progress indicator -->
-        <div class="checkoutBreadcrumb">
-          <span class="u-migrated-059">🛒 購物車</span>
-          <span>›</span>
-          <span class="u-migrated-059">📋 結帳</span>
-          <span>›</span>
-          <span>✅ 完成</span>
-        </div>
-      </div>
-
-      <!-- ===== 兩欄佈局：左側表單 + 右側摘要 ===== -->
-      <div class="checkout-layout">
-        <!-- ===== 左側：結帳表單（3個手風琴面板）===== -->
-        <div class="checkout-form-column">
-          <!-- ========================================
-             面板 1：買家資訊 Buyer Info Panel
-             ======================================== -->
-          <div class="checkout-panel open" id="panel-buyer">
-            <div class="checkout-panel-header" data-panel="buyer">
-              <div class="dataBox">
-                <div class="stepIcon">1</div>
-                <span class="stepText">買家資訊</span>
-              </div>
-              <span class="panel-arrow">▼</span>
-            </div>
-            <div class="checkout-panel-body">
-              <div class="formLayout">
-                <div>
-                  <label class="labelLayout"> 姓名 <span class="importantStar">*</span> </label>
-                  <input
-                    class="inputStyle"
-                    type="text"
-                    id="buyerName"
-                    name="buyerName"
-                    placeholder="王小明"
-                    required
-                  />
-                </div>
-                <div>
-                  <label class="labelLayout"> 電話 <span class="importantStar">*</span> </label>
-                  <input
-                    class="inputStyle"
-                    type="tel"
-                    id="buyerPhone"
-                    name="buyerPhone"
-                    placeholder="0912-345-678"
-                    pattern="^(\+886|886|0)[1-9][0-9\-\s()]{7,12}$"
-                    title="請輸入台灣電話格式，例如 0912-345-678 或 +886912345678"
-                    required
-                  />
-                </div>
-              </div>
-              <div class="u-migrated-030">
-                <label class="labelLayout"> Email <span class="importantStar">*</span> </label>
-                <input
-                  class="inputStyle"
-                  type="email"
-                  id="buyerEmail"
-                  name="buyerEmail"
-                  placeholder="your@email.com"
-                  required
-                />
-              </div>
-              <div class="bottomSpace">
-                <label class="labelLayout"> 備註（選填） </label>
-                <!-- 重點：#confirmOrderBtn 會把此欄位同步為 orders.json 的 userNote。 -->
-                <textarea
-                  class="textareaStyle"
-                  id="buyerNote"
-                  name="buyerNote"
-                  placeholder="有什麼需要告知賣家的嗎？"
-                  rows="2"
-                ></textarea>
-              </div>
-              <!-- 帶入會員資料按鈕 Fill from profile button -->
-              <button id="fillProfileBtn" type="button" class="btn btn-secondary">
-                👤 帶入會員資料
-=======
 
     <main class="container checkoutPage">
       <header class="checkoutHeader">
@@ -189,67 +103,10 @@
               </fieldset>
               <button id="fillProfileBtn" type="button" class="btn btnSecondary checkoutSecondaryAction">
                 帶入會員資料
->>>>>>> Stashed changes
               </button>
             </div>
           </section>
 
-<<<<<<< Updated upstream
-          <div class="divSpace"></div>
-
-          <!-- ========================================
-             面板 2：物流選擇 Shipping Method Panel
-             ======================================== -->
-          <div class="checkout-panel" id="panel-shipping">
-            <div class="checkout-panel-header" data-panel="shipping">
-              <div class="dataBox">
-                <div class="stepIcon">2</div>
-                <span class="stepText">物流選擇</span>
-              </div>
-              <span class="panel-arrow">▼</span>
-            </div>
-            <div class="checkout-panel-body closeBody">
-              <!-- 物流選項：宅配 -->
-              <label class="radio-option">
-                <!-- 重點：被選取時會同步為 orders.json 的 shippingMethod = delivery。 -->
-                <input
-                  class="radioStyle"
-                  type="radio"
-                  name="shippingMethod"
-                  value="delivery"
-                  id="shippingDelivery"
-                  checked
-                />
-                <div>
-                  <div class="u-migrated-079">🚚 宅配到府</div>
-                  <div class="radioDesc">黑貓宅急便，2-4 個工作天到達</div>
-                  <div class="radioDesc2">運費 NT$60（滿 NT$3000 免運）</div>
-                </div>
-              </label>
-
-              <!-- 物流選項：門市取貨 -->
-              <label class="radio-option notOption">
-                <!-- 重點：被選取時會同步為 orders.json 的 shippingMethod = store，shippingAddress 預設台北門市。 -->
-                <input
-                  class="radioStyle"
-                  type="radio"
-                  name="shippingMethod"
-                  value="store"
-                  id="shippingStore"
-                />
-                <div>
-                  <div class="u-migrated-079">🏪 門市取貨</div>
-                  <div class="radioDesc">全台 Yuruicamp 門市，7-10 個工作天</div>
-                  <div class="shippingText">免運費</div>
-                </div>
-              </label>
-
-              <!-- 送達地址（宅配時顯示）Delivery address (shown for delivery) -->
-              <div class="marginTop" id="deliveryAddressSection">
-                <label class="labelLayout"> 送達地址 <span class="importantStar">*</span> </label>
-                <input
-                  class="inputStyle"
-=======
           <section class="checkoutPanel" id="panelShipping" aria-labelledby="panelShippingTitle">
             <button
               class="checkoutPanelTrigger"
@@ -303,7 +160,6 @@
                 <label class="checkoutLabel" for="deliveryAddress">送達地址 <span class="requiredMark">*</span></label>
                 <input
                   class="checkoutInput"
->>>>>>> Stashed changes
                   type="text"
                   id="deliveryAddress"
                   name="deliveryAddress"
@@ -313,72 +169,6 @@
             </div>
           </section>
 
-<<<<<<< Updated upstream
-          <div class="divSpace"></div>
-
-          <!-- ========================================
-             面板 3：付款方式 Payment Method Panel
-             ======================================== -->
-          <div class="checkout-panel" id="panel-payment">
-            <div class="checkout-panel-header" data-panel="payment">
-              <div class="dataBox">
-                <div class="stepIcon">3</div>
-                <span class="stepText">付款方式</span>
-              </div>
-              <span class="panel-arrow">▼</span>
-            </div>
-            <div class="checkout-panel-body closeBody">
-              <!-- 付款選項：信用卡 -->
-              <label class="radio-option">
-                <!-- 重點：被選取時會同步為 orders.json 的 payment = credit-card。 -->
-                <input
-                  class="radioStyle"
-                  type="radio"
-                  name="paymentMethod"
-                  value="credit"
-                  id="payCredit"
-                  checked
-                />
-                <div>
-                  <div class="u-migrated-079">💳 信用卡付款</div>
-                  <div class="radioDesc">支援 VISA / MasterCard / JCB，可分期</div>
-                </div>
-              </label>
-
-              <!-- 付款選項：LINE Pay -->
-              <label class="radio-option notOption">
-                <!-- 重點：被選取時會同步為 orders.json 的 payment = line-pay。 -->
-                <input
-                  class="radioStyle"
-                  type="radio"
-                  name="paymentMethod"
-                  value="linepay"
-                  id="payLine"
-                />
-                <div>
-                  <div class="u-migrated-079"><span class="textColor">LINE</span> Pay</div>
-                  <div class="radioDesc">使用 LINE Pay 電子錢包付款，快速便利</div>
-                </div>
-              </label>
-
-              <!-- 付款選項：貨到付款 -->
-              <label class="radio-option notOption">
-                <!-- 重點：被選取時會同步為 orders.json 的 payment = cod。 -->
-                <input class="radioStyle" type="radio" name="paymentMethod" value="cod" id="payCod" />
-                <div>
-                  <div class="u-migrated-079">💵 貨到付款</div>
-                  <div class="radioDesc">收到商品時以現金付款（限宅配）</div>
-                </div>
-              </label>
-
-              <!-- 信用卡資訊（選擇信用卡時顯示）Credit card info (shown when credit selected) -->
-              <div class="creditCardBox" id="creditCardSection">
-                <div class="creditCardText">信用卡資訊</div>
-                <div class="creditCardDataContainer">
-                  <label class="cardDataText">卡號</label>
-                  <input
-                    class="inputStyle"
-=======
           <section class="checkoutPanel" id="panelPayment" aria-labelledby="panelPaymentTitle">
             <button
               class="checkoutPanelTrigger"
@@ -433,7 +223,6 @@
                   <label class="checkoutLabel" for="cardNumber">卡號</label>
                   <input
                     class="checkoutInput"
->>>>>>> Stashed changes
                     type="text"
                     id="cardNumber"
                     name="cardNumber"
@@ -441,19 +230,11 @@
                     maxlength="19"
                   />
                 </div>
-<<<<<<< Updated upstream
-                <div class="creditCardDataContainer2">
-                  <div>
-                    <label class="cardDataText">到期日</label>
-                    <input
-                      class="inputStyle"
-=======
                 <div class="checkoutFormGrid">
                   <div class="checkoutField">
                     <label class="checkoutLabel" for="cardExpiry">到期日</label>
                     <input
                       class="checkoutInput"
->>>>>>> Stashed changes
                       type="text"
                       id="cardExpiry"
                       name="cardExpiry"
@@ -461,51 +242,27 @@
                       maxlength="7"
                     />
                   </div>
-<<<<<<< Updated upstream
-                  <div>
-                    <label class="cardDataText">CVV</label>
-                    <input class="inputStyle" type="text" id="cardCvv" placeholder="123" maxlength="4" />
-=======
                   <div class="checkoutField">
                     <label class="checkoutLabel" for="cardCvv">CVV</label>
                     <input class="checkoutInput" type="text" id="cardCvv" name="cardCvv" placeholder="123" maxlength="4" />
->>>>>>> Stashed changes
                   </div>
                 </div>
               </fieldset>
             </div>
           </section>
 
-<<<<<<< Updated upstream
-          <!-- 重點：點擊後由 checkout.js 產生不重複 orderNumber，並依畫面商品、金額、物流、付款與備註建立訂單快照。 -->
-          <div class="checkoutBtnContainer">
-            <button id="confirmOrderBtn" type="button" class="btn btn-primary btn-block">
-              🔒 確認結帳
-            </button>
-            <p class="bottomText">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
-=======
           <div class="checkoutActions">
             <button id="confirmOrderBtn" type="button" class="btn btnPrimary btnBlock checkoutConfirmBtn">
               確認結帳
             </button>
             <p class="checkoutTermsText">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
->>>>>>> Stashed changes
           </div>
         </div>
 
-<<<<<<< Updated upstream
-        <!-- ===== 右側：訂單摘要 Order Summary (Sticky) ===== -->
-        <div class="checkout-summary-column">
-          <div class="checkoutSummaryContainer">
-            <h3 class="stepText">訂單摘要</h3>
-
-            <!-- 商品清單 Order item list (rendered by JS) -->
-=======
         <aside class="checkoutSummaryColumn" aria-labelledby="checkoutSummaryTitle">
           <section class="checkoutSummary">
             <h2 class="checkoutSummaryHeader" id="checkoutSummaryTitle">訂單摘要</h2>
 
->>>>>>> Stashed changes
             <div class="checkoutItemsList" id="checkoutItemsList">
               <!-- 由 JS 動態渲染 -->
             </div>

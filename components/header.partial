@@ -1,61 +1,4 @@
 <div data-layout-part="main-header">
-<<<<<<< Updated upstream
-  <!-- ========================================
-     Header Component
-     Runtime fragment loaded by js/main.js.
-     Keep this as .partial so Live Server does not inject reload scripts into it.
-     可在所有頁面中引用或複製
-     ======================================== -->
-  <header class="header" id="header">
-    <nav class="navbar">
-      <div class="container">
-        <!-- Main hamburger: opens the same left-side dialog on desktop and mobile. -->
-        <button
-          class="navbar-hamburger"
-          type="button"
-          title="展開菜單"
-          aria-label="展開菜單"
-          aria-expanded="false"
-        >
-          ☰
-        </button>
-
-        <!-- Center logo: CSS keeps the brand centered while menus and actions stay on both sides. -->
-        <div class="navbar-brand">
-          <a href="/pages/home.html" class="logo-link" aria-label="回到首頁">
-            <img src="/assets/icons/brand_icon.png" alt="" class="logo" />
-            <span>Yuruicamp</span>
-          </a>
-        </div>
-
-        <div class="navbar-content">
-          <!-- 右側操作按鈕：搜尋、露營預訂、購物車與會員功能共用同一容器。 -->
-          <div class="navbar-actions">
-            <div class="navbar-search-wrapper hidden-mobile">
-              <button
-                type="button"
-                class="navbar-search-btn navbar-search-toggle"
-                title="搜尋"
-                aria-label="搜尋"
-                aria-expanded="false"
-              >
-                🔍
-              </button>
-              <form class="navbar-search-form" role="search" aria-hidden="true">
-                <input
-                  type="text"
-                  class="navbar-search-input"
-                  placeholder="搜尋商品、品牌..."
-                  autocomplete="off"
-                  aria-label="搜尋"
-                />
-                <button type="submit" class="navbar-search-submit" title="送出搜尋">搜尋</button>
-              </form>
-              <div class="navbar-search-dropdown"></div>
-            </div>
-            <!-- 重點：露營預訂從側欄清單拉出，固定放在 header 右側操作區、購物車前方。 -->
-            <a href="/booking/pages/camp-search.html" class="navbar-booking-link">露營預訂</a>
-=======
   <header class="siteHeader" id="header">
     <nav class="siteNavbar" aria-label="主站導覽">
       <div class="siteNavbarInner">
@@ -117,7 +60,6 @@
           <button class="siteLoginButton" type="button" data-modal-target="loginModal">登入</button>
 
           <div class="siteUserMenu" hidden>
->>>>>>> Stashed changes
             <button
               class="siteUserTrigger"
               type="button"
@@ -379,21 +321,12 @@
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
         </div>
-<<<<<<< Updated upstream
-        <nav class="bk-offcanvas__body">
-          <ul class="bk-offcanvas__list">
-            <li><a href="./camp-search.html">探索營區</a></li>
-            <li><a href="./rental-guide.html">租借體驗說明</a></li>
-            <li><a href="./booking-faq.html">常見問題</a></li>
-            <li><a href="./member-center.html">會員中心</a></li>
-=======
         <nav class="bookingOffcanvasBody" aria-label="預約選單">
           <ul class="bookingOffcanvasLinks">
             <li><a id="navSearch" href="./camp-search.html">搜尋營地</a></li>
             <li><a id="navRentalGuide" href="./rental-guide.html">租借說明</a></li>
             <li><a id="navFaq" href="./booking-faq.html">常見問題</a></li>
             <li><a id="navMember" href="./member-center.html">會員中心</a></li>
->>>>>>> Stashed changes
           </ul>
         </nav>
       </aside>

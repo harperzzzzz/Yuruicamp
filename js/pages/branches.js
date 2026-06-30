@@ -179,16 +179,6 @@ async function loadBranches() {
       renderBranchEmpty(container);
       return;
     }
-<<<<<<< Updated upstream
-  } catch (err) {
-    console.error('載入分店失敗 / Failed to load branches:', err);
-    container.innerHTML = `
-      <div class="branchesErrorState">
-        <div class="branchesErrorIcon">⚠️</div>
-        載入失敗，請稍後再試
-      </div>`;
-    return;
-=======
 
     setBranchesState(container);
     const cards = branches.map((branch, index) => createBranchCard(branch, index === 0));
@@ -198,50 +188,9 @@ async function loadBranches() {
   } catch (error) {
     console.error('Failed to load branches:', error);
     renderBranchError(container);
->>>>>>> Stashed changes
   }
 }
 
-<<<<<<< Updated upstream
-// ============================================================
-// 合作店家網格渲染
-// Partner grid rendering
-// ============================================================
-
-/**
- * 產生單一合作店家卡片 HTML
- * Build a single partner card HTML
- * @param {Object} partner - 合作店家資料
- * @param {number} idx     - 索引（用於 onclick 綁定）
- * @returns {string} HTML 字串
- */
-function buildPartnerCard(partner, idx) {
-  // 標籤 HTML
-  const tagsHTML = partner.tags
-    .map(t => `<span class="partner-tag">${t}</span>`)
-    .join('');
-
-  return `
-    <div class="partner-card" onclick="openPartnerDetail(${idx})">
-      <!-- 圖片 -->
-      <div class="partner-card-img">
-        <img src="${partner.image}"
-             alt="${partner.name}"
-             loading="lazy"
-             onerror="this.src='https://picsum.photos/seed/fallback/400/300'">
-      </div>
-      <!-- 卡片內容 -->
-      <div class="partner-card-body">
-        <div class="partner-card-name">${partner.name}</div>
-        <div class="partner-tags">${tagsHTML}</div>
-        <!-- 優惠碼預覽 -->
-        <div class="partnerDiscountPreview">
-          🎁 ${partner.discount}
-        </div>
-      </div>
-    </div>
-  `;
-=======
 function createTag(tagName) {
   return createElement('span', 'partnerTag', tagName);
 }
@@ -272,7 +221,6 @@ function createPartnerCard(partner, index) {
   trigger.append(imageWrap, content);
   article.append(trigger);
   return article;
->>>>>>> Stashed changes
 }
 
 function renderPartners() {
@@ -300,26 +248,11 @@ function openPartnerDetail(index) {
   const descElement = document.getElementById('partnerModalDesc');
   const discountElement = document.getElementById('partnerModalDiscount');
 
-<<<<<<< Updated upstream
-  if (titleEl)    titleEl.textContent   = partner.name;
-  if (imgEl) {
-    imgEl.src = partner.image;
-    imgEl.alt = partner.name;
-  }
-  if (tagsEl) {
-    tagsEl.innerHTML = partner.tags
-      .map(t => `<span class="partner-tag partnerModalTag">${t}</span>`)
-      .join('');
-  }
-  if (descEl)     descEl.textContent    = partner.desc;
-  if (discountEl) discountEl.textContent = partner.discount;
-=======
   if (titleElement) titleElement.textContent = partner.name;
   if (imageElement) setPartnerModalImage(imageElement, partner);
   if (tagsElement) tagsElement.replaceChildren(...partner.tags.map(tag => createElement('span', 'partnerTag partnerModalTag', tag)));
   if (descElement) descElement.textContent = partner.desc;
   if (discountElement) discountElement.textContent = partner.discount;
->>>>>>> Stashed changes
 
   window.openModal?.('partnerModal');
 }

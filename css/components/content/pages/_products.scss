@@ -1,11 +1,3 @@
-<<<<<<< Updated upstream
-// 用途：保留商品列表、商品卡、篩選器與商品詳情頁的既有樣式。
-// 套用：pages/products.html 與 pages/product-detail.html。
-
-
-// 套用：pages/products.html 的 .productsPageMain。
-// 用途：提供商品列表主內容下方留白，取代 HTML inline style。
-=======
 $product-text: var(--yui-text, #333);
 $product-muted: var(--yui-text-muted, #666);
 $product-subtle: var(--yui-text-subtle, #999);
@@ -20,36 +12,21 @@ $product-accent: var(--yui-accent, #f59e0b);
 $product-danger: var(--yui-danger, #e74c3c);
 $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 
->>>>>>> Stashed changes
 .productsPageMain {
   padding: 0 0 4rem;
 }
 
-<<<<<<< Updated upstream
-// 套用：pages/products.html 的 .productsPageLayout。
-// 用途：排列桌機篩選側欄與商品列表內容。
-=======
->>>>>>> Stashed changes
 .productsPageLayout {
   align-items: flex-start;
   display: flex;
   gap: 1.5rem;
 }
 
-<<<<<<< Updated upstream
-// 套用：pages/products.html 的 .productsListContent。
-// 用途：讓商品主內容佔滿剩餘空間並允許內部網格縮放。
-=======
->>>>>>> Stashed changes
 .productsListContent {
   flex: 1;
   min-width: 0;
 }
 
-<<<<<<< Updated upstream
-// 套用：pages/products.html 的 #applyPriceBtn.productPriceApply。
-// 用途：保留價格篩選套用按鈕與輸入欄位的間距。
-=======
 .breadcrumb {
   display: flex;
   flex-wrap: wrap;
@@ -550,33 +527,10 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   font-size: 0.85rem;
 }
 
->>>>>>> Stashed changes
 .productPriceApply {
   margin-top: 0.5rem;
 }
 
-<<<<<<< Updated upstream
-// 套用：pages/products.html 的 #pagination.productPagination。
-// 用途：分頁初始不顯示，由 JS 依商品數量切換顯示。
-.productPagination {
-  display: none;
-}
-
-// 套用：pages/products.html 的手機篩選底部按鈕。
-// 用途：控制底部重置與套用按鈕的寬度比例。
-.mobileFilterReset {
-  flex: 1;
-}
-
-// 套用：pages/products.html 的手機篩選底部按鈕。
-// 用途：控制底部套用按鈕的寬度比例。
-.mobileFilterApply {
-  flex: 2;
-}
-
-// 套用：product-list.js 產生的 .productGridEmptyState。
-// 用途：讓商品空狀態跨滿整個商品 grid。
-=======
 .filterBrandList {
   display: flex;
   flex-direction: column;
@@ -665,656 +619,14 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   padding: 0 0.25rem;
 }
 
->>>>>>> Stashed changes
 .productGridEmptyState {
   grid-column: 1 / -1;
 }
 
-<<<<<<< Updated upstream
-// 套用：product-list.js 產生的 .productFilterResetAction。
-// 用途：保留清除篩選按鈕與提示文字的上方間距。
-=======
->>>>>>> Stashed changes
 .productFilterResetAction {
   margin-top: 1rem;
 }
 
-<<<<<<< Updated upstream
-// 套用：product-list.js 產生的 .paginationEllipsis。
-// 用途：控制分頁省略符號的間距與顏色。
-.paginationEllipsis {
-  color: #999;
-  padding: 0 0.25rem;
-}
-
-
-/* 卡片佈局 */
-.products-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-}
-
-/* 麵包屑 */
-.breadcrumb {
-  margin-bottom:0.75rem;
-  padding-left: 0;
-  list-style-type: none;
-}
-
-.breadcrumb-item a {
-  color: #999;
-  text-decoration: none;
-  transition: color 200ms;
-}
-
-.breadcrumb-item a:hover {
-  color: #244d4d;
-}
-
-.breadcrumb-item.active {
-  color: #333; font-weight: 600;
-}
-
-  /* ===================================================
-       輪播廣告
-     =================================================== */
-
-/* #region pages/products.html 廣告佈局容器 */
-.ad-carousel-container {
-  background: linear-gradient(135deg, #f0f7f7, #e6f3f3);
-    padding: 1.5rem 0;
-    margin: 2rem 0;
-}
-
-/* 廣告容器 */
-.ad-carousel {
-  position: relative;
-    max-width: 100%;
-    height: auto;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-/* 內容容器的容器 */
-.ad-carousel-slides {
-  display: flex;
-    transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
-    width: 100%;
-    height: 280px;
-}
-
-/* 內容容器 */
-.ad-carousel-slide {
-  flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: linear-gradient(135deg, #244d4d, #316868);
-    color: #fff;
-    padding: 2rem;
-    cursor: pointer;
-    transition: background 300ms;
-}
-
-.ad-carousel-slide:hover {
-  background: linear-gradient(135deg, #1a3838, #244d4d);
-}
-
-/* 文字內容容器 */
-.ad-carousel-content {
-  flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    z-index: 2;
-}
-
-/* 商品標籤 */
-.ad-carousel-badge {
-  display: inline-block;
-    background: #f59e0b;
-    color: #1a3838;
-    padding: 0.35rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    width: fit-content;
-}
-
-/* 商品title */
-.ad-carousel-title {
-  font-size: 1.75rem;
-    font-weight: 800;
-    margin: 0;
-    line-height: 1.3;
-    max-width: 300px;
-}
-
-/* 商品品牌 */
-.ad-carousel-desc {
-  font-size: 0.95rem;
-    opacity: 0.9;
-    margin: 0;
-    max-width: 400px;
-}
-
-.ad-carousel-price {
-  font-size: 1.5rem;
-    font-weight: 700;
-    opacity: 1;
-}
-
-/* 商品圖片 */
-.ad-carousel-image {
-  width: 200px;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 8px;
-    opacity: 0.9;
-    z-index: 1;
-}
-
-/* 上下頁共用按鈕樣式 */
-.ad-carousel-btn {
-  position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgb(255 255 255 / 80%);
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    font-size: 1.25rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 200ms;
-    z-index: 10;
-}
-
-.ad-carousel-btn:hover {
-  background: rgb(255 255 255 / 100%);
-    transform: translateY(-50%) scale(1.1);
-}
-
-/* 上一頁按鈕 */
-.ad-carousel-prev {
-  left: 1rem;
-}
-
-/* 下一頁按鈕 */
-.ad-carousel-next {
-  right: 1rem;
-}
-
-/* 頁數指示器 */
-.ad-carousel-dots {
-  position: absolute;
-    bottom: 1rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 0.5rem;
-    z-index: 10;
-}
-
-.ad-carousel-dot.active {
-  background: rgb(255 255 255 / 100%);
-    width: 24px;
-    border-radius: 5px;
-}
-
-/* #endregion */
-
-  /* ===================================================
-       Product cards
-    =================================================== */
-
-/* #region Cards */
-.product-card {
-  position: relative;
-  flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  height: 100%;
-  min-width: 220px;
-  max-width: 220px;
-  overflow: hidden;
-  transition: all 0.25s ease;
-  will-change: auto; /* 設定瀏覽器是否要**提前最佳化（Optimize）**某個元素 */
-  contain: layout style; // 元素當成一個獨立區域，它裡面的變化盡量不要影響外面的版面與樣式
-}
-
-.product-card:hover {
-  box-shadow: 0 10px 30px rgb(0 0 0 / 12%);
-  will-change: transform, box-shadow;
-  transform: translateY(-6px) scale(1.05);
-}
-
-/* image 容器 */
-.product-card-image-wrap {
-  position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background-color: #f2f2f2;
-}
-
-.product-card-image-wrap img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 350ms ease;
-  transform: scale(1.05);
-}
-
-/* card 內容容器 */
-.product-card-body {
-  padding: 1rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 品牌 */
-.product-card-brand {
-  font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #799;
-    margin-bottom: 0.25rem;
-    height: 0.9rem;
-    line-height: 0.9rem;
-}
-
-/* 商品名稱 */
-.product-card-name {
-  font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0 0 0.75rem;
-    line-height: 1.4;
-
-    /* 固定高度：2 行 × 1.4 line-height × 0.9rem = 2.52rem */
-    height: 2.52rem;
-
-    /* 最多顯示 2 行，超出截斷 */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.product-card-rating {
-  display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.78rem;
-    color: #999;
-    height: 1.1rem;
-    line-height: 1.1rem;
-}
-
-.star-rating {
-  display: inline-flex;
-    gap: 2px;
-}
-
-.star-rating .star {
-  color: #f59e0b;
-    font-size: 0.85rem;
-}
-
-.star-rating .star.empty {
-  color: #e0e0e0;
-}
-
-.product-card-price {
-  display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    margin-top: auto;
-    margin-bottom: 0.5rem;
-    min-height: 1.5rem;
-    flex-wrap: wrap;
-}
-
-/* 打折後的價格 */
-.price-current {
-  font-size: 1.1rem;
-    font-weight: 700;
-    color: #244d4d;
-    flex-shrink: 0;
-}
-
-/* original price */
-.price-original {
-  font-size: 0.78rem;
-    color: #bbb;
-    text-decoration: line-through;
-    flex-shrink: 0;
-}
-
-/* 優惠 */
-.price-discount {
-  display: block;
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #e74c3c;
-    background-color: #fef2f2;
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    width: fit-content;
-}
-
-.product-card-add-btn {
-  width: 100%;
-    margin-top: 0.85rem;
-    padding: 0.55rem;
-    background-color: #244d4d;
-    color: #fff;
-    border: 2px solid #244d4d;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 200ms, color 200ms;
-}
-
-.product-card-add-btn:hover {
-  background-color: transparent;
-    color: #244d4d;
-}
-
-/* #endregion */
-
-
-  /* ===================================================
-       手機版
-    =================================================== */
-
-/* #region 手機版 篩選系統 */
-.mobile-filter-btn {
-  display: none;
-    position: fixed;
-    bottom: 1.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.75rem 2rem;
-    background-color: #244d4d;
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgb(36 77 77 / 40%);
-    z-index: 100;
-    gap: 0.4rem;
-    align-items: center;
-}
-
-.filter-sheet {
-  position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #fff;
-    border-radius: 20px 20px 0 0;
-    padding: 1.5rem;
-    z-index: 1050;
-    transform: translateY(100%);
-    transition: transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    max-height: 85vh;
-    overflow-y: auto;
-}
-
-.filter-sheet.active {
-  transform: translateY(0);
-}
-
-.filter-sheet-handle {
-  width: 3rem;
-    height: 4px;
-    background-color: #e0e0e0;
-    border-radius: 2px;
-    margin: 0 auto 1.25rem;
-}
-
-.filter-sheet-header {
-  display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-}
-
-.filter-sheet-title {
-  font-size: 1.1rem;
-    font-weight: 700;
-    color: #244d4d;
-    margin: 0;
-}
-
-.filter-sheet-close {
-  background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: #999;
-    cursor: pointer;
-    padding: 0.25rem;
-}
-
-/* #endregion */
-
-  /* ===================================================
-      側邊搜尋欄
-    =================================================== */
-
-/* #region 搜尋欄 */
-.filter-sidebar {
-  background-color: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    flex-shrink: 0;
-    padding: 1.5rem;
-    position: sticky;
-    top: 5rem;
-    width: 240px;
-}
-
-.filter-sidebar-title {
-  font-size: 1rem;
-    font-weight: 700;
-    color: #244d4d;
-    margin: 0 0 1.25rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 2px solid #f2f2f2;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.filter-reset-btn {
-  font-size: 0.75rem;
-    font-weight: 600;
-    color: #799;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-}
-
-.filter-reset-btn:hover {
-  color: #244d4d;
-}
-
-/* 佈局共通元素(4塊) */
-.filter-group {
-  margin-bottom: 1.5rem;
-}
-
-.filter-group:last-child {
-  margin-bottom: 0;
-}
-
-.filter-group-title {
-  font-size: 0.8rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #999;
-    margin: 0 0 0.75rem;
-}
-
-/* 商品分類、tag 篩選、手機板 */
-.filter-category-list {
-  list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-}
-
-/* 商品分類按鈕 */
-.filter-category-btn {
-  padding: 0.3rem 0.75rem;
-    background-color: #f2f2f2;
-    color: #666;
-    border: 1.5px solid transparent;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 200ms;
-}
-
-.filter-category-btn:hover {
-  background-color: #e0eeee;
-    color: #244d4d;
-}
-
-.filter-category-btn.active {
-  background-color: #244d4d;
-    color: #fff;
-    border-color: #244d4d;
-}
-
-/* 價格篩選容器 */
-.filter-price-range {
-  display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.filter-price-inputs {
-  display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-/* 水平線 */
-.filter-price-sep {
-  color: #999;
-    font-size: 0.85rem;
-    flex-shrink: 0;
-}
-
-/* 品牌radio 容器 */
-.filter-brand-list {
-  list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-/* 品牌radio 選項 */
-.filter-brand-item {
-  display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    color: #333;
-    cursor: pointer;
-}
-
-/* #endregion */
-
-
-  /* ===================================================
-       商品排序欄
-    =================================================== */
-
-/* #region 商品排序欄 */
-.product-list-toolbar {
-  display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.25rem;
-    padding: 0.75rem 1rem;
-    background-color: #f6fbf6;
-    border-radius: 8px;
-    gap: 0.75rem;
-}
-
-/* 總商品數 */
-.product-count {
-  font-size: 0.875rem;
-    color: #666;
-}
-
-/* 排序select */
-.product-sort-select {
-  padding: 0.35rem 0.75rem;
-    border: 1.5px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    color: #333;
-    background-color: #fff;
-    cursor: pointer;
-}
-
-.product-sort-select:focus {
-  outline: none;
-    border-color: #244d4d;
-}
-
-/* #endregion */
-
-/* Line 客服 */
-.floating-line-btn {
-  will-change: transform; /* 告訴瀏覽器這些元素會有 transform 動畫 */
-}
-
-@media (width >= 992px) and (width <= 1200px) {
-  .products-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .product-card {
-    min-width: 220px;
-  }
-}
-
-@media (width <= 992px) {
-  .mobile-filter-btn {
-    display: flex;
-  }
-
-  .filter-sidebar {
-=======
 .mobileFilterBtn {
   align-items: center;
   background: $product-primary;
@@ -1445,61 +757,10 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   }
 
   .filterSidebar {
->>>>>>> Stashed changes
     display: none;
   }
 }
 
-<<<<<<< Updated upstream
-@media (width >= 768px) and (width <= 991px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .ad-carousel-slide {
-    padding: 1.5rem;
-        height: 220px;
-  }
-
-  .ad-carousel-title {
-    font-size: 1.25rem;
-  }
-
-  .ad-carousel-desc {
-    font-size: 0.85rem;
-        max-width: 100%;
-  }
-
-  .ad-carousel-image {
-    width: 120px;
-        height: 120px;
-  }
-
-  .ad-carousel-btn {
-    width: 36px;
-        height: 36px;
-        font-size: 1rem;
-  }
-
-  .ad-carousel-prev {
-    left: 0.5rem;
-  }
-
-  .ad-carousel-next {
-    right: 0.5rem;
-  }
-
-}
-
-@media (width <= 768px) {
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr); gap: 0.75rem;
-  }
-
-  .product-card {
-    min-width: 170px;
-        max-width: 170px;
-=======
 @media (width <= 767px) {
   .adCarouselSlides {
     height: 220px;
@@ -1527,28 +788,10 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   .adCarouselBtn {
     height: 36px;
     width: 36px;
->>>>>>> Stashed changes
   }
 }
 
 @media (width <= 575px) {
-<<<<<<< Updated upstream
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
-  }
-
-  .product-card {
-    border-radius: 10px;
-    min-width: 150px; max-width: 150px;
-  }
-
-  .product-card-body {
-    padding: 0.6rem;
-  }
-
-  .product-card-price {
-    font-size: 0.85rem;
-=======
   .productsGrid {
     gap: 0.75rem;
     grid-template-columns: 1fr;
@@ -1579,15 +822,10 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   .mobileFilterApply {
     flex: none;
     width: 100%;
->>>>>>> Stashed changes
   }
 }
 
 @media (width <= 480px) {
-<<<<<<< Updated upstream
-  .products-grid {
-    grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
-=======
   .adCarouselSlide {
     align-items: flex-start;
     flex-direction: column;
@@ -1598,50 +836,12 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
     align-self: flex-end;
     height: 96px;
     width: 96px;
->>>>>>> Stashed changes
   }
 }
 
 @media (hover: none) {
-<<<<<<< Updated upstream
-  .product-card:active {
-    transform: scale(0.98); box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
-  }
-}
-
-@supports not (display: grid) {
-  @media (width <= 991px) {
-    .products-grid .product-card {
-      flex: 0 0 calc(33.333% - 1rem);
-    }
-  }
-
-  @media (width <= 767px) {
-    .products-grid .product-card {
-      flex: 0 0 calc(50% - 0.5rem);
-    }
-  }
-
-  .products-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .products-grid .product-card {
-    flex: 0 0 calc(25% - 1rem);
-    max-width: calc(25% - 1rem);
-  }
-}
-
-// 偵測使用者是否在作業系統中開啟了**高對比（High Contrast）**模式。
-@media (prefers-contrast: high) {
-  .product-card {
-    border: 2px solid #333;
-=======
   .productCard:active {
     box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
     transform: scale(0.98);
->>>>>>> Stashed changes
   }
 }

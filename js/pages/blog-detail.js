@@ -121,53 +121,6 @@ function blogDetailBuildInlineProductCard(product) {
   const image = product.image || `https://picsum.photos/seed/${encodeURIComponent(product.id)}/240/240`;
 
   return `
-<<<<<<< Updated upstream
-    <div class="inline-product-card" onclick="window.location='product-detail.html?id=${product.id}'" title="查看商品">
-      <img src="${image}" alt="${product.name || '商品圖片'}">
-      <div class="inline-product-info">
-        <div class="inline-product-label">📦 文章推薦商品</div>
-        <h4>${product.name || '商品名稱'}</h4>
-        ${price ? `<div class="price">${price}</div>` : ''}
-        <div class="inlineProductHint">點擊查看詳情 →</div>
-      </div>
-    </div>
-  `;
-}
-
-/**
- * 渲染相關文章卡片
- * Render a related article card
- * @param {Object} article - 文章資料物件
- * @returns {string} 相關文章卡片 HTML 字串
- */
-function _buildRelatedArticleCard(article) {
-  return `
-    <div class="related-article-card" onclick="window.location='blog-detail.html?id=${article.id}'" title="${article.title}">
-      <img src="${article.image}" alt="${article.title}" loading="lazy">
-      <div class="related-article-card-body">
-        <span class="article-tag">${article.category}</span>
-        <h4>${article.title}</h4>
-      </div>
-    </div>
-  `;
-}
-
-/**
- * 將文章 content 陣列渲染為 HTML
- * Render article content array into HTML
- * content 每個元素可能是：
- *   { type: "text", value: "..." }    → <p>
- *   { type: "heading", value: "..." } → <h2>
- *   { type: "product", productId: "prod-001" } → 相關商品卡片
- *
- * @param {Array} contentItems - 文章內容陣列
- * @param {Array} allProducts - 所有商品資料（用於查找相關商品）
- * @returns {string} 渲染後的 HTML 字串
- */
-function _renderContentItems(contentItems, allProducts) {
-  if (!Array.isArray(contentItems) || contentItems.length === 0) {
-    return '<p class="articleEmptyContent">此文章尚無內容。</p>';
-=======
     <article class="blogInlineProductCard">
       <a class="blogInlineProductLink" href="${blogDetailProductHref(product)}" aria-label="查看商品 ${blogDetailEscape(product.name || '推薦商品')}">
         <img class="blogInlineProductImage" src="${blogDetailEscape(image)}" alt="${blogDetailEscape(product.name || '推薦商品')}" loading="lazy">
@@ -185,7 +138,6 @@ function _renderContentItems(contentItems, allProducts) {
 function blogDetailRenderContentItems(contentItems, allProducts) {
   if (!Array.isArray(contentItems) || !contentItems.length) {
     return '<p class="blogDetailEmptyState">這篇文章目前沒有內容。</p>';
->>>>>>> Stashed changes
   }
 
   return contentItems.map(item => {
@@ -313,12 +265,7 @@ window.initBlogDetailPage = async function () {
 
   const articleId = blogDetailGetArticleId();
   if (!articleId) {
-<<<<<<< Updated upstream
-    document.getElementById('articleContent').innerHTML =
-      '<div class="articleErrorMessage">找不到文章 ID，請回到<a href="blog.html">部落格</a>重新選擇。</div>';
-=======
     blogDetailRenderError('缺少文章 ID，無法載入文章內容。');
->>>>>>> Stashed changes
     return;
   }
 
@@ -329,117 +276,11 @@ window.initBlogDetailPage = async function () {
 
   const article = allArticles.find(item => item.id === articleId);
   if (!article) {
-<<<<<<< Updated upstream
-    document.getElementById('articleContent').innerHTML =
-      `<div class="articleErrorMessage">找不到文章 "${articleId}"，請回到<a href="blog.html">部落格</a>重新選擇。</div>`;
-    return;
-  }
-
-  // ----------------------------------------
-  // 更新頁面 Title
-  // Update page <title>
-  // ----------------------------------------
-  document.title = `${article.title} - Yuruicamp 露營選物`;
-
-  // ----------------------------------------
-  // 填充 Hero 圖片
-  // Fill hero image
-  // ----------------------------------------
-  const heroImg = document.getElementById('articleHeroImg');
-  if (heroImg) {
-    heroImg.src = article.image;
-    heroImg.alt = article.title;
-  }
-
-  // ----------------------------------------
-  // 更新麵包屑最後一項
-  // Update breadcrumb last item
-  // ----------------------------------------
-  const breadcrumbTitle = document.getElementById('breadcrumbTitle');
-  if (breadcrumbTitle) {
-    // 標題太長時截短顯示 Truncate if title is too long
-    breadcrumbTitle.textContent = article.title.length > 20
-      ? article.title.slice(0, 20) + '...'
-      : article.title;
-  }
-
-  // ----------------------------------------
-  // 填充文章 Metadata
-  // Fill article metadata
-  // ----------------------------------------
-  const catEl = document.getElementById('articleCategory');
-  if (catEl) catEl.textContent = article.category;
-
-  const avatarEl = document.getElementById('articleAuthorAvatar');
-  if (avatarEl) {
-    avatarEl.src = article.authorAvatar;
-    avatarEl.alt = article.author;
-  }
-
-  const authorNameEl = document.getElementById('articleAuthorName');
-  if (authorNameEl) authorNameEl.textContent = article.author;
-
-  const dateEl = document.getElementById('articleDate');
-  if (dateEl) dateEl.textContent = _formatDate(article.publishedDate);
-
-  const readTimeEl = document.getElementById('articleReadTime');
-  if (readTimeEl) readTimeEl.textContent = `${article.readTime} 分鐘閱讀`;
-
-  // ----------------------------------------
-  // 填充文章標題
-  // Fill article title (h1)
-  // ----------------------------------------
-  const titleEl = document.getElementById('articleTitle');
-  if (titleEl) titleEl.textContent = article.title;
-
-  // ----------------------------------------
-  // 渲染文章內容
-  // Render article content
-  // ----------------------------------------
-  const contentEl = document.getElementById('articleContent');
-  if (contentEl) {
-    contentEl.innerHTML = _renderContentItems(article.content || [], allProducts);
-  }
-
-  // ----------------------------------------
-  // 渲染標籤
-  // Render tags
-  // ----------------------------------------
-  const tagsEl = document.getElementById('articleTags');
-  if (tagsEl && Array.isArray(article.tags)) {
-    tagsEl.innerHTML = article.tags.map(tag =>
-      `<span class="articleTagBadge"># ${tag}</span>`
-    ).join('');
-  }
-
-  // ----------------------------------------
-  // 渲染相關文章（同類別，排除自身，最多 2 篇）
-  // Render related articles (same category, exclude self, max 2)
-  // ----------------------------------------
-  const relatedGrid = document.getElementById('relatedArticlesGrid');
-  if (relatedGrid) {
-    const related = allArticles
-      .filter(a => a.id !== article.id && a.category === article.category)
-      .slice(0, 2);
-
-    if (related.length === 0) {
-      // 若無同類別文章，取任意其他 2 篇
-      // If no same-category articles, take any 2 others
-      const others = allArticles.filter(a => a.id !== article.id).slice(0, 2);
-      relatedGrid.innerHTML = others.map(_buildRelatedArticleCard).join('');
-    } else {
-      relatedGrid.innerHTML = related.map(_buildRelatedArticleCard).join('');
-    }
-  }
-
-  console.log(`✓ 文章渲染完成 Article rendered: ${article.title}`);
-=======
     blogDetailRenderError(`找不到文章 ${articleId}。`);
     return;
   }
 
   blogDetailRenderArticle(article, allArticles, allProducts);
->>>>>>> Stashed changes
 };
 
 if (document.readyState === 'loading') {

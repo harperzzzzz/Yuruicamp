@@ -197,38 +197,7 @@ function _syncCheckoutAppliedCoupons() {
 function _renderCheckoutItems() {
   const listEl = document.getElementById('checkoutItemsList');
   if (!listEl) return;
-<<<<<<< Updated upstream
-
-  const cart = window.AppState.cart;
-
-  listEl.innerHTML = cart.map(item => `
-    <div class="checkoutSummaryItem">
-      <!-- 商品圖片 Product image -->
-      <div class="checkoutSummaryImageWrap">
-        <img src="${item.image || 'https://picsum.photos/seed/default/60/60'}"
-             alt="${item.name}"
-             class="checkoutSummaryImage">
-        <!-- 數量小標籤 Quantity badge -->
-        <span class="checkoutSummaryQuantity">${item.quantity}</span>
-      </div>
-
-      <!-- 商品名稱和價格 Name and price -->
-      <div class="checkoutSummaryInfo">
-        <div class="checkoutSummaryName" title="${item.name}">
-          ${item.name}
-        </div>
-        ${item.brand ? `<div class="checkoutSummaryBrand">${item.brand}</div>` : ''}
-      </div>
-
-      <!-- 小計 Subtotal -->
-      <div class="checkoutSummarySubtotal">
-        ${window.formatCurrency(item.price * item.quantity)}
-      </div>
-    </div>
-  `).join('');
-=======
   listEl.innerHTML = window.AppState.cart.map(item => _buildCheckoutItem(item)).join('');
->>>>>>> Stashed changes
 }
 
 // Build one checkout summary item.

@@ -92,16 +92,8 @@ function _renderPrice(product) {
 // Render product tags as badges.
 function _renderTags(tags) {
   const tagsEl = document.getElementById('productTags');
-<<<<<<< Updated upstream
-  if (tagsEl && product.tags && product.tags.length > 0) {
-    tagsEl.innerHTML = product.tags
-      .map(tag => `<span class="productTag">#${tag}</span>`)
-      .join('');
-  }
-=======
   if (!tagsEl) return;
   tagsEl.innerHTML = tags.map(tag => `<span class="productTag">#${tag}</span>`).join('');
->>>>>>> Stashed changes
 }
 
 // Convert numeric rating to five star characters.
@@ -134,15 +126,6 @@ function _renderGallery(product) {
   thumbs.addEventListener('click', event => _handleGalleryClick(event, mainImg, product.name));
 }
 
-<<<<<<< Updated upstream
-  thumbsContainer.innerHTML = images.map((imgSrc, index) => `
-    <div class="gallery-thumb ${index === 0 ? 'active' : ''}"
-         data-index="${index}"
-         data-src="${imgSrc}">
-      <img src="${imgSrc}"
-            alt="商品圖片 ${index + 1}"
-           class="galleryThumbImage">
-=======
 // Set the main gallery image source and alt text.
 function _setMainImage(image, src, name) {
   image.src = src;
@@ -219,148 +202,10 @@ function _buildSpecRows(specs) {
     <div class="productSpecRow">
       <div class="productSpecLabel">${_getSpecLabel(key)}</div>
       <div class="productSpecValue">${value}</div>
->>>>>>> Stashed changes
     </div>
   `).join('');
 }
 
-<<<<<<< Updated upstream
-// -----------------------------------------------
-// 渲染顏色規格選擇按鈕
-// Render color spec selection buttons
-// -----------------------------------------------
-function renderColorOptions(product) {
-  const colorOptions = product.colors;
-  const colorGroup = document.getElementById('colorSpecGroup');
-  const colorContainer = document.getElementById('colorOptions');
-  const selectedLabel = document.getElementById('selectedColorLabel');
-
-  // 若商品沒有顏色資料，隱藏整個區塊
-  // If no color data, hide the block
-  if (!colorOptions || colorOptions.length === 0) {
-    if (colorGroup) colorGroup.style.display = 'none';
-    return;
-  }
-
-  // 預設選第一個顏色 Default select first color
-  if (selectedLabel) selectedLabel.textContent = colorOptions[0];
-
-  // 渲染顏色按鈕 Render color buttons
-  if (colorContainer) {
-    colorContainer.innerHTML = colorOptions.map((color, index) => `
-      <button class="spec-btn ${index === 0 ? 'active' : ''}"
-              data-color="${color}"
-              type="button">${color}</button>
-    `).join('');
-
-    // 顏色按鈕點擊事件 Color button click event
-    colorContainer.addEventListener('click', (e) => {
-      const btn = e.target.closest('.spec-btn');
-      if (!btn) return;
-
-      // 移除其他按鈕的 active，給點擊按鈕加上 active
-      // Remove active from others, add to clicked button
-      colorContainer.querySelectorAll('.spec-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      // 更新顯示的顏色標籤 Update color label
-      if (selectedLabel) selectedLabel.textContent = btn.dataset.color;
-    });
-  }
-}
-
-// -----------------------------------------------
-// 渲染尺寸規格選擇按鈕
-// Render size spec selection buttons
-// -----------------------------------------------
-function renderSizeOptions(product) {
-  const sizeOptions = product.sizes;
-  const sizeGroup = document.getElementById('sizeSpecGroup');
-  const sizeContainer = document.getElementById('sizeOptions');
-  const selectedLabel = document.getElementById('selectedSizeLabel');
-
-  // 若商品沒有尺寸資料，隱藏整個區塊
-  // If no size data, hide the block
-  if (!sizeOptions || sizeOptions.length === 0) {
-    if (sizeGroup) sizeGroup.style.display = 'none';
-    return;
-  }
-
-  // 顯示尺寸區塊 Show size block
-  if (sizeGroup) sizeGroup.style.display = 'block';
-
-  // 預設選第一個尺寸 Default select first size
-  if (selectedLabel) selectedLabel.textContent = sizeOptions[0];
-
-  // 渲染尺寸按鈕 Render size buttons
-  if (sizeContainer) {
-    sizeContainer.innerHTML = sizeOptions.map((size, index) => `
-      <button class="spec-btn ${index === 0 ? 'active' : ''}"
-              data-size="${size}"
-              type="button">${size}</button>
-    `).join('');
-
-    // 尺寸按鈕點擊事件 Size button click event
-    sizeContainer.addEventListener('click', (e) => {
-      const btn = e.target.closest('.spec-btn');
-      if (!btn) return;
-
-      sizeContainer.querySelectorAll('.spec-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      if (selectedLabel) selectedLabel.textContent = btn.dataset.size;
-    });
-  }
-}
-
-// -----------------------------------------------
-// 渲染商品規格表（下方 Tab 介紹區）
-// Render product specification table (in description tab)
-// -----------------------------------------------
-function renderSpecTable(product) {
-  const specTable = document.getElementById('productSpecTable');
-  if (!specTable || !product.specifications) return;
-
-  // 將 specifications 物件轉成表格 HTML
-  // Convert specifications object to table HTML
-  const specs = product.specifications;
-  const specLabels = {
-    weight: '重量',
-    capacity: '容量',
-    material: '材質',
-    waterproof: '防水係數',
-    frameType: '背架類型',
-    power: '功率',
-    fuelType: '燃料類型',
-    lumens: '亮度',
-    batteryLife: '電池壽命',
-    windSpeed: '耐風速度',
-    poles: '帳竿材質',
-  };
-
-  const rows = Object.entries(specs).map(([key, value]) => {
-    const label = specLabels[key] || key; // 若找不到對應中文，就直接顯示 key
-    return `
-      <div class="productSpecRow">
-        <div class="productSpecLabel">${label}</div>
-        <div class="productSpecValue">${value}</div>
-      </div>
-    `;
-  }).join('');
-
-  specTable.innerHTML = rows || '<div class="productSpecEmpty">暫無規格資料</div>';
-
-  // 渲染商品特色 Render product features
-  const featuresEl = document.getElementById('productFeatures');
-  if (featuresEl && product.tags && product.tags.length > 0) {
-    featuresEl.innerHTML = `
-      <h4 class="productFeaturesTitle">✨ 商品特色</h4>
-      <ul class="productFeaturesList">
-        ${product.tags.map(tag => `<li>${tag}</li>`).join('')}
-      </ul>
-    `;
-  }
-=======
 // Map known specification keys to labels.
 function _getSpecLabel(key) {
   const labels = {
@@ -377,7 +222,6 @@ function _getSpecLabel(key) {
     poles: '\u71df\u67f1\u6750\u8cea',
   };
   return labels[key] || key;
->>>>>>> Stashed changes
 }
 
 // Render feature tags in the description tab.
