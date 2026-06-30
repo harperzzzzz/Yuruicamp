@@ -1,252 +1,140 @@
-// ========================================
-// 商品詳情頁邏輯 Product Detail Page Logic
-// ========================================
-// 此檔案負責：
-// 1. 從 URL 讀取商品 ID 並呼叫 API 取得資料
-// 2. 渲染圖片 Gallery（主圖 + 縮圖）
-// 3. 渲染品牌、商品名、評分、價格
-// 4. 渲染規格選擇按鈕（顏色/尺寸）
-// 5. 數量 Stepper 控制
-// 6. 免運進度條計算
-// 7. 加入購物車 / 直接購買
-// 8. Tab 頁籤切換（商品介紹 / 評價）
+// Product detail page state and behavior.
+const DEFAULT_PRODUCT_ID = 'prod-001';
+const FREE_SHIPPING_THRESHOLD = 3000;
 
-/**
- * 初始化商品詳情頁
- * Initialize product detail page
- * 這是頁面的主入口函數，會在 DOMContentLoaded 後呼叫
- */
+// Initialize product detail page after shared scripts are available.
 window.initProductDetailPage = async () => {
-  console.log('🛍️ 商品詳情頁初始化...');
-
-  // -----------------------------------------------
-  // Step 1: 從 URL 讀取商品 ID
-  // Read product ID from URL query string
-  // 例：product-detail.html?id=prod-001 → id = 'prod-001'
-  // -----------------------------------------------
-  const params = new URLSearchParams(window.location.search);
-  let productId = params.get('id');
-
-  // 若沒有傳入 id，就預設顯示 prod-001
-  // If no id in URL, fall back to prod-001
-  if (!productId) {
-    productId = 'prod-001';
-  }
-
-  console.log(`📦 正在載入商品 ID: ${productId}`);
-
-  // 顯示載入中狀態 / Show loading state
-  document.getElementById('productLoading').style.display = 'block';
-  document.getElementById('productError').style.display = 'none';
-  document.getElementById('productDetailContent').style.display = 'none';
+  const productId = _getProductIdFromUrl();
+  _setProductPageState('loading');
 
   try {
-    // -----------------------------------------------
-    // Step 2: 呼叫 API 取得商品資料
-    // Call API to get product data
-    // -----------------------------------------------
     const product = await window.API.products.getById(productId);
-    console.log('✅ 商品資料取得成功:', product);
-
-    // 隱藏載入中，顯示商品內容
-    // Hide loading, show content
-    document.getElementById('productLoading').style.display = 'none';
-    document.getElementById('productDetailContent').style.display = 'block';
-
-    // -----------------------------------------------
-    // Step 3: 渲染所有商品資訊
-    // Render all product information
-    // -----------------------------------------------
-    renderProductInfo(product);
-    renderGallery(product);
-    renderColorOptions(product);
-    renderSizeOptions(product);
-    renderSpecTable(product);
-    renderShippingProgress();
-    initQtyStepper();
-    initActionButtons(product);
-    initTabSwitching();
-
-    // 更新麵包屑導覽
-    // Update breadcrumb navigation
-    const breadcrumb = document.getElementById('breadcrumbProductName');
-    if (breadcrumb) {
-      breadcrumb.textContent = product.name;
-    }
-
-    // 更新頁面標題
-    document.title = `${product.name} - Yuruicamp 露營選物`;
-
+    _renderProductPage(product);
+    _setProductPageState('ready');
   } catch (error) {
-    // 發生錯誤：顯示錯誤狀態
-    // Error occurred: show error state
-    console.error('❌ 商品載入失敗:', error);
-    document.getElementById('productLoading').style.display = 'none';
-    document.getElementById('productError').style.display = 'block';
+    console.error('Product detail failed to load', error);
+    _setProductPageState('error');
   }
-
-  // 共用 header/modal/cart 必須等 main.js 注入 header partial 後再綁定事件。
-  // Let main.js initialize shared header/modal/cart after their partial markup exists.
 };
 
-// -----------------------------------------------
-// 渲染商品基本資訊（品牌、名稱、評分、價格）
-// Render basic product info: brand, name, rating, price
-// -----------------------------------------------
-function renderProductInfo(product) {
-  // 品牌名稱 Brand name
-  const brandEl = document.getElementById('productBrand');
-  if (brandEl) brandEl.textContent = product.brand || '';
+// Read product id from query string with a stable fallback.
+function _getProductIdFromUrl() {
+  return new URLSearchParams(window.location.search).get('id') || DEFAULT_PRODUCT_ID;
+}
 
-  // 商品名稱 Product name
-  const nameEl = document.getElementById('productName');
-  if (nameEl) nameEl.textContent = product.name || '';
+// Toggle loading, error, and content states without inline styles.
+function _setProductPageState(state) {
+  const loading = document.getElementById('productLoading');
+  const error = document.getElementById('productError');
+  const content = document.getElementById('productDetailContent');
+  if (loading) loading.hidden = state !== 'loading';
+  if (error) error.hidden = state !== 'error';
+  if (content) content.hidden = state !== 'ready';
+}
 
-  // 評分星星（根據 review-card 的星數平均）
-  // Rating stars (average of review-card star values)
-  const reviewRatings = getReviewCardRatings();
-  const averageRating = reviewRatings.length
-    ? reviewRatings.reduce((sum, value) => sum + value, 0) / reviewRatings.length
-    : null;
-  const rating = averageRating !== null ? averageRating : product.rating || 0;
+// Render all product detail sections and bind interactions.
+function _renderProductPage(product) {
+  _renderProductInfo(product);
+  _renderGallery(product);
+  _renderSpecOptions(product, 'color');
+  _renderSpecOptions(product, 'size');
+  _renderSpecTable(product);
+  _renderShippingProgress();
+  _initQtyStepper();
+  _initActionButtons(product);
+  _initTabSwitching();
+  _updatePageMeta(product);
+}
+
+// Update title and breadcrumb for the loaded product.
+function _updatePageMeta(product) {
+  const breadcrumb = document.getElementById('breadcrumbProductName');
+  if (breadcrumb) breadcrumb.textContent = product.name;
+  document.title = `${product.name} - Yuruicamp`;
+}
+
+// Render brand, name, rating, price, description, and tags.
+function _renderProductInfo(product) {
+  _setText('productBrand', product.brand || '');
+  _setText('productName', product.name || '');
+  _setText('productDescription', product.description || '');
+  _renderRating(product);
+  _renderPrice(product);
+  _renderTags(product.tags || []);
+}
+
+// Safely set textContent by id.
+function _setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
+// Render rating text from static review cards or product data.
+function _renderRating(product) {
+  const reviewRatings = _getReviewCardRatings();
+  const average = reviewRatings.length ? _average(reviewRatings) : product.rating || 0;
   const reviewCount = reviewRatings.length || product.reviews || 0;
+  _setText('productStars', _renderStars(average));
+  _setText('productRatingNum', average.toFixed(1));
+  _setText('productReviewCount', `\uff08${reviewCount} \u5247\u8a55\u50f9\uff09`);
+}
 
-  const starsEl = document.getElementById('productStars');
-  if (starsEl) {
-    starsEl.textContent = renderStars(rating);
-    starsEl.setAttribute('data-rating', rating.toFixed(2));
-    // 設定 CSS 變數以支援進度條背景
-    const ratingPercent = (rating / 5) * 100;
-    starsEl.style.setProperty('--rating-percent', `${ratingPercent}%`);
-  }
-  const ratingNumEl = document.getElementById('productRatingNum');
-  if (ratingNumEl) ratingNumEl.textContent = rating.toFixed(1);
-  const reviewCountEl = document.getElementById('productReviewCount');
-  if (reviewCountEl) reviewCountEl.textContent = `（${reviewCount} 則評價）`;
+// Render current, original, and discount prices.
+function _renderPrice(product) {
+  const hasDiscount = product.originalPrice && product.originalPrice > product.price;
+  _setText('productPrice', window.formatCurrency(product.price));
+  _setText('productOriginalPrice', hasDiscount ? window.formatCurrency(product.originalPrice) : '');
+  _setText('productDiscount', hasDiscount ? `-${Math.round((1 - product.price / product.originalPrice) * 100)}%` : '');
+  document.getElementById('productOriginalPrice')?.toggleAttribute('hidden', !hasDiscount);
+  document.getElementById('productDiscount')?.toggleAttribute('hidden', !hasDiscount);
+}
 
-  // 現價 Current price
-  const priceEl = document.getElementById('productPrice');
-  if (priceEl) priceEl.textContent = window.formatCurrency(product.price);
-
-  // 原價 Original price（若與現價相同則隱藏）
-  const origPriceEl = document.getElementById('productOriginalPrice');
-  if (origPriceEl) {
-    if (product.originalPrice && product.originalPrice > product.price) {
-      origPriceEl.textContent = window.formatCurrency(product.originalPrice);
-      origPriceEl.style.display = '';
-    } else {
-      origPriceEl.style.display = 'none';
-    }
-  }
-
-  // 折扣百分比 Discount percentage
-  const discountEl = document.getElementById('productDiscount');
-  if (discountEl) {
-    if (product.originalPrice && product.originalPrice > product.price) {
-      // 計算折扣：Math.round((1 - 現價/原價) * 100)
-      const discountPct = Math.round((1 - product.price / product.originalPrice) * 100);
-      discountEl.textContent = `-${discountPct}%`;
-      discountEl.style.display = '';
-    } else {
-      discountEl.style.display = 'none';
-    }
-  }
-
-  // 商品描述 Product description
-  const descEl = document.getElementById('productDescription');
-  if (descEl) descEl.textContent = product.description || '';
-
-  // 商品標籤 Tags（用小 badge 顯示）
+// Render product tags as badges.
+function _renderTags(tags) {
   const tagsEl = document.getElementById('productTags');
+<<<<<<< Updated upstream
   if (tagsEl && product.tags && product.tags.length > 0) {
     tagsEl.innerHTML = product.tags
       .map(tag => `<span class="productTag">#${tag}</span>`)
       .join('');
   }
+=======
+  if (!tagsEl) return;
+  tagsEl.innerHTML = tags.map(tag => `<span class="productTag">#${tag}</span>`).join('');
+>>>>>>> Stashed changes
 }
 
-/**
- * 把數字評分轉成星星字串（純★☆格式）
- * Convert numeric rating to star string (★ and ☆ only)
- * @param {number} rating - 評分（0~5）
- * @returns {string} - 星星字串，例：'★★★☆☆'
- */
-function renderStars(rating) {
-  const filledStars = Math.round(rating);    // 四捨五入到整數星星數
-  const emptyStars = 5 - filledStars;        // 空心星星數
-
-  return (
-    '★'.repeat(filledStars) +
-    '☆'.repeat(Math.max(0, emptyStars))
-  );
+// Convert numeric rating to five star characters.
+function _renderStars(rating) {
+  const filled = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+  return `${'\u2605'.repeat(filled)}${'\u2606'.repeat(5 - filled)}`;
 }
 
-/**
- * 從 review-card 讀取星數，並回傳有效的 rating 陣列
- * Read star values from review-card ratings and return an array of valid ratings
- * @returns {number[]} review ratings
- */
-function getReviewCardRatings() {
-  const ratingElements = document.querySelectorAll('.product-tab-panel[data-panel="reviews"] .review-card');
-  const ratings = [];
-
-  ratingElements.forEach(card => {
-    const starText = Array.from(card.querySelectorAll('*'))
-      .map(el => el.textContent || '')
-      .join(' ')
-      .match(/[★☆]+/g);
-
-    if (!starText || starText.length === 0) return;
-
-    const starString = starText.find(fragment => /★/.test(fragment));
-    if (!starString) return;
-
-    const ratingValue = parseStarString(starString);
-    if (ratingValue !== null) ratings.push(ratingValue);
-  });
-
-  return ratings;
+// Calculate an average value from numbers.
+function _average(values) {
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-/**
- * 解析 review-card 的星星文字為數字評分
- * Parse star text into numeric rating
- * @param {string} starString
- * @returns {number|null}
- */
-function parseStarString(starString) {
-  let value = 0;
-
-  for (const char of starString) {
-    if (char === '★') value += 1;
-    if (char === '☆') value += 0;
-  }
-
-  return Number.isFinite(value) ? value : null;
+// Read star values from static review cards.
+function _getReviewCardRatings() {
+  return Array.from(document.querySelectorAll('[data-review-rating]'))
+    .map(element => Number(element.dataset.reviewRating))
+    .filter(value => Number.isFinite(value));
 }
 
-// -----------------------------------------------
-// 渲染圖片 Gallery（主圖 + 縮圖）
-// Render image gallery: main image + thumbnails
-// -----------------------------------------------
-function renderGallery(product) {
-  // 使用 product.images 陣列，若不存在就只用 product.image
-  // Use product.images array, fall back to product.image if not available
-  const images = product.images && product.images.length > 0
-    ? product.images
-    : [product.image].filter(Boolean);
-
-  // 設定主圖 Set main image
+// Render image gallery with semantic thumbnail buttons.
+function _renderGallery(product) {
+  const images = product.images && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
   const mainImg = document.getElementById('galleryMainImg');
-  if (mainImg && images.length > 0) {
-    mainImg.src = images[0];
-    mainImg.alt = product.name;
-  }
+  const thumbs = document.getElementById('galleryThumbs');
+  if (!mainImg || !thumbs || images.length === 0) return;
 
-  // 渲染縮圖 Render thumbnails
-  const thumbsContainer = document.getElementById('galleryThumbs');
-  if (!thumbsContainer) return;
+  _setMainImage(mainImg, images[0], product.name);
+  thumbs.innerHTML = images.map((src, index) => _buildGalleryThumb(src, index, product.name)).join('');
+  thumbs.addEventListener('click', event => _handleGalleryClick(event, mainImg, product.name));
+}
 
+<<<<<<< Updated upstream
   thumbsContainer.innerHTML = images.map((imgSrc, index) => `
     <div class="gallery-thumb ${index === 0 ? 'active' : ''}"
          data-index="${index}"
@@ -254,39 +142,89 @@ function renderGallery(product) {
       <img src="${imgSrc}"
             alt="商品圖片 ${index + 1}"
            class="galleryThumbImage">
-    </div>
-  `).join('');
-
-  // 縮圖點擊事件：切換主圖
-  // Thumbnail click event: switch main image
-  thumbsContainer.addEventListener('click', (e) => {
-    const thumb = e.target.closest('.gallery-thumb');
-    if (!thumb) return;
-
-    const newSrc = thumb.dataset.src;
-
-    // 切換主圖圖片 Switch main image
-    if (mainImg) {
-      // 加入淡入淡出效果 Add fade effect
-      mainImg.style.opacity = '0';
-      mainImg.style.transition = 'opacity 0.2s ease';
-      setTimeout(() => {
-        mainImg.src = newSrc;
-        mainImg.style.opacity = '1';
-      }, 200);
-    }
-
-    // 更新縮圖 active 狀態（高亮邊框）
-    // Update thumbnail active state (highlight border)
-    thumbsContainer.querySelectorAll('.gallery-thumb').forEach(t => {
-      t.classList.remove('active');
-      t.style.borderColor = '#e5e7eb';
-    });
-    thumb.classList.add('active');
-    thumb.style.borderColor = '#244d4d';
-  });
+=======
+// Set the main gallery image source and alt text.
+function _setMainImage(image, src, name) {
+  image.src = src;
+  image.alt = name;
+  image.classList.remove('isSwitching');
 }
 
+// Build one gallery thumbnail button.
+function _buildGalleryThumb(src, index, name) {
+  const active = index === 0 ? ' isSelected' : '';
+  return `
+    <button class="galleryThumb${active}" data-src="${src}" type="button" aria-label="${name} ${index + 1}">
+      <img src="${src}" alt="" class="galleryThumbImage" loading="lazy">
+    </button>
+  `;
+}
+
+// Switch the main gallery image from a thumbnail click.
+function _handleGalleryClick(event, mainImg, productName) {
+  const thumb = event.target.closest('.galleryThumb');
+  if (!thumb) return;
+  document.querySelectorAll('.galleryThumb').forEach(item => item.classList.remove('isSelected'));
+  thumb.classList.add('isSelected');
+  mainImg.classList.add('isSwitching');
+  window.setTimeout(() => _setMainImage(mainImg, thumb.dataset.src, productName), 150);
+}
+
+// Render color or size option groups.
+function _renderSpecOptions(product, type) {
+  const options = type === 'color' ? product.colors : product.sizes;
+  const group = document.getElementById(`${type}SpecGroup`);
+  const container = document.getElementById(`${type}Options`);
+  const label = document.getElementById(`selected${_capitalize(type)}Label`);
+
+  group?.toggleAttribute('hidden', !options || options.length === 0);
+  if (!options || !container || options.length === 0) return;
+  if (label) label.textContent = options[0];
+  container.innerHTML = options.map((value, index) => _buildSpecButton(type, value, index)).join('');
+  container.addEventListener('click', event => _handleSpecClick(event, type, container, label));
+}
+
+// Build one spec option button.
+function _buildSpecButton(type, value, index) {
+  const active = index === 0 ? ' isSelected' : '';
+  return `<button class="specOptionBtn${active}" data-${type}="${value}" type="button">${value}</button>`;
+}
+
+// Update selected spec button and visible label.
+function _handleSpecClick(event, type, container, label) {
+  const button = event.target.closest('.specOptionBtn');
+  if (!button) return;
+  container.querySelectorAll('.specOptionBtn').forEach(item => item.classList.remove('isSelected'));
+  button.classList.add('isSelected');
+  if (label) label.textContent = button.dataset[type];
+}
+
+// Capitalize a simple ASCII word.
+function _capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+// Render product specifications and feature tags.
+function _renderSpecTable(product) {
+  const specTable = document.getElementById('productSpecTable');
+  if (!specTable) return;
+  const specs = product.specifications || {};
+  specTable.innerHTML = Object.keys(specs).length ? _buildSpecRows(specs) : '<div class="productSpecEmpty">\u66ab\u7121\u898f\u683c\u8cc7\u6599</div>';
+  _renderFeatures(product.tags || []);
+}
+
+// Build specification rows from key-value data.
+function _buildSpecRows(specs) {
+  return Object.entries(specs).map(([key, value]) => `
+    <div class="productSpecRow">
+      <div class="productSpecLabel">${_getSpecLabel(key)}</div>
+      <div class="productSpecValue">${value}</div>
+>>>>>>> Stashed changes
+    </div>
+  `).join('');
+}
+
+<<<<<<< Updated upstream
 // -----------------------------------------------
 // 渲染顏色規格選擇按鈕
 // Render color spec selection buttons
@@ -422,216 +360,132 @@ function renderSpecTable(product) {
       </ul>
     `;
   }
+=======
+// Map known specification keys to labels.
+function _getSpecLabel(key) {
+  const labels = {
+    weight: '\u91cd\u91cf',
+    capacity: '\u5bb9\u91cf',
+    material: '\u6750\u8cea',
+    waterproof: '\u9632\u6c34\u4fc2\u6578',
+    frameType: '\u652f\u67b6\u985e\u578b',
+    power: '\u529f\u7387',
+    fuelType: '\u71c3\u6599\u985e\u578b',
+    lumens: '\u4eae\u5ea6',
+    batteryLife: '\u96fb\u6c60\u7e8c\u822a',
+    windSpeed: '\u98a8\u901f',
+    poles: '\u71df\u67f1\u6750\u8cea',
+  };
+  return labels[key] || key;
+>>>>>>> Stashed changes
 }
 
-// -----------------------------------------------
-// 渲染免運進度條
-// Render free shipping progress bar
-// 規則：購物車金額 + 本商品金額 = 目前進度
-// 免運門檻：NT$3000
-// -----------------------------------------------
-function renderShippingProgress() {
-  const threshold = 3000; // 免運門檻 Free shipping threshold
+// Render feature tags in the description tab.
+function _renderFeatures(tags) {
+  const features = document.getElementById('productFeatures');
+  if (!features || tags.length === 0) return;
+  features.innerHTML = `
+    <h4 class="productFeaturesTitle">\u5546\u54c1\u7279\u8272</h4>
+    <ul class="productFeaturesList">${tags.map(tag => `<li>${tag}</li>`).join('')}</ul>
+  `;
+}
 
-  // 計算目前購物車小計
-  // Calculate current cart subtotal
+// Render native progress value for free shipping threshold.
+function _renderShippingProgress() {
   const cartTotal = window.calculateCartTotal ? window.calculateCartTotal() : 0;
-
-  // 進度百分比（最高 100%）
-  // Progress percentage (max 100%)
-  const progressPct = Math.min(Math.round((cartTotal / threshold) * 100), 100);
-  const remaining = Math.max(threshold - cartTotal, 0);
+  const progress = Math.min(Math.round((cartTotal / FREE_SHIPPING_THRESHOLD) * 100), 100);
+  const remaining = Math.max(FREE_SHIPPING_THRESHOLD - cartTotal, 0);
+  const displayProgress = cartTotal === 0 ? 80 : progress;
 
   const progressBar = document.getElementById('shippingProgressBar');
-  const progressText = document.getElementById('shippingProgressText');
-  const progressHint = document.getElementById('shippingProgressHint');
-
-  if (progressBar) {
-    // 若購物車是空的，示意性顯示 80%（用於說明功能）
-    // If cart is empty, show 80% as a demo
-    const displayPct = cartTotal === 0 ? 80 : progressPct;
-    progressBar.style.width = `${displayPct}%`;
-  }
-
-  if (progressText) {
-    progressText.textContent = cartTotal >= threshold ? '已達免運！🎉' : `${progressPct}%`;
-  }
-
-  if (progressHint) {
-    if (cartTotal >= threshold) {
-      progressHint.textContent = '🎊 恭喜！您已享有免運費優惠';
-      progressHint.style.color = '#16a34a';
-    } else if (cartTotal === 0) {
-      progressHint.textContent = `購物滿 NT$${threshold.toLocaleString()} 享免運費，還差 NT$${remaining.toLocaleString()}`;
-    } else {
-      progressHint.textContent = `還差 NT$${remaining.toLocaleString()} 即可享免運費 🚚`;
-    }
-  }
+  if (progressBar) progressBar.value = displayProgress;
+  _setText('shippingProgressText', cartTotal >= FREE_SHIPPING_THRESHOLD ? '\u5df2\u9054\u514d\u904b' : `${progress}%`);
+  _setShippingHint(cartTotal, remaining);
 }
 
-// -----------------------------------------------
-// 初始化數量 Stepper（+ / - 按鈕）
-// Initialize quantity stepper (increase/decrease buttons)
-// -----------------------------------------------
-function initQtyStepper() {
+// Render shipping hint text and status class.
+function _setShippingHint(cartTotal, remaining) {
+  const hint = document.getElementById('shippingProgressHint');
+  if (!hint) return;
+  hint.classList.toggle('isSuccess', cartTotal >= FREE_SHIPPING_THRESHOLD);
+  if (cartTotal >= FREE_SHIPPING_THRESHOLD) hint.textContent = '\u5df2\u9054\u514d\u904b\u9580\u6abb';
+  else if (cartTotal === 0) hint.textContent = `\u8cfc\u7269\u6eff NT$${FREE_SHIPPING_THRESHOLD.toLocaleString()} \u514d\u904b\uff0c\u9084\u5dee NT$${remaining.toLocaleString()}`;
+  else hint.textContent = `\u518d\u8cfc\u8cb7 NT$${remaining.toLocaleString()} \u5373\u53ef\u514d\u904b`;
+}
+
+// Initialize quantity stepper buttons.
+function _initQtyStepper() {
   const qtyInput = document.getElementById('qtyInput');
-  const decreaseBtn = document.getElementById('qtyDecrease');
-  const increaseBtn = document.getElementById('qtyIncrease');
+  document.getElementById('qtyDecrease')?.addEventListener('click', () => _setQuantity(qtyInput, -1));
+  document.getElementById('qtyIncrease')?.addEventListener('click', () => _setQuantity(qtyInput, 1));
+  qtyInput?.addEventListener('change', () => _normalizeQuantity(qtyInput));
+}
 
-  if (!qtyInput || !decreaseBtn || !increaseBtn) return;
+// Increment or decrement the current quantity.
+function _setQuantity(input, step) {
+  if (!input) return;
+  input.value = Math.max(1, Math.min(99, parseInt(input.value, 10) + step));
+}
 
-  // 點擊「-」按鈕：數量減 1，最小值為 1
-  // Click '-' button: decrease quantity, min is 1
-  decreaseBtn.addEventListener('click', () => {
-    const current = parseInt(qtyInput.value, 10);
-    if (current > 1) {
-      qtyInput.value = current - 1;
-    }
+// Keep quantity inside the supported range.
+function _normalizeQuantity(input) {
+  let value = parseInt(input.value, 10);
+  if (Number.isNaN(value) || value < 1) value = 1;
+  input.value = Math.min(value, 99);
+}
+
+// Initialize add-to-cart and buy-now actions.
+function _initActionButtons(product) {
+  document.getElementById('addToCartBtn')?.addEventListener('click', () => {
+    _addSelectedProductToCart(product);
+    _renderShippingProgress();
   });
-
-  // 點擊「+」按鈕：數量加 1，最大值為 99
-  // Click '+' button: increase quantity, max is 99
-  increaseBtn.addEventListener('click', () => {
-    const current = parseInt(qtyInput.value, 10);
-    if (current < 99) {
-      qtyInput.value = current + 1;
-    }
-  });
-
-  // 直接輸入時的驗證（避免輸入 0 或負數）
-  // Direct input validation (prevent 0 or negative)
-  qtyInput.addEventListener('change', () => {
-    let val = parseInt(qtyInput.value, 10);
-    if (isNaN(val) || val < 1) val = 1;
-    if (val > 99) val = 99;
-    qtyInput.value = val;
+  document.getElementById('buyNowBtn')?.addEventListener('click', () => {
+    _addSelectedProductToCart(product);
+    window.setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
   });
 }
 
-// -----------------------------------------------
-// 初始化操作按鈕（加入購物車 / 直接購買）
-// Initialize action buttons (add to cart / buy now)
-// -----------------------------------------------
-function initActionButtons(product) {
-  const addToCartBtn = document.getElementById('addToCartBtn');
-  const buyNowBtn = document.getElementById('buyNowBtn');
-  const qtyInput = document.getElementById('qtyInput');
-
-  /**
-   * 取得目前選擇的規格資訊
-   * Get currently selected spec information
-   */
-  function getSelectedSpecs() {
-    const selectedColor = document.querySelector('#colorOptions .spec-btn.active');
-    const selectedSize = document.querySelector('#sizeOptions .spec-btn.active');
-    return {
-      color: selectedColor ? selectedColor.dataset.color : null,
-      size: selectedSize ? selectedSize.dataset.size : null,
-    };
-  }
-
-  // 加入購物車按鈕
-  // Add to cart button
-  if (addToCartBtn) {
-    addToCartBtn.addEventListener('click', () => {
-      const qty = parseInt(qtyInput?.value || '1', 10);
-      const specs = getSelectedSpecs();
-
-      // 組合商品名（含規格）
-      // Compose product name (with spec)
-      const specSuffix = [specs.color, specs.size].filter(Boolean).join(' / ');
-      const productName = specSuffix ? `${product.name}（${specSuffix}）` : product.name;
-
-      // 加入購物車
-      // Add to cart
-      window.addToCart({
-        id: product.id,
-        name: productName,
-        price: product.price,
-        image: product.image,
-        brand: product.brand,
-      }, qty);
-
-      // 更新免運進度條（因為購物車金額變了）
-      // Update shipping progress (cart total changed)
-      renderShippingProgress();
-    });
-  }
-
-  // 直接購買按鈕 Buy Now button
-  if (buyNowBtn) {
-    buyNowBtn.addEventListener('click', () => {
-      const qty = parseInt(qtyInput?.value || '1', 10);
-      const specs = getSelectedSpecs();
-      const specSuffix = [specs.color, specs.size].filter(Boolean).join(' / ');
-      const productName = specSuffix ? `${product.name}（${specSuffix}）` : product.name;
-
-      // 先加入購物車，然後直接進入結帳頁，避免使用已移除的 cart.html。
-      // Add to cart first, then go straight to checkout because cart.html is removed.
-      window.addToCart({
-        id: product.id,
-        name: productName,
-        price: product.price,
-        image: product.image,
-        brand: product.brand,
-      }, qty);
-
-      // 短暫延遲後跳轉（確保 toast 有時間顯示）
-      // Brief delay before redirect (let toast show)
-      setTimeout(() => {
-        window.location.href = 'checkout.html';
-      }, 500);
-    });
-  }
+// Add the current product and selected specs to cart.
+function _addSelectedProductToCart(product) {
+  const qty = parseInt(document.getElementById('qtyInput')?.value || '1', 10);
+  const specs = _getSelectedSpecs();
+  const specSuffix = [specs.color, specs.size].filter(Boolean).join(' / ');
+  window.addToCart({
+    id: product.id,
+    name: specSuffix ? `${product.name}\uff08${specSuffix}\uff09` : product.name,
+    price: product.price,
+    image: product.image,
+    brand: product.brand,
+  }, qty);
 }
 
-// -----------------------------------------------
-// 初始化 Tab 頁籤切換邏輯
-// Initialize tab switching logic
-// -----------------------------------------------
-function initTabSwitching() {
-  const tabBtns = document.querySelectorAll('.product-tab-btn');
-  const tabPanels = document.querySelectorAll('.product-tab-panel');
+// Get currently selected color and size.
+function _getSelectedSpecs() {
+  return {
+    color: document.querySelector('#colorOptions .specOptionBtn.isSelected')?.dataset.color || null,
+    size: document.querySelector('#sizeOptions .specOptionBtn.isSelected')?.dataset.size || null,
+  };
+}
 
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const targetTab = btn.dataset.tab;
-
-      // 更新按鈕樣式：移除所有 active，給點擊按鈕加上 active
-      // Update button styles: remove all active, add to clicked
-      tabBtns.forEach(b => {
-        b.classList.remove('active');
-        b.style.color = '#6b7280';
-        b.style.borderBottomColor = 'transparent';
-      });
-      btn.classList.add('active');
-      btn.style.color = '#244d4d';
-      btn.style.borderBottomColor = '#244d4d';
-
-      // 切換面板顯示 Switch panel visibility
-      tabPanels.forEach(panel => {
-        if (panel.dataset.panel === targetTab) {
-          panel.classList.add('active');
-          panel.style.display = 'block';
-        } else {
-          panel.classList.remove('active');
-          panel.style.display = 'none';
-        }
-      });
-    });
+// Initialize product description and review tabs.
+function _initTabSwitching() {
+  const tabBtns = document.querySelectorAll('.productTabBtn');
+  const tabPanels = document.querySelectorAll('.productTabPanel');
+  tabBtns.forEach(button => {
+    button.addEventListener('click', () => _activateTab(button, tabBtns, tabPanels));
   });
 }
 
-// ========================================
-// 頁面自動初始化
-// Auto-initialize when DOM is ready
-// ========================================
+// Activate one tab and its matching panel.
+function _activateTab(activeButton, tabBtns, tabPanels) {
+  const targetTab = activeButton.dataset.tab;
+  tabBtns.forEach(button => button.classList.toggle('isSelected', button === activeButton));
+  tabPanels.forEach(panel => panel.classList.toggle('isSelected', panel.dataset.panel === targetTab));
+}
+
 if (document.readyState === 'loading') {
-  // DOM 仍在載入，等待 DOMContentLoaded 事件
   document.addEventListener('DOMContentLoaded', window.initProductDetailPage);
 } else {
-  // DOM 已載入完成，直接執行
   window.initProductDetailPage();
 }
-
-console.log('✓ product-detail.js 已載入');

@@ -19,7 +19,6 @@
 
   <div id="booking-header"></div>
 
-  <!-- 重點：booking 會員中心保留 booking 外殼，顯示內容改與前台共用 components/member-center.partial。 -->
   <div id="memberCenterMount" data-component-mount="member-center"></div>
 
   <div id="booking-footer"></div>
@@ -27,7 +26,6 @@
   <script src="../js/layout.js"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script>
-    // 重點：booking 會員中心使用 booking 登入來源 yuruiUser，資料仍讀根目錄 data。
     window.MemberCenterConfig = {
       dataBasePath: '../../data',
       authStorageKey: 'yuruiUser',
@@ -35,7 +33,6 @@
       homeHref: './camp-search.html'
     };
 
-    // 重點：保留既有 jQuery partial loader，但補上 fetch fallback，避免 CDN 失敗時會員中心無法顯示。
     function loadHtml(targetSelector, path, callback) {
       const target = document.querySelector(targetSelector);
       if (!target) return;
@@ -62,17 +59,11 @@
         });
     }
 
-    function loadScript(path) {
-      const script = document.createElement('script');
-      script.src = path;
-      document.head.appendChild(script);
-    }
-
     function initBookingMemberCenterPage() {
       window.loadBookingSharedLayout && window.loadBookingSharedLayout();
       loadHtml('#memberCenterMount', '../../components/member-center.partial', function (ok) {
         if (!ok) {
-          document.getElementById('memberCenterMount').innerHTML = '<div class="mc-login-guard" style="display:flex;"><div class="mc-login-guard__box"><h2 class="mc-login-guard__title">會員中心載入失敗</h2><p class="mc-login-guard__desc">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
+          document.getElementById('memberCenterMount').innerHTML = '<div class="memberLoginGuard isOpen" role="status" aria-live="polite"><div class="memberLoginGuardCard"><h2 class="memberLoginGuardTitle">會員中心載入失敗</h2><p class="memberLoginGuardText">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
           return;
         }
         window.initMemberCenterComponent && window.initMemberCenterComponent();

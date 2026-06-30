@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
@@ -6,7 +6,6 @@
     <meta name="description" content="Yuruicamp 露營生活誌 - 文章閱讀頁" />
     <meta name="theme-color" content="#244d4d" />
     <title>文章閱讀 - Yuruicamp 露營選物</title>
-    <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="dns-prefetch" href="https://picsum.photos" />
     <link rel="stylesheet" href="../css/main.css" />
@@ -22,6 +21,7 @@
   <body>
     <div id="header"></div>
 
+<<<<<<< Updated upstream
     <!-- ===================================================
        主要內容 - 文章閱讀頁
        =================================================== -->
@@ -37,27 +37,52 @@
             <a href="blog.html">部落格</a>
             <span class="breadcrumb-sep">›</span>
             <span id="breadcrumbTitle">載入中...</span>
+=======
+    <main class="blogDetailPage">
+      <div class="blogDetailLayout">
+        <article class="blogDetail" aria-labelledby="articleTitle">
+          <nav class="blogDetailBreadcrumb" id="breadcrumb" aria-label="麵包屑">
+            <ol class="blogDetailBreadcrumbList">
+              <li class="blogDetailBreadcrumbItem">
+                <a class="blogDetailBreadcrumbLink" href="home.html">首頁</a>
+              </li>
+              <li class="blogDetailBreadcrumbItem" aria-hidden="true">
+                <span class="blogDetailBreadcrumbSeparator">/</span>
+              </li>
+              <li class="blogDetailBreadcrumbItem">
+                <a class="blogDetailBreadcrumbLink" href="blog.html">露營生活誌</a>
+              </li>
+              <li class="blogDetailBreadcrumbItem" aria-hidden="true">
+                <span class="blogDetailBreadcrumbSeparator">/</span>
+              </li>
+              <li class="blogDetailBreadcrumbItem">
+                <span class="blogDetailBreadcrumbCurrent" id="breadcrumbTitle" aria-current="page">載入中...</span>
+              </li>
+            </ol>
+>>>>>>> Stashed changes
           </nav>
 
-          <!-- 文章 Hero 圖片 Article hero image -->
-          <img
-            id="articleHeroImg"
-            class="article-hero-img"
-            src="https://picsum.photos/seed/default/1200/514"
-            alt="文章封面圖"
-            loading="eager"
-          />
+          <figure class="blogDetailHero">
+            <img
+              class="blogDetailHeroImage"
+              id="articleHeroImg"
+              src="https://picsum.photos/seed/yurui-blog-detail-default/1200/640"
+              alt="文章封面圖"
+              loading="eager"
+            />
+          </figure>
 
-          <!-- 文章 Metadata 區塊 Article metadata block -->
-          <div class="article-detail-meta">
-            <span class="article-detail-badge" id="articleCategory">載入中</span>
-            <div class="article-detail-author">
+          <div class="blogDetailMeta">
+            <span class="blogDetailCategory" id="articleCategory">載入中</span>
+            <span class="blogDetailAuthor">
               <img
+                class="blogDetailAuthorAvatar"
                 id="articleAuthorAvatar"
-                src="https://picsum.photos/seed/default/40/40"
+                src="https://picsum.photos/seed/yurui-author-default/80/80"
                 alt="作者頭像"
                 loading="lazy"
               />
+<<<<<<< Updated upstream
               <span class="authorName" id="articleAuthorName">作者</span>
             </div>
             <span class="articleMeta" id="articleDate">日期</span>
@@ -88,16 +113,39 @@
             <h3 class="relatedText">📖 相關文章</h3>
             <div class="related-articles-grid" id="relatedArticlesGrid">
               <!-- JS 渲染相關文章 -->
+=======
+              <span class="blogDetailAuthorName" id="articleAuthorName">作者</span>
+            </span>
+            <time class="blogDetailPublishedDate" id="articleDate" datetime="">日期</time>
+            <span class="blogDetailReadTime" id="articleReadTime">閱讀時間</span>
+          </div>
+
+          <h1 class="blogDetailTitle" id="articleTitle">載入中...</h1>
+
+          <section class="blogDetailBody isLoading" id="articleContent" aria-live="polite">
+            <div class="blogDetailLoadingState" role="status">
+              <span class="blogDetailLoadingIcon" aria-hidden="true"></span>
+              <span>正在載入文章內容...</span>
+>>>>>>> Stashed changes
             </div>
           </section>
-        </div>
+
+          <ul class="blogDetailTags" id="articleTags" aria-label="文章標籤"></ul>
+
+          <section class="blogRelatedSection" id="relatedArticlesSection" aria-labelledby="relatedArticlesTitle">
+            <h2 class="blogRelatedTitle" id="relatedArticlesTitle">相關文章</h2>
+            <div class="blogRelatedGrid" id="relatedArticlesGrid">
+              <div class="blogDetailLoadingState" role="status">
+                <span class="blogDetailLoadingIcon" aria-hidden="true"></span>
+                <span>正在載入相關文章...</span>
+              </div>
+            </div>
+          </section>
+        </article>
       </div>
     </main>
 
     <div id="footer"></div>
-    <!-- ===================================================
-       Script 載入（同 blog.html，但換成 blog-detail.js）
-       =================================================== -->
     <script src="../js/config.js" defer></script>
     <script src="../js/storage.js" defer></script>
     <script src="../js/state.js" defer></script>

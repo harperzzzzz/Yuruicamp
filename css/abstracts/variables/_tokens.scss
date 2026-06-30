@@ -1,0 +1,55 @@
+// AI style tokens mirrored from docs/ai-style-tokens.css.
+// Keep these custom properties in the compiled CSS so page SCSS can rely on
+// the documented --yui-* contract at runtime.
+:root {
+  --yui-primary: #244d4d;
+  --yui-primary-dark: #1a3838;
+  --yui-primary-hover: #316868;
+  --yui-primary-light: #4a7777;
+  --yui-primary-soft: #e8f4f4;
+  --yui-secondary: #799;
+  --yui-secondary-light: #a8bcbc;
+  --yui-bg: #f6fbf6;
+  --yui-surface: #fff;
+  --yui-surface-muted: #f2f2f2;
+  --yui-booking-bg: #f2f0eb;
+  --yui-text: #333;
+  --yui-text-muted: #666;
+  --yui-text-subtle: #999;
+  --yui-border: #e0e0e0;
+  --yui-border-strong: #ccc;
+  --yui-success: #4caf50;
+  --yui-warning: #ff9800;
+  --yui-danger: #d32f2f;
+  --yui-info: #2196f3;
+  --yui-gold: #d4a017;
+  --yui-orange: #e07b39;
+  --yui-font-sans: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
+  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New", monospace;
+  --yui-space-1: 4px;
+  --yui-space-2: 8px;
+  --yui-space-3: 12px;
+  --yui-space-4: 16px;
+  --yui-space-5: 20px;
+  --yui-space-6: 24px;
+  --yui-space-8: 32px;
+  --yui-space-10: 40px;
+  --yui-space-12: 48px;
+  --yui-space-16: 64px;
+  --yui-radius-sm: 4px;
+  --yui-radius-md: 6px;
+  --yui-radius-lg: 8px;
+  --yui-radius-xl: 12px;
+  --yui-radius-pill: 9999px;
+  --yui-shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+  --yui-shadow-md: 0 4px 12px rgb(36 77 77 / 10%);
+  --yui-shadow-lg: 0 12px 28px rgb(36 77 77 / 14%);
+  --yui-transition-fast: 150ms ease;
+  --yui-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yui-z-dropdown: 1000;
+  --yui-z-sticky: 1020;
+  --yui-z-fixed: 1030;
+  --yui-z-modal-backdrop: 1040;
+  --yui-z-modal: 1050;
+  --yui-z-tooltip: 1070;
+}

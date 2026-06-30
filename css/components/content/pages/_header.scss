@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /* 頁首佈局 */
 .navbar .container {
   display: flex;
@@ -935,6 +936,768 @@
 @media (width <= 575px) {
   .cart-badge {
     font-size: 0.6rem; width: 16px; height: 16px;
+=======
+﻿$header-surface: var(--yui-surface);
+$header-text: var(--yui-text);
+$header-muted: var(--yui-text-muted);
+$header-primary: var(--yui-primary);
+$header-primary-hover: var(--yui-primary-hover);
+$header-soft: var(--yui-primary-soft);
+$header-border: var(--yui-border);
+$header-shadow: var(--yui-shadow-md);
+$header-transition: var(--yui-transition-fast);
+
+.isHeaderLayerOpen,
+.isModalOpen {
+  overflow: hidden;
+}
+
+.siteHeader,
+.bookingHeader {
+  position: sticky;
+  top: 0;
+  z-index: var(--yui-z-sticky);
+  background: $header-surface;
+  border-bottom: 1px solid $header-border;
+  color: $header-text;
+}
+
+.siteNavbar,
+.bookingNavbar {
+  min-height: 72px;
+}
+
+.siteNavbarInner,
+.bookingNavbarInner {
+  width: min(1120px, calc(100vw - 32px));
+  min-height: 72px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yui-space-4);
+}
+
+.siteMenuButton,
+.siteSearchToggle,
+.siteSearchSubmit,
+.siteCartButton,
+.siteOffcanvasClose,
+.siteCartDrawerClose,
+.siteUserTrigger,
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  background: $header-surface;
+  color: $header-primary;
+  cursor: pointer;
+  transition:
+    background-color $header-transition,
+    border-color $header-transition,
+    color $header-transition,
+    box-shadow $header-transition;
+}
+
+.siteMenuButton:hover,
+.siteSearchToggle:hover,
+.siteSearchSubmit:hover,
+.siteCartButton:hover,
+.siteOffcanvasClose:hover,
+.siteCartDrawerClose:hover,
+.siteUserTrigger:hover,
+.bookingMenuButton:hover,
+.bookingCartButton:hover,
+.bookingOffcanvasClose:hover,
+.bookingSlidePanelClose:hover {
+  background: $header-soft;
+  border-color: var(--yui-primary-light);
+}
+
+.siteMenuButton:focus-visible,
+.siteSearchToggle:focus-visible,
+.siteSearchSubmit:focus-visible,
+.siteCartButton:focus-visible,
+.siteOffcanvasClose:focus-visible,
+.siteCartDrawerClose:focus-visible,
+.siteUserTrigger:focus-visible,
+.bookingMenuButton:focus-visible,
+.bookingCartButton:focus-visible,
+.bookingOffcanvasClose:focus-visible,
+.bookingSlidePanelClose:focus-visible,
+.siteBookingLink:focus-visible,
+.siteLoginButton:focus-visible,
+.siteUserDropdownItem:focus-visible,
+.bookingSwitchLink:focus-visible,
+.bookingPanelCheckoutLink:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 2px;
+}
+
+.siteBrandLink,
+.bookingBrandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yui-space-2);
+  color: $header-primary;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.siteBrandImage,
+.bookingBrandImage {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.siteHeaderActions,
+.bookingHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: var(--yui-space-3);
+}
+
+.siteSearch {
+  position: relative;
+}
+
+.siteSearchForm {
+  position: absolute;
+  top: calc(100% + var(--yui-space-2));
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  display: flex;
+  gap: var(--yui-space-2);
+  padding: var(--yui-space-2);
+  background: $header-surface;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  box-shadow: $header-shadow;
+}
+
+.siteSearchInput {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-md);
+  padding: 0 var(--yui-space-3);
+  color: $header-text;
+}
+
+.siteSearchDropdown {
+  position: absolute;
+  top: calc(100% + 64px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  padding: var(--yui-space-3);
+  background: $header-surface;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  box-shadow: $header-shadow;
+}
+
+.siteSearchDropdownTitle,
+.siteSearchEmptyState {
+  color: $header-muted;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.siteSearchDropdownList {
+  display: grid;
+  gap: var(--yui-space-2);
+  margin: var(--yui-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.siteSearchSuggestion {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-md);
+  background: $header-surface;
+  color: $header-text;
+  text-align: left;
+  padding: 0 var(--yui-space-3);
+  cursor: pointer;
+}
+
+.siteSearchSuggestion:hover {
+  background: $header-soft;
+}
+
+.siteBookingLink,
+.siteLoginButton,
+.bookingSwitchLink,
+.bookingLoginButton,
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink,
+.surveyActionButton,
+.sharedConfirmSubmit,
+.sharedConfirmCancel,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-lg);
+  padding: 0 var(--yui-space-4);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color $header-transition,
+    border-color $header-transition,
+    color $header-transition;
+}
+
+.siteBookingLink,
+.siteLoginButton,
+.bookingSwitchLink,
+.bookingLoginButton,
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink,
+.surveyActionButton,
+.sharedConfirmSubmit {
+  background: $header-primary;
+  color: #fff;
+}
+
+.siteBookingLink:hover,
+.siteLoginButton:hover,
+.bookingSwitchLink:hover,
+.bookingLoginButton:hover,
+.siteCartCheckoutLink:hover,
+.bookingPanelCheckoutLink:hover,
+.surveyActionButton:hover,
+.sharedConfirmSubmit:hover {
+  background: $header-primary-hover;
+  color: #fff;
+}
+
+.sharedConfirmCancel,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  background: $header-surface;
+  border-color: $header-border;
+  color: $header-primary;
+}
+
+.siteCartButton,
+.bookingCartButton {
+  position: relative;
+}
+
+.siteCartBadge,
+.bookingCartBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--yui-radius-pill);
+  background: var(--yui-danger);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.siteUserMenu {
+  position: relative;
+}
+
+.siteUserTrigger {
+  gap: var(--yui-space-2);
+  padding-inline: var(--yui-space-2);
+}
+
+.siteUserAvatar {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--yui-radius-pill);
+  background: $header-soft;
+  color: $header-primary;
+  font-weight: 800;
+}
+
+.siteUserDropdown {
+  position: absolute;
+  top: calc(100% + var(--yui-space-2));
+  right: 0;
+  min-width: 168px;
+  display: grid;
+  gap: var(--yui-space-1);
+  padding: var(--yui-space-2);
+  background: $header-surface;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  box-shadow: $header-shadow;
+}
+
+.siteUserDropdownItem {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: var(--yui-space-2);
+  border: 0;
+  border-radius: var(--yui-radius-md);
+  background: transparent;
+  color: $header-text;
+  text-decoration: none;
+  padding: 0 var(--yui-space-3);
+  cursor: pointer;
+}
+
+.siteUserDropdownItem:hover {
+  background: $header-soft;
+}
+
+.siteOffcanvas,
+.siteCartDrawer,
+.bookingOffcanvas,
+.bookingSlidePanel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: var(--yui-z-modal);
+  width: min(420px, 100vw);
+  background: $header-surface;
+  box-shadow: var(--yui-shadow-lg);
+  transition: transform var(--yui-transition-base);
+}
+
+.siteOffcanvas,
+.bookingOffcanvas {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.siteCartDrawer,
+.bookingSlidePanel {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.siteOffcanvas.isOpen,
+.siteCartDrawer.isOpen,
+.bookingOffcanvas.isOpen,
+.bookingSlidePanel.isOpen {
+  transform: translateX(0);
+}
+
+.siteOffcanvasBackdrop,
+.siteCartDrawerBackdrop,
+.bookingOffcanvasBackdrop,
+.bookingPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yui-z-modal-backdrop);
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  transition: opacity var(--yui-transition-base);
+}
+
+.siteOffcanvasBackdrop.isVisible,
+.siteCartDrawerBackdrop.isVisible,
+.bookingOffcanvasBackdrop.isVisible,
+.bookingPanelBackdrop.isVisible {
+  opacity: 1;
+}
+
+.siteOffcanvasHeader,
+.siteCartDrawerHeader,
+.bookingOffcanvasHeader,
+.bookingSlidePanelHeader {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yui-space-3);
+  padding: var(--yui-space-4);
+  border-bottom: 1px solid $header-border;
+}
+
+.siteOffcanvasTitle,
+.siteCartDrawerTitle,
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle {
+  margin: 0;
+  color: $header-primary;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.siteOffcanvasBody,
+.siteCartDrawerBody,
+.bookingOffcanvasBody,
+.bookingSlidePanelBody {
+  height: calc(100% - 72px);
+  overflow: auto;
+  padding: var(--yui-space-4);
+}
+
+.siteOffcanvasNavigation ul,
+.bookingOffcanvasLinks {
+  display: grid;
+  gap: var(--yui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.siteOffcanvasNavigation a,
+.bookingOffcanvasLinks a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--yui-radius-md);
+  color: $header-text;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0 var(--yui-space-3);
+}
+
+.siteOffcanvasNavigation a:hover,
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: $header-soft;
+  color: $header-primary;
+}
+
+.siteCartDrawer {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.siteCartDrawerBody {
+  height: auto;
+}
+
+.siteCartDrawerFooter,
+.bookingSlidePanelFooter {
+  padding: var(--yui-space-4);
+  border-top: 1px solid $header-border;
+  background: $header-surface;
+}
+
+.siteCartSummary,
+.siteCartSummaryTotal,
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--yui-space-4);
+}
+
+.siteCartSummary {
+  color: $header-muted;
+  margin-bottom: var(--yui-space-2);
+}
+
+.siteCartSummaryTotal,
+.bookingCartPanelTotal {
+  color: $header-primary;
+  font-size: 18px;
+  font-weight: 800;
+  margin-block: var(--yui-space-3);
+}
+
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink {
+  width: 100%;
+}
+
+.siteCartEmptyState,
+.bookingCartPanelEmpty {
+  display: grid;
+  justify-items: center;
+  gap: var(--yui-space-3);
+  padding: var(--yui-space-10) var(--yui-space-4);
+  text-align: center;
+}
+
+.siteCartEmptyIcon {
+  color: $header-primary;
+  font-size: 40px;
+}
+
+.siteCartEmptyTitle {
+  margin: 0;
+  color: $header-primary;
+  font-size: 20px;
+}
+
+.siteCartEmptyText {
+  margin: 0;
+  color: $header-muted;
+}
+
+.siteCartItem {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: var(--yui-space-3);
+  padding-block: var(--yui-space-4);
+  border-bottom: 1px solid $header-border;
+}
+
+.siteCartItemImage {
+  width: 88px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--yui-radius-lg);
+}
+
+.siteCartItemContent {
+  min-width: 0;
+  display: grid;
+  gap: var(--yui-space-1);
+}
+
+.siteCartItemBrand,
+.siteCartItemPrice {
+  color: $header-muted;
+  font-size: 13px;
+}
+
+.siteCartItemName {
+  color: $header-text;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.siteCartItemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yui-space-2);
+}
+
+.siteCartQuantityDecrease,
+.siteCartQuantityIncrease,
+.siteCartRemoveButton {
+  min-width: 36px;
+  min-height: 36px;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-md);
+  background: $header-surface;
+  color: $header-primary;
+  cursor: pointer;
+}
+
+.siteCartItemQuantity,
+.siteCartItemSubtotal {
+  font-weight: 800;
+}
+
+.bookingHeaderShell {
+  background: var(--yui-booking-bg);
+}
+
+.bookingHeader {
+  background: var(--yui-booking-bg);
+}
+
+.bookingBrandSub {
+  color: $header-muted;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bookingSlidePanelBody {
+  height: auto;
+}
+
+.bookingCartPanelSection {
+  display: grid;
+  gap: var(--yui-space-2);
+  padding-block: var(--yui-space-3);
+  border-bottom: 1px solid $header-border;
+}
+
+.bookingCartPanelLabel {
+  margin: 0;
+  color: $header-primary;
+  font-size: 16px;
+}
+
+.bookingCartPanelMeta {
+  margin: 0;
+  color: $header-muted;
+  font-size: 14px;
+}
+
+.sharedAuthContent {
+  width: min(440px, calc(100vw - 32px));
+}
+
+.sharedSurveyContent {
+  width: min(640px, calc(100vw - 32px));
+}
+
+.sharedAuthBody {
+  display: grid;
+  gap: var(--yui-space-4);
+}
+
+.authProviderButton {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yui-space-2);
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  background: $header-surface;
+  color: $header-text;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.authProviderButton:hover {
+  background: $header-soft;
+}
+
+.oauthDesc,
+.oauthPrivacy,
+.surveyHint,
+.modalConfirmMessage {
+  color: $header-muted;
+  line-height: 1.7;
+}
+
+.surveyStep {
+  display: none;
+}
+
+.surveyStep.isOpen {
+  display: grid;
+  gap: var(--yui-space-4);
+}
+
+.surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-2);
+}
+
+.surveyTag {
+  min-height: 40px;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-pill);
+  background: $header-surface;
+  color: $header-text;
+  padding: 0 var(--yui-space-4);
+  cursor: pointer;
+}
+
+.surveyTag.isSelected {
+  background: $header-primary;
+  border-color: $header-primary;
+  color: #fff;
+}
+
+.stepperHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--yui-space-2);
+}
+
+.stepperDot {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-pill);
+  color: $header-muted;
+  font-weight: 800;
+}
+
+.stepperDot.isSelected {
+  background: $header-primary;
+  border-color: $header-primary;
+  color: #fff;
+}
+
+.stepperLine {
+  width: 48px;
+  height: 1px;
+  background: $header-border;
+}
+
+.sharedConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yui-space-3);
+  padding: 0 var(--yui-space-4) var(--yui-space-4);
+}
+
+@media (width <= 768px) {
+  .siteNavbarInner,
+  .bookingNavbarInner {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .siteBrandText,
+  .bookingBrandSub,
+  .siteBookingLink,
+  .bookingSwitchLink {
+    display: none;
+  }
+
+  .siteHeaderActions,
+  .bookingHeaderActions {
+    gap: var(--yui-space-2);
+  }
+}
+
+@media (width <= 480px) {
+  .siteNavbarInner,
+  .bookingNavbarInner {
+    gap: var(--yui-space-2);
+  }
+
+  .siteCartItem {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .siteCartItemImage {
+    width: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siteOffcanvas,
+  .siteCartDrawer,
+  .bookingOffcanvas,
+  .bookingSlidePanel,
+  .siteOffcanvasBackdrop,
+  .siteCartDrawerBackdrop,
+  .bookingOffcanvasBackdrop,
+  .bookingPanelBackdrop {
+    transition-duration: 0.01ms;
+>>>>>>> Stashed changes
   }
 }
 

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // container 為共用class ，需額外用class 調整位置
 .containerPosition {
   padding-top:2rem;
@@ -382,29 +383,397 @@
 .checkoutSummaryItem {
   align-items: flex-start;
   border-bottom: 1px solid #f0f0f0;
+=======
+$checkout-text: var(--yui-text, #333);
+$checkout-muted: var(--yui-text-muted, #666);
+$checkout-subtle: var(--yui-text-subtle, #999);
+$checkout-primary: var(--yui-primary, #244d4d);
+$checkout-primary-hover: var(--yui-primary-hover, #316868);
+$checkout-primary-soft: var(--yui-primary-soft, #e8f4f4);
+$checkout-bg: var(--yui-bg, #f6fbf6);
+$checkout-surface: var(--yui-surface, #fff);
+$checkout-surface-muted: var(--yui-surface-muted, #f2f2f2);
+$checkout-border: var(--yui-border, #e0e0e0);
+$checkout-border-strong: var(--yui-border-strong, #ccc);
+$checkout-success: var(--yui-success, #4caf50);
+$checkout-danger: var(--yui-danger, #d32f2f);
+$checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
+
+.checkoutPage {
+  padding-bottom: 4rem;
+  padding-top: 2rem;
+}
+
+.checkoutHeader {
+  margin-bottom: 2rem;
+}
+
+.checkoutTitle {
+  color: $checkout-text;
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
+}
+
+.checkoutSteps {
+  color: $checkout-muted;
+  font-size: 0.875rem;
+}
+
+.checkoutStepsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.checkoutStepItem {
+  align-items: center;
+  display: inline-flex;
+  font-weight: 600;
+}
+
+.checkoutStepItem + .checkoutStepItem::before {
+  color: $checkout-subtle;
+  content: '›';
+  margin-right: 0.5rem;
+}
+
+.checkoutStepItem[aria-current='step'] {
+  color: $checkout-primary;
+}
+
+.checkoutLayout {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  padding: 0 0 4rem;
+}
+
+.checkoutFormColumn,
+.checkoutSummaryColumn {
+  min-width: 0;
+}
+
+.checkoutPanel {
+  background: $checkout-surface;
+  border: 1px solid $checkout-border;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.checkoutPanelTrigger {
+  align-items: center;
+  background: $checkout-surface;
+  border: 0;
+  color: $checkout-text;
+  cursor: pointer;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 1.125rem 1.25rem;
+  text-align: left;
+  transition: background 200ms ease;
+  width: 100%;
+}
+
+.checkoutPanelTrigger:hover,
+.checkoutPanelTrigger:focus-visible {
+  background: $checkout-bg;
+  outline: 3px solid rgb(36 77 77 / 16%);
+  outline-offset: -3px;
+}
+
+.checkoutPanelHeading {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.checkoutStepNumber {
+  align-items: center;
+  background: $checkout-primary;
+  border-radius: 50%;
+  color: $checkout-surface;
+  display: inline-flex;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.checkoutPanelTitle,
+.checkoutSummaryHeader {
+  color: $checkout-text;
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.checkoutPanelArrow {
+  color: $checkout-muted;
+  font-size: 1.1rem;
+  transition: transform 200ms ease;
+}
+
+.checkoutPanel.isOpen .checkoutPanelArrow {
+  transform: rotate(180deg);
+}
+
+.checkoutPanelBody {
+  border-top: 1px solid $checkout-border;
+  padding: 1.5rem;
+}
+
+.checkoutPanelBody[hidden],
+.checkoutAddressField[hidden],
+.creditCardBox[hidden],
+.checkoutDiscountRow[hidden],
+.couponAppliedList[hidden],
+.couponMessage[hidden] {
+  display: none;
+}
+
+.checkoutFieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.checkoutLegend {
+  color: $checkout-muted;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.checkoutFormGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.checkoutField {
+  margin-bottom: 1rem;
+}
+
+.checkoutLabel,
+.couponLabel {
+  color: $checkout-text;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.requiredMark {
+  color: $checkout-danger;
+}
+
+.checkoutInput,
+.checkoutTextarea,
+.couponInput {
+  background: $checkout-surface;
+  border: 1px solid $checkout-border-strong;
+  border-radius: 6px;
+  box-sizing: border-box;
+  color: $checkout-text;
+  font: inherit;
+  min-height: 44px;
+  outline: none;
+  padding: 0.65rem 0.875rem;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  width: 100%;
+}
+
+.checkoutTextarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.checkoutInput:focus,
+.checkoutTextarea:focus,
+.couponInput:focus {
+  border-color: $checkout-primary;
+  box-shadow: 0 0 0 3px rgb(36 77 77 / 12%);
+}
+
+.checkoutSecondaryAction {
+  margin-top: 0.25rem;
+}
+
+.checkoutChoice {
+  align-items: flex-start;
+  background: $checkout-surface;
+  border: 2px solid $checkout-border;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+  padding: 1rem;
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.checkoutChoice:hover,
+.checkoutChoice:focus-within {
+  border-color: $checkout-primary-hover;
+}
+
+.checkoutChoice.isSelected {
+  background: $checkout-primary-soft;
+  border-color: $checkout-primary;
+  box-shadow: 0 0 0 3px rgb(36 77 77 / 8%);
+}
+
+.checkoutRadio {
+  accent-color: $checkout-primary;
+  flex-shrink: 0;
+  height: 18px;
+  margin-top: 0.15rem;
+  width: 18px;
+}
+
+.checkoutChoiceBody,
+.checkoutChoiceTitle,
+.checkoutChoiceDesc,
+.checkoutChoiceMeta {
+  display: block;
+}
+
+.checkoutChoiceTitle {
+  color: $checkout-text;
+  font-weight: 700;
+}
+
+.checkoutChoiceDesc,
+.checkoutChoiceMeta {
+  color: $checkout-muted;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.checkoutChoiceMeta,
+.isFreeShipping {
+  color: $checkout-success;
+  font-weight: 700;
+}
+
+.linePayText {
+  color: #00b900;
+}
+
+.checkoutAddressField {
+  margin-top: 1rem;
+}
+
+.creditCardBox {
+  background: $checkout-surface-muted;
+  border: 1px solid $checkout-border;
+  border-radius: 8px;
+  margin: 1.25rem 0 0;
+  padding: 1.25rem;
+}
+
+.creditCardTitle {
+  color: $checkout-text;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.checkoutActions {
+  margin-top: 1.5rem;
+}
+
+.checkoutConfirmBtn {
+  min-height: 48px;
+}
+
+.checkoutConfirmBtn.isLoading {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.checkoutTermsText {
+  color: $checkout-subtle;
+  font-size: 0.78rem;
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+.checkoutSummary {
+  background: $checkout-surface;
+  border: 1px solid $checkout-border;
+  border-radius: 12px;
+  box-shadow: $checkout-shadow;
+  padding: 1.5rem;
+  position: sticky;
+  top: 5rem;
+}
+
+.checkoutItemsList {
+  border-bottom: 1px solid $checkout-border;
+  margin-bottom: 1.25rem;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.4rem 0.4rem 1.25rem;
+}
+
+.checkoutSummaryItem {
+  align-items: flex-start;
+  border-bottom: 1px solid $checkout-border;
+>>>>>>> Stashed changes
   display: flex;
   gap: 0.75rem;
   margin-bottom: 0.875rem;
   padding-bottom: 0.875rem;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryImageWrap。
 // 用途：建立商品圖片與數量徽章的定位基準。
 .checkoutSummaryImageWrap {
+=======
+.checkoutSummaryItem:last-child {
+  border-bottom: 0;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.checkoutSummaryItemImageWrap {
+>>>>>>> Stashed changes
   flex-shrink: 0;
   position: relative;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryImage。
 // 用途：固定結帳摘要商品圖片尺寸與外框。
 .checkoutSummaryImage {
   border: 1px solid #e5e7eb;
   border-radius: 6px;
+=======
+.checkoutSummaryItemImage {
+  border: 1px solid $checkout-border;
+  border-radius: 6px;
+  display: block;
+>>>>>>> Stashed changes
   height: 56px;
   object-fit: cover;
   width: 56px;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryQuantity。
 // 用途：顯示商品數量小徽章。
 .checkoutSummaryQuantity {
@@ -412,6 +781,13 @@
   background: #244d4d;
   border-radius: 50%;
   color: #fff;
+=======
+.checkoutSummaryItemQuantity {
+  align-items: center;
+  background: $checkout-primary;
+  border-radius: 50%;
+  color: $checkout-surface;
+>>>>>>> Stashed changes
   display: flex;
   font-size: 0.7rem;
   font-weight: 700;
@@ -423,13 +799,18 @@
   width: 18px;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryInfo。
 // 用途：讓商品名稱與品牌佔用剩餘寬度並可截斷。
 .checkoutSummaryInfo {
+=======
+.checkoutSummaryItemDetails {
+>>>>>>> Stashed changes
   flex: 1;
   min-width: 0;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryName。
 // 用途：顯示商品名稱並在過長時以省略號截斷。
 .checkoutSummaryName {
@@ -437,11 +818,20 @@
   font-size: 0.875rem;
   font-weight: 600;
   line-height: 1.4;
+=======
+.checkoutSummaryItemName {
+  color: $checkout-text;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0;
+>>>>>>> Stashed changes
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+<<<<<<< Updated upstream
 // 套用：checkout.js 產生的 .checkoutSummaryBrand。
 // 用途：顯示商品品牌輔助文字。
 .checkoutSummaryBrand {
@@ -525,10 +915,130 @@
 
 @media (width >= 768px) and (width <= 992px) {
   .checkout-layout {
+=======
+.checkoutSummaryItemBrand {
+  color: $checkout-subtle;
+  font-size: 0.75rem;
+  margin: 0.1rem 0 0;
+}
+
+.checkoutSummaryItemSubtotal {
+  color: $checkout-text;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.couponPanel {
+  margin-bottom: 1.25rem;
+}
+
+.couponControl {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.couponInput {
+  flex: 1;
+}
+
+.couponBtn {
+  font-size: 0.875rem;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.couponAppliedList,
+.couponMessage {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  margin-top: 0.4rem;
+}
+
+.couponAppliedList,
+.couponMessage.isSuccess {
+  color: $checkout-success;
+}
+
+.couponMessage.isError {
+  color: $checkout-danger;
+}
+
+.checkoutSummaryRows {
+  border-bottom: 2px solid $checkout-border;
+  border-top: 1px solid $checkout-border;
+  display: grid;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+  padding: 1rem 0;
+}
+
+.checkoutSummaryRow,
+.checkoutTotalRow {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkoutSummaryRow {
+  color: $checkout-muted;
+  font-size: 0.875rem;
+}
+
+.checkoutSubtotal,
+.checkoutShipping,
+.couponDiscount {
+  color: $checkout-text;
+  font-weight: 700;
+}
+
+.couponDiscount {
+  color: $checkout-success;
+}
+
+.checkoutTotalRow {
+  color: $checkout-text;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+}
+
+.checkoutTotal {
+  color: $checkout-primary;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.checkoutTrustNote {
+  border-top: 1px solid $checkout-border;
+  padding-top: 1rem;
+  text-align: center;
+}
+
+.checkoutTrustText {
+  color: $checkout-subtle;
+  font-size: 0.78rem;
+  margin: 0 0 0.25rem;
+}
+
+@media (width <= 1024px) {
+  .checkoutLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .checkoutSummary {
+    position: static;
+  }
+}
+
+@media (width <= 768px) {
+  .checkoutFormGrid {
+>>>>>>> Stashed changes
     grid-template-columns: 1fr;
   }
 }
 
+<<<<<<< Updated upstream
 @media (width <= 575px) {
   .checkout-panel {
     padding: 1rem;
@@ -536,5 +1046,42 @@
 
     .checkout-panel-header {
     font-size: 0.875rem;
+=======
+@media (width <= 440px) {
+  .checkoutPage {
+    padding-inline: 0;
+  }
+
+  .checkoutPanelBody,
+  .checkoutPanelTrigger,
+  .checkoutSummary {
+    padding-inline: 1rem;
+  }
+
+  .couponControl {
+    flex-direction: column;
+  }
+}
+
+@media (width <= 375px) {
+  .checkoutChoice,
+  .checkoutSummaryItem {
+    gap: 0.625rem;
+  }
+
+  .checkoutSummaryItemSubtotal {
+    font-size: 0.82rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkoutPanelArrow,
+  .checkoutPanelTrigger,
+  .checkoutChoice,
+  .checkoutInput,
+  .checkoutTextarea,
+  .couponInput {
+    transition-duration: 0.01ms;
+>>>>>>> Stashed changes
   }
 }

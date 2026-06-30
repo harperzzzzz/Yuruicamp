@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 // 用途：保留會員中心分頁、訂單狀態與折價券票券的既有樣式。
 // 套用：pages/member-center.html 與 components/member-center.partial。
 
@@ -169,3 +170,907 @@
 }
 
 /* #endregion */
+=======
+$member-text: var(--yui-text, #333);
+$member-muted: var(--yui-text-muted, #666);
+$member-subtle: var(--yui-text-subtle, #999);
+$member-primary: var(--yui-primary, #244d4d);
+$member-primary-hover: var(--yui-primary-hover, #316868);
+$member-primary-soft: var(--yui-primary-soft, #e8f4f4);
+$member-bg: var(--yui-bg, #f6fbf6);
+$member-surface: var(--yui-surface, #fff);
+$member-surface-muted: var(--yui-surface-muted, #f2f2f2);
+$member-border: var(--yui-border, #e0e0e0);
+$member-border-strong: var(--yui-border-strong, #ccc);
+$member-success: var(--yui-success, #4caf50);
+$member-danger: var(--yui-danger, #d32f2f);
+$member-warning: var(--yui-warning, #ff9800);
+$member-radius-lg: var(--yui-radius-lg, 8px);
+$member-radius-xl: var(--yui-radius-xl, 12px);
+$member-shadow-sm: var(--yui-shadow-sm, 0 1px 2px rgb(0 0 0 / 5%));
+$member-shadow-md: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
+$member-transition: var(--yui-transition-fast, 150ms ease);
+
+.memberCenter {
+  background: $member-bg;
+  color: $member-text;
+  min-height: calc(100vh - 160px);
+  padding: clamp(1.5rem, 4vw, 3rem) 1rem 4rem;
+}
+
+.memberCenterShell,
+.memberLoginGuard {
+  margin-inline: auto;
+  max-width: 1120px;
+  width: 100%;
+}
+
+.memberLoginGuard {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 420px;
+}
+
+.memberLoginGuard[hidden],
+.memberCenterShell[hidden],
+.memberPanel[hidden],
+.memberRecordPanel[hidden],
+.memberCouponList[hidden] {
+  display: none;
+}
+
+.memberLoginGuardCard,
+.memberPanelSection,
+.memberTierCard,
+.memberStatCard,
+.memberOrderCard,
+.memberCouponCard,
+.memberNotification,
+.memberModalDialog {
+  background: $member-surface;
+  border: 1px solid $member-border;
+  border-radius: $member-radius-lg;
+  box-shadow: $member-shadow-sm;
+}
+
+.memberLoginGuardCard {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  max-width: 440px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.memberLoginGuardIcon,
+.memberAvatar {
+  align-items: center;
+  background: $member-primary;
+  border-radius: 50%;
+  color: $member-surface;
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.memberLoginGuardIcon {
+  font-size: 1.75rem;
+  height: 64px;
+  width: 64px;
+}
+
+.memberLoginGuardTitle,
+.memberPanelTitle {
+  color: $member-text;
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.memberLoginGuardText,
+.memberPanelDescription,
+.memberProfileEmail,
+.memberTierMeta,
+.memberTierProgressLabel,
+.memberOrderMeta,
+.memberCouponMeta,
+.memberCouponStatus,
+.memberNotificationBody,
+.memberNotificationMeta,
+.memberActivityDate,
+.memberDetailNote {
+  color: $member-muted;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.memberCenterLayout {
+  align-items: start;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.memberSidebar {
+  background: $member-surface;
+  border: 1px solid $member-border;
+  border-radius: $member-radius-xl;
+  box-shadow: $member-shadow-sm;
+  overflow: hidden;
+  position: sticky;
+  top: 88px;
+}
+
+.memberProfileSummary {
+  align-items: center;
+  background: $member-primary;
+  color: $member-surface;
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.memberAvatar {
+  flex: 0 0 auto;
+  height: 44px;
+  width: 44px;
+}
+
+.memberProfileText {
+  min-width: 0;
+}
+
+.memberProfileName {
+  font-weight: 800;
+}
+
+.memberProfileEmail {
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberNavigation,
+.memberMobileNavigation {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.memberNavigation {
+  padding: 0.75rem;
+}
+
+.memberMobileNavigation {
+  display: none;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.memberNavItem,
+.memberMobileNavItem,
+.memberRecordTab,
+.memberOrderFilter,
+.memberAction,
+.memberPreferenceTag,
+.memberOrderDetailButton,
+.memberCopyButton,
+.memberModalClose,
+.memberRatingStar,
+.memberActivityTitleButton,
+.memberNotificationLink {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: $member-radius-lg;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  justify-content: center;
+  min-height: 44px;
+  text-decoration: none;
+  transition: background-color $member-transition, border-color $member-transition, color $member-transition, box-shadow $member-transition;
+}
+
+.memberNavItem,
+.memberMobileNavItem {
+  background: transparent;
+  color: $member-muted;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  padding: 0.75rem 0.875rem;
+  width: 100%;
+}
+
+.memberMobileNavItem {
+  font-size: 0.8125rem;
+  justify-content: center;
+  padding-inline: 0.5rem;
+}
+
+.memberNavItem:hover,
+.memberMobileNavItem:hover,
+.memberNavItem:focus-visible,
+.memberMobileNavItem:focus-visible,
+.memberNavItem.isActive,
+.memberMobileNavItem.isActive,
+.memberRecordTab.isActive,
+.memberOrderFilter.isSelected {
+  background: $member-primary-soft;
+  color: $member-primary;
+}
+
+.memberContent {
+  min-width: 0;
+}
+
+.memberPanel {
+  display: none;
+}
+
+.memberPanel.isActive {
+  display: grid;
+  gap: 1rem;
+}
+
+.memberPanelHeader {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.memberPanelSection,
+.memberTierCard {
+  padding: 1.25rem;
+}
+
+.memberPanelSectionTitle,
+.memberTierMemberName,
+.memberOrderTitle,
+.memberCouponTitle,
+.memberNotificationTitle,
+.memberActivityTitle {
+  color: $member-text;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.memberTierCard {
+  background: linear-gradient(135deg, $member-primary, $member-primary-hover);
+  color: $member-surface;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberTierHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.memberTierBrand,
+.memberTierName {
+  font-weight: 800;
+}
+
+.memberTierName {
+  background: rgb(255 255 255 / 18%);
+  border-radius: var(--yui-radius-pill, 9999px);
+  padding: 0.25rem 0.65rem;
+}
+
+.memberTierCard .memberTierMeta,
+.memberTierCard .memberTierProgressLabel,
+.memberTierPoints {
+  color: rgb(255 255 255 / 84%);
+}
+
+.memberTierProgress {
+  background: rgb(255 255 255 / 22%);
+  border-radius: var(--yui-radius-pill, 9999px);
+  height: 10px;
+  overflow: hidden;
+}
+
+.memberTierProgressBar {
+  background: $member-success;
+  border-radius: inherit;
+  height: 100%;
+  inline-size: var(--member-tier-progress, 0%);
+  transition: inline-size var(--yui-transition-base, 250ms ease);
+}
+
+.memberStats {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.memberStatCard {
+  padding: 1rem;
+}
+
+.memberStatValue {
+  color: $member-primary;
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.memberStatValue.isError {
+  color: $member-danger;
+}
+
+.memberStatLabel {
+  color: $member-muted;
+  font-size: 0.875rem;
+}
+
+.memberProfileForm {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.memberFormGroup {
+  border: 0;
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.memberFormGroupFull {
+  grid-column: 1 / -1;
+}
+
+.memberFormLabel {
+  color: $member-text;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.memberFormInput {
+  background: $member-surface;
+  border: 1px solid $member-border-strong;
+  border-radius: $member-radius-lg;
+  color: $member-text;
+  font: inherit;
+  min-height: 44px;
+  padding: 0.75rem 0.875rem;
+  width: 100%;
+}
+
+.memberFormInput:focus-visible,
+.memberAction:focus-visible,
+.memberPreferenceTag:focus-visible,
+.memberRecordTab:focus-visible,
+.memberOrderFilter:focus-visible,
+.memberOrderDetailButton:focus-visible,
+.memberCopyButton:focus-visible,
+.memberModalClose:focus-visible,
+.memberRatingStar:focus-visible,
+.memberActivityTitleButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, $member-primary 32%, transparent);
+  outline-offset: 2px;
+}
+
+.memberFormInput[readonly] {
+  background: $member-surface-muted;
+  color: $member-muted;
+}
+
+.memberPreferenceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.memberPreferenceTag {
+  background: $member-surface;
+  border-color: $member-border;
+  color: $member-muted;
+  font-size: 0.875rem;
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+}
+
+.memberPreferenceTag:hover,
+.memberPreferenceTag.isSelected {
+  background: $member-primary-soft;
+  border-color: $member-primary;
+  color: $member-primary;
+}
+
+.memberFormActions,
+.memberRecordTabs,
+.memberOrderFilters,
+.memberCouponCodeRow,
+.memberModalFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.memberAction {
+  font-weight: 800;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.memberActionPrimary {
+  background: $member-primary;
+  color: $member-surface;
+}
+
+.memberActionPrimary:hover {
+  background: $member-primary-hover;
+  color: $member-surface;
+}
+
+.memberActionOutline {
+  background: $member-surface;
+  border-color: $member-border-strong;
+  color: $member-primary;
+}
+
+.memberActionOutline:hover {
+  background: $member-primary-soft;
+  border-color: $member-primary;
+}
+
+.memberActionBlock {
+  width: 100%;
+}
+
+.memberRecordTab,
+.memberOrderFilter {
+  background: $member-surface;
+  border-color: $member-border;
+  color: $member-muted;
+  font-weight: 800;
+  padding: 0.65rem 0.9rem;
+}
+
+.memberRecordPanel {
+  display: none;
+  margin-top: 1rem;
+}
+
+.memberRecordPanel.isActive {
+  display: block;
+}
+
+.memberOrderList,
+.memberCouponList,
+.memberNotificationList {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1rem;
+}
+
+.memberOrderCard {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1rem;
+}
+
+.memberOrderInfo,
+.memberOrderSummary,
+.memberNotificationContent {
+  min-width: 0;
+}
+
+.memberOrderSummary {
+  place-items: flex-end end;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.memberOrderAmount {
+  color: $member-primary;
+  font-weight: 800;
+}
+
+.memberOrderStatus {
+  border-radius: var(--yui-radius-pill, 9999px);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+}
+
+.memberOrderStatus.isPending {
+  background: color-mix(in srgb, $member-warning 16%, transparent);
+  color: $member-warning;
+}
+
+.memberOrderStatus.isUpcoming {
+  background: $member-primary-soft;
+  color: $member-primary;
+}
+
+.memberOrderStatus.isDone {
+  background: color-mix(in srgb, $member-success 16%, transparent);
+  color: $member-success;
+}
+
+.memberOrderStatus.isCancelled {
+  background: color-mix(in srgb, $member-danger 14%, transparent);
+  color: $member-danger;
+}
+
+.memberOrderDetailButton,
+.memberCopyButton,
+.memberActivityTitleButton,
+.memberNotificationLink {
+  background: $member-surface;
+  border-color: $member-border;
+  color: $member-primary;
+  font-size: 0.875rem;
+  font-weight: 800;
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+}
+
+.memberOrderDetailButton:hover,
+.memberCopyButton:hover,
+.memberActivityTitleButton:hover,
+.memberNotificationLink:hover {
+  background: $member-primary-soft;
+  border-color: $member-primary;
+}
+
+.memberOrderThumbs {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.memberOrderThumb,
+.memberOrderMore {
+  border-radius: $member-radius-lg;
+  height: 44px;
+  width: 44px;
+}
+
+.memberOrderThumb {
+  object-fit: cover;
+}
+
+.memberOrderMore {
+  align-items: center;
+  background: $member-surface-muted;
+  color: $member-muted;
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.memberCouponCard {
+  display: grid;
+  grid-template-columns: 112px 1px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.memberCouponCard.isDisabled {
+  opacity: 0.62;
+}
+
+.memberCouponValue {
+  place-items: center center;
+  background: $member-primary;
+  color: $member-surface;
+  display: grid;
+  padding: 1rem;
+}
+
+.memberCouponDiscountValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.memberCouponDiscountUnit {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.memberCouponDivider {
+  background: $member-border;
+}
+
+.memberCouponContent {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.memberCouponCode {
+  background: $member-surface-muted;
+  border-radius: $member-radius-lg;
+  color: $member-primary;
+  font-family: var(--yui-font-mono, monospace);
+  font-weight: 800;
+  padding: 0.4rem 0.6rem;
+}
+
+.memberNotification {
+  cursor: pointer;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 10px minmax(0, 1fr);
+  padding: 1rem;
+}
+
+.memberNotificationIndicator {
+  background: $member-danger;
+  border-radius: 50%;
+  height: 10px;
+  margin-top: 0.35rem;
+  width: 10px;
+}
+
+.memberNotification.isRead .memberNotificationIndicator {
+  background: $member-border-strong;
+}
+
+.memberActivityItem {
+  border-bottom: 1px solid $member-border;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0;
+}
+
+.memberActivityItem:last-child {
+  border-bottom: 0;
+}
+
+.memberActivityTitleButton {
+  border: 0;
+  justify-content: flex-start;
+  min-height: auto;
+  padding: 0;
+}
+
+.memberEmptyState,
+.memberLoadingState {
+  place-items: center center;
+  color: $member-muted;
+  display: grid;
+  min-height: 96px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.memberEmptyStateIcon {
+  color: $member-subtle;
+  font-size: 1.5rem;
+}
+
+.memberModalOpen {
+  overflow: hidden;
+}
+
+.memberModalOverlay {
+  align-items: center;
+  background: rgb(0 0 0 / 48%);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 1rem;
+  position: fixed;
+  z-index: var(--yui-z-modal, 1050);
+}
+
+.memberModalOverlay.isOpen {
+  display: flex;
+}
+
+.memberModalDialog {
+  max-height: min(720px, calc(100vh - 2rem));
+  max-width: 640px;
+  overflow: auto;
+  width: min(100%, 640px);
+}
+
+.memberModalHeader {
+  align-items: center;
+  border-bottom: 1px solid $member-border;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+}
+
+.memberModalTitle {
+  color: $member-text;
+  font-size: 1.125rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberModalClose {
+  background: $member-surface-muted;
+  border: 0;
+  color: $member-muted;
+  font-size: 1.5rem;
+  height: 44px;
+  padding: 0;
+  width: 44px;
+}
+
+.memberModalClose:hover {
+  background: $member-primary-soft;
+  color: $member-primary;
+}
+
+.memberModalBody {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.memberDetailRow {
+  align-items: center;
+  border-bottom: 1px solid $member-border;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+}
+
+.memberDetailRowSuccess {
+  color: $member-success;
+}
+
+.memberDetailRowDanger {
+  color: $member-danger;
+}
+
+.memberDetailRowTotal {
+  color: $member-primary;
+  font-weight: 800;
+}
+
+.memberReviewForm {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.memberReviewFieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.memberReviewProduct,
+.memberReviewLabel {
+  color: $member-text;
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberRatingControl {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.memberRatingStar {
+  background: transparent;
+  border: 0;
+  color: $member-border-strong;
+  font-size: 1.5rem;
+  min-height: 44px;
+  padding: 0 0.25rem;
+}
+
+.memberRatingStar:hover,
+.memberRatingStar.isSelected {
+  color: $member-warning;
+}
+
+.memberReviewTextarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.memberClipboardProxy {
+  opacity: 0;
+  position: fixed;
+  pointer-events: none;
+}
+
+@media (width <= 1024px) {
+  .memberCenterLayout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .memberStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 768px) {
+  .memberMobileNavigation {
+    display: grid;
+  }
+
+  .memberCenterLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .memberSidebar {
+    display: none;
+  }
+
+  .memberProfileForm,
+  .memberStats,
+  .memberOrderCard {
+    grid-template-columns: 1fr;
+  }
+
+  .memberOrderSummary {
+    place-items: start start;
+  }
+}
+
+@media (width <= 440px) {
+  .memberCenter {
+    padding-inline: 0.75rem;
+  }
+
+  .memberMobileNavigation {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .memberCouponCard {
+    grid-template-columns: 1fr;
+  }
+
+  .memberCouponDivider {
+    display: none;
+  }
+}
+
+@media (width <= 375px) {
+  .memberMobileNavigation {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .memberPanelHeader {
+    display: grid;
+  }
+
+  .memberPanelSection,
+  .memberTierCard,
+  .memberOrderCard,
+  .memberCouponContent {
+    padding: 0.875rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memberTierProgressBar,
+  .memberNavItem,
+  .memberMobileNavItem,
+  .memberRecordTab,
+  .memberOrderFilter,
+  .memberAction,
+  .memberPreferenceTag,
+  .memberOrderDetailButton,
+  .memberCopyButton,
+  .memberModalClose,
+  .memberRatingStar {
+    transition: none;
+  }
+}
+>>>>>>> Stashed changes

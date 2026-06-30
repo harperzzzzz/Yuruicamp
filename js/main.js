@@ -34,7 +34,11 @@ window.initApp = async () => {
     window.initPersonalizationModal();
     window._appComponentsInitialized = true;
   } else {
-    // Header markup may be injected after a page script already ran init.
+    // Header markup may be injected after a page script already ran init; these init functions are idempotent.
+    window.initNavbar?.();
+    window.initModalListeners?.();
+    window.initCartListeners?.();
+    window.initPersonalizationModal?.();
     window.updateNavbarLoginState?.();
     window.updateCartBadge?.();
   }
@@ -102,12 +106,12 @@ window.initGlobalListeners = () => {
 window.initBodyScrollLock = () => {
   let scrollY = 0; // 記錄捲動位置，關閉時還原
 
-  // 觀察 body 是否有 offcanvas-open class
-  // Watch for offcanvas-open class on body
+  // 觀察 body 是否有 offcanvasOpen class
+  // Watch for offcanvasOpen class on body
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const isOpen = document.body.classList.contains('offcanvas-open');
+        const isOpen = document.body.classList.contains('offcanvasOpen');
         if (isOpen) {
           // 記住目前捲動位置，套用固定
           // Remember scroll position and fix body
@@ -251,7 +255,7 @@ function initFloatingActions() {
     </button>
 
     <a
-      class="floating-line-btn"
+      class="floatingLineBtn"
       href="https://line.me"
       target="_blank"
       rel="noopener noreferrer"

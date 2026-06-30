@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
@@ -6,7 +6,6 @@
   <meta name="description" content="Yuruicamp 露營選物品牌 - 探索戶外，從這裡開始。精選露營裝備、登山背包、帳篷睡袋一次購足。">
   <meta name="theme-color" content="#244d4d">
   <title>首頁 - Yuruicamp 露營選物</title>
-  <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
   <link rel="preconnect" href="https://picsum.photos">
   <link rel="dns-prefetch" href="https://picsum.photos">
   <link rel="stylesheet" href="../css/main.css">
@@ -14,208 +13,174 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
-
   <div id="header"></div>
 
-  
-  <!-- ===================================================
-       主要內容
-       =================================================== -->
   <main>
-
-    <!-- ================================================
-         步驟 4.1：Hero Banner
-         - 全螢幕背景（漸層色，預留 video 位置）
-         - 中央標題 + CTA 按鈕
-         ================================================ -->
-    <section class="hero-banner" id="heroBanner">
-
-      <!-- 背景影片（檔案路徑：assets/videos/hero_video.mp4）
-           影片載入前或不支援時，會顯示 .hero-banner 的漸層背景色作為備援 -->
-      <video autoplay loop muted playsinline>
+    <!-- 首頁 Hero：品牌主視覺、背景影片與主要導購連結。 -->
+    <section class="heroBanner" id="heroBanner">
+      <video class="heroVideo" autoplay loop muted playsinline aria-hidden="true">
         <source src="../assets/videos/hero_video.mp4" type="video/mp4">
       </video>
 
-      <div class="hero-content">
-        <p class="hero-tagline">探索台灣戶外</p>
-        <h1 class="hero-title">每次出走，<br>都是最好的選擇</h1>
-        <p class="hero-subtitle">精選頂級露營裝備、登山背包、帳篷睡袋<br>一站式購齊，讓冒險毫無後顧之憂</p>
-        <div class="hero-cta-group">
-          <a href="products.html" class="btn-hero-primary">立刻探索 →</a>
-          <a href="blog.html" class="btn-hero-outline">露營指南</a>
-        </div>
-      </div>
-
-    </section>
-
-    <!-- ================================================
-         步驟 4.2：品牌輪播
-         - CSS 跑馬燈無縫動畫
-         - 8 個知名露營品牌
-         ================================================ -->
-    <section class="brand-carousel-section">
-      <p class="brand-carousel-title">精選合作品牌</p>
-      <div class="brand-marquee-wrapper">
-        <!-- 複製兩次以實現無縫循環 -->
-        <div class="brand-marquee-track">
-          <!-- 第一組 -->
-          <div class="brand-logo-item">⛺ Snow Peak</div>
-          <div class="brand-logo-item">🏔️ Osprey</div>
-          <div class="brand-logo-item">🔥 MSR</div>
-          <div class="brand-logo-item">🌲 Coleman</div>
-          <div class="brand-logo-item">🌍 Patagonia</div>
-          <div class="brand-logo-item">🎒 Deuter</div>
-          <div class="brand-logo-item">💧 Sawyer</div>
-          <div class="brand-logo-item">⚡ Black Diamond</div>
-          <div class="brand-logo-item">🪑 Helinox</div>
-          <div class="brand-logo-item">☀️ Columbia</div>
-          <div class="brand-logo-item">🏕️ Ogawa</div>
-          <div class="brand-logo-item">🌟 Therm-a-Rest</div>
-          <!-- 第二組（複製，實現無縫銜接） -->
-          <div class="brand-logo-item">⛺ Snow Peak</div>
-          <div class="brand-logo-item">🏔️ Osprey</div>
-          <div class="brand-logo-item">🔥 MSR</div>
-          <div class="brand-logo-item">🌲 Coleman</div>
-          <div class="brand-logo-item">🌍 Patagonia</div>
-          <div class="brand-logo-item">🎒 Deuter</div>
-          <div class="brand-logo-item">💧 Sawyer</div>
-          <div class="brand-logo-item">⚡ Black Diamond</div>
-          <div class="brand-logo-item">🪑 Helinox</div>
-          <div class="brand-logo-item">☀️ Columbia</div>
-          <div class="brand-logo-item">🏕️ Ogawa</div>
-          <div class="brand-logo-item">🌟 Therm-a-Rest</div>
+      <div class="heroContent">
+        <p class="heroTagline">探索台灣戶外</p>
+        <h1 class="heroTitle">每次出走，<br>都是最好的選擇</h1>
+        <p class="heroSubtitle">精選頂級露營裝備、登山背包、帳篷睡袋<br>一站式購齊，讓冒險毫無後顧之憂</p>
+        <div class="heroActions" aria-label="首頁主要導購">
+          <a href="products.html" class="heroPrimaryLink">立刻探索</a>
+          <a href="blog.html" class="heroSecondaryLink">露營指南</a>
         </div>
       </div>
     </section>
 
-    <!-- ================================================
-         步驟 4.3：精選商品 - 最新商品
-         ================================================ -->
-    <section class="home-section home-section--white">
+    <!-- 品牌跑馬燈：呈現首頁合作品牌清單。 -->
+    <section class="brandCarouselSection" aria-labelledby="brandCarouselTitle">
+      <p class="brandCarouselTitle" id="brandCarouselTitle">精選合作品牌</p>
+      <div class="brandMarquee" aria-label="合作品牌">
+        <div class="brandMarqueeTrack">
+          <div class="brandLogoItem">Snow Peak</div>
+          <div class="brandLogoItem">Osprey</div>
+          <div class="brandLogoItem">MSR</div>
+          <div class="brandLogoItem">Coleman</div>
+          <div class="brandLogoItem">Patagonia</div>
+          <div class="brandLogoItem">Deuter</div>
+          <div class="brandLogoItem">Sawyer</div>
+          <div class="brandLogoItem">Black Diamond</div>
+          <div class="brandLogoItem">Helinox</div>
+          <div class="brandLogoItem">Columbia</div>
+          <div class="brandLogoItem">Ogawa</div>
+          <div class="brandLogoItem">Therm-a-Rest</div>
+          <div class="brandLogoItem" aria-hidden="true">Snow Peak</div>
+          <div class="brandLogoItem" aria-hidden="true">Osprey</div>
+          <div class="brandLogoItem" aria-hidden="true">MSR</div>
+          <div class="brandLogoItem" aria-hidden="true">Coleman</div>
+          <div class="brandLogoItem" aria-hidden="true">Patagonia</div>
+          <div class="brandLogoItem" aria-hidden="true">Deuter</div>
+          <div class="brandLogoItem" aria-hidden="true">Sawyer</div>
+          <div class="brandLogoItem" aria-hidden="true">Black Diamond</div>
+          <div class="brandLogoItem" aria-hidden="true">Helinox</div>
+          <div class="brandLogoItem" aria-hidden="true">Columbia</div>
+          <div class="brandLogoItem" aria-hidden="true">Ogawa</div>
+          <div class="brandLogoItem" aria-hidden="true">Therm-a-Rest</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 最新商品：由首頁 JS 載入新品商品卡。 -->
+    <section class="homeSection homeSectionWhite" aria-labelledby="newProductsTitle">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">最新商品</h2>
-          <a href="products.html?filter=new" class="section-link">查看更多 →</a>
+        <div class="homeSectionHeader">
+          <h2 class="homeSectionTitle" id="newProductsTitle">最新商品</h2>
+          <a href="products.html?filter=new" class="homeSectionLink">查看更多</a>
         </div>
-        <!-- 商品卡片由 JS 動態生成，加載前顯示骨架屏 -->
-        <div class="products-scroll-row" id="newProductsRow">
-          <!-- 骨架屏加載佔位 -->
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+        <div class="homeProductRow" id="newProductsRow" aria-live="polite">
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================================================
-         步驟 4.3：精選商品 - 熱銷商品
-         ================================================ -->
-    <section class="home-section home-section--muted">
+    <!-- 熱銷商品：由首頁 JS 載入暢銷商品卡。 -->
+    <section class="homeSection homeSectionMuted" aria-labelledby="bestsellerProductsTitle">
       <div class="container">
-        <div class="section-header">
-          <h2 class="section-title">🔥 熱銷商品</h2>
-          <a href="products.html?filter=bestseller" class="section-link">查看更多 →</a>
+        <div class="homeSectionHeader">
+          <h2 class="homeSectionTitle" id="bestsellerProductsTitle">熱銷商品</h2>
+          <a href="products.html?filter=bestseller" class="homeSectionLink">查看更多</a>
         </div>
-        <div class="products-scroll-row" id="bestsellerProductsRow">
-          <!-- 骨架屏加載佔位 -->
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+        <div class="homeProductRow" id="bestsellerProductsRow" aria-live="polite">
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
-          <div class="skeleton-card skeleton-card--product">
-            <div class="skeleton-img"></div>
-            <div class="skeleton-body">
-              <div class="skeleton-line short"></div>
-              <div class="skeleton-line long"></div>
-              <div class="skeleton-line price"></div>
+          <div class="homeSkeletonCard" aria-hidden="true">
+            <div class="homeSkeletonImage"></div>
+            <div class="homeSkeletonBody">
+              <div class="homeSkeletonLine homeSkeletonLineShort"></div>
+              <div class="homeSkeletonLine homeSkeletonLineLong"></div>
+              <div class="homeSkeletonLine homeSkeletonLinePrice"></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================================================
-         品牌特色區塊（三個賣點 Icon + 文字）
-         ================================================ -->
-    <section class="brand-benefits">
+    <!-- 品牌服務賣點：呈現免運、正品與退換貨保證。 -->
+    <section class="brandBenefits" aria-labelledby="brandBenefitsTitle">
       <div class="container">
-        <div class="brand-benefits__grid">
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🚚</div>
-            <h3 class="brand-benefits__title">滿 NT$3,000 免運費</h3>
-            <p class="brand-benefits__text">全台宅配，門市取貨也免費</p>
+        <h2 class="sr-only" id="brandBenefitsTitle">購物服務特色</h2>
+        <div class="brandBenefitsGrid">
+          <div class="brandBenefitsItem">
+            <div class="brandBenefitsIcon" aria-hidden="true">🚚</div>
+            <h3 class="brandBenefitsTitle">滿 NT$ 3,000 免運費</h3>
+            <p class="brandBenefitsText">全台宅配，門市取貨也免費</p>
           </div>
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🏅</div>
-            <h3 class="brand-benefits__title">品牌正品保證</h3>
-            <p class="brand-benefits__text">直接品牌授權，每件附原廠保固</p>
+          <div class="brandBenefitsItem">
+            <div class="brandBenefitsIcon" aria-hidden="true">🏅</div>
+            <h3 class="brandBenefitsTitle">品牌正品保證</h3>
+            <p class="brandBenefitsText">直接品牌授權，每件附原廠保固</p>
           </div>
-          <div class="brand-benefits__item">
-            <div class="brand-benefits__icon" aria-hidden="true">🔄</div>
-            <h3 class="brand-benefits__title">30 天無憂退換貨</h3>
-            <p class="brand-benefits__text">不滿意免費退，保障您的購物體驗</p>
+          <div class="brandBenefitsItem">
+            <div class="brandBenefitsIcon" aria-hidden="true">🔄</div>
+            <h3 class="brandBenefitsTitle">30 天無憂退換貨</h3>
+            <p class="brandBenefitsText">不滿意免費退，保障您的購物體驗</p>
           </div>
         </div>
       </div>
     </section>
-
   </main>
 
- <div id="footer"></div>
+  <div id="footer"></div>
 
-
-  <!-- ===================================================
-       JavaScript 載入（順序很重要！）
-       =================================================== -->
   <script src="../js/config.js" defer></script>
   <script src="../js/storage.js" defer></script>
   <script src="../js/state.js" defer></script>
@@ -225,14 +190,9 @@
   <script src="../js/api-mock.js" defer></script>
   <script src="../js/components/toast.js" defer></script>
   <script src="../js/components/modal.js" defer></script>
-
   <script src="../js/components/cart.js" defer></script>
   <script src="../js/components/carousel.js" defer></script>
-
-  <script src="../js/main.js" defer></script> 
+  <script src="../js/main.js" defer></script>
   <script src="../js/pages/home.js" defer></script>
-  
-
 </body>
 </html>
-
