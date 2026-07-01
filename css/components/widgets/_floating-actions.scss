@@ -1,7 +1,4 @@
 // Floating Actions 元件：由 js/main.js 動態產生的回頂部與 LINE 客服快捷按鈕。
-$floating-shadow: var(--yui-shadow-md);
-$floating-shadow-strong: var(--yui-shadow-lg);
-$floating-transition: var(--yui-transition-fast);
 
 // 浮動動作容器：固定在視窗右下角，讓兩個快捷按鈕垂直排列。
 .floating-actions {
@@ -25,13 +22,13 @@ $floating-transition: var(--yui-transition-fast);
   border: 1px solid transparent;
   border-radius: var(--yui-radius-pill);
   color: var(--yui-surface-muted);
-  box-shadow: $floating-shadow;
+  box-shadow: var(--yui-shadow-md);
   cursor: pointer;
   text-decoration: none;
   transition:
-    transform $floating-transition,
-    box-shadow $floating-transition,
-    filter $floating-transition;
+    transform var(--yui-transition-fast),
+    box-shadow var(--yui-transition-fast),
+    filter var(--yui-transition-fast);
 }
 
 .floating-top-btn i,
@@ -73,7 +70,7 @@ $floating-transition: var(--yui-transition-fast);
 .floatingLineBtn:hover {
   color: var(--yui-surface-muted);
   filter: brightness(1.06);
-  box-shadow: $floating-shadow-strong;
+  box-shadow: var(--yui-shadow-lg);
 }
 
 .floating-top-btn:focus-visible,

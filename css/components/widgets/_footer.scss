@@ -1,24 +1,17 @@
 // Footer 元件：主站與 booking 共用的頁尾樣式。
-$footer-surface: var(--yui-primary-dark);
-$footer-booking-surface: var(--yui-primary);
-$footer-text: #fff;
-$footer-muted: rgb(255 255 255 / 72%);
-$footer-border: rgb(255 255 255 / 18%);
-$footer-soft: rgb(255 255 255 / 10%);
-$footer-transition: var(--yui-transition-fast);
 
 // 頁尾外層：主站與 booking 使用不同主色背景。
 .siteFooter,
 .bookingFooter {
-  color: $footer-text;
+  color: #fff;
 }
 
 .siteFooter {
-  background: $footer-surface;
+  background: var(--yui-primary-dark);
 }
 
 .bookingFooter {
-  background: $footer-booking-surface;
+  background: var(--yui-primary);
 }
 
 // 頁尾內層容器：維持與全站 container 一致的最大寬度。
@@ -48,7 +41,7 @@ $footer-transition: var(--yui-transition-fast);
 .siteFooterTitle,
 .bookingFooterHeading {
   margin: 0;
-  color: $footer-text;
+  color: #fff;
   font-size: 18px;
   font-weight: 800;
 }
@@ -56,7 +49,7 @@ $footer-transition: var(--yui-transition-fast);
 .siteFooterText,
 .bookingFooterText {
   margin: 0;
-  color: $footer-muted;
+  color: rgb(255 255 255 / 72%);
   line-height: 1.8;
 }
 
@@ -84,15 +77,15 @@ $footer-transition: var(--yui-transition-fast);
 .siteFooterLink,
 .bookingFooterLinks a,
 .bookingFooterPolicies a {
-  color: $footer-muted;
+  color: rgb(255 255 255 / 72%);
   text-decoration: none;
-  transition: color $footer-transition;
+  transition: color var(--yui-transition-fast);
 }
 
 .siteFooterLink:hover,
 .bookingFooterLinks a:hover,
 .bookingFooterPolicies a:hover {
-  color: $footer-text;
+  color: #fff;
 }
 
 .siteFooterLink:focus-visible,
@@ -109,12 +102,12 @@ $footer-transition: var(--yui-transition-fast);
 .bookingFooterContactItem {
   display: grid;
   gap: var(--yui-space-1);
-  color: $footer-muted;
+  color: rgb(255 255 255 / 72%);
 }
 
 .siteFooterContactItem strong,
 .bookingFooterContactItem strong {
-  color: $footer-text;
+  color: #fff;
   font-weight: 700;
 }
 
@@ -133,14 +126,14 @@ $footer-transition: var(--yui-transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid $footer-border;
+  border: 1px solid rgb(255 255 255 / 18%);
   border-radius: var(--yui-radius-lg);
-  background: $footer-soft;
-  color: $footer-text;
+  background: rgb(255 255 255 / 10%);
+  color: #fff;
   text-decoration: none;
   transition:
-    background-color $footer-transition,
-    border-color $footer-transition;
+    background-color var(--yui-transition-fast),
+    border-color var(--yui-transition-fast);
 }
 
 .siteFooterSocialLink:hover,
@@ -153,7 +146,7 @@ $footer-transition: var(--yui-transition-fast);
 .siteFooterDivider {
   height: 1px;
   margin-block: var(--yui-space-8) var(--yui-space-5);
-  background: $footer-border;
+  background: rgb(255 255 255 / 18%);
 }
 
 // 頁尾底部：版權、政策與付款方式並列。
@@ -163,7 +156,7 @@ $footer-transition: var(--yui-transition-fast);
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: var(--yui-space-4);
-  color: $footer-muted;
+  color: rgb(255 255 255 / 72%);
   font-size: 14px;
 }
 
@@ -184,7 +177,7 @@ $footer-transition: var(--yui-transition-fast);
 
 .siteFooterPaymentMethods,
 .bookingFooterPaymentMethods {
-  color: $footer-text;
+  color: #fff;
 }
 
 .siteFooterPaymentMethods li,
@@ -202,7 +195,7 @@ $footer-transition: var(--yui-transition-fast);
 .bookingFooterBottom {
   margin-top: var(--yui-space-8);
   padding-top: var(--yui-space-5);
-  border-top: 1px solid $footer-border;
+  border-top: 1px solid rgb(255 255 255 / 18%);
 }
 
 @media (width <= 1024px) {

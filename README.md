@@ -744,3 +744,20 @@ window.YuruiAuth.sync()
 - 重整上述 component partial 的中文註解，說明各區塊用途、互動狀態與 token 使用邊界。
 - 更新 [docs/itcss-architecture.md](docs/itcss-architecture.md)，同步記錄 `@use` 載入順序與 components token 使用規範。
 - 本輪未修改 HTML / JS；驗證結果見本次回覆。
+
+## v1.3.34 - 2026/07/01
+
+- 收斂 Components 層剩餘 Sass alias：`css/components/_header.scss`、`css/components/widgets/_footer.scss`、`css/components/widgets/_floating-actions.scss` 不再宣告 `$header-*`、`$footer-*`、`$floating-*`。
+- Header、Footer、Floating Actions 改為直接使用 `--yui-*` runtime token 或必要的區塊內 CSS 值，降低 partial 之間的 Sass 狀態依賴。
+- 保留並補強 SCSS 中文區塊註解，說明 header、footer 與 floating actions 的用途與套用範圍。
+- 更新 [docs/itcss-architecture.md](docs/itcss-architecture.md)，明確記錄 Components 層不保留 Sass alias。
+- 本輪未修改 HTML / JS；驗證結果見本次回覆。
+
+## v1.3.35 - 2026/07/01
+
+- 新增正式 ITCSS `Objects` 層：`css/objects/_objects.scss` 匯入不帶視覺語意的版面物件。
+- 將 `.container` 從 `css/layouts/_container.scss` 搬移到 `css/objects/_container.scss`，並補上中文註解說明容器責任與手機留白。
+- `css/main.scss` 載入順序改為 settings、generic、base、objects、components、pages、utilities。
+- `css/layouts/_layouts.scss` 改為舊路徑相容入口，後續新增版面物件應放在 `css/objects/`。
+- 更新 [docs/itcss-architecture.md](docs/itcss-architecture.md)，同步記錄 Objects 層與 layouts 相容策略。
+- 本輪未修改 HTML / JS；驗證結果見本次回覆。

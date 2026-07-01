@@ -1,13 +1,3 @@
-$header-surface: var(--yui-surface);
-$header-text: var(--yui-text);
-$header-muted: var(--yui-text-muted);
-$header-primary: var(--yui-primary);
-$header-primary-hover: var(--yui-primary-hover);
-$header-soft: var(--yui-primary-soft);
-$header-border: var(--yui-border);
-$header-shadow: var(--yui-shadow-md);
-$header-transition: var(--yui-transition-fast);
-
 // 頁首黏性容器；套用於各主站頁面的 #header 掛載點與 booking 頁面的 #booking-header 掛載點。
 #header,
 #booking-header {
@@ -25,9 +15,9 @@ $header-transition: var(--yui-transition-fast);
 .siteHeader,
 .bookingHeader {
   position: relative;
-  background: $header-surface;
-  border-bottom: 1px solid $header-border;
-  color: $header-text;
+  background: var(--yui-surface);
+  border-bottom: 1px solid var(--yui-border);
+  color: var(--yui-text);
 }
 
 .siteNavbar,
@@ -63,16 +53,16 @@ $header-transition: var(--yui-transition-fast);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid $header-border;
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
-  background: $header-surface;
-  color: $header-primary;
+  background: var(--yui-surface);
+  color: var(--yui-primary);
   cursor: pointer;
   transition:
-    background-color $header-transition,
-    border-color $header-transition,
-    color $header-transition,
-    box-shadow $header-transition;
+    background-color var(--yui-transition-fast),
+    border-color var(--yui-transition-fast),
+    color var(--yui-transition-fast),
+    box-shadow var(--yui-transition-fast);
 }
 
 .siteMenuButton:hover,
@@ -86,7 +76,7 @@ $header-transition: var(--yui-transition-fast);
 .bookingCartButton:hover,
 .bookingOffcanvasClose:hover,
 .bookingSlidePanelClose:hover {
-  background: $header-soft;
+  background: var(--yui-primary-soft);
   border-color: var(--yui-primary-light);
 }
 
@@ -117,7 +107,7 @@ $header-transition: var(--yui-transition-fast);
   align-items: center;
   justify-self: center;
   gap: var(--yui-space-3);
-  color: $header-primary;
+  color: var(--yui-primary);
   font-family: var(--yui-font-sans);
   font-weight: 800;
   text-decoration: none;
@@ -166,10 +156,10 @@ $header-transition: var(--yui-transition-fast);
   width: min(360px, calc(100vw - 32px));
   gap: var(--yui-space-2);
   padding: var(--yui-space-2);
-  background: $header-surface;
-  border: 1px solid $header-border;
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
-  box-shadow: $header-shadow;
+  box-shadow: var(--yui-shadow-md);
 }
 
 .siteSearchForm:not([hidden]) {
@@ -181,10 +171,10 @@ $header-transition: var(--yui-transition-fast);
   min-width: 0;
   width: 100%;
   min-height: 44px;
-  border: 1px solid $header-border;
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-md);
   padding: 0 var(--yui-space-3);
-  color: $header-text;
+  color: var(--yui-text);
 }
 
 // Header 搜尋建議層；套用於 components/header.partial 的 .siteSearchDropdown。
@@ -194,15 +184,15 @@ $header-transition: var(--yui-transition-fast);
   right: 0;
   width: min(360px, calc(100vw - 32px));
   padding: var(--yui-space-3);
-  background: $header-surface;
-  border: 1px solid $header-border;
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
-  box-shadow: $header-shadow;
+  box-shadow: var(--yui-shadow-md);
 }
 
 .siteSearchDropdownTitle,
 .siteSearchEmptyState {
-  color: $header-muted;
+  color: var(--yui-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
@@ -218,17 +208,17 @@ $header-transition: var(--yui-transition-fast);
 .siteSearchSuggestion {
   width: 100%;
   min-height: 40px;
-  border: 1px solid $header-border;
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-md);
-  background: $header-surface;
-  color: $header-text;
+  background: var(--yui-surface);
+  color: var(--yui-text);
   text-align: left;
   padding: 0 var(--yui-space-3);
   cursor: pointer;
 }
 
 .siteSearchSuggestion:hover {
-  background: $header-soft;
+  background: var(--yui-primary-soft);
 }
 
 .siteBookingLink,
@@ -252,9 +242,9 @@ $header-transition: var(--yui-transition-fast);
   text-decoration: none;
   cursor: pointer;
   transition:
-    background-color $header-transition,
-    border-color $header-transition,
-    color $header-transition;
+    background-color var(--yui-transition-fast),
+    border-color var(--yui-transition-fast),
+    color var(--yui-transition-fast);
 }
 
 .siteBookingLink,
@@ -279,7 +269,7 @@ $header-transition: var(--yui-transition-fast);
 .bookingPanelCheckoutLink,
 .surveyActionButton,
 .sharedConfirmSubmit {
-  background: $header-primary;
+  background: var(--yui-primary);
   color: #fff;
 }
 
@@ -291,16 +281,16 @@ $header-transition: var(--yui-transition-fast);
 .bookingPanelCheckoutLink:hover,
 .surveyActionButton:hover,
 .sharedConfirmSubmit:hover {
-  background: $header-primary-hover;
+  background: var(--yui-primary-hover);
   color: #fff;
 }
 
 .sharedConfirmCancel,
 .bookingCartPanelEmptyLink,
 .bookingCartPanelClear {
-  background: $header-surface;
-  border-color: $header-border;
-  color: $header-primary;
+  background: var(--yui-surface);
+  border-color: var(--yui-border);
+  color: var(--yui-primary);
 }
 
 .siteCartButton,
@@ -345,8 +335,8 @@ $header-transition: var(--yui-transition-fast);
   align-items: center;
   justify-content: center;
   border-radius: var(--yui-radius-pill);
-  background: $header-soft;
-  color: $header-primary;
+  background: var(--yui-primary-soft);
+  color: var(--yui-primary);
   font-weight: 800;
 }
 
@@ -358,10 +348,10 @@ $header-transition: var(--yui-transition-fast);
   min-width: 168px;
   gap: var(--yui-space-1);
   padding: var(--yui-space-2);
-  background: $header-surface;
-  border: 1px solid $header-border;
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
-  box-shadow: $header-shadow;
+  box-shadow: var(--yui-shadow-md);
 }
 
 .siteUserDropdown:not([hidden]) {
@@ -376,14 +366,14 @@ $header-transition: var(--yui-transition-fast);
   border: 0;
   border-radius: var(--yui-radius-md);
   background: transparent;
-  color: $header-text;
+  color: var(--yui-text);
   text-decoration: none;
   padding: 0 var(--yui-space-3);
   cursor: pointer;
 }
 
 .siteUserDropdownItem:hover {
-  background: $header-soft;
+  background: var(--yui-primary-soft);
 }
 
 .bookingHeaderShell {
@@ -395,7 +385,7 @@ $header-transition: var(--yui-transition-fast);
 }
 
 .bookingBrandSub {
-  color: $header-muted;
+  color: var(--yui-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
