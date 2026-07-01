@@ -17,12 +17,18 @@
     return Boolean(document.querySelector('.modal.isOpen'));
   }
 
+  /**
+   * 開啟指定 Modal 並避免聚焦時捲動頁面。
+   * 套用元件：#loginModal、#personalizationModal、#partnerModal。
+   */
   window.openModal = function (modalId) {
     var modal = document.getElementById(modalId);
+    var focusTarget;
     if (!modal) return;
     modal.classList.add('isOpen');
     document.body.classList.add('isModalOpen');
-    modal.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])')?.focus();
+    focusTarget = modal.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+    if (focusTarget) focusTarget.focus({ preventScroll: true });
   };
 
   function openSurveyCloseConfirmModal() {
@@ -75,6 +81,7 @@
           window.closeModal('loginModal');
         },
       });
+      window.updateNavbarLoginState?.();
       return;
     }
 

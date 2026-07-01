@@ -3134,6 +3134,71 @@
   background: var(--yui-primary-soft);
 }
 
+.floating-actions {
+  position: fixed;
+  right: var(--yui-space-4);
+  bottom: var(--yui-space-4);
+  z-index: var(--yui-z-tooltip);
+  display: grid;
+  gap: var(--yui-space-3);
+  justify-items: end;
+}
+
+.floating-top-btn,
+.floatingLineBtn {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-pill);
+  color: var(--yui-surface-muted);
+  box-shadow: var(--yui-shadow-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform var(--yui-transition-fast), box-shadow var(--yui-transition-fast), filter var(--yui-transition-fast);
+}
+
+.floating-top-btn {
+  background: var(--yui-orange);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.floating-top-btn.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floatingLineBtn {
+  background: var(--yui-success);
+}
+
+.floating-line-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.floating-top-btn:hover,
+.floatingLineBtn:hover {
+  color: var(--yui-surface-muted);
+  filter: brightness(1.06);
+  box-shadow: var(--yui-shadow-lg);
+}
+
+.floating-top-btn:focus-visible,
+.floatingLineBtn:focus-visible {
+  outline: 3px solid rgba(36, 77, 77, 0.35);
+  outline-offset: 3px;
+}
+
 .siteOffcanvas,
 .siteCartDrawer,
 .bookingOffcanvas,
@@ -3621,6 +3686,10 @@
     width: min(100%, 100vw - 24px);
     max-height: calc(100vh - 24px);
   }
+  .floating-actions {
+    right: var(--yui-space-3);
+    bottom: var(--yui-space-3);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .siteOffcanvas,
@@ -3631,6 +3700,10 @@
   .siteCartDrawerBackdrop,
   .bookingOffcanvasBackdrop,
   .bookingPanelBackdrop {
+    transition-duration: 0.01ms;
+  }
+  .floating-top-btn,
+  .floatingLineBtn {
     transition-duration: 0.01ms;
   }
 }
@@ -5756,11 +5829,24 @@
 }
 
 .cartBtn {
+  border: 2px solid var(--yui-primary, #244d4d);
+  border-radius: 8px;
+  background: var(--yui-primary, #244d4d);
+  color: var(--yui-surface, #fff);
   flex: 1;
   font-size: 1rem;
+  font-weight: 700;
   min-height: 44px;
   min-width: 140px;
-  padding: 0.875rem 1rem;
+  padding: 0.55rem;
+  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
+}
+
+.cartBtn:hover,
+.cartBtn:focus-visible {
+  border-color: var(--yui-primary, #244d4d);
+  background: transparent;
+  color: var(--yui-primary, #244d4d);
 }
 
 .productTags {

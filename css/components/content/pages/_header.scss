@@ -332,6 +332,75 @@ $header-transition: var(--yui-transition-fast);
   background: $header-soft;
 }
 
+// 全站浮動快捷按鈕；套用於 js/main.js 產生的回頂部與 LINE 客服控制項。
+.floating-actions {
+  position: fixed;
+  right: var(--yui-space-4);
+  bottom: var(--yui-space-4);
+  z-index: var(--yui-z-tooltip);
+  display: grid;
+  gap: var(--yui-space-3);
+  justify-items: end;
+}
+
+.floating-top-btn,
+.floatingLineBtn {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-pill);
+  color: var(--yui-surface-muted);
+  box-shadow: $header-shadow;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform $header-transition,
+    box-shadow $header-transition,
+    filter $header-transition;
+}
+
+.floating-top-btn {
+  background: var(--yui-orange);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+}
+
+.floating-top-btn.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.floatingLineBtn {
+  background: var(--yui-success);
+}
+
+.floating-line-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.floating-top-btn:hover,
+.floatingLineBtn:hover {
+  color: var(--yui-surface-muted);
+  filter: brightness(1.06);
+  box-shadow: var(--yui-shadow-lg);
+}
+
+.floating-top-btn:focus-visible,
+.floatingLineBtn:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 3px;
+}
+
 .siteOffcanvas,
 .siteCartDrawer,
 .bookingOffcanvas,
@@ -827,6 +896,11 @@ $header-transition: var(--yui-transition-fast);
     width: min(100%, calc(100vw - 24px));
     max-height: calc(100vh - 24px);
   }
+
+  .floating-actions {
+    right: var(--yui-space-3);
+    bottom: var(--yui-space-3);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -838,6 +912,11 @@ $header-transition: var(--yui-transition-fast);
   .siteCartDrawerBackdrop,
   .bookingOffcanvasBackdrop,
   .bookingPanelBackdrop {
+    transition-duration: 0.01ms;
+  }
+
+  .floating-top-btn,
+  .floatingLineBtn {
     transition-duration: 0.01ms;
   }
 }
