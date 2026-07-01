@@ -6,6 +6,7 @@
   /* ===================================================
        products.html 頁尾分頁標籤
     =================================================== */
+
 /* #region products.html 頁尾分頁標籤 */
 .pagination {
   display: flex;
@@ -45,11 +46,13 @@
   opacity: 0.4;
     cursor: not-allowed;
 }
+
 /* #endregion */
 
   /* ===================================================
        LINE 客服、置頂按鈕
     =================================================== */
+
 /* #region 右下角工具容器 */
 .floating-actions {
   position: fixed;
@@ -173,6 +176,7 @@
   font-size: 1.45rem;
     line-height: 1;
 }
+
 /* #endregion */
 
 @media (width <= 767px) {

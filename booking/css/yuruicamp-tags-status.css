@@ -96,7 +96,7 @@
 .yc-tag--green {
   color: var(--yc-sage-dark);
   background: var(--yc-sage-mist);
-  border-color: rgba(143, 157, 139, 0.48);
+  border-color: rgb(143 157 139 / 48%);
 }
 
 /* 熱門、推薦、季節精選、功能亮點、流程進行中 */
@@ -168,7 +168,7 @@
 .yc-filter-chip:focus-visible,
 .yc-survey-chip:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(115, 129, 110, 0.22);
+  box-shadow: 0 0 0 3px rgb(115 129 110 / 22%);
 }
 
 .yc-filter-chip:active,
@@ -313,7 +313,7 @@
    8. RWD
    ========================================================= */
 
-@media (max-width: 680px) {
+@media (width <= 680px) {
   .yc-tag-list,
   .yc-chip-list,
   .yc-order-filter {

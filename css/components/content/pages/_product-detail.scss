@@ -20,11 +20,40 @@ $product-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
   padding-top: 1rem;
 }
 
-// 商品詳情主內容：套用在 pages/product-detail.html 的 main.productDetailContainer。
+// ????啣????望撠??????pages/product-detail.html ??main.productDetailContainer??main.productDetailContainer {
 main.productDetailContainer {
-  width: min(1120px, calc(100vw - 32px));
   margin-inline: auto;
   padding-inline: 0;
+  width: min(1120px, calc(100vw - 32px));
+}
+
+.productDetailHero {
+  background: linear-gradient(135deg, $product-primary-dark, $product-primary);
+  color: $product-surface;
+  padding: clamp(1.75rem, 5vw, 3rem) 0;
+}
+
+.productDetailHeroInner {
+  display: grid;
+  gap: 1rem;
+}
+
+.productDetailHeroEyebrow {
+  color: color-mix(in srgb, $product-surface 78%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.productDetailHeroLead {
+  color: color-mix(in srgb, $product-surface 88%, transparent);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-weight: 800;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 40rem;
 }
 
 .detailBreadcrumb {
@@ -62,6 +91,28 @@ main.productDetailContainer {
 .detailBreadcrumbLink:focus-visible {
   color: $product-primary-hover;
   text-decoration: underline;
+}
+
+.productDetailHero .detailBreadcrumb {
+  color: color-mix(in srgb, $product-surface 76%, transparent);
+}
+
+.productDetailHero .detailBreadcrumbLink {
+  color: inherit;
+}
+
+.productDetailHero .detailBreadcrumbLink:hover,
+.productDetailHero .detailBreadcrumbLink:focus-visible {
+  color: $product-surface;
+}
+
+.productDetailHero .detailBreadcrumbItem[aria-current='page'] {
+  color: $product-surface;
+  font-weight: 800;
+}
+
+.productDetailHero .detailBreadcrumbItem + .detailBreadcrumbItem::before {
+  color: color-mix(in srgb, $product-surface 56%, transparent);
 }
 
 .productLoading,
@@ -313,7 +364,6 @@ main.productDetailContainer {
   font-weight: 700;
 }
 
-// 商品數量步進器；套用於 pages/product-detail.html 的 .qtyStepper、.qtyBtn 與 .qtyInput。
 .qtyStepper {
   display: inline-grid;
   grid-template-columns: 44px minmax(56px, 72px) 44px;
@@ -425,25 +475,11 @@ main.productDetailContainer {
 }
 
 .cartBtn {
-  border: 2px solid $product-primary;
-  border-radius: 8px;
-  background: $product-primary;
-  color: $product-surface;
   flex: 1;
   font-size: 1rem;
-  font-weight: 700;
-  min-height: 44px;
   min-width: 140px;
-  padding: 0.55rem;
-  transition: background 200ms ease, color 200ms ease, border-color 200ms ease;
 }
 
-.cartBtn:hover,
-.cartBtn:focus-visible {
-  border-color: $product-primary;
-  background: transparent;
-  color: $product-primary;
-}
 
 .productTags {
   display: flex;

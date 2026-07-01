@@ -1,2 +1,6 @@
 // 用途：ITCSS components 匯總入口，連接 comments、content、media、navigation、widgets。
+// ITCSS components layer: shared components first, page styles last.
+@import 'component-tokens';
+@import 'buttons';
+@import 'header';
 @import 'content/content';

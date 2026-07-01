@@ -12,6 +12,53 @@ $product-accent: var(--yui-accent, #f59e0b);
 $product-danger: var(--yui-danger, #e74c3c);
 $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 
+.pageBanner {
+  background: linear-gradient(135deg, $product-primary-dark, $product-primary);
+  color: $product-surface;
+  padding: clamp(1.75rem, 5vw, 3rem) 0;
+}
+
+.pageBanner .container {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pageBanner .breadcrumb {
+  margin: 0;
+}
+
+.pageBanner .breadcrumbItem {
+  color: color-mix(in srgb, $product-surface 74%, transparent);
+  font-weight: 700;
+}
+
+.pageBanner .breadcrumbItem a:hover,
+.pageBanner .breadcrumbItem a:focus-visible {
+  color: $product-surface;
+}
+
+.pageBanner .breadcrumbItem.active {
+  color: $product-surface;
+  font-weight: 800;
+}
+
+.pageBannerTitle {
+  color: $product-surface;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.pageBannerSub {
+  color: color-mix(in srgb, $product-surface 86%, transparent);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 36rem;
+}
+
 .productsPageMain {
   padding: 0 0 4rem;
 }

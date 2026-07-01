@@ -23,7 +23,7 @@
 
     .faq-hero__subtitle {
       font-size: 1rem;
-      color: rgba(255,253,249,.85);
+      color: rgb(255 253 249 / 85%);
       max-width: 480px;
       margin: 0 auto;
     }
@@ -96,7 +96,7 @@
     .faq-item {
       background: var(--yc-surface, #FFFDF9);
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(60,70,59,.08);
+      box-shadow: 0 2px 8px rgb(60 70 59 / 8%);
       margin-bottom: .75rem;
       overflow: hidden;
     }
@@ -183,7 +183,7 @@
 
     .faq-cta__box p {
       font-size: .9rem;
-      color: rgba(255,253,249,.85);
+      color: rgb(255 253 249 / 85%);
       margin-bottom: 1.5rem;
     }
 
@@ -207,6 +207,6 @@
     }
 
     /* ── RWD ── */
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       .faq-hero__title { font-size: 1.75rem; }
     }
