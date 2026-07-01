@@ -22,7 +22,7 @@ window.initApp = async () => {
 
   // 全局事件監聽（online/offline/beforeunload）始終需要設定
   window.initGlobalListeners();
-  // 先載入 header/footer HTML 與 header.js
+  // 先載入 header/footer HTML 與 shared auth 所需腳本
   await initGlobalLayout();
 
   // Header partial 注入完成後才綁定共用互動，避免 product-detail 等頁面先初始化造成空 DOM 綁定。
@@ -211,7 +211,8 @@ function loadComponentScript(src) {
 }
 
 /**
- * Loads the shared header/footer fragments and the scripts that operate on them.
+ * 載入共用 header/footer partial 與 shared auth/header 互動腳本。
+ * 套用元件：components/header.partial、#loginModal、#personalizationModal。
  */
 async function initGlobalLayout() {
   const rootPrefix = getRootPathPrefix();
@@ -226,6 +227,7 @@ async function initGlobalLayout() {
   // 2. 確定 HTML 結構長到網頁上後，才動態載入原本的互動 JS
   try {
     await loadComponentScript(`${rootPrefix}/js/components/auth.js`);
+    await loadComponentScript(`${rootPrefix}/js/components/modal.js`);
     // 這樣可以確保手機版漢堡選單、登入彈出視窗的功能不會失效
     await loadComponentScript(`${rootPrefix}/js/components/header.js`);
     
