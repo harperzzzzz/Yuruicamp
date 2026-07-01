@@ -690,6 +690,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 .memberModalOverlay {
   align-items: center;
   background: rgb(0 0 0 / 48%);
+  backdrop-filter: blur(4px);
   display: none;
   inset: 0;
   justify-content: center;
@@ -703,6 +704,8 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberModalDialog {
+  border-color: color-mix(in srgb, $member-primary 18%, $member-border);
+  box-shadow: var(--yui-shadow-lg, 0 12px 28px rgb(36 77 77 / 14%));
   max-height: min(720px, calc(100vh - 2rem));
   max-width: 640px;
   overflow: auto;
@@ -711,23 +714,25 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberModalHeader {
   align-items: center;
-  border-bottom: 1px solid $member-border;
+  background: linear-gradient(135deg, $member-primary, $member-primary-hover);
+  border-bottom: 1px solid color-mix(in srgb, $member-primary 24%, $member-border);
+  color: $member-surface;
   display: flex;
   justify-content: space-between;
   padding: 1rem 1.25rem;
 }
 
 .memberModalTitle {
-  color: $member-text;
+  color: $member-surface;
   font-size: 1.125rem;
   font-weight: 800;
   margin: 0;
 }
 
 .memberModalClose {
-  background: $member-surface-muted;
+  background: rgb(255 255 255 / 16%);
   border: 0;
-  color: $member-muted;
+  color: $member-surface;
   font-size: 1.5rem;
   height: 44px;
   padding: 0;
@@ -735,23 +740,35 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberModalClose:hover {
-  background: $member-primary-soft;
-  color: $member-primary;
+  background: rgb(255 255 255 / 24%);
+  color: $member-surface;
 }
 
 .memberModalBody {
   display: grid;
-  gap: 1rem;
+  gap: 0.75rem;
   padding: 1.25rem;
 }
 
+// 會員訂單明細：套用在 components/member-center.partial 的 orderDetailOverlay。
 .memberDetailRow {
   align-items: center;
-  border-bottom: 1px solid $member-border;
+  background: $member-surface;
+  border: 1px solid $member-border;
+  border-radius: $member-radius-lg;
   display: flex;
   gap: 1rem;
   justify-content: space-between;
-  padding: 0.75rem 0;
+  padding: 0.875rem 1rem;
+}
+
+.memberDetailRow span:first-child {
+  color: $member-muted;
+}
+
+.memberDetailRow span:last-child {
+  color: $member-text;
+  font-weight: 800;
 }
 
 .memberDetailRowSuccess {
@@ -763,8 +780,23 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberDetailRowTotal {
+  background: $member-primary-soft;
+  border-color: color-mix(in srgb, $member-primary 24%, $member-border);
+}
+
+.memberDetailRowTotal span {
   color: $member-primary;
   font-weight: 800;
+}
+
+.memberDetailNote {
+  background: $member-primary-soft;
+  border: 1px solid color-mix(in srgb, $member-primary 18%, $member-border);
+  border-radius: $member-radius-lg;
+  color: $member-primary;
+  font-weight: 800;
+  line-height: 1.6;
+  padding: 0.875rem 1rem;
 }
 
 .memberReviewForm {

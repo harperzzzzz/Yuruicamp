@@ -20,6 +20,13 @@ $product-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
   padding-top: 1rem;
 }
 
+// 商品詳情主內容：套用在 pages/product-detail.html 的 main.productDetailContainer。
+main.productDetailContainer {
+  width: min(1120px, calc(100vw - 32px));
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
 .detailBreadcrumb {
   color: $product-muted;
   font-size: 0.875rem;
@@ -461,9 +468,10 @@ $product-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 .productTabsNav {
   border-bottom: 2px solid $product-border;
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   margin-bottom: 2rem;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .productTabBtn {

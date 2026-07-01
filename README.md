@@ -1,5 +1,7 @@
 ﻿## v1.3.31 - 2026/06/30
 
+- 依 `.agents/agents.md` 補齊本輪 CSS 細節：商品詳情頁籤列移除右側橫向捲動，會員中心 header 品牌字體避開 booking @font-face 覆蓋，並讓浮動回頂部按鈕維持橘色 48px 共用樣式。
+- 依 `.agents/agents.md` 調整前台 CSS 細節：商品詳情主內容補左右留白、header 品牌 logo 與 Yuruicamp 文字放大、全站連結 hover 改為不顯示底線、會員中心訂單明細 Modal 美化，並統一浮動回頂部按鈕 icon 尺寸。
 - 修復 shared header 登入互動：主站 `_header.scss` 補齊共用 modal 基礎樣式，`js/main.js` 與 `booking/js/layout.js` 在 shared-auth 注入後載入 `modal.js`，恢復登入、社群登入、個人化問卷與會員下拉選單初始化順序。
 - 修復 header 登入按鈕顯示狀態：`isLoggedIn` 為 true 時隱藏 `.siteLoginButton`，並顯示 `.siteUserMenu`；未登入時恢復登入按鈕既有 `inline-flex` 顯示，避免與會員選單同時出現。
 - 修復前台共用 UI：浮動回頂部 / LINE 按鈕改用 token 圓形固定樣式，合作夥伴 modal 開啟時不再捲到頁首，商品詳情頁加入購物車與直接購買按鈕同步商品列表 CTA 視覺。
