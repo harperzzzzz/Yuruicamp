@@ -1,6 +1,5 @@
-// AI style tokens mirrored from docs/ai-style-tokens.css.
-// Keep these custom properties in the compiled CSS so page SCSS can rely on
-// the documented --yui-* contract at runtime.
+// 全站設計 token：鏡像 docs/ai-style-tokens.css 的 --yui-* 合約。
+// 這些 custom properties 會輸出到編譯後 CSS，提供 components、pages、booking 相容樣式共用。
 :root {
   --yui-primary: #244d4d;
   --yui-primary-dark: #1a3838;

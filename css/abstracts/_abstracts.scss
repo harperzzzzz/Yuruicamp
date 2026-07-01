@@ -1,2 +1,3 @@
-// 用途：ITCSS abstracts 匯總入口，連接 variables 與 mixins，不直接產生具體元件樣式。
-@import 'variables/tokens';
+// 舊相容入口：abstracts 已由 settings 層接手，保留此檔避免舊匯入路徑失效。
+// 新增設定請放在 css/settings，main.scss 也會優先載入 settings/settings。
+@use '../settings/settings';

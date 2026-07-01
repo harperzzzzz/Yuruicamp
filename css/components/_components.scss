@@ -1,11 +1,11 @@
-// Components 層：共用元件先匯入，頁面樣式最後匯入。
-@import 'component-tokens';
-@import 'buttons';
-@import 'modal';
-@import 'auth-modal';
-@import 'drawer';
-@import 'offcanvas';
-@import 'cart-drawer';
-@import 'header';
-@import 'widgets/widgets';
-@import 'content/content';
+// Components 層：只放跨頁可重用 UI 元件，避免混入單一頁面專屬樣式。
+// 載入順序：先匯入按鈕、modal、drawer、header，再匯入 widgets 與共用內容規則。
+@use 'buttons';
+@use 'modal';
+@use 'auth-modal';
+@use 'drawer';
+@use 'offcanvas';
+@use 'cart-drawer';
+@use 'header';
+@use 'widgets/widgets';
+@use 'content/content';

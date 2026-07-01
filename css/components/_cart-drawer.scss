@@ -1,4 +1,4 @@
-// 購物車抽屜元件：主站購物車使用三段式 header/body/footer。
+// 購物車抽屜元件：主站購物車使用三段式 header / body / footer。
 .siteCartDrawer {
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -11,9 +11,9 @@
 // 購物車抽屜底部：固定結帳摘要與主要動作。
 .siteCartDrawerFooter,
 .bookingSlidePanelFooter {
-  padding: var(--yui-space-4); 
-  border-top: 1px solid $header-border;
-  background: $header-surface;
+  padding: var(--yui-space-4);
+  border-top: 1px solid var(--yui-border);
+  background: var(--yui-surface);
 }
 
 .siteCartSummary,
@@ -26,13 +26,13 @@
 }
 
 .siteCartSummary {
-  color: $header-muted;
+  color: var(--yui-text-muted);
   margin-bottom: var(--yui-space-2);
 }
 
 .siteCartSummaryTotal,
 .bookingCartPanelTotal {
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 18px;
   font-weight: 800;
   margin-block: var(--yui-space-3);
@@ -54,28 +54,28 @@
 }
 
 .siteCartEmptyIcon {
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 40px;
 }
 
 .siteCartEmptyTitle {
   margin: 0;
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 20px;
 }
 
 .siteCartEmptyText {
   margin: 0;
-  color: $header-muted;
+  color: var(--yui-text-muted);
 }
 
-// 購物車品項列：圖片固定、內容彈性收合。
+// 購物車品項列：圖片固定寬度，內容欄位彈性收合。
 .siteCartItem {
   display: grid;
   grid-template-columns: 88px 1fr;
   gap: var(--yui-space-3);
   padding-block: var(--yui-space-4);
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid var(--yui-border);
 }
 
 .siteCartItemImage {
@@ -93,12 +93,12 @@
 
 .siteCartItemBrand,
 .siteCartItemPrice {
-  color: $header-muted;
+  color: var(--yui-text-muted);
   font-size: 13px;
 }
 
 .siteCartItemName {
-  color: $header-text;
+  color: var(--yui-text);
   font-weight: 800;
   text-decoration: none;
 }
@@ -118,10 +118,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid $header-border;
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-md);
-  background: $header-surface;
-  color: $header-primary;
+  background: var(--yui-surface);
+  color: var(--yui-primary);
   cursor: pointer;
 }
 
@@ -154,18 +154,18 @@
   display: grid;
   gap: var(--yui-space-2);
   padding-block: var(--yui-space-3);
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid var(--yui-border);
 }
 
 .bookingCartPanelLabel {
   margin: 0;
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 16px;
 }
 
 .bookingCartPanelMeta {
   margin: 0;
-  color: $header-muted;
+  color: var(--yui-text-muted);
   font-size: 14px;
 }
 

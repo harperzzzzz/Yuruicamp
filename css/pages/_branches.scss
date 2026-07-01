@@ -1,4 +1,4 @@
-// Branches page token aliases mapped to docs/ai-style-tokens.css.
+// 分店頁 token alias：把頁面局部變數對應到全站 --yui-* 設計 token。
 $branches-primary: var(--yui-primary, #244d4d);
 $branches-primary-dark: var(--yui-primary-dark, #1a3838);
 $branches-primary-hover: var(--yui-primary-hover, #316868);
@@ -37,7 +37,7 @@ $branches-shadow-lg: var(--yui-shadow-lg, 0 12px 28px rgb(36 77 77 / 14%));
 $branches-transition-fast: var(--yui-transition-fast, 150ms ease);
 $branches-transition-base: var(--yui-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 
-// Branches page shell: only styles pages/branches.html content.
+// 分店頁外殼：只套用 pages/branches.html 的內容範圍。
 .branchesPage {
   min-height: 100vh; 
   background: $branches-bg;

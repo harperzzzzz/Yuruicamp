@@ -1,3 +1,4 @@
+// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yui-* 設計 token。
 $product-text: var(--yui-text, #333);
 $product-muted: var(--yui-text-muted, #666);
 $product-subtle: var(--yui-text-subtle, #999);
@@ -12,6 +13,7 @@ $product-accent: var(--yui-accent, #f59e0b);
 $product-danger: var(--yui-danger, #e74c3c);
 $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 
+// 商品頁橫幅：管理列表頁標題與說明區，不影響共用 header。
 .pageBanner {
   background: linear-gradient(135deg, $product-primary-dark, $product-primary);
   color: $product-surface;

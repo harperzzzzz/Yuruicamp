@@ -1,3 +1,4 @@
+// 商品詳情頁 token alias：把商品詳情局部變數對應到全站 --yui-* 設計 token。
 $product-text: var(--yui-text, #333);
 $product-muted: var(--yui-text-muted, #666);
 $product-subtle: var(--yui-text-subtle, #999);
@@ -15,12 +16,13 @@ $product-danger: var(--yui-danger, #d32f2f);
 $product-gold: var(--yui-gold, #d4a017);
 $product-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 
+// 商品詳情頁外層：控制內容上下留白，避免干擾共用 header / footer。
 .productDetailContainer {
   padding-bottom: 3rem;
   padding-top: 1rem;
 }
 
-// ????啣????望撠??????pages/product-detail.html ??main.productDetailContainer??main.productDetailContainer {
+// 商品詳情主容器：對應 pages/product-detail.html 的 main.productDetailContainer。
 main.productDetailContainer {
   margin-inline: auto;
   padding-inline: 0;

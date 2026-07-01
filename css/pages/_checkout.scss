@@ -1,3 +1,4 @@
+// 結帳頁 token alias：把 checkout 頁面局部變數對應到全站 --yui-* 設計 token。
 $checkout-text: var(--yui-text, #333);
 $checkout-muted: var(--yui-text-muted, #666);
 $checkout-subtle: var(--yui-text-subtle, #999);
@@ -13,6 +14,7 @@ $checkout-success: var(--yui-success, #4caf50);
 $checkout-danger: var(--yui-danger, #d32f2f);
 $checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 
+// 結帳頁外層：控制頁面上下留白，內部表單與摘要區塊維持頁面範圍。
 .checkoutPage {
   padding-bottom: 4rem;
   padding-top: 2rem;

@@ -8,7 +8,7 @@
   bottom: 0;
   z-index: var(--yui-z-modal);
   width: min(420px, 100vw);
-  background: $header-surface;
+  background: var(--yui-surface);
   box-shadow: var(--yui-shadow-lg);
   transition: transform var(--yui-transition-base);
 }
@@ -34,7 +34,7 @@
   transform: translateX(0);
 }
 
-// 抽屜遮罩：搭配 JS 切換 visible 狀態。
+// 抽屜遮罩：搭配 JS 切換 isVisible 狀態。
 .siteOffcanvasBackdrop,
 .siteCartDrawerBackdrop,
 .bookingOffcanvasBackdrop,
@@ -65,7 +65,7 @@
   justify-content: space-between;
   gap: var(--yui-space-3);
   padding: var(--yui-space-4);
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid var(--yui-border);
 }
 
 .siteOffcanvasTitle,
@@ -73,7 +73,7 @@
 .bookingOffcanvasTitle,
 .bookingSlidePanelTitle {
   margin: 0;
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 20px;
   font-weight: 800;
 }

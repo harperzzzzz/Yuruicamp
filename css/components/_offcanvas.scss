@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   border-radius: var(--yui-radius-md);
-  color: $header-text;
+  color: var(--yui-text);
   font-weight: 700;
   text-decoration: none;
   padding: 0 var(--yui-space-3);
@@ -24,6 +24,6 @@
 .siteOffcanvasNavigation a:hover,
 .bookingOffcanvasLinks a:hover,
 .bookingOffcanvasLinks a.isSelected {
-  background: $header-soft;
-  color: $header-primary;
+  background: var(--yui-primary-soft);
+  color: var(--yui-primary);
 }

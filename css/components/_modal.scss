@@ -14,18 +14,20 @@
   display: flex;
 }
 
+// Modal 內容框：限制寬度與高度，讓內容區在小螢幕可獨立捲動。
 .modalContent {
   width: min(440px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: $header-surface;
-  border: 1px solid $header-border;
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
   box-shadow: var(--yui-shadow-lg);
 }
 
+// Modal 標題列：保留標題與關閉按鈕的固定高度。
 .modalHeader {
   min-height: 64px;
   display: flex;
@@ -33,12 +35,12 @@
   justify-content: space-between;
   gap: var(--yui-space-3);
   padding: var(--yui-space-4);
-  border-bottom: 1px solid $header-border;
+  border-bottom: 1px solid var(--yui-border);
 }
 
 .modalTitle {
   margin: 0;
-  color: $header-primary;
+  color: var(--yui-primary);
   font-size: 20px;
   font-weight: 800;
 }
@@ -48,21 +50,22 @@
   padding: var(--yui-space-4);
 }
 
+// Modal 關閉按鈕：使用全站 token，避免依賴 header 專用 Sass 變數。
 .modalClose {
   min-width: 44px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid $header-border;
+  border: 1px solid var(--yui-border);
   border-radius: var(--yui-radius-lg);
-  background: $header-surface;
-  color: $header-primary;
+  background: var(--yui-surface);
+  color: var(--yui-primary);
   cursor: pointer;
 }
 
 .modalClose:hover {
-  background: $header-soft;
+  background: var(--yui-primary-soft);
 }
 
 .modalClose:focus-visible {

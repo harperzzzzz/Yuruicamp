@@ -728,3 +728,19 @@ window.YuruiAuth.sync()
 - 新增 `js/components/member-center.js` 統一會員中心功能：回饋點數、個人資料、`survey-tags`、購買紀錄、預約與租借紀錄、狀態篩選、折價券、通知、訂單明細與評價 Modal。
 - `pages/member-center.html` 與 `booking/pages/member-center.html` 改為各自保留 header/footer 外殼，再透過不同 `window.MemberCenterConfig` 載入共用 component 與對應資料路徑。
 - `js/pages/member-center.js` 與 `booking/js/member-center.js` 改為相容 wrapper，避免舊引用失效並防止會員中心功能分散維護。
+
+## v1.3.32 - 2026/07/01
+
+- 優化前台 SCSS 的 ITCSS 分層：新增 `css/settings/` 與 `css/pages/`，讓全站 token 與單頁樣式脫離 `components` 層。
+- 將原 `css/components/content/pages/*.scss` 搬移至 `css/pages/*.scss`，並由 `css/pages/_pages.scss` 作為 Pages 層入口。
+- `css/main.scss` 載入順序改為 settings、generic、base、layouts、components、pages、utilities；`css/abstracts/_abstracts.scss` 僅保留舊路徑相容。
+- SCSS 聚合檔與頁面 partial 補上中文註解，說明各區塊用途與可放置範圍；新增 [docs/itcss-architecture.md](docs/itcss-architecture.md) 作為後續維護規範。
+- 本輪未修改 HTML / JS；驗證結果見本次回覆。
+
+## v1.3.33 - 2026/07/01
+
+- 將 SCSS 聚合入口從 Sass `@import` 改為 `@use`，包含 `css/main.scss`、settings、generic、layouts、components、widgets、pages、utilities 與舊 abstracts 相容入口。
+- 移除 `css/components/_component-tokens.scss`，並把 modal、auth modal、drawer、offcanvas、cart drawer 對 `$header-*` 的跨檔依賴改為直接使用 `--yui-*` token。
+- 重整上述 component partial 的中文註解，說明各區塊用途、互動狀態與 token 使用邊界。
+- 更新 [docs/itcss-architecture.md](docs/itcss-architecture.md)，同步記錄 `@use` 載入順序與 components token 使用規範。
+- 本輪未修改 HTML / JS；驗證結果見本次回覆。
