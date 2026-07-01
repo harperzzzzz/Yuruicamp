@@ -1,0 +1,29 @@
+// 側邊導覽元件：主站與訂位頁共用的 offcanvas 導覽列表。
+.siteOffcanvasNavigation ul,
+.bookingOffcanvasLinks {
+  display: grid;
+  gap: var(--yui-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+// 側邊導覽連結：維持 44px 以上觸控高度。
+.siteOffcanvasNavigation a,
+.bookingOffcanvasLinks a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: var(--yui-radius-md);
+  color: $header-text;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0 var(--yui-space-3);
+}
+
+.siteOffcanvasNavigation a:hover,
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: $header-soft;
+  color: $header-primary;
+}

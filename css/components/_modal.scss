@@ -1,0 +1,82 @@
+// Modal 元件：共用登入、個人化問卷與確認流程的遮罩外殼。
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yui-z-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yui-space-4);
+  background: rgb(0 0 0 / 45%);
+}
+
+.modal.isOpen {
+  display: flex;
+}
+
+.modalContent {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: $header-surface;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-lg);
+}
+
+.modalHeader {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yui-space-3);
+  padding: var(--yui-space-4);
+  border-bottom: 1px solid $header-border;
+}
+
+.modalTitle {
+  margin: 0;
+  color: $header-primary;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.modalBody {
+  overflow: auto;
+  padding: var(--yui-space-4);
+}
+
+.modalClose {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  background: $header-surface;
+  color: $header-primary;
+  cursor: pointer;
+}
+
+.modalClose:hover {
+  background: $header-soft;
+}
+
+.modalClose:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 2px;
+}
+
+@media (width <= 480px) {
+  .modal {
+    padding: var(--yui-space-3);
+  }
+
+  .modalContent {
+    width: min(100%, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+  }
+}

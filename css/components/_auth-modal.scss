@@ -1,0 +1,115 @@
+// Auth Modal 內容元件：登入、個人化問卷與確認流程共用的 modal 內層樣式。
+.sharedAuthContent {
+  width: min(440px, calc(100vw - 32px));
+}
+
+.sharedSurveyContent {
+  width: min(640px, calc(100vw - 32px));
+}
+
+// 登入內容區：讓第三方登入按鈕與說明文字維持一致間距。
+.sharedAuthBody {
+  display: grid;
+  gap: var(--yui-space-4);
+}
+
+// 第三方登入按鈕：保留 44px 以上可點擊高度與既有 header token。
+.authProviderButton {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yui-space-2);
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-lg);
+  background: $header-surface;
+  color: $header-text;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.authProviderButton:hover {
+  background: $header-soft;
+}
+
+// Modal 輔助文字：OAuth、問卷提示與確認訊息共用閱讀節奏。
+.oauthDesc,
+.oauthPrivacy,
+.surveyHint,
+.modalConfirmMessage {
+  color: $header-muted;
+  line-height: 1.7;
+}
+
+// 問卷步驟：預設隱藏，JS 切換 isOpen 後使用 grid 排版。
+.surveyStep {
+  display: none;
+}
+
+.surveyStep.isOpen {
+  display: grid;
+  gap: var(--yui-space-4);
+}
+
+// 問卷標籤：可換行排列，選取狀態沿用主色。
+.surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-2);
+}
+
+.surveyTag {
+  min-height: 40px;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-pill);
+  background: $header-surface;
+  color: $header-text;
+  padding: 0 var(--yui-space-4);
+  cursor: pointer;
+}
+
+.surveyTag.isSelected {
+  background: $header-primary;
+  border-color: $header-primary;
+  color: #fff;
+}
+
+// 問卷步驟指示器：圓點與連線顯示目前填寫進度。
+.stepperHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--yui-space-2);
+}
+
+.stepperDot {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $header-border;
+  border-radius: var(--yui-radius-pill);
+  color: $header-muted;
+  font-weight: 800;
+}
+
+.stepperDot.isSelected {
+  background: $header-primary;
+  border-color: $header-primary;
+  color: #fff;
+}
+
+.stepperLine {
+  width: 48px;
+  height: 1px;
+  background: $header-border;
+}
+
+// 確認視窗動作列：讓取消與送出按鈕固定靠右。
+.sharedConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yui-space-3);
+  padding: 0 var(--yui-space-4) var(--yui-space-4);
+}
