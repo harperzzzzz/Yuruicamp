@@ -1,3 +1,14 @@
+## Changed（修改）
+
+### booking color token simplification
+- 簡化 `booking/css` 色彩 token，移除已合併的 `--yc-sage-mist`、`--yc-sage`、`--yc-cta-active`、`--yc-gold-text`、`--yc-success-line` 等舊色彩引用。
+- 將 `--yc-sage-soft` 統一為 `#eef2ec`，並讓 hover、tag、推薦橫幅等 soft sage 背景改用同一個 token。
+- 將警告文字 token 從 `--yc-warning-dark` 改為 `--yc-warning-text`。
+- 將 booking 顯示狀態改用 `.isVisible` class，移除 CSS 中的 `[style*='display']` 與 `!important` 相容寫法。
+- 已驗證：舊 token 掃描無殘留、`npm.cmd run stylelint` 通過、`npm.cmd run build` 通過。
+
+---
+
 ## Added（新增）
 
 ### booking/css/member-center.css

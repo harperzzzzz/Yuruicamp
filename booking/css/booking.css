@@ -1,4 +1,4 @@
-@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
+﻿@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
 
 /* ============================================================
    booking.css ???脩???蝟餌絞撠惇璅??
@@ -19,21 +19,17 @@
   --yc-bg: #f8f5ee;
   --yc-surface: #fffdf9;
   --yc-surface-soft: #f0ece3;
-  --yc-oat: #e8e0d5;
   --yc-border: #d8cfc3;
 
   /* Sage Brand */
-  --yc-sage-mist: #eef2ec;
-  --yc-sage-soft: #dce5da;
+  --yc-sage-soft: #eef2ec;
   --yc-sage-light: #b7c3b3;
-  --yc-sage: #8f9d8b;
   --yc-sage-action: #73816e;
   --yc-sage-dark: #62705d;
 
   /* Conversion CTA ????憟嗆硃?? */
   --yc-cta: #e2d39a;
   --yc-cta-hover: #d4c27e;
-  --yc-cta-active: #c4af62;
   --yc-cta-soft: #fbf3d1;
   --yc-cta-line: #d9c98f;
   --yc-on-cta: #4a4537;
@@ -48,7 +44,7 @@
   --yc-success-soft: #eef2ec;
   --yc-warning: #9a7455;
   --yc-warning-soft: #f4ece2;
-  --yc-warning-dark: #6b4d32;
+  --yc-warning-text: #6b4d32;
   --yc-error: #a65f58;
   --yc-error-soft: #f4e7e4;
 
@@ -84,8 +80,8 @@
 
   /* ?? bk-* ????yc-* tokens ?? */
   --bk-primary: var(--yc-sage-action);
-  --bk-primary-hover: var(--yc-sage);
-  --bk-primary-light: var(--yc-sage-mist);
+  --bk-primary-hover: var(--yc-sage-action);
+  --bk-primary-light: var(--yc-sage-soft);
   --bk-on-dark: var(--yc-on-dark);
   --bk-cta: var(--yc-cta);
   --bk-cta-hover: var(--yc-cta-hover);
@@ -96,8 +92,8 @@
   --bk-border-strong: var(--yc-sage-action);
   --bk-text: var(--yc-text);
   --bk-text-muted: var(--yc-text-muted);
-  --bk-accent: var(--yc-sage);
-  --bk-gold: var(--yc-sage-action); /* ?冽 inline text嚗雁?霈撠? */
+  --bk-accent: var(--yc-sage-action);
+  --bk-gold: var(--yc-on-cta); /* ?冽 inline text嚗雁?霈撠? */
   --bk-sage: var(--yc-sage-light);
   --bk-orange: var(--yc-warning);
   --bk-success: var(--yc-success);
@@ -272,11 +268,11 @@
   margin-top: 0.5rem;
   background: var(--yc-surface);
   color: var(--yc-sage-action);
-  border-color: var(--yc-sage);
+  border-color: var(--yc-sage-action);
 }
 
 #resetFilterBtn:hover {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   color: var(--yc-sage-dark);
   border-color: var(--yc-sage-action);
 }
@@ -397,13 +393,13 @@
 }
 
 .tag--env {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   color: var(--yc-sage-dark);
 }
 
 .tag--facility {
   background: rgb(143 157 139 / 12%);
-  color: var(--yc-sage);
+  color: var(--yc-sage-action);
 }
 
 .tag--recommend {
@@ -448,8 +444,8 @@
 
 .btn--primary:active,
 .btnPrimary:active {
-  background: var(--yc-cta-active);
-  border-color: var(--yc-cta-active);
+  background: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
   color: var(--yc-on-cta);
 }
 
@@ -815,6 +811,13 @@
   margin: 0 0.25rem;
 }
 
+#summaryEditLink {
+  margin-left: auto;
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
 /* ???刻璈怠? */
 .recommendation-banner {
   max-width: 1200px;
@@ -822,8 +825,12 @@
   padding: 0 1.5rem;
 }
 
+#recommendationBanner {
+  display: none;
+}
+
 .recommendation-banner__content {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   border: 1px solid var(--yc-sage-soft);
   border-radius: var(--bk-radius);
   padding: 1rem 1.25rem;
@@ -833,6 +840,10 @@
 
 .recommendation-banner__content strong {
   color: var(--bk-primary);
+}
+
+.recommendation-banner__title {
+  margin-bottom: 0.4rem;
 }
 
 .recommendation-tags {
@@ -870,6 +881,12 @@
   font-size: 1.15rem;
   color: var(--bk-primary);
   margin-bottom: 1rem;
+}
+
+#rentalCount {
+  color: var(--yc-text-muted, #7B756D);
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 
 /* 鋆??∠? Grid */
@@ -913,6 +930,16 @@
   margin-bottom: 0.4rem;
 }
 
+.rental-item-card__tag {
+  margin-bottom: 0.4rem;
+}
+
+.rental-item-card__desc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
 .rental-item-card__price {
   font-size: 0.8rem;
   color: var(--bk-text-muted);
@@ -930,6 +957,11 @@
   font-size: 1rem;
 }
 
+.rental-item-card__discount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
+
 .rental-item-card__stock {
   font-size: 0.78rem;
   color: var(--bk-accent);
@@ -945,6 +977,10 @@
   width: 100%;
   font-size: 0.875rem;
   padding: 0.45rem;
+}
+
+.rental-add-btn.is-added {
+  color: #2d7a4f;
 }
 
 /* 撌脤鋆??湔? */
@@ -1250,7 +1286,7 @@
 /* 蝯董??敺?鞈潭帖撟? */
 .upsell-banner {
   margin-top: 1rem;
-  background: linear-gradient(135deg, var(--yc-sage-mist), var(--yc-sage-soft));
+  background: var(--yc-sage-soft);
   border: 1px solid var(--yc-sage-soft);
   border-radius: var(--bk-radius);
   padding: 1rem;
@@ -1297,24 +1333,35 @@
   color: var(--bk-danger);
 }
 
+.error-msg > .bi,
+.no-result > .bi {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.no-result .btn {
+  margin-top: 1rem;
+}
+
 /* ============================================================
    19. Flatpickr 摰Ｚˊ??
    ============================================================ */
 .flatpickr-calendar {
-  border-radius: var(--bk-radius) !important;
-  box-shadow: var(--bk-shadow-hover) !important;
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow-hover);
 }
 
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange {
-  background: var(--bk-primary) !important;
-  border-color: var(--bk-primary) !important;
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
 }
 
 .flatpickr-day.inRange {
-  background: var(--bk-primary-light) !important;
-  border-color: var(--bk-primary-light) !important;
+  background: var(--bk-primary-light);
+  border-color: var(--bk-primary-light);
 }
 
 /* ============================================================
@@ -1386,16 +1433,16 @@
 
 .bookingHeader .navbarUserDropdown .dropdownItem,
 .bookingHeader .navbarUserDropdown .navbarLogoutBtn {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.65rem 1rem !important;
-  font-size: 0.9rem !important;
-  color: var(--yc-text) !important;
-  text-decoration: none !important;
-  background: none !important;
-  border: none !important;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: var(--yc-text);
+  text-decoration: none;
+  background: none;
+  border: none;
   cursor: pointer;
   font-family: inherit;
   text-align: left;
@@ -1404,11 +1451,11 @@
 
 .bookingHeader .navbarUserDropdown .dropdownItem:hover,
 .bookingHeader .navbarUserDropdown .navbarLogoutBtn:hover {
-  background: var(--yc-surface-soft) !important;
+  background: var(--yc-surface-soft);
 }
 
 .bookingHeader .navbarUserDropdown .navbarLogoutBtn {
-  color: var(--yc-error) !important;
+  color: var(--yc-error);
 }
 
 #booking-header #loginModal.modal,
@@ -2155,7 +2202,7 @@
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: var(--yc-sage);
+  color: var(--yc-sage-action);
   cursor: pointer;
   padding: 0.2rem;
   border-radius: 4px;
@@ -2201,14 +2248,14 @@
 
 /* 蝟餌絞?????嚗扒瘝寥? CTA 撘瑁矽 ???寧??蝬Ⅱ靽霈?改? */
 .bkOffcanvasSwitch {
-  color: var(--yc-sage-action) !important;
-  font-weight: 600 !important;
+  color: var(--yc-sage-action);
+  font-weight: 600;
 }
 
 /* ??????? */
 .bk-offcanvas__cart,
 .bkOffcanvasCart {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
 }
@@ -3207,7 +3254,7 @@
 
 .bookingOffcanvasLinks a:hover,
 .bookingOffcanvasLinks a.isSelected {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   color: var(--yc-sage-action);
 }
 

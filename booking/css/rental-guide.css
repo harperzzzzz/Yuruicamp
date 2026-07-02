@@ -192,7 +192,7 @@
 .rg-deposit-box__title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--yc-warning-dark, #6b4d32);
+  color: var(--yc-warning-text, #6b4d32);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;

@@ -9,6 +9,10 @@
   margin: 0 auto;
 }
 
+.booking-cart-page .step-progress {
+  padding-top: 1rem;
+}
+
 /* ── 手風琴面板 ── */
 .bk-panel {
   margin-bottom: 0.75rem;
@@ -64,6 +68,10 @@
   border-top: none;
   border-radius: 0 0 var(--bk-radius) var(--bk-radius);
   padding: 1.5rem;
+}
+
+.bk-panel:not(.is-open) .bk-panel__body {
+  display: none;
 }
 
 .bk-panel__arrow {
@@ -136,6 +144,11 @@
   color: var(--bk-text);
 }
 
+#payOptLine .payment-option__title span {
+  color: #00b900;
+  font-weight: 800;
+}
+
 .payment-option__desc {
   font-size: 0.8rem;
   color: var(--bk-text-muted);
@@ -197,6 +210,11 @@
   margin-top: 1.5rem;
 }
 
+#confirmPayBtn {
+  padding: 1rem;
+  font-size: 1.05rem;
+}
+
 .bk-terms-note {
   text-align: center;
   font-size: 0.75rem;
@@ -222,8 +240,16 @@
   border: 1.5px solid var(--yc-warning, #9a7455);
   border-radius: var(--bk-radius);
   font-size: 0.875rem;
-  color: var(--yc-warning-dark, #6b4d32);
+  color: var(--yc-warning-text, #6b4d32);
   margin-bottom: 1rem;
+}
+
+#loginNotice {
+  display: none;
+}
+
+#loginNotice.isVisible {
+  display: flex;
 }
 
 .bk-login-notice__btn {
@@ -246,6 +272,62 @@
 .bk-login-notice__btn:hover {
   background: var(--bk-primary);
   color: #fff;
+}
+
+#upsellSection,
+#upsellBanner {
+  display: none;
+}
+
+#upsellSection .cart-section__title {
+  color: var(--bk-gold);
+}
+
+#upsellSection > p {
+  color: var(--yc-text-secondary, #625E56);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+#panelContact .contact-form {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+#panelContact .contact-form p {
+  color: var(--yc-text-muted, #7B756D);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.bk-summary-card > .cost-total + div {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--bk-border);
+  text-align: center;
+}
+
+.bk-summary-card > .cost-total + div p {
+  color: var(--bk-text-muted);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.bk-summary-card > .cost-total + div p:first-child {
+  margin-bottom: 0.25rem;
+}
+
+#upsellBanner p + p {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+#upsellBanner .rental-skip-link {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
 }
 
 /* RWD */

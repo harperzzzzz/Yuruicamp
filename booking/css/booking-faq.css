@@ -45,7 +45,7 @@
       gap: .4rem;
       padding: .5rem 1.1rem;
       background: var(--yc-surface, #FFFDF9);
-      border: 2px solid var(--yc-sage-soft, #DCE5DA);
+      border: 2px solid var(--yc-sage-soft, #EEF2EC);
       border-radius: 20px;
       font-size: .875rem;
       color: var(--yc-sage-action, #73816E);
@@ -119,11 +119,11 @@
       transition: background .15s;
     }
 
-    .faq-item__question:hover { background: var(--yc-sage-mist, #EEF2EC); }
+    .faq-item__question:hover { background: var(--yc-sage-soft, #EEF2EC); }
 
     .faq-item__question.is-open {
       color: var(--yc-sage-action, #73816E);
-      background: var(--yc-sage-mist, #EEF2EC);
+      background: var(--yc-sage-soft, #EEF2EC);
     }
 
     /* 展開箭頭 */
@@ -155,6 +155,10 @@
     }
 
     .faq-item__answer li { margin-bottom: .35rem; }
+
+    #damage .faq-item__answer p + p {
+      margin-top: .75rem;
+    }
 
     .faq-item__answer a {
       color: var(--yc-sage-action, #73816E);

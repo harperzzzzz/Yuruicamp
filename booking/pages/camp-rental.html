@@ -28,8 +28,7 @@
     <div class="booking-summary-bar" id="bookingSummaryBar">
       <i class="bi bi-info-circle"></i>
       <span id="summaryText">載入預約資訊中...</span>
-      <a href="./camp-detail.html" id="summaryEditLink"
-         style="color:#fff;text-decoration:underline;margin-left:auto;font-size:.85rem;">
+      <a href="./camp-detail.html" id="summaryEditLink">
         修改
       </a>
     </div>
@@ -39,7 +38,7 @@
          依據營區環境特性動態顯示，告知使用者此營地的推薦裝備
          Dynamically shown based on campground's environment tags
          ===================================================== -->
-    <div class="recommendation-banner" id="recommendationBanner" style="display:none;"></div>
+    <div class="recommendation-banner" id="recommendationBanner"></div>
 
     <!-- =====================================================
          主內容：裝備列表 + 右側已選清單
@@ -52,7 +51,7 @@
         <h2>
           <i class="bi bi-bag-check"></i>
           可租借裝備
-          <span style="font-size:.875rem;font-weight:400;color:var(--yc-text-muted,#7B756D);" id="rentalCount"></span>
+          <span id="rentalCount"></span>
         </h2>
 
         <!-- 裝備卡片 Grid（由 JS 動態填入）-->

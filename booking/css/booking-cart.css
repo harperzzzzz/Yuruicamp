@@ -9,6 +9,42 @@
   margin: 0 auto;
 }
 
+#bkCartContent,
+#bkCartEmpty {
+  display: none;
+}
+
+#bkCartContent.isVisible {
+  display: grid;
+}
+
+#bkCartEmpty.isVisible {
+  display: block;
+}
+
+.booking-cart-page .step-progress {
+  padding-top: 1rem;
+}
+
+.booking-cart-page > div:nth-of-type(2) {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+.booking-cart-page > div:nth-of-type(2) h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--bk-text);
+  margin: 0 0 0.25rem;
+}
+
+#bkCartCount {
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
 /* ── 商品卡（住宿 / 裝備各一塊）── */
 .bk-cart-card {
   background: var(--bk-white);
@@ -156,6 +192,11 @@
   opacity: 0.7;
 }
 
+#bkRentalCard + div {
+  text-align: right;
+  padding: 0 0.25rem;
+}
+
 /* ── 項目右側（數量 + 價格）── */
 .bk-cart-item__right {
   display: flex;
@@ -230,6 +271,67 @@
 
 .bk-rental-remove:hover {
   color: var(--bk-danger, #c0392b);
+}
+
+.bk-cart-item__qty-label {
+  color: var(--bk-text-muted);
+  font-size: 0.72rem;
+}
+
+.bk-cart-empty-note {
+  padding: 1rem 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.85rem;
+}
+
+#bkCostRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.bk-cart-summary-card > hr {
+  border: none;
+  border-top: 2px solid var(--bk-border);
+  margin: 0 0 1rem;
+}
+
+.bk-cart-summary-card .cost-total {
+  margin-bottom: 1.5rem;
+}
+
+#bkCheckoutBtn {
+  display: block;
+  padding: 0.9rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.bk-cart-summary-card > a[href='./camp-rental.html'] {
+  display: block;
+  margin-top: 0.875rem;
+  color: var(--bk-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.bk-cart-summary-card > div:last-child {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bk-border);
+  text-align: center;
+}
+
+.bk-cart-summary-card > div:last-child p {
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  margin: 0;
+}
+
+.bk-cart-summary-card > div:last-child p:first-child {
+  margin-bottom: 0.25rem;
 }
 
 /* RWD */

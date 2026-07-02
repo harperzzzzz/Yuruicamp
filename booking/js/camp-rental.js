@@ -160,7 +160,7 @@ function renderRecommendationBanner(rentals, bookingInfo) {
 
   $banner.html(`
     <div class="recommendation-banner__content">
-      <div style="margin-bottom:.4rem;">
+      <div class="recommendation-banner__title">
         <strong>📍 ${bookingInfo.campground_name}</strong> 的情境推薦裝備
       </div>
       <div class="recommendation-tags">${tagsHTML}</div>
@@ -183,10 +183,10 @@ function renderRentalItems(rentals) {
 
   if (rentals.length === 0) {
     $grid.html(`
-      <div class="no-result" style="grid-column:1/-1;">
-        <i class="bi bi-bag-x" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+      <div class="no-result">
+        <i class="bi bi-bag-x"></i>
         此營區目前沒有可租借的裝備。<br>
-        <a href="./booking-cart.html" class="btn btn--outline" style="margin-top:1rem;">
+        <a href="./booking-cart.html" class="btn btn--outline">
           直接前往結帳
         </a>
       </div>
@@ -209,12 +209,12 @@ function renderRentalItems(rentals) {
 
     // terrain_tag 推薦標籤 / Terrain recommendation tag
     const tagHTML = item.terrain_tag
-      ? `<span class="tag tag--recommend" style="margin-bottom:.4rem;">${item.terrain_tag}</span>`
+      ? `<span class="tag tag--recommend rental-item-card__tag">${item.terrain_tag}</span>`
       : '';
 
     // 折扣說明 / Discount note
     const discHTML = disc > 0
-      ? `<span style="color:#e07b39;font-size:.78rem;">（已折 NT$${disc.toLocaleString()}）</span>`
+      ? `<span class="rental-item-card__discount">（已折 NT$${disc.toLocaleString()}）</span>`
       : '';
 
     const card = `
@@ -227,7 +227,7 @@ function renderRentalItems(rentals) {
         <div class="rental-item-card__body">
           <h4 class="rental-item-card__name">${item.name}</h4>
           ${tagHTML}
-          <p style="font-size:.8rem;color:#666;margin-bottom:.5rem;">${item.description}</p>
+          <p class="rental-item-card__desc">${item.description}</p>
           <p class="rental-item-card__price">
             平日 NT$${wPrice}/天 ／ 假日 NT$${hPrice}/天
           </p>
@@ -255,9 +255,9 @@ function renderRentalItems(rentals) {
 
     // 按鈕短暫反饋 / Brief button feedback
     const $btn = $(this);
-    $btn.html('<i class="bi bi-check-circle-fill"></i> 已加入').css('color', '#2d7a4f');
+    $btn.html('<i class="bi bi-check-circle-fill"></i> 已加入').addClass('is-added');
     setTimeout(() => {
-      $btn.html('<i class="bi bi-plus-circle"></i> 再加一件').css('color', '');
+      $btn.html('<i class="bi bi-plus-circle"></i> 再加一件').removeClass('is-added');
     }, 1000);
   });
 }

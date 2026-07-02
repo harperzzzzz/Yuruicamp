@@ -124,3 +124,10 @@
   color: var(--bk-text-muted);
   margin-top: 0.75rem;
 }
+
+.error-msg > .bi,
+.no-result > .bi {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}

@@ -23,7 +23,7 @@
   <main class="booking-cart-page">
 
     <!-- 步驟進度列 / Step Progress Bar -->
-    <div class="step-progress" style="padding-top:1rem;">
+    <div class="step-progress">
       <div class="step completed">
         <span><i class="bi bi-check-lg"></i></span>
         選擇營區
@@ -85,11 +85,11 @@
               </div>
             </section>
 
-            <section class="cart-section" id="upsellSection" style="display:none;">
-              <h3 class="cart-section__title" style="color:var(--bk-gold);">
+            <section class="cart-section" id="upsellSection">
+              <h3 class="cart-section__title">
                 <i class="bi bi-star"></i> 喜歡這些裝備嗎？
               </h3>
-              <p style="font-size:.9rem;color:var(--yc-text-secondary,#625E56);margin-bottom:1rem;">
+              <p>
                 租借體驗後，若想擁有自己的裝備，可至選物商店選購全新商品。
               </p>
               <a href="../../pages/products.html" class="btn btn--outline">
@@ -109,15 +109,15 @@
             </div>
             <span class="bk-panel__arrow">▼</span>
           </div>
-          <div class="bk-panel__body" style="display:none;">
-            <div class="contact-form" style="padding:0;background:none;border:none;">
+          <div class="bk-panel__body">
+            <div class="contact-form">
               <input type="text"  id="contactName"  class="form-control"
                      placeholder="訂購人姓名 *" required>
               <input type="tel"   id="contactPhone" class="form-control"
                      placeholder="手機號碼 *" required>
               <input type="email" id="contactEmail" class="form-control"
                      placeholder="電子信箱 *" required>
-              <p style="font-size:.78rem;color:var(--yc-text-muted,#7B756D);margin-top:.25rem;margin-bottom:0;">
+              <p>
                 * 確認信將寄送至此信箱
               </p>
             </div>
@@ -133,7 +133,7 @@
             </div>
             <span class="bk-panel__arrow">▼</span>
           </div>
-          <div class="bk-panel__body" style="display:none;">
+          <div class="bk-panel__body">
 
             <!-- 信用卡 -->
             <label class="payment-option is-selected" id="payOptCredit">
@@ -149,7 +149,7 @@
               <input type="radio" name="paymentMethod" value="linepay" id="payLine">
               <div>
                 <div class="payment-option__title">
-                  <span style="color:#00b900;font-weight:800;">LINE</span> Pay
+                  <span>LINE</span> Pay
                 </div>
                 <div class="payment-option__desc">使用 LINE Pay 電子錢包付款，快速便利</div>
               </div>
@@ -183,7 +183,7 @@
         <div class="bk-confirm-area">
 
           <!-- 未登入提示（由 JS 控制顯示） -->
-          <div id="loginNotice" class="bk-login-notice" style="display:none;">
+          <div id="loginNotice" class="bk-login-notice">
             <i class="bi bi-person-exclamation"></i>
             您尚未登入，登入後即可完成預約
             <button type="button" id="loginNoticeBtn" class="bk-login-notice__btn">
@@ -191,8 +191,7 @@
             </button>
           </div>
 
-          <button class="btn btn--primary btn--full" id="confirmPayBtn"
-                  style="font-size:1.05rem;padding:1rem;">
+          <button class="btn btn--primary btn--full" id="confirmPayBtn">
             <i class="bi bi-lock-fill"></i> 確認預約並送出
           </button>
           <p class="bk-terms-note">
@@ -224,26 +223,26 @@
           </div>
 
           <!-- 安全保障 -->
-          <div style="border-top:1px solid var(--bk-border);padding-top:1rem;margin-top:1rem;text-align:center;">
-            <p style="font-size:0.75rem;color:var(--bk-text-muted);margin:0 0 0.25rem 0;">
+          <div>
+            <p>
               🔒 SSL 加密保護，安全付款
             </p>
-            <p style="font-size:0.75rem;color:var(--bk-text-muted);margin:0;">
+            <p>
               📋 預約確認信將寄送至您的信箱
             </p>
           </div>
 
           <!-- 結帳後導購橫幅（預設隱藏）-->
-          <div class="upsell-banner" id="upsellBanner" style="display:none;margin-top:1rem;">
+          <div class="upsell-banner" id="upsellBanner">
             <p>🎉 預約已成功送出！</p>
-            <p style="font-size:.85rem;margin-bottom:.75rem;">
+            <p>
               喜歡這次的裝備體驗嗎？前往選購屬於你的露營裝備。
             </p>
             <a href="../../pages/products.html" class="btn btn--outline btn--full">
               <i class="bi bi-shop"></i> 前往選購新裝備
             </a>
             <a href="./camp-search.html"
-               class="rental-skip-link" style="margin-top:.5rem;display:block;text-align:center;">
+               class="rental-skip-link">
               再預約一次露營
             </a>
           </div>
