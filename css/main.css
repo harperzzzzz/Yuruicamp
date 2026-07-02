@@ -4942,7 +4942,7 @@ a:focus-visible,
   padding-block: clamp(32px, 6vw, 72px);
 }
 
-.brandBenefits h2.sr-only {
+.brandBenefitsHeading {
   clip: auto;
   block-size: auto;
   inline-size: auto;
@@ -7915,17 +7915,6 @@ main.productDetailContainer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transform: scale(0.98);
   }
-}
-.sr-only {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
 }
 
 /*# sourceMappingURL=main.css.map */

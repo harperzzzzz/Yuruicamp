@@ -1,6 +1,21 @@
-# ITCSS 架構規範
+# ITCSS (Inverted Triangle CSS) 架構規範
 
-本文記錄 `css/main.scss` 的分層契約，新增或搬移 SCSS 時需依照此順序判斷責任邊界。
+通用樣式規則放在最前面，覆蓋規則放在最後，按照優先順序排列成一個倒三角形。
+* 由上至下，七個層級:
+    - `settings` > 配置顏色、字體、大小等各種參數的變數配置。
+    - `tools` > 全球通用的 mixin 和函數。
+    - `generic` > CSS 重設和規範化規則，為您的樣式奠定基礎。
+    - `elements` >  原生 HTML 元素的樣式規則。
+    - `objects` > 用於佈局或結構化元素的樣式規則。
+    - `components`(元件) >  UI元件的樣式規則。
+    - `trumps`(核心覆寫) > 輔助或實用規則，透過調整和覆寫現有規則來微調物件或元件。
+    ![alt text](Layers.png)
+* 三種特性的覆蓋範圍 (越上面影響越多):
+    - Reach (影響範圍) : 影響多少html 元素越多越上層。
+    - Specificity (權重) : 選擇器權重越低越上層。
+        原生標籤 > class > id > !important
+    - Explicitness (具體意圖) : 模糊、通用 (上層)，明確、專一 (下層)
+    ![alt text](Reach.png)
 
 ## 載入順序
 
@@ -11,18 +26,32 @@
 @use 'objects/objects';
 @use 'components/components';
 @use 'pages/pages';
-@use 'utilities/utilities';
 ```
 
-## 分層責任
+## 分層責任 (由上至下 ITCSS排列)
 
-- `settings`：全站設計 token、Sass 設定值與不綁定 UI 的基礎變數。目前 `--yui-*` runtime token 放在 `css/settings/_tokens.scss`。
-- `generic`：reset、normalize 與瀏覽器預設一致化規則。
-- `elements`：`body`、`a`、`button`、`img` 等原生元素基礎樣式。
-- `objects`：container、grid、stack 等不帶品牌視覺的版面物件。
-- `components`：跨頁可重用 UI，例如 header、drawer、modal、button、footer、floating actions。
-- `pages`：單一頁面專屬樣式，例如 `home`、`products`、`checkout`、`faq`。
-- `utilities`：單一職責工具類，權重最高，應保持少量且可預期。
+* settings (全站共用顏色、尺寸樣式表)
+* generic (覆蓋預設樣式)
+    - `reset.scss` <html>、<body>、<img>、<button>、`*` 的覆蓋
+* elements (html 原始標籤通用樣式)
+* objects (「 共用 」佈局樣式) 
+* components (`主站`共用元件)
+    * /widgets 資料夾 (`全站`共用元件)
+        - `footer.scss` 頁腳樣式，套用至buyer, booking。
+        - `floating-action.scss` 套用至右下角的Line 客服、top up 按鈕。
+        - `header.scss` 目前只套用buyer
+    - `button.scss` 定義共用按鈕「 基本樣式 」。
+    - `modal.scss` modal 對話窗內容樣式。
+        - modal 背景遮罩、Title、Body、關閉按鈕等等。
+    - `auth-modal.scss` 
+        - 登入/註冊/喜好問卷樣式
+    - `drawer.scss` (抽屜動畫)
+        - modal 滑動動畫控制、控制顯示/隱藏、透明度控制
+    - `offcanvas.scss` 補充導覽列連結樣式
+    - `cart-drawer.scss` 
+        - 購物車全部樣式 + 購物車滑動動畫
+* pages (根據「 頁面 」特別設計的樣式)
+
 
 ## 新增樣式規則
 
@@ -31,10 +60,8 @@
 - 原生元素的全站基底與互動狀態放在 `elements`，例如 `body`、`a`、`a:hover`、`a:focus-visible`。
 - 可跨頁重用的 UI 才放進 `components`，避免讓 components 混入單一頁面規則。
 - 新增色彩、間距、圓角、陰影時，優先使用 `--yui-*` token；需要新 token 時先補在 `settings`。
-- `css/abstracts/_abstracts.scss` 只保留舊路徑相容，不再作為新設定入口。
-- `css/base/_base.scss` 只保留舊路徑相容，新的原生元素基礎樣式需放在 `css/elements/`。
-- `css/layouts/_layouts.scss` 只保留舊路徑相容，新的版面物件需放在 `css/objects/`。
-- `css/components/content/_content.scss` 已移除，不再作為新的共用內容入口。
+- 原生元素基礎樣式需放在 `css/elements/`。
+- 大量重複佈局需放在 `css/objects/`。
 - Components 層的共用元件應直接使用 `--yui-*` token，避免依賴其他 partial 先宣告的 Sass 變數。
 - Components 層目前不保留 Sass `$...` alias；若需要新 token，先回到 `settings` 定義 runtime custom property。
 
@@ -48,7 +75,6 @@
 | `.container`、`.stack`、`.cluster`、`.grid` | `objects` | 只管理寬度、排列、節奏與結構，不放品牌顏色或元件狀態。 |
 | `.btn`、`.modal`、`.drawer`、`.siteHeader`、`.siteFooter` | `components` | 可跨頁重用，具備明確 UI 語意與互動狀態。 |
 | `.homePage`、`.productsPage`、`.checkoutPage` 底下的區塊 | `pages` | 只服務單一頁面流程或單一頁面的視覺組合。 |
-| `.sr-only`、`.isHidden` 這類單一職責工具 | `utilities` | 用途小且明確，通常需要最高優先權或跨層覆寫能力。 |
 
 ## 尚未處理
 

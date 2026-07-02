@@ -51,7 +51,7 @@
   transform: translateY(0);
 }
 
-// LINE 客服按鈕：保留品牌成功色，文字用 sr-only 類似方式隱藏。
+// LINE 客服按鈕：保留品牌成功色，文字使用視覺隱藏方式輔助螢幕閱讀器。
 .floatingLineBtn {
   background: var(--yui-success);
 }
