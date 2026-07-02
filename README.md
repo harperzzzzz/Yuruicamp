@@ -1,4 +1,9 @@
-﻿## v1.3.31 - 2026/06/30
+﻿## v1.3.39 - 2026/07/02
+
+- 依 `.agents/AGENTS.md` 整理 `js/components/member-center.js`：使用 Prettier 展開壓縮式單行程式，補齊函式間空行、縮排與中文用途註解，並將折價券與通知 HTML 字串拆成逐標籤換行。
+- 本輪未修改會員中心功能邏輯；驗證已通過 `node --check js/components/member-center.js`，並確認沒有 140 字以上長行。
+
+## v1.3.31 - 2026/06/30
 
 - 依 `.agents/agents.md` 補齊本輪 CSS 細節：商品詳情頁籤列移除右側橫向捲動，會員中心 header 品牌字體避開 booking @font-face 覆蓋，並讓浮動回頂部按鈕維持橘色 48px 共用樣式。
 - 依 `.agents/agents.md` 調整前台 CSS 細節：商品詳情主內容補左右留白、header 品牌 logo 與 Yuruicamp 文字放大、全站連結 hover 改為不顯示底線、會員中心訂單明細 Modal 美化，並統一浮動回頂部按鈕 icon 尺寸。

@@ -50,7 +50,7 @@
 | `.homePage`、`.productsPage`、`.checkoutPage` 底下的區塊 | `pages` | 只服務單一頁面流程或單一頁面的視覺組合。 |
 | `.sr-only`、`.isHidden` 這類單一職責工具 | `utilities` | 用途小且明確，通常需要最高優先權或跨層覆寫能力。 |
 
-## 本輪尚未處理
+## 尚未處理
 
 - `booking/css/*.css` 與 `admin/css/admin.css` 仍是獨立 CSS 系統，後續可再拆成各自的 ITCSS entry。
 - `css/pages/*.scss` 仍保留頁面局部 Sass alias，用來讓大型頁面 partial 維持可讀性；後續若要收斂，可逐頁改成直接使用 `--yui-*`。

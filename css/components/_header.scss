@@ -326,6 +326,12 @@
 .siteUserTrigger {
   gap: var(--yui-space-2);
   padding-inline: var(--yui-space-2);
+  border-color: transparent;
+}
+
+.siteUserTrigger:hover {
+  background-color: var(--yui-bg);
+  border-color: transparent;
 }
 
 .siteUserAvatar {

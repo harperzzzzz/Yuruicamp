@@ -708,32 +708,34 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   border-color: color-mix(in srgb, $member-primary 18%, $member-border);
   box-shadow: var(--yui-shadow-lg, 0 12px 28px rgb(36 77 77 / 14%));
   max-height: min(720px, calc(100vh - 2rem));
-  max-width: 640px;
+  max-width: 612px;
   overflow: auto;
-  width: min(100%, 640px);
+  width: min(100%, 612px);
 }
 
 .memberModalHeader {
   align-items: center;
-  background: linear-gradient(135deg, $member-primary, $member-primary-hover);
-  border-bottom: 1px solid color-mix(in srgb, $member-primary 24%, $member-border);
-  color: $member-surface;
+  background: color-mix(in srgb, $member-surface 88%, $member-bg);
+  border-bottom: 1px solid color-mix(in srgb, $member-primary 14%, $member-border);
+  color: $member-primary;
   display: flex;
   justify-content: space-between;
-  padding: 1rem 1.25rem;
+  padding: 1rem;
 }
 
 .memberModalTitle {
-  color: $member-surface;
+  color: $member-primary;
   font-size: 1.125rem;
   font-weight: 800;
+  line-height: 1.35;
   margin: 0;
 }
 
 .memberModalClose {
-  background: rgb(255 255 255 / 16%);
+  background: $member-surface;
   border: 0;
-  color: $member-surface;
+  border-radius: 50%;
+  color: $member-text;
   font-size: 1.5rem;
   height: 44px;
   padding: 0;
@@ -741,14 +743,14 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberModalClose:hover {
-  background: rgb(255 255 255 / 24%);
-  color: $member-surface;
+  background: $member-primary-soft;
+  color: $member-primary;
 }
 
 .memberModalBody {
   display: grid;
-  gap: 0.75rem;
-  padding: 1.25rem;
+  gap: 1rem;
+  padding: 0 1rem 1.25rem;
 }
 
 // 會員訂單明細：套用在 components/member-center.partial 的 orderDetailOverlay。
@@ -798,6 +800,164 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   font-weight: 800;
   line-height: 1.6;
   padding: 0.875rem 1rem;
+}
+
+// 訂單明細摘要：日期靠左、狀態膠囊靠右，對齊截圖中的首列資訊。
+.memberDetailSummary {
+  align-items: center;
+  border-bottom: 1px solid color-mix(in srgb, $member-primary 16%, $member-border);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-inline: -1rem;
+  padding: 0 1rem 1rem;
+}
+
+.memberDetailDate {
+  color: $member-muted;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+// 訂單明細區塊：商品、費用與補充資訊共用的垂直節奏。
+.memberDetailSection {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.memberDetailSectionTitle {
+  color: $member-primary;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+}
+
+// 品項清單：縮圖固定尺寸，避免圖片載入造成版面跳動。
+.memberDetailItems {
+  display: grid;
+  gap: 0;
+}
+
+.memberDetailItem {
+  align-items: center;
+  border-bottom: 1px solid color-mix(in srgb, $member-border 72%, transparent);
+  display: grid;
+  gap: 0.875rem;
+  grid-template-columns: 56px minmax(0, 1fr);
+  padding: 0.875rem 0;
+}
+
+.memberDetailItem:first-child {
+  padding-top: 0.25rem;
+}
+
+.memberDetailItemImage {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, $member-primary 10%, $member-border);
+  border-radius: $member-radius-lg;
+  display: block;
+  object-fit: cover;
+  width: 56px;
+}
+
+.memberDetailItemText {
+  min-width: 0;
+}
+
+.memberDetailItemName {
+  color: $member-text;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.memberDetailItemMeta {
+  color: $member-muted;
+  line-height: 1.5;
+  margin: 0.375rem 0 0;
+}
+
+.memberDetailDivider {
+  border-top: 1px solid color-mix(in srgb, $member-primary 18%, $member-border);
+}
+
+// 費用明細列：使用無卡片邊框的左右對齊，維持收據式資訊密度。
+.memberDetailRow {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  line-height: 1.5;
+  padding: 0;
+}
+
+.memberDetailRow span:first-child {
+  color: $member-text;
+}
+
+.memberDetailRow span:last-child {
+  font-weight: 400;
+  text-align: right;
+}
+
+.memberDetailRowTotal {
+  background: transparent;
+  border-top: 1px solid color-mix(in srgb, $member-primary 18%, $member-border);
+  margin-top: 0.125rem;
+  padding-top: 0.875rem;
+}
+
+.memberDetailRowSuccess span {
+  color: color-mix(in srgb, $member-success 72%, $member-primary);
+}
+
+.memberDetailRowDanger span {
+  color: $member-danger;
+}
+
+// 訂單補充資訊：付款、配送與追蹤資訊，圖示維持輕量輔助。
+.memberDetailInfo {
+  color: $member-muted;
+  gap: 0.75rem;
+}
+
+.memberDetailMeta {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.375rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.memberDetailMeta i {
+  color: $member-muted;
+  flex: 0 0 auto;
+  line-height: 1.6;
+}
+
+// LINE 諮詢按鈕：使用品牌綠做外框 CTA，保留會員中心按鈕尺寸節奏。
+.memberDetailLineButton {
+  align-items: center;
+  border: 2px solid #06c755;
+  border-radius: $member-radius-lg;
+  color: #06c755;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 64px;
+  text-decoration: none;
+  transition: background-color $member-transition, color $member-transition, box-shadow $member-transition;
+  width: 100%;
+}
+
+.memberDetailLineButton:hover,
+.memberDetailLineButton:focus-visible {
+  background: color-mix(in srgb, #06c755 8%, $member-surface);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #06c755 22%, transparent);
+  color: #05a846;
+  outline: 0;
 }
 
 .memberReviewForm {
