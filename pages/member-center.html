@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Yuruicamp 會員中心 - 管理訂單、折價券、個人資料">
+  <meta name="description" content="Yuruicamp 會員中心 - 管理會員資料、購買紀錄、租借紀錄與折價券">
   <meta name="theme-color" content="#244d4d">
-  <title>會員中心 - Yuruicamp 露營選物</title>
+  <title>會員中心 - Yuruicamp 線上購物</title>
   <link rel="preconnect" href="https://picsum.photos">
   <link rel="dns-prefetch" href="https://picsum.photos">
   <link rel="stylesheet" href="../css/main.css">
@@ -20,13 +20,11 @@
 
   <div id="header"></div>
 
-  <!-- 重點：前台會員中心只保留頁面外殼，實際顯示與互動統一載入 components/member-center.partial。 -->
   <div id="memberCenterMount" data-component-mount="member-center"></div>
 
   <div id="footer"></div>
 
   <script>
-    // 重點：前台會員中心使用根目錄 data，登入狀態讀 currentUser，並保留 yuruiUser 作為 booking 相容來源。
     window.MemberCenterConfig = {
       dataBasePath: '../data',
       authStorageKey: 'currentUser',
@@ -45,7 +43,7 @@
         window.initMemberCenterComponent && window.initMemberCenterComponent();
       } catch (error) {
         console.error('會員中心元件載入失敗', error);
-        mount.innerHTML = '<div class="mc-login-guard" style="display:flex;"><div class="mc-login-guard__box"><h2 class="mc-login-guard__title">會員中心載入失敗</h2><p class="mc-login-guard__desc">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
+        mount.innerHTML = '<div class="memberLoginGuard isOpen" role="status" aria-live="polite"><div class="memberLoginGuardCard"><h2 class="memberLoginGuardTitle">會員中心載入失敗</h2><p class="memberLoginGuardText">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
       }
     };
 

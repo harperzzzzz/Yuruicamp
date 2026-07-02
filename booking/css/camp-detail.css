@@ -1,0 +1,49 @@
+/* Camp detail page inline-style replacements. */
+
+#dateSummary,
+#priceSummary {
+  display: none;
+}
+
+#dateSummary.isVisible {
+  display: block;
+}
+
+#priceSummary.isVisible {
+  display: flex;
+}
+
+.breadcrumb span:first-of-type {
+  margin: 0 0.4rem;
+  color: var(--yc-text-muted, #7B756D);
+}
+
+.camp-description__title {
+  margin-bottom: 0.75rem;
+  color: var(--bk-primary);
+}
+
+.camp-description__tags {
+  margin-top: 0.75rem;
+}
+
+.date-summary > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.date-summary > div:first-child {
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+#zoneList > p {
+  color: var(--yc-text-muted, #7B756D);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.zone-table-section > div {
+  overflow-x: auto;
+}

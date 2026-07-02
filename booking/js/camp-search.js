@@ -71,7 +71,7 @@ function loadCampgrounds() {
     $('#loadingSkeleton').hide();
     $('#campCardGrid').html(`
       <div class="error-msg">
-        <i class="bi bi-exclamation-triangle" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+        <i class="bi bi-exclamation-triangle"></i>
         資料載入失敗，請確認 data/campgrounds.json 存在，或重新整理頁面。
       </div>
     `);
@@ -99,7 +99,7 @@ function renderCampCards(camps) {
   if (camps.length === 0) {
     $grid.html(`
       <div class="no-result">
-        <i class="bi bi-search" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+        <i class="bi bi-search"></i>
         沒有符合條件的營區，請嘗試調整篩選條件。
       </div>
     `);

@@ -23,7 +23,7 @@
 
     .faq-hero__subtitle {
       font-size: 1rem;
-      color: rgba(255,253,249,.85);
+      color: rgb(255 253 249 / 85%);
       max-width: 480px;
       margin: 0 auto;
     }
@@ -45,7 +45,7 @@
       gap: .4rem;
       padding: .5rem 1.1rem;
       background: var(--yc-surface, #FFFDF9);
-      border: 2px solid var(--yc-sage-soft, #DCE5DA);
+      border: 2px solid var(--yc-sage-soft, #EEF2EC);
       border-radius: 20px;
       font-size: .875rem;
       color: var(--yc-sage-action, #73816E);
@@ -96,7 +96,7 @@
     .faq-item {
       background: var(--yc-surface, #FFFDF9);
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(60,70,59,.08);
+      box-shadow: 0 2px 8px rgb(60 70 59 / 8%);
       margin-bottom: .75rem;
       overflow: hidden;
     }
@@ -119,11 +119,11 @@
       transition: background .15s;
     }
 
-    .faq-item__question:hover { background: var(--yc-sage-mist, #EEF2EC); }
+    .faq-item__question:hover { background: var(--yc-sage-soft, #EEF2EC); }
 
     .faq-item__question.is-open {
       color: var(--yc-sage-action, #73816E);
-      background: var(--yc-sage-mist, #EEF2EC);
+      background: var(--yc-sage-soft, #EEF2EC);
     }
 
     /* 展開箭頭 */
@@ -156,6 +156,10 @@
 
     .faq-item__answer li { margin-bottom: .35rem; }
 
+    #damage .faq-item__answer p + p {
+      margin-top: .75rem;
+    }
+
     .faq-item__answer a {
       color: var(--yc-sage-action, #73816E);
       text-decoration: underline;
@@ -183,7 +187,7 @@
 
     .faq-cta__box p {
       font-size: .9rem;
-      color: rgba(255,253,249,.85);
+      color: rgb(255 253 249 / 85%);
       margin-bottom: 1.5rem;
     }
 
@@ -207,6 +211,6 @@
     }
 
     /* ── RWD ── */
-    @media (max-width: 768px) {
+    @media (width <= 768px) {
       .faq-hero__title { font-size: 1.75rem; }
     }

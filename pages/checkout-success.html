@@ -1,12 +1,11 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Yuruicamp 訂單成立成功 - 感謝您的購買！" />
+    <meta name="description" content="Yuruicamp 訂單成立成功，查看訂單編號與後續出貨流程。" />
     <meta name="theme-color" content="#244d4d" />
-    <title>訂單成立！- Yuruicamp 露營選物</title>
-    <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
+    <title>訂單成立 - Yuruicamp 露營選物</title>
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="dns-prefetch" href="https://picsum.photos" />
     <link rel="stylesheet" href="../css/main.css" />
@@ -20,91 +19,74 @@
     />
   </head>
   <body>
+    <!-- 共用頁首：由 main.js 載入 components/header.partial -->
     <div id="header"></div>
 
-    <!-- ===================================================
-       成功主體 Success Main Content
-       =================================================== -->
-    <main class="u-migrated-035">
-      <!-- 成功卡片容器 Success card container -->
-      <div class="checkout-success u-migrated-036">
-        <!-- 背景裝飾圓圈 Background decoration circles -->
-        <div class="u-migrated-037"></div>
-        <div class="u-migrated-038"></div>
+    <!-- 訂單成立主內容：顯示訂單編號、出貨流程與後續操作 -->
+    <main class="checkoutSuccessPage">
+      <section class="checkoutSuccess" aria-labelledby="successTitle">
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationTop" aria-hidden="true"></div>
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationBottom" aria-hidden="true"></div>
 
-        <!-- 大型綠色勾勾圖示 Large green check icon -->
-        <div class="success-icon-wrap u-migrated-039">
-          <span class="u-migrated-040">✓</span>
+        <div class="successIconWrap" aria-hidden="true">
+          <span class="successIcon">✓</span>
         </div>
 
-        <!-- 成功訊息內容 Success message content -->
-        <div class="success-content">
-          <!-- 大標題 Main title -->
-          <h1 class="u-migrated-041">訂單成立！🎉</h1>
-
-          <!-- 感謝文字 Thank you text -->
-          <p class="u-migrated-042">
-            感謝您在 Yuruicamp 的購物！<br />
-            我們已收到您的訂單，將盡快安排出貨。<br />
-            訂單確認信已發送至您的信箱。
+        <div class="successContent">
+          <h1 class="successTitle" id="successTitle">訂單成立</h1>
+          <p class="successDescription">
+            感謝您在 Yuruicamp 選購露營用品。我們已收到訂單，將盡快安排備貨與出貨。
           </p>
 
-          <!-- 訂單編號區塊 Order number block -->
-          <div class="u-migrated-043">
-            <div class="u-migrated-044">訂單編號</div>
-            <div class="u-migrated-045" id="orderNumberDisplay">
-              <!-- 由 JS 填入訂單編號 Filled by JS -->
-              載入中...
-            </div>
+          <dl class="orderNumberPanel">
+            <dt class="orderNumberLabel">訂單編號</dt>
+            <dd class="orderNumberValue isLoading" id="orderNumberDisplay" aria-live="polite">載入中...</dd>
+          </dl>
+
+          <ol class="shippingTimeline" aria-label="預計出貨流程">
+            <li class="shippingTimelineItem">
+              <span class="shippingTimelineIcon" aria-hidden="true">1</span>
+              <span class="shippingTimelineLabel">備貨中</span>
+              <span class="shippingTimelineMeta">1-2 工作天</span>
+            </li>
+            <li class="shippingTimelineItem">
+              <span class="shippingTimelineIcon" aria-hidden="true">2</span>
+              <span class="shippingTimelineLabel">配送中</span>
+              <span class="shippingTimelineMeta">2-4 工作天</span>
+            </li>
+            <li class="shippingTimelineItem">
+              <span class="shippingTimelineIcon" aria-hidden="true">3</span>
+              <span class="shippingTimelineLabel">準備收貨</span>
+              <span class="shippingTimelineMeta">確認配送通知</span>
+            </li>
+          </ol>
+
+          <div class="successActions" aria-label="下一步操作">
+            <a class="successAction successActionPrimary" href="member-center.html">查看訂單明細</a>
+            <a class="successAction successActionSecondary" href="products.html">繼續購物</a>
           </div>
 
-          <!-- 預計出貨資訊 Expected shipping info -->
-          <div class="u-migrated-046">
-            <div class="u-migrated-047">
-              <div class="u-migrated-048">📦</div>
-              <div class="u-migrated-049">備貨中</div>
-              <div class="u-migrated-050">1-2 工作天</div>
-            </div>
-            <div class="u-migrated-047">
-              <div class="u-migrated-048">🚚</div>
-              <div class="u-migrated-049">配送中</div>
-              <div class="u-migrated-050">2-4 工作天</div>
-            </div>
-            <div class="u-migrated-047">
-              <div class="u-migrated-048">🏕️</div>
-              <div class="u-migrated-049">等您收貨</div>
-              <div class="u-migrated-050">盡情探索吧！</div>
-            </div>
-          </div>
-
-          <!-- 操作按鈕組 Action buttons group -->
-          <div class="u-migrated-051">
-            <!-- 查看訂單明細 View order details -->
-            <a href="member-center.html" class="btn btn-primary btn-block u-migrated-052">
-              📋 查看訂單明細
+          <p class="serviceHint">
+            有任何問題可聯絡
+            <a
+              class="serviceLink lineServiceLink"
+              href="https://line.me/R/ti/p/@yuruicamp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              LINE 客服
             </a>
-
-            <!-- 繼續購物 Continue shopping -->
-            <a href="products.html" class="btn btn-secondary btn-block u-migrated-052"> 🛍️ 繼續購物 </a>
-          </div>
-
-          <!-- 客服提示 Customer service hint -->
-          <p class="u-migrated-053">
-            有任何問題？
-            <a class="u-migrated-054" href="https://line.me/R/ti/p/@yuruicamp" target="_blank">LINE 客服</a>
-            或 <a class="u-migrated-055" href="mailto:support@yuruicamp.com">support@yuruicamp.com</a>
+            或
+            <a class="serviceLink emailSupportLink" href="mailto:support@yuruicamp.com">
+              support@yuruicamp.com
+            </a>
           </p>
         </div>
-        <!-- /success-content -->
-      </div>
-      <!-- /checkout-success -->
+      </section>
     </main>
 
     <div id="footer"></div>
 
-    <!-- ===================================================
-       Script 載入
-       =================================================== -->
     <script src="../js/config.js" defer></script>
     <script src="../js/storage.js" defer></script>
     <script src="../js/state.js" defer></script>
@@ -118,114 +100,83 @@
     <script src="../js/components/cart.js" defer></script>
     <script src="../js/main.js" defer></script>
 
-    <!-- 成功頁面內嵌腳本 Inline script for success page -->
     <script>
-      /**
-       * 成功頁面初始化
-       * Success page initialization
-       * 這個頁面不需要獨立的 page.js，邏輯很簡單，直接內嵌
-       */
       (function initSuccessPage() {
-        // ------------------------------------------
-        // Step 1: 從 URL 讀取訂單編號
-        // Read order number from URL query string
-        // 例：checkout-success.html?orderNum=ORD-1234 → orderNum = 'ORD-1234'
-        // ------------------------------------------
-        const params = new URLSearchParams(window.location.search);
-        let orderNum = params.get('orderNum');
+        const orderNumberDisplay = document.getElementById('orderNumberDisplay');
+        const orderNum = readOrderNumber();
 
-        // 重點：訂單編號改由 checkout.html 的 #confirmOrderBtn 產生，成功頁只負責顯示。
-        if (!orderNum) {
-          try {
-            const lastOrder = JSON.parse(localStorage.getItem('lastCheckoutOrder') || 'null');
-            orderNum = lastOrder?.orderNumber || lastOrder?.id || '';
-          } catch (error) {
-            console.warn('讀取 lastCheckoutOrder 失敗，成功頁不自行產生訂單編號。', error);
+        if (orderNumberDisplay) {
+          const normalizedOrderNum = String(orderNum || '--').replace(/^#/, '');
+          orderNumberDisplay.textContent = normalizedOrderNum === '--' ? '#--' : `#${normalizedOrderNum}`;
+          orderNumberDisplay.classList.remove('isLoading');
+          if (!orderNum) {
+            document.querySelector('.checkoutSuccess')?.classList.add('isError');
           }
         }
 
-        // 顯示訂單編號 Display order number
-        const orderNumEl = document.getElementById('orderNumberDisplay');
-        if (orderNumEl) {
-          const normalizedOrderNum = String(orderNum || '--').replace(/^#/, '');
-          orderNumEl.textContent = normalizedOrderNum === '--' ? '#--' : `#${normalizedOrderNum}`;
-        }
-
-        // ------------------------------------------
-        // Step 2: 啟動彩帶動畫（慶祝！）
-        // Launch confetti animation (celebrate!)
-        // ------------------------------------------
         launchConfetti();
-
-        // ------------------------------------------
-        // Step 3: 初始化全局組件
-        // Initialize global components
-        // ------------------------------------------
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', () => {
-            if (typeof window.initNavbar === 'function') window.initNavbar();
-            if (typeof window.initModalListeners === 'function') window.initModalListeners();
-            if (typeof window.initCartListeners === 'function') window.initCartListeners();
-            if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-            window._appComponentsInitialized = true;
-          });
-        } else {
-          if (typeof window.initNavbar === 'function') window.initNavbar();
-          if (typeof window.initModalListeners === 'function') window.initModalListeners();
-          if (typeof window.initCartListeners === 'function') window.initCartListeners();
-          if (typeof window.initPersonalizationModal === 'function') window.initPersonalizationModal();
-          window._appComponentsInitialized = true;
-        }
+        initSharedComponents();
       })();
 
-      /**
-       * 彩帶動畫函數
-       * Confetti animation function
-       * 生成多個隨機顏色的小方塊，從頁面頂部飄落
-       */
+      function readOrderNumber() {
+        const params = new URLSearchParams(window.location.search);
+        const queryOrderNum = params.get('orderNum');
+        if (queryOrderNum) return queryOrderNum;
+
+        try {
+          const lastOrder = JSON.parse(localStorage.getItem('lastCheckoutOrder') || 'null');
+          return lastOrder?.orderNumber || lastOrder?.id || '';
+        } catch (error) {
+          console.warn('Failed to read lastCheckoutOrder on checkout success page.', error);
+          return '';
+        }
+      }
+
+      function initSharedComponents() {
+        const run = () => {
+          window.initNavbar?.();
+          window.initModalListeners?.();
+          window.initCartListeners?.();
+          window.initPersonalizationModal?.();
+          window._appComponentsInitialized = true;
+        };
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', run, { once: true });
+          return;
+        }
+
+        run();
+      }
+
       function launchConfetti() {
-        // 顏色池 Color pool
-        const colors = ['#22c55e', '#244d4d', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#ef4444'];
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          document.querySelector('.checkoutSuccess')?.classList.add('isReducedMotion');
+          return;
+        }
 
-        // 生成 50 顆彩帶 Generate 50 confetti particles
-        for (let i = 0; i < 50; i++) {
-          setTimeout(() => {
-            const particle = document.createElement('div');
-            particle.className = 'confetti-particle';
+        const colors = ['var(--yui-success)', 'var(--yui-primary)', 'var(--yui-gold)', 'var(--yui-orange)'];
+        const particleCount = 36;
 
-            // 隨機尺寸（6~12px）Random size
+        for (let index = 0; index < particleCount; index += 1) {
+          window.setTimeout(() => {
+            const particle = document.createElement('span');
             const size = Math.random() * 6 + 6;
-            // 隨機水平位置 Random horizontal position
-            const left = Math.random() * 100;
-            // 隨機顏色 Random color
-            const color = colors[Math.floor(Math.random() * colors.length)];
-            // 隨機動畫時長（2~5秒）Random duration
-            const duration = Math.random() * 3 + 2;
-            // 隨機形狀（方形或圓形）Random shape
-            const isCircle = Math.random() > 0.5;
+            const duration = Math.random() * 2 + 2.5;
+            const delay = Math.random() * 0.4;
 
-            particle.style.cssText = `
-            left: ${left}%;
-            top: -20px;
-            width: ${size}px;
-            height: ${size}px;
-            background: ${color};
-            border-radius: ${isCircle ? '50%' : '2px'};
-            animation-duration: ${duration}s;
-            animation-delay: ${Math.random() * 1}s;
-          `;
+            particle.className = 'confettiParticle';
+            particle.setAttribute('aria-hidden', 'true');
+            particle.style.setProperty('--confetti-left', `${Math.random() * 100}%`);
+            particle.style.setProperty('--confetti-size', `${size}px`);
+            particle.style.setProperty('--confetti-color', colors[Math.floor(Math.random() * colors.length)]);
+            particle.style.setProperty('--confetti-radius', Math.random() > 0.5 ? '999px' : '2px');
+            particle.style.setProperty('--confetti-delay', `${delay}s`);
+            particle.style.setProperty('--confetti-duration', `${duration}s`);
 
             document.body.appendChild(particle);
-
-            // 動畫結束後移除 DOM 元素
-            // Remove element after animation ends
-            setTimeout(
-              () => {
-                particle.remove();
-              },
-              (duration + 1) * 1000
-            );
-          }, i * 30); // 每 30ms 生成一顆，避免同時生成
+            window.setTimeout(() => particle.remove(), (duration + delay + 0.5) * 1000);
+          }, index * 30);
         }
       }
     </script>

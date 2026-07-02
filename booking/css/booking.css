@@ -1,115 +1,112 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+﻿@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
 
 /* ============================================================
-   booking.css — 露營預約系統專屬樣式
+   booking.css ???脩???蝟餌絞撠惇璅??
    Booking module dedicated stylesheet
    ============================================================ */
 
 /* ============================================================
-   1. CSS 自訂屬性（色彩變數）
-      沿用 color.md 品牌配色
+   1. CSS ?芾?撅祆改??脣蔗霈嚗?
+      瘝輻 color.md ???
    ============================================================ */
+
 /* ============================================================
-   Yuruicamp v3 — Design Tokens
-   奶油暖白 × 奶油鼠尾草綠 × 暖光奶油金
+   Yuruicamp v3 ??Design Tokens
+   憟嗆硃? ? 憟嗆硃曌偏?? ? ??憟嗆硃??
 ============================================================ */
 :root {
   /* Base / Cream */
-  --yc-bg:              #F8F5EE;
-  --yc-surface:         #FFFDF9;
-  --yc-surface-soft:    #F0ECE3;
-  --yc-oat:             #E8E0D5;
-  --yc-border:          #D8CFC3;
+  --yc-bg: #f8f5ee;
+  --yc-surface: #fffdf9;
+  --yc-surface-soft: #f0ece3;
+  --yc-border: #d8cfc3;
 
   /* Sage Brand */
-  --yc-sage-mist:       #EEF2EC;
-  --yc-sage-soft:       #DCE5DA;
-  --yc-sage-light:      #B7C3B3;
-  --yc-sage:            #8F9D8B;
-  --yc-sage-action:     #73816E;
-  --yc-sage-dark:       #62705D;
+  --yc-sage-soft: #eef2ec;
+  --yc-sage-light: #b7c3b3;
+  --yc-sage-action: #73816e;
+  --yc-sage-dark: #62705d;
 
-  /* Conversion CTA — 暖光奶油金 */
-  --yc-cta:             #E2D39A;
-  --yc-cta-hover:       #D4C27E;
-  --yc-cta-active:      #C4AF62;
-  --yc-cta-soft:        #FBF3D1;
-  --yc-cta-line:        #D9C98F;
-  --yc-on-cta:          #4A4537;
+  /* Conversion CTA ????憟嗆硃?? */
+  --yc-cta: #e2d39a;
+  --yc-cta-hover: #d4c27e;
+  --yc-cta-soft: #fbf3d1;
+  --yc-cta-line: #d9c98f;
+  --yc-on-cta: #4a4537;
 
   /* Text */
-  --yc-text:            #3E473D;
-  --yc-text-secondary:  #625E56;
-  --yc-text-muted:      #7B756D;
+  --yc-text: #3e473d;
+  --yc-text-secondary: #625e56;
+  --yc-text-muted: #7b756d;
 
   /* Status */
-  --yc-success:         #73816E;
-  --yc-success-soft:    #EEF2EC;
-  --yc-warning:         #9A7455;
-  --yc-warning-soft:    #F4ECE2;
-  --yc-warning-dark:    #6B4D32;
-  --yc-error:           #A65F58;
-  --yc-error-soft:      #F4E7E4;
+  --yc-success: #73816e;
+  --yc-success-soft: #eef2ec;
+  --yc-warning: #9a7455;
+  --yc-warning-soft: #f4ece2;
+  --yc-warning-text: #6b4d32;
+  --yc-error: #a65f58;
+  --yc-error-soft: #f4e7e4;
 
   /* Header / Footer */
-  --yc-header-bg:       #73816E;
-  --yc-footer-bg:       #71806D;
-  --yc-footer-bottom:   #62705D;
-  --yc-on-dark:         #FFFDF9;
-  --yc-on-dark-muted:   rgba(255, 253, 249, 0.76);
+  --yc-header-bg: #73816e;
+  --yc-footer-bg: #71806d;
+  --yc-footer-bottom: #62705d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
 
   /* Shadow */
-  --yc-shadow-soft:     0 5px 20px rgba(60, 70, 59, 0.065);
-  --yc-shadow-hover:    0 16px 38px rgba(60, 70, 59, 0.13);
-  --yc-shadow-cta:      0 8px 22px rgba(129, 111, 54, 0.14);
+  --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
+  --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
+  --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
 
   /* Radius */
-  --yc-radius-sm:       10px;
-  --yc-radius-control:  12px;
-  --yc-radius-button:   12px;
-  --yc-radius-card:     19px;
-  --yc-radius-section:  24px;
-  --yc-radius-pill:     999px;
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-pill: 999px;
 
   /* Typography */
-  --yc-font-global:     "Noto Serif TC", "Source Han Serif TC", serif;
-  --yc-font-heading:    "Noto Serif TC", "Source Han Serif TC", serif;
-  --yc-font-body:       "Noto Sans TC", "Source Han Sans TC", sans-serif;
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
 
   /* Motion */
-  --yc-duration-fast:   180ms;
+  --yc-duration-fast: 180ms;
   --yc-duration-normal: 220ms;
-  --yc-ease-soft:       cubic-bezier(.2, .7, .2, 1);
+  --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  /* ── bk-* 映射至 yc-* tokens ── */
-  --bk-primary:         var(--yc-sage-action);
-  --bk-primary-hover:   var(--yc-sage);
-  --bk-primary-light:   var(--yc-sage-mist);
-  --bk-on-dark:         var(--yc-on-dark);
-  --bk-cta:             var(--yc-cta);
-  --bk-cta-hover:       var(--yc-cta-hover);
-  --bk-white:           var(--yc-surface);
-  --bk-bg:              var(--yc-bg);
-  --bk-card-bg:         var(--yc-surface);
-  --bk-border:          var(--yc-border);
-  --bk-border-strong:   var(--yc-sage-action);
-  --bk-text:            var(--yc-text);
-  --bk-text-muted:      var(--yc-text-muted);
-  --bk-accent:          var(--yc-sage);
-  --bk-gold:            var(--yc-sage-action); /* 用於 inline text，維持可讀對比 */
-  --bk-sage:            var(--yc-sage-light);
-  --bk-orange:          var(--yc-warning);
-  --bk-success:         var(--yc-success);
-  --bk-danger:          var(--yc-error);
-  --bk-shadow:          var(--yc-shadow-soft);
-  --bk-shadow-hover:    var(--yc-shadow-hover);
-  --bk-radius:          var(--yc-radius-card);
-  --bk-radius-sm:       var(--yc-radius-control);
-  --bk-transition:      all var(--yc-duration-normal) var(--yc-ease-soft);
+  /* ?? bk-* ????yc-* tokens ?? */
+  --bk-primary: var(--yc-sage-action);
+  --bk-primary-hover: var(--yc-sage-action);
+  --bk-primary-light: var(--yc-sage-soft);
+  --bk-on-dark: var(--yc-on-dark);
+  --bk-cta: var(--yc-cta);
+  --bk-cta-hover: var(--yc-cta-hover);
+  --bk-white: var(--yc-surface);
+  --bk-bg: var(--yc-bg);
+  --bk-card-bg: var(--yc-surface);
+  --bk-border: var(--yc-border);
+  --bk-border-strong: var(--yc-sage-action);
+  --bk-text: var(--yc-text);
+  --bk-text-muted: var(--yc-text-muted);
+  --bk-accent: var(--yc-sage-action);
+  --bk-gold: var(--yc-on-cta); /* ?冽 inline text嚗雁?霈撠? */
+  --bk-sage: var(--yc-sage-light);
+  --bk-orange: var(--yc-warning);
+  --bk-success: var(--yc-success);
+  --bk-danger: var(--yc-error);
+  --bk-shadow: var(--yc-shadow-soft);
+  --bk-shadow-hover: var(--yc-shadow-hover);
+  --bk-radius: var(--yc-radius-card);
+  --bk-radius-sm: var(--yc-radius-control);
+  --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
 }
 
 /* ============================================================
-   2. 全域 Reset（預約頁面用）
+   2. ?典? Reset嚗?蝝??Ｙ嚗?
    ============================================================ */
 .booking-page *,
 .search-page *,
@@ -120,7 +117,7 @@
 }
 
 /* ============================================================
-   3. 頁面容器
+   3. ?摰孵
    ============================================================ */
 .search-page,
 .detail-page,
@@ -133,7 +130,7 @@
 }
 
 /* ============================================================
-   4. 頂部搜尋列 — search-bar-section
+   4. ???????search-bar-section
    ============================================================ */
 .search-bar-section {
   background: var(--bk-primary);
@@ -157,27 +154,33 @@
 .search-bar__select {
   flex: 1 1 160px;
   padding: 0.6rem 1rem;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgb(255 255 255 / 30%);
   border-radius: var(--bk-radius-sm);
-  background: rgba(255,255,255,0.15);
+  background: rgb(255 255 255 / 15%);
   color: #fff;
   font-size: 0.95rem;
   outline: none;
   transition: var(--bk-transition);
 }
 
-.search-bar__input::placeholder { color: rgba(255,255,255,0.7); }
+.search-bar__input::placeholder {
+  color: rgb(255 255 255 / 70%);
+}
+
 .search-bar__input:focus,
 .search-bar__select:focus {
   border-color: #fff;
-  background: rgba(255,255,255,0.25);
+  background: rgb(255 255 255 / 25%);
 }
 
-/* select option text 需深色（無法繼承白色） */
-.search-bar__select option { color: var(--bk-text); background: var(--yc-surface); }
+/* select option text ?瘛梯嚗瘜匱?輻?莎? */
+.search-bar__select option {
+  color: var(--bk-text);
+  background: var(--yc-surface);
+}
 
 /* ============================================================
-   5. 主內容佈局 — 雙欄 (sidebar + content)
+   5. 銝餃摰嫣?撅 ???? (sidebar + content)
    ============================================================ */
 .search-layout {
   max-width: 1200px;
@@ -190,7 +193,7 @@
 }
 
 /* ============================================================
-   6. 左側篩選器 — filter-sidebar
+   6. 撌血蝭拚????filter-sidebar
    ============================================================ */
 .filter-sidebar {
   background: var(--bk-white);
@@ -198,10 +201,10 @@
   box-shadow: var(--bk-shadow);
   overflow: hidden;
   position: sticky;
-  top: 90px; /* 留出 header 空間 */
+  top: 90px; /* ? header 蝛粹? */
 }
 
-/* 行動版展開按鈕 — 桌面版隱藏 */
+/* 銵?????????獢??? */
 .filter-sidebar__toggle {
   display: none;
   width: 100%;
@@ -216,7 +219,9 @@
   gap: 0.5rem;
 }
 
-.filter-sidebar__body { padding: 1.25rem; }
+.filter-sidebar__body {
+  padding: 1.25rem;
+}
 
 .filter-group {
   margin-bottom: 1.5rem;
@@ -244,16 +249,18 @@
   transition: color 0.15s;
 }
 
-.filter-group label:hover { color: var(--bk-primary); }
+.filter-group label:hover {
+  color: var(--bk-primary);
+}
 
-.filter-group input[type="checkbox"] {
+.filter-group input[type='checkbox'] {
   width: 16px;
   height: 16px;
   accent-color: var(--bk-primary);
   cursor: pointer;
 }
 
-/* 重設按鈕 — Secondary 樣式：暖白底＋綠框（規格指定） */
+/* ?身?? ??Secondary 璅??嚗??賢?嚗?獢?閬??嚗? */
 #resetFilterBtn {
   width: 100%;
   padding: 0.5rem;
@@ -261,17 +268,17 @@
   margin-top: 0.5rem;
   background: var(--yc-surface);
   color: var(--yc-sage-action);
-  border-color: var(--yc-sage);
+  border-color: var(--yc-sage-action);
 }
 
 #resetFilterBtn:hover {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   color: var(--yc-sage-dark);
   border-color: var(--yc-sage-action);
 }
 
 /* ============================================================
-   7. 右側搜尋結果 — search-results
+   7. ?喳??蝯? ??search-results
    ============================================================ */
 .search-results__header {
   display: flex;
@@ -282,7 +289,7 @@
   font-size: 0.9rem;
 }
 
-/* 卡片 Grid：預設 2 欄 */
+/* ?∠? Grid嚗?閮?2 甈? */
 .camp-card-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -290,7 +297,7 @@
 }
 
 /* ============================================================
-   8. 營區卡片 — camp-card
+   8. ???∠? ??camp-card
    ============================================================ */
 .camp-card {
   background: var(--bk-white);
@@ -320,7 +327,9 @@
   transition: transform 0.4s ease;
 }
 
-.camp-card:hover .camp-card__image img { transform: scale(1.05); }
+.camp-card:hover .camp-card__image img {
+  transform: scale(1.05);
+}
 
 .camp-card__badge {
   position: absolute;
@@ -352,7 +361,9 @@
   margin-bottom: 0.75rem;
 }
 
-.camp-card__price strong { color: var(--yc-sage-dark); }
+.camp-card__price strong {
+  color: var(--yc-sage-dark);
+}
 
 .camp-card__tags {
   display: flex;
@@ -365,10 +376,12 @@
   border-top: 1px solid var(--bk-border);
 }
 
-.camp-card__footer .btn { width: 100%; }
+.camp-card__footer .btn {
+  width: 100%;
+}
 
 /* ============================================================
-   9. 標籤系統 — tag
+   9. 璅惜蝟餌絞 ??tag
    ============================================================ */
 .tag {
   display: inline-block;
@@ -380,13 +393,13 @@
 }
 
 .tag--env {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   color: var(--yc-sage-dark);
 }
 
 .tag--facility {
-  background: rgba(143, 157, 139, 0.12);
-  color: var(--yc-sage);
+  background: rgb(143 157 139 / 12%);
+  color: var(--yc-sage-action);
 }
 
 .tag--recommend {
@@ -396,7 +409,7 @@
 }
 
 /* ============================================================
-   10. 通用按鈕（booking 模組）
+   10. ???嚗ooking 璅∠?嚗?
    ============================================================ */
 .btn {
   display: inline-flex;
@@ -415,38 +428,46 @@
   white-space: nowrap;
 }
 
-.btn--primary {
+.btn--primary,
+.btnPrimary {
   background: var(--bk-cta);
   color: var(--yc-on-cta);
   border-color: var(--bk-cta);
 }
 
-.btn--primary:hover {
+.btn--primary:hover,
+.btnPrimary:hover {
   background: var(--bk-cta-hover);
   border-color: var(--bk-cta-hover);
   color: var(--yc-on-cta);
 }
 
-.btn--primary:active {
-  background: var(--yc-cta-active);
-  border-color: var(--yc-cta-active);
+.btn--primary:active,
+.btnPrimary:active {
+  background: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
   color: var(--yc-on-cta);
 }
 
-/* Soft Conversion：大量卡片預設樣式，hover 轉為實心 CTA */
-.btn--outline {
+/* Soft Conversion嚗之???閮剜見撘?hover 頧撖血? CTA */
+.btn--outline,
+.btnOutline {
   background: var(--yc-cta-soft);
   color: var(--yc-on-cta);
   border-color: var(--yc-cta-line);
 }
 
-.btn--outline:hover {
+.btn--outline:hover,
+.btnOutline:hover {
   background: var(--bk-cta);
   color: var(--yc-on-cta);
   border-color: var(--bk-cta);
 }
 
-.btn--full { width: 100%; }
+.btn--full,
+.btnFull {
+  width: 100%;
+}
 
 .btn:disabled,
 .btn[disabled] {
@@ -456,7 +477,7 @@
 }
 
 /* ============================================================
-   11. 麵包屑 — breadcrumb
+   11. 暻萄?撅???breadcrumb
    ============================================================ */
 .breadcrumb {
   max-width: 1200px;
@@ -471,10 +492,12 @@
   text-decoration: none;
 }
 
-.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
 
 /* ============================================================
-   12. 詳情頁佈局 — detail-layout
+   12. 閰單???撅 ??detail-layout
    ============================================================ */
 .detail-page .page-inner {
   max-width: 1200px;
@@ -519,7 +542,7 @@
   align-items: start;
 }
 
-/* 圖片輪播 */
+/* ??頛芣 */
 .camp-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -541,9 +564,11 @@
   aspect-ratio: 16/7;
 }
 
-.gallery-img:hover { transform: scale(1.03); }
+.gallery-img:hover {
+  transform: scale(1.03);
+}
 
-/* 營區描述 */
+/* ???膩 */
 .camp-description {
   background: var(--bk-white);
   border-radius: var(--bk-radius);
@@ -558,7 +583,7 @@
 }
 
 /* ============================================================
-   13. 預約表單卡片 — booking-form-card
+   13. ??銵典?∠? ??booking-form-card
    ============================================================ */
 .booking-form-card {
   background: var(--bk-white);
@@ -601,9 +626,11 @@
   transition: border-color 0.2s;
 }
 
-.form-control:focus { border-color: var(--bk-primary); }
+.form-control:focus {
+  border-color: var(--bk-primary);
+}
 
-/* 日期摘要 */
+/* ?交??? */
 .date-summary {
   background: var(--bk-primary-light);
   border-radius: var(--bk-radius-sm);
@@ -613,9 +640,11 @@
   color: var(--bk-primary);
 }
 
-.date-summary p { margin: 0.2rem 0; }
+.date-summary p {
+  margin: 0.2rem 0;
+}
 
-/* 費用小計 */
+/* 鞎餌撠? */
 .price-summary {
   background: var(--bk-primary);
   color: #fff;
@@ -627,8 +656,15 @@
   margin-bottom: 1rem;
 }
 
-.price-summary__label { font-size: 0.9rem; opacity: 0.9; }
-.price-summary__amount { font-size: 1.2rem; font-weight: 700; }
+.price-summary__label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.price-summary__amount {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
 
 .booking-form-card__hint {
   text-align: center;
@@ -639,7 +675,7 @@
 }
 
 /* ============================================================
-   14. 營位選擇卡 — zone-card
+   14. ???豢?????zone-card
    ============================================================ */
 .zone-list {
   display: flex;
@@ -658,7 +694,9 @@
   background: var(--bk-white);
 }
 
-.zone-card:hover { border-color: var(--bk-primary); }
+.zone-card:hover {
+  border-color: var(--bk-primary);
+}
 
 .zone-card.is-selected {
   border-color: var(--bk-primary);
@@ -672,8 +710,15 @@
   margin-bottom: 0.3rem;
 }
 
-.zone-card__info strong { font-size: 0.9rem; color: var(--bk-primary); }
-.zone-card__info span { font-size: 0.8rem; color: var(--bk-text-muted); }
+.zone-card__info strong {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+}
+
+.zone-card__info span {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+}
 
 .zone-card__price {
   font-size: 0.8rem;
@@ -694,7 +739,7 @@
 }
 
 /* ============================================================
-   15. 營位資訊表格 — zone-table
+   15. ??鞈?銵冽 ??zone-table
    ============================================================ */
 .zone-table-section {
   max-width: 1200px;
@@ -732,14 +777,19 @@
   color: var(--bk-text);
 }
 
-.zone-table tr:last-child td { border-bottom: none; }
-.zone-table tr:hover td { background: var(--bk-bg); }
+.zone-table tr:last-child td {
+  border-bottom: none;
+}
+
+.zone-table tr:hover td {
+  background: var(--bk-bg);
+}
 
 /* ============================================================
-   16. 裝備租借頁 — rental-page
+   16. 鋆?蝘? ??rental-page
    ============================================================ */
 
-/* 頂部預約摘要列 */
+/* ??????? */
 .booking-summary-bar {
   background: var(--bk-primary);
   color: #fff;
@@ -752,21 +802,35 @@
   margin-bottom: 1.5rem;
 }
 
-.booking-summary-bar strong { color: #fff; }
+.booking-summary-bar strong {
+  color: #fff;
+}
+
 .booking-summary-bar .summary-sep {
   opacity: 0.5;
   margin: 0 0.25rem;
 }
 
-/* 情境推薦橫幅 */
+#summaryEditLink {
+  margin-left: auto;
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* ???刻璈怠? */
 .recommendation-banner {
   max-width: 1200px;
   margin: 0 auto 1.5rem;
   padding: 0 1.5rem;
 }
 
+#recommendationBanner {
+  display: none;
+}
+
 .recommendation-banner__content {
-  background: var(--yc-sage-mist);
+  background: var(--yc-sage-soft);
   border: 1px solid var(--yc-sage-soft);
   border-radius: var(--bk-radius);
   padding: 1rem 1.25rem;
@@ -774,7 +838,13 @@
   color: var(--bk-text);
 }
 
-.recommendation-banner__content strong { color: var(--bk-primary); }
+.recommendation-banner__content strong {
+  color: var(--bk-primary);
+}
+
+.recommendation-banner__title {
+  margin-bottom: 0.4rem;
+}
 
 .recommendation-tags {
   display: flex;
@@ -796,7 +866,7 @@
   font-weight: 500;
 }
 
-/* 租借頁主佈局 */
+/* 蝘?銝颱?撅 */
 .rental-layout {
   max-width: 1200px;
   margin: 0 auto;
@@ -813,14 +883,20 @@
   margin-bottom: 1rem;
 }
 
-/* 裝備卡片 Grid */
+#rentalCount {
+  color: var(--yc-text-muted, #7B756D);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* 鋆??∠? Grid */
 .rental-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
 }
 
-/* 裝備卡片 */
+/* 鋆??∠? */
 .rental-item-card {
   background: var(--bk-white);
   border-radius: var(--bk-radius);
@@ -854,6 +930,16 @@
   margin-bottom: 0.4rem;
 }
 
+.rental-item-card__tag {
+  margin-bottom: 0.4rem;
+}
+
+.rental-item-card__desc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
 .rental-item-card__price {
   font-size: 0.8rem;
   color: var(--bk-text-muted);
@@ -866,7 +952,15 @@
   margin-bottom: 0.25rem;
 }
 
-.rental-item-card__estimated strong { color: var(--bk-primary); font-size: 1rem; }
+.rental-item-card__estimated strong {
+  color: var(--bk-primary);
+  font-size: 1rem;
+}
+
+.rental-item-card__discount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
 
 .rental-item-card__stock {
   font-size: 0.78rem;
@@ -879,9 +973,17 @@
   border-top: 1px solid var(--bk-border);
 }
 
-.rental-add-btn { width: 100%; font-size: 0.875rem; padding: 0.45rem; }
+.rental-add-btn {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
 
-/* 已選裝備側欄 */
+.rental-add-btn.is-added {
+  color: #2d7a4f;
+}
+
+/* 撌脤鋆??湔? */
 .rental-cart-sidebar {
   background: var(--bk-white);
   border-radius: var(--bk-radius);
@@ -920,8 +1022,16 @@
   font-size: 0.875rem;
 }
 
-.rental-cart-item span:first-child { flex: 1; color: var(--bk-text); }
-.rental-cart-item span:nth-child(2) { color: var(--bk-primary); font-weight: 600; white-space: nowrap; }
+.rental-cart-item span:first-child {
+  flex: 1;
+  color: var(--bk-text);
+}
+
+.rental-cart-item span:nth-child(2) {
+  color: var(--bk-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
 
 .rental-remove-btn {
   background: none;
@@ -934,7 +1044,9 @@
   transition: background 0.15s;
 }
 
-.rental-remove-btn:hover { background: var(--yc-error-soft); }
+.rental-remove-btn:hover {
+  background: var(--yc-error-soft);
+}
 
 .rental-cost-summary {
   padding: 0.75rem;
@@ -956,13 +1068,15 @@
   text-decoration: underline;
 }
 
-.rental-skip-link:hover { color: var(--bk-primary); }
+.rental-skip-link:hover {
+  color: var(--bk-primary);
+}
 
 /* ============================================================
-   17. 預約購物車 / 結帳頁 — booking-cart-page
+   17. ??鞈潛頠?/ 蝯董????booking-cart-page
    ============================================================ */
 
-/* 步驟進度列 */
+/* 甇仿??脣漲?? */
 .step-progress {
   display: flex;
   justify-content: center;
@@ -996,7 +1110,9 @@
   z-index: 0;
 }
 
-.step.completed + .step::before { background: var(--bk-primary); }
+.step.completed + .step::before {
+  background: var(--bk-primary);
+}
 
 .step span {
   width: 32px;
@@ -1025,9 +1141,12 @@
   box-shadow: 0 0 0 4px var(--bk-primary-light);
 }
 
-.step.active { color: var(--bk-primary); font-weight: 600; }
+.step.active {
+  color: var(--bk-primary);
+  font-weight: 600;
+}
 
-/* 主佈局 */
+/* 銝颱?撅 */
 .booking-cart-layout {
   max-width: 1200px;
   margin: 0 auto;
@@ -1038,7 +1157,7 @@
   align-items: start;
 }
 
-/* 明細 Section */
+/* ?敦 Section */
 .cart-section {
   background: var(--bk-white);
   border-radius: var(--bk-radius);
@@ -1068,7 +1187,9 @@
   color: var(--bk-text);
 }
 
-.detail-row:last-child { border-bottom: none; }
+.detail-row:last-child {
+  border-bottom: none;
+}
 
 .detail-row--meta {
   color: var(--bk-text-muted);
@@ -1084,7 +1205,7 @@
   font-style: italic;
 }
 
-/* 費用摘要側欄 */
+/* 鞎餌???湔? */
 .booking-cart-summary {
   background: var(--bk-white);
   border-radius: var(--bk-radius);
@@ -1102,7 +1223,7 @@
   border-bottom: 2px solid var(--bk-border);
 }
 
-/* 費用明細 */
+/* 鞎餌?敦 */
 .cost-row {
   display: flex;
   justify-content: space-between;
@@ -1112,7 +1233,10 @@
   border-bottom: 1px solid var(--bk-bg);
 }
 
-.cost-row--discount { color: var(--bk-orange); font-weight: 600; }
+.cost-row--discount {
+  color: var(--bk-orange);
+  font-weight: 600;
+}
 
 .cost-total {
   display: flex;
@@ -1130,7 +1254,7 @@
   color: var(--bk-primary);
 }
 
-/* 聯絡表單 */
+/* ?舐窗銵典 */
 .contact-form {
   margin-bottom: 1.25rem;
 }
@@ -1155,12 +1279,14 @@
   text-decoration: underline;
 }
 
-.booking-cart-back-link:hover { color: var(--bk-primary); }
+.booking-cart-back-link:hover {
+  color: var(--bk-primary);
+}
 
-/* 結帳成功後導購橫幅 */
+/* 蝯董??敺?鞈潭帖撟? */
 .upsell-banner {
   margin-top: 1rem;
-  background: linear-gradient(135deg, var(--yc-sage-mist), var(--yc-sage-soft));
+  background: var(--yc-sage-soft);
   border: 1px solid var(--yc-sage-soft);
   border-radius: var(--bk-radius);
   padding: 1rem;
@@ -1175,7 +1301,7 @@
 }
 
 /* ============================================================
-   18. 狀態訊息
+   18. ?????
    ============================================================ */
 .loading-skeleton {
   grid-column: 1 / -1;
@@ -1207,47 +1333,59 @@
   color: var(--bk-danger);
 }
 
+.error-msg > .bi,
+.no-result > .bi {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.no-result .btn {
+  margin-top: 1rem;
+}
+
 /* ============================================================
-   19. Flatpickr 客製化
+   19. Flatpickr 摰Ｚˊ??
    ============================================================ */
 .flatpickr-calendar {
-  border-radius: var(--bk-radius) !important;
-  box-shadow: var(--bk-shadow-hover) !important;
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow-hover);
 }
 
 .flatpickr-day.selected,
 .flatpickr-day.startRange,
 .flatpickr-day.endRange {
-  background: var(--bk-primary) !important;
-  border-color: var(--bk-primary) !important;
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
 }
 
 .flatpickr-day.inRange {
-  background: var(--bk-primary-light) !important;
-  border-color: var(--bk-primary-light) !important;
+  background: var(--bk-primary-light);
+  border-color: var(--bk-primary-light);
 }
 
 /* ============================================================
-   20. RWD — 行動裝置 (≤ 768px)
+   20. RWD ??銵?鋆蔭 (??768px)
    ============================================================ */
+
 /* ============================================================
    22-B-1. Shared Auth UI for Booking
    ============================================================ */
-.booking-header .navbar-login-btn {
+.bookingHeader .navbarLoginBtn {
   padding: 0.4rem 0.9rem;
   font-size: 0.875rem;
   color: var(--yc-on-dark);
-  border-color: rgba(255, 253, 249, 0.5);
+  border-color: rgb(255 253 249 / 50%);
   background: transparent;
 }
 
-.booking-header .navbar-login-btn:hover {
-  background: rgba(255, 253, 249, 0.14);
+.bookingHeader .navbarLoginBtn:hover {
+  background: rgb(255 253 249 / 14%);
   color: #fff;
-  border-color: rgba(255, 253, 249, 0.85);
+  border-color: rgb(255 253 249 / 85%);
 }
 
-.booking-header .navbar-user-menu {
+.bookingHeader .navbarUserMenu {
   position: relative;
   align-items: center;
   gap: 0.5rem;
@@ -1255,15 +1393,15 @@
   color: var(--yc-on-dark);
 }
 
-.booking-header .user-info {
+.bookingHeader .userInfo {
   color: var(--yc-on-dark);
 }
 
-.booking-header .user-avatar {
+.bookingHeader .userAvatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 253, 249, 0.2);
+  background: rgb(255 253 249 / 20%);
   color: var(--yc-on-dark);
   font-weight: 700;
   font-size: 0.9rem;
@@ -1272,7 +1410,7 @@
   justify-content: center;
 }
 
-.booking-header .user-name {
+.bookingHeader .userName {
   max-width: 80px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1280,44 +1418,44 @@
   color: var(--yc-on-dark);
 }
 
-.booking-header .navbar-user-dropdown {
+.bookingHeader .navbarUserDropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   min-width: 168px;
   background: var(--yc-surface);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   border-radius: 8px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
   padding: 0.35rem 0;
   z-index: 2100;
 }
 
-.booking-header .navbar-user-dropdown .dropdown-item,
-.booking-header .navbar-user-dropdown .navbar-logout-btn {
-  display: flex !important;
+.bookingHeader .navbarUserDropdown .dropdownItem,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
   width: 100%;
-  padding: 0.65rem 1rem !important;
-  font-size: 0.9rem !important;
-  color: var(--yc-text) !important;
-  text-decoration: none !important;
-  background: none !important;
-  border: none !important;
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: var(--yc-text);
+  text-decoration: none;
+  background: none;
+  border: none;
   cursor: pointer;
   font-family: inherit;
   text-align: left;
   transition: background 0.15s;
 }
 
-.booking-header .navbar-user-dropdown .dropdown-item:hover,
-.booking-header .navbar-user-dropdown .navbar-logout-btn:hover {
-  background: var(--yc-surface-soft) !important;
+.bookingHeader .navbarUserDropdown .dropdownItem:hover,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn:hover {
+  background: var(--yc-surface-soft);
 }
 
-.booking-header .navbar-user-dropdown .navbar-logout-btn {
-  color: var(--yc-error) !important;
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  color: var(--yc-error);
 }
 
 #booking-header #loginModal.modal,
@@ -1326,20 +1464,21 @@
   position: fixed;
   inset: 0;
   z-index: 3100;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgb(0 0 0 / 45%);
   align-items: center;
   justify-content: center;
 }
 
-#booking-header #loginModal.modal.active,
-#booking-header #personalizationModal.modal.active {
+#booking-header #loginModal.modal.isOpen,
+#booking-header #personalizationModal.modal.isOpen,
+#booking-header #surveyCloseConfirmModal.modal.isOpen {
   display: flex;
 }
 
-#booking-header .modal-content {
+#booking-header .modalContent {
   background: var(--yc-surface);
   border-radius: 8px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
   width: min(480px, calc(100vw - 2rem));
   max-height: calc(100vh - 2rem);
   overflow: hidden;
@@ -1347,7 +1486,7 @@
   flex-direction: column;
 }
 
-#booking-header #loginModal .modal-content {
+#booking-header #loginModal .modalContent {
   position: fixed;
   top: 0;
   right: 0;
@@ -1360,11 +1499,11 @@
   transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#booking-header #loginModal.active .modal-content {
+#booking-header #loginModal.isOpen .modalContent {
   transform: translateX(0);
 }
 
-#booking-header .modal-header {
+#booking-header .modalHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1373,14 +1512,14 @@
   flex-shrink: 0;
 }
 
-#booking-header .modal-title {
+#booking-header .modalTitle {
   margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
 }
 
-#booking-header .modal-close {
+#booking-header .modalClose {
   background: none;
   border: none;
   color: var(--bk-text-muted);
@@ -1391,19 +1530,19 @@
   font-size: 1.15rem;
 }
 
-#booking-header .modal-close:hover {
-  background: rgba(115, 129, 110, 0.1);
+#booking-header .modalClose:hover {
+  background: rgb(115 129 110 / 10%);
   color: var(--bk-primary);
 }
 
-#booking-header .modal-body {
+#booking-header .modalBody {
   padding: 1.5rem;
   overflow-y: auto;
 }
 
-#booking-header .btn-google-login,
-#booking-header .btn-facebook-login,
-#booking-header .btn-line-login {
+#booking-header .btnGoogleLogin,
+#booking-header .btnFacebookLogin,
+#booking-header .btnLineLogin {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1416,57 +1555,59 @@
   cursor: pointer;
   border: none;
   margin-bottom: 0.75rem;
-  transition: opacity 0.2s, transform 0.15s;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   font-family: inherit;
   text-decoration: none;
 }
 
-#booking-header .btn-google-login:hover,
-#booking-header .btn-facebook-login:hover,
-#booking-header .btn-line-login:hover {
+#booking-header .btnGoogleLogin:hover,
+#booking-header .btnFacebookLogin:hover,
+#booking-header .btnLineLogin:hover {
   opacity: 0.88;
   transform: translateY(-1px);
 }
 
-#booking-header .btn-google-login {
+#booking-header .btnGoogleLogin {
   background: #fff;
   border: 1.5px solid #dadce0;
   color: #3c4043;
 }
 
-#booking-header .btn-facebook-login {
+#booking-header .btnFacebookLogin {
   background: #1877f2;
   color: #fff;
 }
 
-#booking-header .btn-line-login {
+#booking-header .btnLineLogin {
   background: #00b900;
   color: #fff;
 }
 
-#booking-header .oauth-desc,
-#booking-header .oauth-privacy {
+#booking-header .oauthDesc,
+#booking-header .oauthPrivacy {
   text-align: center;
   color: var(--bk-text-muted);
 }
 
-#booking-header .oauth-desc {
+#booking-header .oauthDesc {
   font-size: 0.875rem;
   margin-bottom: 1.5rem;
 }
 
-#booking-header .oauth-privacy {
+#booking-header .oauthPrivacy {
   font-size: 0.72rem;
   margin-top: 1.25rem;
   line-height: 1.6;
 }
 
-#booking-header .oauth-privacy a {
+#booking-header .oauthPrivacy a {
   color: var(--bk-primary);
   text-decoration: underline;
 }
 
-#booking-header .stepper-header {
+#booking-header .stepperHeader {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1474,7 +1615,7 @@
   margin-bottom: 1.5rem;
 }
 
-#booking-header .stepper-dot {
+#booking-header .stepperDot {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -1488,54 +1629,54 @@
   font-weight: 700;
 }
 
-#booking-header .stepper-dot.active {
+#booking-header .stepperDot.isSelected {
   background: var(--bk-primary);
   border-color: var(--bk-primary);
   color: #fff;
 }
 
-#booking-header .stepper-line {
+#booking-header .stepperLine {
   flex: 1;
   max-width: 64px;
   height: 2px;
   background: var(--bk-border);
 }
 
-#booking-header .stepper-text {
+#booking-header .stepperText {
   font-size: 0.875rem;
   color: var(--bk-text-muted);
 }
 
-#booking-header .survey-step {
+#booking-header .surveyStep {
   display: none;
 }
 
-#booking-header .survey-step.active {
+#booking-header .surveyStep.isOpen {
   display: block;
 }
 
-#booking-header .survey-question {
+#booking-header .surveyQuestion {
   margin: 0 0 0.5rem;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
 }
 
-#booking-header .survey-hint {
+#booking-header .surveyHint {
   margin: 0 0 1.25rem;
   font-size: 0.82rem;
   color: var(--bk-text-muted);
   line-height: 1.5;
 }
 
-#booking-header .survey-tags {
+#booking-header .surveyTags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
-#booking-header .survey-tag {
+#booking-header .surveyTag {
   padding: 0.42rem 0.85rem;
   border: 1.5px solid var(--bk-border);
   border-radius: 999px;
@@ -1543,15 +1684,18 @@
   color: var(--bk-text);
   cursor: pointer;
   user-select: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
-#booking-header .survey-tag:hover {
+#booking-header .surveyTag:hover {
   border-color: var(--bk-primary);
   color: var(--bk-primary);
 }
 
-#booking-header .survey-tag.active {
+#booking-header .surveyTag.isSelected {
   background: var(--bk-primary);
   border-color: var(--bk-primary);
   color: #fff;
@@ -1562,14 +1706,18 @@
   width: 100%;
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
+  /* ???? */
+  .search-bar {
+    flex-direction: column;
+  }
 
-  /* 搜尋列 */
-  .search-bar { flex-direction: column; }
   .search-bar__input,
-  .search-bar__select { flex: 1 1 100%; }
+  .search-bar__select {
+    flex: 1 1 100%;
+  }
 
-  /* 雙欄 → 單欄 */
+  /* ?? ???格? */
   .search-layout,
   .detail-layout,
   .rental-layout,
@@ -1577,7 +1725,7 @@
     grid-template-columns: 1fr;
   }
 
-  /* 篩選器：行動版改為收合式 */
+  /* 蝭拚?剁?銵???箸?? */
   .filter-sidebar {
     position: static;
   }
@@ -1592,65 +1740,89 @@
     border-top: 1px solid var(--bk-border);
   }
 
-  .filter-sidebar__body.is-open { display: block; }
+  .filter-sidebar__body.is-open {
+    display: block;
+  }
 
-  /* 卡片 Grid：行動版改 1 欄 */
+  /* ?∠? Grid嚗?????1 甈? */
   .camp-card-grid,
   .rental-grid {
     grid-template-columns: 1fr;
   }
 
-  /* 圖片 Grid：行動版僅顯示第一張 */
+  /* ?? Grid嚗????＊蝷箇洵銝撘? */
   .camp-gallery {
     grid-template-columns: 1fr;
   }
 
-  .camp-gallery img:not(:first-child) { display: none; }
+  .camp-gallery img:not(:first-child) {
+    display: none;
+  }
 
-  /* sticky 改為 static（行動版無 sticky 側欄） */
+  /* sticky ?寧 static嚗?????sticky ?湔?嚗? */
   .booking-form-card,
   .rental-cart-sidebar,
   .booking-cart-summary {
     position: static;
   }
 
-  /* 步驟列縮小 */
-  .step-progress { gap: 0; }
-  .step { font-size: 0.7rem; }
+  /* 甇仿??葬撠? */
+  .step-progress {
+    gap: 0;
+  }
 
-  /* 表格橫向捲動 */
-  .zone-table-section { overflow-x: auto; }
+  .step {
+    font-size: 0.7rem;
+  }
 
-  /* 詳情頁 sticky 取消 */
-  .filter-sidebar { position: static; }
+  /* 銵冽璈怠??脣? */
+  .zone-table-section {
+    overflow-x: auto;
+  }
+
+  /* 閰單???sticky ?? */
+  .filter-sidebar {
+    position: static;
+  }
 }
 
 /* ============================================================
-   21. 平板 (769px ~ 1024px)
+   21. 撟單 (769px ~ 1024px)
    ============================================================ */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .camp-card-grid { grid-template-columns: repeat(2, 1fr); }
-  .rental-grid    { grid-template-columns: repeat(2, 1fr); }
-  .detail-layout  { grid-template-columns: 1fr 300px; }
-  .search-layout  { grid-template-columns: 220px 1fr; }
+@media (width >= 769px) and (width <= 1024px) {
+  .camp-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rental-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detail-layout {
+    grid-template-columns: 1fr 300px;
+  }
+
+  .search-layout {
+    grid-template-columns: 220px 1fr;
+  }
 }
 
 /* ============================================================
-   22. Booking Header（預約系統專屬）
-   背景色 var(--yc-header-bg) #73816E（奶油鼠尾草），與頁面底色 var(--yc-bg) #F8F5EE 形成深-淺層次
+   22. Booking Header嚗?蝝頂蝯勗?撅穿?
+   ???var(--yc-header-bg) #73816E嚗扒瘝寥?撠曇?嚗????Ｗ???var(--yc-bg) #F8F5EE 敶Ｘ?瘛?瘛箏惜甈?
    ============================================================ */
 
-/* Header 外層容器 */
-.booking-header {
+/* Header 憭惜摰孵 */
+.bookingHeader {
   background: var(--yc-header-bg);
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 10px rgba(60, 70, 59, 0.22);
+  box-shadow: 0 2px 10px rgb(60 70 59 / 22%);
 }
 
-/* Navbar 內層：三欄水平排列（品牌 | 導覽 | 操作） */
-.bk-navbar__inner {
+/* Navbar ?批惜嚗?甈偌撟單????? | 撠汗 | ??嚗? */
+.bkNavbarInner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
@@ -1661,8 +1833,8 @@
   position: relative;
 }
 
-/* 品牌識別區（左側） */
-.bk-navbar__brand {
+/* ??霅?嚗椰?湛? */
+.bkNavbarBrand {
   flex-shrink: 0;
   left: 50%;
   position: absolute;
@@ -1670,9 +1842,9 @@
   z-index: 1;
 }
 
-.bk-navbar__brand .brand {
+.bkNavbarBrand .brand {
   align-items: center;
-  color: #FDF1DB;
+  color: #fdf1db;
   display: inline-flex;
   font-size: 1.25rem;
   font-weight: 700;
@@ -1681,7 +1853,7 @@
   white-space: nowrap;
 }
 
-.bk-navbar__brand .logo {
+.bkNavbarBrand .logo {
   height: 28px;
   width: 28px;
 }
@@ -1697,18 +1869,20 @@
   transition: color 0.2s;
 }
 
-.bk-brand-link:hover { color: #fff; }
+.bk-brand-link:hover {
+  color: #fff;
+}
 
-/* Logo 副標題：低彩度縮小字體 */
-.brand-sub {
+/* Logo ?舀?憿?雿蔗摨衣葬撠?擃? */
+.brandSub {
   font-size: 0.75rem;
   font-weight: 400;
-  color: rgba(255, 253, 249, 0.6);
+  color: rgb(255 253 249 / 60%);
   letter-spacing: 0.02em;
 }
 
-/* 導覽列（中間，桌機版顯示） */
-.bk-navbar__menu {
+/* 撠汗??銝剝?嚗?璈?憿舐內嚗? */
+.bkNavbarMenu {
   display: none;
   list-style: none;
   margin: 0;
@@ -1721,28 +1895,30 @@
   display: block;
   padding: 0.45rem 0.9rem;
   font-size: 0.95rem;
-  color: rgba(255, 253, 249, 0.82);
+  color: rgb(255 253 249 / 82%);
   text-decoration: none;
   border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   white-space: nowrap;
 }
 
 .bk-nav-link:hover {
-  background: rgba(255, 253, 249, 0.12);
+  background: rgb(255 253 249 / 12%);
   color: var(--yc-on-dark);
 }
 
-/* 目前頁面對應連結加底線 */
+/* ?桀??撠??????蝺? */
 .bk-nav-link.active {
   color: var(--yc-on-dark);
   font-weight: 600;
-  border-bottom: 2px solid rgba(255, 253, 249, 0.75);
+  border-bottom: 2px solid rgb(255 253 249 / 75%);
   border-radius: 0;
 }
 
-/* 操作區（右側） */
-.bk-navbar__actions {
+/* ???嚗?湛? */
+.bkNavbarActions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1751,30 +1927,35 @@
   z-index: 2;
 }
 
-/* 系統切換鈕：前往裝備商城（在深色 header 上用透明鏤空樣式） */
-.bk-switch-btn {
+/* 蝟餌絞??????鋆???嚗瘛梯 header 銝???斤征璅??嚗? */
+.bkSwitchBtn {
   padding: 0.45rem 1rem;
   font-size: 0.875rem;
   white-space: nowrap;
-  background: rgba(255, 253, 249, 0.1);
+  background: rgb(255 253 249 / 10%);
   color: var(--yc-on-dark);
-  border-color: rgba(255, 253, 249, 0.42);
+  border-color: rgb(255 253 249 / 42%);
 }
 
-.bk-switch-btn:hover {
-  background: rgba(255, 253, 249, 0.2);
+.bkSwitchBtn:hover {
+  background: rgb(255 253 249 / 20%);
   color: #fff;
-  border-color: rgba(255, 253, 249, 0.75);
+  border-color: rgb(255 253 249 / 75%);
 }
 
-/* 手機版縮短文字（只顯示「商城」） */
-@media (max-width: 900px) {
-  .bk-switch-btn__text { display: none; }
-  .bk-switch-btn::after { content: '商城'; }
+/* ???葬?剜?摮??芷＊蝷箝??? */
+@media (width <= 900px) {
+  .bkSwitchBtnText {
+    display: none;
+  }
+
+  .bkSwitchBtn::after {
+    content: '??';
+  }
 }
 
-/* 預約背包按鈕 */
-.bk-cart-btn {
+/* ?????? */
+.bkCartBtn {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1791,10 +1972,12 @@
   cursor: pointer;
 }
 
-.bk-cart-btn:hover { background: rgba(255, 253, 249, 0.14); }
+.bkCartBtn:hover {
+  background: rgb(255 253 249 / 14%);
+}
 
-/* Badge：浮動在右上角的計數圓點 */
-.bk-badge {
+/* Badge嚗筑??喃?閫?閮?? */
+.bkBadge {
   position: absolute;
   top: 2px;
   right: 2px;
@@ -1812,29 +1995,29 @@
   line-height: 1;
 }
 
-/* Offcanvas 選單內的 inline Badge（文字旁邊） */
-.bk-badge--inline {
+/* Offcanvas ?詨?抒? inline Badge嚗?摮??? */
+.bkBadge--inline {
   position: static;
   margin-left: 0.4rem;
   vertical-align: middle;
 }
 
-/* 登入按鈕（在深色 header 上用反白樣式） */
+/* ?餃??嚗瘛梯 header 銝?璅??嚗? */
 .bk-login-btn {
   padding: 0.4rem 0.9rem;
   font-size: 0.875rem;
   color: var(--yc-on-dark);
-  border-color: rgba(255, 253, 249, 0.5);
+  border-color: rgb(255 253 249 / 50%);
   background: transparent;
 }
 
 .bk-login-btn:hover {
-  background: rgba(255, 253, 249, 0.14);
+  background: rgb(255 253 249 / 14%);
   color: #fff;
-  border-color: rgba(255, 253, 249, 0.85);
+  border-color: rgb(255 253 249 / 85%);
 }
 
-/* 已登入：頭像區塊 */
+/* 撌脩?伐??剖??憛? */
 .bk-user-menu {
   display: flex;
   align-items: center;
@@ -1847,7 +2030,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 253, 249, 0.2);
+  background: rgb(255 253 249 / 20%);
   color: var(--yc-on-dark);
   font-weight: 700;
   font-size: 0.9rem;
@@ -1863,7 +2046,7 @@
   white-space: nowrap;
 }
 
-/* 已登入：下拉選單觸發按鈕 */
+/* 撌脩?伐?銝??詨閫貊?? */
 .bk-user-dropdown-toggle {
   display: flex;
   align-items: center;
@@ -1883,25 +2066,28 @@
   transition: transform 0.2s;
 }
 
-.bk-user-dropdown-toggle[aria-expanded="true"] .bk-user-chevron {
+.bk-user-dropdown-toggle[aria-expanded='true'] .bk-user-chevron {
   transform: rotate(180deg);
 }
 
-/* 下拉選單容器 */
+/* 銝??詨摰孵 */
 .bk-user-dropdown {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   min-width: 148px;
   background: var(--yc-surface);
-  border: 1px solid rgba(0,0,0,0.08);
+  border: 1px solid rgb(0 0 0 / 8%);
   border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 20px rgb(0 0 0 / 12%);
   padding: 0.35rem 0;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
-  transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
+  transition:
+    opacity 0.18s,
+    transform 0.18s,
+    visibility 0.18s;
   z-index: 1100;
 }
 
@@ -1911,7 +2097,7 @@
   transform: translateY(0);
 }
 
-/* 下拉選單項目（共用） */
+/* 銝??詨?嚗?剁? */
 .bk-user-dropdown__item {
   display: flex;
   align-items: center;
@@ -1933,7 +2119,7 @@
   background: var(--yc-surface-soft);
 }
 
-/* 登出項目：紅色強調 */
+/* ?餃?嚗??脣撥隤? */
 .bk-user-dropdown__item--danger {
   color: var(--yc-error);
 }
@@ -1942,12 +2128,12 @@
   background: var(--yc-error-soft);
 }
 
-/* 讓 bk-user-menu 成為下拉定位基準 */
+/* 霈?bk-user-menu ?銝?摰??箸? */
 .bk-user-menu {
   position: relative;
 }
 
-/* 漢堡按鈕（手機版） */
+/* 瞍Ｗ??嚗?璈?嚗? */
 .bk-hamburger {
   background: none;
   border: none;
@@ -1964,16 +2150,22 @@
   z-index: 2;
 }
 
-.bk-hamburger:hover { background: rgba(255, 253, 249, 0.14); }
+.bk-hamburger:hover {
+  background: rgb(255 253 249 / 14%);
+}
 
-/* 桌機版隱藏 / 手機版隱藏輔助 class */
-.bk-hidden-mobile  { display: flex; }   /* 桌機顯示 */
-.bk-hidden-desktop { display: none; }  /* 桌機隱藏 */
+/* 獢????/ ???????class */
+.bk-hidden-mobile {
+  display: flex;
+} /* 獢?憿舐內 */
+.bk-hidden-desktop {
+  display: none;
+} /* 獢??梯? */
 
 /* ============================================================
-   22-A. Offcanvas 側邊選單（手機版）
+   22-A. Offcanvas ?湧??詨嚗?璈?嚗?
    ============================================================ */
-.bk-offcanvas {
+.bkOffcanvas {
   position: fixed;
   top: 0;
   left: -320px;
@@ -1981,16 +2173,18 @@
   max-width: 85vw;
   height: 100vh;
   background: var(--yc-bg);
-  box-shadow: -4px 0 20px rgba(60, 70, 59, 0.18);
+  box-shadow: -4px 0 20px rgb(60 70 59 / 18%);
   z-index: 2000;
   transition: left 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
-.bk-offcanvas.is-open { left: 0; }
+.bkOffcanvas.is-open {
+  left: 0;
+}
 
-.bk-offcanvas__header {
+.bkOffcanvasHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1998,34 +2192,40 @@
   border-bottom: 1px solid var(--yc-border);
 }
 
-.bk-offcanvas__title {
+.bkOffcanvasTitle {
   font-size: 1rem;
   font-weight: 700;
   color: var(--yc-sage-action);
 }
 
-.bk-offcanvas__close {
+.bkOffcanvasClose {
   background: none;
   border: none;
   font-size: 1.25rem;
-  color: var(--yc-sage);
+  color: var(--yc-sage-action);
   cursor: pointer;
   padding: 0.2rem;
   border-radius: 4px;
   transition: background 0.2s;
 }
 
-.bk-offcanvas__close:hover { background: rgba(115, 129, 110, 0.1); }
+.bkOffcanvasClose:hover {
+  background: rgb(115 129 110 / 10%);
+}
 
-.bk-offcanvas__body { padding: 1rem 0; flex: 1; overflow-y: auto; }
+.bkOffcanvasBody {
+  padding: 1rem 0;
+  flex: 1;
+  overflow-y: auto;
+}
 
-.bk-offcanvas__list {
+.bkOffcanvasList {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.bk-offcanvas__list li a {
+.bkOffcanvasList li a {
   display: block;
   padding: 0.85rem 1.5rem;
   font-size: 0.95rem;
@@ -2034,45 +2234,51 @@
   transition: background 0.15s;
 }
 
-.bk-offcanvas__list li a:hover { background: rgba(115, 129, 110, 0.08); color: var(--yc-sage-action); }
+.bkOffcanvasList li a:hover {
+  background: rgb(115 129 110 / 8%);
+  color: var(--yc-sage-action);
+}
 
-/* Offcanvas 分隔線 */
-.bk-offcanvas__divider {
+/* Offcanvas ??蝺? */
+.bkOffcanvasDivider {
   height: 1px;
   background: var(--yc-border);
   margin: 0.5rem 1.5rem;
 }
 
-/* 系統切換連結（奶油金 CTA 強調 → 改用品牌綠確保可讀性） */
-.bk-offcanvas__switch {
-  color: var(--yc-sage-action) !important;
-  font-weight: 600 !important;
+/* 蝟餌絞?????嚗扒瘝寥? CTA 撘瑁矽 ???寧??蝬Ⅱ靽霈?改? */
+.bkOffcanvasSwitch {
+  color: var(--yc-sage-action);
+  font-weight: 600;
 }
 
-/* 預約背包連結 */
-.bk-offcanvas__cart {
-  display: flex !important;
+/* ??????? */
+.bk-offcanvas__cart,
+.bkOffcanvasCart {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Offcanvas 背景遮罩 */
-.bk-offcanvas-backdrop {
+/* Offcanvas ??桃蔗 */
+.bkOffcanvasBackdrop {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgb(0 0 0 / 40%);
   z-index: 1999;
 }
 
-.bk-offcanvas-backdrop.is-visible { display: block; }
+.bkOffcanvasBackdrop.is-visible {
+  display: block;
+}
 
 /* ============================================================
-   22-B. Slide-out Panels — 登入 & 預約背包
+   22-B. Slide-out Panels ???餃 & ????
    ============================================================ */
 
-/* 共用 Panel 容器：預設藏在右側外，transition 滑入 */
-.bk-slide-panel {
+/* ?梁 Panel 摰孵嚗?閮剛??典?游?嚗ransition 皛 */
+.bkSlidePanel {
   position: fixed;
   top: 0;
   right: -480px;
@@ -2083,14 +2289,16 @@
   z-index: 3000;
   display: flex;
   flex-direction: column;
-  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
+  box-shadow: -4px 0 32px rgb(0 0 0 / 18%);
   transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bk-slide-panel.is-open { right: 0; }
+.bkSlidePanel.is-open {
+  right: 0;
+}
 
 /* Panel Header */
-.bk-slide-panel__header {
+.bkSlidePanelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2099,7 +2307,7 @@
   flex-shrink: 0;
 }
 
-.bk-slide-panel__title {
+.bkSlidePanelTitle {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
@@ -2109,7 +2317,7 @@
   gap: 0.5rem;
 }
 
-.bk-slide-panel__close {
+.bkSlidePanelClose {
   background: none;
   border: none;
   font-size: 1.15rem;
@@ -2118,42 +2326,46 @@
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
   line-height: 1;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   flex-shrink: 0;
 }
 
-.bk-slide-panel__close:hover {
-  background: rgba(115, 129, 110, 0.1);
+.bkSlidePanelClose:hover {
+  background: rgb(115 129 110 / 10%);
   color: var(--bk-primary);
 }
 
-/* Panel Body（可捲動） */
-.bk-slide-panel__body {
+/* Panel Body嚗?脣?嚗? */
+.bkSlidePanelBody {
   flex: 1;
   overflow-y: auto;
   padding: 1.5rem;
 }
 
-/* Panel Footer（固定在底部） */
-.bk-slide-panel__footer {
+/* Panel Footer嚗摰摨嚗? */
+.bkSlidePanelFooter {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--bk-border);
   flex-shrink: 0;
 }
 
-/* 共用遮罩 */
-.bk-panel-backdrop {
+/* ?梁?桃蔗 */
+.bkPanelBackdrop {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgb(0 0 0 / 45%);
   z-index: 2999;
   backdrop-filter: blur(2px);
 }
 
-.bk-panel-backdrop.is-visible { display: block; }
+.bkPanelBackdrop.is-visible {
+  display: block;
+}
 
-/* ── Cart Panel 內容元素 ── */
+/* ?? Cart Panel ?批捆?? ?? */
 .cart-panel__empty {
   text-align: center;
   padding: 3rem 0;
@@ -2167,7 +2379,9 @@
   margin-bottom: 0.75rem;
 }
 
-.cart-panel__empty p { margin-bottom: 0.5rem; }
+.cart-panel__empty p {
+  margin-bottom: 0.5rem;
+}
 
 .cart-panel__section {
   padding-bottom: 1.25rem;
@@ -2238,10 +2452,12 @@
   font-family: inherit;
 }
 
-.cart-panel__clear:hover { color: var(--bk-danger); }
+.cart-panel__clear:hover {
+  color: var(--bk-danger);
+}
 
-/* ── 手機版 offcanvas 內的背包 button（樣式對齊 list link） ── */
-.bk-offcanvas__cart-btn {
+/* ?? ????offcanvas ?抒??? button嚗見撘?朣?list link嚗??? */
+.bkOffcanvasCartBtn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2257,13 +2473,13 @@
   transition: background 0.15s;
 }
 
-.bk-offcanvas__cart-btn:hover {
-  background: rgba(115, 129, 110, 0.08);
+.bkOffcanvasCartBtn:hover {
+  background: rgb(115 129 110 / 8%);
   color: var(--yc-sage-action);
 }
 
-/* 手機版 offcanvas 登出按鈕 */
-.bk-offcanvas__logout-btn {
+/* ????offcanvas ?餃?? */
+.bkOffcanvasLogoutBtn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2279,12 +2495,13 @@
   transition: background 0.15s;
 }
 
-.bk-offcanvas__logout-btn:hover {
+.bkOffcanvasLogoutBtn:hover {
   background: var(--yc-error-soft);
 }
 
-/* OAuth 登入按鈕 */
-.oauth-desc {
+/* OAuth ?餃?? */
+.oauth-desc,
+.oauthDesc {
   text-align: center;
   font-size: 0.875rem;
   color: var(--bk-text-muted);
@@ -2304,20 +2521,43 @@
   cursor: pointer;
   border: none;
   margin-bottom: 0.75rem;
-  transition: opacity 0.2s, transform 0.15s;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
   font-family: inherit;
   text-decoration: none;
 }
 
-.oauth-btn:last-of-type { margin-bottom: 0; }
-.oauth-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
-.oauth-btn:active { transform: translateY(0); }
+.oauth-btn:last-of-type {
+  margin-bottom: 0;
+}
 
-.oauth-btn--google   { background: #fff; border: 1.5px solid #dadce0; color: #3c4043; }
-.oauth-btn--line     { background: #00b900; color: #fff; }
-.oauth-btn--facebook { background: #1877f2; color: #fff; }
+.oauth-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
 
-.oauth-privacy {
+.oauth-btn:active {
+  transform: translateY(0);
+}
+
+.oauth-btn--google {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+.oauth-btn--line {
+  background: #00b900;
+  color: #fff;
+}
+
+.oauth-btn--facebook {
+  background: #1877f2;
+  color: #fff;
+}
+
+.oauthPrivacy {
   text-align: center;
   font-size: 0.72rem;
   color: var(--bk-text-muted);
@@ -2325,7 +2565,10 @@
   line-height: 1.6;
 }
 
-.oauth-privacy a { color: var(--bk-primary); text-decoration: underline; }
+.oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
 
 .bk-personalization-modal {
   display: none;
@@ -2346,7 +2589,7 @@
   max-height: calc(100vh - 2rem);
   background: var(--yc-surface);
   border-radius: 8px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2379,7 +2622,7 @@
 }
 
 .bk-personalization-modal__close:hover {
-  background: rgba(115, 129, 110, 0.1);
+  background: rgb(115 129 110 / 10%);
   color: var(--bk-primary);
 }
 
@@ -2388,7 +2631,7 @@
   overflow-y: auto;
 }
 
-.bk-personalization-modal .stepper-header {
+.bk-personalization-modal .stepperHeader {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2396,7 +2639,7 @@
   margin-bottom: 1.5rem;
 }
 
-.bk-personalization-modal .stepper-dot {
+.bk-personalization-modal .stepperDot {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -2410,54 +2653,54 @@
   font-weight: 700;
 }
 
-.bk-personalization-modal .stepper-dot.active {
+.bk-personalization-modal .stepperDot.active {
   background: var(--bk-primary);
   border-color: var(--bk-primary);
   color: #fff;
 }
 
-.bk-personalization-modal .stepper-line {
+.bk-personalization-modal .stepperLine {
   flex: 1;
   max-width: 64px;
   height: 2px;
   background: var(--bk-border);
 }
 
-.bk-personalization-modal .stepper-text {
+.bk-personalization-modal .stepperText {
   font-size: 0.875rem;
   color: var(--bk-text-muted);
 }
 
-.bk-personalization-modal .survey-step {
+.bk-personalization-modal .surveyStep {
   display: none;
 }
 
-.bk-personalization-modal .survey-step.active {
+.bk-personalization-modal .surveyStep.active {
   display: block;
 }
 
-.bk-personalization-modal .survey-question {
+.bk-personalization-modal .surveyQuestion {
   margin: 0 0 0.5rem;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
 }
 
-.bk-personalization-modal .survey-hint {
+.bk-personalization-modal .surveyHint {
   margin: 0 0 1.25rem;
   font-size: 0.82rem;
   color: var(--bk-text-muted);
   line-height: 1.5;
 }
 
-.bk-personalization-modal .survey-tags {
+.bk-personalization-modal .surveyTags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
-.bk-personalization-modal .survey-tag {
+.bk-personalization-modal .surveyTag {
   padding: 0.42rem 0.85rem;
   border: 1.5px solid var(--bk-border);
   border-radius: 999px;
@@ -2465,36 +2708,47 @@
   color: var(--bk-text);
   cursor: pointer;
   user-select: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
-.bk-personalization-modal .survey-tag:hover {
+.bk-personalization-modal .surveyTag:hover {
   border-color: var(--bk-primary);
   color: var(--bk-primary);
 }
 
-.bk-personalization-modal .survey-tag.active {
+.bk-personalization-modal .surveyTag.active {
   background: var(--bk-primary);
   border-color: var(--bk-primary);
   color: #fff;
 }
 
 /* ============================================================
-   22-C. Header RWD（≤ 768px）
+   22-C. Header RWD嚗 768px嚗?
    ============================================================ */
-@media (max-width: 768px) {
-  .bk-hidden-mobile  { display: none; }   /* 手機版隱藏導覽列 */
-  .bk-hidden-desktop { display: block; }  /* 手機版顯示漢堡按鈕 */
+@media (width <= 768px) {
+  .bk-hidden-mobile {
+    display: none;
+  } /* ?????閬賢? */
+  .bk-hidden-desktop {
+    display: block;
+  } /* ???＊蝷箸慰?⊥??? */
 
-  .bk-navbar__inner { gap: 1rem; }
+  .bkNavbarInner {
+    gap: 1rem;
+  }
 
-  /* 手機版隱藏「前往裝備商城」按鈕文字（改為 Offcanvas 顯示） */
-  .bk-switch-btn { display: none; }
+  /* ?????敺鋆???????摮??寧 Offcanvas 憿舐內嚗? */
+  .bkSwitchBtn {
+    display: none;
+  }
 }
 
 /* ============================================================
-   23. Booking Footer（預約系統專屬）
-   沿用買家端 4 欄式排版，確保視覺一致
+   23. Booking Footer嚗?蝝頂蝯勗?撅穿?
+   瘝輻鞎瑕振蝡?4 甈???嚗Ⅱ靽?閬箔???
    ============================================================ */
 .booking-footer {
   background: var(--yc-footer-bg);
@@ -2509,7 +2763,7 @@
   padding: 0 1.5rem;
 }
 
-/* 四欄 Grid */
+/* ?? Grid */
 .bk-footer__grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2517,7 +2771,7 @@
   margin-bottom: 2rem;
 }
 
-/* 欄位標題 */
+/* 甈?璅? */
 .bk-footer__heading {
   font-size: 1rem;
   font-weight: 700;
@@ -2532,47 +2786,59 @@
   margin-bottom: 0.75rem;
 }
 
-/* 標語文字 */
+/* 璅??? */
 .bk-footer__tagline {
   font-size: 0.875rem;
-  color: rgba(255, 253, 249, 0.7);
+  color: rgb(255 253 249 / 70%);
   line-height: 1.7;
   margin-bottom: 0.5rem;
 }
 
-/* 連結列表 */
+/* ????” */
 .bk-footer__links {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.bk-footer__links li { margin-bottom: 0.5rem; }
+.bk-footer__links li {
+  margin-bottom: 0.5rem;
+}
 
 .bk-footer__links a {
   font-size: 0.875rem;
-  color: rgba(255, 253, 249, 0.72);
+  color: rgb(255 253 249 / 72%);
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.bk-footer__links a:hover { color: var(--yc-on-dark); }
+.bk-footer__links a:hover {
+  color: var(--yc-on-dark);
+}
 
-/* 重要連結（取消退款等）加強調 */
-.bk-footer__links a.important { color: var(--yc-on-dark); font-weight: 600; }
-.bk-footer__links a.important:hover { color: #fff; }
+/* ?????嚗?瘨甈曄?嚗?撘瑁矽 */
+.bk-footer__links a.important {
+  color: var(--yc-on-dark);
+  font-weight: 600;
+}
 
-/* 聯絡資訊 */
+.bk-footer__links a.important:hover {
+  color: #fff;
+}
+
+/* ?舐窗鞈? */
 .bk-footer__contact-item {
   font-size: 0.875rem;
-  color: rgba(255, 253, 249, 0.7);
+  color: rgb(255 253 249 / 70%);
   margin-bottom: 0.5rem;
   line-height: 1.6;
 }
 
-.bk-footer__contact-item strong { color: var(--yc-on-dark); }
+.bk-footer__contact-item strong {
+  color: var(--yc-on-dark);
+}
 
-/* 社群連結 */
+/* 蝷曄黎??? */
 .social {
   display: flex;
   justify-content: center;
@@ -2594,39 +2860,45 @@
   margin-bottom: 10px;
 }
 
-/* 分隔線 */
+/* ??蝺? */
 .bk-footer__divider {
   border: none;
-  border-top: 1px solid rgba(255, 253, 249, 0.15);
+  border-top: 1px solid rgb(255 253 249 / 15%);
   margin: 0 0 1.5rem;
 }
 
-/* 版權區塊 */
-.bk-footer__bottom { text-align: center; }
+/* ???憛? */
+.bk-footer__bottom {
+  text-align: center;
+}
 
 .bk-footer__copyright {
   font-size: 0.8rem;
-  color: rgba(255, 253, 249, 0.5);
+  color: rgb(255 253 249 / 50%);
   margin-bottom: 0.75rem;
 }
 
-/* 政策連結 */
-.bk-footer__policy { margin-bottom: 1rem; }
+/* ?輻???? */
+.bk-footer__policy {
+  margin-bottom: 1rem;
+}
 
 .bk-footer__policy a {
   font-size: 0.8rem;
-  color: rgba(255, 253, 249, 0.52);
+  color: rgb(255 253 249 / 52%);
   text-decoration: none;
   margin: 0 0.75rem;
   transition: color 0.2s;
 }
 
-.bk-footer__policy a:hover { color: rgba(255, 253, 249, 0.85); }
+.bk-footer__policy a:hover {
+  color: rgb(255 253 249 / 85%);
+}
 
-/* 付款圖示列 */
+/* 隞狡?內?? */
 .bk-footer__payment {
   font-size: 0.8rem;
-  color: rgba(255, 253, 249, 0.52);
+  color: rgb(255 253 249 / 52%);
   margin-bottom: 0.5rem;
 }
 
@@ -2638,18 +2910,23 @@
 }
 
 /* ============================================================
-   23-A. Footer RWD（≤ 768px）
+   23-A. Footer RWD嚗 768px嚗?
    ============================================================ */
-@media (max-width: 768px) {
-  .bk-footer__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+@media (width <= 768px) {
+  .bk-footer__grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
 }
 
-@media (max-width: 480px) {
-  .bk-footer__grid { grid-template-columns: 1fr; }
+@media (width <= 480px) {
+  .bk-footer__grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ============================================================
-   24. Toast 訊息提示框
+   24. Toast 閮?內獢?
    ============================================================ */
 #bk-toast-container {
   position: fixed;
@@ -2673,10 +2950,12 @@
   color: #fff;
   font-size: 0.9rem;
   line-height: 1.45;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
   pointer-events: all;
   animation: bk-toast-in 0.28s ease;
-  transition: opacity 0.28s ease, transform 0.28s ease;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
 }
 
 .bk-toast--hiding {
@@ -2684,17 +2963,30 @@
   transform: translateX(110%);
 }
 
-.bk-toast--info    { background: var(--bk-primary); }
-.bk-toast--warning { background: var(--bk-orange); }
-.bk-toast--error   { background: var(--bk-danger); }
-.bk-toast--success { background: var(--bk-success); }
+.bk-toast--info {
+  background: var(--bk-primary);
+}
 
-.bk-toast__text  { flex: 1; }
+.bk-toast--warning {
+  background: var(--bk-orange);
+}
+
+.bk-toast--error {
+  background: var(--bk-danger);
+}
+
+.bk-toast--success {
+  background: var(--bk-success);
+}
+
+.bk-toast__text {
+  flex: 1;
+}
 
 .bk-toast__close {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgb(255 255 255 / 75%);
   cursor: pointer;
   font-size: 1.1rem;
   line-height: 1;
@@ -2703,10 +2995,15 @@
   transition: color 0.2s;
 }
 
-.bk-toast__close:hover { color: #fff; }
+.bk-toast__close:hover {
+  color: #fff;
+}
 
-/* Confirm Toast 按鈕列 */
-.bk-toast--confirm { flex-wrap: wrap; gap: 0.5rem; }
+/* Confirm Toast ???? */
+.bk-toast--confirm {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 
 .bk-toast__actions {
   display: flex;
@@ -2727,7 +3024,9 @@
   transition: opacity 0.15s;
 }
 
-.bk-toast__action-btn:hover { opacity: 0.85; }
+.bk-toast__action-btn:hover {
+  opacity: 0.85;
+}
 
 .bk-toast__action-btn--confirm {
   background: #fff;
@@ -2735,7 +3034,7 @@
 }
 
 .bk-toast__action-btn--cancel {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgb(255 255 255 / 25%);
   color: #fff;
 }
 
@@ -2745,6 +3044,335 @@
 }
 
 @keyframes bk-toast-in {
-  from { opacity: 0; transform: translateX(110%); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Shared booking header/footer partial classes */
+.bookingHeaderShell,
+.bookingHeader {
+  background: var(--yc-bg);
+}
+
+.bookingNavbar {
+  min-height: 72px;
+  background: var(--yc-header-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingNavbarInner,
+.bookingFooterInner {
+  width: min(1120px, calc(100vw - 32px));
+  margin: 0 auto;
+}
+
+.bookingNavbarInner {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingBrandLink,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bookingBrandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.bookingBrandImage {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.bookingBrandSub {
+  color: var(--yc-on-dark-muted);
+  font-size: 0.875rem;
+}
+
+.bookingHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose,
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose {
+  min-width: 44px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: rgb(255 255 255 / 8%);
+  color: var(--yc-on-dark);
+}
+
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink {
+  border: 1px solid transparent;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  padding: 0 1rem;
+}
+
+.bookingCartButton {
+  position: relative;
+}
+
+.bookingCartBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--yc-error);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.bookingOffcanvas,
+.bookingSlidePanel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 3000;
+  width: min(420px, 100vw);
+  background: var(--yc-surface);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
+  transition: transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvas {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.bookingSlidePanel {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.bookingOffcanvas.isOpen,
+.bookingSlidePanel.isOpen {
+  transform: translateX(0);
+}
+
+.bookingOffcanvasBackdrop,
+.bookingPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2990;
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  transition: opacity var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvasBackdrop.isVisible,
+.bookingPanelBackdrop.isVisible {
+  opacity: 1;
+}
+
+.bookingOffcanvasHeader,
+.bookingSlidePanelHeader {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle,
+.bookingCartPanelLabel {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.bookingOffcanvasLinks,
+.bookingFooterLinks,
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookingOffcanvasLinks a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: var(--yc-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
+}
+
+.bookingSlidePanelBody,
+.bookingOffcanvasBody {
+  padding: 1rem;
+}
+
+.bookingCartPanelSection {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingCartPanelMeta {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.bookingCartPanelTotal {
+  margin: 1rem 0;
+  color: var(--yc-sage-action);
+  font-weight: 800;
+}
+
+.bookingFooter {
+  background: var(--yc-footer-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterInner {
+  padding: 3rem 0 1.5rem;
+}
+
+.bookingFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.bookingFooterSection {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.bookingFooterHeading {
+  margin: 0;
+  color: var(--yc-on-dark);
+  font-size: 1.125rem;
+}
+
+.bookingFooterText,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: var(--yc-on-dark-muted);
+}
+
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bookingFooterSocialLinks a {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterBottom {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(255 255 255 / 18%);
+  color: var(--yc-on-dark-muted);
+}
+
+@media (width <= 1024px) {
+  .bookingFooterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bookingFooterBottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 768px) {
+  .bookingNavbarInner,
+  .bookingFooterInner {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .bookingBrandSub,
+  .bookingSwitchLink {
+    display: none;
+  }
+
+  .bookingFooterGrid {
+    grid-template-columns: 1fr;
+  }
 }

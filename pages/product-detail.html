@@ -24,175 +24,190 @@
     <!-- ===================================================
        麵包屑導覽 Breadcrumb
        =================================================== -->
-    <div class="container u-migrated-130">
-      <nav class="u-migrated-131" aria-label="麵包屑導覽">
-        <a class="u-migrated-132" href="home.html">首頁</a>
-        <span class="u-migrated-133">›</span>
-        <a class="u-migrated-132" href="products.html">商品</a>
-        <span class="u-migrated-133">›</span>
-        <span class="u-migrated-110" id="breadcrumbProductName">商品詳情</span>
-      </nav>
-    </div>
+    <section class="productDetailHero" aria-label="商品詳情導覽">
+      <div class="container productDetailHeroInner">
+        <nav class="detailBreadcrumb" aria-label="麵包屑導覽">
+          <ol class="detailBreadcrumbList">
+            <li class="detailBreadcrumbItem">
+              <a class="detailBreadcrumbLink" href="home.html">首頁</a>
+            </li>
+            <li class="detailBreadcrumbItem">
+              <a class="detailBreadcrumbLink" href="products.html">商品</a>
+            </li>
+            <li class="detailBreadcrumbItem" aria-current="page">
+              <span id="breadcrumbProductName">商品詳情</span>
+            </li>
+          </ol>
+        </nav>
+        <div class="productDetailHeroText">
+          <p class="productDetailHeroEyebrow">Yuruicamp Gear</p>
+          <p class="productDetailHeroLead">查看裝備細節、規格與評價，確認最適合下一趟露營的配置。</p>
+        </div>
+      </div>
+    </section>
 
     <!-- ===================================================
        商品詳情主體 Product Detail Main
        =================================================== -->
-    <main class="container u-migrated-134">
+    <main class="container productDetailContainer">
       <!-- 載入中狀態 Loading State -->
-      <div class="u-migrated-135" id="productLoading">
-        <div class="u-migrated-136">⏳</div>
-        <p class="u-migrated-110">商品資料載入中...</p>
+      <div class="productLoading" id="productLoading" role="status">
+        <div class="loadingIcon" aria-hidden="true"></div>
+        <p class="productLoadingText">商品資料載入中...</p>
       </div>
 
       <!-- 載入失敗狀態 Error State -->
-      <div class="u-migrated-137" id="productError">
-        <div class="u-migrated-136">😢</div>
-        <h3 class="u-migrated-138">找不到此商品</h3>
-        <p class="u-migrated-139">請確認商品連結是否正確</p>
-        <a href="products.html" class="btn btn-primary">回到商品列表</a>
+      <div class="productError" id="productError" hidden>
+        <h3 class="errorText">找不到此商品</h3>
+        <p class="errorSubText">請確認商品連結是否正確</p>
+        <a href="products.html" class="btn btnPrimary">回到商品列表</a>
       </div>
 
       <!-- 商品詳情內容 Product Detail Content（由 JS 動態顯示）-->
-      <div class="u-migrated-140" id="productDetailContent">
+      <div class="productDetailContent" id="productDetailContent" hidden>
         <!-- 商品主佈局：左圖 + 右資訊 -->
-        <div class="product-detail-layout">
+        <div class="productDetailLayout">
           <!-- ===== 左側：圖片 Gallery ===== -->
-          <div class="product-gallery">
+          <div class="productGallery">
             <!-- 主圖 Main Image -->
-            <div class="gallery-main">
-              <img class="u-migrated-141" id="galleryMainImg" src="" alt="商品主圖" loading="lazy" />
+            <div class="galleryMain">
+              <img class="galleryMainImg" id="galleryMainImg" src="" alt="商品主圖" loading="lazy" />
             </div>
             <!-- 縮圖列表 Thumbnail List -->
-            <div class="gallery-thumbs" id="galleryThumbs">
+            <div class="galleryThumbs" id="galleryThumbs">
               <!-- 由 JS 動態渲染縮圖 -->
             </div>
           </div>
 
           <!-- ===== 右側：商品資訊 ===== -->
-          <div class="product-info">
+          <div class="productInfo">
             <!-- 品牌名稱 Brand -->
-            <div id="productBrand" class="product-brand u-migrated-142">
+            <div id="productBrand" class="productBrand">
               <!-- 由 JS 填入 -->
             </div>
 
             <!-- 商品名稱 Product Name -->
-            <h1 class="u-migrated-143" id="productName">
+            <h1 class="productName" id="productName">
               <!-- 由 JS 填入 -->
             </h1>
 
             <!-- 評分區域 Rating Section -->
-            <div class="u-migrated-144">
-              <div class="u-migrated-145" id="productStars">
+            <div class="ratingContainer1">
+              <div class="rating" id="productStars">
                 <!-- 由 JS 填入星星 -->
               </div>
-              <span class="u-migrated-146" id="productRatingNum">4.5</span>
-              <span class="u-migrated-147" id="productReviewCount">（0 則評價）</span>
+              <span class="reviewPoint" id="productRatingNum">4.5</span>
+              <span class="reviewNumber" id="productReviewCount">（0 則評價）</span>
             </div>
 
             <!-- 價格區域 Price Section -->
-            <div class="u-migrated-148">
-              <div class="u-migrated-149">
-                <span class="u-migrated-150" id="productPrice">
+            <div class="priceSection">
+              <div class="priceBox">
+                <span class="currentPrice" id="productPrice">
                   <!-- 現價 -->
                 </span>
-                <span class="u-migrated-151" id="productOriginalPrice">
+                <span class="productOriginalPrice" id="productOriginalPrice">
                   <!-- 原價 -->
                 </span>
-                <span class="u-migrated-152" id="productDiscount">
+                <span class="productDiscount" id="productDiscount">
                   <!-- 折扣 % -->
                 </span>
               </div>
             </div>
 
             <!-- 規格選擇：顏色 Color Spec -->
-            <div class="spec-group u-migrated-100" id="colorSpecGroup">
-              <div class="spec-label u-migrated-153">
-                顏色：<span class="u-migrated-059" id="selectedColorLabel"></span>
-              </div>
-              <div class="spec-options" id="colorOptions">
+            <fieldset class="specGroup" id="colorSpecGroup">
+              <legend class="specLabel">
+                顏色：<span class="selectedSpecLabel" id="selectedColorLabel"></span>
+              </legend>
+              <div class="specOptions" id="colorOptions">
                 <!-- 由 JS 動態渲染顏色按鈕 -->
               </div>
-            </div>
+            </fieldset>
 
             <!-- 規格選擇：尺寸 Size Spec -->
-            <div class="spec-group u-migrated-154" id="sizeSpecGroup">
-              <div class="spec-label u-migrated-153">
-                尺寸：<span class="u-migrated-059" id="selectedSizeLabel"></span>
-              </div>
-              <div class="spec-options" id="sizeOptions">
+            <fieldset class="specGroup" id="sizeSpecGroup">
+              <legend class="specLabel">
+                尺寸：<span class="selectedSpecLabel" id="selectedSizeLabel"></span>
+              </legend>
+              <div class="specOptions" id="sizeOptions">
                 <!-- 由 JS 動態渲染尺寸按鈕 -->
               </div>
-            </div>
+            </fieldset>
 
             <!-- 數量選擇 Quantity Stepper -->
-            <div class="u-migrated-155">
-              <div class="u-migrated-153">數量：</div>
-              <div class="qty-stepper">
-                <button class="qty-btn" id="qtyDecrease" type="button" title="減少數量">−</button>
-                <input class="qty-input" id="qtyInput" type="number" value="1" min="1" max="99" readonly />
-                <button class="qty-btn" id="qtyIncrease" type="button" title="增加數量">+</button>
+            <div class="quantityContainer">
+              <div>數量：</div>
+              <div class="qtyStepper">
+                <button class="qtyBtn" id="qtyDecrease" type="button" title="減少數量">−</button>
+                <input class="qtyInput" id="qtyInput" type="number" value="1" min="1" max="99" readonly />
+                <button class="qtyBtn" id="qtyIncrease" type="button" title="增加數量">+</button>
               </div>
             </div>
 
             <!-- 免運進度條 Free Shipping Progress Bar -->
-            <div class="u-migrated-156">
-              <div class="u-migrated-157">
-                <span class="u-migrated-158">🚚 免運進度</span>
-                <span class="u-migrated-159" id="shippingProgressText"></span>
+            <div class="progressContainer">
+              <div class="progressBox">
+                <span class="progressIcon">免運進度</span>
+                <span class="shippingProgressText" id="shippingProgressText"></span>
               </div>
-              <div class="u-migrated-160">
-                <div class="shipping-progress-bar u-migrated-161" id="shippingProgressBar"></div>
-              </div>
-              <p class="u-migrated-162" id="shippingProgressHint"></p>
+              <progress
+                class="shippingProgressBar"
+                id="shippingProgressBar"
+                max="100"
+                value="0"
+                aria-label="免運進度"
+              ></progress>
+              <p class="shippingProgressHint" id="shippingProgressHint"></p>
             </div>
 
             <!-- 操作按鈕 Action Buttons -->
-            <div class="u-migrated-163">
-              <button id="addToCartBtn" class="btn btn-primary u-migrated-164" type="button">
-                🛒 加入購物車
+            <div class="actionBtnContainer">
+              <button id="addToCartBtn" class="btn btnPrimary cartBtn" type="button">
+                加入購物車
               </button>
-              <button id="buyNowBtn" class="btn btn-secondary u-migrated-164" type="button">
-                ⚡ 直接購買
+              <button id="buyNowBtn" class="btn btnSecondary cartBtn" type="button">
+                直接購買
               </button>
             </div>
 
             <!-- 商品標籤 Tags -->
-            <div class="u-migrated-165" id="productTags">
+            <div class="productTags" id="productTags">
               <!-- 由 JS 動態渲染標籤 -->
             </div>
           </div>
-          <!-- /product-info -->
+          <!-- /productInfo -->
         </div>
-        <!-- /product-detail-layout -->
+        <!-- /productDetailLayout -->
 
         <!-- ===================================================
            下方 Tab 頁籤區域 Product Tabs
            =================================================== -->
-        <div class="u-migrated-166">
+        <div class="bottomAreaContainer">
           <!-- Tab 導航列 Tab Nav -->
-          <div class="product-tabs-nav u-migrated-167">
-            <button class="product-tab-btn active u-migrated-168" data-tab="description" type="button">
-              📋 商品介紹
+          <div class="productTabsNav">
+            <button class="productTabBtn isSelected" data-tab="description" type="button">
+              商品介紹
             </button>
-            <button class="product-tab-btn u-migrated-169" data-tab="reviews" type="button">
-              ⭐ 商品評價 (3)
+            <button class="productTabBtn" data-tab="reviews" type="button">
+              商品評價 (3)
             </button>
           </div>
 
           <!-- Tab 面板：商品介紹 Description Panel -->
-          <div class="product-tab-panel active" data-panel="description">
-            <div class="u-migrated-170">
+          <div class="productTabPanel isSelected" data-panel="description">
+            <div class="descriptionContainer">
               <!-- 左：商品描述 -->
               <div>
-                <h3 class="u-migrated-171">商品說明</h3>
-                <p class="u-migrated-172" id="productDescription"></p>
+                <h3 class="productDescriptionTitle">商品說明</h3>
+                <p class="productDescription" id="productDescription"></p>
                 <!-- 商品特色列表 -->
-                <div class="u-migrated-173" id="productFeatures"></div>
+                <div class="productFeatures" id="productFeatures"></div>
               </div>
               <!-- 右：商品規格表 -->
               <div>
-                <h3 class="u-migrated-171">詳細規格</h3>
-                <div class="u-migrated-174" id="productSpecTable">
+                <h3 class="descriptionProductTitle">詳細規格</h3>
+                <div class="productSpecTable" id="productSpecTable">
                   <!-- 由 JS 動態渲染規格表 -->
                 </div>
               </div>
@@ -200,25 +215,25 @@
           </div>
 
           <!-- Tab 面板：商品評價 Reviews Panel -->
-          <div class="product-tab-panel u-migrated-140" data-panel="reviews">
-            <div class="u-migrated-175">
+          <div class="productTabPanel" data-panel="reviews">
+            <div class="ratingContainer2">
               <!-- 評價卡片 1 Review Card 1 -->
-              <div class="review-card u-migrated-176">
-                <div class="review-header u-migrated-177">
-                  <div class="review-avatar u-migrated-178">林</div>
+              <div class="reviewCard">
+                <div class="reviewHeader">
+                  <div class="reviewAvatar">林</div>
                   <div>
-                    <div class="u-migrated-079">林小明</div>
-                    <div class="u-migrated-179">★★★★★</div>
+                    <div class="reviewAuthorName">林小明</div>
+                    <div class="starStyle" data-review-rating="5">★★★★★</div>
                   </div>
-                  <div class="u-migrated-180">2026/05/20</div>
+                  <div class="ratingDate">2026/05/20</div>
                 </div>
-                <p class="review-text u-migrated-181">
+                <p class="reviewText">
                   商品品質非常好！帳篷搭建超簡單，大概 10
                   分鐘就完成了。防水效果很棒，之前去大雪山露營遇到大雨完全沒有滲水。強烈推薦給第一次買帳篷的朋友！
                 </p>
-                <div class="review-images u-migrated-102">
+                <div class="reviewImages">
                   <img
-                    class="u-migrated-182"
+                    class="ratingImage"
                     src="https://picsum.photos/seed/review1a/100/100"
                     alt="評價圖片"
                     loading="lazy"
@@ -227,21 +242,21 @@
               </div>
 
               <!-- 評價卡片 2 Review Card 2 -->
-              <div class="review-card u-migrated-176">
-                <div class="review-header u-migrated-177">
-                  <div class="review-avatar u-migrated-183">陳</div>
+              <div class="reviewCard">
+                <div class="reviewHeader">
+                  <div class="reviewAvatar">陳</div>
                   <div>
-                    <div class="u-migrated-079">陳美美</div>
-                    <div class="u-migrated-179">★★★★☆</div>
+                    <div class="reviewAuthorName">陳美美</div>
+                    <div class="starStyle" data-review-rating="4">★★★★☆</div>
                   </div>
-                  <div class="u-migrated-180">2026/04/15</div>
+                  <div class="ratingDate">2026/04/15</div>
                 </div>
-                <p class="review-text u-migrated-181">
+                <p class="reviewText">
                   整體而言很滿意，重量真的很輕，背包客的好選擇。顏色跟網站圖片一致，包裝也很用心。唯一小缺點是附贈的地釘比較細，建議另外購買品質好一點的地釘搭配使用。
                 </p>
-                <div class="review-images u-migrated-102">
+                <div class="reviewImages">
                   <img
-                    class="u-migrated-182"
+                    class="ratingImage"
                     src="https://picsum.photos/seed/review2a/100/100"
                     alt="評價圖片"
                     loading="lazy"
@@ -250,22 +265,22 @@
               </div>
 
               <!-- 評價卡片 3 Review Card 3 -->
-              <div class="review-card u-migrated-176">
-                <div class="review-header u-migrated-177">
-                  <div class="review-avatar u-migrated-184">王</div>
+              <div class="reviewCard">
+                <div class="reviewHeader">
+                  <div class="reviewAvatar">王</div>
                   <div>
-                    <div class="u-migrated-079">王大衛</div>
-                    <div class="u-migrated-179">★★★★★</div>
+                    <div class="reviewAuthorName">王大衛</div>
+                    <div class="starStyle" data-review-rating="5">★★★★★</div>
                   </div>
-                  <div class="u-migrated-180">2026/03/08</div>
+                  <div class="ratingDate">2026/03/08</div>
                 </div>
-                <p class="review-text u-migrated-181">
+                <p class="reviewText">
                   已經是第三次購買 Yuruicamp
                   的商品了，品質穩定且一致，客服也非常親切耐心。這款是家庭露營的絕佳選擇，空間寬敞通風，跟老婆小孩一起住很舒適。下次還會再來！
                 </p>
-                <div class="review-images u-migrated-102">
+                <div class="reviewImages">
                   <img
-                    class="u-migrated-182"
+                    class="ratingImage"
                     src="https://picsum.photos/seed/review3a/100/100"
                     alt="評價圖片"
                     loading="lazy"

@@ -1,0 +1,225 @@
+// Footer 元件：主站與 booking 共用的頁尾樣式。
+
+// 頁尾外層：主站與 booking 使用不同主色背景。
+.siteFooter,
+.bookingFooter {
+  color: #fff;
+}
+
+.siteFooter {
+  background: var(--yui-primary-dark);
+}
+
+.bookingFooter {
+  background: var(--yui-primary);
+}
+
+// 頁尾內層容器：維持與全站 container 一致的最大寬度。
+.siteFooterInner,
+.bookingFooterInner {
+  width: min(1120px, calc(100vw - 32px));
+  margin-inline: auto;
+  padding-block: var(--yui-space-12) var(--yui-space-6);
+}
+
+// 頁尾欄位網格：桌機四欄，平板與手機逐步收合。
+.siteFooterGrid,
+.bookingFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--yui-space-8);
+}
+
+.siteFooterSection,
+.bookingFooterSection {
+  display: grid;
+  align-content: start;
+  gap: var(--yui-space-3);
+}
+
+// 頁尾標題與文字：在深色背景上維持清楚對比。
+.siteFooterTitle,
+.bookingFooterHeading {
+  margin: 0;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.siteFooterText,
+.bookingFooterText {
+  margin: 0;
+  color: rgb(255 255 255 / 72%);
+  line-height: 1.8;
+}
+
+// 頁尾清單：連結、政策、付款方式與社群連結共用 reset。
+.siteFooterLinks,
+.bookingFooterLinks,
+.siteFooterSocialLinks,
+.bookingFooterSocialLinks,
+.siteFooterPolicies,
+.bookingFooterPolicies,
+.siteFooterPaymentMethods,
+.bookingFooterPaymentMethods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.siteFooterLinks,
+.bookingFooterLinks {
+  display: grid;
+  gap: var(--yui-space-2);
+}
+
+// 頁尾文字連結：hover 與 focus 狀態在深色背景上提高可見度。
+.siteFooterLink,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: rgb(255 255 255 / 72%);
+  text-decoration: none;
+  transition: color var(--yui-transition-fast);
+}
+
+.siteFooterLink:hover,
+.bookingFooterLinks a:hover,
+.bookingFooterPolicies a:hover {
+  color: #fff;
+}
+
+.siteFooterLink:focus-visible,
+.bookingFooterLinks a:focus-visible,
+.bookingFooterPolicies a:focus-visible,
+.siteFooterSocialLink:focus-visible,
+.bookingFooterSocialLinks a:focus-visible {
+  outline: 3px solid rgb(255 255 255 / 35%);
+  outline-offset: 3px;
+}
+
+// 聯絡資訊：標籤用 muted，實際聯絡值使用白色強調。
+.siteFooterContactItem,
+.bookingFooterContactItem {
+  display: grid;
+  gap: var(--yui-space-1);
+  color: rgb(255 255 255 / 72%);
+}
+
+.siteFooterContactItem strong,
+.bookingFooterContactItem strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+// 社群按鈕：固定 44px 點擊區，符合觸控可用性。
+.siteFooterSocialLinks,
+.bookingFooterSocialLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-2);
+}
+
+.siteFooterSocialLink,
+.bookingFooterSocialLinks a {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: var(--yui-radius-lg);
+  background: rgb(255 255 255 / 10%);
+  color: #fff;
+  text-decoration: none;
+  transition:
+    background-color var(--yui-transition-fast),
+    border-color var(--yui-transition-fast);
+}
+
+.siteFooterSocialLink:hover,
+.bookingFooterSocialLinks a:hover {
+  background: rgb(255 255 255 / 18%);
+  border-color: rgb(255 255 255 / 42%);
+}
+
+// 主站頁尾分隔線：切開內容區與底部政策列。
+.siteFooterDivider {
+  height: 1px;
+  margin-block: var(--yui-space-8) var(--yui-space-5);
+  background: rgb(255 255 255 / 18%);
+}
+
+// 頁尾底部：版權、政策與付款方式並列。
+.siteFooterBottom,
+.bookingFooterBottom {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--yui-space-4);
+  color: rgb(255 255 255 / 72%);
+  font-size: 14px;
+}
+
+.siteFooterBottom p,
+.bookingFooterBottom p {
+  margin: 0;
+}
+
+.siteFooterPolicies,
+.bookingFooterPolicies,
+.siteFooterPaymentMethods,
+.bookingFooterPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yui-space-3);
+}
+
+.siteFooterPaymentMethods,
+.bookingFooterPaymentMethods {
+  color: #fff;
+}
+
+.siteFooterPaymentMethods li,
+.bookingFooterPaymentMethods li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yui-space-1);
+}
+
+// Booking 頁尾：間距較主站略緊，並用上框線分隔底部列。
+.bookingFooterInner {
+  padding-block: var(--yui-space-10) var(--yui-space-6);
+}
+
+.bookingFooterBottom {
+  margin-top: var(--yui-space-8);
+  padding-top: var(--yui-space-5);
+  border-top: 1px solid rgb(255 255 255 / 18%);
+}
+
+@media (width <= 1024px) {
+  .siteFooterGrid,
+  .bookingFooterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .siteFooterBottom,
+  .bookingFooterBottom {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 640px) {
+  .siteFooterInner,
+  .bookingFooterInner {
+    width: min(100% - 24px, 1120px);
+    padding-block: var(--yui-space-8) var(--yui-space-5);
+  }
+
+  .siteFooterGrid,
+  .bookingFooterGrid { 
+    grid-template-columns: 1fr;
+    gap: var(--yui-space-6);
+  }
+}

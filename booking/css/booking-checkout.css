@@ -1,232 +1,343 @@
 /* ══ Checkout-style 兩欄佈局 ══ */
-    .bk-checkout-layout {
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 2rem;
-      align-items: start;
-      padding: 1.5rem 0 4rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
+.bk-checkout-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+  padding: 1.5rem 0 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
 
-    /* ── 手風琴面板 ── */
-    .bk-panel { margin-bottom: 0.75rem; }
+.booking-cart-page .step-progress {
+  padding-top: 1rem;
+}
 
-    .bk-panel__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.1rem 1.25rem;
-      cursor: pointer;
-      background: var(--bk-white);
-      border: 1px solid var(--bk-border);
-      border-radius: var(--bk-radius);
-      transition: background 0.15s;
-      user-select: none;
-    }
+/* ── 手風琴面板 ── */
+.bk-panel {
+  margin-bottom: 0.75rem;
+}
 
-    .bk-panel__header:hover { background: var(--bk-bg); }
+.bk-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  transition: background 0.15s;
+  user-select: none;
+}
 
-    .bk-panel.is-open .bk-panel__header {
-      border-radius: var(--bk-radius) var(--bk-radius) 0 0;
-    }
+.bk-panel__header:hover {
+  background: var(--bk-bg);
+}
 
-    .bk-panel__title {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--bk-text);
-    }
+.bk-panel.is-open .bk-panel__header {
+  border-radius: var(--bk-radius) var(--bk-radius) 0 0;
+}
 
-    .bk-panel__num {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: var(--bk-primary);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      flex-shrink: 0;
-    }
+.bk-panel__title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bk-text);
+}
 
-    .bk-panel__body {
-      background: var(--bk-white);
-      border: 1px solid var(--bk-border);
-      border-top: none;
-      border-radius: 0 0 var(--bk-radius) var(--bk-radius);
-      padding: 1.5rem;
-    }
+.bk-panel__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bk-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
 
-    .bk-panel__arrow {
-      font-size: 1rem;
-      color: var(--bk-text-muted);
-      transition: transform 0.2s;
-    }
+.bk-panel__body {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-top: none;
+  border-radius: 0 0 var(--bk-radius) var(--bk-radius);
+  padding: 1.5rem;
+}
 
-    .bk-panel:not(.is-open) .bk-panel__arrow { transform: rotate(-90deg); }
-    .bk-panel.is-open       .bk-panel__arrow { transform: rotate(0deg); }
+.bk-panel:not(.is-open) .bk-panel__body {
+  display: none;
+}
 
-    /* ── 右側 Sticky 摘要 ── */
-    .bk-checkout-summary-col {
-      position: sticky;
-      top: 5rem;
-    }
+.bk-panel__arrow {
+  font-size: 1rem;
+  color: var(--bk-text-muted);
+  transition: transform 0.2s;
+}
 
-    .bk-summary-card {
-      background: var(--bk-white);
-      border: 1px solid var(--bk-border);
-      border-radius: var(--bk-radius);
-      padding: 1.5rem;
-    }
+.bk-panel:not(.is-open) .bk-panel__arrow {
+  transform: rotate(-90deg);
+}
 
-    .bk-summary-card h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: var(--bk-primary);
-      margin: 0 0 1.25rem 0;
-    }
+.bk-panel.is-open .bk-panel__arrow {
+  transform: rotate(0deg);
+}
 
-    /* ── 付款方式 ── */
-    .payment-option {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.875rem;
-      padding: 0.875rem 1rem;
-      border: 2px solid var(--bk-border);
-      border-radius: var(--bk-radius);
-      cursor: pointer;
-      margin-bottom: 0.6rem;
-      background: var(--bk-white);
-      transition: border-color 0.15s, background 0.15s;
-    }
+/* ── 右側 Sticky 摘要 ── */
+.bk-checkout-summary-col {
+  position: sticky;
+  top: 5rem;
+}
 
-    .payment-option.is-selected {
-      border-color: var(--bk-primary);
-      background: var(--bk-primary-light, #edf5f5);
-    }
+.bk-summary-card {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  padding: 1.5rem;
+}
 
-    .payment-option input[type="radio"] {
-      margin-top: 0.15rem;
-      accent-color: var(--bk-primary);
-      width: 17px;
-      height: 17px;
-      flex-shrink: 0;
-      cursor: pointer;
-    }
+.bk-summary-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin: 0 0 1.25rem;
+}
 
-    .payment-option__title {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--bk-text);
-    }
+/* ── 付款方式 ── */
+.payment-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+  background: var(--bk-white);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
 
-    .payment-option__desc {
-      font-size: 0.8rem;
-      color: var(--bk-text-muted);
-      margin-top: 0.2rem;
-    }
+.payment-option.is-selected {
+  border-color: var(--bk-primary);
+  background: var(--bk-primary-light, #edf5f5);
+}
 
-    /* 信用卡輸入區 */
-    #creditCardSection {
-      margin-top: 0.75rem;
-      padding: 1.1rem;
-      background: var(--bk-bg, #f5f9f9);
-      border-radius: var(--bk-radius);
-      border: 1px solid var(--bk-border);
-    }
+.payment-option input[type='radio'] {
+  margin-top: 0.15rem;
+  accent-color: var(--bk-primary);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
 
-    .cc-label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--bk-primary);
-      margin-bottom: 0.3rem;
-    }
+.payment-option__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bk-text);
+}
 
-    .cc-input {
-      width: 100%;
-      padding: 0.55rem 0.8rem;
-      border: 1.5px solid var(--bk-border);
-      border-radius: var(--bk-radius-sm);
-      font-size: 0.9rem;
-      color: var(--bk-text);
-      background: var(--bk-white);
-      outline: none;
-      box-sizing: border-box;
-      transition: border-color 0.2s;
-      font-family: inherit;
-      letter-spacing: 0.03em;
-    }
+#payOptLine .payment-option__title span {
+  color: #00b900;
+  font-weight: 800;
+}
 
-    .cc-input:focus { border-color: var(--bk-primary); }
-    .cc-field { margin-bottom: 0.75rem; }
-    .cc-field:last-child { margin-bottom: 0; }
+.payment-option__desc {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.2rem;
+}
 
-    .cc-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
+/* 信用卡輸入區 */
+#creditCardSection {
+  margin-top: 0.75rem;
+  padding: 1.1rem;
+  background: var(--bk-bg, #f5f9f9);
+  border-radius: var(--bk-radius);
+  border: 1px solid var(--bk-border);
+}
 
-    /* 確認按鈕區 */
-    .bk-confirm-area { margin-top: 1.5rem; }
+.cc-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  margin-bottom: 0.3rem;
+}
 
-    .bk-terms-note {
-      text-align: center;
-      font-size: 0.75rem;
-      color: var(--bk-text-muted);
-      margin-top: 0.4rem;
-    }
+.cc-input {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  background: var(--bk-white);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+}
 
-    .ssl-note {
-      font-size: 0.75rem;
-      color: var(--bk-text-muted);
-      text-align: center;
-      margin-top: 0.6rem;
-    }
+.cc-input:focus {
+  border-color: var(--bk-primary);
+}
 
-    /* 未登入提示橫幅 */
-    .bk-login-notice {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-      padding: 0.875rem 1rem;
-      background: var(--yc-warning-soft, #F4ECE2);
-      border: 1.5px solid var(--yc-warning, #9A7455);
-      border-radius: var(--bk-radius);
-      font-size: 0.875rem;
-      color: var(--yc-warning-dark, #6B4D32);
-      margin-bottom: 1rem;
-    }
+.cc-field {
+  margin-bottom: 0.75rem;
+}
 
-    .bk-login-notice__btn {
-      margin-left: auto;
-      padding: 0.35rem 0.9rem;
-      border: 1.5px solid var(--bk-primary);
-      background: var(--bk-white);
-      color: var(--bk-primary);
-      border-radius: var(--bk-radius-sm);
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      white-space: nowrap;
-      transition: background 0.15s, color 0.15s;
-    }
+.cc-field:last-child {
+  margin-bottom: 0;
+}
 
-    .bk-login-notice__btn:hover {
-      background: var(--bk-primary);
-      color: #fff;
-    }
+.cc-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
 
-    /* RWD */
-    @media (max-width: 900px) {
-      .bk-checkout-layout { grid-template-columns: 1fr; }
-      .bk-checkout-summary-col { position: static; order: -1; }
-    }
+/* 確認按鈕區 */
+.bk-confirm-area {
+  margin-top: 1.5rem;
+}
+
+#confirmPayBtn {
+  padding: 1rem;
+  font-size: 1.05rem;
+}
+
+.bk-terms-note {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.4rem;
+}
+
+.ssl-note {
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  text-align: center;
+  margin-top: 0.6rem;
+}
+
+/* 未登入提示橫幅 */
+.bk-login-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1rem;
+  background: var(--yc-warning-soft, #f4ece2);
+  border: 1.5px solid var(--yc-warning, #9a7455);
+  border-radius: var(--bk-radius);
+  font-size: 0.875rem;
+  color: var(--yc-warning-text, #6b4d32);
+  margin-bottom: 1rem;
+}
+
+#loginNotice {
+  display: none;
+}
+
+#loginNotice.isVisible {
+  display: flex;
+}
+
+.bk-login-notice__btn {
+  margin-left: auto;
+  padding: 0.35rem 0.9rem;
+  border: 1.5px solid var(--bk-primary);
+  background: var(--bk-white);
+  color: var(--bk-primary);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.bk-login-notice__btn:hover {
+  background: var(--bk-primary);
+  color: #fff;
+}
+
+#upsellSection,
+#upsellBanner {
+  display: none;
+}
+
+#upsellSection .cart-section__title {
+  color: var(--bk-gold);
+}
+
+#upsellSection > p {
+  color: var(--yc-text-secondary, #625E56);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+#panelContact .contact-form {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+#panelContact .contact-form p {
+  color: var(--yc-text-muted, #7B756D);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.bk-summary-card > .cost-total + div {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--bk-border);
+  text-align: center;
+}
+
+.bk-summary-card > .cost-total + div p {
+  color: var(--bk-text-muted);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.bk-summary-card > .cost-total + div p:first-child {
+  margin-bottom: 0.25rem;
+}
+
+#upsellBanner p + p {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+#upsellBanner .rental-skip-link {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* RWD */
+@media (width <= 900px) {
+  .bk-checkout-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bk-checkout-summary-col {
+    position: static;
+    order: -1;
+  }
+}

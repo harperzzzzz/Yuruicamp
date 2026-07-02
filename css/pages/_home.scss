@@ -1,0 +1,727 @@
+// 用途：pages/home.html 首頁專屬樣式；保留既有首頁與 home.js 動態產生的 class。
+
+.homeProductLoadError {
+  color: var(--yui-danger);
+  font-size: 1rem;
+  margin: 0;
+  min-block-size: 320px;
+  padding: var(--yui-space-12) var(--yui-space-4);
+  text-align: center;
+  width: 100%;
+}
+
+// Hero 主視覺：影片載入失敗時仍以深綠色作為背景。
+.heroBanner {
+  align-items: center;
+  background-color: var(--yui-primary-dark);
+  display: flex;
+  isolation: isolate;
+  justify-content: center;
+  min-block-size: clamp(520px, 70vh, 760px);
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.heroBanner::after {
+  background: rgb(0 0 0 / 48%);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 1;
+}
+
+.heroVideo {
+  block-size: 100%;
+  inline-size: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  z-index: 0;
+}
+
+.heroContent {
+  color: var(--yui-surface);
+  inline-size: min(100% - (var(--yui-space-4) * 2), 700px);
+  padding-block: clamp(var(--yui-space-16), 14vh, 9rem);
+  position: relative;
+  text-align: center;
+  z-index: 2;
+}
+
+.heroTagline {
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.4;
+  margin: 0 0 var(--yui-space-3);
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: clamp(2.25rem, 5vw, 4rem);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.15;
+  margin: 0 0 var(--yui-space-5);
+}
+
+.heroSubtitle {
+  color: rgb(255 255 255 / 88%);
+  font-size: clamp(1rem, 1.5vw, 1.125rem);
+  line-height: 1.7;
+  margin: 0 0 var(--yui-space-8);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-3);
+  justify-content: center;
+}
+
+.heroPrimaryLink,
+.heroSecondaryLink {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-lg);
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 700;
+  justify-content: center;
+  min-block-size: 44px;
+  padding-inline: var(--yui-space-6);
+  text-decoration: none;
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), box-shadow var(--yui-transition-fast);
+}
+
+.heroPrimaryLink {
+  background-color: var(--yui-surface);
+  border-color: var(--yui-surface);
+  color: var(--yui-primary-dark);
+}
+
+.heroPrimaryLink:hover {
+  background-color: var(--yui-primary-soft);
+  border-color: var(--yui-primary-soft);
+  color: var(--yui-primary-dark);
+  text-decoration: none;
+}
+
+.heroSecondaryLink {
+  background-color: transparent;
+  border-color: rgb(255 255 255 / 72%);
+  color: var(--yui-surface);
+}
+
+.heroSecondaryLink:hover {
+  background-color: rgb(255 255 255 / 14%);
+  border-color: var(--yui-surface);
+  color: var(--yui-surface);
+  text-decoration: none;
+}
+
+.heroPrimaryLink:focus-visible,
+.heroSecondaryLink:focus-visible {
+  outline: 3px solid var(--yui-surface);
+  outline-offset: 3px;
+}
+
+// 合作品牌跑馬燈。
+.brandCarouselSection {
+  background-color: var(--yui-surface);
+  border-block: 1px solid var(--yui-border);
+  overflow: hidden;
+  padding-block: var(--yui-space-8);
+}
+
+.brandCarouselTitle {
+  color: var(--yui-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+  margin: 0 0 var(--yui-space-5);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.brandMarquee {
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  overflow: hidden;
+  width: 100%;
+}
+
+.brandMarqueeTrack {
+  animation: brand-marquee-scroll 25s linear infinite;
+  display: flex;
+  gap: var(--yui-space-8);
+  width: max-content;
+}
+
+.brandMarqueeTrack:hover {
+  animation-play-state: paused;
+}
+
+.brandLogoItem {
+  align-items: center;
+  background-color: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-pill);
+  color: var(--yui-secondary);
+  cursor: default;
+  display: flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-block-size: 44px;
+  padding-inline: var(--yui-space-4);
+  transition: border-color var(--yui-transition-fast), color var(--yui-transition-fast), background-color var(--yui-transition-fast);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.brandLogoItem:hover {
+  background-color: var(--yui-primary-soft);
+  border-color: var(--yui-primary);
+  color: var(--yui-primary);
+}
+
+// 最新商品與熱銷商品。
+.homeSection {
+  padding-block: clamp(32px, 6vw, 72px);
+}
+
+.homeSectionWhite {
+  background-color: var(--yui-surface);
+}
+
+.homeSectionMuted {
+  background-color: var(--yui-bg);
+}
+
+.homeSectionHeader {
+  align-items: flex-end;
+  border-bottom: 2px solid var(--yui-border);
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--yui-space-5);
+  padding-bottom: var(--yui-space-3);
+}
+
+.homeSectionTitle {
+  color: var(--yui-primary);
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  position: relative;
+}
+
+.homeSectionTitle::before {
+  background-color: var(--yui-primary);
+  border-radius: var(--yui-radius-sm);
+  bottom: calc(var(--yui-space-3) * -1 - 2px);
+  content: '';
+  height: 3px;
+  inline-size: var(--yui-space-10);
+  inset-inline-start: 0;
+  position: absolute;
+}
+
+.homeSectionLink {
+  align-items: center;
+  color: var(--yui-primary);
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-block-size: 44px;
+  text-decoration: none;
+  transition: color var(--yui-transition-fast), text-decoration-color var(--yui-transition-fast);
+}
+
+.homeSectionLink::after {
+  content: '→';
+  margin-inline-start: var(--yui-space-1);
+  transition: transform var(--yui-transition-fast);
+}
+
+.homeSectionLink:hover {
+  color: var(--yui-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.homeSectionLink:hover::after {
+  transform: translateX(4px);
+}
+
+.homeSectionLink:focus-visible {
+  outline: 3px solid var(--yui-primary);
+  outline-offset: 3px;
+}
+
+.homeProductRow {
+  display: flex;
+  gap: var(--yui-space-5);
+  max-inline-size: 100%;
+  min-block-size: 400px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding-block-end: var(--yui-space-2);
+  scrollbar-color: var(--yui-secondary) var(--yui-surface-muted);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.homeProductRow::-webkit-scrollbar {
+  height: 4px;
+}
+
+.homeProductRow::-webkit-scrollbar-thumb {
+  background-color: var(--yui-secondary);
+  border-radius: var(--yui-radius-sm);
+}
+
+.homeSkeletonCard,
+.homeProductCard {
+  flex: 0 0 clamp(240px, 18vw, 260px);
+  max-inline-size: 260px;
+  min-inline-size: 240px;
+}
+
+.homeSkeletonCard {
+  background-color: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-sm);
+  overflow: hidden;
+}
+
+.homeSkeletonImage,
+.homeSkeletonLine {
+  animation: home-skeleton-pulse 1.2s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--yui-surface-muted) 25%, var(--yui-border) 37%, var(--yui-surface-muted) 63%);
+  background-size: 400% 100%;
+}
+
+.homeSkeletonImage {
+  aspect-ratio: 4 / 3;
+}
+
+.homeSkeletonBody {
+  padding: var(--yui-space-4);
+}
+
+.homeSkeletonLine {
+  border-radius: var(--yui-radius-sm);
+  height: 12px;
+  margin-block-end: var(--yui-space-2);
+}
+
+.homeSkeletonLineShort {
+  width: 40%;
+}
+
+.homeSkeletonLineLong {
+  width: 85%;
+}
+
+.homeSkeletonLinePrice {
+  margin-block-end: 0;
+  width: 55%;
+}
+
+// home.js 動態產生的首頁商品卡。
+.homeProductCard {
+  background-color: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-sm);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  transition: border-color var(--yui-transition-base), box-shadow var(--yui-transition-base), transform var(--yui-transition-base);
+}
+
+.homeProductCard:hover,
+.homeProductCard:focus-visible {
+  border-color: var(--yui-primary-hover);
+  box-shadow: var(--yui-shadow-lg);
+  transform: translateY(-5px) scale(1.015);
+}
+
+.homeProductCard:focus-visible {
+  outline: 3px solid var(--yui-primary);
+  outline-offset: 3px;
+}
+
+.homeProductImage {
+  aspect-ratio: 4 / 3;
+  background-color: var(--yui-surface-muted);
+  overflow: hidden;
+  position: relative;
+}
+
+.homeProductImage img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--yui-transition-base);
+  width: 100%;
+}
+
+.homeProductCard:hover .homeProductImage img,
+.homeProductCard:focus-visible .homeProductImage img {
+  transform: scale(1.02);
+}
+
+.productCardBadge {
+  align-items: center;
+  border-radius: var(--yui-radius-pill);
+  color: var(--yui-surface);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  inset-block-start: var(--yui-space-2);
+  inset-inline-start: var(--yui-space-2);
+  min-block-size: 28px;
+  padding-inline: var(--yui-space-3);
+  position: absolute;
+}
+
+.productBadgeNew {
+  background-color: var(--yui-success);
+}
+
+.productBadgeHot {
+  background-color: var(--yui-orange);
+}
+
+.homeProductBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: var(--yui-space-4);
+}
+
+.homeProductBrand {
+  color: var(--yui-secondary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.35;
+  margin: 0 0 var(--yui-space-1);
+  min-block-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.homeProductName {
+  color: var(--yui-text);
+  display: -webkit-box;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 var(--yui-space-3);
+  min-block-size: 2.8rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.homeProductRating {
+  align-items: center;
+  color: var(--yui-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.8125rem;
+  gap: var(--yui-space-1);
+  line-height: 1.35;
+  margin-block-end: var(--yui-space-3);
+  min-block-size: 1.2rem;
+}
+
+.starRating {
+  display: inline-flex;
+  position: relative;
+}
+
+.starIcon {
+  font-size: 0.875rem;
+}
+
+.starRatingBase {
+  color: var(--yui-border);
+}
+
+.starRatingFill {
+  color: var(--yui-gold);
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 0;
+}
+
+@for $ratingValue from 0 through 50 {
+  .starRatingValue#{$ratingValue} .starRatingFill {
+    width: $ratingValue * 2%;
+  }
+}
+
+.homeProductPrice {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-2);
+  margin-block: auto var(--yui-space-2);
+  min-block-size: var(--yui-space-6);
+}
+
+.homeProductPriceCurrent {
+  color: var(--yui-primary);
+  flex-shrink: 0;
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  font-weight: 700;
+}
+
+.homeProductPriceOriginal {
+  color: var(--yui-text-muted);
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  text-decoration: line-through;
+}
+
+.homeProductDiscount {
+  background-color: var(--yui-surface-muted);
+  border-radius: var(--yui-radius-sm);
+  color: var(--yui-danger);
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: var(--yui-space-1) var(--yui-space-2);
+  width: fit-content;
+}
+
+.homeProductAddButton {
+  background-color: var(--yui-primary);
+  border: 1px solid var(--yui-primary);
+  border-radius: var(--yui-radius-lg);
+  color: var(--yui-surface);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 700;
+  margin-block-start: var(--yui-space-4);
+  min-block-size: 44px;
+  padding-inline: var(--yui-space-3);
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), opacity var(--yui-transition-fast);
+  width: 100%;
+}
+
+.homeProductAddButton:hover {
+  background-color: var(--yui-primary-hover);
+  border-color: var(--yui-primary-hover);
+}
+
+.homeProductAddButton:focus-visible {
+  outline: 3px solid var(--yui-primary);
+  outline-offset: 3px;
+}
+
+.homeProductAddButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.homeEmptyState {
+  background-color: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  color: var(--yui-text-muted);
+  display: grid;
+  flex: 1 0 100%;
+  min-block-size: 320px;
+  padding: var(--yui-space-12) var(--yui-space-4);
+  place-items: center;
+  text-align: center;
+}
+
+.homeEmptyStateIcon {
+  display: block;
+  font-size: 2.25rem;
+  margin-block-end: var(--yui-space-2);
+}
+
+.homeEmptyStateTitle {
+  font-size: 1rem;
+  margin: 0;
+}
+
+// 品牌服務賣點。
+.brandBenefits {
+  background-color: var(--yui-primary);
+  color: var(--yui-surface);
+  padding-block: clamp(32px, 6vw, 72px);
+}
+
+.brandBenefitsHeading {
+  clip: auto;
+  block-size: auto;
+  inline-size: auto;
+  margin: 0 0 var(--yui-space-8);
+  overflow: visible;
+  position: static;
+  white-space: normal;
+  color: var(--yui-surface);
+  font-size: 2.5em;
+  text-align: center;
+}
+
+.brandBenefitsGrid {
+  display: grid;
+  gap: var(--yui-space-8);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  text-align: center;
+}
+
+.brandBenefitsItem {
+  min-inline-size: 0;
+}
+
+.brandBenefitsIcon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin-block-end: var(--yui-space-3);
+}
+
+.brandBenefitsTitle {
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0 0 var(--yui-space-2);
+}
+
+.brandBenefitsText {
+  color: rgb(255 255 255 / 82%);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (width <= 768px) {
+  .heroContent {
+    inline-size: min(100% - (var(--yui-space-6) * 2), 640px);
+  }
+
+  .homeProductCard,
+  .homeSkeletonCard {
+    flex-basis: 230px;
+    max-inline-size: 240px;
+    min-inline-size: 220px;
+  }
+
+  .brandBenefitsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .brandBenefitsIcon {
+    font-size: 2.25rem;
+  }
+}
+
+@media (width <= 575px) {
+  .heroBanner {
+    min-block-size: 480px;
+  }
+
+  .heroContent {
+    inline-size: min(100% - (var(--yui-space-4) * 2), 520px);
+    padding-block: var(--yui-space-16);
+  }
+
+  .heroActions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .heroPrimaryLink,
+  .heroSecondaryLink {
+    inline-size: 100%;
+  }
+
+  .homeSectionHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--yui-space-1);
+  }
+
+  .homeProductRow {
+    gap: var(--yui-space-3);
+    min-block-size: 360px;
+  }
+
+  .homeProductCard,
+  .homeSkeletonCard {
+    flex-basis: 160px;
+    max-inline-size: 160px;
+    min-inline-size: 160px;
+  }
+
+  .homeProductBody {
+    padding: var(--yui-space-3);
+  }
+
+  .homeProductPrice {
+    gap: var(--yui-space-1);
+  }
+
+  .brandBenefits {
+    padding-block: var(--yui-space-8);
+  }
+
+  .brandBenefitsIcon {
+    font-size: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brandMarqueeTrack,
+  .homeSkeletonImage,
+  .homeSkeletonLine {
+    animation: none;
+  }
+
+  .heroPrimaryLink,
+  .heroSecondaryLink,
+  .homeSectionLink,
+  .homeSectionLink::after,
+  .brandLogoItem,
+  .homeProductCard,
+  .homeProductImage img,
+  .homeProductAddButton {
+    transition: none;
+  }
+}
+
+@keyframes brand-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes home-skeleton-pulse {
+  from {
+    background-position: 100% 50%;
+  }
+
+  to {
+    background-position: 0 50%;
+  }
+}
