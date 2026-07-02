@@ -1,5 +1,16 @@
 ## Changed（修改）
 
+### booking CSS ITCSS entry integration
+- 新增 `booking/css/booking-main.css` 作為預約公開頁面的 ITCSS 入口，使用 `settings → generic → elements → objects → components → pages → utilities` layer 順序管理既有 CSS。
+- 新增 `booking/css/member-center-main.css` 作為會員中心獨立入口，避免 `member-center.css` 的頁面樣式外溢到其他 booking 頁。
+- 將 `booking/pages` 內各頁原本分散載入的 `base.css`、`layout.css`、`booking.css`、`yuruicamp-tags-status.css` 與頁面 CSS，改為載入對應 ITCSS 入口檔。
+- 保留既有 HTML tag、class、JavaScript selector 與原 CSS 檔案內容，只調整 CSS 載入入口與順序。
+- 已驗證：`npm.cmd run stylelint` 通過、`npm.cmd run build` 通過、`git diff --check -- booking` 通過。
+
+---
+
+## Changed（修改）
+
 ### booking color token simplification
 - 簡化 `booking/css` 色彩 token，移除已合併的 `--yc-sage-mist`、`--yc-sage`、`--yc-cta-active`、`--yc-gold-text`、`--yc-success-line` 等舊色彩引用。
 - 將 `--yc-sage-soft` 統一為 `#eef2ec`，並讓 hover、tag、推薦橫幅等 soft sage 背景改用同一個 token。
