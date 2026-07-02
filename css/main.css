@@ -273,6 +273,23 @@ a:focus-visible,
   width: min(440px, 100vw - 32px);
 }
 
+#loginModal {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+#loginModal .sharedAuthContent {
+  width: min(420px, 100vw);
+  max-height: 100dvh;
+  min-height: 100dvh;
+  border-block: 0;
+  border-inline-end: 0;
+  border-radius: var(--yui-radius-lg) 0 0 var(--yui-radius-lg);
+  transform: translateX(100%);
+  animation: login-modal-slide-in var(--yui-transition-base) forwards;
+}
+
 .sharedSurveyContent {
   width: min(640px, 100vw - 32px);
 }
@@ -280,6 +297,11 @@ a:focus-visible,
 .sharedAuthBody {
   display: grid;
   gap: var(--yui-space-4);
+}
+
+#loginModal .modalTabPanel.isOpen {
+  display: grid;
+  gap: var(--yui-space-3);
 }
 
 .authProviderButton {
@@ -299,6 +321,28 @@ a:focus-visible,
 
 .authProviderButton:hover {
   background: var(--yui-primary-soft);
+}
+
+.btnFacebookLogin {
+  background: color-mix(in srgb, var(--yui-info) 12%, var(--yui-surface));
+  border-color: color-mix(in srgb, var(--yui-info) 36%, var(--yui-border));
+  color: var(--yui-primary);
+}
+
+.btnFacebookLogin:hover {
+  background: color-mix(in srgb, var(--yui-info) 18%, var(--yui-surface));
+  border-color: var(--yui-info);
+}
+
+.btnLineLogin {
+  background: var(--yui-success);
+  border-color: var(--yui-success);
+  color: var(--yui-surface);
+}
+
+.btnLineLogin:hover {
+  background: color-mix(in srgb, var(--yui-success) 86%, var(--yui-primary));
+  border-color: color-mix(in srgb, var(--yui-success) 86%, var(--yui-primary));
 }
 
 .oauthDesc,
@@ -377,6 +421,25 @@ a:focus-visible,
   padding: 0 var(--yui-space-4) var(--yui-space-4);
 }
 
+@keyframes login-modal-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (width <= 480px) {
+  #loginModal .sharedAuthContent {
+    width: 100vw;
+    border-radius: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loginModal .sharedAuthContent {
+    animation-duration: 0.01ms;
+  }
+}
 .siteOffcanvas,
 .siteCartDrawer,
 .bookingOffcanvas,

@@ -1,24 +1,22 @@
 請先讀取：
 * `docs/ai-style-sheet.md`
-* `js/components/member-center.js`
-* `components/member-center.partial`
-* `css/pages/member-center.scss`
-* `data/orders.json`
-* `data/rentalOrders.json`
-
+* `components/header.partial`
+* `css/widgets/_drawer.scss`
+* `css/components/_auth-modal.scss`
 
 ## 任務目標:
-會員中心的查看明細跑出來的div.memberModalOverlay 內的div#orderDetailBody資訊不完整，購買訂單參考purchase.json、rental參考rentalOrders.json
+- div#loginModal 的button.btnGoogleLogin、button.btnFacebookLogin、button.btnLineLogin 三個按鈕之間要留有空格。
+- 變更成右側滑動視窗
+- button.siteMenuButton 點擊後不要跳轉到視窗最上方
+- button.siteCartButton 點擊後不要跳轉到視窗最上方
 
 ## 問題現象：
-查看訂單明細顯示的資訊不夠詳細，先依照我給予的兩張圖片作為購買、租借訂單的參考，先更改member-center.js 的渲染欄位不要更動樣式和member-center.parital。
+#loginModal 現在是從視窗正中間顯示，變更為右側滑動視窗
 
 ## 預期結果：
-將以下資訊通過js渲染到div#memberDetailBody
-購買訂單:
-訂單編號、訂單日期、訂單狀態、商品項目、商品小記、運費、訂單總額、回饋點數、付款方式、配送地址、物流追蹤碼
-租借訂單:
-訂單編號、訂單日期、訂單狀態、商品項目、租借費用、押金、訂單總額、租借日期、取貨/歸還門市、付款方式
+#loginModal 從右側往左側滑動顯示，高度放大至視窗高度，button.btnFacebookLogin background-color 改成淺藍色，button.btnLineLogin background-color 改成--yui-success
+button.siteMenuButton 彈出視窗方式不變，但是視窗畫面停留在原地
+button.siteCartButton 彈出視窗方式不變，但是視窗畫面停留在原地
 
 ## 技術限制：
 - 保留現有 Vite 專案結構。
@@ -35,6 +33,7 @@
 - 所有class 和id 命名都要使用駝峰式命名法，且都要語意化。
 - CSS/HTML/JS 函式都要添加說明那個函式是在做什麼的的註解使用中文
 - 將更新的程式內容簡述到根目錄的README.md。
+- 不要更動js 檔案
 
 ## 驗收方式：
-* 確認member-center.partial 的訂單明細畫面有正常顯示新增加的資訊。
+

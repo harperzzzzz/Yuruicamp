@@ -1,3 +1,0 @@
-// 舊相容入口：原生元素基礎樣式已移到 css/elements，保留此檔避免舊路徑匯入失效。
-// 新增 element rule 請放在 css/elements，main.scss 也會優先載入 elements/elements。
-@use '../elements/elements';

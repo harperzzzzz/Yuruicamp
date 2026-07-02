@@ -1,4 +1,9 @@
-﻿## v1.3.39 - 2026/07/02
+﻿## v1.3.40 - 2026/07/02
+
+- 依 `.agents/AGENTS.md` 調整共用登入 Modal：`#loginModal` 改為右側滑出視窗並放大至視窗高度，社群登入按鈕補齊垂直間距，Facebook 使用既有 info token 混合淺藍底，LINE 使用 `--yui-success` 背景。
+- 本輪遵守限制未修改 JS；`siteMenuButton` 與 `siteCartButton` 既有 HTML 已是 `type="button"`，保留原本彈出視窗方式。
+
+## v1.3.39 - 2026/07/02
 
 - 依 `.agents/AGENTS.md` 整理 `js/components/member-center.js`：使用 Prettier 展開壓縮式單行程式，補齊函式間空行、縮排與中文用途註解，並將折價券與通知 HTML 字串拆成逐標籤換行。
 - 本輪未修改會員中心功能邏輯；驗證已通過 `node --check js/components/member-center.js`，並確認沒有 140 字以上長行。

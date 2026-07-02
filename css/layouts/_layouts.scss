@@ -1,3 +1,0 @@
-// 舊相容入口：版面物件已移到 css/objects，保留此檔避免舊路徑匯入失效。
-// 新增 layout object 請放在 css/objects，main.scss 也會優先載入 objects/objects。
-@use '../objects/objects';

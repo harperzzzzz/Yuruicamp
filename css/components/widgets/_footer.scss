@@ -218,7 +218,7 @@
   }
 
   .siteFooterGrid,
-  .bookingFooterGrid {
+  .bookingFooterGrid { 
     grid-template-columns: 1fr;
     gap: var(--yui-space-6);
   }
