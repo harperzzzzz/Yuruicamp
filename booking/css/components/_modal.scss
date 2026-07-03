@@ -1,9 +1,2 @@
-// Modal 基礎：提供 booking header partial 使用的共用 modal 外層定位。
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 1040;
-  align-items: center;
-  justify-content: center;
-}
+// Modal 基礎：載入主站 modal 共用骨架，booking-auth-modal 只保留流程差異。
+@use '../../../css/components/modal';

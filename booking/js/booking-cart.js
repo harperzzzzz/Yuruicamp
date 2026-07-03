@@ -30,18 +30,18 @@ $(document).ready(function () {
   renderAll();
 
   // 清除背包
-  $('#bkClearCartBtn').on('click', function () {
+  $('#bookingCartClearButton').on('click', function () {
     showConfirmToast('確定清除背包中的所有預約資料？', function () {
       localStorage.removeItem('bookingCart');
       bookingCart = null;
       showToast('背包已清除', 'info');
-      $('#bkCartContent').removeClass('isVisible');
+      $('#bookingCartContent').removeClass('isVisible');
       showEmptyState();
     });
   });
 
-  // 住宿數量調整：事件委派到 stayBody
-  $('#bkStayBody').on('click', '.bkQtyBtn', function () {
+  // 住宿數量調整：事件委派使用 quantityButtonBooking，避免互動 hook 與舊式命名耦合。
+  $('#bookingCartStayBody').on('click', '.quantityButtonBooking', function () {
     var $btn = $(this);
     var action = $btn.data('action');
     var idx = parseInt($btn.data('idx'));
@@ -61,8 +61,8 @@ $(document).ready(function () {
     renderSummary();
   });
 
-  // 裝備數量調整：事件委派到 rentalBody
-  $('#bkRentalBody').on('click', '.bkQtyBtn', function () {
+  // 裝備數量調整：共用 quantityButton 語意，booking 變體只表示預約背包流程使用。
+  $('#bookingCartRentalBody').on('click', '.quantityButtonBooking', function () {
     var $btn = $(this);
     var action = $btn.data('action');
     var idx = parseInt($btn.data('idx'));
@@ -82,8 +82,8 @@ $(document).ready(function () {
     renderSummary();
   });
 
-  // 裝備刪除
-  $('#bkRentalBody').on('click', '.bkRentalRemove', function () {
+  // 裝備刪除：改用 cartRemoveButtonBooking 作為互動 hook，讓名稱貼近主站 cart 語意。
+  $('#bookingCartRentalBody').on('click', '.cartRemoveButtonBooking', function () {
     var idx = parseInt($(this).data('idx'));
     bookingCart.selected_rentals.splice(idx, 1);
 
@@ -107,7 +107,7 @@ function renderAll() {
 
   // 設定「修改日期」連結：帶入 campground_id
   var campId = info.campground_id || '';
-  $('#bkEditDateLink').attr('href', './camp-detail.html?id=' + encodeURIComponent(campId));
+  $('#bookingCartEditDateLink').attr('href', './camp-detail.html?id=' + encodeURIComponent(campId));
 
   // 項目總數
   updateItemCount();
@@ -116,17 +116,17 @@ function renderAll() {
   renderRentalBody();
   renderSummary();
 
-  $('#bkCartEmpty').removeClass('isVisible');
-  $('#bkCartContent').addClass('isVisible');
+  $('#bookingCartEmpty').removeClass('isVisible');
+  $('#bookingCartContent').addClass('isVisible');
 }
 
-// ── 住宿卡內容 ──
+// ── 住宿卡內容：輸出共用 cartItem / quantityStepper 語意與 booking 變體 class ──
 function renderStayBody() {
   var info = bookingCart.booking_info || {};
   var zones = bookingCart.selected_zones || [];
 
   if (zones.length === 0) {
-    $('#bkStayCard').hide();
+    $('#bookingCartStayCard').hide();
     return;
   }
 
@@ -135,39 +135,41 @@ function renderStayBody() {
       var atMin = z.quantity <= 1;
       var atMax = z.quantity >= 10;
       return `
-      <div class="bkCartItem">
-        <div class="bkCartItemInfo">
-          <div class="bkCartItemName">${esc(info.campground_name || '')} · ${esc(z.zone_type || '')}</div>
-          <div class="bkCartItemMeta">
+      <div class="cartItem cartItemBooking">
+        <div class="cartItemInfo cartItemInfoBooking">
+          <div class="cartItemTitle cartItemTitleBooking">${esc(info.campground_name || '')} · ${esc(z.zone_type || '')}</div>
+          <div class="cartItemMeta cartItemMetaBooking">
             <span><i class="bi bi-calendar3"></i> ${esc(info.check_in || '')} ～ ${esc(info.check_out || '')}</span>
             <span><i class="bi bi-moon"></i> ${info.total_days || 0} 晚</span>
             <span><i class="bi bi-people"></i> ${info.guest_count || ''} 人</span>
           </div>
         </div>
-        <div class="bkCartItemRight">
-          <div class="bkQtyStepper">
-            <button class="bkQtyBtn" data-action="dec" data-idx="${idx}"${atMin ? ' disabled' : ''}>−</button>
-            <span class="bkQtyVal">${z.quantity}</span>
-            <button class="bkQtyBtn" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
+        <div class="cartItemActions cartItemActionsBooking">
+          <div class="quantityStepper quantityStepperBooking">
+            <button class="quantityButton quantityButtonBooking" data-action="dec" data-idx="${idx}"${atMin ? ' disabled' : ''}>−</button>
+            <span class="quantityValue quantityValueBooking">${z.quantity}</span>
+            <button class="quantityButton quantityButtonBooking" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
           </div>
-          <div class="bkCartItemPrice" id="zonePrice${idx}">NT$${z.subtotal.toLocaleString()}</div>
-          <div class="bkCartItemQtyLabel">營位數量</div>
+          <div class="cartItemPrice cartItemPriceBooking" id="zonePrice${idx}">NT$${z.subtotal.toLocaleString()}</div>
+          <div class="cartItemQtyLabel cartItemQtyLabelBooking">營位數量</div>
         </div>
       </div>
     `;
     })
     .join('');
 
-  $('#bkStayBody').html(html);
-  $('#bkStayCard').show();
+  $('#bookingCartStayBody').html(html);
+  $('#bookingCartStayCard').show();
 }
 
-// ── 裝備租借卡內容 ──
+// ── 裝備租借卡內容：與住宿項目共用 cartItem 結構，只保留 rental 資料差異 ──
 function renderRentalBody() {
   var rentals = bookingCart.selected_rentals || [];
 
   if (rentals.length === 0) {
-    $('#bkRentalBody').html('<div class="bkCartEmptyNote">本次未選擇租借裝備。</div>');
+    $('#bookingCartRentalBody').html(
+      '<div class="cartEmptyNote cartEmptyNoteBooking">本次未選擇租借裝備。</div>'
+    );
     return;
   }
 
@@ -175,21 +177,21 @@ function renderRentalBody() {
     .map(function (r, idx) {
       var atMax = r.quantity >= 20;
       return `
-      <div class="bkCartItem">
-        <div class="bkCartItemInfo">
-          <div class="bkCartItemName">${esc(r.name || '')}</div>
-          <div class="bkCartItemMeta">
+      <div class="cartItem cartItemBooking">
+        <div class="cartItemInfo cartItemInfoBooking">
+          <div class="cartItemTitle cartItemTitleBooking">${esc(r.name || '')}</div>
+          <div class="cartItemMeta cartItemMetaBooking">
             <span>單價 NT$${Math.round(r.subtotal / r.quantity).toLocaleString()}</span>
           </div>
         </div>
-        <div class="bkCartItemRight">
-          <div class="bkQtyStepper">
-            <button class="bkQtyBtn" data-action="dec" data-idx="${idx}">−</button>
-            <span class="bkQtyVal">${r.quantity}</span>
-            <button class="bkQtyBtn" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
+        <div class="cartItemActions cartItemActionsBooking">
+          <div class="quantityStepper quantityStepperBooking">
+            <button class="quantityButton quantityButtonBooking" data-action="dec" data-idx="${idx}">−</button>
+            <span class="quantityValue quantityValueBooking">${r.quantity}</span>
+            <button class="quantityButton quantityButtonBooking" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
           </div>
-          <div class="bkCartItemPrice">NT$${r.subtotal.toLocaleString()}</div>
-          <button class="bkRentalRemove" data-idx="${idx}">
+          <div class="cartItemPrice cartItemPriceBooking">NT$${r.subtotal.toLocaleString()}</div>
+          <button class="cartRemoveButton cartRemoveButtonBooking" data-idx="${idx}">
             <i class="bi bi-trash3"></i> 移除
           </button>
         </div>
@@ -198,8 +200,8 @@ function renderRentalBody() {
     })
     .join('');
 
-  $('#bkRentalBody').html(html);
-  $('#bkRentalCard').show();
+  $('#bookingCartRentalBody').html(html);
+  $('#bookingCartRentalCard').show();
 }
 
 // ── 右側費用摘要 ──
@@ -226,8 +228,8 @@ function renderSummary() {
     `;
   }
 
-  $('#bkCostRows').html(html);
-  $('#bkFinalAmount').text('NT$' + (s.final_amount || 0).toLocaleString());
+  $('#bookingCartCostRows').html(html);
+  $('#bookingCartFinalAmount').text('NT$' + (s.final_amount || 0).toLocaleString());
 }
 
 // ============================================================
@@ -269,7 +271,7 @@ function updateItemCount() {
     rentals.reduce(function (s, r) {
       return s + (r.quantity || 0);
     }, 0);
-  $('#bkCartCount').text('共 ' + total + ' 項');
+  $('#bookingCartCount').text('共 ' + total + ' 項');
 }
 
 function saveCart() {
@@ -277,9 +279,9 @@ function saveCart() {
 }
 
 function showEmptyState() {
-  $('#bkCartEmpty').addClass('isVisible');
-  $('#bkCartContent').removeClass('isVisible');
-  $('#bkCartCount').text('');
+  $('#bookingCartEmpty').addClass('isVisible');
+  $('#bookingCartContent').removeClass('isVisible');
+  $('#bookingCartCount').text('');
 }
 
 // XSS 防護：轉義 HTML 特殊字元

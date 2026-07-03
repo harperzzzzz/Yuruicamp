@@ -17,16 +17,18 @@
     <!-- 預約系統專屬 Header / Booking header -->
     <div id="bookingHeader"></div>
 
-    <main class="rentalPage">
+    <main class="rentalPage rentalPageBooking">
       <!-- =====================================================
          頂部預約摘要列 / Booking Summary Bar
          顯示從上一頁帶來的營區 + 日期資訊
          Displays camp + date info from previous page
          ===================================================== -->
-      <div class="bookingSummaryBar" id="bookingSummaryBar">
+      <div class="summaryBar summaryBarBooking" id="bookingSummaryBar">
         <i class="bi bi-info-circle"></i>
         <span id="summaryText">載入預約資訊中...</span>
-        <a href="./camp-detail.html" id="summaryEditLink"> 修改 </a>
+        <a href="./camp-detail.html" class="summaryEditLink summaryEditLinkBooking" id="summaryEditLink">
+          修改
+        </a>
       </div>
 
       <!-- =====================================================
@@ -34,38 +36,41 @@
          依據營區環境特性動態顯示，告知使用者此營地的推薦裝備
          Dynamically shown based on campground's environment tags
          ===================================================== -->
-      <div class="recommendationBanner" id="recommendationBanner"></div>
+      <div class="recommendationBanner recommendationBannerBooking" id="recommendationBanner"></div>
 
       <!-- =====================================================
          主內容：裝備列表 + 右側已選清單
          Main: Equipment List + Right: Selected Rentals
          ===================================================== -->
-      <div class="rentalLayout">
+      <div class="rentalLayout rentalLayoutBooking">
         <!-- 左側：可租借裝備 / Left: Available Equipment -->
-        <section class="rentalItemsList">
-          <h2>
+        <section class="rentalItemsList rentalItemsListBooking">
+          <h2 class="rentalItemsTitle rentalItemsTitleBooking">
             <i class="bi bi-bag-check"></i>
             可租借裝備
             <span id="rentalCount"></span>
           </h2>
 
           <!-- 裝備卡片 Grid（由 JS 動態填入）-->
-          <div class="rentalGrid" id="rentalGrid">
+          <div class="rentalGrid rentalGridBooking" id="rentalGrid">
             <div class="loadingSkeleton"><i class="bi bi-hourglass-split"></i> 載入裝備中...</div>
           </div>
         </section>
 
         <!-- 右側：已選清單 + 費用 / Right: Cart + Cost -->
-        <aside class="rentalCartSidebar">
-          <h3><i class="bi bi-cart3"></i> 已選裝備</h3>
+        <aside class="rentalCartSidebar rentalCartSidebarBooking">
+          <h3 class="rentalCartTitle rentalCartTitleBooking"><i class="bi bi-cart3"></i> 已選裝備</h3>
 
           <!-- 已選裝備清單 / Selected rental list -->
-          <div class="rentalCartList" id="rentalCartList">
-            <p class="rentalCartListEmpty">尚未選擇任何裝備</p>
+          <div class="rentalCartList rentalCartListBooking" id="rentalCartList">
+            <!-- 租借背包空狀態使用 base + Booking variant，讓結構語意與頁面視覺分離。 -->
+            <p class="rentalCartEmpty rentalCartEmptyBooking">尚未選擇任何裝備</p>
           </div>
 
           <!-- 裝備費小計 / Rental subtotal -->
-          <div class="rentalCostSummary">裝備費小計：<span id="rentalSubtotal">NT$0</span></div>
+          <div class="rentalCostSummary rentalCostSummaryBooking">
+            裝備費小計：<span id="rentalSubtotal">NT$0</span>
+          </div>
 
           <!-- 前往結帳 / Go to checkout -->
           <button class="btn btnPrimary btnFull" id="goToBookingCartBtn">
@@ -73,7 +78,7 @@
           </button>
 
           <!-- 略過直接結帳 / Skip to checkout -->
-          <a href="./booking-cart.html" class="rentalSkipLink" id="skipRentalLink">
+          <a href="./booking-cart.html" class="rentalSkipLink rentalSkipLinkBooking" id="skipRentalLink">
             略過裝備，直接前往結帳 →
           </a>
         </aside>

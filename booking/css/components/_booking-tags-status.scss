@@ -4,44 +4,7 @@
    載入順序：components layer 之內、頁面 CSS 之前
    ========================================================= */
 
-:root {
-  /* ── 暖光奶油金標籤專屬 tokens ── */
-  --yc-gold-soft: #fbf3d1;
-  --yc-gold-line: #d9c98f;
-  --yc-gold: #e2d39a;
-  --yc-gold-hover: #d4c27e;
-  --yc-gold-active: #c4af62;
-
-  /* ── 中性米灰 ── */
-  --yc-neutral-soft: #f4f0e8;
-  --yc-neutral-line: #d8cfc3;
-  --yc-neutral-text: #625e56;
-
-  /* ── 成功綠（標籤淺色版，與 --yc-success-soft 區分）── */
-  --yc-tag-success-soft: #e7efe3;
-  --yc-success-text: #4f624a;
-
-  /* ── 粉灰警示 ── */
-  --yc-danger-soft: #f4e7e4;
-  --yc-danger-line: #d4a29d;
-  --yc-danger: #b8645d;
-  --yc-danger-text: #8a4842;
-
-  /* ── 已退貨（玫瑰米灰，警示程度低於退款）── */
-  --yc-return-soft: #f3ece7;
-  --yc-return-line: #cdaa9c;
-  --yc-return-text: #7a4d40;
-
-  /* ── 訂單狀態專屬邊框（標籤規格指定，比語意色略深）── */
-  --yc-refunded-line: #c97872;
-  --yc-pending-line: #d7b75f;
-
-  /* ── 元件尺寸 ── */
-  --yc-tag-height: 30px;
-  --yc-chip-height: 40px;
-  --yc-tag-gap: 8px;
-  --yc-transition: 180ms ease;
-}
+/* Tag / Status tokens 已集中於 settings/_tokens.scss，本檔只保留元件外觀。 */
 
 /* =========================================================
    1. 共用基礎
@@ -91,7 +54,7 @@
 .ycTagGreen {
   color: var(--yc-sage-dark);
   background: var(--yc-sage-soft);
-  border-color: rgb(143 157 139 / 48%);
+  border-color: color-mix(in srgb, var(--yc-sage-light) 48%, transparent);
 }
 
 /* 熱門、推薦、季節精選、功能亮點、流程進行中 */
@@ -163,7 +126,7 @@
 .ycFilterChip:focus-visible,
 .ycSurveyChip:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgb(115 129 110 / 22%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-sage-action) 22%, transparent);
 }
 
 .ycFilterChip:active,
@@ -175,9 +138,9 @@
 .ycSurveyChip:disabled,
 .ycFilterChip.isDisabled,
 .ycSurveyChip.isDisabled {
-  color: #9a958d;
-  background: #f2efe9;
-  border-color: #e2ddd3;
+  color: var(--yc-neutral-text);
+  background: var(--yc-neutral-soft);
+  border-color: var(--yc-neutral-line);
   cursor: not-allowed;
   opacity: 0.72;
 }
@@ -197,7 +160,7 @@
 [data-order-status='pending-confirmation'] {
   color: var(--yc-neutral-text);
   background: var(--yc-surface);
-  border-color: #b9b0a3;
+  border-color: var(--yc-neutral-line);
 }
 
 /* 已確認：實心品牌綠，最明確的正向完成 */

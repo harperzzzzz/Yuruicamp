@@ -22,7 +22,7 @@ Booking 目前保留一個 runtime 入口：
 ## 本輪實作狀態
 
 - 已新增 `booking/css/booking-main.scss`，作為 booking 公開頁的 SCSS 入口。
-- 已建立 settings、generic、elements、objects、components、pages、overrides、utilities 的 SCSS partial 結構。
+- 已建立 settings、generic、elements、objects、components、pages、overrides 的 SCSS partial 結構；utilities 已空化並移除，唯一 `.srOnly` 由 generic reset 管理。
 - 已將現有 booking CSS 內容機械轉入對應 SCSS partial，並把 `base.css` 中的 reset、motion helper、modal 基礎拆入對應層級。
 - 已移除不再由 runtime 載入的舊平面 CSS source，保留 SCSS source 與公開頁 CSS 編譯輸出。
 - 已完成 components 歸層審查，搜尋、詳情、結帳支援與租借流程等單頁 selector 已移入 pages layer，components layer 僅保留跨頁可重用 UI。
@@ -32,6 +32,7 @@ Booking 目前保留一個 runtime 入口：
 - 已同步將 booking 自有 class/id 轉為語意化 camelCase，並同步更新 HTML、SCSS、JavaScript selector 與 shared booking header/footer partial；Bootstrap Icons 與 Flatpickr 等外部類別保留原套件命名。
 - 已移除 booking JS 以 `.css()` 寫入 inline style 的做法，改由 `isCheckoutSuccess`、`isFieldInvalid`、`isRangeThumbRaised` 等狀態 class 驅動樣式。
 - 已在 elements 層補上原生互動元素的 `:focus-visible` 保底樣式。
+- 已完成第二輪 ITCSS 精修：objects 層不再載入頁面語意 layout，floating actions 移至 components，camp-search hero 移至 pages，toast 改採 `bookingToast*` 新命名並保留 `bkToast*` 相容。
 
 ## 目標結構
 
@@ -49,7 +50,6 @@ booking/css/
     _elements.scss
   objects/
     _objects.scss
-    _booking-layout.scss
   components/
     _components.scss
     _booking-auth-modal.scss
@@ -65,6 +65,7 @@ booking/css/
     _booking-tag.scss
     _booking-tags-status.scss
     _booking-toast.scss
+    _floating-actions.scss
     _booking-feedback.scss
     _modal.scss
   pages/
@@ -78,8 +79,6 @@ booking/css/
     _booking-faq.scss
   overrides/
     _flatpickr.scss
-  utilities/
-    _utilities.scss
 ```
 
 編譯輸出仍維持：
@@ -100,9 +99,8 @@ booking/css/
 @use 'elements/elements';
 @use 'objects/objects';
 @use 'components/components';
-@use 'pages/pages';
 @use 'overrides/flatpickr';
-@use 'utilities/utilities';
+@use 'pages/pages';
 ```
 
 會員中心不再建立 booking 專用入口，避免 `member-center` 樣式在主站與 booking 之間分叉。
@@ -211,7 +209,7 @@ npx sass --no-source-map booking/css/booking-main.scss:booking/css/booking-main.
 
 - `booking/css/booking-main.scss` 存在。
 - `booking/css/booking-main.css` 可由 SCSS 編譯產生。
-- `booking/css/` 已按 ITCSS 分層：settings、generic、elements、objects、components、pages、overrides、utilities。
+- `booking/css/` 已按 ITCSS 分層：settings、generic、elements、objects、components、overrides、pages。
 - `@use` 載入順序符合 `docs/itcss-architecture.md`。
 - 沒有新增未定義色碼、字體、間距系統。
 - 沒有 inline style。

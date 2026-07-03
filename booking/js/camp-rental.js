@@ -61,11 +61,11 @@ $(document).ready(function () {
 function renderSummaryBar(info) {
   const text = `
     <strong>${info.campground_name}</strong>
-    <span class="summarySep">|</span>
+    <span class="summarySeparator summarySeparatorBooking">|</span>
     ${info.check_in} ～ ${info.check_out}
-    <span class="summarySep">|</span>
+    <span class="summarySeparator summarySeparatorBooking">|</span>
     共 ${info.total_days} 晚（平日 ${info.weekday_count}、假日 ${info.holiday_count}）
-    <span class="summarySep">|</span>
+    <span class="summarySeparator summarySeparatorBooking">|</span>
     ${info.guest_count} 人
   `;
   $('#summaryText').html(text);
@@ -145,19 +145,22 @@ function renderRecommendationBanner(rentals, bookingInfo) {
     return;
   }
 
-  // 建立標籤 HTML / Build tags HTML
+  // 建立推薦標籤 HTML：使用 base + Booking variant，讓推薦標籤語意與頁面視覺分離。
   const tagsHTML = tags
-    .map((t) => `<span class="recommendationTag"><i class="bi bi-lightbulb-fill"></i> ${t}</span>`)
+    .map(
+      (t) =>
+        `<span class="recommendationTag recommendationTagBooking"><i class="bi bi-lightbulb-fill"></i> ${t}</span>`
+    )
     .join('');
 
   $banner
     .html(
       `
-    <div class="recommendationBannerContent">
-      <div class="recommendationBannerTitle">
+    <div class="recommendationBannerContent recommendationBannerContentBooking">
+      <div class="recommendationBannerTitle recommendationBannerTitleBooking">
         <strong>📍 ${bookingInfo.campground_name}</strong> 的情境推薦裝備
       </div>
-      <div class="recommendationTags">${tagsHTML}</div>
+      <div class="recommendationTags recommendationTagsBooking">${tagsHTML}</div>
     </div>
   `
     )
@@ -201,38 +204,41 @@ function renderRentalItems(rentals) {
     // Estimated cost for this trip (quantity = 1 by default)
     const estimated = Math.max(0, wPrice * info.weekday_count + hPrice * info.holiday_count - disc);
 
-    // terrain_tag 推薦標籤 / Terrain recommendation tag
+    // terrain_tag 推薦標籤：輸出共通語意 class 與 Booking 變體 class，讓樣式責任集中在變體 selector。
     const tagHTML = item.terrain_tag
-      ? `<span class="tag tagRecommend rentalItemCardTag">${item.terrain_tag}</span>`
+      ? `<span class="tag tagRecommend rentalItemCardTag rentalItemCardTagBooking">${item.terrain_tag}</span>`
       : '';
 
     // 折扣說明 / Discount note
     const discHTML =
-      disc > 0 ? `<span class="rentalItemCardDiscount">（已折 NT$${disc.toLocaleString()}）</span>` : '';
+      disc > 0
+        ? `<span class="rentalItemCardDiscount rentalItemCardDiscountBooking">（已折 NT$${disc.toLocaleString()}）</span>`
+        : '';
 
+    // 租借卡片使用 base + Booking variant 雙 class；base 表示功能語意，variant 承接 booking 頁面視覺。
     const card = `
-      <div class="rentalItemCard" data-id="${item.equipment_id}">
+      <div class="rentalItemCard rentalItemCardBooking" data-id="${item.equipment_id}">
         <img src="${item.image_url}"
              alt="${item.name}"
-             class="rentalItemCardImg"
+             class="rentalItemCardImage rentalItemCardImageBooking"
              loading="lazy"
              onerror="this.src='https://picsum.photos/seed/${item.equipment_id}/400/280'">
-        <div class="rentalItemCardBody">
-          <h4 class="rentalItemCardName">${item.name}</h4>
+        <div class="rentalItemCardBody rentalItemCardBodyBooking">
+          <h4 class="rentalItemCardName rentalItemCardNameBooking">${item.name}</h4>
           ${tagHTML}
-          <p class="rentalItemCardDesc">${item.description}</p>
-          <p class="rentalItemCardPrice">
+          <p class="rentalItemCardDescription rentalItemCardDescriptionBooking">${item.description}</p>
+          <p class="rentalItemCardPrice rentalItemCardPriceBooking">
             平日 NT$${wPrice}/天 ／ 假日 NT$${hPrice}/天
           </p>
-          <p class="rentalItemCardEstimated">
+          <p class="rentalItemCardEstimated rentalItemCardEstimatedBooking">
             本次預估：<strong>NT$${estimated.toLocaleString()}</strong>${discHTML}
           </p>
-          <p class="rentalItemCardStock">
+          <p class="rentalItemCardStock rentalItemCardStockBooking">
             <i class="bi bi-box-seam"></i> 庫存：${item.stock} 件
           </p>
         </div>
-        <div class="rentalItemCardActions">
-          <button class="btn btnOutline rentalAddBtn" data-id="${item.equipment_id}">
+        <div class="rentalItemCardActions rentalItemCardActionsBooking">
+          <button class="btn btnOutline rentalAddButton rentalAddButtonBooking" data-id="${item.equipment_id}">
             <i class="bi bi-plus-circle"></i> 加入租借
           </button>
         </div>
@@ -241,8 +247,8 @@ function renderRentalItems(rentals) {
     $grid.append(card);
   });
 
-  // 綁定「加入租借」按鈕事件 / Bind "add" button events
-  $grid.on('click', '.rentalAddBtn', function () {
+  // 綁定加入租借事件：使用 rentalAddButtonBooking 作為互動 hook，避免回到縮寫式 btn 命名。
+  $grid.on('click', '.rentalAddButtonBooking', function () {
     const id = $(this).data('id');
     addRentalItem(id);
 
@@ -311,7 +317,7 @@ function updateRentalCartUI() {
 
   // 無選擇時顯示空狀態 / Show empty state if nothing selected
   if (items.length === 0) {
-    $list.html('<p class="rentalCartListEmpty">尚未選擇任何裝備</p>');
+    $list.html('<p class="rentalCartEmpty rentalCartEmptyBooking">尚未選擇任何裝備</p>');
     $('#rentalSubtotal').text('NT$0');
     return;
   }
@@ -330,11 +336,12 @@ function updateRentalCartUI() {
     const subtotal = perUnit * item.quantity;
     totalRental += subtotal;
 
+    // 右側租借清單列同樣使用 base + Booking variant，避免樣式綁在結構型 span selector。
     $list.append(`
-      <div class="rentalCartItem">
-        <span>${item.name} ×${item.quantity}</span>
-        <span>NT$${subtotal.toLocaleString()}</span>
-        <button class="rentalRemoveBtn" data-id="${item.equipment_id}" title="移除">
+      <div class="rentalCartItem rentalCartItemBooking">
+        <span class="rentalCartItemName rentalCartItemNameBooking">${item.name} ×${item.quantity}</span>
+        <span class="rentalCartItemPrice rentalCartItemPriceBooking">NT$${subtotal.toLocaleString()}</span>
+        <button class="rentalRemoveButton rentalRemoveButtonBooking" data-id="${item.equipment_id}" title="移除">
           <i class="bi bi-x"></i>
         </button>
       </div>
@@ -343,9 +350,8 @@ function updateRentalCartUI() {
 
   $('#rentalSubtotal').text(`NT$${totalRental.toLocaleString()}`);
 
-  // 綁定移除按鈕事件（event delegation，每次重渲染後重新綁）
-  // Bind remove buttons via event delegation
-  $list.on('click', '.rentalRemoveBtn', function () {
+  // 綁定移除租借事件：rentalRemoveButtonBooking 表示側欄移除單一已選裝備。
+  $list.on('click', '.rentalRemoveButtonBooking', function () {
     removeRentalItem($(this).data('id'));
   });
 }

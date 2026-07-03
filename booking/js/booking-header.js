@@ -134,30 +134,32 @@
   }
 
   function closeOffcanvas() {
+    // 預約側邊選單：使用 booking* ID 對應 header.partial，避免殘留舊縮寫掛點。
     setPanelState(
-      document.getElementById('bkOffcanvas'),
-      document.getElementById('bkBackdrop'),
-      document.getElementById('bkHamburger'),
+      document.getElementById('bookingOffcanvasPanel'),
+      document.getElementById('bookingOffcanvasBackdrop'),
+      document.getElementById('bookingMenuButton'),
       false
     );
   }
 
   function openOffcanvas() {
     closeCartPanel();
+    // 預約側邊選單：開啟前先關閉預約背包，避免兩個 header layer 同時顯示。
     setPanelState(
-      document.getElementById('bkOffcanvas'),
-      document.getElementById('bkBackdrop'),
-      document.getElementById('bkHamburger'),
+      document.getElementById('bookingOffcanvasPanel'),
+      document.getElementById('bookingOffcanvasBackdrop'),
+      document.getElementById('bookingMenuButton'),
       true
     );
-    var panel = document.getElementById('bkOffcanvas');
+    var panel = document.getElementById('bookingOffcanvasPanel');
     if (panel) panel.querySelector('a, button')?.focus();
   }
 
   function initOffcanvas() {
-    var hamburger = document.getElementById('bkHamburger');
-    var closeButton = document.getElementById('bkOffcanvasClose');
-    var backdrop = document.getElementById('bkBackdrop');
+    var hamburger = document.getElementById('bookingMenuButton');
+    var closeButton = document.getElementById('bookingOffcanvasClose');
+    var backdrop = document.getElementById('bookingOffcanvasBackdrop');
     if (hamburger && hamburger.dataset.offcanvasBound !== 'true') {
       hamburger.dataset.offcanvasBound = 'true';
       hamburger.addEventListener('click', openOffcanvas);
@@ -255,10 +257,11 @@
   }
 
   function closeCartPanel() {
+    // 預約背包面板：使用 bookingPanelBackdrop / bookingCartButton 作為正式互動掛點。
     setPanelState(
       document.getElementById('cartPanel'),
-      document.getElementById('bkPanelBackdrop'),
-      document.getElementById('bkCartBtn'),
+      document.getElementById('bookingPanelBackdrop'),
+      document.getElementById('bookingCartButton'),
       false
     );
   }
@@ -266,19 +269,20 @@
   function openCartPanel() {
     closeOffcanvas();
     renderCartPanel();
+    // 預約背包面板：渲染最新 localStorage 後再開啟抽屜。
     setPanelState(
       document.getElementById('cartPanel'),
-      document.getElementById('bkPanelBackdrop'),
-      document.getElementById('bkCartBtn'),
+      document.getElementById('bookingPanelBackdrop'),
+      document.getElementById('bookingCartButton'),
       true
     );
     document.getElementById('cartPanelClose')?.focus();
   }
 
   function initCartPanel() {
-    var cartButton = document.getElementById('bkCartBtn');
+    var cartButton = document.getElementById('bookingCartButton');
     var closeButton = document.getElementById('cartPanelClose');
-    var backdrop = document.getElementById('bkPanelBackdrop');
+    var backdrop = document.getElementById('bookingPanelBackdrop');
     if (cartButton && cartButton.dataset.cartBound !== 'true') {
       cartButton.dataset.cartBound = 'true';
       cartButton.addEventListener('click', function (event) {

@@ -1,5 +1,13 @@
-/* ══ Checkout-style 兩欄佈局 ══ */
-.bkCheckoutLayout {
+/* ══ 預約結帳頁面基底：頁面根只處理背景與上下留白。 ══ */
+.bookingCheckoutPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--bk-bg);
+}
+
+/* 結帳 Layout：checkoutLayout 是共用語意，Booking 變體定義本流程欄寬與間距。 */
+.checkoutLayoutBooking {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 2rem;
@@ -9,16 +17,16 @@
   margin: 0 auto;
 }
 
-.bookingCartPage .stepProgress {
+.bookingCheckoutPage .stepProgress {
   padding-top: 1rem;
 }
 
-/* ── 手風琴面板 ── */
-.bkPanel {
+/* ── 手風琴面板：checkoutPanel* 可與其他結帳流程對齊，Booking 變體控制視覺。 ── */
+.checkoutPanelBooking {
   margin-bottom: 0.75rem;
 }
 
-.bkPanelHeader {
+.checkoutPanelHeaderBooking {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,15 +39,15 @@
   user-select: none;
 }
 
-.bkPanelHeader:hover {
+.checkoutPanelHeaderBooking:hover {
   background: var(--bk-bg);
 }
 
-.bkPanel.isOpen .bkPanelHeader {
+.checkoutPanelBooking.isOpen .checkoutPanelHeaderBooking {
   border-radius: var(--bk-radius) var(--bk-radius) 0 0;
 }
 
-.bkPanelTitle {
+.checkoutPanelTitleBooking {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -48,12 +56,12 @@
   color: var(--bk-text);
 }
 
-.bkPanelNum {
+.checkoutPanelNumberBooking {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   background: var(--bk-primary);
-  color: #fff;
+  color: var(--yc-on-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +70,7 @@
   flex-shrink: 0;
 }
 
-.bkPanelBody {
+.checkoutPanelBodyBooking {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-top: none;
@@ -70,38 +78,38 @@
   padding: 1.5rem;
 }
 
-.bkPanel:not(.isOpen) .bkPanelBody {
+.checkoutPanelBooking:not(.isOpen) .checkoutPanelBodyBooking {
   display: none;
 }
 
-.bkPanelArrow {
+.checkoutPanelArrowBooking {
   font-size: 1rem;
   color: var(--bk-text-muted);
   transition: transform 0.2s;
 }
 
-.bkPanel:not(.isOpen) .bkPanelArrow {
+.checkoutPanelBooking:not(.isOpen) .checkoutPanelArrowBooking {
   transform: rotate(-90deg);
 }
 
-.bkPanel.isOpen .bkPanelArrow {
+.checkoutPanelBooking.isOpen .checkoutPanelArrowBooking {
   transform: rotate(0deg);
 }
 
-/* ── 右側 Sticky 摘要 ── */
-.bkCheckoutSummaryCol {
+/* ── 右側 Sticky 摘要：Booking 變體維持桌機黏滯欄與摘要卡外觀。 ── */
+.checkoutSummaryColumnBooking {
   position: sticky;
   top: 5rem;
 }
 
-.bkSummaryCard {
+.summaryCardBooking {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-radius: var(--bk-radius);
   padding: 1.5rem;
 }
 
-.bkSummaryCard h3 {
+.summaryCardBooking h3 {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
@@ -126,7 +134,7 @@
 
 .paymentOption.isSelected {
   border-color: var(--bk-primary);
-  background: var(--bk-primary-light, #edf5f5);
+  background: var(--bk-primary-light);
 }
 
 .paymentOption input[type='radio'] {
@@ -144,6 +152,7 @@
   color: var(--bk-text);
 }
 
+/* LINE Pay 品牌色：使用外部品牌識別色，不併入 booking token。 */
 #payOptLine .paymentOptionTitle span {
   color: #00b900;
   font-weight: 800;
@@ -159,7 +168,7 @@
 #creditCardSection {
   margin-top: 0.75rem;
   padding: 1.1rem;
-  background: var(--bk-bg, #f5f9f9);
+  background: var(--bk-bg);
   border-radius: var(--bk-radius);
   border: 1px solid var(--bk-border);
 }
@@ -210,8 +219,8 @@
   gap: 0.75rem;
 }
 
-/* 確認按鈕區 */
-.bkConfirmArea {
+/* 確認送出區：集中登入提示、送出 CTA、條款與返回背包連結。 */
+.checkoutConfirmAreaBooking {
   margin-top: 1.5rem;
 }
 
@@ -225,7 +234,7 @@
   border-color: var(--bk-success);
 }
 
-.bkTermsNote {
+.termsNoteBooking {
   text-align: center;
   font-size: 0.75rem;
   color: var(--bk-text-muted);
@@ -239,18 +248,18 @@
   margin-top: 0.6rem;
 }
 
-/* 未登入提示橫幅 */
-.bkLoginNotice {
+/* 未登入提示橫幅：loginNotice 是共用狀態語意，Booking 變體控制警示視覺。 */
+.loginNoticeBooking {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   padding: 0.875rem 1rem;
-  background: var(--yc-warning-soft, #f4ece2);
-  border: 1.5px solid var(--yc-warning, #9a7455);
+  background: var(--yc-warning-soft);
+  border: 1.5px solid var(--yc-warning);
   border-radius: var(--bk-radius);
   font-size: 0.875rem;
-  color: var(--yc-warning-text, #6b4d32);
+  color: var(--yc-warning-text);
   margin-bottom: 1rem;
 }
 
@@ -262,7 +271,7 @@
   display: flex;
 }
 
-.bkLoginNoticeBtn {
+.loginNoticeButtonBooking {
   margin-left: auto;
   padding: 0.35rem 0.9rem;
   border: 1.5px solid var(--bk-primary);
@@ -279,9 +288,9 @@
     color 0.15s;
 }
 
-.bkLoginNoticeBtn:hover {
+.loginNoticeButtonBooking:hover {
   background: var(--bk-primary);
-  color: #fff;
+  color: var(--yc-on-dark);
 }
 
 #upsellSection,
@@ -294,7 +303,7 @@
 }
 
 #upsellSection > p {
-  color: var(--yc-text-secondary, #625e56);
+  color: var(--yc-text-secondary);
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
@@ -306,26 +315,26 @@
 }
 
 #panelContact .contactForm p {
-  color: var(--yc-text-muted, #7b756d);
+  color: var(--yc-text-muted);
   font-size: 0.78rem;
   margin-top: 0.25rem;
   margin-bottom: 0;
 }
 
-.bkSummaryCard > .costTotal + div {
+.summaryCardBooking > .costTotal + div {
   padding-top: 1rem;
   margin-top: 1rem;
   border-top: 1px solid var(--bk-border);
   text-align: center;
 }
 
-.bkSummaryCard > .costTotal + div p {
+.summaryCardBooking > .costTotal + div p {
   color: var(--bk-text-muted);
   font-size: 0.75rem;
   margin: 0;
 }
 
-.bkSummaryCard > .costTotal + div p:first-child {
+.summaryCardBooking > .costTotal + div p:first-child {
   margin-bottom: 0.25rem;
 }
 
@@ -393,11 +402,11 @@
 
 /* RWD */
 @media (width <= 900px) {
-  .bkCheckoutLayout {
+  .checkoutLayoutBooking {
     grid-template-columns: 1fr;
   }
 
-  .bkCheckoutSummaryCol {
+  .checkoutSummaryColumnBooking {
     position: static;
     order: -1;
   }

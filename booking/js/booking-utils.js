@@ -15,17 +15,18 @@
   };
 
   function getContainer() {
-    var el = document.getElementById('bkToastContainer');
+    var el = document.getElementById('bookingToastContainer');
     if (!el) {
       el = document.createElement('div');
-      el.id = 'bkToastContainer';
+      el.id = 'bookingToastContainer';
       document.body.appendChild(el);
     }
     return el;
   }
 
+  // Toast 離場：使用 bookingToastHiding 與 isHiding 標記離場動畫狀態。
   function dismiss(toast) {
-    toast.classList.add('bkToastHiding');
+    toast.classList.add('bookingToastHiding', 'isHiding');
     setTimeout(function () {
       if (toast.parentNode) toast.parentNode.removeChild(toast);
     }, 300);
@@ -36,18 +37,19 @@
     var container = getContainer();
 
     var toast = document.createElement('div');
-    toast.className = 'bkToast bkToast--' + type;
+    // Toast class：以 bookingToast + 語意狀態命名，讓通知元件維持單一正式 API。
+    toast.className = 'bookingToast bookingToast' + type.charAt(0).toUpperCase() + type.slice(1);
 
     var icon = document.createElement('i');
     icon.className = ICONS[type];
     icon.setAttribute('aria-hidden', 'true');
 
     var text = document.createElement('span');
-    text.className = 'bkToastText';
+    text.className = 'bookingToastText';
     text.textContent = message;
 
     var closeBtn = document.createElement('button');
-    closeBtn.className = 'bkToastClose';
+    closeBtn.className = 'bookingToastClose';
     closeBtn.setAttribute('aria-label', '關閉');
     closeBtn.innerHTML = '&times;';
     closeBtn.addEventListener('click', function () {

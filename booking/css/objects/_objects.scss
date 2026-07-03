@@ -1,3 +1,1 @@
-// Objects 層：載入 booking 共用版面結構與頁面 grid。
-@use 'layout';
-@use 'booking-layout';
+// Objects 層：目前 booking 沒有低語意 layout object；頁面 shell 與 grid 由 pages 管理。

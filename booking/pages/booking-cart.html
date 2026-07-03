@@ -41,72 +41,80 @@
         </div>
       </div>
 
-      <!-- 頁面標題 -->
-      <div>
-        <h1><i class="bi bi-bag-heart"></i> 我的預約背包</h1>
-        <p id="bkCartCount"></p>
+      <!-- 頁面標題：共用 cartPage* 語意，booking 變體只負責預約流程差異。 -->
+      <div class="cartPageHeader cartPageHeaderBooking">
+        <h1 class="cartPageTitle cartPageTitleBooking"><i class="bi bi-bag-heart"></i> 我的預約背包</h1>
+        <p id="bookingCartCount" class="cartCountText cartCountTextBooking"></p>
       </div>
 
-      <!-- 空背包狀態 -->
-      <div id="bkCartEmpty" class="bkCartEmpty">
-        <div class="bkCartEmptyIcon"><i class="bi bi-bag-x"></i></div>
-        <div class="bkCartEmptyTitle">背包是空的</div>
-        <p class="bkCartEmptyDesc">還沒有選擇任何營區或裝備，去探索看看吧！</p>
+      <!-- 空背包狀態：共用 cartEmpty* 語意，保留 booking 變體供本流程覆寫。 -->
+      <div id="bookingCartEmpty" class="cartEmpty cartEmptyBooking">
+        <div class="cartEmptyIcon cartEmptyIconBooking"><i class="bi bi-bag-x"></i></div>
+        <div class="cartEmptyTitle cartEmptyTitleBooking">背包是空的</div>
+        <p class="cartEmptyText cartEmptyTextBooking">還沒有選擇任何營區或裝備，去探索看看吧！</p>
         <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> 探索營區 </a>
       </div>
 
-      <!-- 有內容時的兩欄佈局 -->
-      <div id="bkCartContent" class="bkCartLayout">
+      <!-- 有內容時的兩欄佈局：cartLayout 是功能語意，cartLayoutBooking 是 booking 專屬尺寸。 -->
+      <div id="bookingCartContent" class="cartLayout cartLayoutBooking">
         <!-- ══ 左側：項目列表 ══ -->
         <div>
           <!-- 住宿卡 -->
-          <div class="bkCartCard" id="bkStayCard">
-            <div class="bkCartCardHeader">
-              <span class="bkCartCardTitle"> <i class="bi bi-house-door"></i> 住宿 </span>
-              <a href="#" id="bkEditDateLink" class="bkCartEditLink">
+          <div class="cartCard cartCardBooking" id="bookingCartStayCard">
+            <div class="cartCardHeader cartCardHeaderBooking">
+              <span class="cartCardTitle cartCardTitleBooking"> <i class="bi bi-house-door"></i> 住宿 </span>
+              <a href="#" id="bookingCartEditDateLink" class="cartEditLink cartEditLinkBooking">
                 <i class="bi bi-pencil"></i> 修改日期
               </a>
             </div>
-            <div class="bkCartCardBody" id="bkStayBody">
+            <div class="cartCardBody cartCardBodyBooking" id="bookingCartStayBody">
               <!-- JS 填入 -->
             </div>
           </div>
 
           <!-- 裝備租借卡 -->
-          <div class="bkCartCard" id="bkRentalCard">
-            <div class="bkCartCardHeader">
-              <span class="bkCartCardTitle"> <i class="bi bi-bag"></i> 裝備租借 </span>
-              <a href="./camp-rental.html" class="bkCartEditLink"> <i class="bi bi-pencil"></i> 修改裝備 </a>
+          <div class="cartCard cartCardBooking" id="bookingCartRentalCard">
+            <div class="cartCardHeader cartCardHeaderBooking">
+              <span class="cartCardTitle cartCardTitleBooking"> <i class="bi bi-bag"></i> 裝備租借 </span>
+              <a href="./camp-rental.html" class="cartEditLink cartEditLinkBooking">
+                <i class="bi bi-pencil"></i> 修改裝備
+              </a>
             </div>
-            <div class="bkCartCardBody" id="bkRentalBody">
+            <div class="cartCardBody cartCardBodyBooking" id="bookingCartRentalBody">
               <!-- JS 填入 -->
             </div>
           </div>
 
           <!-- 清除背包 -->
-          <div>
-            <button id="bkClearCartBtn" class="bkCartClearBtn"><i class="bi bi-trash3"></i> 清除背包</button>
+          <div class="cartClearAction cartClearActionBooking">
+            <button id="bookingCartClearButton" class="cartClearButton cartClearButtonBooking">
+              <i class="bi bi-trash3"></i> 清除背包
+            </button>
           </div>
         </div>
 
         <!-- ══ 右側：費用摘要 ══ -->
-        <div class="bkCartSummaryCol">
-          <div class="bkCartSummaryCard">
+        <div class="cartSummaryColumn cartSummaryColumnBooking">
+          <div class="cartSummaryCard cartSummaryCardBooking">
             <h3>費用摘要</h3>
 
             <!-- 費用逐項 -->
-            <div id="bkCostRows"></div>
+            <div id="bookingCartCostRows"></div>
 
             <hr />
 
             <!-- 合計 -->
             <div class="costTotal">
               <span>應付總金額</span>
-              <strong class="costTotalAmount" id="bkFinalAmount">NT$0</strong>
+              <strong class="costTotalAmount" id="bookingCartFinalAmount">NT$0</strong>
             </div>
 
             <!-- 前往結帳 -->
-            <a href="./booking-checkout.html" class="btn btnPrimary btnFull" id="bkCheckoutBtn">
+            <a
+              href="./booking-checkout.html"
+              class="btn btnPrimary btnFull cartCheckoutButton cartCheckoutButtonBooking"
+              id="bookingCartCheckoutButton"
+            >
               <i class="bi bi-arrow-right-circle"></i> 前往結帳
             </a>
 
@@ -121,7 +129,7 @@
           </div>
         </div>
       </div>
-      <!-- /bkCartLayout -->
+      <!-- /cartLayoutBooking -->
     </main>
 
     <div id="bookingFooter"></div>

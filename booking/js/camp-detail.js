@@ -146,19 +146,20 @@ function renderZoneSelector(zones) {
   const $list = $('#zoneList').empty();
 
   zones.forEach(function (zone) {
+    // 營位卡片輸出共通語意 class 與 Booking 變體 class；樣式由 *Booking selector 接手，保留基底 class 供未來共用。
     const html = `
-      <div class="zoneCard" data-zone-id="${zone.zone_id}">
-        <div class="zoneCardInfo">
+      <div class="zoneCard zoneCardBooking" data-zone-id="${zone.zone_id}">
+        <div class="zoneCardInfo zoneCardInfoBooking">
           <strong>${zone.type}</strong>
           <span>最多 ${zone.capacity_per_site} 人</span>
         </div>
-        <div class="zoneCardPrice">
+        <div class="zoneCardPrice zoneCardPriceBooking">
           平日 NT$${zone.price_weekday.toLocaleString()} ／ 假日 NT$${zone.price_holiday.toLocaleString()}
         </div>
-        <div class="zoneCardStock">
+        <div class="zoneCardStock zoneCardStockBooking">
           <i class="bi bi-tent"></i> 剩餘 <strong>${zone.total_sites}</strong> 個營位
         </div>
-        <button class="btn btnOutline zoneSelectBtn">
+        <button class="btn btnOutline zoneSelectButton zoneSelectButtonBooking">
           <i class="bi bi-check-circle"></i> 選擇此類型
         </button>
       </div>
@@ -166,13 +167,13 @@ function renderZoneSelector(zones) {
     $list.append(html);
   });
 
-  // 綁定選擇事件 / Bind zone selection event
-  $list.on('click', '.zoneSelectBtn', function () {
-    const $card = $(this).closest('.zoneCard');
+  // 綁定營位選擇事件：使用 zoneSelectButtonBooking 作為互動 hook，對齊 booking 語意命名。
+  $list.on('click', '.zoneSelectButtonBooking', function () {
+    const $card = $(this).closest('.zoneCardBooking');
 
     // 移除其他卡片的選中狀態 / Remove selected state from others
-    $('.zoneCard').removeClass('isSelected');
-    $('.zoneSelectBtn').html('<i class="bi bi-check-circle"></i> 選擇此類型');
+    $('.zoneCardBooking').removeClass('isSelected');
+    $('.zoneSelectButtonBooking').html('<i class="bi bi-check-circle"></i> 選擇此類型');
 
     // 選中當前卡片 / Select current card
     $card.addClass('isSelected');

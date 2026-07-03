@@ -1,3 +1,69 @@
+## v1.3.55 - 2026/07/03
+
+- 租借頁靜態區塊補齊 base + Booking variant 雙 class：`summaryBar summaryBarBooking`、`recommendationBanner recommendationBannerBooking`、`rentalLayout rentalLayoutBooking`、`rentalCartSidebar rentalCartSidebarBooking` 等。
+- `camp-rental.js` 產生的摘要分隔符與推薦橫幅內容同步改為 `summarySeparator*`、`recommendationBannerContent*`、`recommendationTag*` 語意命名，並保留既有 ID 作為資料與事件掛點。
+- `booking/css/pages/_camp-rental.scss` 改由 `*Booking` selector 管理租借頁外殼、推薦橫幅、列表 grid、右側背包與略過連結，避免 page style 綁在可共用 base class 上。
+
+## v1.3.54 - 2026/07/03
+
+- 延續 booking 動態 HTML 語意化：營位卡片改為 `zoneCard zoneCardBooking`、`zoneCardInfo zoneCardInfoBooking` 等 base + Booking variant 雙 class，事件代理同步改抓 Booking 變體。
+- 租借裝備卡片改為 `rentalItemCard*` 共通語意搭配 `rentalItemCard*Booking` 變體，並將 `rentalItemCardImg` / `rentalItemCardDesc` 收斂為較完整的 `Image` / `Description` 命名。
+- 租借背包 empty state 與品項列改用 `rentalCartEmpty*`、`rentalCartItemName*`、`rentalCartItemPrice*`，SCSS 不再依賴 `span:first-child` / `span:nth-child(2)` 結構 selector。
+
+## v1.3.53 - 2026/07/03
+
+- 執行 booking 動態 HTML 語意化第一輪：`camp-detail.js` 的 `zoneSelectBtn` 改為 `zoneSelectButton zoneSelectButtonBooking`，`camp-rental.js` 的 `rentalAddBtn` / `rentalRemoveBtn` 改為 `rentalAddButton rentalAddButtonBooking` / `rentalRemoveButton rentalRemoveButtonBooking`。
+- `booking/css/pages/_camp-detail.scss` 與 `_camp-rental.scss` 同步改用新 Button selector，並補上中文註解說明互動 hook 與操作責任。
+- `camp-search.js` 動態營區卡片補齊 `campCard*` 共通語意與 `campCard*Booking` 變體 class，`_camp-search.scss` 改由 Booking 變體 selector 管理搜尋結果卡片視覺。
+
+## v1.3.52 - 2026/07/03
+
+- 將 booking header runtime ID 從 `bk*` 收斂為 `booking*` 語意命名：`bookingMenuButton`、`bookingOffcanvasPanel`、`bookingOffcanvasBackdrop`、`bookingCartButton` 與 `bookingPanelBackdrop`。
+- `components/header.partial` 同步更新 `aria-controls` 與對應 ID，`booking/js/booking-header.js` 改用新 ID 查找側邊選單、預約背包面板與 backdrop。
+- `booking-header.js` 在側邊選單與預約背包面板開關區塊補上中文註解，說明互動掛點與 header layer 狀態責任。
+
+## v1.3.51 - 2026/07/03
+
+- 清理 booking toast 舊相容命名：`booking-utils.js` 不再產生 `bkToast*` / `bkToast--type` class，統一輸出 `bookingToast`、`bookingToastInfo`、`bookingToastText`、`bookingToastClose` 等語意化 class。
+- `booking/css/components/_booking-toast.scss` 移除 `#bkToastContainer`、`.bkToast*`、`.bkToastAction*` 相容 selector，只保留 `bookingToast*` 正式命名與中文區塊註解。
+- 保留確認型 toast 的 `bookingToastConfirm` / `bookingToastActions` / `bookingToastAction*` 樣式作為共用操作型通知能力，但不再提供舊 `bkToast*` alias。
+
+## v1.3.50 - 2026/07/03
+
+- 將 booking 預約背包頁剩餘 `#bk*` ID 掛點改為 `#bookingCart*` 語意命名，例如 `bookingCartContent`、`bookingCartStayBody`、`bookingCartCostRows` 與 `bookingCartCheckoutButton`。
+- `booking-cart.js` 同步改用新 ID selector，保留既有 localStorage、數量調整、刪除裝備與費用重算流程不變。
+- `booking/css/pages/_booking-cart.scss` 移除 `#bkRentalCard + div` 結構相依 selector，新增 `cartClearAction cartClearActionBooking`，讓清除背包操作列有明確語意與中文註解。
+
+## v1.3.49 - 2026/07/03
+
+- 將 booking 結帳頁延續預約背包頁的語意化命名規則：`bkCheckout*`、`bkPanel*`、`bkSummaryCard`、`bkLoginNotice*` 改為 `checkout*` / `summaryCard*` / `loginNotice*` 共通語意加 `*Booking` 變體 class。
+- `booking-checkout.html` 的頁面根 class 從 `bookingCartPage` 分離為 `bookingCheckoutPage`，避免結帳頁繼續借用背包頁語意；既有表單與流程 ID 保留作為 JS 掛點。
+- `booking-checkout.js` 的手風琴事件代理改用 `checkoutPanelHeaderBooking`、`checkoutPanelBooking` 與 `checkoutPanelBodyBooking`，並在 SCSS 補上中文區塊註解說明 layout、panel、summary、login notice 與送出區責任。
+
+## v1.3.48 - 2026/07/03
+
+- 將 booking 預約背包頁作為語意化命名樣板：HTML、SCSS 與 JS 產生內容改用 `cart*` / `quantity*` 共通語意加上 `*Booking` 變體 class，例如 `cartItem cartItemBooking`、`quantityButton quantityButtonBooking`。
+- 保留 `#bk*` ID 作為既有 JS 掛點，避免本輪命名收斂牽動 localStorage 與頁面流程；樣式與事件代理已不再依賴舊 `.bkCart*` / `.bkQty*` / `.bkRentalRemove` class。
+- `booking/css/pages/_booking-cart.scss` 補上中文區塊註解，說明 cart layout、項目列、數量調整器、摘要欄與空狀態的責任邊界，供後續 booking checkout / rental 頁面套用同一命名規則。
+
+## v1.3.47 - 2026/07/03
+
+- 清理 booking CSS token fallback：`rental-guide`、`booking-faq`、租借、購物車與結帳頁面改用既有 `--yc-*` / `--bk-*` token，移除可替代的 `var(..., #fallback)` 與一般白色硬碼。
+- Toast 與 tag/status 元件改用既有陰影、深色文字與 `color-mix()` token 表達，移除未使用的 `.bkToastInfo` / `.bkToastWarning` / `.bkToastError` / `.bkToastSuccess` 舊狀態 selector。
+- 保留 LINE Pay 外部品牌綠並加上中文註解，避免把第三方品牌識別色誤併入 booking 設計 token。
+
+## v1.3.46 - 2026/07/03
+
+- 精修 booking ITCSS：移除已不再匯入的 `booking/css/objects/_layout.scss`、`_booking-layout.scss` 與 `utilities/_utilities.scss`，objects 層保留為低語意 layout object 的入口說明。
+- 將 booking 跨頁懸浮操作移入 `booking/css/components/_floating-actions.scss`，搜尋頁 hero 樣式移入 `booking/css/pages/_camp-search.scss`，避免 component/page 樣式留在 objects 層。
+- Toast 樣式與 `booking-utils.js` 改採 `bookingToast*` 新命名，同時保留舊 `bkToast*` / `bkToast--type` 相容 class，修正原本 JS type class 與 CSS 狀態 selector 不一致的問題。
+
+## v1.3.45 - 2026/07/03
+
+- 依 booking CSS ITCSS 收斂計畫，將 `searchPage`、`detailPage`、`rentalPage`、`bookingCartPage` 與對應 layout grid 從 objects 層移回 pages 層，objects barrel 只載入低語意版面結構。
+- `booking/css/components/_modal.scss` 改載主站 modal 共用骨架，`booking-auth-modal` 保留 booking 登入側滑、OAuth 與偏好問卷差異，並移除未被 runtime 使用的 legacy OAuth / personalization selector。
+- 將 booking tag/status token 從 component 上移到 `booking/css/settings/_tokens.scss`，並把唯一 `.srOnly` helper 收斂至 generic reset，booking 入口不再額外載入 utilities 層。
+
 ## v1.3.44 - 2026/07/03
 
 - 依 `.agents/agents.md` 收斂主站與 booking 的 header/footer 樣式來源：booking header、footer、drawer 改為載入主站共用 widgets / drawer / offcanvas / cart-drawer 骨架，內容仍由 `data-layout-part` 各自分流。

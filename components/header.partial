@@ -274,11 +274,11 @@
         <div class="bookingNavbarInner">
           <button
             class="bookingMenuButton"
-            id="bkHamburger"
+            id="bookingMenuButton"
             type="button"
             aria-label="開啟預約選單"
             aria-expanded="false"
-            aria-controls="bkOffcanvas"
+            aria-controls="bookingOffcanvasPanel"
           >
             <i class="bi bi-list" aria-hidden="true"></i>
           </button>
@@ -292,7 +292,7 @@
           <div class="bookingHeaderActions">
             <a class="bookingSwitchLink" href="../../pages/home.html">商城</a>
             <button
-              id="bkCartBtn"
+              id="bookingCartButton"
               class="bookingCartButton"
               type="button"
               aria-label="開啟預約背包"
@@ -329,13 +329,18 @@
 
       <aside
         class="bookingOffcanvas"
-        id="bkOffcanvas"
+        id="bookingOffcanvasPanel"
         aria-hidden="true"
         aria-labelledby="bookingOffcanvasTitle"
       >
         <div class="bookingOffcanvasHeader">
           <h2 class="bookingOffcanvasTitle" id="bookingOffcanvasTitle">預約選單</h2>
-          <button class="bookingOffcanvasClose" id="bkOffcanvasClose" type="button" aria-label="關閉預約選單">
+          <button
+            class="bookingOffcanvasClose"
+            id="bookingOffcanvasClose"
+            type="button"
+            aria-label="關閉預約選單"
+          >
             <i class="bi bi-x-lg" aria-hidden="true"></i>
           </button>
         </div>
@@ -350,7 +355,7 @@
           </ul>
         </nav>
       </aside>
-      <div class="bookingOffcanvasBackdrop" id="bkBackdrop" hidden></div>
+      <div class="bookingOffcanvasBackdrop" id="bookingOffcanvasBackdrop" hidden></div>
     </header>
 
     <aside
@@ -372,6 +377,6 @@
         <a href="./booking-cart.html" class="bookingPanelCheckoutLink">前往確認預約</a>
       </div>
     </aside>
-    <div class="bookingPanelBackdrop" id="bkPanelBackdrop" hidden></div>
+    <div class="bookingPanelBackdrop" id="bookingPanelBackdrop" hidden></div>
   </div>
 </div>

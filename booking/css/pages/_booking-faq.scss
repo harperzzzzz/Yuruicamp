@@ -2,15 +2,15 @@
        booking-faq.html 頁面專屬樣式 — Yuruicamp v3
        ====================================================== */
 .faqPage {
-  background: var(--yc-bg, #f8f5ee);
+  background: var(--yc-bg);
   min-height: 100vh;
   padding-bottom: 4rem;
 }
 
 /* ── 頁首橫幅 ── */
 .faqHero {
-  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
-  color: #fff;
+  background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
+  color: var(--yc-on-dark);
   padding: 4rem 1.5rem 3rem;
   text-align: center;
 }
@@ -23,7 +23,7 @@
 
 .faqHeroSubtitle {
   font-size: 1rem;
-  color: rgb(255 253 249 / 85%);
+  color: var(--yc-on-dark-muted);
   max-width: 480px;
   margin: 0 auto;
 }
@@ -44,11 +44,11 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 1.1rem;
-  background: var(--yc-surface, #fffdf9);
-  border: 2px solid var(--yc-sage-soft, #eef2ec);
+  background: var(--yc-surface);
+  border: 2px solid var(--yc-sage-soft);
   border-radius: 20px;
   font-size: 0.875rem;
-  color: var(--yc-sage-action, #73816e);
+  color: var(--yc-sage-action);
   text-decoration: none;
   transition:
     background 0.2s,
@@ -57,9 +57,9 @@
 }
 
 .faqNavLink:hover {
-  background: var(--yc-sage-action, #73816e);
-  border-color: var(--yc-sage-action, #73816e);
-  color: #fff;
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
 }
 
 /* ── FAQ 主內容區 ── */
@@ -80,7 +80,7 @@
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 0.75rem;
-  border-bottom: 3px solid var(--yc-sage-action, #73816e);
+  border-bottom: 3px solid var(--yc-sage-action);
   margin-bottom: 1.5rem;
 }
 
@@ -91,15 +91,15 @@
 .faqSectionTitle {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--yc-text, #3e473d);
+  color: var(--yc-text);
   margin: 0;
 }
 
 /* ── 問答 Accordion ── */
 .faqItem {
-  background: var(--yc-surface, #fffdf9);
+  background: var(--yc-surface);
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgb(60 70 59 / 8%);
+  box-shadow: var(--yc-shadow-soft);
   margin-bottom: 0.75rem;
   overflow: hidden;
 }
@@ -113,7 +113,7 @@
   text-align: left;
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--yc-text, #3e473d);
+  color: var(--yc-text);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -123,12 +123,12 @@
 }
 
 .faqItemQuestion:hover {
-  background: var(--yc-sage-soft, #eef2ec);
+  background: var(--yc-sage-soft);
 }
 
 .faqItemQuestion.isOpen {
-  color: var(--yc-sage-action, #73816e);
-  background: var(--yc-sage-soft, #eef2ec);
+  color: var(--yc-sage-action);
+  background: var(--yc-sage-soft);
 }
 
 /* 展開箭頭 */
@@ -147,9 +147,9 @@
   display: none;
   padding: 0 1.25rem 1.25rem;
   font-size: 0.9rem;
-  color: var(--yc-text-secondary, #625e56);
+  color: var(--yc-text-secondary);
   line-height: 1.8;
-  border-top: 1px solid var(--yc-border, #d8cfc3);
+  border-top: 1px solid var(--yc-border);
 }
 
 .faqItemAnswer.isOpen {
@@ -170,7 +170,7 @@
 }
 
 .faqItemAnswer a {
-  color: var(--yc-sage-action, #73816e);
+  color: var(--yc-sage-action);
   text-decoration: underline;
 }
 
@@ -183,10 +183,10 @@
 }
 
 .faqCtaBox {
-  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d), var(--yc-sage-action, #73816e));
+  background: linear-gradient(135deg, var(--yc-sage-dark), var(--yc-sage-action));
   border-radius: 16px;
   padding: 2.5rem;
-  color: #fff;
+  color: var(--yc-on-dark);
 }
 
 .faqCtaBox h2 {
@@ -196,7 +196,7 @@
 
 .faqCtaBox p {
   font-size: 0.9rem;
-  color: rgb(255 253 249 / 85%);
+  color: var(--yc-on-dark-muted);
   margin-bottom: 1.5rem;
 }
 
@@ -205,8 +205,8 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.75rem;
-  background: var(--yc-cta, #e2d39a);
-  color: var(--yc-on-cta, #4a4537);
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
   font-weight: 700;
   font-size: 0.95rem;
   border-radius: 8px;
@@ -217,7 +217,7 @@
 }
 
 .faqCtaBtn:hover {
-  background: var(--yc-cta-hover, #d4c27e);
+  background: var(--yc-cta-hover);
   transform: translateY(-2px);
 }
 

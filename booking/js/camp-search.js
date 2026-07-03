@@ -120,31 +120,31 @@ function renderCampCards(camps) {
       .map((t) => `<span class="tag tagFacility">${t}</span>`)
       .join('');
 
-    // 建立卡片 HTML / Build card HTML
+    // 建立營區卡片 HTML：輸出 campCard 共通語意與 campCardBooking 預約流程變體。
     const cardHTML = `
-      <div class="campCard"
+      <div class="campCard campCardBooking"
            data-id="${camp.campground_id}"
            data-region="${camp.region}"
            data-env="${camp.environment_tags.join(',')}"
            data-facility="${camp.facility_tags.join(',')}">
 
-        <div class="campCardImage">
+        <div class="campCardImage campCardImageBooking">
           <img src="https://picsum.photos/seed/${camp.campground_id}/400/250"
                alt="${camp.name}"
                loading="lazy">
-          <span class="campCardBadge">${camp.region}</span>
+          <span class="campCardBadge campCardBadgeBooking">${camp.region}</span>
         </div>
 
-        <div class="campCardBody">
-          <h3 class="campCardName">${camp.name}</h3>
-          <p class="campCardPrice">
+        <div class="campCardBody campCardBodyBooking">
+          <h3 class="campCardName campCardNameBooking">${camp.name}</h3>
+          <p class="campCardPrice campCardPriceBooking">
             平日 <strong>NT$${minWeekdayPrice.toLocaleString()}</strong>
             ／ 假日 <strong>NT$${maxHolidayPrice.toLocaleString()}</strong> 起
           </p>
-          <div class="campCardTags">${envTagsHTML}${facTagsHTML}</div>
+          <div class="campCardTags campCardTagsBooking">${envTagsHTML}${facTagsHTML}</div>
         </div>
 
-        <div class="campCardFooter">
+        <div class="campCardFooter campCardFooterBooking">
           <a href="./camp-detail.html?id=${camp.campground_id}" class="btn btnPrimary">
             查看詳情 <i class="bi bi-arrow-right"></i>
           </a>

@@ -35,6 +35,31 @@
   --yc-error: #a65f58;
   --yc-error-soft: #f4e7e4;
 
+  /* Tag / Status：booking 標籤與訂單狀態共用 token，集中於 settings 供元件消費。 */
+  --yc-gold-soft: var(--yc-cta-soft);
+  --yc-gold-line: var(--yc-cta-line);
+  --yc-gold: var(--yc-cta);
+  --yc-gold-hover: var(--yc-cta-hover);
+  --yc-gold-active: #c4af62;
+  --yc-neutral-soft: #f4f0e8;
+  --yc-neutral-line: var(--yc-border);
+  --yc-neutral-text: var(--yc-text-secondary);
+  --yc-tag-success-soft: #e7efe3;
+  --yc-success-text: #4f624a;
+  --yc-danger-soft: var(--yc-error-soft);
+  --yc-danger-line: #d4a29d;
+  --yc-danger: #b8645d;
+  --yc-danger-text: #8a4842;
+  --yc-return-soft: #f3ece7;
+  --yc-return-line: #cdaa9c;
+  --yc-return-text: #7a4d40;
+  --yc-refunded-line: #c97872;
+  --yc-pending-line: #d7b75f;
+  --yc-tag-height: 30px;
+  --yc-chip-height: 40px;
+  --yc-tag-gap: 8px;
+  --yc-transition: 180ms ease;
+
   /* Header / Footer */
   --yc-header-bg: #73816e;
   --yc-footer-bg: #71806d;

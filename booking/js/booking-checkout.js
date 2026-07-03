@@ -160,9 +160,10 @@ function initLoginGuard() {
 // ============================================================
 
 function initAccordionPanels() {
-  $('.bkPanelHeader').on('click', function () {
-    const $panel = $(this).closest('.bkPanel');
-    const $body = $panel.find('> .bkPanelBody');
+  // 手風琴互動：使用 checkoutPanel* 語意 class，讓 JS hook 與版型命名解耦。
+  $('.checkoutPanelHeaderBooking').on('click', function () {
+    const $panel = $(this).closest('.checkoutPanelBooking');
+    const $body = $panel.find('> .checkoutPanelBodyBooking');
     const isOpen = $panel.hasClass('isOpen');
 
     if (isOpen) {
