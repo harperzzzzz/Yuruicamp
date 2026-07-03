@@ -3,7 +3,7 @@
    Line icon button + Back to top
 ========================= */
 
-.floating-actions {
+.floatingActions {
   position: fixed;
   right: 28px;
   bottom: 34px;
@@ -15,7 +15,7 @@
 }
 
 /* 綠色 Line 按鈕：預設只顯示 icon */
-.floating-line-btn {
+.floatingLineBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -36,8 +36,8 @@
     box-shadow 0.35s ease;
 }
 
-.floating-line-btn:hover,
-.floating-line-btn:focus-visible {
+.floatingLineBtn:hover,
+.floatingLineBtn:focus-visible {
   width: 230px;
   padding-left: 18px;
   padding-right: 10px;
@@ -47,7 +47,7 @@
   box-shadow: 0 18px 40px rgb(0 0 0 / 22%);
 }
 
-.floating-line-label {
+.floatingLineLabel {
   max-width: 0;
   opacity: 0;
   overflow: hidden;
@@ -63,14 +63,14 @@
     margin-right 0.35s ease;
 }
 
-.floating-line-btn:hover .floating-line-label,
-.floating-line-btn:focus-visible .floating-line-label {
+.floatingLineBtn:hover .floatingLineLabel,
+.floatingLineBtn:focus-visible .floatingLineLabel {
   max-width: 150px;
   opacity: 1;
   margin-right: 10px;
 }
 
-.floating-line-icon {
+.floatingLineIcon {
   flex: 0 0 60px;
   width: 60px;
   height: 60px;
@@ -79,7 +79,7 @@
   justify-content: center;
 }
 
-.floating-line-icon i {
+.floatingLineIcon i {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -90,7 +90,7 @@
 }
 
 /* 回到頂部按鈕 */
-.floating-top-btn {
+.floatingTopBtn {
   width: 60px;
   height: 60px;
   border: 0;
@@ -112,31 +112,31 @@
     background-color 0.35s ease;
 }
 
-.floating-top-btn.is-visible {
+.floatingTopBtn.isVisible {
   opacity: 1;
   visibility: visible;
   transform: translateY(0) scale(1);
 }
 
-.floating-top-btn:hover,
-.floating-top-btn:focus-visible {
+.floatingTopBtn:hover,
+.floatingTopBtn:focus-visible {
   background-color: var(--yc-sage-dark, #62705d);
   transform: translateY(-2px) scale(1);
 }
 
-.floating-top-btn i {
+.floatingTopBtn i {
   font-size: 1.45rem;
   line-height: 1;
 }
 
-.bk-footer__payment-icons i {
+.bkFooterPaymentIcons i {
   font-size: 1.5rem;
   color: rgb(255 253 249 / 52%);
   margin-right: 12px;
   transition: color 0.2s;
 }
 
-.bk-footer__payment-icons i:hover {
+.bkFooterPaymentIcons i:hover {
   color: rgb(255 253 249 / 85%);
 }
 
@@ -144,7 +144,7 @@
    首頁 - Hero Banner
    ======================================== */
 
-.hero-banner {
+.heroBanner {
   position: relative;
   width: 100%;
   min-height: 90vh;
@@ -156,7 +156,7 @@
 }
 
 /* 背景影片：inset:0 = top/right/bottom/left 全部設為 0，讓影片撐滿整個 section */
-.hero-banner video {
+.heroBanner video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -166,7 +166,7 @@
 }
 
 /* 半透明遮罩，讓文字更易讀 */
-.hero-banner::after {
+.heroBanner::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -175,7 +175,7 @@
 }
 
 /* Hero 文字內容 */
-.hero-content {
+.heroContent {
   position: relative;
   z-index: 2;
   text-align: center;
@@ -184,7 +184,7 @@
   max-width: 700px;
 }
 
-.hero-tagline {
+.heroTagline {
   font-size: 0.875rem;
   font-weight: 600;
   letter-spacing: 0.25em;
@@ -193,7 +193,7 @@
   margin-bottom: 1rem;
 }
 
-.hero-title {
+.heroTitle {
   font-size: clamp(2.25rem, 6vw, 4rem);
   font-weight: 800;
   line-height: 1.15;
@@ -201,21 +201,21 @@
   letter-spacing: -0.02em;
 }
 
-.hero-subtitle {
+.heroSubtitle {
   font-size: 1.125rem;
   color: rgb(255 255 255 / 85%);
   margin-bottom: 2rem;
   line-height: 1.7;
 }
 
-.hero-cta-group {
+.heroCtaGroup {
   display: flex;
   gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.btn-hero-primary {
+.btnHeroPrimary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -231,14 +231,14 @@
   transition: all 250ms ease;
 }
 
-.btn-hero-primary:hover {
+.btnHeroPrimary:hover {
   background-color: var(--yc-cta-hover, #d4c27e);
   border-color: var(--yc-cta-hover, #d4c27e);
   color: var(--yc-on-cta, #4a4537);
   text-decoration: none;
 }
 
-.btn-hero-outline {
+.btnHeroOutline {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -254,7 +254,7 @@
   transition: all 250ms ease;
 }
 
-.btn-hero-outline:hover {
+.btnHeroOutline:hover {
   background-color: rgb(255 255 255 / 15%);
   border-color: #fff;
   color: #fff;
@@ -262,7 +262,7 @@
 }
 
 /* Hero 底部滾動提示 */
-.hero-scroll-hint {
+.heroScrollHint {
   position: absolute;
   bottom: 2rem;
   left: 50%;
@@ -287,20 +287,20 @@
 }
 
 @media (width <= 768px) {
-  .hero-banner {
+  .heroBanner {
     min-height: 75vh;
   }
 
-  .hero-title {
+  .heroTitle {
     font-size: clamp(1.75rem, 8vw, 2.5rem);
   }
 
-  .hero-subtitle {
+  .heroSubtitle {
     font-size: 0.95rem;
   }
 
-  .btn-hero-primary,
-  .btn-hero-outline {
+  .btnHeroPrimary,
+  .btnHeroOutline {
     padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
   }

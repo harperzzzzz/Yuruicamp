@@ -1,0 +1,14 @@
+// Reset：統一 booking 子系統盒模型與表單字體繼承。
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}

@@ -1,164 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#73816E">
-  <link rel="icon" href="../../assets/icons/camping_icon.png" type="image/png">
-  <title>確認背包 | Yuruicamp 露營選物</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#73816E" />
+    <link rel="icon" href="../../assets/icons/camping_icon.png" type="image/png" />
+    <title>確認背包 | Yuruicamp 露營選物</title>
 
-  <link rel="stylesheet" href="../css/booking-main.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  
-</head>
-<body>
+    <link rel="stylesheet" href="../css/booking-main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <div id="bookingHeader"></div>
 
-  <div id="booking-header"></div>
-
-  <main class="booking-cart-page">
-
-    <!-- 步驟進度列 -->
-    <div class="step-progress">
-      <div class="step completed">
-        <span><i class="bi bi-check-lg"></i></span>
-        選擇營區
+    <main class="bookingCartPage">
+      <!-- 步驟進度列 -->
+      <div class="stepProgress">
+        <div class="step completed">
+          <span><i class="bi bi-check-lg"></i></span>
+          選擇營區
+        </div>
+        <div class="step completed">
+          <span><i class="bi bi-check-lg"></i></span>
+          選擇日期
+        </div>
+        <div class="step completed">
+          <span><i class="bi bi-check-lg"></i></span>
+          租借裝備
+        </div>
+        <div class="step active">
+          <span>4</span>
+          確認背包
+        </div>
+        <div class="step">
+          <span>5</span>
+          確認結帳
+        </div>
       </div>
-      <div class="step completed">
-        <span><i class="bi bi-check-lg"></i></span>
-        選擇日期
-      </div>
-      <div class="step completed">
-        <span><i class="bi bi-check-lg"></i></span>
-        租借裝備
-      </div>
-      <div class="step active">
-        <span>4</span>
-        確認背包
-      </div>
-      <div class="step">
-        <span>5</span>
-        確認結帳
-      </div>
-    </div>
 
-    <!-- 頁面標題 -->
-    <div>
-      <h1>
-        <i class="bi bi-bag-heart"></i> 我的預約背包
-      </h1>
-      <p id="bkCartCount"></p>
-    </div>
-
-    <!-- 空背包狀態 -->
-    <div id="bkCartEmpty" class="bk-cart-empty">
-      <div class="bk-cart-empty__icon"><i class="bi bi-bag-x"></i></div>
-      <div class="bk-cart-empty__title">背包是空的</div>
-      <p class="bk-cart-empty__desc">還沒有選擇任何營區或裝備，去探索看看吧！</p>
-      <a href="./camp-search.html" class="btn btn--primary">
-        <i class="bi bi-search"></i> 探索營區
-      </a>
-    </div>
-
-    <!-- 有內容時的兩欄佈局 -->
-    <div id="bkCartContent" class="bk-cart-layout">
-
-      <!-- ══ 左側：項目列表 ══ -->
+      <!-- 頁面標題 -->
       <div>
+        <h1><i class="bi bi-bag-heart"></i> 我的預約背包</h1>
+        <p id="bkCartCount"></p>
+      </div>
 
-        <!-- 住宿卡 -->
-        <div class="bk-cart-card" id="bkStayCard">
-          <div class="bk-cart-card__header">
-            <span class="bk-cart-card__title">
-              <i class="bi bi-house-door"></i> 住宿
-            </span>
-            <a href="#" id="bkEditDateLink" class="bk-cart-edit-link">
-              <i class="bi bi-pencil"></i> 修改日期
-            </a>
-          </div>
-          <div class="bk-cart-card__body" id="bkStayBody">
-            <!-- JS 填入 -->
-          </div>
-        </div>
+      <!-- 空背包狀態 -->
+      <div id="bkCartEmpty" class="bkCartEmpty">
+        <div class="bkCartEmptyIcon"><i class="bi bi-bag-x"></i></div>
+        <div class="bkCartEmptyTitle">背包是空的</div>
+        <p class="bkCartEmptyDesc">還沒有選擇任何營區或裝備，去探索看看吧！</p>
+        <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> 探索營區 </a>
+      </div>
 
-        <!-- 裝備租借卡 -->
-        <div class="bk-cart-card" id="bkRentalCard">
-          <div class="bk-cart-card__header">
-            <span class="bk-cart-card__title">
-              <i class="bi bi-bag"></i> 裝備租借
-            </span>
-            <a href="./camp-rental.html" class="bk-cart-edit-link">
-              <i class="bi bi-pencil"></i> 修改裝備
-            </a>
-          </div>
-          <div class="bk-cart-card__body" id="bkRentalBody">
-            <!-- JS 填入 -->
-          </div>
-        </div>
-
-        <!-- 清除背包 -->
+      <!-- 有內容時的兩欄佈局 -->
+      <div id="bkCartContent" class="bkCartLayout">
+        <!-- ══ 左側：項目列表 ══ -->
         <div>
-          <button id="bkClearCartBtn" class="bk-cart-clear-btn">
-            <i class="bi bi-trash3"></i> 清除背包
-          </button>
-        </div>
-
-      </div>
-
-      <!-- ══ 右側：費用摘要 ══ -->
-      <div class="bk-cart-summary-col">
-        <div class="bk-cart-summary-card">
-
-          <h3>費用摘要</h3>
-
-          <!-- 費用逐項 -->
-          <div id="bkCostRows"></div>
-
-          <hr>
-
-          <!-- 合計 -->
-          <div class="cost-total">
-            <span>應付總金額</span>
-            <strong class="cost-total__amount" id="bkFinalAmount">NT$0</strong>
+          <!-- 住宿卡 -->
+          <div class="bkCartCard" id="bkStayCard">
+            <div class="bkCartCardHeader">
+              <span class="bkCartCardTitle"> <i class="bi bi-house-door"></i> 住宿 </span>
+              <a href="#" id="bkEditDateLink" class="bkCartEditLink">
+                <i class="bi bi-pencil"></i> 修改日期
+              </a>
+            </div>
+            <div class="bkCartCardBody" id="bkStayBody">
+              <!-- JS 填入 -->
+            </div>
           </div>
 
-          <!-- 前往結帳 -->
-          <a href="./booking-checkout.html" class="btn btn--primary btn--full" id="bkCheckoutBtn">
-            <i class="bi bi-arrow-right-circle"></i> 前往結帳
-          </a>
+          <!-- 裝備租借卡 -->
+          <div class="bkCartCard" id="bkRentalCard">
+            <div class="bkCartCardHeader">
+              <span class="bkCartCardTitle"> <i class="bi bi-bag"></i> 裝備租借 </span>
+              <a href="./camp-rental.html" class="bkCartEditLink"> <i class="bi bi-pencil"></i> 修改裝備 </a>
+            </div>
+            <div class="bkCartCardBody" id="bkRentalBody">
+              <!-- JS 填入 -->
+            </div>
+          </div>
 
-          <!-- 繼續修改 -->
-          <a href="./camp-rental.html">
-            ← 返回修改裝備
-          </a>
-
-          <!-- 安全保障 -->
+          <!-- 清除背包 -->
           <div>
-            <p>
-              🔒 SSL 加密保護，安全付款
-            </p>
-            <p>
-              📋 預約確認信將寄送至您的信箱
-            </p>
+            <button id="bkClearCartBtn" class="bkCartClearBtn"><i class="bi bi-trash3"></i> 清除背包</button>
           </div>
+        </div>
 
+        <!-- ══ 右側：費用摘要 ══ -->
+        <div class="bkCartSummaryCol">
+          <div class="bkCartSummaryCard">
+            <h3>費用摘要</h3>
+
+            <!-- 費用逐項 -->
+            <div id="bkCostRows"></div>
+
+            <hr />
+
+            <!-- 合計 -->
+            <div class="costTotal">
+              <span>應付總金額</span>
+              <strong class="costTotalAmount" id="bkFinalAmount">NT$0</strong>
+            </div>
+
+            <!-- 前往結帳 -->
+            <a href="./booking-checkout.html" class="btn btnPrimary btnFull" id="bkCheckoutBtn">
+              <i class="bi bi-arrow-right-circle"></i> 前往結帳
+            </a>
+
+            <!-- 繼續修改 -->
+            <a href="./camp-rental.html"> ← 返回修改裝備 </a>
+
+            <!-- 安全保障 -->
+            <div>
+              <p>🔒 SSL 加密保護，安全付款</p>
+              <p>📋 預約確認信將寄送至您的信箱</p>
+            </div>
+          </div>
         </div>
       </div>
+      <!-- /bkCartLayout -->
+    </main>
 
-    </div><!-- /bk-cart-layout -->
+    <div id="bookingFooter"></div>
 
-  </main>
-
-  <div id="booking-footer"></div>
-
-  <script src="../js/layout.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script>
-    $(function () {
-      window.loadBookingSharedLayout();
-    });
-  </script>
-  <script src="../js/booking-utils.js"></script>
-  <script src="../js/booking-cart.js"></script>
-
-</body>
+    <script src="../js/layout.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+      $(function () {
+        window.loadBookingSharedLayout();
+      });
+    </script>
+    <script src="../js/booking-utils.js"></script>
+    <script src="../js/booking-cart.js"></script>
+  </body>
 </html>

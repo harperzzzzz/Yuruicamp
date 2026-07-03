@@ -1,75 +1,77 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#73816E">
-  <meta name="description" content="Yuruicamp 會員中心 - 管理會員資料、購買紀錄與預約租借紀錄">
-  <link rel="icon" href="../../assets/icons/camping_icon.png" type="image/png">
-  <title>會員中心 | Yuruicamp 預約系統</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#73816E" />
+    <meta name="description" content="Yuruicamp 會員中心 - 管理會員資料、購買紀錄與預約租借紀錄" />
+    <link rel="icon" href="../../assets/icons/camping_icon.png" type="image/png" />
+    <title>會員中心 | Yuruicamp 預約系統</title>
 
-  <link rel="stylesheet" href="../css/member-center-main.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/member-center-main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+  </head>
+  <body>
+    <div id="bookingHeader"></div>
 
-  <div id="booking-header"></div>
+    <div id="memberCenterMount" data-component-mount="member-center"></div>
 
-  <div id="memberCenterMount" data-component-mount="member-center"></div>
+    <div id="bookingFooter"></div>
 
-  <div id="booking-footer"></div>
+    <script src="../js/layout.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+      window.MemberCenterConfig = {
+        dataBasePath: '../../data',
+        authStorageKey: 'yuruiUser',
+        fallbackAuthStorageKey: 'currentUser',
+        homeHref: './camp-search.html',
+      };
 
-  <script src="../js/layout.js"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script>
-    window.MemberCenterConfig = {
-      dataBasePath: '../../data',
-      authStorageKey: 'yuruiUser',
-      fallbackAuthStorageKey: 'currentUser',
-      homeHref: './camp-search.html'
-    };
+      function loadHtml(targetSelector, path, callback) {
+        const target = document.querySelector(targetSelector);
+        if (!target) return;
 
-    function loadHtml(targetSelector, path, callback) {
-      const target = document.querySelector(targetSelector);
-      if (!target) return;
-
-      if (window.jQuery) {
-        window.jQuery(target).load(path, function (_response, status) {
-          callback && callback(status !== 'error');
-        });
-        return;
-      }
-
-      fetch(path, { cache: 'no-store' })
-        .then(function (response) {
-          if (!response.ok) throw new Error('HTTP ' + response.status);
-          return response.text();
-        })
-        .then(function (html) {
-          target.innerHTML = html;
-          callback && callback(true);
-        })
-        .catch(function (error) {
-          console.error('booking partial 載入失敗', path, error);
-          callback && callback(false);
-        });
-    }
-
-    function initBookingMemberCenterPage() {
-      window.loadBookingSharedLayout && window.loadBookingSharedLayout();
-      loadHtml('#memberCenterMount', '../../components/member-center.partial', function (ok) {
-        if (!ok) {
-          document.getElementById('memberCenterMount').innerHTML = '<div class="memberLoginGuard isOpen" role="status" aria-live="polite"><div class="memberLoginGuardCard"><h2 class="memberLoginGuardTitle">會員中心載入失敗</h2><p class="memberLoginGuardText">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
+        if (window.jQuery) {
+          window.jQuery(target).load(path, function (_response, status) {
+            callback && callback(status !== 'error');
+          });
           return;
         }
-        window.initMemberCenterComponent && window.initMemberCenterComponent();
-      });
-    }
 
-    document.addEventListener('DOMContentLoaded', initBookingMemberCenterPage);
-  </script>
-  <script src="../js/booking-utils.js"></script>
-  <script src="../../js/components/member-center.js"></script>
+        fetch(path, { cache: 'no-store' })
+          .then(function (response) {
+            if (!response.ok) throw new Error('HTTP ' + response.status);
+            return response.text();
+          })
+          .then(function (html) {
+            target.innerHTML = html;
+            callback && callback(true);
+          })
+          .catch(function (error) {
+            console.error('booking partial 載入失敗', path, error);
+            callback && callback(false);
+          });
+      }
 
-</body>
+      function initBookingMemberCenterPage() {
+        window.loadBookingSharedLayout && window.loadBookingSharedLayout();
+        loadHtml('#memberCenterMount', '../../components/member-center.partial', function (ok) {
+          if (!ok) {
+            document.getElementById('memberCenterMount').innerHTML =
+              '<div class="memberLoginGuard isOpen" role="status" aria-live="polite"><div class="memberLoginGuardCard"><h2 class="memberLoginGuardTitle">會員中心載入失敗</h2><p class="memberLoginGuardText">請確認目前頁面透過本機伺服器開啟。</p></div></div>';
+            return;
+          }
+          window.initMemberCenterComponent && window.initMemberCenterComponent();
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', initBookingMemberCenterPage);
+    </script>
+    <script src="../js/booking-utils.js"></script>
+    <script src="../../js/components/member-center.js"></script>
+  </body>
 </html>

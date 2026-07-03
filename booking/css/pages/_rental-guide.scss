@@ -3,28 +3,28 @@
        ====================================================== */
 
 /* 整體頁面背景 */
-.rental-guide-page {
+.rentalGuidePage {
   background: var(--yc-bg, #f8f5ee);
   min-height: 100vh;
   padding-bottom: 4rem;
 }
 
 /* ── Hero Banner ── */
-.rg-hero {
+.rgHero {
   background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
   color: #fff;
   padding: 5rem 1.5rem 4rem;
   text-align: center;
 }
 
-.rg-hero__title {
+.rgHeroTitle {
   font-size: 2.5rem;
   font-weight: 800;
   margin-bottom: 1rem;
   line-height: 1.25;
 }
 
-.rg-hero__subtitle {
+.rgHeroSubtitle {
   font-size: 1.15rem;
   color: rgb(255 253 249 / 85%);
   max-width: 520px;
@@ -32,7 +32,7 @@
   line-height: 1.7;
 }
 
-.rg-hero__cta {
+.rgHeroCta {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -49,20 +49,20 @@
     box-shadow 0.2s;
 }
 
-.rg-hero__cta:hover {
+.rgHeroCta:hover {
   background: var(--yc-cta-hover, #d4c27e);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgb(0 0 0 / 20%);
 }
 
 /* ── 通用 Section ── */
-.rg-section {
+.rgSection {
   max-width: 1100px;
   margin: 4rem auto 0;
   padding: 0 1.5rem;
 }
 
-.rg-section__title {
+.rgSectionTitle {
   font-size: 1.6rem;
   font-weight: 700;
   color: var(--yc-text, #3e473d);
@@ -70,7 +70,7 @@
   margin-bottom: 0.5rem;
 }
 
-.rg-section__desc {
+.rgSectionDesc {
   text-align: center;
   color: var(--yc-text-muted, #7b756d);
   font-size: 0.95rem;
@@ -78,13 +78,13 @@
 }
 
 /* ── 流程步驟 ── */
-.rg-steps {
+.rgSteps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
 }
 
-.rg-step-card {
+.rgStepCard {
   background: var(--yc-surface, #fffdf9);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgb(60 70 59 / 10%);
@@ -94,7 +94,7 @@
 }
 
 /* 步驟數字圓圈 */
-.rg-step-card__num {
+.rgStepCardNum {
   width: 48px;
   height: 48px;
   border-radius: 50%;
@@ -108,26 +108,26 @@
   margin-bottom: 1rem;
 }
 
-.rg-step-card__icon {
+.rgStepCardIcon {
   font-size: 2rem;
   margin-bottom: 0.75rem;
 }
 
-.rg-step-card__title {
+.rgStepCardTitle {
   font-size: 1rem;
   font-weight: 700;
   color: var(--yc-text, #3e473d);
   margin-bottom: 0.5rem;
 }
 
-.rg-step-card__desc {
+.rgStepCardDesc {
   font-size: 0.875rem;
   color: var(--yc-text-muted, #7b756d);
   line-height: 1.6;
 }
 
 /* 步驟之間的箭頭（偽元素） */
-.rg-step-card:not(:last-child)::after {
+.rgStepCard:not(:last-child)::after {
   content: '→';
   position: absolute;
   right: -1rem;
@@ -139,13 +139,13 @@
 }
 
 /* ── 裝備分類展示 ── */
-.rg-equip-grid {
+.rgEquipGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1.25rem;
 }
 
-.rg-equip-card {
+.rgEquipCard {
   background: var(--yc-surface, #fffdf9);
   border-radius: 12px;
   box-shadow: 0 2px 12px rgb(60 70 59 / 10%);
@@ -156,31 +156,31 @@
     box-shadow 0.2s;
 }
 
-.rg-equip-card:hover {
+.rgEquipCard:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 24px rgb(60 70 59 / 18%);
 }
 
-.rg-equip-card__icon {
+.rgEquipCardIcon {
   font-size: 2.5rem;
   margin-bottom: 0.75rem;
 }
 
-.rg-equip-card__name {
+.rgEquipCardName {
   font-size: 1rem;
   font-weight: 700;
   color: var(--yc-text, #3e473d);
   margin-bottom: 0.4rem;
 }
 
-.rg-equip-card__desc {
+.rgEquipCardDesc {
   font-size: 0.8rem;
   color: var(--yc-text-muted, #7b756d);
   line-height: 1.5;
 }
 
 /* ── 押金說明區塊（警示強調） ── */
-.rg-deposit-box {
+.rgDepositBox {
   background: var(--yc-warning-soft, #f4ece2);
   border: 2px solid var(--yc-warning, #9a7455);
   border-radius: 12px;
@@ -189,7 +189,7 @@
   margin: 0 auto;
 }
 
-.rg-deposit-box__title {
+.rgDepositBoxTitle {
   font-size: 1.15rem;
   font-weight: 700;
   color: var(--yc-warning-text, #6b4d32);
@@ -199,19 +199,19 @@
   gap: 0.5rem;
 }
 
-.rg-deposit-box ul {
+.rgDepositBox ul {
   margin: 0;
   padding-left: 1.25rem;
 }
 
-.rg-deposit-box li {
+.rgDepositBox li {
   color: var(--yc-text-secondary, #625e56);
   font-size: 0.925rem;
   line-height: 1.8;
   margin-bottom: 0.25rem;
 }
 
-.rg-deposit-box__link {
+.rgDepositBoxLink {
   display: inline-block;
   margin-top: 1rem;
   color: var(--yc-sage-action, #73816e);
@@ -219,26 +219,26 @@
   text-decoration: underline;
 }
 
-.rg-deposit-box__link:hover {
+.rgDepositBoxLink:hover {
   color: var(--yc-sage-dark, #62705d);
 }
 
 /* ── 底部 CTA ── */
-.rg-cta-section {
+.rgCtaSection {
   background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
   padding: 4rem 1.5rem;
   text-align: center;
   margin-top: 4rem;
 }
 
-.rg-cta-section h2 {
+.rgCtaSection h2 {
   font-size: 1.75rem;
   font-weight: 800;
   color: #fff;
   margin-bottom: 0.75rem;
 }
 
-.rg-cta-section p {
+.rgCtaSection p {
   color: rgb(255 253 249 / 85%);
   font-size: 0.95rem;
   margin-bottom: 1.75rem;
@@ -246,30 +246,30 @@
 
 /* ── RWD ── */
 @media (width <= 768px) {
-  .rg-hero__title {
+  .rgHeroTitle {
     font-size: 1.75rem;
   }
 
-  .rg-steps {
+  .rgSteps {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .rg-equip-grid {
+  .rgEquipGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 
   /* 手機版隱藏步驟箭頭 */
-  .rg-step-card::after {
+  .rgStepCard::after {
     display: none;
   }
 }
 
 @media (width <= 480px) {
-  .rg-steps {
+  .rgSteps {
     grid-template-columns: 1fr;
   }
 
-  .rg-equip-grid {
+  .rgEquipGrid {
     grid-template-columns: repeat(2, 1fr);
   }
 }

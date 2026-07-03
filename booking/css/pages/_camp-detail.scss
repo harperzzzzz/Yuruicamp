@@ -15,35 +15,35 @@
 
 .breadcrumb span:first-of-type {
   margin: 0 0.4rem;
-  color: var(--yc-text-muted, #7B756D);
+  color: var(--yc-text-muted, #7b756d);
 }
 
-.camp-description__title {
+.campDescriptionTitle {
   margin-bottom: 0.75rem;
   color: var(--bk-primary);
 }
 
-.camp-description__tags {
+.campDescriptionTags {
   margin-top: 0.75rem;
 }
 
-.date-summary > div {
+.dateSummary > div {
   display: flex;
   justify-content: space-between;
 }
 
-.date-summary > div:first-child {
+.dateSummary > div:first-child {
   align-items: center;
   margin-bottom: 0.3rem;
 }
 
 #zoneList > p {
-  color: var(--yc-text-muted, #7B756D);
+  color: var(--yc-text-muted, #7b756d);
   font-size: 0.875rem;
   padding: 1rem 0;
   text-align: center;
 }
 
-.zone-table-section > div {
+.zoneTableSection > div {
   overflow-x: auto;
 }

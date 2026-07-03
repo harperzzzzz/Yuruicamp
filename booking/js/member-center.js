@@ -10,9 +10,13 @@
     return;
   }
 
-  var currentScript = document.currentScript || document.querySelector('script[src$="booking/js/member-center.js"]');
+  var currentScript =
+    document.currentScript || document.querySelector('script[src$="booking/js/member-center.js"]');
   var script = document.createElement('script');
-  script.src = new URL('../../js/components/member-center.js', currentScript && currentScript.src ? currentScript.src : window.location.href).toString();
+  script.src = new URL(
+    '../../js/components/member-center.js',
+    currentScript && currentScript.src ? currentScript.src : window.location.href
+  ).toString();
   script.onload = function () {
     window.initMemberCenterComponent && window.initMemberCenterComponent();
   };

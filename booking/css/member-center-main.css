@@ -1,6 +1,3537 @@
-@layer settings, generic, elements, objects, components, pages, utilities;
-@import './base.css' layer(generic);
-@import './layout.css' layer(objects);
-@import './booking.css' layer(components);
-@import './yuruicamp-tags-status.css' layer(components);
-@import './member-center.css' layer(pages);
+@charset "UTF-8";
+/* --------------------------------------------------------------
+>>> BOOKING MEMBER CENTER ITCSS TABLE OF CONTENTS
+----------------------------------------------------------------
+# Settings：booking 與會員中心共用設計 token
+# Generic：reset 與低權重動態基底
+# Elements：HTML 元素基礎樣式
+# Objects：共用版面與 grid 結構
+# Components：會員中心需要的 booking 共用元件
+# Pages：會員中心頁面範圍樣式
+# Utilities：最高權重工具類
+-------------------------------------------------------------- */
+@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
+/* Settings：booking 子系統設計 token，供 generic、elements、objects、components、pages 共用。 */
+:root {
+  /* Base / Cream */
+  --yc-bg: #f8f5ee;
+  --yc-surface: #fffdf9;
+  --yc-surface-soft: #f0ece3;
+  --yc-border: #d8cfc3;
+  /* Sage Brand */
+  --yc-sage-soft: #eef2ec;
+  --yc-sage-light: #b7c3b3;
+  --yc-sage-action: #73816e;
+  --yc-sage-dark: #62705d;
+  /* Conversion CTA */
+  --yc-cta: #e2d39a;
+  --yc-cta-hover: #d4c27e;
+  --yc-cta-soft: #fbf3d1;
+  --yc-cta-line: #d9c98f;
+  --yc-on-cta: #4a4537;
+  /* Text */
+  --yc-text: #3e473d;
+  --yc-text-secondary: #625e56;
+  --yc-text-muted: #7b756d;
+  /* Status */
+  --yc-success: #73816e;
+  --yc-success-soft: #eef2ec;
+  --yc-warning: #9a7455;
+  --yc-warning-soft: #f4ece2;
+  --yc-warning-text: #6b4d32;
+  --yc-error: #a65f58;
+  --yc-error-soft: #f4e7e4;
+  /* Header / Footer */
+  --yc-header-bg: #73816e;
+  --yc-footer-bg: #71806d;
+  --yc-footer-bottom: #62705d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
+  /* Shadow */
+  --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
+  --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
+  --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
+  /* Radius */
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-pill: 999px;
+  /* Typography */
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  /* Motion */
+  --yc-duration-fast: 180ms;
+  --yc-duration-normal: 220ms;
+  --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* bk-* 相容 token：保留既有 booking CSS API。 */
+  --bk-primary: var(--yc-sage-action);
+  --bk-primary-hover: var(--yc-sage-action);
+  --bk-primary-light: var(--yc-sage-soft);
+  --bk-on-dark: var(--yc-on-dark);
+  --bk-cta: var(--yc-cta);
+  --bk-cta-hover: var(--yc-cta-hover);
+  --bk-white: var(--yc-surface);
+  --bk-bg: var(--yc-bg);
+  --bk-card-bg: var(--yc-surface);
+  --bk-border: var(--yc-border);
+  --bk-border-strong: var(--yc-sage-action);
+  --bk-text: var(--yc-text);
+  --bk-text-muted: var(--yc-text-muted);
+  --bk-accent: var(--yc-sage-action);
+  --bk-gold: var(--yc-on-cta);
+  --bk-sage: var(--yc-sage-light);
+  --bk-orange: var(--yc-warning);
+  --bk-success: var(--yc-success);
+  --bk-danger: var(--yc-error);
+  --bk-shadow: var(--yc-shadow-soft);
+  --bk-shadow-hover: var(--yc-shadow-hover);
+  --bk-radius: var(--yc-radius-card);
+  --bk-radius-sm: var(--yc-radius-control);
+  --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+  /* 舊版 color-* alias：支援 base/layout 與既有 booking 元件。 */
+  --color-text: var(--yc-text, #3e473d);
+  --color-muted: var(--yc-text-muted, #7b756d);
+  --color-light-muted: var(--yc-text-muted, #7b756d);
+  --color-primary: var(--yc-sage-action, #73816e);
+  --color-primary-dark: var(--yc-sage-dark, #62705d);
+  --color-bg: var(--yc-bg, #f8f5ee);
+  --color-bg-soft: var(--yc-surface-soft, #f0ece3);
+  --color-cta: var(--yc-cta, #e2d39a);
+  --color-black: #000;
+  --font-main: var(--yc-font-heading, 'Noto Serif TC', serif);
+  --header-height: 70px;
+  --container-wide: min(1180px, 90%);
+  --transition-slow: 1.7s ease;
+  --transition-normal: 0.45s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.sectionSubtitle {
+  color: var(--yc-sage-action, var(--color-primary));
+  letter-spacing: 4px;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(70px);
+  transition:
+    opacity 1.4s ease,
+    transform 1.4s ease;
+}
+
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.zoomBox {
+  overflow: hidden;
+}
+
+.zoomBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  transition: transform var(--transition-slow);
+}
+
+.reveal.show .zoomBox img,
+.zoomBox.show img {
+  transform: scale(1);
+}
+
+.zoomBox:hover img {
+  transform: scale(1.09);
+}
+
+.scrollDown {
+  position: absolute;
+  z-index: 3;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 54px;
+  background-color: rgba(255, 255, 255, 0.42);
+  margin: 12px auto 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollLine::after {
+  content: '';
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 1px;
+  height: 24px;
+  background-color: #fff;
+  animation: scroll-line-move 1.8s infinite;
+}
+
+@keyframes scroll-line-move {
+  0% {
+    top: -24px;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    top: 54px;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Elements：booking 子系統 HTML 元素基礎樣式，避免混在 reset 或頁面檔。 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--yc-font-body, var(--font-main));
+  line-height: 1.8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--yc-font-heading, 'Noto Serif TC', serif);
+}
+
+body.menuOpen {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--yc-sage-action);
+  outline-offset: 3px;
+}
+
+ul {
+  list-style: none;
+}
+
+img,
+video {
+  display: block;
+  width: 100%;
+}
+
+main {
+  min-height: 60vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+/* =========================
+   Floating Actions
+   Line icon button + Back to top
+========================= */
+.floatingActions {
+  position: fixed;
+  right: 28px;
+  bottom: 34px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+/* 綠色 Line 按鈕：預設只顯示 icon */
+.floatingLineBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-radius: 999px;
+  background-color: #5f9407;
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  transition:
+    width 0.35s ease,
+    padding 0.35s ease,
+    background-color 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.floatingLineBtn:hover,
+.floatingLineBtn:focus-visible {
+  width: 230px;
+  padding-left: 18px;
+  padding-right: 10px;
+  justify-content: flex-start;
+  background-color: #578804;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.floatingLineLabel {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-right: 0;
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 1;
+  transition:
+    max-width 0.35s ease,
+    opacity 0.25s ease,
+    margin-right 0.35s ease;
+}
+
+.floatingLineBtn:hover .floatingLineLabel,
+.floatingLineBtn:focus-visible .floatingLineLabel {
+  max-width: 150px;
+  opacity: 1;
+  margin-right: 10px;
+}
+
+.floatingLineIcon {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floatingLineIcon i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+/* 回到頂部按鈕 */
+.floatingTopBtn {
+  width: 60px;
+  height: 60px;
+  border: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--yc-sage-action, #73816e);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.92);
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease,
+    transform 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.floatingTopBtn.isVisible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.floatingTopBtn:hover,
+.floatingTopBtn:focus-visible {
+  background-color: var(--yc-sage-dark, #62705d);
+  transform: translateY(-2px) scale(1);
+}
+
+.floatingTopBtn i {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.bkFooterPaymentIcons i {
+  font-size: 1.5rem;
+  color: rgba(255, 253, 249, 0.52);
+  margin-right: 12px;
+  transition: color 0.2s;
+}
+
+.bkFooterPaymentIcons i:hover {
+  color: rgba(255, 253, 249, 0.85);
+}
+
+/* ========================================
+   首頁 - Hero Banner
+   ======================================== */
+.heroBanner {
+  position: relative;
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3c4a3a 0%, #62705d 42%, #73816e 70%, #8f9d8b 100%);
+}
+
+/* 背景影片：inset:0 = top/right/bottom/left 全部設為 0，讓影片撐滿整個 section */
+.heroBanner video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 等比例縮放填滿，不變形 */
+  z-index: 0;
+}
+
+/* 半透明遮罩，讓文字更易讀 */
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 40, 30, 0.32);
+  z-index: 1;
+}
+
+/* Hero 文字內容 */
+.heroContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 2rem 1.25rem;
+  max-width: 700px;
+}
+
+.heroTagline {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 1rem;
+}
+
+.heroTitle {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.heroCtaGroup {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnHeroPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  border: 2px solid var(--yc-cta, #e2d39a);
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 250ms ease;
+}
+
+.btnHeroPrimary:hover {
+  background-color: var(--yc-cta-hover, #d4c27e);
+  border-color: var(--yc-cta-hover, #d4c27e);
+  color: var(--yc-on-cta, #4a4537);
+  text-decoration: none;
+}
+
+.btnHeroOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 250ms ease;
+}
+
+.btnHeroOutline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Hero 底部滾動提示 */
+.heroScrollHint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  animation: bounce-down 2s infinite;
+}
+
+@keyframes bounce-down {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+@media (width <= 768px) {
+  .heroBanner {
+    min-height: 75vh;
+  }
+  .heroTitle {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+  .heroSubtitle {
+    font-size: 0.95rem;
+  }
+  .btnHeroPrimary,
+  .btnHeroOutline {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+.logo {
+  height: 64px; /* 請依照你 Header 的高度調整數字（例如 40px ~ 60px） */
+  width: auto; /* 讓寬度隨著高度自動等比例縮放 */
+  display: block; /* 消除圖片下方預設的微小空白間隙 */
+  object-fit: contain;
+}
+
+.brand {
+  display: flex; /* 讓裡面的元素變成橫向排版 */
+  align-items: center; /* 關鍵！讓裡面的 Logo 和文字「垂直置中」對齊 */
+  gap: 12px; /* (選用) 用來調整 Logo 和文字之間的左右間距 */
+  text-decoration: none; /* 如果是用 <a> 標籤，這行可以去掉底線 */
+}
+
+/* Booking Page Shell：booking 相關頁面的頁面外殼與基本盒模型。 */
+.bookingPage *,
+.searchPage *,
+.detailPage *,
+.rentalPage *,
+.bookingCartPage * {
+  box-sizing: border-box;
+}
+
+.searchPage,
+.detailPage,
+.rentalPage,
+.bookingCartPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--bk-bg);
+}
+
+/* Booking Layout：搜尋、詳情、租借與購物車頁面的主內容 grid。 */
+.searchLayout,
+.detailLayout,
+.rentalLayout,
+.bookingCartLayout {
+  max-width: 1200px;
+  display: grid;
+  align-items: start;
+  gap: 1.5rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.searchLayout {
+  grid-template-columns: 260px 1fr;
+}
+
+.detailLayout {
+  grid-template-columns: 1fr 360px;
+}
+
+.rentalLayout {
+  grid-template-columns: 1fr 300px;
+}
+
+.bookingCartLayout {
+  grid-template-columns: 1fr 340px;
+}
+
+@media (width <= 768px) {
+  .searchLayout,
+  .detailLayout,
+  .rentalLayout,
+  .bookingCartLayout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  .detailLayout {
+    grid-template-columns: 1fr 300px;
+  }
+  .searchLayout {
+    grid-template-columns: 220px 1fr;
+  }
+}
+/* Booking Header：共用 booking header 品牌、導覽動作與按鈕。 */
+.bookingHeaderShell,
+.bookingHeader {
+  background: var(--yc-bg);
+}
+
+.bookingNavbar {
+  min-height: 72px;
+  background: var(--yc-header-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingNavbarInner,
+.bookingFooterInner {
+  width: min(1120px, 100vw - 32px);
+  margin: 0 auto;
+}
+
+.bookingNavbarInner {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingBrandLink,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bookingBrandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.bookingBrandImage {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.bookingBrandSub {
+  color: var(--yc-on-dark-muted);
+  font-size: 0.875rem;
+}
+
+.bookingHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose,
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose {
+  min-width: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--yc-on-dark);
+}
+
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink {
+  border: 1px solid transparent;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  padding: 0 1rem;
+}
+
+.bookingCartButton {
+  position: relative;
+}
+
+.bookingCartBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--yc-error);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (width <= 768px) {
+  .bookingNavbarInner,
+  .bookingFooterInner {
+    width: min(100% - 24px, 1120px);
+  }
+  .bookingBrandSub,
+  .bookingSwitchLink {
+    display: none;
+  }
+}
+/* 舊版 Booking Header：保留現有 bk* class API 的主導覽列。 */
+.bookingHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--yc-header-bg);
+  box-shadow: 0 2px 10px rgba(60, 70, 59, 0.22);
+}
+
+/* 舊版 Header 版心：控制左側選單、置中品牌與右側動作區。 */
+.bkNavbarInner {
+  position: relative;
+  max-width: 1200px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 舊版品牌區：讓 logo 與品牌文字在桌機維持置中。 */
+.bkNavbarBrand {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  flex-shrink: 0;
+  transform: translateX(-50%);
+}
+
+.bkNavbarBrand .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #fdf1db;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bkNavbarBrand .logo {
+  width: 28px;
+  height: 28px;
+}
+
+.bkBrandLink {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  color: var(--yc-on-dark);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkBrandLink:hover {
+  color: #fff;
+}
+
+.brandSub {
+  color: rgba(255, 253, 249, 0.6);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* 舊版桌機導覽：保留 active 與 hover 狀態。 */
+.bkNavbarMenu {
+  flex: 1;
+  display: none;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkNavLink {
+  display: block;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  color: rgba(255, 253, 249, 0.82);
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.bkNavLink:hover {
+  background: rgba(255, 253, 249, 0.12);
+  color: var(--yc-on-dark);
+}
+
+.bkNavLink.active {
+  border-bottom: 2px solid rgba(255, 253, 249, 0.75);
+  border-radius: 0;
+  color: var(--yc-on-dark);
+  font-weight: 600;
+}
+
+/* 舊版 Header 動作區：切換、購物車、登入與會員選單。 */
+.bkNavbarActions {
+  z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.bkSwitchBtn {
+  padding: 0.45rem 1rem;
+  border-color: rgba(255, 253, 249, 0.42);
+  background: rgba(255, 253, 249, 0.1);
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.bkSwitchBtn:hover {
+  border-color: rgba(255, 253, 249, 0.75);
+  background: rgba(255, 253, 249, 0.2);
+  color: #fff;
+}
+
+.bkCartBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-size: 1.35rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.bkCartBtn:hover {
+  background: rgba(255, 253, 249, 0.14);
+}
+
+.bkBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bkBadgeInline {
+  position: static;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.bkLoginBtn {
+  padding: 0.4rem 0.9rem;
+  border-color: rgba(255, 253, 249, 0.5);
+  background: transparent;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bkLoginBtn:hover {
+  border-color: rgba(255, 253, 249, 0.85);
+  background: rgba(255, 253, 249, 0.14);
+  color: #fff;
+}
+
+/* 舊版會員下拉選單：保留登入後的 avatar、名稱與危險操作狀態。 */
+.bkUserMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bkUserAvatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.2);
+  color: var(--yc-on-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.bkUserName {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bkUserDropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.bkUserChevron {
+  font-size: 0.75rem;
+  opacity: 0.72;
+  transition: transform 0.2s;
+}
+
+.bkUserDropdownToggle[aria-expanded='true'] .bkUserChevron {
+  transform: rotate(180deg);
+}
+
+.bkUserDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  min-width: 148px;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  background: var(--yc-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition:
+    opacity 0.18s,
+    transform 0.18s,
+    visibility 0.18s;
+}
+
+.bkUserDropdown.isOpen {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.bkUserDropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.1rem;
+  border: none;
+  background: none;
+  color: var(--yc-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bkUserDropdownItem:hover {
+  background: var(--yc-surface-soft);
+}
+
+.bkUserDropdownItemDanger {
+  color: var(--yc-error);
+}
+
+.bkUserDropdownItemDanger:hover {
+  background: var(--yc-error-soft);
+}
+
+/* 舊版手機控制：漢堡選單與 RWD 顯示工具。 */
+.bkHamburger {
+  z-index: 2;
+  flex-shrink: 0;
+  display: inline-flex;
+  margin-right: auto;
+  padding: 0.3rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.bkHamburger:hover {
+  background: rgba(255, 253, 249, 0.14);
+}
+
+.bkHiddenMobile {
+  display: flex;
+}
+
+.bkHiddenDesktop {
+  display: none;
+}
+
+/* Header 登入狀態：支援新版 navbarLoginBtn 與會員下拉 class。 */
+.bookingHeader .navbarLoginBtn {
+  padding: 0.4rem 0.9rem;
+  border-color: rgba(255, 253, 249, 0.5);
+  background: transparent;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bookingHeader .navbarLoginBtn:hover {
+  border-color: rgba(255, 253, 249, 0.85);
+  background: rgba(255, 253, 249, 0.14);
+  color: #fff;
+}
+
+.bookingHeader .navbarUserMenu {
+  position: relative;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bookingHeader .userInfo {
+  color: var(--yc-on-dark);
+}
+
+.bookingHeader .userAvatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.2);
+  color: var(--yc-on-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.bookingHeader .userName {
+  max-width: 80px;
+  overflow: hidden;
+  color: var(--yc-on-dark);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookingHeader .navbarUserDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 2100;
+  min-width: 168px;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: var(--yc-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.bookingHeader .navbarUserDropdown .dropdownItem,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: none;
+  color: var(--yc-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bookingHeader .navbarUserDropdown .dropdownItem:hover,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn:hover {
+  background: var(--yc-surface-soft);
+}
+
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  color: var(--yc-error);
+}
+
+@media (width <= 900px) {
+  .bkSwitchBtnText {
+    display: none;
+  }
+  .bkSwitchBtn::after {
+    content: '租借';
+  }
+}
+@media (width <= 768px) {
+  .bkHiddenMobile {
+    display: none;
+  }
+  .bkHiddenDesktop {
+    display: block;
+  }
+  .bkNavbarInner {
+    gap: 1rem;
+  }
+  .bkSwitchBtn {
+    display: none;
+  }
+}
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Booking Auth Modal：booking header 注入的登入與個人化偏好 Modal。 */
+#bookingHeader #loginModal.modal,
+#bookingHeader #personalizationModal.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+#bookingHeader #loginModal.modal.isOpen,
+#bookingHeader #personalizationModal.modal.isOpen,
+#bookingHeader #surveyCloseConfirmModal.modal.isOpen {
+  display: flex;
+}
+
+#bookingHeader .modalContent {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+#bookingHeader #loginModal .modalContent {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#bookingHeader #loginModal.isOpen .modalContent {
+  transform: translateX(0);
+}
+
+#bookingHeader .modalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+#bookingHeader .modalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .modalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#bookingHeader .modalClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+#bookingHeader .btnGoogleLogin,
+#bookingHeader .btnFacebookLogin,
+#bookingHeader .btnLineLogin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+#bookingHeader .btnGoogleLogin:hover,
+#bookingHeader .btnFacebookLogin:hover,
+#bookingHeader .btnLineLogin:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+#bookingHeader .btnGoogleLogin {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+#bookingHeader .btnFacebookLogin {
+  background: #1877f2;
+  color: #fff;
+}
+
+#bookingHeader .btnLineLogin {
+  background: #00b900;
+  color: #fff;
+}
+
+#bookingHeader .oauthDesc,
+#bookingHeader .oauthPrivacy {
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+#bookingHeader .oauthDesc {
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+#bookingHeader .oauthPrivacy {
+  margin-top: 1.25rem;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+#bookingHeader .oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+#bookingHeader .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+#bookingHeader .stepperDot.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+#bookingHeader .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+#bookingHeader .surveyStep {
+  display: none;
+}
+
+#bookingHeader .surveyStep.isOpen {
+  display: block;
+}
+
+#bookingHeader .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+#bookingHeader .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+#bookingHeader .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .surveyTag.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader #surveyNextBtn,
+#bookingHeader #surveyFinishBtn {
+  width: 100%;
+}
+
+/* Legacy OAuth：支援舊 booking 登入按鈕與隱私文字 selector。 */
+.oauthDesc,
+.oauthDesc {
+  margin-bottom: 1.5rem;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.oauthBtn:last-of-type {
+  margin-bottom: 0;
+}
+
+.oauthBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.oauthBtn:active {
+  transform: translateY(0);
+}
+
+.oauthBtnGoogle {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+.oauthBtnLine {
+  background: #00b900;
+  color: #fff;
+}
+
+.oauthBtnFacebook {
+  background: #1877f2;
+  color: #fff;
+}
+
+.oauthPrivacy {
+  margin-top: 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+/* Legacy Personalization Modal：支援舊 booking 偏好設定 modal。 */
+.bkPersonalizationModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bkPersonalizationModal.isOpen {
+  display: flex;
+}
+
+.bkPersonalizationModalBox {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+.bkPersonalizationModalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.bkPersonalizationModalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bkPersonalizationModalClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.bkPersonalizationModal .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+.bkPersonalizationModal .stepperDot.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+.bkPersonalizationModal .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+.bkPersonalizationModal .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+.bkPersonalizationModal .surveyStep {
+  display: none;
+}
+
+.bkPersonalizationModal .surveyStep.active {
+  display: block;
+}
+
+.bkPersonalizationModal .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModal .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bkPersonalizationModal .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.bkPersonalizationModal .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModal .surveyTag.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+/* Booking Drawer：共用左側導覽抽屜與右側購物面板外殼。 */
+.bookingOffcanvas,
+.bookingSlidePanel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 3000;
+  width: min(420px, 100vw);
+  background: var(--yc-surface);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  transition: transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvas {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.bookingSlidePanel {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.bookingOffcanvas.isOpen,
+.bookingSlidePanel.isOpen {
+  transform: translateX(0);
+}
+
+.bookingOffcanvasBackdrop,
+.bookingPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2990;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvasBackdrop.isVisible,
+.bookingPanelBackdrop.isVisible {
+  opacity: 1;
+}
+
+.bookingOffcanvasHeader,
+.bookingSlidePanelHeader {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle,
+.bookingCartPanelLabel {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.bookingOffcanvasLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookingOffcanvasLinks a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: var(--yc-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
+}
+
+.bookingSlidePanelBody,
+.bookingOffcanvasBody {
+  padding: 1rem;
+}
+
+/* Booking Cart Panel：右側預約背包內容列與總計。 */
+.bookingCartPanelSection {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingCartPanelMeta {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.bookingCartPanelTotal {
+  margin: 1rem 0;
+  color: var(--yc-sage-action);
+  font-weight: 800;
+}
+
+/* 舊版 Offcanvas：左側手機導覽抽屜。 */
+.bkOffcanvas {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  z-index: 2000;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--yc-bg);
+  box-shadow: -4px 0 20px rgba(60, 70, 59, 0.18);
+  transition: left 0.3s ease;
+}
+
+.bkOffcanvas.isOpen {
+  left: 0;
+}
+
+.bkOffcanvasHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bkOffcanvasTitle {
+  color: var(--yc-sage-action);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bkOffcanvasClose {
+  padding: 0.2rem;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--yc-sage-action);
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.2s;
+}
+
+.bkOffcanvasClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+}
+
+.bkOffcanvasBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.bkOffcanvasList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkOffcanvasList li a {
+  display: block;
+  padding: 0.85rem 1.5rem;
+  color: var(--yc-text);
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bkOffcanvasList li a:hover {
+  background: rgba(115, 129, 110, 0.08);
+  color: var(--yc-sage-action);
+}
+
+.bkOffcanvasDivider {
+  height: 1px;
+  margin: 0.5rem 1.5rem;
+  background: var(--yc-border);
+}
+
+.bkOffcanvasSwitch {
+  color: var(--yc-sage-action);
+  font-weight: 600;
+}
+
+.bkOffcanvasCart,
+.bkOffcanvasCart {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bkOffcanvasBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  display: none;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.bkOffcanvasBackdrop.isVisible {
+  display: block;
+}
+
+/* 舊版 Slide Panel：右側登入與購物面板外殼。 */
+.bkSlidePanel {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  z-index: 3000;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--yc-surface);
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
+  transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bkSlidePanel.isOpen {
+  right: 0;
+}
+
+.bkSlidePanelHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.bkSlidePanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkSlidePanelClose {
+  flex-shrink: 0;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--bk-text-muted);
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.bkSlidePanelClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+.bkSlidePanelBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.bkSlidePanelFooter {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+.bkPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2999;
+  display: none;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.bkPanelBackdrop.isVisible {
+  display: block;
+}
+
+/* 舊版購物面板：空狀態、費用列與清空按鈕。 */
+.cartPanelEmpty {
+  padding: 3rem 0;
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+.cartPanelEmpty i {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--bk-border);
+  font-size: 3rem;
+}
+
+.cartPanelEmpty p {
+  margin-bottom: 0.5rem;
+}
+
+.cartPanelEmptyLink {
+  margin-top: 0.75rem;
+}
+
+.cartPanelSection {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.cartPanelLabel {
+  margin-bottom: 0.6rem;
+  color: var(--bk-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cartPanelRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+  color: var(--bk-text);
+  font-size: 0.9rem;
+}
+
+.cartPanelRow span:last-child {
+  flex-shrink: 0;
+  color: var(--bk-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cartPanelMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  color: var(--bk-text-muted);
+  font-size: 0.8rem;
+}
+
+.cartPanelTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  padding: 0.75rem 0 0.5rem;
+  border-top: 2px solid var(--bk-primary);
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cartPanelClear {
+  width: 100%;
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border: none;
+  background: none;
+  color: var(--bk-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.cartPanelClear:hover {
+  color: var(--bk-danger);
+}
+
+/* 舊版 Offcanvas 動作按鈕：購物車入口與登出。 */
+.bkOffcanvasCartBtn,
+.bkOffcanvasLogoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.bkOffcanvasCartBtn {
+  color: var(--yc-text);
+  font-size: 0.95rem;
+}
+
+.bkOffcanvasCartBtn:hover {
+  background: rgba(115, 129, 110, 0.08);
+  color: var(--yc-sage-action);
+}
+
+.bkOffcanvasLogoutBtn {
+  color: var(--yc-error);
+  font-size: 1rem;
+}
+
+.bkOffcanvasLogoutBtn:hover {
+  background: var(--yc-error-soft);
+}
+
+/* Booking Footer：共用 booking footer 版面、連結與社群按鈕。 */
+.bookingFooter {
+  background: var(--yc-footer-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterInner {
+  padding: 3rem 0 1.5rem;
+}
+
+.bookingFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.bookingFooterSection {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.bookingFooterHeading {
+  margin: 0;
+  color: var(--yc-on-dark);
+  font-size: 1.125rem;
+}
+
+.bookingFooterText,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: var(--yc-on-dark-muted);
+}
+
+.bookingFooterLinks,
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bookingFooterSocialLinks a {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterBottom {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--yc-on-dark-muted);
+}
+
+@media (width <= 1024px) {
+  .bookingFooterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bookingFooterBottom {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width <= 768px) {
+  .bookingFooterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* 舊版 Booking Footer：保留 bookingFooter 與 bk-footer__* class API。 */
+.bookingFooter {
+  margin-top: 4rem;
+  padding: 3rem 0 1.5rem;
+  background: var(--yc-footer-bg);
+  color: var(--yc-on-dark-muted);
+}
+
+.bkFooterInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 舊版 Footer 欄位：桌機四欄、手機逐步收斂。 */
+.bkFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.bkFooterHeading {
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bkFooterSubheading {
+  margin-bottom: 0.75rem;
+  color: var(--yc-sage-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.bkFooterTagline {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* 舊版 Footer 連結與重要連結狀態。 */
+.bkFooterLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkFooterLinks li {
+  margin-bottom: 0.5rem;
+}
+
+.bkFooterLinks a {
+  color: rgba(255, 253, 249, 0.72);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkFooterLinks a:hover {
+  color: var(--yc-on-dark);
+}
+
+.bkFooterLinks a.important {
+  color: var(--yc-on-dark);
+  font-weight: 600;
+}
+
+.bkFooterLinks a.important:hover {
+  color: #fff;
+}
+
+.bkFooterContactItem {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.bkFooterContactItem strong {
+  color: var(--yc-on-dark);
+}
+
+/* 舊版社群與站台 footer 補充樣式。 */
+.social {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.social a i {
+  padding: 20px;
+  color: var(--yc-on-dark);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.social a i:hover {
+  color: var(--yc-cta);
+}
+
+.siteFooter p {
+  margin-bottom: 10px;
+}
+
+/* 舊版 Footer 底部：版權、政策連結與付款方式。 */
+.bkFooterDivider {
+  margin: 0 0 1.5rem;
+  border: none;
+  border-top: 1px solid rgba(255, 253, 249, 0.15);
+}
+
+.bkFooterBottom {
+  text-align: center;
+}
+
+.bkFooterCopyright {
+  margin-bottom: 0.75rem;
+  color: rgba(255, 253, 249, 0.5);
+  font-size: 0.8rem;
+}
+
+.bkFooterPolicy {
+  margin-bottom: 1rem;
+}
+
+.bkFooterPolicy a {
+  margin: 0 0.75rem;
+  color: rgba(255, 253, 249, 0.52);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkFooterPolicy a:hover {
+  color: rgba(255, 253, 249, 0.85);
+}
+
+.bkFooterPayment {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.52);
+  font-size: 0.8rem;
+}
+
+.bkFooterPaymentIcons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+}
+
+@media (width <= 768px) {
+  .bkFooterGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+@media (width <= 480px) {
+  .bkFooterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Booking Toast：全域浮動通知容器。 */
+#bkToastContainer {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  width: calc(100% - 2.5rem);
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+/* Toast 基底：支援訊息文字、關閉按鈕與離場動畫。 */
+.bkToast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--bk-radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  pointer-events: all;
+  animation: bk-toast-in 0.28s ease;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+
+.bkToastHiding {
+  opacity: 0;
+  transform: translateX(110%);
+}
+
+/* Toast 語意狀態：依訊息類型套用既有 booking 色票。 */
+.bkToastInfo {
+  background: var(--bk-primary);
+}
+
+.bkToastWarning {
+  background: var(--bk-orange);
+}
+
+.bkToastError {
+  background: var(--bk-danger);
+}
+
+.bkToastSuccess {
+  background: var(--bk-success);
+}
+
+.bkToastText {
+  flex: 1;
+}
+
+.bkToastClose {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.bkToastClose:hover {
+  color: #fff;
+}
+
+/* 確認型 Toast：提供確認與取消操作按鈕。 */
+.bkToastConfirm {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bkToastActions {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.bkToastActionBtn {
+  flex: 1;
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.bkToastActionBtn:hover {
+  opacity: 0.85;
+}
+
+.bkToastActionBtnConfirm {
+  background: #fff;
+  color: var(--bk-orange, #c0762b);
+}
+
+.bkToastActionBtnCancel {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* Toast 進場動畫：從右側滑入並淡入。 */
+@keyframes bk-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.memberCenter {
+  background: var(--yui-bg, #f6fbf6);
+  color: var(--yui-text, #333);
+  min-height: calc(100vh - 160px);
+  padding: clamp(1.5rem, 4vw, 3rem) 1rem 4rem;
+}
+
+/* 會員中心共用 Header：避免 booking @font-face 字體覆蓋主站品牌文字。 */
+.siteBrandLink,
+.siteBrandText {
+  font-family: var(
+    --yui-font-sans,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif
+  );
+}
+
+/* 會員中心浮動回頂部按鈕：與主站共用按鈕尺寸與橘色背景一致。 */
+.floatingTopBtn {
+  width: 48px;
+  height: 48px;
+  background: var(--yui-orange, #e07b39);
+}
+
+.floatingTopBtn:hover,
+.floatingTopBtn:focus-visible {
+  background: var(--yui-orange, #e07b39);
+}
+
+.memberCenterShell,
+.memberLoginGuard {
+  margin-inline: auto;
+  max-width: 1120px;
+  width: 100%;
+}
+
+.memberLoginGuard {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 420px;
+}
+
+.memberLoginGuard[hidden],
+.memberCenterShell[hidden],
+.memberPanel[hidden],
+.memberRecordPanel[hidden],
+.memberCouponList[hidden] {
+  display: none;
+}
+
+.memberLoginGuardCard,
+.memberPanelSection,
+.memberTierCard,
+.memberStatCard,
+.memberOrderCard,
+.memberCouponCard,
+.memberNotification,
+.memberModalDialog {
+  background: var(--yui-surface, #fff);
+  border: 1px solid var(--yui-border, #e0e0e0);
+  border-radius: var(--yui-radius-lg, 8px);
+  box-shadow: var(--yui-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+}
+
+.memberLoginGuardCard {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  max-width: 440px;
+  padding: 2rem;
+  text-align: center;
+}
+
+.memberLoginGuardIcon,
+.memberAvatar {
+  align-items: center;
+  background: var(--yui-primary, #244d4d);
+  border-radius: 50%;
+  color: var(--yui-surface, #fff);
+  display: inline-flex;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.memberLoginGuardIcon {
+  font-size: 1.75rem;
+  height: 64px;
+  width: 64px;
+}
+
+.memberLoginGuardTitle,
+.memberPanelTitle {
+  color: var(--yui-text, #333);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.memberLoginGuardText,
+.memberPanelDescription,
+.memberProfileEmail,
+.memberTierMeta,
+.memberTierProgressLabel,
+.memberOrderMeta,
+.memberCouponMeta,
+.memberCouponStatus,
+.memberNotificationBody,
+.memberNotificationMeta,
+.memberActivityDate,
+.memberDetailNote {
+  color: var(--yui-text-muted, #666);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.memberCenterLayout {
+  align-items: start;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 240px minmax(0, 1fr);
+}
+
+.memberSidebar {
+  background: var(--yui-surface, #fff);
+  border: 1px solid var(--yui-border, #e0e0e0);
+  border-radius: var(--yui-radius-xl, 12px);
+  box-shadow: var(--yui-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+  overflow: hidden;
+  position: sticky;
+  top: 88px;
+}
+
+.memberProfileSummary {
+  align-items: center;
+  background: var(--yui-primary, #244d4d);
+  color: var(--yui-surface, #fff);
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.memberAvatar {
+  flex: 0 0 auto;
+  height: 44px;
+  width: 44px;
+}
+
+.memberProfileText {
+  min-width: 0;
+}
+
+.memberProfileName {
+  font-weight: 800;
+}
+
+.memberProfileEmail {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberNavigation,
+.memberMobileNavigation {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.memberNavigation {
+  padding: 0.75rem;
+}
+
+.memberMobileNavigation {
+  display: none;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 1rem;
+}
+
+.memberNavItem,
+.memberMobileNavItem,
+.memberRecordTab,
+.memberOrderFilter,
+.memberAction,
+.memberPreferenceTag,
+.memberOrderDetailButton,
+.memberCopyButton,
+.memberModalClose,
+.memberRatingStar,
+.memberActivityTitleButton,
+.memberNotificationLink {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-lg, 8px);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  justify-content: center;
+  min-height: 44px;
+  text-decoration: none;
+  transition:
+    background-color var(--yui-transition-fast, 150ms ease),
+    border-color var(--yui-transition-fast, 150ms ease),
+    color var(--yui-transition-fast, 150ms ease),
+    box-shadow var(--yui-transition-fast, 150ms ease);
+}
+
+.memberNavItem,
+.memberMobileNavItem {
+  background: transparent;
+  color: var(--yui-text-muted, #666);
+  gap: 0.5rem;
+  justify-content: flex-start;
+  padding: 0.75rem 0.875rem;
+  width: 100%;
+}
+
+.memberMobileNavItem {
+  font-size: 0.8125rem;
+  justify-content: center;
+  padding-inline: 0.5rem;
+}
+
+.memberNavItem:hover,
+.memberMobileNavItem:hover,
+.memberNavItem:focus-visible,
+.memberMobileNavItem:focus-visible,
+.memberNavItem.isActive,
+.memberMobileNavItem.isActive,
+.memberRecordTab.isActive,
+.memberOrderFilter.isSelected {
+  background: var(--yui-primary-soft, #e8f4f4);
+  color: var(--yui-primary, #244d4d);
+}
+
+.memberContent {
+  min-width: 0;
+}
+
+.memberPanel {
+  display: none;
+}
+
+.memberPanel.isActive {
+  display: grid;
+  gap: 1rem;
+}
+
+.memberPanelHeader {
+  align-items: start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.memberPanelSection,
+.memberTierCard {
+  padding: 1.25rem;
+}
+
+.memberPanelSectionTitle,
+.memberTierMemberName,
+.memberOrderTitle,
+.memberCouponTitle,
+.memberNotificationTitle,
+.memberActivityTitle {
+  color: var(--yui-text, #333);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.memberTierCard {
+  background: linear-gradient(135deg, var(--yui-primary, #244d4d), var(--yui-primary-hover, #316868));
+  color: var(--yui-surface, #fff);
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberTierHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.memberTierBrand,
+.memberTierName {
+  font-weight: 800;
+}
+
+.memberTierName {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: var(--yui-radius-pill, 9999px);
+  padding: 0.25rem 0.65rem;
+}
+
+.memberTierCard .memberTierMeta,
+.memberTierCard .memberTierProgressLabel,
+.memberTierPoints {
+  color: rgba(255, 255, 255, 0.84);
+}
+
+.memberTierProgress {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: var(--yui-radius-pill, 9999px);
+  height: 10px;
+  overflow: hidden;
+}
+
+.memberTierProgressBar {
+  background: var(--yui-success, #4caf50);
+  border-radius: inherit;
+  height: 100%;
+  inline-size: var(--member-tier-progress, 0%);
+  transition: inline-size var(--yui-transition-base, 250ms ease);
+}
+
+.memberStats {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.memberStatCard {
+  padding: 1rem;
+}
+
+.memberStatValue {
+  color: var(--yui-primary, #244d4d);
+  font-size: 1.75rem;
+  font-weight: 800;
+}
+
+.memberStatValue.isError {
+  color: var(--yui-danger, #d32f2f);
+}
+
+.memberStatLabel {
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+}
+
+.memberProfileForm {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.memberFormGroup {
+  border: 0;
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.memberFormGroupFull {
+  grid-column: 1/-1;
+}
+
+.memberFormLabel {
+  color: var(--yui-text, #333);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+.memberFormInput {
+  background: var(--yui-surface, #fff);
+  border: 1px solid var(--yui-border-strong, #ccc);
+  border-radius: var(--yui-radius-lg, 8px);
+  color: var(--yui-text, #333);
+  font: inherit;
+  min-height: 44px;
+  padding: 0.75rem 0.875rem;
+  width: 100%;
+}
+
+.memberFormInput:focus-visible,
+.memberAction:focus-visible,
+.memberPreferenceTag:focus-visible,
+.memberRecordTab:focus-visible,
+.memberOrderFilter:focus-visible,
+.memberOrderDetailButton:focus-visible,
+.memberCopyButton:focus-visible,
+.memberModalClose:focus-visible,
+.memberRatingStar:focus-visible,
+.memberActivityTitleButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--yui-primary, #244d4d) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.memberFormInput[readonly] {
+  background: var(--yui-surface-muted, #f2f2f2);
+  color: var(--yui-text-muted, #666);
+}
+
+.memberPreferenceList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.memberPreferenceTag {
+  background: var(--yui-surface, #fff);
+  border-color: var(--yui-border, #e0e0e0);
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+}
+
+.memberPreferenceTag:hover,
+.memberPreferenceTag.isSelected {
+  background: var(--yui-primary-soft, #e8f4f4);
+  border-color: var(--yui-primary, #244d4d);
+  color: var(--yui-primary, #244d4d);
+}
+
+.memberFormActions,
+.memberRecordTabs,
+.memberOrderFilters,
+.memberCouponCodeRow,
+.memberModalFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.memberAction {
+  font-weight: 800;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.memberActionPrimary {
+  background: var(--yui-primary, #244d4d);
+  color: var(--yui-surface, #fff);
+}
+
+.memberActionPrimary:hover {
+  background: var(--yui-primary-hover, #316868);
+  color: var(--yui-surface, #fff);
+}
+
+.memberActionOutline {
+  background: var(--yui-surface, #fff);
+  border-color: var(--yui-border-strong, #ccc);
+  color: var(--yui-primary, #244d4d);
+}
+
+.memberActionOutline:hover {
+  background: var(--yui-primary-soft, #e8f4f4);
+  border-color: var(--yui-primary, #244d4d);
+}
+
+.memberActionBlock {
+  width: 100%;
+}
+
+.memberRecordTab,
+.memberOrderFilter {
+  background: var(--yui-surface, #fff);
+  border-color: var(--yui-border, #e0e0e0);
+  color: var(--yui-text-muted, #666);
+  font-weight: 800;
+  padding: 0.65rem 0.9rem;
+}
+
+.memberRecordPanel {
+  display: none;
+  margin-top: 1rem;
+}
+
+.memberRecordPanel.isActive {
+  display: block;
+}
+
+.memberOrderList,
+.memberCouponList,
+.memberNotificationList {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 1rem;
+}
+
+.memberOrderCard {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1rem;
+}
+
+.memberOrderInfo,
+.memberOrderSummary,
+.memberNotificationContent {
+  min-width: 0;
+}
+
+.memberOrderSummary {
+  place-items: flex-end end;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.memberOrderAmount {
+  color: var(--yui-primary, #244d4d);
+  font-weight: 800;
+}
+
+.memberOrderStatus {
+  border-radius: var(--yui-radius-pill, 9999px);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+}
+
+.memberOrderStatus.isPending {
+  background: color-mix(in srgb, var(--yui-warning, #ff9800) 16%, transparent);
+  color: var(--yui-warning, #ff9800);
+}
+
+.memberOrderStatus.isUpcoming {
+  background: var(--yui-primary-soft, #e8f4f4);
+  color: var(--yui-primary, #244d4d);
+}
+
+.memberOrderStatus.isDone {
+  background: color-mix(in srgb, var(--yui-success, #4caf50) 16%, transparent);
+  color: var(--yui-success, #4caf50);
+}
+
+.memberOrderStatus.isCancelled {
+  background: color-mix(in srgb, var(--yui-danger, #d32f2f) 14%, transparent);
+  color: var(--yui-danger, #d32f2f);
+}
+
+.memberOrderDetailButton,
+.memberCopyButton,
+.memberActivityTitleButton,
+.memberNotificationLink {
+  background: var(--yui-surface, #fff);
+  border-color: var(--yui-border, #e0e0e0);
+  color: var(--yui-primary, #244d4d);
+  font-size: 0.875rem;
+  font-weight: 800;
+  min-height: 36px;
+  padding: 0.45rem 0.75rem;
+}
+
+.memberOrderDetailButton:hover,
+.memberCopyButton:hover,
+.memberActivityTitleButton:hover,
+.memberNotificationLink:hover {
+  background: var(--yui-primary-soft, #e8f4f4);
+  border-color: var(--yui-primary, #244d4d);
+}
+
+.memberOrderThumbs {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.memberOrderThumb,
+.memberOrderMore {
+  border-radius: var(--yui-radius-lg, 8px);
+  height: 44px;
+  width: 44px;
+}
+
+.memberOrderThumb {
+  object-fit: cover;
+}
+
+.memberOrderMore {
+  align-items: center;
+  background: var(--yui-surface-muted, #f2f2f2);
+  color: var(--yui-text-muted, #666);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  justify-content: center;
+}
+
+.memberCouponCard {
+  display: grid;
+  grid-template-columns: 112px 1px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.memberCouponCard.isDisabled {
+  opacity: 0.62;
+}
+
+.memberCouponValue {
+  place-items: center center;
+  background: var(--yui-primary, #244d4d);
+  color: var(--yui-surface, #fff);
+  display: grid;
+  padding: 1rem;
+}
+
+.memberCouponDiscountValue {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.memberCouponDiscountUnit {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.memberCouponDivider {
+  background: var(--yui-border, #e0e0e0);
+}
+
+.memberCouponContent {
+  display: grid;
+  gap: 0.4rem;
+  padding: 1rem;
+}
+
+.memberCouponCode {
+  background: var(--yui-surface-muted, #f2f2f2);
+  border-radius: var(--yui-radius-lg, 8px);
+  color: var(--yui-primary, #244d4d);
+  font-family: var(--yui-font-mono, monospace);
+  font-weight: 800;
+  padding: 0.4rem 0.6rem;
+}
+
+.memberNotification {
+  cursor: pointer;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 10px minmax(0, 1fr);
+  padding: 1rem;
+}
+
+.memberNotificationIndicator {
+  background: var(--yui-danger, #d32f2f);
+  border-radius: 50%;
+  height: 10px;
+  margin-top: 0.35rem;
+  width: 10px;
+}
+
+.memberNotification.isRead .memberNotificationIndicator {
+  background: var(--yui-border-strong, #ccc);
+}
+
+.memberActivityItem {
+  border-bottom: 1px solid var(--yui-border, #e0e0e0);
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.75rem 0;
+}
+
+.memberActivityItem:last-child {
+  border-bottom: 0;
+}
+
+.memberActivityTitleButton {
+  border: 0;
+  justify-content: flex-start;
+  min-height: auto;
+  padding: 0;
+}
+
+.memberEmptyState,
+.memberLoadingState {
+  place-items: center center;
+  color: var(--yui-text-muted, #666);
+  display: grid;
+  min-height: 96px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.memberEmptyStateIcon {
+  color: var(--yui-text-subtle, #999);
+  font-size: 1.5rem;
+}
+
+.memberModalOpen {
+  overflow: hidden;
+}
+
+.memberModalOverlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.48);
+  display: none;
+  inset: 0;
+  justify-content: center;
+  padding: 1rem;
+  position: fixed;
+  z-index: var(--yui-z-modal, 1050);
+}
+
+.memberModalOverlay.isOpen {
+  display: flex;
+}
+
+.memberModalDialog {
+  max-height: min(720px, 100vh - 2rem);
+  max-width: 640px;
+  overflow: auto;
+  width: min(100%, 640px);
+}
+
+.memberModalHeader {
+  align-items: center;
+  border-bottom: 1px solid var(--yui-border, #e0e0e0);
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+}
+
+.memberModalTitle {
+  color: var(--yui-text, #333);
+  font-size: 1.125rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberModalClose {
+  background: var(--yui-surface-muted, #f2f2f2);
+  border: 0;
+  color: var(--yui-text-muted, #666);
+  font-size: 1.5rem;
+  height: 44px;
+  padding: 0;
+  width: 44px;
+}
+
+.memberModalClose:hover {
+  background: var(--yui-primary-soft, #e8f4f4);
+  color: var(--yui-primary, #244d4d);
+}
+
+.memberModalBody {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+/* 會員中心訂單明細：摘要列顯示日期與狀態，對齊卡片列表的資訊密度。 */
+.memberDetailSummary {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.memberDetailDate {
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+/* 會員中心訂單明細：內容分區承接品項、費用與配送資訊。 */
+.memberDetailSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberDetailSectionTitle {
+  color: var(--yui-text, #333);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberDetailItems {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberDetailItem {
+  align-items: center;
+  background: var(--yui-surface-muted, #f2f2f2);
+  border-radius: var(--yui-radius-lg, 8px);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 56px minmax(0, 1fr);
+  padding: 0.75rem;
+}
+
+.memberDetailItemImage {
+  aspect-ratio: 1;
+  border-radius: var(--yui-radius-lg, 8px);
+  object-fit: cover;
+  width: 56px;
+}
+
+.memberDetailItemText {
+  min-width: 0;
+}
+
+.memberDetailItemName {
+  color: var(--yui-text, #333);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem;
+}
+
+.memberDetailItemMeta,
+.memberDetailMeta {
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.memberDetailDivider {
+  background: var(--yui-border, #e0e0e0);
+  height: 1px;
+}
+
+/* 會員中心訂單明細：費用列與資訊列保持可掃讀的左右分欄。 */
+.memberDetailRow {
+  align-items: center;
+  border-bottom: 1px solid var(--yui-border, #e0e0e0);
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+}
+
+.memberDetailRow:last-child {
+  border-bottom: 0;
+}
+
+.memberDetailRowSuccess {
+  color: var(--yui-success, #4caf50);
+}
+
+.memberDetailRowDanger {
+  color: var(--yui-danger, #d32f2f);
+}
+
+.memberDetailRowTotal {
+  color: var(--yui-primary, #244d4d);
+  font-weight: 800;
+}
+
+.memberDetailInfo {
+  background: var(--yui-surface-muted, #f2f2f2);
+  border-radius: var(--yui-radius-lg, 8px);
+  padding: 0.875rem;
+}
+
+.memberDetailMeta {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.memberDetailMeta i {
+  color: var(--yui-primary, #244d4d);
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+}
+
+/* 會員中心訂單明細：LINE CTA 使用品牌綠，作為明細底部的主要後續行動。 */
+.memberDetailLineButton {
+  align-items: center;
+  background: #06c755;
+  border: 1px solid #06c755;
+  border-radius: var(--yui-radius-lg, 8px);
+  color: #fff;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+}
+
+.memberDetailLineButton:hover,
+.memberDetailLineButton:focus-visible {
+  background: #05b64d;
+  border-color: #05b64d;
+  color: #fff;
+}
+
+.memberReviewForm {
+  display: grid;
+  gap: 0.875rem;
+}
+
+.memberReviewFieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.memberReviewProduct,
+.memberReviewLabel {
+  color: var(--yui-text, #333);
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberRatingControl {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.memberRatingStar {
+  background: transparent;
+  border: 0;
+  color: var(--yui-border-strong, #ccc);
+  font-size: 1.5rem;
+  min-height: 44px;
+  padding: 0 0.25rem;
+}
+
+.memberRatingStar:hover,
+.memberRatingStar.isSelected {
+  color: var(--yui-warning, #ff9800);
+}
+
+.memberReviewTextarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.memberClipboardProxy {
+  opacity: 0;
+  position: fixed;
+  pointer-events: none;
+}
+
+@media (width <= 1024px) {
+  .memberCenterLayout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+  .memberStats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (width <= 768px) {
+  .memberMobileNavigation {
+    display: grid;
+  }
+  .memberCenterLayout {
+    grid-template-columns: 1fr;
+  }
+  .memberSidebar {
+    display: none;
+  }
+  .memberProfileForm,
+  .memberStats,
+  .memberOrderCard {
+    grid-template-columns: 1fr;
+  }
+  .memberOrderSummary {
+    place-items: start start;
+  }
+}
+@media (width <= 440px) {
+  .memberCenter {
+    padding-inline: 0.75rem;
+  }
+  .memberMobileNavigation {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .memberCouponCard {
+    grid-template-columns: 1fr;
+  }
+  .memberCouponDivider {
+    display: none;
+  }
+}
+@media (width <= 375px) {
+  .memberMobileNavigation {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .memberPanelHeader {
+    display: grid;
+  }
+  .memberPanelSection,
+  .memberTierCard,
+  .memberOrderCard,
+  .memberCouponContent {
+    padding: 0.875rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .memberTierProgressBar,
+  .memberNavItem,
+  .memberMobileNavItem,
+  .memberRecordTab,
+  .memberOrderFilter,
+  .memberAction,
+  .memberPreferenceTag,
+  .memberOrderDetailButton,
+  .memberCopyButton,
+  .memberModalClose,
+  .memberRatingStar {
+    transition: none;
+  }
+}
+/* Utilities：booking 子系統最高權重工具類。 */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

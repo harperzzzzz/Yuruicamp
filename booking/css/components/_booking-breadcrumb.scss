@@ -1,0 +1,18 @@
+/* Booking Breadcrumb：預訂頁共用麵包屑容器，限制寬度並對齊主內容。 */
+.breadcrumb {
+  max-width: 1200px;
+  margin: 0 auto 1.25rem;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+}
+
+/* Booking Breadcrumb：可點擊層級使用品牌色，維持低干擾導航。 */
+.breadcrumb a {
+  color: var(--bk-primary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}

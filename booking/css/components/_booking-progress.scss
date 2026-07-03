@@ -1,0 +1,87 @@
+/* Booking Progress：購物車與結帳頁共用的流程進度條容器。 */
+.stepProgress {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+
+/* Booking Progress：單一步驟節點，文字置中並保留連接線定位基準。 */
+.step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  font-size: 0.78rem;
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+/* Booking Progress：步驟之間的連接線。 */
+.step + .step::before {
+  content: '';
+  position: absolute;
+  left: -50%;
+  top: 15px;
+  width: 100%;
+  height: 2px;
+  background: var(--bk-border);
+  z-index: 0;
+}
+
+/* Booking Progress：已完成步驟後方的連接線改為主色。 */
+.step.completed + .step::before {
+  background: var(--bk-primary);
+}
+
+/* Booking Progress：步驟數字圓點。 */
+.step span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bk-border);
+  color: var(--bk-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Booking Progress：已完成步驟狀態。 */
+.step.completed span {
+  background: var(--bk-primary);
+  color: #fff;
+}
+
+/* Booking Progress：目前步驟圓點，以淡色外暈標示。 */
+.step.active span {
+  background: var(--bk-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--bk-primary-light);
+}
+
+/* Booking Progress：目前步驟文字加重。 */
+.step.active {
+  color: var(--bk-primary);
+  font-weight: 600;
+}
+
+@media (width <= 768px) {
+  /* Booking Progress：手機版降低文字尺寸，避免五步驟擠壓。 */
+  .stepProgress {
+    gap: 0;
+  }
+
+  .step {
+    font-size: 0.7rem;
+  }
+}

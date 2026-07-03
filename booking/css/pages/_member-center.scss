@@ -8,18 +8,27 @@
 /* 會員中心共用 Header：避免 booking @font-face 字體覆蓋主站品牌文字。 */
 .siteBrandLink,
 .siteBrandText {
-  font-family: var(--yui-font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+  font-family: var(
+    --yui-font-sans,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif
+  );
 }
 
 /* 會員中心浮動回頂部按鈕：與主站共用按鈕尺寸與橘色背景一致。 */
-.floating-top-btn {
+.floatingTopBtn {
   width: 48px;
   height: 48px;
   background: var(--yui-orange, #e07b39);
 }
 
-.floating-top-btn:hover,
-.floating-top-btn:focus-visible {
+.floatingTopBtn:hover,
+.floatingTopBtn:focus-visible {
   background: var(--yui-orange, #e07b39);
 }
 
@@ -196,7 +205,11 @@
   justify-content: center;
   min-height: 44px;
   text-decoration: none;
-  transition: background-color var(--yui-transition-fast, 150ms ease), border-color var(--yui-transition-fast, 150ms ease), color var(--yui-transition-fast, 150ms ease), box-shadow var(--yui-transition-fast, 150ms ease);
+  transition:
+    background-color var(--yui-transition-fast, 150ms ease),
+    border-color var(--yui-transition-fast, 150ms ease),
+    color var(--yui-transition-fast, 150ms ease),
+    box-shadow var(--yui-transition-fast, 150ms ease);
 }
 
 .memberNavItem,
@@ -743,6 +756,80 @@
   padding: 1.25rem;
 }
 
+/* 會員中心訂單明細：摘要列顯示日期與狀態，對齊卡片列表的資訊密度。 */
+.memberDetailSummary {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.memberDetailDate {
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+
+/* 會員中心訂單明細：內容分區承接品項、費用與配送資訊。 */
+.memberDetailSection {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberDetailSectionTitle {
+  color: var(--yui-text, #333);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.memberDetailItems {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.memberDetailItem {
+  align-items: center;
+  background: var(--yui-surface-muted, #f2f2f2);
+  border-radius: var(--yui-radius-lg, 8px);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 56px minmax(0, 1fr);
+  padding: 0.75rem;
+}
+
+.memberDetailItemImage {
+  aspect-ratio: 1;
+  border-radius: var(--yui-radius-lg, 8px);
+  object-fit: cover;
+  width: 56px;
+}
+
+.memberDetailItemText {
+  min-width: 0;
+}
+
+.memberDetailItemName {
+  color: var(--yui-text, #333);
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem;
+}
+
+.memberDetailItemMeta,
+.memberDetailMeta {
+  color: var(--yui-text-muted, #666);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.memberDetailDivider {
+  background: var(--yui-border, #e0e0e0);
+  height: 1px;
+}
+
+/* 會員中心訂單明細：費用列與資訊列保持可掃讀的左右分欄。 */
 .memberDetailRow {
   align-items: center;
   border-bottom: 1px solid var(--yui-border, #e0e0e0);
@@ -750,6 +837,10 @@
   gap: 1rem;
   justify-content: space-between;
   padding: 0.75rem 0;
+}
+
+.memberDetailRow:last-child {
+  border-bottom: 0;
 }
 
 .memberDetailRowSuccess {
@@ -763,6 +854,47 @@
 .memberDetailRowTotal {
   color: var(--yui-primary, #244d4d);
   font-weight: 800;
+}
+
+.memberDetailInfo {
+  background: var(--yui-surface-muted, #f2f2f2);
+  border-radius: var(--yui-radius-lg, 8px);
+  padding: 0.875rem;
+}
+
+.memberDetailMeta {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.memberDetailMeta i {
+  color: var(--yui-primary, #244d4d);
+  flex: 0 0 auto;
+  margin-top: 0.15rem;
+}
+
+/* 會員中心訂單明細：LINE CTA 使用品牌綠，作為明細底部的主要後續行動。 */
+.memberDetailLineButton {
+  align-items: center;
+  background: #06c755;
+  border: 1px solid #06c755;
+  border-radius: var(--yui-radius-lg, 8px);
+  color: #fff;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 0.5rem;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+}
+
+.memberDetailLineButton:hover,
+.memberDetailLineButton:focus-visible {
+  background: #05b64d;
+  border-color: #05b64d;
+  color: #fff;
 }
 
 .memberReviewForm {

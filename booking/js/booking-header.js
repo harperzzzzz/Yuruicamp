@@ -173,7 +173,13 @@
   }
 
   function renderCartRow(label, amount) {
-    return '<div class="bookingCartPanelRow"><span>' + escapeHtml(label) + '</span><strong>' + formatMoney(amount) + '</strong></div>';
+    return (
+      '<div class="bookingCartPanelRow"><span>' +
+      escapeHtml(label) +
+      '</span><strong>' +
+      formatMoney(amount) +
+      '</strong></div>'
+    );
   }
 
   function renderCartPanel() {
@@ -204,12 +210,20 @@
       html += '<section class="bookingCartPanelSection" aria-label="營位">';
       html += '<h3 class="bookingCartPanelLabel">營位</h3>';
       zones.forEach(function (zone) {
-        html += renderCartRow((info.campground_name || '') + ' - ' + (zone.zone_type || '') + ' x' + (zone.quantity || 0), zone.subtotal);
+        html += renderCartRow(
+          (info.campground_name || '') + ' - ' + (zone.zone_type || '') + ' x' + (zone.quantity || 0),
+          zone.subtotal
+        );
       });
       if (info.check_in) {
-        html += '<p class="bookingCartPanelMeta"><i class="bi bi-calendar3" aria-hidden="true"></i> '
-          + escapeHtml(info.check_in) + ' 至 ' + escapeHtml(info.check_out || '')
-          + '，共 ' + escapeHtml(info.total_days || 0) + ' 晚</p>';
+        html +=
+          '<p class="bookingCartPanelMeta"><i class="bi bi-calendar3" aria-hidden="true"></i> ' +
+          escapeHtml(info.check_in) +
+          ' 至 ' +
+          escapeHtml(info.check_out || '') +
+          '，共 ' +
+          escapeHtml(info.total_days || 0) +
+          ' 晚</p>';
       }
       html += '</section>';
     }
@@ -224,7 +238,10 @@
     }
 
     if (summary.final_amount !== undefined) {
-      html += '<div class="bookingCartPanelTotal"><span>合計</span><strong>' + formatMoney(summary.final_amount) + '</strong></div>';
+      html +=
+        '<div class="bookingCartPanelTotal"><span>合計</span><strong>' +
+        formatMoney(summary.final_amount) +
+        '</strong></div>';
     }
     html += '<button class="bookingCartPanelClear" id="cartPanelClear" type="button">清空預約背包</button>';
     body.innerHTML = html;
@@ -338,4 +355,4 @@
   if (typeof window.onBookingHeaderReady === 'function') {
     window.onBookingHeaderReady();
   }
-}());
+})();

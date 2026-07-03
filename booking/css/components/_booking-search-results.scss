@@ -1,0 +1,9 @@
+/* Booking Search Results：搜尋結果列表標頭，顯示結果數與排序/狀態資訊。 */
+.searchResultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+}

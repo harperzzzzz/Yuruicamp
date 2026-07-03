@@ -1,0 +1,28 @@
+/* Booking Tag：共用膠囊標籤基底，用於營地特色、設施與推薦資訊。 */
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  line-height: 1.4;
+}
+
+/* Booking Tag：環境特色標籤，使用鼠尾草淺底維持資訊輕量感。 */
+.tagEnv {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+}
+
+/* Booking Tag：設施標籤，提供比環境標籤稍深的區分。 */
+.tagFacility {
+  background: rgb(143 157 139 / 12%);
+  color: var(--yc-sage-action);
+}
+
+/* Booking Tag：推薦標籤，使用 CTA 淺底提示較高商業權重。 */
+.tagRecommend {
+  background: var(--yc-cta-soft);
+  color: var(--yc-on-cta);
+  border: 1px solid var(--yc-cta-line);
+}

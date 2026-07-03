@@ -823,13 +823,13 @@ yc-order-status--returned
 請搭配同目錄的：
 
 ```text
-yuruicamp-tags-status.css
+components/booking-tags-status.css
 ```
 
 使用前先將此檔放在全站基礎 Design Tokens 之後、頁面專屬 CSS 之前載入：
 
 ```html
-<link rel="stylesheet" href="../css/yuruicamp-tags-status.css">
+<link rel="stylesheet" href="../css/components/booking-tags-status.css">
 ```
 
 若專案只能使用單一 `main.css`，可將 CSS 內容合併至：

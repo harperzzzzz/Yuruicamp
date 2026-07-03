@@ -1,11 +1,5572 @@
-@layer settings, generic, elements, objects, components, pages, utilities;
-@import './base.css' layer(generic);
-@import './layout.css' layer(objects);
-@import './booking.css' layer(components);
-@import './yuruicamp-tags-status.css' layer(components);
-@import './camp-search.css' layer(pages);
-@import './camp-detail.css' layer(pages);
-@import './rental-guide.css' layer(pages);
-@import './booking-cart.css' layer(pages);
-@import './booking-checkout.css' layer(pages);
-@import './booking-faq.css' layer(pages);
+@charset "UTF-8";
+/* --------------------------------------------------------------
+>>> BOOKING ITCSS TABLE OF CONTENTS
+----------------------------------------------------------------
+# Settings：booking 設計 token 與相容 alias
+# Generic：reset 與低權重動態基底
+# Elements：HTML 元素基礎樣式
+# Objects：共用版面與 grid 結構
+# Components：跨頁重用 UI 元件
+# Overrides：第三方套件樣式覆寫
+# Pages：公開 booking 頁面範圍樣式
+# Utilities：最高權重工具類
+-------------------------------------------------------------- */
+@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
+/* Settings：booking 子系統設計 token，供 generic、elements、objects、components、pages 共用。 */
+:root {
+  /* Base / Cream */
+  --yc-bg: #f8f5ee;
+  --yc-surface: #fffdf9;
+  --yc-surface-soft: #f0ece3;
+  --yc-border: #d8cfc3;
+  /* Sage Brand */
+  --yc-sage-soft: #eef2ec;
+  --yc-sage-light: #b7c3b3;
+  --yc-sage-action: #73816e;
+  --yc-sage-dark: #62705d;
+  /* Conversion CTA */
+  --yc-cta: #e2d39a;
+  --yc-cta-hover: #d4c27e;
+  --yc-cta-soft: #fbf3d1;
+  --yc-cta-line: #d9c98f;
+  --yc-on-cta: #4a4537;
+  /* Text */
+  --yc-text: #3e473d;
+  --yc-text-secondary: #625e56;
+  --yc-text-muted: #7b756d;
+  /* Status */
+  --yc-success: #73816e;
+  --yc-success-soft: #eef2ec;
+  --yc-warning: #9a7455;
+  --yc-warning-soft: #f4ece2;
+  --yc-warning-text: #6b4d32;
+  --yc-error: #a65f58;
+  --yc-error-soft: #f4e7e4;
+  /* Header / Footer */
+  --yc-header-bg: #73816e;
+  --yc-footer-bg: #71806d;
+  --yc-footer-bottom: #62705d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
+  /* Shadow */
+  --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
+  --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
+  --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
+  /* Radius */
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-pill: 999px;
+  /* Typography */
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  /* Motion */
+  --yc-duration-fast: 180ms;
+  --yc-duration-normal: 220ms;
+  --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* bk-* 相容 token：保留既有 booking CSS API。 */
+  --bk-primary: var(--yc-sage-action);
+  --bk-primary-hover: var(--yc-sage-action);
+  --bk-primary-light: var(--yc-sage-soft);
+  --bk-on-dark: var(--yc-on-dark);
+  --bk-cta: var(--yc-cta);
+  --bk-cta-hover: var(--yc-cta-hover);
+  --bk-white: var(--yc-surface);
+  --bk-bg: var(--yc-bg);
+  --bk-card-bg: var(--yc-surface);
+  --bk-border: var(--yc-border);
+  --bk-border-strong: var(--yc-sage-action);
+  --bk-text: var(--yc-text);
+  --bk-text-muted: var(--yc-text-muted);
+  --bk-accent: var(--yc-sage-action);
+  --bk-gold: var(--yc-on-cta);
+  --bk-sage: var(--yc-sage-light);
+  --bk-orange: var(--yc-warning);
+  --bk-success: var(--yc-success);
+  --bk-danger: var(--yc-error);
+  --bk-shadow: var(--yc-shadow-soft);
+  --bk-shadow-hover: var(--yc-shadow-hover);
+  --bk-radius: var(--yc-radius-card);
+  --bk-radius-sm: var(--yc-radius-control);
+  --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+  /* 舊版 color-* alias：支援 base/layout 與既有 booking 元件。 */
+  --color-text: var(--yc-text, #3e473d);
+  --color-muted: var(--yc-text-muted, #7b756d);
+  --color-light-muted: var(--yc-text-muted, #7b756d);
+  --color-primary: var(--yc-sage-action, #73816e);
+  --color-primary-dark: var(--yc-sage-dark, #62705d);
+  --color-bg: var(--yc-bg, #f8f5ee);
+  --color-bg-soft: var(--yc-surface-soft, #f0ece3);
+  --color-cta: var(--yc-cta, #e2d39a);
+  --color-black: #000;
+  --font-main: var(--yc-font-heading, 'Noto Serif TC', serif);
+  --header-height: 70px;
+  --container-wide: min(1180px, 90%);
+  --transition-slow: 1.7s ease;
+  --transition-normal: 0.45s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.sectionSubtitle {
+  color: var(--yc-sage-action, var(--color-primary));
+  letter-spacing: 4px;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(70px);
+  transition:
+    opacity 1.4s ease,
+    transform 1.4s ease;
+}
+
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.zoomBox {
+  overflow: hidden;
+}
+
+.zoomBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  transition: transform var(--transition-slow);
+}
+
+.reveal.show .zoomBox img,
+.zoomBox.show img {
+  transform: scale(1);
+}
+
+.zoomBox:hover img {
+  transform: scale(1.09);
+}
+
+.scrollDown {
+  position: absolute;
+  z-index: 3;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 54px;
+  background-color: rgba(255, 255, 255, 0.42);
+  margin: 12px auto 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollLine::after {
+  content: '';
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 1px;
+  height: 24px;
+  background-color: #fff;
+  animation: scroll-line-move 1.8s infinite;
+}
+
+@keyframes scroll-line-move {
+  0% {
+    top: -24px;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    top: 54px;
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* Elements：booking 子系統 HTML 元素基礎樣式，避免混在 reset 或頁面檔。 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--yc-font-body, var(--font-main));
+  line-height: 1.8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--yc-font-heading, 'Noto Serif TC', serif);
+}
+
+body.menuOpen {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--yc-sage-action);
+  outline-offset: 3px;
+}
+
+ul {
+  list-style: none;
+}
+
+img,
+video {
+  display: block;
+  width: 100%;
+}
+
+main {
+  min-height: 60vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+/* =========================
+   Floating Actions
+   Line icon button + Back to top
+========================= */
+.floatingActions {
+  position: fixed;
+  right: 28px;
+  bottom: 34px;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+/* 綠色 Line 按鈕：預設只顯示 icon */
+.floatingLineBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  border-radius: 999px;
+  background-color: #5f9407;
+  color: #fff;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  transition:
+    width 0.35s ease,
+    padding 0.35s ease,
+    background-color 0.35s ease,
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.floatingLineBtn:hover,
+.floatingLineBtn:focus-visible {
+  width: 230px;
+  padding-left: 18px;
+  padding-right: 10px;
+  justify-content: flex-start;
+  background-color: #578804;
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+.floatingLineLabel {
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  margin-right: 0;
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  line-height: 1;
+  transition:
+    max-width 0.35s ease,
+    opacity 0.25s ease,
+    margin-right 0.35s ease;
+}
+
+.floatingLineBtn:hover .floatingLineLabel,
+.floatingLineBtn:focus-visible .floatingLineLabel {
+  max-width: 150px;
+  opacity: 1;
+  margin-right: 10px;
+}
+
+.floatingLineIcon {
+  flex: 0 0 60px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floatingLineIcon i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+/* 回到頂部按鈕 */
+.floatingTopBtn {
+  width: 60px;
+  height: 60px;
+  border: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--yc-sage-action, #73816e);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(0.92);
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease,
+    transform 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.floatingTopBtn.isVisible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.floatingTopBtn:hover,
+.floatingTopBtn:focus-visible {
+  background-color: var(--yc-sage-dark, #62705d);
+  transform: translateY(-2px) scale(1);
+}
+
+.floatingTopBtn i {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.bkFooterPaymentIcons i {
+  font-size: 1.5rem;
+  color: rgba(255, 253, 249, 0.52);
+  margin-right: 12px;
+  transition: color 0.2s;
+}
+
+.bkFooterPaymentIcons i:hover {
+  color: rgba(255, 253, 249, 0.85);
+}
+
+/* ========================================
+   首頁 - Hero Banner
+   ======================================== */
+.heroBanner {
+  position: relative;
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3c4a3a 0%, #62705d 42%, #73816e 70%, #8f9d8b 100%);
+}
+
+/* 背景影片：inset:0 = top/right/bottom/left 全部設為 0，讓影片撐滿整個 section */
+.heroBanner video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 等比例縮放填滿，不變形 */
+  z-index: 0;
+}
+
+/* 半透明遮罩，讓文字更易讀 */
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(30, 40, 30, 0.32);
+  z-index: 1;
+}
+
+/* Hero 文字內容 */
+.heroContent {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  padding: 2rem 1.25rem;
+  max-width: 700px;
+}
+
+.heroTagline {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 1rem;
+}
+
+.heroTitle {
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.heroSubtitle {
+  font-size: 1.125rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 2rem;
+  line-height: 1.7;
+}
+
+.heroCtaGroup {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btnHeroPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  border: 2px solid var(--yc-cta, #e2d39a);
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 250ms ease;
+}
+
+.btnHeroPrimary:hover {
+  background-color: var(--yc-cta-hover, #d4c27e);
+  border-color: var(--yc-cta-hover, #d4c27e);
+  color: var(--yc-on-cta, #4a4537);
+  text-decoration: none;
+}
+
+.btnHeroOutline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2.25rem;
+  background-color: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 250ms ease;
+}
+
+.btnHeroOutline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: #fff;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Hero 底部滾動提示 */
+.heroScrollHint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  animation: bounce-down 2s infinite;
+}
+
+@keyframes bounce-down {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
+@media (width <= 768px) {
+  .heroBanner {
+    min-height: 75vh;
+  }
+  .heroTitle {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+  .heroSubtitle {
+    font-size: 0.95rem;
+  }
+  .btnHeroPrimary,
+  .btnHeroOutline {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+.logo {
+  height: 64px; /* 請依照你 Header 的高度調整數字（例如 40px ~ 60px） */
+  width: auto; /* 讓寬度隨著高度自動等比例縮放 */
+  display: block; /* 消除圖片下方預設的微小空白間隙 */
+  object-fit: contain;
+}
+
+.brand {
+  display: flex; /* 讓裡面的元素變成橫向排版 */
+  align-items: center; /* 關鍵！讓裡面的 Logo 和文字「垂直置中」對齊 */
+  gap: 12px; /* (選用) 用來調整 Logo 和文字之間的左右間距 */
+  text-decoration: none; /* 如果是用 <a> 標籤，這行可以去掉底線 */
+}
+
+/* Booking Page Shell：booking 相關頁面的頁面外殼與基本盒模型。 */
+.bookingPage *,
+.searchPage *,
+.detailPage *,
+.rentalPage *,
+.bookingCartPage * {
+  box-sizing: border-box;
+}
+
+.searchPage,
+.detailPage,
+.rentalPage,
+.bookingCartPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--bk-bg);
+}
+
+/* Booking Layout：搜尋、詳情、租借與購物車頁面的主內容 grid。 */
+.searchLayout,
+.detailLayout,
+.rentalLayout,
+.bookingCartLayout {
+  max-width: 1200px;
+  display: grid;
+  align-items: start;
+  gap: 1.5rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.searchLayout {
+  grid-template-columns: 260px 1fr;
+}
+
+.detailLayout {
+  grid-template-columns: 1fr 360px;
+}
+
+.rentalLayout {
+  grid-template-columns: 1fr 300px;
+}
+
+.bookingCartLayout {
+  grid-template-columns: 1fr 340px;
+}
+
+@media (width <= 768px) {
+  .searchLayout,
+  .detailLayout,
+  .rentalLayout,
+  .bookingCartLayout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  .detailLayout {
+    grid-template-columns: 1fr 300px;
+  }
+  .searchLayout {
+    grid-template-columns: 220px 1fr;
+  }
+}
+/* =========================================================
+   Booking Tags & Order Status System v1.0
+   奶油暖白 × 鼠尾草綠 × 暖光奶油金 × 粉灰警示
+   載入順序：components layer 之內、頁面 CSS 之前
+   ========================================================= */
+:root {
+  /* ── 暖光奶油金標籤專屬 tokens ── */
+  --yc-gold-soft: #fbf3d1;
+  --yc-gold-line: #d9c98f;
+  --yc-gold: #e2d39a;
+  --yc-gold-hover: #d4c27e;
+  --yc-gold-active: #c4af62;
+  /* ── 中性米灰 ── */
+  --yc-neutral-soft: #f4f0e8;
+  --yc-neutral-line: #d8cfc3;
+  --yc-neutral-text: #625e56;
+  /* ── 成功綠（標籤淺色版，與 --yc-success-soft 區分）── */
+  --yc-tag-success-soft: #e7efe3;
+  --yc-success-text: #4f624a;
+  /* ── 粉灰警示 ── */
+  --yc-danger-soft: #f4e7e4;
+  --yc-danger-line: #d4a29d;
+  --yc-danger: #b8645d;
+  --yc-danger-text: #8a4842;
+  /* ── 已退貨（玫瑰米灰，警示程度低於退款）── */
+  --yc-return-soft: #f3ece7;
+  --yc-return-line: #cdaa9c;
+  --yc-return-text: #7a4d40;
+  /* ── 訂單狀態專屬邊框（標籤規格指定，比語意色略深）── */
+  --yc-refunded-line: #c97872;
+  --yc-pending-line: #d7b75f;
+  /* ── 元件尺寸 ── */
+  --yc-tag-height: 30px;
+  --yc-chip-height: 40px;
+  --yc-tag-gap: 8px;
+  --yc-transition: 180ms ease;
+}
+
+/* =========================================================
+   1. 共用基礎
+   ========================================================= */
+.ycTag,
+.ycBadge,
+.ycFilterChip,
+.ycSurveyChip,
+.ycOrderStatus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+  border-radius: var(--yc-radius-pill);
+  font-family: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.ycTag,
+.ycBadge,
+.ycOrderStatus {
+  min-height: var(--yc-tag-height);
+  padding: 5px 11px;
+  font-size: 12px;
+  border: 1px solid transparent;
+}
+
+.ycTagList,
+.ycChipList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yc-tag-gap);
+}
+
+/* =========================================================
+   2. 資訊標籤 Information Tag
+   用於環境屬性、設施、文章主題、商品賣點 — 主要閱讀，不可點擊
+   ========================================================= */
+/* 自然環境、正向屬性、核心賣點 */
+.ycTagGreen {
+  color: var(--yc-sage-dark);
+  background: var(--yc-sage-soft);
+  border-color: rgba(143, 157, 139, 0.48);
+}
+
+/* 熱門、推薦、季節精選、功能亮點、流程進行中 */
+.ycTagGold {
+  color: var(--yc-on-cta);
+  background: var(--yc-gold-soft);
+  border-color: var(--yc-gold-line);
+}
+
+/* 設施、規格、材質、一般主題 */
+.ycTagNeutral {
+  color: var(--yc-neutral-text);
+  background: var(--yc-neutral-soft);
+  border-color: var(--yc-neutral-line);
+}
+
+/* 已完成、正向狀態 */
+.ycTagSuccess {
+  color: var(--yc-success-text);
+  background: var(--yc-tag-success-soft);
+  border-color: var(--yc-success);
+}
+
+/* 退款、風險、錯誤、反向流程 */
+.ycTagDanger {
+  color: var(--yc-danger-text);
+  background: var(--yc-danger-soft);
+  border-color: var(--yc-danger-line);
+}
+
+/* =========================================================
+   3. 篩選 Chip / 問卷 Chip
+   可點擊；顏色只表達「選中 / 未選」，不因選項文字各自變色
+   ========================================================= */
+.ycFilterChip,
+.ycSurveyChip {
+  min-height: var(--yc-chip-height);
+  padding: 0 17px;
+  font-size: 14px;
+  color: var(--yc-text-secondary);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  cursor: pointer;
+  transition:
+    color var(--yc-transition),
+    background-color var(--yc-transition),
+    border-color var(--yc-transition),
+    box-shadow var(--yc-transition),
+    transform var(--yc-transition);
+}
+
+.ycFilterChip:hover,
+.ycSurveyChip:hover {
+  color: var(--yc-sage-dark);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-light);
+}
+
+.ycFilterChip[aria-pressed='true'],
+.ycFilterChip.isActive,
+.ycSurveyChip[aria-pressed='true'],
+.ycSurveyChip.isSelected {
+  color: var(--yc-on-dark);
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+}
+
+.ycFilterChip:focus-visible,
+.ycSurveyChip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(115, 129, 110, 0.22);
+}
+
+.ycFilterChip:active,
+.ycSurveyChip:active {
+  transform: translateY(1px);
+}
+
+.ycFilterChip:disabled,
+.ycSurveyChip:disabled,
+.ycFilterChip.isDisabled,
+.ycSurveyChip.isDisabled {
+  color: #9a958d;
+  background: #f2efe9;
+  border-color: #e2ddd3;
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+/* =========================================================
+   4. 訂單狀態 Badge
+   顯示語意狀態，不可點擊，不與篩選 chip 混用
+   ========================================================= */
+.ycOrderStatus {
+  min-width: 76px;
+  letter-spacing: 0.02em;
+}
+
+/* 待確認：中性，不突出 */
+.ycOrderStatusPendingConfirmation,
+[data-order-status='pending-confirmation'] {
+  color: var(--yc-neutral-text);
+  background: var(--yc-surface);
+  border-color: #b9b0a3;
+}
+
+/* 已確認：實心品牌綠，最明確的正向完成 */
+.ycOrderStatusConfirmed,
+[data-order-status='confirmed'] {
+  color: var(--yc-on-dark);
+  background: var(--yc-success);
+  border-color: var(--yc-success);
+}
+
+/* 已退款：粉灰警示，需與一般訂單明確區分 */
+.ycOrderStatusRefunded,
+[data-order-status='refunded'] {
+  color: var(--yc-danger-text);
+  background: var(--yc-danger-soft);
+  border-color: var(--yc-refunded-line);
+}
+
+/* 待出貨：奶油金，流程進行中、需要多看一眼 */
+.ycOrderStatusPendingShipment,
+[data-order-status='pending-shipment'] {
+  color: var(--yc-on-cta);
+  background: var(--yc-gold-soft);
+  border-color: var(--yc-pending-line);
+}
+
+/* 已出貨：淺綠，完成節點但尚未結案 */
+.ycOrderStatusShipped,
+[data-order-status='shipped'] {
+  color: var(--yc-success-text);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-action);
+}
+
+/* 已退貨：玫瑰米灰，警示程度低於退款 */
+.ycOrderStatusReturned,
+[data-order-status='returned'] {
+  color: var(--yc-return-text);
+  background: var(--yc-return-soft);
+  border-color: var(--yc-return-line);
+}
+
+/* 選用狀態 icon */
+.ycOrderStatus::before {
+  display: inline-flex;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.ycOrderStatusPendingConfirmation::before {
+  content: '○';
+}
+
+.ycOrderStatusConfirmed::before {
+  content: '✓';
+}
+
+.ycOrderStatusRefunded::before {
+  content: '↩';
+}
+
+.ycOrderStatusPendingShipment::before {
+  content: '▷';
+}
+
+.ycOrderStatusShipped::before {
+  content: '✓';
+}
+
+.ycOrderStatusReturned::before {
+  content: '◀';
+}
+
+/* =========================================================
+   5. 訂單篩選列
+   上方篩選列只用選中 / 未選，不讓每個選項各自變色
+   ========================================================= */
+.ycOrderFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ycOrderFilter .ycFilterChip {
+  min-width: 78px;
+}
+
+/* =========================================================
+   6. 後台客戶標籤
+   搭配 .ycTag 使用（提供基礎形狀），本區塊只覆寫色彩
+   ========================================================= */
+.ycCustomerTagHighValue {
+  color: var(--yc-on-cta);
+  background: var(--yc-gold-soft);
+  border: 1px solid var(--yc-gold-line);
+}
+
+.ycCustomerTagNew {
+  color: var(--yc-sage-dark);
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-light);
+}
+
+.ycCustomerTagHighReturn {
+  color: var(--yc-danger-text);
+  background: var(--yc-danger-soft);
+  border: 1px solid var(--yc-danger-line);
+}
+
+/* =========================================================
+   7. 表格緊湊模式
+   ========================================================= */
+.ycDataTable .ycTag,
+.ycDataTable .ycBadge,
+.ycDataTable .ycOrderStatus {
+  min-height: 26px;
+  padding: 4px 9px;
+  font-size: 11px;
+}
+
+/* =========================================================
+   8. RWD
+   ========================================================= */
+@media (width <= 680px) {
+  .ycTagList,
+  .ycChipList,
+  .ycOrderFilter {
+    gap: 7px;
+  }
+  .ycFilterChip,
+  .ycSurveyChip {
+    min-height: 44px;
+    padding-inline: 16px;
+  }
+  .ycOrderFilter .ycFilterChip {
+    flex: 1 1 calc(50% - 7px);
+  }
+  .ycOrderStatus {
+    min-width: 72px;
+  }
+}
+/* =========================================================
+   9. Reduced motion
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .ycFilterChip,
+  .ycSurveyChip {
+    transition: none;
+  }
+}
+/* Booking Feedback：共用載入、錯誤與空狀態呈現。 */
+.loadingSkeleton {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: var(--bk-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.errorMsg,
+.noResult {
+  grid-column: 1/-1;
+  padding: 2.5rem;
+  border-radius: var(--bk-radius);
+  background: var(--bk-white);
+  box-shadow: var(--bk-shadow);
+  color: var(--bk-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.errorState {
+  padding: 2rem;
+  color: var(--bk-danger);
+  text-align: center;
+}
+
+.errorMsg > .bi,
+.noResult > .bi {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.noResult .btn {
+  margin-top: 1rem;
+}
+
+/* Booking Form：共用表單欄位間距、標籤與輸入控制。 */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--bk-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.formControl {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  background: var(--bk-white);
+  color: var(--bk-text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formControl:focus {
+  border-color: var(--bk-primary);
+}
+
+/* Booking Button：預訂流程共用按鈕基底，維持舊有 .btn 與 btnPrimary 命名相容。 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--bk-radius-sm);
+  border: 2px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: var(--bk-transition);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Booking Button：主要 CTA 按鈕，用於下一步、加入與確認等高優先行動。 */
+.btnPrimary,
+.btnPrimary {
+  background: var(--bk-cta);
+  color: var(--yc-on-cta);
+  border-color: var(--bk-cta);
+}
+
+.btnPrimary:hover,
+.btnPrimary:hover {
+  background: var(--bk-cta-hover);
+  border-color: var(--bk-cta-hover);
+  color: var(--yc-on-cta);
+}
+
+.btnPrimary:active,
+.btnPrimary:active {
+  background: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta);
+}
+
+/* Booking Button：柔和外框按鈕，保留轉換色系但降低視覺權重。 */
+.btnOutline,
+.btnOutline {
+  background: var(--yc-cta-soft);
+  color: var(--yc-on-cta);
+  border-color: var(--yc-cta-line);
+}
+
+.btnOutline:hover,
+.btnOutline:hover {
+  background: var(--bk-cta);
+  color: var(--yc-on-cta);
+  border-color: var(--bk-cta);
+}
+
+/* Booking Button：滿版按鈕修飾，常用於表單與抽屜底部操作。 */
+.btnFull,
+.btnFull {
+  width: 100%;
+}
+
+/* Booking Button：停用狀態避免 hover 與 click 造成誤導。 */
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Booking Tag：共用膠囊標籤基底，用於營地特色、設施與推薦資訊。 */
+.tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 0.2rem 0.55rem;
+  border-radius: 20px;
+  line-height: 1.4;
+}
+
+/* Booking Tag：環境特色標籤，使用鼠尾草淺底維持資訊輕量感。 */
+.tagEnv {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+}
+
+/* Booking Tag：設施標籤，提供比環境標籤稍深的區分。 */
+.tagFacility {
+  background: rgba(143, 157, 139, 0.12);
+  color: var(--yc-sage-action);
+}
+
+/* Booking Tag：推薦標籤，使用 CTA 淺底提示較高商業權重。 */
+.tagRecommend {
+  background: var(--yc-cta-soft);
+  color: var(--yc-on-cta);
+  border: 1px solid var(--yc-cta-line);
+}
+
+/* Booking Search Bar：營地搜尋列外層，提供主色區塊與圓角裁切。 */
+.searchBarSection {
+  background: var(--bk-primary);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: var(--yc-radius-card, 19px);
+  overflow: hidden;
+}
+
+/* Booking Search Bar：搜尋欄位排列容器，支援多欄自動換行。 */
+.searchBar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Booking Search Bar：輸入與下拉欄位共用視覺，適合深色搜尋區塊。 */
+.searchBarInput,
+.searchBarSelect {
+  flex: 1 1 160px;
+  padding: 0.6rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--bk-radius-sm);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: var(--bk-transition);
+}
+
+.searchBarInput::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.searchBarInput:focus,
+.searchBarSelect:focus {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Booking Search Bar：瀏覽器原生選單選項需回到淺底，避免白字不可讀。 */
+.searchBarSelect option {
+  color: var(--bk-text);
+  background: var(--yc-surface);
+}
+
+@media (width <= 768px) {
+  /* Booking Search Bar：手機版改為單欄直向排列，降低橫向擠壓。 */
+  .searchBar {
+    flex-direction: column;
+  }
+  .searchBarInput,
+  .searchBarSelect {
+    flex: 1 1 100%;
+  }
+}
+/* Booking Filter Sidebar：搜尋結果頁側欄篩選容器，桌機維持 sticky。 */
+.filterSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Filter Sidebar：手機版展開按鈕，桌機預設隱藏。 */
+.filterSidebarToggle {
+  display: none;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bk-primary);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+}
+
+/* Booking Filter Sidebar：篩選內容區塊，承接多組 filter group。 */
+.filterSidebarBody {
+  padding: 1.25rem;
+}
+
+/* Booking Filter Sidebar：單一篩選群組間距。 */
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+/* Booking Filter Sidebar：篩選群組標題，提供明確分隔線。 */
+.filterGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bk-primary);
+  border-bottom: 2px solid var(--bk-border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Filter Sidebar：checkbox label 讓點擊區域完整包含文字。 */
+.filterGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.filterGroup label:hover {
+  color: var(--bk-primary);
+}
+
+.filterGroup input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--bk-primary);
+  cursor: pointer;
+}
+
+/* Booking Filter Sidebar：重設篩選按鈕維持次要操作權重。 */
+#resetFilterBtn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+}
+
+#resetFilterBtn:hover {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-action);
+}
+
+@media (width <= 768px) {
+  /* Booking Filter Sidebar：手機版取消 sticky，改由展開按鈕控制內容。 */
+  .filterSidebar {
+    position: static;
+  }
+  .filterSidebarToggle {
+    display: flex;
+    align-items: center;
+  }
+  .filterSidebarBody {
+    display: none;
+    border-top: 1px solid var(--bk-border);
+  }
+  .filterSidebarBody.isOpen {
+    display: block;
+  }
+}
+/* Booking Search Results：搜尋結果列表標頭，顯示結果數與排序/狀態資訊。 */
+.searchResultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Booking Breadcrumb：預訂頁共用麵包屑容器，限制寬度並對齊主內容。 */
+.breadcrumb {
+  max-width: 1200px;
+  margin: 0 auto 1.25rem;
+  padding: 0 1.5rem;
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+}
+
+/* Booking Breadcrumb：可點擊層級使用品牌色，維持低干擾導航。 */
+.breadcrumb a {
+  color: var(--bk-primary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* Booking Card：共用預訂表單側欄、購物車區塊與摘要卡片容器。 */
+.bookingFormCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.5rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Card：表單側欄標題，維持與 Booking 主色一致的區隔線。 */
+.bookingFormCardTitle {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Card：表單側欄底部輔助提示文字。 */
+.bookingFormCardHint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Booking Card：結帳與明細頁共用的內容分區卡片。 */
+.cartSection {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Booking Card：卡片分區標題，支援圖示與文字並排。 */
+.cartSectionTitle {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Card：結帳摘要側欄容器。 */
+.bookingCartSummary {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.5rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Card：結帳摘要標題。 */
+.bookingCartSummary h3 {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+@media (width <= 768px) {
+  /* Booking Card：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
+  .bookingFormCard,
+  .bookingCartSummary {
+    position: static;
+  }
+}
+/* Booking Summary：日期摘要區塊，供營區詳情側欄顯示已選日期。 */
+.dateSummary {
+  background: var(--bk-primary-light);
+  border-radius: var(--bk-radius-sm);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--bk-primary);
+}
+
+/* Booking Summary：日期摘要內文保持緊湊行距。 */
+.dateSummary p {
+  margin: 0.2rem 0;
+}
+
+/* Booking Summary：預訂價格小計，以主色背景強化目前金額狀態。 */
+.priceSummary {
+  background: var(--bk-primary);
+  color: #fff;
+  border-radius: var(--bk-radius-sm);
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Booking Summary：價格小計標籤。 */
+.priceSummaryLabel {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Booking Summary：價格小計金額。 */
+.priceSummaryAmount {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* Booking Summary：訂單明細列，供營位與租借明細共用。 */
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bk-bg);
+  font-size: 0.9rem;
+  color: var(--bk-text);
+}
+
+/* Booking Summary：最後一列不顯示分隔線。 */
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+/* Booking Summary：明細補充資訊列，降低視覺權重。 */
+.detailRowMeta {
+  color: var(--bk-text-muted);
+  font-size: 0.85rem;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Summary：無租借品項時的提示文字。 */
+.noRental {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Booking Summary：費用明細列，供購物車與結帳摘要共用。 */
+.costRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  border-bottom: 1px solid var(--bk-bg);
+}
+
+/* Booking Summary：折扣列使用輔助警示色呈現。 */
+.costRowDiscount {
+  color: var(--bk-orange);
+  font-weight: 600;
+}
+
+/* Booking Summary：費用總計列，以主色上框線建立結算區隔。 */
+.costTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-top: 2px solid var(--bk-primary);
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+/* Booking Summary：總計金額。 */
+.costTotalAmount {
+  font-size: 1.4rem;
+  color: var(--bk-primary);
+}
+
+/* Booking Summary Bar：租借流程上方摘要列，顯示目前營地、日期與人數。 */
+.bookingSummaryBar {
+  background: var(--bk-primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.bookingSummaryBar strong {
+  color: #fff;
+}
+
+/* Booking Summary Bar：摘要資訊分隔符，降低視覺權重避免干擾文字。 */
+.bookingSummaryBar .summarySep {
+  opacity: 0.5;
+  margin: 0 0.25rem;
+}
+
+/* Booking Summary Bar：返回修改連結，推到摘要列右側。 */
+#summaryEditLink {
+  margin-left: auto;
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* Booking Recommendation：租借頁推薦橫幅外層，對齊 booking 主內容寬度。 */
+.recommendationBanner {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Booking Recommendation：JS 有推薦內容時才顯示橫幅。 */
+#recommendationBanner {
+  display: none;
+}
+
+/* Booking Recommendation：推薦內容卡片，使用品牌淺底呈現輔助建議。 */
+.recommendationBannerContent {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+}
+
+.recommendationBannerContent strong {
+  color: var(--bk-primary);
+}
+
+.recommendationBannerTitle {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Recommendation：推薦標籤群組，支援多個地形或裝備提示。 */
+.recommendationTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.recommendationTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* Booking Recommendation：租借列表標題與數量資訊。 */
+.rentalItemsList h2 {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+}
+
+#rentalCount {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Booking Progress：購物車與結帳頁共用的流程進度條容器。 */
+.stepProgress {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2rem;
+  max-width: 860px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+
+/* Booking Progress：單一步驟節點，文字置中並保留連接線定位基準。 */
+.step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  font-size: 0.78rem;
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+/* Booking Progress：步驟之間的連接線。 */
+.step + .step::before {
+  content: '';
+  position: absolute;
+  left: -50%;
+  top: 15px;
+  width: 100%;
+  height: 2px;
+  background: var(--bk-border);
+  z-index: 0;
+}
+
+/* Booking Progress：已完成步驟後方的連接線改為主色。 */
+.step.completed + .step::before {
+  background: var(--bk-primary);
+}
+
+/* Booking Progress：步驟數字圓點。 */
+.step span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bk-border);
+  color: var(--bk-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Booking Progress：已完成步驟狀態。 */
+.step.completed span {
+  background: var(--bk-primary);
+  color: #fff;
+}
+
+/* Booking Progress：目前步驟圓點，以淡色外暈標示。 */
+.step.active span {
+  background: var(--bk-primary);
+  color: #fff;
+  box-shadow: 0 0 0 4px var(--bk-primary-light);
+}
+
+/* Booking Progress：目前步驟文字加重。 */
+.step.active {
+  color: var(--bk-primary);
+  font-weight: 600;
+}
+
+@media (width <= 768px) {
+  /* Booking Progress：手機版降低文字尺寸，避免五步驟擠壓。 */
+  .stepProgress {
+    gap: 0;
+  }
+  .step {
+    font-size: 0.7rem;
+  }
+}
+/* Booking Rental Cart：租借背包側欄容器，供裝備租借頁固定顯示選取清單。 */
+.rentalCartSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.25rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Rental Cart：側欄標題。 */
+.rentalCartSidebar h3 {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Rental Cart：租借品項清單容器。 */
+.rentalCartList {
+  min-height: 80px;
+  margin-bottom: 1rem;
+}
+
+/* Booking Rental Cart：尚未選取裝備時的空狀態。 */
+.rentalCartListEmpty {
+  text-align: center;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+/* Booking Rental Cart：單一租借品項列。 */
+.rentalCartItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bk-border);
+  font-size: 0.875rem;
+}
+
+/* Booking Rental Cart：品項名稱欄位佔滿剩餘寬度。 */
+.rentalCartItem span:first-child {
+  flex: 1;
+  color: var(--bk-text);
+}
+
+/* Booking Rental Cart：品項金額欄位固定顯示，不換行。 */
+.rentalCartItem span:nth-child(2) {
+  color: var(--bk-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Booking Rental Cart：移除租借品項按鈕。 */
+.rentalRemoveBtn {
+  background: none;
+  border: none;
+  color: var(--bk-danger);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+/* Booking Rental Cart：移除按鈕 hover 狀態。 */
+.rentalRemoveBtn:hover {
+  background: var(--yc-error-soft);
+}
+
+/* Booking Rental Cart：租借小計區塊。 */
+.rentalCostSummary {
+  padding: 0.75rem;
+  background: var(--bk-bg);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+/* Booking Rental Cart：略過租借或返回流程的文字連結。 */
+.rentalSkipLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Rental Cart：文字連結 hover 狀態。 */
+.rentalSkipLink:hover {
+  color: var(--bk-primary);
+}
+
+@media (width <= 768px) {
+  /* Booking Rental Cart：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
+  .rentalCartSidebar {
+    position: static;
+  }
+}
+/* Booking Zone Card：營區詳情頁的營位類型清單容器。 */
+.zoneList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Booking Zone Card：可選營位卡片。 */
+.zoneCard {
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: var(--bk-transition);
+  background: var(--bk-white);
+}
+
+/* Booking Zone Card：滑過時提示此卡片可互動。 */
+.zoneCard:hover {
+  border-color: var(--bk-primary);
+}
+
+/* Booking Zone Card：已選取的營位卡片狀態。 */
+.zoneCard.isSelected {
+  border-color: var(--bk-primary);
+  background: var(--bk-primary-light);
+}
+
+/* Booking Zone Card：營位名稱與容量資訊列。 */
+.zoneCardInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+/* Booking Zone Card：營位名稱文字。 */
+.zoneCardInfo strong {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+}
+
+/* Booking Zone Card：營位容量或補充資訊文字。 */
+.zoneCardInfo span {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+}
+
+/* Booking Zone Card：營位價格資訊。 */
+.zoneCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+/* Booking Zone Card：剩餘庫存資訊。 */
+.zoneCardStock {
+  font-size: 0.8rem;
+  color: var(--bk-accent);
+}
+
+/* Booking Zone Card：選取營位按鈕，維持卡片內滿版操作。 */
+.zoneSelectBtn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.35rem;
+  font-size: 0.82rem;
+}
+
+/* Booking Checkout Support：結帳聯絡資料區塊。 */
+.contactForm {
+  margin-bottom: 1.25rem;
+}
+
+/* Booking Checkout Support：聯絡資料區塊標題。 */
+.contactForm h4 {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Checkout Support：結帳聯絡表單內的輸入欄位間距。 */
+.contactForm .formControl {
+  margin-bottom: 0.6rem;
+  font-size: 0.875rem;
+}
+
+/* Booking Checkout Support：返回購物車的文字連結。 */
+.bookingCartBackLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Checkout Support：返回購物車連結 hover 狀態。 */
+.bookingCartBackLink:hover {
+  color: var(--bk-primary);
+}
+
+/* Booking Checkout Support：結帳加購租借裝備提示區塊。 */
+.upsellBanner {
+  margin-top: 1rem;
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Booking Checkout Support：加購提示區塊主要文字。 */
+.upsellBanner p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Camp Card：營地搜尋結果卡片網格。 */
+.campCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+/* Booking Camp Card：單一營地卡片容器。 */
+.campCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Camp Card：卡片 hover 狀態。 */
+.campCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Camp Card：圖片比例容器。 */
+.campCardImage {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+/* Booking Camp Card：圖片填滿容器。 */
+.campCardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Booking Camp Card：滑過卡片時微放大圖片。 */
+.campCard:hover .campCardImage img {
+  transform: scale(1.05);
+}
+
+/* Booking Camp Card：地區標籤。 */
+.campCardBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--bk-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+/* Booking Camp Card：卡片主要內容區。 */
+.campCardBody {
+  padding: 1rem;
+  flex: 1;
+}
+
+/* Booking Camp Card：營地名稱。 */
+.campCardName {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Camp Card：價格摘要。 */
+.campCardPrice {
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Camp Card：價格重點文字。 */
+.campCardPrice strong {
+  color: var(--yc-sage-dark);
+}
+
+/* Booking Camp Card：營地標籤列。 */
+.campCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Card：卡片底部操作區。 */
+.campCardFooter {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Camp Card：底部主操作按鈕滿版。 */
+.campCardFooter .btn {
+  width: 100%;
+}
+
+@media (width <= 768px) {
+  /* Booking Camp Card：手機版搜尋結果改為單欄。 */
+  .campCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Camp Card：平板版維持雙欄。 */
+  .campCardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Booking Camp Detail：詳情頁內層容器，讓內容寬度與 booking 其他頁一致。 */
+.detailPage .pageInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Booking Camp Detail：營地頁首資訊區，承接標題、地區與特色標籤。 */
+.campHeader {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.campHeader h1 {
+  font-size: 2rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+.campHeaderRegion {
+  font-size: 0.95rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.campHeaderTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Detail：營地圖片牆，桌機呈現首圖橫跨的重點版面。 */
+.campGallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.galleryImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.galleryImg:first-child {
+  grid-column: 1/-1;
+  aspect-ratio: 16/7;
+}
+
+.galleryImg:hover {
+  transform: scale(1.03);
+}
+
+/* Booking Camp Detail：營地介紹卡片，承接文字段落與補充標籤。 */
+.campDescription {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  padding: 1.25rem;
+  box-shadow: var(--bk-shadow);
+}
+
+.campDescription p {
+  color: var(--bk-text);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+@media (width <= 768px) {
+  /* Booking Camp Detail：手機版圖片牆只保留主圖，避免列表過長。 */
+  .campGallery {
+    grid-template-columns: 1fr;
+  }
+  .campGallery img:not(:first-child) {
+    display: none;
+  }
+}
+/* Booking Zone Table：營位價格表區塊，對齊 booking 主內容寬度。 */
+.zoneTableSection {
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 0 1.5rem;
+}
+
+.zoneTableSection h3 {
+  font-size: 1.1rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Zone Table：營位資訊表格基底，使用卡片式圓角與陰影。 */
+.zoneTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  box-shadow: var(--bk-shadow);
+  font-size: 0.9rem;
+}
+
+.zoneTable th {
+  background: var(--bk-primary);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.zoneTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bk-border);
+  color: var(--bk-text);
+}
+
+.zoneTable tr:last-child td {
+  border-bottom: none;
+}
+
+.zoneTable tr:hover td {
+  background: var(--bk-bg);
+}
+
+@media (width <= 768px) {
+  /* Booking Zone Table：手機版允許橫向捲動，保留表格欄位可讀性。 */
+  .zoneTableSection {
+    overflow-x: auto;
+  }
+}
+/* Booking Rental Item Card：租借裝備卡片網格。 */
+.rentalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Booking Rental Item Card：單一租借裝備卡片。 */
+.rentalItemCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Rental Item Card：卡片 hover 狀態。 */
+.rentalItemCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Rental Item Card：裝備圖片。 */
+.rentalItemCardImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+/* Booking Rental Item Card：卡片內容區。 */
+.rentalItemCardBody {
+  padding: 0.9rem;
+  flex: 1;
+}
+
+/* Booking Rental Item Card：裝備名稱。 */
+.rentalItemCardName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：情境推薦標籤間距。 */
+.rentalItemCardTag {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：裝備描述。 */
+.rentalItemCardDesc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Booking Rental Item Card：原價或單價資訊。 */
+.rentalItemCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估租借金額。 */
+.rentalItemCardEstimated {
+  font-size: 0.85rem;
+  color: var(--bk-text);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估金額重點文字。 */
+.rentalItemCardEstimated strong {
+  color: var(--bk-primary);
+  font-size: 1rem;
+}
+
+/* Booking Rental Item Card：折扣資訊。 */
+.rentalItemCardDiscount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
+
+/* Booking Rental Item Card：庫存資訊。 */
+.rentalItemCardStock {
+  font-size: 0.78rem;
+  color: var(--bk-accent);
+  margin-bottom: 0;
+}
+
+/* Booking Rental Item Card：卡片底部操作區。 */
+.rentalItemCardActions {
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Rental Item Card：加入租借按鈕滿版。 */
+.rentalAddBtn {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
+
+/* Booking Rental Item Card：已加入狀態。 */
+.rentalAddBtn.isAdded {
+  color: #2d7a4f;
+}
+
+@media (width <= 768px) {
+  /* Booking Rental Item Card：手機版裝備卡片改為單欄。 */
+  .rentalGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Rental Item Card：平板版維持雙欄。 */
+  .rentalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Booking Header：共用 booking header 品牌、導覽動作與按鈕。 */
+.bookingHeaderShell,
+.bookingHeader {
+  background: var(--yc-bg);
+}
+
+.bookingNavbar {
+  min-height: 72px;
+  background: var(--yc-header-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingNavbarInner,
+.bookingFooterInner {
+  width: min(1120px, 100vw - 32px);
+  margin: 0 auto;
+}
+
+.bookingNavbarInner {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingBrandLink,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.bookingBrandLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 800;
+}
+
+.bookingBrandImage {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.bookingBrandSub {
+  color: var(--yc-on-dark-muted);
+  font-size: 0.875rem;
+}
+
+.bookingHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose,
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.bookingMenuButton,
+.bookingCartButton,
+.bookingOffcanvasClose,
+.bookingSlidePanelClose {
+  min-width: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--yc-on-dark);
+}
+
+.bookingLoginButton,
+.bookingSwitchLink,
+.bookingPanelCheckoutLink {
+  border: 1px solid transparent;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  padding: 0 1rem;
+}
+
+.bookingCartButton {
+  position: relative;
+}
+
+.bookingCartBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--yc-error);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (width <= 768px) {
+  .bookingNavbarInner,
+  .bookingFooterInner {
+    width: min(100% - 24px, 1120px);
+  }
+  .bookingBrandSub,
+  .bookingSwitchLink {
+    display: none;
+  }
+}
+/* 舊版 Booking Header：保留現有 bk* class API 的主導覽列。 */
+.bookingHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: var(--yc-header-bg);
+  box-shadow: 0 2px 10px rgba(60, 70, 59, 0.22);
+}
+
+/* 舊版 Header 版心：控制左側選單、置中品牌與右側動作區。 */
+.bkNavbarInner {
+  position: relative;
+  max-width: 1200px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 舊版品牌區：讓 logo 與品牌文字在桌機維持置中。 */
+.bkNavbarBrand {
+  position: absolute;
+  left: 50%;
+  z-index: 1;
+  flex-shrink: 0;
+  transform: translateX(-50%);
+}
+
+.bkNavbarBrand .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #fdf1db;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bkNavbarBrand .logo {
+  width: 28px;
+  height: 28px;
+}
+
+.bkBrandLink {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  color: var(--yc-on-dark);
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkBrandLink:hover {
+  color: #fff;
+}
+
+.brandSub {
+  color: rgba(255, 253, 249, 0.6);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* 舊版桌機導覽：保留 active 與 hover 狀態。 */
+.bkNavbarMenu {
+  flex: 1;
+  display: none;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkNavLink {
+  display: block;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  color: rgba(255, 253, 249, 0.82);
+  font-size: 0.95rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.bkNavLink:hover {
+  background: rgba(255, 253, 249, 0.12);
+  color: var(--yc-on-dark);
+}
+
+.bkNavLink.active {
+  border-bottom: 2px solid rgba(255, 253, 249, 0.75);
+  border-radius: 0;
+  color: var(--yc-on-dark);
+  font-weight: 600;
+}
+
+/* 舊版 Header 動作區：切換、購物車、登入與會員選單。 */
+.bkNavbarActions {
+  z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.bkSwitchBtn {
+  padding: 0.45rem 1rem;
+  border-color: rgba(255, 253, 249, 0.42);
+  background: rgba(255, 253, 249, 0.1);
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.bkSwitchBtn:hover {
+  border-color: rgba(255, 253, 249, 0.75);
+  background: rgba(255, 253, 249, 0.2);
+  color: #fff;
+}
+
+.bkCartBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-size: 1.35rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.bkCartBtn:hover {
+  background: rgba(255, 253, 249, 0.14);
+}
+
+.bkBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.bkBadgeInline {
+  position: static;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.bkLoginBtn {
+  padding: 0.4rem 0.9rem;
+  border-color: rgba(255, 253, 249, 0.5);
+  background: transparent;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bkLoginBtn:hover {
+  border-color: rgba(255, 253, 249, 0.85);
+  background: rgba(255, 253, 249, 0.14);
+  color: #fff;
+}
+
+/* 舊版會員下拉選單：保留登入後的 avatar、名稱與危險操作狀態。 */
+.bkUserMenu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bkUserAvatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.2);
+  color: var(--yc-on-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.bkUserName {
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bkUserDropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.bkUserChevron {
+  font-size: 0.75rem;
+  opacity: 0.72;
+  transition: transform 0.2s;
+}
+
+.bkUserDropdownToggle[aria-expanded='true'] .bkUserChevron {
+  transform: rotate(180deg);
+}
+
+.bkUserDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1100;
+  min-width: 148px;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  background: var(--yc-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  transform: translateY(-6px);
+  visibility: hidden;
+  transition:
+    opacity 0.18s,
+    transform 0.18s,
+    visibility 0.18s;
+}
+
+.bkUserDropdown.isOpen {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.bkUserDropdownItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 1.1rem;
+  border: none;
+  background: none;
+  color: var(--yc-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bkUserDropdownItem:hover {
+  background: var(--yc-surface-soft);
+}
+
+.bkUserDropdownItemDanger {
+  color: var(--yc-error);
+}
+
+.bkUserDropdownItemDanger:hover {
+  background: var(--yc-error-soft);
+}
+
+/* 舊版手機控制：漢堡選單與 RWD 顯示工具。 */
+.bkHamburger {
+  z-index: 2;
+  flex-shrink: 0;
+  display: inline-flex;
+  margin-right: auto;
+  padding: 0.3rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--yc-on-dark);
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.bkHamburger:hover {
+  background: rgba(255, 253, 249, 0.14);
+}
+
+.bkHiddenMobile {
+  display: flex;
+}
+
+.bkHiddenDesktop {
+  display: none;
+}
+
+/* Header 登入狀態：支援新版 navbarLoginBtn 與會員下拉 class。 */
+.bookingHeader .navbarLoginBtn {
+  padding: 0.4rem 0.9rem;
+  border-color: rgba(255, 253, 249, 0.5);
+  background: transparent;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bookingHeader .navbarLoginBtn:hover {
+  border-color: rgba(255, 253, 249, 0.85);
+  background: rgba(255, 253, 249, 0.14);
+  color: #fff;
+}
+
+.bookingHeader .navbarUserMenu {
+  position: relative;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--yc-on-dark);
+  font-size: 0.875rem;
+}
+
+.bookingHeader .userInfo {
+  color: var(--yc-on-dark);
+}
+
+.bookingHeader .userAvatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.2);
+  color: var(--yc-on-dark);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.bookingHeader .userName {
+  max-width: 80px;
+  overflow: hidden;
+  color: var(--yc-on-dark);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookingHeader .navbarUserDropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 2100;
+  min-width: 168px;
+  padding: 0.35rem 0;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  background: var(--yc-surface);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.bookingHeader .navbarUserDropdown .dropdownItem,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border: none;
+  background: none;
+  color: var(--yc-text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bookingHeader .navbarUserDropdown .dropdownItem:hover,
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn:hover {
+  background: var(--yc-surface-soft);
+}
+
+.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
+  color: var(--yc-error);
+}
+
+@media (width <= 900px) {
+  .bkSwitchBtnText {
+    display: none;
+  }
+  .bkSwitchBtn::after {
+    content: '租借';
+  }
+}
+@media (width <= 768px) {
+  .bkHiddenMobile {
+    display: none;
+  }
+  .bkHiddenDesktop {
+    display: block;
+  }
+  .bkNavbarInner {
+    gap: 1rem;
+  }
+  .bkSwitchBtn {
+    display: none;
+  }
+}
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Booking Auth Modal：booking header 注入的登入與個人化偏好 Modal。 */
+#bookingHeader #loginModal.modal,
+#bookingHeader #personalizationModal.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+#bookingHeader #loginModal.modal.isOpen,
+#bookingHeader #personalizationModal.modal.isOpen,
+#bookingHeader #surveyCloseConfirmModal.modal.isOpen {
+  display: flex;
+}
+
+#bookingHeader .modalContent {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+#bookingHeader #loginModal .modalContent {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#bookingHeader #loginModal.isOpen .modalContent {
+  transform: translateX(0);
+}
+
+#bookingHeader .modalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+#bookingHeader .modalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .modalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#bookingHeader .modalClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+#bookingHeader .btnGoogleLogin,
+#bookingHeader .btnFacebookLogin,
+#bookingHeader .btnLineLogin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+#bookingHeader .btnGoogleLogin:hover,
+#bookingHeader .btnFacebookLogin:hover,
+#bookingHeader .btnLineLogin:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+#bookingHeader .btnGoogleLogin {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+#bookingHeader .btnFacebookLogin {
+  background: #1877f2;
+  color: #fff;
+}
+
+#bookingHeader .btnLineLogin {
+  background: #00b900;
+  color: #fff;
+}
+
+#bookingHeader .oauthDesc,
+#bookingHeader .oauthPrivacy {
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+#bookingHeader .oauthDesc {
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+#bookingHeader .oauthPrivacy {
+  margin-top: 1.25rem;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+#bookingHeader .oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+#bookingHeader .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+#bookingHeader .stepperDot.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+#bookingHeader .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+#bookingHeader .surveyStep {
+  display: none;
+}
+
+#bookingHeader .surveyStep.isOpen {
+  display: block;
+}
+
+#bookingHeader .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+#bookingHeader .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+#bookingHeader .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .surveyTag.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader #surveyNextBtn,
+#bookingHeader #surveyFinishBtn {
+  width: 100%;
+}
+
+/* Legacy OAuth：支援舊 booking 登入按鈕與隱私文字 selector。 */
+.oauthDesc,
+.oauthDesc {
+  margin-bottom: 1.5rem;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.oauthBtn:last-of-type {
+  margin-bottom: 0;
+}
+
+.oauthBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.oauthBtn:active {
+  transform: translateY(0);
+}
+
+.oauthBtnGoogle {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+.oauthBtnLine {
+  background: #00b900;
+  color: #fff;
+}
+
+.oauthBtnFacebook {
+  background: #1877f2;
+  color: #fff;
+}
+
+.oauthPrivacy {
+  margin-top: 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+/* Legacy Personalization Modal：支援舊 booking 偏好設定 modal。 */
+.bkPersonalizationModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bkPersonalizationModal.isOpen {
+  display: flex;
+}
+
+.bkPersonalizationModalBox {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+}
+
+.bkPersonalizationModalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.bkPersonalizationModalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bkPersonalizationModalClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.bkPersonalizationModal .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+.bkPersonalizationModal .stepperDot.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+.bkPersonalizationModal .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+.bkPersonalizationModal .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+.bkPersonalizationModal .surveyStep {
+  display: none;
+}
+
+.bkPersonalizationModal .surveyStep.active {
+  display: block;
+}
+
+.bkPersonalizationModal .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModal .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bkPersonalizationModal .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.bkPersonalizationModal .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModal .surveyTag.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+/* Booking Drawer：共用左側導覽抽屜與右側購物面板外殼。 */
+.bookingOffcanvas,
+.bookingSlidePanel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 3000;
+  width: min(420px, 100vw);
+  background: var(--yc-surface);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  transition: transform var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvas {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+.bookingSlidePanel {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.bookingOffcanvas.isOpen,
+.bookingSlidePanel.isOpen {
+  transform: translateX(0);
+}
+
+.bookingOffcanvasBackdrop,
+.bookingPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2990;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity var(--yc-duration-normal) var(--yc-ease-soft);
+}
+
+.bookingOffcanvasBackdrop.isVisible,
+.bookingPanelBackdrop.isVisible {
+  opacity: 1;
+}
+
+.bookingOffcanvasHeader,
+.bookingSlidePanelHeader {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle,
+.bookingCartPanelLabel {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 1.125rem;
+  font-weight: 800;
+}
+
+.bookingOffcanvasLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookingOffcanvasLinks a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  color: var(--yc-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
+}
+
+.bookingSlidePanelBody,
+.bookingOffcanvasBody {
+  padding: 1rem;
+}
+
+/* Booking Cart Panel：右側預約背包內容列與總計。 */
+.bookingCartPanelSection {
+  display: grid;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.bookingCartPanelMeta {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.bookingCartPanelTotal {
+  margin: 1rem 0;
+  color: var(--yc-sage-action);
+  font-weight: 800;
+}
+
+/* 舊版 Offcanvas：左側手機導覽抽屜。 */
+.bkOffcanvas {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  z-index: 2000;
+  width: 300px;
+  max-width: 85vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--yc-bg);
+  box-shadow: -4px 0 20px rgba(60, 70, 59, 0.18);
+  transition: left 0.3s ease;
+}
+
+.bkOffcanvas.isOpen {
+  left: 0;
+}
+
+.bkOffcanvasHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bkOffcanvasTitle {
+  color: var(--yc-sage-action);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bkOffcanvasClose {
+  padding: 0.2rem;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--yc-sage-action);
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: background 0.2s;
+}
+
+.bkOffcanvasClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+}
+
+.bkOffcanvasBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.bkOffcanvasList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkOffcanvasList li a {
+  display: block;
+  padding: 0.85rem 1.5rem;
+  color: var(--yc-text);
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.bkOffcanvasList li a:hover {
+  background: rgba(115, 129, 110, 0.08);
+  color: var(--yc-sage-action);
+}
+
+.bkOffcanvasDivider {
+  height: 1px;
+  margin: 0.5rem 1.5rem;
+  background: var(--yc-border);
+}
+
+.bkOffcanvasSwitch {
+  color: var(--yc-sage-action);
+  font-weight: 600;
+}
+
+.bkOffcanvasCart,
+.bkOffcanvasCart {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bkOffcanvasBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1999;
+  display: none;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.bkOffcanvasBackdrop.isVisible {
+  display: block;
+}
+
+/* 舊版 Slide Panel：右側登入與購物面板外殼。 */
+.bkSlidePanel {
+  position: fixed;
+  top: 0;
+  right: -480px;
+  z-index: 3000;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--yc-surface);
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
+  transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bkSlidePanel.isOpen {
+  right: 0;
+}
+
+.bkSlidePanelHeader {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.bkSlidePanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkSlidePanelClose {
+  flex-shrink: 0;
+  padding: 0.35rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--bk-text-muted);
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.bkSlidePanelClose:hover {
+  background: rgba(115, 129, 110, 0.1);
+  color: var(--bk-primary);
+}
+
+.bkSlidePanelBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.bkSlidePanelFooter {
+  flex-shrink: 0;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+.bkPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2999;
+  display: none;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.bkPanelBackdrop.isVisible {
+  display: block;
+}
+
+/* 舊版購物面板：空狀態、費用列與清空按鈕。 */
+.cartPanelEmpty {
+  padding: 3rem 0;
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+.cartPanelEmpty i {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--bk-border);
+  font-size: 3rem;
+}
+
+.cartPanelEmpty p {
+  margin-bottom: 0.5rem;
+}
+
+.cartPanelEmptyLink {
+  margin-top: 0.75rem;
+}
+
+.cartPanelSection {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.cartPanelLabel {
+  margin-bottom: 0.6rem;
+  color: var(--bk-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cartPanelRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+  color: var(--bk-text);
+  font-size: 0.9rem;
+}
+
+.cartPanelRow span:last-child {
+  flex-shrink: 0;
+  color: var(--bk-primary);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cartPanelMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+  color: var(--bk-text-muted);
+  font-size: 0.8rem;
+}
+
+.cartPanelTotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  padding: 0.75rem 0 0.5rem;
+  border-top: 2px solid var(--bk-primary);
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.cartPanelClear {
+  width: 100%;
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border: none;
+  background: none;
+  color: var(--bk-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  text-align: center;
+  text-decoration: underline;
+  transition: color 0.15s;
+}
+
+.cartPanelClear:hover {
+  color: var(--bk-danger);
+}
+
+/* 舊版 Offcanvas 動作按鈕：購物車入口與登出。 */
+.bkOffcanvasCartBtn,
+.bkOffcanvasLogoutBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.bkOffcanvasCartBtn {
+  color: var(--yc-text);
+  font-size: 0.95rem;
+}
+
+.bkOffcanvasCartBtn:hover {
+  background: rgba(115, 129, 110, 0.08);
+  color: var(--yc-sage-action);
+}
+
+.bkOffcanvasLogoutBtn {
+  color: var(--yc-error);
+  font-size: 1rem;
+}
+
+.bkOffcanvasLogoutBtn:hover {
+  background: var(--yc-error-soft);
+}
+
+/* Booking Footer：共用 booking footer 版面、連結與社群按鈕。 */
+.bookingFooter {
+  background: var(--yc-footer-bg);
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterInner {
+  padding: 3rem 0 1.5rem;
+}
+
+.bookingFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+}
+
+.bookingFooterSection {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+}
+
+.bookingFooterHeading {
+  margin: 0;
+  color: var(--yc-on-dark);
+  font-size: 1.125rem;
+}
+
+.bookingFooterText,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: var(--yc-on-dark-muted);
+}
+
+.bookingFooterLinks,
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bookingFooterSocialLinks,
+.bookingFooterPolicies,
+.bookingFooterPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bookingFooterSocialLinks a {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  color: var(--yc-on-dark);
+}
+
+.bookingFooterBottom {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--yc-on-dark-muted);
+}
+
+@media (width <= 1024px) {
+  .bookingFooterGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bookingFooterBottom {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width <= 768px) {
+  .bookingFooterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* 舊版 Booking Footer：保留 bookingFooter 與 bk-footer__* class API。 */
+.bookingFooter {
+  margin-top: 4rem;
+  padding: 3rem 0 1.5rem;
+  background: var(--yc-footer-bg);
+  color: var(--yc-on-dark-muted);
+}
+
+.bkFooterInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 舊版 Footer 欄位：桌機四欄、手機逐步收斂。 */
+.bkFooterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.bkFooterHeading {
+  margin-bottom: 1rem;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.bkFooterSubheading {
+  margin-bottom: 0.75rem;
+  color: var(--yc-sage-light);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.bkFooterTagline {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+
+/* 舊版 Footer 連結與重要連結狀態。 */
+.bkFooterLinks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bkFooterLinks li {
+  margin-bottom: 0.5rem;
+}
+
+.bkFooterLinks a {
+  color: rgba(255, 253, 249, 0.72);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkFooterLinks a:hover {
+  color: var(--yc-on-dark);
+}
+
+.bkFooterLinks a.important {
+  color: var(--yc-on-dark);
+  font-weight: 600;
+}
+
+.bkFooterLinks a.important:hover {
+  color: #fff;
+}
+
+.bkFooterContactItem {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.7);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.bkFooterContactItem strong {
+  color: var(--yc-on-dark);
+}
+
+/* 舊版社群與站台 footer 補充樣式。 */
+.social {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.social a i {
+  padding: 20px;
+  color: var(--yc-on-dark);
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.social a i:hover {
+  color: var(--yc-cta);
+}
+
+.siteFooter p {
+  margin-bottom: 10px;
+}
+
+/* 舊版 Footer 底部：版權、政策連結與付款方式。 */
+.bkFooterDivider {
+  margin: 0 0 1.5rem;
+  border: none;
+  border-top: 1px solid rgba(255, 253, 249, 0.15);
+}
+
+.bkFooterBottom {
+  text-align: center;
+}
+
+.bkFooterCopyright {
+  margin-bottom: 0.75rem;
+  color: rgba(255, 253, 249, 0.5);
+  font-size: 0.8rem;
+}
+
+.bkFooterPolicy {
+  margin-bottom: 1rem;
+}
+
+.bkFooterPolicy a {
+  margin: 0 0.75rem;
+  color: rgba(255, 253, 249, 0.52);
+  font-size: 0.8rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.bkFooterPolicy a:hover {
+  color: rgba(255, 253, 249, 0.85);
+}
+
+.bkFooterPayment {
+  margin-bottom: 0.5rem;
+  color: rgba(255, 253, 249, 0.52);
+  font-size: 0.8rem;
+}
+
+.bkFooterPaymentIcons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.5rem;
+}
+
+@media (width <= 768px) {
+  .bkFooterGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+@media (width <= 480px) {
+  .bkFooterGrid {
+    grid-template-columns: 1fr;
+  }
+}
+/* Booking Toast：全域浮動通知容器。 */
+#bkToastContainer {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  width: calc(100% - 2.5rem);
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+/* Toast 基底：支援訊息文字、關閉按鈕與離場動畫。 */
+.bkToast {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--bk-radius-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  pointer-events: all;
+  animation: bk-toast-in 0.28s ease;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s ease;
+}
+
+.bkToastHiding {
+  opacity: 0;
+  transform: translateX(110%);
+}
+
+/* Toast 語意狀態：依訊息類型套用既有 booking 色票。 */
+.bkToastInfo {
+  background: var(--bk-primary);
+}
+
+.bkToastWarning {
+  background: var(--bk-orange);
+}
+
+.bkToastError {
+  background: var(--bk-danger);
+}
+
+.bkToastSuccess {
+  background: var(--bk-success);
+}
+
+.bkToastText {
+  flex: 1;
+}
+
+.bkToastClose {
+  flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.bkToastClose:hover {
+  color: #fff;
+}
+
+/* 確認型 Toast：提供確認與取消操作按鈕。 */
+.bkToastConfirm {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bkToastActions {
+  width: 100%;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.bkToastActionBtn {
+  flex: 1;
+  padding: 0.3rem 0.6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+
+.bkToastActionBtn:hover {
+  opacity: 0.85;
+}
+
+.bkToastActionBtnConfirm {
+  background: #fff;
+  color: var(--bk-orange, #c0762b);
+}
+
+.bkToastActionBtnCancel {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+/* Toast 進場動畫：從右側滑入並淡入。 */
+@keyframes bk-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(110%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* Flatpickr Override：套用 booking 設計 token 到第三方日期選擇器。 */
+.flatpickr-calendar {
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+}
+
+.flatpickr-day.inRange {
+  background: var(--bk-primary-light);
+  border-color: var(--bk-primary-light);
+}
+
+/* ── Hero 搜尋列：強制單行，擴大容器寬度 ── */
+.heroContent {
+  max-width: 900px;
+  /* 原 layout.css 700px 不夠放 5 個欄位，加寬 */
+}
+
+.heroBanner .searchBar {
+  flex-wrap: nowrap;
+}
+
+.heroBanner .searchBar .searchBarInput,
+.heroBanner .searchBar .searchBarSelect {
+  min-width: 0;
+  /* 允許縮到比 160px 更窄，維持單行 */
+}
+
+/* ── 搜尋列各欄位比例微調 (新增) ── */
+#dateRange {
+  flex: 2.5 1 0; /* 日期範圍加寬 */
+}
+
+#guestCount,
+#regionFilter {
+  flex: 1 1 0; /* 人數與地區縮窄 */
+}
+
+/* ── Dual-Thumb Price Slider ── */
+.priceRangeDisplay {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.priceRangeTrackWrap {
+  position: relative;
+  height: 6px;
+  margin: 0.6rem 0 0.5rem;
+}
+
+/* 底色軌道 */
+.priceRangeTrackWrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bk-border, #d8e4e4);
+  border-radius: 3px;
+}
+
+/* 選取範圍的亮色填充，避免由 JS 寫入 inline style */
+.priceRangeFill {
+  position: absolute;
+  inset: 0;
+  height: 6px;
+  background: var(--bk-primary);
+  border-radius: 3px;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+/* 兩個 range 疊在同一位置，背景透明 */
+.priceRangeTrackWrap input[type='range'] {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+#priceMin {
+  z-index: 3;
+}
+
+#priceMin.isRangeThumbRaised {
+  z-index: 5;
+}
+
+#priceMax {
+  z-index: 4;
+}
+
+/* WebKit thumb */
+.priceRangeTrackWrap input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--bk-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.priceRangeTrackWrap input[type='range']::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 6px;
+}
+
+/* Firefox thumb */
+.priceRangeTrackWrap input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--bk-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.priceRangeTrackWrap input[type='range']::-moz-range-track {
+  background: transparent;
+}
+
+.priceRangeLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+}
+
+/* Camp detail page inline-style replacements. */
+#dateSummary,
+#priceSummary {
+  display: none;
+}
+
+#dateSummary.isVisible {
+  display: block;
+}
+
+#priceSummary.isVisible {
+  display: flex;
+}
+
+.breadcrumb span:first-of-type {
+  margin: 0 0.4rem;
+  color: var(--yc-text-muted, #7b756d);
+}
+
+.campDescriptionTitle {
+  margin-bottom: 0.75rem;
+  color: var(--bk-primary);
+}
+
+.campDescriptionTags {
+  margin-top: 0.75rem;
+}
+
+.dateSummary > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dateSummary > div:first-child {
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+#zoneList > p {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.zoneTableSection > div {
+  overflow-x: auto;
+}
+
+/* ======================================================
+       rental-guide.html 頁面專屬樣式 — Yuruicamp v3
+       ====================================================== */
+/* 整體頁面背景 */
+.rentalGuidePage {
+  background: var(--yc-bg, #f8f5ee);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* ── Hero Banner ── */
+.rgHero {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
+  color: #fff;
+  padding: 5rem 1.5rem 4rem;
+  text-align: center;
+}
+
+.rgHeroTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.rgHeroSubtitle {
+  font-size: 1.15rem;
+  color: rgba(255, 253, 249, 0.85);
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.rgHeroCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.rgHeroCta:hover {
+  background: var(--yc-cta-hover, #d4c27e);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* ── 通用 Section ── */
+.rgSection {
+  max-width: 1100px;
+  margin: 4rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.rgSectionTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--yc-text, #3e473d);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.rgSectionDesc {
+  text-align: center;
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
+/* ── 流程步驟 ── */
+.rgSteps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.rgStepCard {
+  background: var(--yc-surface, #fffdf9);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 70, 59, 0.1);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  position: relative;
+}
+
+/* 步驟數字圓圈 */
+.rgStepCardNum {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--yc-sage-action, #73816e);
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.rgStepCardIcon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.rgStepCardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--yc-text, #3e473d);
+  margin-bottom: 0.5rem;
+}
+
+.rgStepCardDesc {
+  font-size: 0.875rem;
+  color: var(--yc-text-muted, #7b756d);
+  line-height: 1.6;
+}
+
+/* 步驟之間的箭頭（偽元素） */
+.rgStepCard:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: var(--yc-border, #d8cfc3);
+  z-index: 1;
+}
+
+/* ── 裝備分類展示 ── */
+.rgEquipGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.rgEquipCard {
+  background: var(--yc-surface, #fffdf9);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(60, 70, 59, 0.1);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.rgEquipCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 24px rgba(60, 70, 59, 0.18);
+}
+
+.rgEquipCardIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.rgEquipCardName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--yc-text, #3e473d);
+  margin-bottom: 0.4rem;
+}
+
+.rgEquipCardDesc {
+  font-size: 0.8rem;
+  color: var(--yc-text-muted, #7b756d);
+  line-height: 1.5;
+}
+
+/* ── 押金說明區塊（警示強調） ── */
+.rgDepositBox {
+  background: var(--yc-warning-soft, #f4ece2);
+  border: 2px solid var(--yc-warning, #9a7455);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.rgDepositBoxTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--yc-warning-text, #6b4d32);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rgDepositBox ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.rgDepositBox li {
+  color: var(--yc-text-secondary, #625e56);
+  font-size: 0.925rem;
+  line-height: 1.8;
+  margin-bottom: 0.25rem;
+}
+
+.rgDepositBoxLink {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--yc-sage-action, #73816e);
+  font-size: 0.875rem;
+  text-decoration: underline;
+}
+
+.rgDepositBoxLink:hover {
+  color: var(--yc-sage-dark, #62705d);
+}
+
+/* ── 底部 CTA ── */
+.rgCtaSection {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
+  padding: 4rem 1.5rem;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.rgCtaSection h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.75rem;
+}
+
+.rgCtaSection p {
+  color: rgba(255, 253, 249, 0.85);
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+
+/* ── RWD ── */
+@media (width <= 768px) {
+  .rgHeroTitle {
+    font-size: 1.75rem;
+  }
+  .rgSteps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .rgEquipGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* 手機版隱藏步驟箭頭 */
+  .rgStepCard::after {
+    display: none;
+  }
+}
+@media (width <= 480px) {
+  .rgSteps {
+    grid-template-columns: 1fr;
+  }
+  .rgEquipGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* ── 購物車兩欄佈局 ── */
+.bkCartLayout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 2rem;
+  align-items: start;
+  padding: 1.5rem 0 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+#bkCartContent,
+#bkCartEmpty {
+  display: none;
+}
+
+#bkCartContent.isVisible {
+  display: grid;
+}
+
+#bkCartEmpty.isVisible {
+  display: block;
+}
+
+.bookingCartPage .stepProgress {
+  padding-top: 1rem;
+}
+
+.bookingCartPage > div:nth-of-type(2) {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+.bookingCartPage > div:nth-of-type(2) h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--bk-text);
+  margin: 0 0 0.25rem;
+}
+
+#bkCartCount {
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── 商品卡（住宿 / 裝備各一塊）── */
+.bkCartCard {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.bkCartCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--bk-border);
+  background: var(--bk-bg);
+}
+
+.bkCartCardTitle {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--bk-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bkCartCardBody {
+  padding: 0;
+}
+
+/* ── 每一筆項目列 ── */
+.bkCartItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--bk-border);
+  gap: 1rem;
+}
+
+.bkCartItem:last-child {
+  border-bottom: none;
+}
+
+.bkCartItemInfo {
+  flex: 1;
+}
+
+.bkCartItemName {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--bk-text);
+  margin-bottom: 0.25rem;
+}
+
+.bkCartItemMeta {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.bkCartItemPrice {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bk-primary);
+  white-space: nowrap;
+}
+
+/* ── 修改連結 ── */
+.bkCartEditLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.bkCartEditLink:hover {
+  color: var(--bk-primary);
+}
+
+/* ── 右側 Sticky 摘要 ── */
+.bkCartSummaryCol {
+  position: sticky;
+  top: 5rem;
+}
+
+.bkCartSummaryCard {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  padding: 1.5rem;
+}
+
+.bkCartSummaryCard h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin: 0 0 1.25rem;
+}
+
+/* ── 空背包狀態 ── */
+.bkCartEmpty {
+  text-align: center;
+  padding: 5rem 2rem;
+}
+
+.bkCartEmptyIcon {
+  font-size: 4rem;
+  color: var(--bk-border);
+  margin-bottom: 1rem;
+}
+
+.bkCartEmptyTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin-bottom: 0.5rem;
+}
+
+.bkCartEmptyDesc {
+  font-size: 0.9rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ── 清除背包按鈕 ── */
+.bkCartClearBtn {
+  background: none;
+  border: none;
+  color: var(--bk-danger, #c0392b);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.bkCartClearBtn:hover {
+  opacity: 0.7;
+}
+
+#bkRentalCard + div {
+  text-align: right;
+  padding: 0 0.25rem;
+}
+
+/* ── 項目右側（數量 + 價格）── */
+.bkCartItemRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── 數量調整器 ── */
+.bkQtyStepper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bkQtyBtn {
+  width: 30px;
+  height: 30px;
+  background: var(--bk-bg);
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--bk-text);
+  transition: background 0.15s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bkQtyBtn:hover:not(:disabled) {
+  background: var(--bk-primary);
+  color: #fff;
+}
+
+.bkQtyBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bkQtyVal {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  border-left: 1.5px solid var(--bk-border);
+  border-right: 1.5px solid var(--bk-border);
+  padding: 0 4px;
+  line-height: 30px;
+}
+
+/* ── 裝備刪除按鈕 ── */
+.bkRentalRemove {
+  background: none;
+  border: none;
+  color: var(--bk-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  transition: color 0.15s;
+}
+
+.bkRentalRemove:hover {
+  color: var(--bk-danger, #c0392b);
+}
+
+.bkCartItemQtyLabel {
+  color: var(--bk-text-muted);
+  font-size: 0.72rem;
+}
+
+.bkCartEmptyNote {
+  padding: 1rem 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.85rem;
+}
+
+#bkCostRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.bkCartSummaryCard > hr {
+  border: none;
+  border-top: 2px solid var(--bk-border);
+  margin: 0 0 1rem;
+}
+
+.bkCartSummaryCard .costTotal {
+  margin-bottom: 1.5rem;
+}
+
+#bkCheckoutBtn {
+  display: block;
+  padding: 0.9rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.bkCartSummaryCard > a[href='./camp-rental.html'] {
+  display: block;
+  margin-top: 0.875rem;
+  color: var(--bk-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.bkCartSummaryCard > div:last-child {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bk-border);
+  text-align: center;
+}
+
+.bkCartSummaryCard > div:last-child p {
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  margin: 0;
+}
+
+.bkCartSummaryCard > div:last-child p:first-child {
+  margin-bottom: 0.25rem;
+}
+
+/* RWD */
+@media (width <= 860px) {
+  .bkCartLayout {
+    grid-template-columns: 1fr;
+  }
+  .bkCartSummaryCol {
+    position: static;
+    order: -1;
+  }
+}
+/* ══ Checkout-style 兩欄佈局 ══ */
+.bkCheckoutLayout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 2rem;
+  align-items: start;
+  padding: 1.5rem 0 4rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.bookingCartPage .stepProgress {
+  padding-top: 1rem;
+}
+
+/* ── 手風琴面板 ── */
+.bkPanel {
+  margin-bottom: 0.75rem;
+}
+
+.bkPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.bkPanelHeader:hover {
+  background: var(--bk-bg);
+}
+
+.bkPanel.isOpen .bkPanelHeader {
+  border-radius: var(--bk-radius) var(--bk-radius) 0 0;
+}
+
+.bkPanelTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bk-text);
+}
+
+.bkPanelNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bk-primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.bkPanelBody {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-top: none;
+  border-radius: 0 0 var(--bk-radius) var(--bk-radius);
+  padding: 1.5rem;
+}
+
+.bkPanel:not(.isOpen) .bkPanelBody {
+  display: none;
+}
+
+.bkPanelArrow {
+  font-size: 1rem;
+  color: var(--bk-text-muted);
+  transition: transform 0.2s;
+}
+
+.bkPanel:not(.isOpen) .bkPanelArrow {
+  transform: rotate(-90deg);
+}
+
+.bkPanel.isOpen .bkPanelArrow {
+  transform: rotate(0deg);
+}
+
+/* ── 右側 Sticky 摘要 ── */
+.bkCheckoutSummaryCol {
+  position: sticky;
+  top: 5rem;
+}
+
+.bkSummaryCard {
+  background: var(--bk-white);
+  border: 1px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  padding: 1.5rem;
+}
+
+.bkSummaryCard h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin: 0 0 1.25rem;
+}
+
+/* ── 付款方式 ── */
+.paymentOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius);
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+  background: var(--bk-white);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.paymentOption.isSelected {
+  border-color: var(--bk-primary);
+  background: var(--bk-primary-light, #edf5f5);
+}
+
+.paymentOption input[type='radio'] {
+  margin-top: 0.15rem;
+  accent-color: var(--bk-primary);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.paymentOptionTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bk-text);
+}
+
+#payOptLine .paymentOptionTitle span {
+  color: #00b900;
+  font-weight: 800;
+}
+
+.paymentOptionDesc {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* 信用卡輸入區 */
+#creditCardSection {
+  margin-top: 0.75rem;
+  padding: 1.1rem;
+  background: var(--bk-bg, #f5f9f9);
+  border-radius: var(--bk-radius);
+  border: 1px solid var(--bk-border);
+}
+
+.ccLabel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  margin-bottom: 0.3rem;
+}
+
+.ccInput {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  background: var(--bk-white);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+}
+
+.ccInput:focus {
+  border-color: var(--bk-primary);
+}
+
+.formControl.isFieldInvalid,
+.ccInput.isFieldInvalid {
+  border-color: var(--bk-danger);
+}
+
+.ccField {
+  margin-bottom: 0.75rem;
+}
+
+.ccField:last-child {
+  margin-bottom: 0;
+}
+
+.ccRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* 確認按鈕區 */
+.bkConfirmArea {
+  margin-top: 1.5rem;
+}
+
+#confirmPayBtn {
+  padding: 1rem;
+  font-size: 1.05rem;
+}
+
+#confirmPayBtn.isCheckoutSuccess {
+  color: var(--bk-success);
+  border-color: var(--bk-success);
+}
+
+.bkTermsNote {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.4rem;
+}
+
+.sslNote {
+  font-size: 0.75rem;
+  color: var(--bk-text-muted);
+  text-align: center;
+  margin-top: 0.6rem;
+}
+
+/* 未登入提示橫幅 */
+.bkLoginNotice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1rem;
+  background: var(--yc-warning-soft, #f4ece2);
+  border: 1.5px solid var(--yc-warning, #9a7455);
+  border-radius: var(--bk-radius);
+  font-size: 0.875rem;
+  color: var(--yc-warning-text, #6b4d32);
+  margin-bottom: 1rem;
+}
+
+#loginNotice {
+  display: none;
+}
+
+#loginNotice.isVisible {
+  display: flex;
+}
+
+.bkLoginNoticeBtn {
+  margin-left: auto;
+  padding: 0.35rem 0.9rem;
+  border: 1.5px solid var(--bk-primary);
+  background: var(--bk-white);
+  color: var(--bk-primary);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.bkLoginNoticeBtn:hover {
+  background: var(--bk-primary);
+  color: #fff;
+}
+
+#upsellSection,
+#upsellBanner {
+  display: none;
+}
+
+#upsellSection .cartSectionTitle {
+  color: var(--bk-gold);
+}
+
+#upsellSection > p {
+  color: var(--yc-text-secondary, #625e56);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+#panelContact .contactForm {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+#panelContact .contactForm p {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.bkSummaryCard > .costTotal + div {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--bk-border);
+  text-align: center;
+}
+
+.bkSummaryCard > .costTotal + div p {
+  color: var(--bk-text-muted);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.bkSummaryCard > .costTotal + div p:first-child {
+  margin-bottom: 0.25rem;
+}
+
+#upsellBanner p + p {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+#upsellBanner .rentalSkipLink {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* RWD */
+@media (width <= 900px) {
+  .bkCheckoutLayout {
+    grid-template-columns: 1fr;
+  }
+  .bkCheckoutSummaryCol {
+    position: static;
+    order: -1;
+  }
+}
+/* ======================================================
+       booking-faq.html 頁面專屬樣式 — Yuruicamp v3
+       ====================================================== */
+.faqPage {
+  background: var(--yc-bg, #f8f5ee);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* ── 頁首橫幅 ── */
+.faqHero {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
+  color: #fff;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.faqHeroTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.faqHeroSubtitle {
+  font-size: 1rem;
+  color: rgba(255, 253, 249, 0.85);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 快速跳頁錨點導覽 ── */
+.faqNav {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.faqNavLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  background: var(--yc-surface, #fffdf9);
+  border: 2px solid var(--yc-sage-soft, #eef2ec);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: var(--yc-sage-action, #73816e);
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.faqNavLink:hover {
+  background: var(--yc-sage-action, #73816e);
+  border-color: var(--yc-sage-action, #73816e);
+  color: #fff;
+}
+
+/* ── FAQ 主內容區 ── */
+.faqContent {
+  max-width: 900px;
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+}
+
+/* ── 每個主題區塊 ── */
+.faqSection {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 80px;
+}
+
+.faqSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--yc-sage-action, #73816e);
+  margin-bottom: 1.5rem;
+}
+
+.faqSectionIcon {
+  font-size: 1.5rem;
+}
+
+.faqSectionTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--yc-text, #3e473d);
+  margin: 0;
+}
+
+/* ── 問答 Accordion ── */
+.faqItem {
+  background: var(--yc-surface, #fffdf9);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(60, 70, 59, 0.08);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+/* 問題按鈕 */
+.faqItemQuestion {
+  width: 100%;
+  padding: 1.1rem 1.25rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--yc-text, #3e473d);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background 0.15s;
+}
+
+.faqItemQuestion:hover {
+  background: var(--yc-sage-soft, #eef2ec);
+}
+
+.faqItemQuestion.isOpen {
+  color: var(--yc-sage-action, #73816e);
+  background: var(--yc-sage-soft, #eef2ec);
+}
+
+/* 展開箭頭 */
+.faqItemArrow {
+  font-size: 0.8rem;
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+
+.faqItemQuestion.isOpen .faqItemArrow {
+  transform: rotate(180deg);
+}
+
+/* 答案區塊（預設收合） */
+.faqItemAnswer {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--yc-text-secondary, #625e56);
+  line-height: 1.8;
+  border-top: 1px solid var(--yc-border, #d8cfc3);
+}
+
+.faqItemAnswer.isOpen {
+  display: block;
+}
+
+.faqItemAnswer ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.faqItemAnswer li {
+  margin-bottom: 0.35rem;
+}
+
+#damage .faqItemAnswer p + p {
+  margin-top: 0.75rem;
+}
+
+.faqItemAnswer a {
+  color: var(--yc-sage-action, #73816e);
+  text-decoration: underline;
+}
+
+/* ── 底部 CTA ── */
+.faqCta {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.faqCtaBox {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d), var(--yc-sage-action, #73816e));
+  border-radius: 16px;
+  padding: 2.5rem;
+  color: #fff;
+}
+
+.faqCtaBox h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.faqCtaBox p {
+  font-size: 0.9rem;
+  color: rgba(255, 253, 249, 0.85);
+  margin-bottom: 1.5rem;
+}
+
+.faqCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.faqCtaBtn:hover {
+  background: var(--yc-cta-hover, #d4c27e);
+  transform: translateY(-2px);
+}
+
+/* ── RWD ── */
+@media (width <= 768px) {
+  .faqHeroTitle {
+    font-size: 1.75rem;
+  }
+}
+/* Utilities：booking 子系統最高權重工具類。 */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

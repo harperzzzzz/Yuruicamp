@@ -1,5 +1,5 @@
 /* ── 購物車兩欄佈局 ── */
-.bk-cart-layout {
+.bkCartLayout {
   display: grid;
   grid-template-columns: 1fr 320px;
   gap: 2rem;
@@ -22,17 +22,17 @@
   display: block;
 }
 
-.booking-cart-page .step-progress {
+.bookingCartPage .stepProgress {
   padding-top: 1rem;
 }
 
-.booking-cart-page > div:nth-of-type(2) {
+.bookingCartPage > div:nth-of-type(2) {
   max-width: 1100px;
   margin: 1.5rem auto 0;
   padding: 0 1rem;
 }
 
-.booking-cart-page > div:nth-of-type(2) h1 {
+.bookingCartPage > div:nth-of-type(2) h1 {
   font-size: 1.4rem;
   font-weight: 800;
   color: var(--bk-text);
@@ -46,7 +46,7 @@
 }
 
 /* ── 商品卡（住宿 / 裝備各一塊）── */
-.bk-cart-card {
+.bkCartCard {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-radius: var(--bk-radius);
@@ -54,7 +54,7 @@
   margin-bottom: 1rem;
 }
 
-.bk-cart-card__header {
+.bkCartCardHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -63,7 +63,7 @@
   background: var(--bk-bg);
 }
 
-.bk-cart-card__title {
+.bkCartCardTitle {
   font-weight: 700;
   font-size: 0.95rem;
   color: var(--bk-text);
@@ -72,12 +72,12 @@
   gap: 0.5rem;
 }
 
-.bk-cart-card__body {
+.bkCartCardBody {
   padding: 0;
 }
 
 /* ── 每一筆項目列 ── */
-.bk-cart-item {
+.bkCartItem {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -86,22 +86,22 @@
   gap: 1rem;
 }
 
-.bk-cart-item:last-child {
+.bkCartItem:last-child {
   border-bottom: none;
 }
 
-.bk-cart-item__info {
+.bkCartItemInfo {
   flex: 1;
 }
 
-.bk-cart-item__name {
+.bkCartItemName {
   font-weight: 600;
   font-size: 0.95rem;
   color: var(--bk-text);
   margin-bottom: 0.25rem;
 }
 
-.bk-cart-item__meta {
+.bkCartItemMeta {
   font-size: 0.8rem;
   color: var(--bk-text-muted);
   display: flex;
@@ -109,7 +109,7 @@
   gap: 0.75rem;
 }
 
-.bk-cart-item__price {
+.bkCartItemPrice {
   font-weight: 700;
   font-size: 1rem;
   color: var(--bk-primary);
@@ -117,7 +117,7 @@
 }
 
 /* ── 修改連結 ── */
-.bk-cart-edit-link {
+.bkCartEditLink {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -127,24 +127,24 @@
   transition: color 0.15s;
 }
 
-.bk-cart-edit-link:hover {
+.bkCartEditLink:hover {
   color: var(--bk-primary);
 }
 
 /* ── 右側 Sticky 摘要 ── */
-.bk-cart-summary-col {
+.bkCartSummaryCol {
   position: sticky;
   top: 5rem;
 }
 
-.bk-cart-summary-card {
+.bkCartSummaryCard {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-radius: var(--bk-radius);
   padding: 1.5rem;
 }
 
-.bk-cart-summary-card h3 {
+.bkCartSummaryCard h3 {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
@@ -152,32 +152,32 @@
 }
 
 /* ── 空背包狀態 ── */
-.bk-cart-empty {
+.bkCartEmpty {
   text-align: center;
   padding: 5rem 2rem;
 }
 
-.bk-cart-empty__icon {
+.bkCartEmptyIcon {
   font-size: 4rem;
   color: var(--bk-border);
   margin-bottom: 1rem;
 }
 
-.bk-cart-empty__title {
+.bkCartEmptyTitle {
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--bk-text);
   margin-bottom: 0.5rem;
 }
 
-.bk-cart-empty__desc {
+.bkCartEmptyDesc {
   font-size: 0.9rem;
   color: var(--bk-text-muted);
   margin-bottom: 1.5rem;
 }
 
 /* ── 清除背包按鈕 ── */
-.bk-cart-clear-btn {
+.bkCartClearBtn {
   background: none;
   border: none;
   color: var(--bk-danger, #c0392b);
@@ -188,7 +188,7 @@
   transition: opacity 0.15s;
 }
 
-.bk-cart-clear-btn:hover {
+.bkCartClearBtn:hover {
   opacity: 0.7;
 }
 
@@ -198,7 +198,7 @@
 }
 
 /* ── 項目右側（數量 + 價格）── */
-.bk-cart-item__right {
+.bkCartItemRight {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -207,7 +207,7 @@
 }
 
 /* ── 數量調整器 ── */
-.bk-qty-stepper {
+.bkQtyStepper {
   display: flex;
   align-items: center;
   gap: 0;
@@ -216,7 +216,7 @@
   overflow: hidden;
 }
 
-.bk-qty-btn {
+.bkQtyBtn {
   width: 30px;
   height: 30px;
   background: var(--bk-bg);
@@ -232,17 +232,17 @@
   justify-content: center;
 }
 
-.bk-qty-btn:hover:not(:disabled) {
+.bkQtyBtn:hover:not(:disabled) {
   background: var(--bk-primary);
   color: #fff;
 }
 
-.bk-qty-btn:disabled {
+.bkQtyBtn:disabled {
   opacity: 0.35;
   cursor: default;
 }
 
-.bk-qty-val {
+.bkQtyVal {
   min-width: 32px;
   text-align: center;
   font-weight: 700;
@@ -255,7 +255,7 @@
 }
 
 /* ── 裝備刪除按鈕 ── */
-.bk-rental-remove {
+.bkRentalRemove {
   background: none;
   border: none;
   color: var(--bk-text-muted);
@@ -269,16 +269,16 @@
   transition: color 0.15s;
 }
 
-.bk-rental-remove:hover {
+.bkRentalRemove:hover {
   color: var(--bk-danger, #c0392b);
 }
 
-.bk-cart-item__qty-label {
+.bkCartItemQtyLabel {
   color: var(--bk-text-muted);
   font-size: 0.72rem;
 }
 
-.bk-cart-empty-note {
+.bkCartEmptyNote {
   padding: 1rem 1.25rem;
   color: var(--bk-text-muted);
   font-size: 0.85rem;
@@ -291,13 +291,13 @@
   margin-bottom: 1rem;
 }
 
-.bk-cart-summary-card > hr {
+.bkCartSummaryCard > hr {
   border: none;
   border-top: 2px solid var(--bk-border);
   margin: 0 0 1rem;
 }
 
-.bk-cart-summary-card .cost-total {
+.bkCartSummaryCard .costTotal {
   margin-bottom: 1.5rem;
 }
 
@@ -308,7 +308,7 @@
   text-align: center;
 }
 
-.bk-cart-summary-card > a[href='./camp-rental.html'] {
+.bkCartSummaryCard > a[href='./camp-rental.html'] {
   display: block;
   margin-top: 0.875rem;
   color: var(--bk-text-muted);
@@ -317,30 +317,30 @@
   text-decoration: none;
 }
 
-.bk-cart-summary-card > div:last-child {
+.bkCartSummaryCard > div:last-child {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--bk-border);
   text-align: center;
 }
 
-.bk-cart-summary-card > div:last-child p {
+.bkCartSummaryCard > div:last-child p {
   font-size: 0.75rem;
   color: var(--bk-text-muted);
   margin: 0;
 }
 
-.bk-cart-summary-card > div:last-child p:first-child {
+.bkCartSummaryCard > div:last-child p:first-child {
   margin-bottom: 0.25rem;
 }
 
 /* RWD */
 @media (width <= 860px) {
-  .bk-cart-layout {
+  .bkCartLayout {
     grid-template-columns: 1fr;
   }
 
-  .bk-cart-summary-col {
+  .bkCartSummaryCol {
     position: static;
     order: -1;
   }

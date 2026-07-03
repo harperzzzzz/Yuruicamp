@@ -1,0 +1,63 @@
+/* Booking Recommendation：租借頁推薦橫幅外層，對齊 booking 主內容寬度。 */
+.recommendationBanner {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Booking Recommendation：JS 有推薦內容時才顯示橫幅。 */
+#recommendationBanner {
+  display: none;
+}
+
+/* Booking Recommendation：推薦內容卡片，使用品牌淺底呈現輔助建議。 */
+.recommendationBannerContent {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+}
+
+.recommendationBannerContent strong {
+  color: var(--bk-primary);
+}
+
+.recommendationBannerTitle {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Recommendation：推薦標籤群組，支援多個地形或裝備提示。 */
+.recommendationTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.recommendationTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* Booking Recommendation：租借列表標題與數量資訊。 */
+.rentalItemsList h2 {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+}
+
+#rentalCount {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.875rem;
+  font-weight: 400;
+}

@@ -1,0 +1,75 @@
+/* Booking Card：共用預訂表單側欄、購物車區塊與摘要卡片容器。 */
+.bookingFormCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.5rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Card：表單側欄標題，維持與 Booking 主色一致的區隔線。 */
+.bookingFormCardTitle {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Card：表單側欄底部輔助提示文字。 */
+.bookingFormCardHint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+/* Booking Card：結帳與明細頁共用的內容分區卡片。 */
+.cartSection {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Booking Card：卡片分區標題，支援圖示與文字並排。 */
+.cartSectionTitle {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Card：結帳摘要側欄容器。 */
+.bookingCartSummary {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.5rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Card：結帳摘要標題。 */
+.bookingCartSummary h3 {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+@media (width <= 768px) {
+  /* Booking Card：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
+  .bookingFormCard,
+  .bookingCartSummary {
+    position: static;
+  }
+}

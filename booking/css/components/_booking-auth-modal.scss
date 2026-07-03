@@ -1,0 +1,475 @@
+/* Booking Auth Modal：booking header 注入的登入與個人化偏好 Modal。 */
+#bookingHeader #loginModal.modal,
+#bookingHeader #personalizationModal.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  background: rgb(0 0 0 / 45%);
+}
+
+#bookingHeader #loginModal.modal.isOpen,
+#bookingHeader #personalizationModal.modal.isOpen,
+#bookingHeader #surveyCloseConfirmModal.modal.isOpen {
+  display: flex;
+}
+
+#bookingHeader .modalContent {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
+}
+
+#bookingHeader #loginModal .modalContent {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 420px;
+  max-width: 92vw;
+  height: 100vh;
+  max-height: 100vh;
+  border-radius: 0;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#bookingHeader #loginModal.isOpen .modalContent {
+  transform: translateX(0);
+}
+
+#bookingHeader .modalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+#bookingHeader .modalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .modalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+#bookingHeader .modalClose:hover {
+  background: rgb(115 129 110 / 10%);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .modalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+#bookingHeader .btnGoogleLogin,
+#bookingHeader .btnFacebookLogin,
+#bookingHeader .btnLineLogin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+#bookingHeader .btnGoogleLogin:hover,
+#bookingHeader .btnFacebookLogin:hover,
+#bookingHeader .btnLineLogin:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+#bookingHeader .btnGoogleLogin {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+#bookingHeader .btnFacebookLogin {
+  background: #1877f2;
+  color: #fff;
+}
+
+#bookingHeader .btnLineLogin {
+  background: #00b900;
+  color: #fff;
+}
+
+#bookingHeader .oauthDesc,
+#bookingHeader .oauthPrivacy {
+  color: var(--bk-text-muted);
+  text-align: center;
+}
+
+#bookingHeader .oauthDesc {
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+#bookingHeader .oauthPrivacy {
+  margin-top: 1.25rem;
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+#bookingHeader .oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+#bookingHeader .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+#bookingHeader .stepperDot.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+#bookingHeader .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+#bookingHeader .surveyStep {
+  display: none;
+}
+
+#bookingHeader .surveyStep.isOpen {
+  display: block;
+}
+
+#bookingHeader .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+#bookingHeader .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+#bookingHeader .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+#bookingHeader .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+#bookingHeader .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+#bookingHeader .surveyTag.isSelected {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+#bookingHeader #surveyNextBtn,
+#bookingHeader #surveyFinishBtn {
+  width: 100%;
+}
+
+/* Legacy OAuth：支援舊 booking 登入按鈕與隱私文字 selector。 */
+.oauthDesc,
+.oauthDesc {
+  margin-bottom: 1.5rem;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    transform 0.15s;
+}
+
+.oauthBtn:last-of-type {
+  margin-bottom: 0;
+}
+
+.oauthBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.oauthBtn:active {
+  transform: translateY(0);
+}
+
+.oauthBtnGoogle {
+  background: #fff;
+  border: 1.5px solid #dadce0;
+  color: #3c4043;
+}
+
+.oauthBtnLine {
+  background: #00b900;
+  color: #fff;
+}
+
+.oauthBtnFacebook {
+  background: #1877f2;
+  color: #fff;
+}
+
+.oauthPrivacy {
+  margin-top: 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.oauthPrivacy a {
+  color: var(--bk-primary);
+  text-decoration: underline;
+}
+
+/* Legacy Personalization Modal：支援舊 booking 偏好設定 modal。 */
+.bkPersonalizationModal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bkPersonalizationModal.isOpen {
+  display: flex;
+}
+
+.bkPersonalizationModalBox {
+  display: flex;
+  flex-direction: column;
+  width: min(480px, 100%);
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  background: var(--yc-surface);
+  border-radius: 8px;
+  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
+}
+
+.bkPersonalizationModalHeader {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--bk-border);
+}
+
+.bkPersonalizationModalTitle {
+  margin: 0;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModalClose {
+  padding: 0.35rem 0.5rem;
+  color: var(--bk-text-muted);
+  line-height: 1;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.bkPersonalizationModalClose:hover {
+  background: rgb(115 129 110 / 10%);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModalBody {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.bkPersonalizationModal .stepperHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .stepperDot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  font-weight: 700;
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--bk-border);
+  border-radius: 50%;
+}
+
+.bkPersonalizationModal .stepperDot.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}
+
+.bkPersonalizationModal .stepperLine {
+  flex: 1;
+  max-width: 64px;
+  height: 2px;
+  background: var(--bk-border);
+}
+
+.bkPersonalizationModal .stepperText {
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+}
+
+.bkPersonalizationModal .surveyStep {
+  display: none;
+}
+
+.bkPersonalizationModal .surveyStep.active {
+  display: block;
+}
+
+.bkPersonalizationModal .surveyQuestion {
+  margin: 0 0 0.5rem;
+  color: var(--bk-primary);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.bkPersonalizationModal .surveyHint {
+  margin: 0 0 1.25rem;
+  color: var(--bk-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bkPersonalizationModal .surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.bkPersonalizationModal .surveyTag {
+  padding: 0.42rem 0.85rem;
+  color: var(--bk-text);
+  font-size: 0.875rem;
+  border: 1.5px solid var(--bk-border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.bkPersonalizationModal .surveyTag:hover {
+  border-color: var(--bk-primary);
+  color: var(--bk-primary);
+}
+
+.bkPersonalizationModal .surveyTag.active {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+  color: #fff;
+}

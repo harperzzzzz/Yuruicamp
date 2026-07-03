@@ -1,0 +1,17 @@
+/* Flatpickr Override：套用 booking 設計 token 到第三方日期選擇器。 */
+.flatpickr-calendar {
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--bk-primary);
+  border-color: var(--bk-primary);
+}
+
+.flatpickr-day.inRange {
+  background: var(--bk-primary-light);
+  border-color: var(--bk-primary-light);
+}

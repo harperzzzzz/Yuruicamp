@@ -1,0 +1,85 @@
+/* Booking Camp Detail：詳情頁內層容器，讓內容寬度與 booking 其他頁一致。 */
+.detailPage .pageInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Booking Camp Detail：營地頁首資訊區，承接標題、地區與特色標籤。 */
+.campHeader {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.campHeader h1 {
+  font-size: 2rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+.campHeaderRegion {
+  font-size: 0.95rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.campHeaderTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Detail：營地圖片牆，桌機呈現首圖橫跨的重點版面。 */
+.campGallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.galleryImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.galleryImg:first-child {
+  grid-column: 1 / -1;
+  aspect-ratio: 16/7;
+}
+
+.galleryImg:hover {
+  transform: scale(1.03);
+}
+
+/* Booking Camp Detail：營地介紹卡片，承接文字段落與補充標籤。 */
+.campDescription {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  padding: 1.25rem;
+  box-shadow: var(--bk-shadow);
+}
+
+.campDescription p {
+  color: var(--bk-text);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+@media (width <= 768px) {
+  /* Booking Camp Detail：手機版圖片牆只保留主圖，避免列表過長。 */
+  .campGallery {
+    grid-template-columns: 1fr;
+  }
+
+  .campGallery img:not(:first-child) {
+    display: none;
+  }
+}

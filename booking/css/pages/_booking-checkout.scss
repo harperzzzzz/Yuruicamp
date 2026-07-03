@@ -1,5 +1,5 @@
 /* ══ Checkout-style 兩欄佈局 ══ */
-.bk-checkout-layout {
+.bkCheckoutLayout {
   display: grid;
   grid-template-columns: 1fr 340px;
   gap: 2rem;
@@ -9,16 +9,16 @@
   margin: 0 auto;
 }
 
-.booking-cart-page .step-progress {
+.bookingCartPage .stepProgress {
   padding-top: 1rem;
 }
 
 /* ── 手風琴面板 ── */
-.bk-panel {
+.bkPanel {
   margin-bottom: 0.75rem;
 }
 
-.bk-panel__header {
+.bkPanelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -31,15 +31,15 @@
   user-select: none;
 }
 
-.bk-panel__header:hover {
+.bkPanelHeader:hover {
   background: var(--bk-bg);
 }
 
-.bk-panel.is-open .bk-panel__header {
+.bkPanel.isOpen .bkPanelHeader {
   border-radius: var(--bk-radius) var(--bk-radius) 0 0;
 }
 
-.bk-panel__title {
+.bkPanelTitle {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -48,7 +48,7 @@
   color: var(--bk-text);
 }
 
-.bk-panel__num {
+.bkPanelNum {
   width: 28px;
   height: 28px;
   border-radius: 50%;
@@ -62,7 +62,7 @@
   flex-shrink: 0;
 }
 
-.bk-panel__body {
+.bkPanelBody {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-top: none;
@@ -70,38 +70,38 @@
   padding: 1.5rem;
 }
 
-.bk-panel:not(.is-open) .bk-panel__body {
+.bkPanel:not(.isOpen) .bkPanelBody {
   display: none;
 }
 
-.bk-panel__arrow {
+.bkPanelArrow {
   font-size: 1rem;
   color: var(--bk-text-muted);
   transition: transform 0.2s;
 }
 
-.bk-panel:not(.is-open) .bk-panel__arrow {
+.bkPanel:not(.isOpen) .bkPanelArrow {
   transform: rotate(-90deg);
 }
 
-.bk-panel.is-open .bk-panel__arrow {
+.bkPanel.isOpen .bkPanelArrow {
   transform: rotate(0deg);
 }
 
 /* ── 右側 Sticky 摘要 ── */
-.bk-checkout-summary-col {
+.bkCheckoutSummaryCol {
   position: sticky;
   top: 5rem;
 }
 
-.bk-summary-card {
+.bkSummaryCard {
   background: var(--bk-white);
   border: 1px solid var(--bk-border);
   border-radius: var(--bk-radius);
   padding: 1.5rem;
 }
 
-.bk-summary-card h3 {
+.bkSummaryCard h3 {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--bk-primary);
@@ -109,7 +109,7 @@
 }
 
 /* ── 付款方式 ── */
-.payment-option {
+.paymentOption {
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
@@ -124,12 +124,12 @@
     background 0.15s;
 }
 
-.payment-option.is-selected {
+.paymentOption.isSelected {
   border-color: var(--bk-primary);
   background: var(--bk-primary-light, #edf5f5);
 }
 
-.payment-option input[type='radio'] {
+.paymentOption input[type='radio'] {
   margin-top: 0.15rem;
   accent-color: var(--bk-primary);
   width: 17px;
@@ -138,18 +138,18 @@
   cursor: pointer;
 }
 
-.payment-option__title {
+.paymentOptionTitle {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--bk-text);
 }
 
-#payOptLine .payment-option__title span {
+#payOptLine .paymentOptionTitle span {
   color: #00b900;
   font-weight: 800;
 }
 
-.payment-option__desc {
+.paymentOptionDesc {
   font-size: 0.8rem;
   color: var(--bk-text-muted);
   margin-top: 0.2rem;
@@ -164,7 +164,7 @@
   border: 1px solid var(--bk-border);
 }
 
-.cc-label {
+.ccLabel {
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
@@ -172,7 +172,7 @@
   margin-bottom: 0.3rem;
 }
 
-.cc-input {
+.ccInput {
   width: 100%;
   padding: 0.55rem 0.8rem;
   border: 1.5px solid var(--bk-border);
@@ -187,26 +187,31 @@
   letter-spacing: 0.03em;
 }
 
-.cc-input:focus {
+.ccInput:focus {
   border-color: var(--bk-primary);
 }
 
-.cc-field {
+.formControl.isFieldInvalid,
+.ccInput.isFieldInvalid {
+  border-color: var(--bk-danger);
+}
+
+.ccField {
   margin-bottom: 0.75rem;
 }
 
-.cc-field:last-child {
+.ccField:last-child {
   margin-bottom: 0;
 }
 
-.cc-row {
+.ccRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
 }
 
 /* 確認按鈕區 */
-.bk-confirm-area {
+.bkConfirmArea {
   margin-top: 1.5rem;
 }
 
@@ -215,14 +220,19 @@
   font-size: 1.05rem;
 }
 
-.bk-terms-note {
+#confirmPayBtn.isCheckoutSuccess {
+  color: var(--bk-success);
+  border-color: var(--bk-success);
+}
+
+.bkTermsNote {
   text-align: center;
   font-size: 0.75rem;
   color: var(--bk-text-muted);
   margin-top: 0.4rem;
 }
 
-.ssl-note {
+.sslNote {
   font-size: 0.75rem;
   color: var(--bk-text-muted);
   text-align: center;
@@ -230,7 +240,7 @@
 }
 
 /* 未登入提示橫幅 */
-.bk-login-notice {
+.bkLoginNotice {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -252,7 +262,7 @@
   display: flex;
 }
 
-.bk-login-notice__btn {
+.bkLoginNoticeBtn {
   margin-left: auto;
   padding: 0.35rem 0.9rem;
   border: 1.5px solid var(--bk-primary);
@@ -269,7 +279,7 @@
     color 0.15s;
 }
 
-.bk-login-notice__btn:hover {
+.bkLoginNoticeBtn:hover {
   background: var(--bk-primary);
   color: #fff;
 }
@@ -279,43 +289,43 @@
   display: none;
 }
 
-#upsellSection .cart-section__title {
+#upsellSection .cartSectionTitle {
   color: var(--bk-gold);
 }
 
 #upsellSection > p {
-  color: var(--yc-text-secondary, #625E56);
+  color: var(--yc-text-secondary, #625e56);
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
-#panelContact .contact-form {
+#panelContact .contactForm {
   padding: 0;
   background: none;
   border: none;
 }
 
-#panelContact .contact-form p {
-  color: var(--yc-text-muted, #7B756D);
+#panelContact .contactForm p {
+  color: var(--yc-text-muted, #7b756d);
   font-size: 0.78rem;
   margin-top: 0.25rem;
   margin-bottom: 0;
 }
 
-.bk-summary-card > .cost-total + div {
+.bkSummaryCard > .costTotal + div {
   padding-top: 1rem;
   margin-top: 1rem;
   border-top: 1px solid var(--bk-border);
   text-align: center;
 }
 
-.bk-summary-card > .cost-total + div p {
+.bkSummaryCard > .costTotal + div p {
   color: var(--bk-text-muted);
   font-size: 0.75rem;
   margin: 0;
 }
 
-.bk-summary-card > .cost-total + div p:first-child {
+.bkSummaryCard > .costTotal + div p:first-child {
   margin-bottom: 0.25rem;
 }
 
@@ -324,7 +334,7 @@
   margin-bottom: 0.75rem;
 }
 
-#upsellBanner .rental-skip-link {
+#upsellBanner .rentalSkipLink {
   display: block;
   margin-top: 0.5rem;
   text-align: center;
@@ -332,11 +342,11 @@
 
 /* RWD */
 @media (width <= 900px) {
-  .bk-checkout-layout {
+  .bkCheckoutLayout {
     grid-template-columns: 1fr;
   }
 
-  .bk-checkout-summary-col {
+  .bkCheckoutSummaryCol {
     position: static;
     order: -1;
   }

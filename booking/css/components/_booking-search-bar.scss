@@ -1,0 +1,61 @@
+/* Booking Search Bar：營地搜尋列外層，提供主色區塊與圓角裁切。 */
+.searchBarSection {
+  background: var(--bk-primary);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: var(--yc-radius-card, 19px);
+  overflow: hidden;
+}
+
+/* Booking Search Bar：搜尋欄位排列容器，支援多欄自動換行。 */
+.searchBar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Booking Search Bar：輸入與下拉欄位共用視覺，適合深色搜尋區塊。 */
+.searchBarInput,
+.searchBarSelect {
+  flex: 1 1 160px;
+  padding: 0.6rem 1rem;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-radius: var(--bk-radius-sm);
+  background: rgb(255 255 255 / 15%);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: var(--bk-transition);
+}
+
+.searchBarInput::placeholder {
+  color: rgb(255 255 255 / 70%);
+}
+
+.searchBarInput:focus,
+.searchBarSelect:focus {
+  border-color: #fff;
+  background: rgb(255 255 255 / 25%);
+}
+
+/* Booking Search Bar：瀏覽器原生選單選項需回到淺底，避免白字不可讀。 */
+.searchBarSelect option {
+  color: var(--bk-text);
+  background: var(--yc-surface);
+}
+
+@media (width <= 768px) {
+  /* Booking Search Bar：手機版改為單欄直向排列，降低橫向擠壓。 */
+  .searchBar {
+    flex-direction: column;
+  }
+
+  .searchBarInput,
+  .searchBarSelect {
+    flex: 1 1 100%;
+  }
+}

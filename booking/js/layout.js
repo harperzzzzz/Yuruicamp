@@ -2,13 +2,13 @@
  * Creates the floating scroll-to-top and LINE shortcut buttons on booking pages.
  */
 function initFloatingActions() {
-  if (document.querySelector('.floating-actions')) return;
+  if (document.querySelector('.floatingActions')) return;
 
   const floatingActions = document.createElement('div');
-  floatingActions.className = 'floating-actions';
+  floatingActions.className = 'floatingActions';
   floatingActions.innerHTML = `
     <button
-      class="floating-top-btn"
+      class="floatingTopBtn"
       type="button"
       aria-label="回到頁面頂端"
       title="回到頁面頂端"
@@ -16,15 +16,15 @@ function initFloatingActions() {
       <i class="bi bi-chevron-up"></i>
     </button>
     <a
-      class="floating-line-btn"
+      class="floatingLineBtn"
       href="https://line.me"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="LINE 聯絡"
       title="LINE 聯絡"
     >
-      <span class="floating-line-label">LINE 聯絡</span>
-      <span class="floating-line-icon" aria-hidden="true">
+      <span class="floatingLineLabel">LINE 聯絡</span>
+      <span class="floatingLineIcon" aria-hidden="true">
         <i class="bi bi-chat-dots-fill"></i>
       </span>
     </a>
@@ -32,15 +32,15 @@ function initFloatingActions() {
 
   document.body.appendChild(floatingActions);
 
-  const topButton = floatingActions.querySelector('.floating-top-btn');
+  const topButton = floatingActions.querySelector('.floatingTopBtn');
 
   /**
    * Shows the top button only after the user scrolls past the first viewport segment.
    */
   function toggleTopButton() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const shouldShow = scrollTop > (window.innerHeight / 5);
-    topButton.classList.toggle('is-visible', shouldShow);
+    const shouldShow = scrollTop > window.innerHeight / 5;
+    topButton.classList.toggle('isVisible', shouldShow);
   }
 
   topButton.addEventListener('click', function () {
@@ -67,7 +67,9 @@ function loadScriptOnce(src, flagName) {
     window[flagName] = true;
     const script = document.createElement('script');
     script.src = src;
-    script.onload = function () { resolve(); };
+    script.onload = function () {
+      resolve();
+    };
     script.onerror = function () {
       window[flagName] = false;
       reject(new Error('script load failed: ' + src));
@@ -141,13 +143,27 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
  * Loads the booking header, shared auth modal, and footer for booking pages.
  */
 window.loadBookingSharedLayout = function () {
-  loadBookingLayoutPartial('#booking-header', '../../components/header.partial', '[data-layout-part="booking-header"]', function (ok) {
-    if (!ok) return;
-    loadBookingLayoutPartial('#booking-header', '../../components/header.partial', '[data-layout-part="shared-auth"]', function () {
-      loadBookingHeaderScript();
-    });
-  });
-  loadBookingLayoutPartial('#booking-footer', '../../components/footer.partial', '[data-layout-part="booking-footer"]');
+  loadBookingLayoutPartial(
+    '#bookingHeader',
+    '../../components/header.partial',
+    '[data-layout-part="bookingHeader"]',
+    function (ok) {
+      if (!ok) return;
+      loadBookingLayoutPartial(
+        '#bookingHeader',
+        '../../components/header.partial',
+        '[data-layout-part="shared-auth"]',
+        function () {
+          loadBookingHeaderScript();
+        }
+      );
+    }
+  );
+  loadBookingLayoutPartial(
+    '#bookingFooter',
+    '../../components/footer.partial',
+    '[data-layout-part="bookingFooter"]'
+  );
 };
 
 document.addEventListener('DOMContentLoaded', initFloatingActions);

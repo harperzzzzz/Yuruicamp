@@ -263,7 +263,7 @@
   </div>
 </div>
 
-<div data-layout-part="booking-header">
+<div data-layout-part="bookingHeader">
   <div class="bookingHeaderShell">
     <header class="bookingHeader">
       <nav class="bookingNavbar" aria-label="預約系統導覽">

@@ -1,0 +1,121 @@
+/* Booking Rental Item Card：租借裝備卡片網格。 */
+.rentalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Booking Rental Item Card：單一租借裝備卡片。 */
+.rentalItemCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Rental Item Card：卡片 hover 狀態。 */
+.rentalItemCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Rental Item Card：裝備圖片。 */
+.rentalItemCardImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+/* Booking Rental Item Card：卡片內容區。 */
+.rentalItemCardBody {
+  padding: 0.9rem;
+  flex: 1;
+}
+
+/* Booking Rental Item Card：裝備名稱。 */
+.rentalItemCardName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：情境推薦標籤間距。 */
+.rentalItemCardTag {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：裝備描述。 */
+.rentalItemCardDesc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Booking Rental Item Card：原價或單價資訊。 */
+.rentalItemCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估租借金額。 */
+.rentalItemCardEstimated {
+  font-size: 0.85rem;
+  color: var(--bk-text);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估金額重點文字。 */
+.rentalItemCardEstimated strong {
+  color: var(--bk-primary);
+  font-size: 1rem;
+}
+
+/* Booking Rental Item Card：折扣資訊。 */
+.rentalItemCardDiscount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
+
+/* Booking Rental Item Card：庫存資訊。 */
+.rentalItemCardStock {
+  font-size: 0.78rem;
+  color: var(--bk-accent);
+  margin-bottom: 0;
+}
+
+/* Booking Rental Item Card：卡片底部操作區。 */
+.rentalItemCardActions {
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Rental Item Card：加入租借按鈕滿版。 */
+.rentalAddBtn {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
+
+/* Booking Rental Item Card：已加入狀態。 */
+.rentalAddBtn.isAdded {
+  color: #2d7a4f;
+}
+
+@media (width <= 768px) {
+  /* Booking Rental Item Card：手機版裝備卡片改為單欄。 */
+  .rentalGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Rental Item Card：平板版維持雙欄。 */
+  .rentalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

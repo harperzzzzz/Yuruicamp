@@ -1,0 +1,28 @@
+/* Booking Form：共用表單欄位間距、標籤與輸入控制。 */
+.formGroup {
+  margin-bottom: 1rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--bk-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.formControl {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  background: var(--bk-white);
+  color: var(--bk-text);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.formControl:focus {
+  border-color: var(--bk-primary);
+}

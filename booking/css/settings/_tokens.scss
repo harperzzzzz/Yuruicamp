@@ -1,0 +1,109 @@
+@import 'https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap';
+
+/* Settings：booking 子系統設計 token，供 generic、elements、objects、components、pages 共用。 */
+:root {
+  /* Base / Cream */
+  --yc-bg: #f8f5ee;
+  --yc-surface: #fffdf9;
+  --yc-surface-soft: #f0ece3;
+  --yc-border: #d8cfc3;
+
+  /* Sage Brand */
+  --yc-sage-soft: #eef2ec;
+  --yc-sage-light: #b7c3b3;
+  --yc-sage-action: #73816e;
+  --yc-sage-dark: #62705d;
+
+  /* Conversion CTA */
+  --yc-cta: #e2d39a;
+  --yc-cta-hover: #d4c27e;
+  --yc-cta-soft: #fbf3d1;
+  --yc-cta-line: #d9c98f;
+  --yc-on-cta: #4a4537;
+
+  /* Text */
+  --yc-text: #3e473d;
+  --yc-text-secondary: #625e56;
+  --yc-text-muted: #7b756d;
+
+  /* Status */
+  --yc-success: #73816e;
+  --yc-success-soft: #eef2ec;
+  --yc-warning: #9a7455;
+  --yc-warning-soft: #f4ece2;
+  --yc-warning-text: #6b4d32;
+  --yc-error: #a65f58;
+  --yc-error-soft: #f4e7e4;
+
+  /* Header / Footer */
+  --yc-header-bg: #73816e;
+  --yc-footer-bg: #71806d;
+  --yc-footer-bottom: #62705d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
+
+  /* Shadow */
+  --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
+  --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
+  --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
+
+  /* Radius */
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-pill: 999px;
+
+  /* Typography */
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+
+  /* Motion */
+  --yc-duration-fast: 180ms;
+  --yc-duration-normal: 220ms;
+  --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* bk-* 相容 token：保留既有 booking CSS API。 */
+  --bk-primary: var(--yc-sage-action);
+  --bk-primary-hover: var(--yc-sage-action);
+  --bk-primary-light: var(--yc-sage-soft);
+  --bk-on-dark: var(--yc-on-dark);
+  --bk-cta: var(--yc-cta);
+  --bk-cta-hover: var(--yc-cta-hover);
+  --bk-white: var(--yc-surface);
+  --bk-bg: var(--yc-bg);
+  --bk-card-bg: var(--yc-surface);
+  --bk-border: var(--yc-border);
+  --bk-border-strong: var(--yc-sage-action);
+  --bk-text: var(--yc-text);
+  --bk-text-muted: var(--yc-text-muted);
+  --bk-accent: var(--yc-sage-action);
+  --bk-gold: var(--yc-on-cta);
+  --bk-sage: var(--yc-sage-light);
+  --bk-orange: var(--yc-warning);
+  --bk-success: var(--yc-success);
+  --bk-danger: var(--yc-error);
+  --bk-shadow: var(--yc-shadow-soft);
+  --bk-shadow-hover: var(--yc-shadow-hover);
+  --bk-radius: var(--yc-radius-card);
+  --bk-radius-sm: var(--yc-radius-control);
+  --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+
+  /* 舊版 color-* alias：支援 base/layout 與既有 booking 元件。 */
+  --color-text: var(--yc-text, #3e473d);
+  --color-muted: var(--yc-text-muted, #7b756d);
+  --color-light-muted: var(--yc-text-muted, #7b756d);
+  --color-primary: var(--yc-sage-action, #73816e);
+  --color-primary-dark: var(--yc-sage-dark, #62705d);
+  --color-bg: var(--yc-bg, #f8f5ee);
+  --color-bg-soft: var(--yc-surface-soft, #f0ece3);
+  --color-cta: var(--yc-cta, #e2d39a);
+  --color-black: #000;
+  --font-main: var(--yc-font-heading, 'Noto Serif TC', serif);
+  --header-height: 70px;
+  --container-wide: min(1180px, 90%);
+  --transition-slow: 1.7s ease;
+  --transition-normal: 0.45s ease;
+}

@@ -1,16 +1,16 @@
 /* ── Hero 搜尋列：強制單行，擴大容器寬度 ── */
-.hero-content {
+.heroContent {
   max-width: 900px;
 
   /* 原 layout.css 700px 不夠放 5 個欄位，加寬 */
 }
 
-.hero-banner .search-bar {
+.heroBanner .searchBar {
   flex-wrap: nowrap;
 }
 
-.hero-banner .search-bar .search-bar__input,
-.hero-banner .search-bar .search-bar__select {
+.heroBanner .searchBar .searchBarInput,
+.heroBanner .searchBar .searchBarSelect {
   min-width: 0;
 
   /* 允許縮到比 160px 更窄，維持單行 */
@@ -27,7 +27,7 @@
 }
 
 /* ── Dual-Thumb Price Slider ── */
-.price-range-display {
+.priceRangeDisplay {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--bk-primary);
@@ -35,14 +35,14 @@
   margin-bottom: 1.25rem;
 }
 
-.price-range-track-wrap {
+.priceRangeTrackWrap {
   position: relative;
   height: 6px;
   margin: 0.6rem 0 0.5rem;
 }
 
 /* 底色軌道 */
-.price-range-track-wrap::before {
+.priceRangeTrackWrap::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -50,18 +50,19 @@
   border-radius: 3px;
 }
 
-/* 選取範圍的亮色填充，由 JS 控制 left / width */
-.price-range-fill {
+/* 選取範圍的亮色填充，避免由 JS 寫入 inline style */
+.priceRangeFill {
   position: absolute;
-  top: 0;
+  inset: 0;
   height: 6px;
   background: var(--bk-primary);
   border-radius: 3px;
+  opacity: 0.38;
   pointer-events: none;
 }
 
 /* 兩個 range 疊在同一位置，背景透明 */
-.price-range-track-wrap input[type='range'] {
+.priceRangeTrackWrap input[type='range'] {
   position: absolute;
   width: 100%;
   top: 50%;
@@ -79,12 +80,16 @@
   z-index: 3;
 }
 
+#priceMin.isRangeThumbRaised {
+  z-index: 5;
+}
+
 #priceMax {
   z-index: 4;
 }
 
 /* WebKit thumb */
-.price-range-track-wrap input[type='range']::-webkit-slider-thumb {
+.priceRangeTrackWrap input[type='range']::-webkit-slider-thumb {
   appearance: none;
   width: 18px;
   height: 18px;
@@ -96,13 +101,13 @@
   pointer-events: all;
 }
 
-.price-range-track-wrap input[type='range']::-webkit-slider-runnable-track {
+.priceRangeTrackWrap input[type='range']::-webkit-slider-runnable-track {
   background: transparent;
   height: 6px;
 }
 
 /* Firefox thumb */
-.price-range-track-wrap input[type='range']::-moz-range-thumb {
+.priceRangeTrackWrap input[type='range']::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -113,21 +118,14 @@
   pointer-events: all;
 }
 
-.price-range-track-wrap input[type='range']::-moz-range-track {
+.priceRangeTrackWrap input[type='range']::-moz-range-track {
   background: transparent;
 }
 
-.price-range-labels {
+.priceRangeLabels {
   display: flex;
   justify-content: space-between;
   font-size: 0.72rem;
   color: var(--bk-text-muted);
   margin-top: 0.75rem;
-}
-
-.error-msg > .bi,
-.no-result > .bi {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 2rem;
 }

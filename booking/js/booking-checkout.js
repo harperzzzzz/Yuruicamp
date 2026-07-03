@@ -9,7 +9,6 @@
  */
 
 $(document).ready(function () {
-
   const stored = localStorage.getItem('bookingCart');
 
   if (!stored) {
@@ -27,7 +26,6 @@ $(document).ready(function () {
   $('#confirmPayBtn').on('click', function () {
     handleCheckout(bookingCart);
   });
-
 });
 
 // ============================================================
@@ -35,28 +33,32 @@ $(document).ready(function () {
 // ============================================================
 
 function renderCheckoutPage(cart) {
-  const info    = cart.booking_info;
-  const zones   = cart.selected_zones;
+  const info = cart.booking_info;
+  const zones = cart.selected_zones;
   const rentals = cart.selected_rentals;
   const summary = cart.summary;
 
   // 住宿資訊
-  const zoneRowsHTML = zones.map(z => `
-    <div class="detail-row">
+  const zoneRowsHTML = zones
+    .map(
+      (z) => `
+    <div class="detailRow">
       <span>
         <strong>${info.campground_name}</strong>・${z.zone_type}・×${z.quantity} 個營位
       </span>
       <span><strong>NT$${z.subtotal.toLocaleString()}</strong></span>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 
   $('#stayDetail').html(`
-    <div class="detail-row detail-row--meta">
+    <div class="detailRow detailRowMeta">
       <i class="bi bi-calendar3"></i>
       ${info.check_in} ～ ${info.check_out}
       （${info.total_days} 晚｜平日 ${info.weekday_count} 晚、假日 ${info.holiday_count} 晚）
     </div>
-    <div class="detail-row detail-row--meta">
+    <div class="detailRow detailRowMeta">
       <i class="bi bi-geo-alt"></i> ${info.region}
       &nbsp;&nbsp;
       <i class="bi bi-people"></i> ${info.guest_count} 人
@@ -66,24 +68,28 @@ function renderCheckoutPage(cart) {
 
   // 租借裝備
   if (!rentals || rentals.length === 0) {
-    $('#rentalDetail').html('<p class="no-rental">本次未選擇租借裝備。</p>');
+    $('#rentalDetail').html('<p class="noRental">本次未選擇租借裝備。</p>');
   } else {
-    const rentalRowsHTML = rentals.map(r => `
-      <div class="detail-row">
+    const rentalRowsHTML = rentals
+      .map(
+        (r) => `
+      <div class="detailRow">
         <span>${r.name} ×${r.quantity}</span>
         <span><strong>NT$${r.subtotal.toLocaleString()}</strong></span>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
     $('#rentalDetail').html(rentalRowsHTML);
   }
 
   // 費用明細
   let breakdownHTML = `
-    <div class="cost-row">
+    <div class="costRow">
       <span>住宿費</span>
       <span>NT$${summary.zone_total.toLocaleString()}</span>
     </div>
-    <div class="cost-row">
+    <div class="costRow">
       <span>裝備租借費</span>
       <span>NT$${summary.rental_total.toLocaleString()}</span>
     </div>
@@ -91,7 +97,7 @@ function renderCheckoutPage(cart) {
 
   if (summary.applied_discount > 0) {
     breakdownHTML += `
-      <div class="cost-row cost-row--discount">
+      <div class="costRow costRowDiscount">
         <span><i class="bi bi-tag"></i> 租借折扣優惠</span>
         <span>-NT$${summary.applied_discount.toLocaleString()}</span>
       </div>
@@ -111,16 +117,21 @@ window.onBookingHeaderReady = function () {
 };
 
 function initLoginGuard() {
-
   function isLoggedIn() {
     try {
       var user = JSON.parse(localStorage.getItem('yuruiUser'));
       return !!(user && user.name);
-    } catch (e) { return false; }
+    } catch (e) {
+      return false;
+    }
   }
 
-  function showNotice() { $('#loginNotice').addClass('isVisible'); }
-  function hideNotice() { $('#loginNotice').removeClass('isVisible'); }
+  function showNotice() {
+    $('#loginNotice').addClass('isVisible');
+  }
+  function hideNotice() {
+    $('#loginNotice').removeClass('isVisible');
+  }
 
   if (!isLoggedIn()) {
     setTimeout(function () {
@@ -149,17 +160,17 @@ function initLoginGuard() {
 // ============================================================
 
 function initAccordionPanels() {
-  $('.bk-panel__header').on('click', function () {
-    const $panel = $(this).closest('.bk-panel');
-    const $body  = $panel.find('> .bk-panel__body');
-    const isOpen = $panel.hasClass('is-open');
+  $('.bkPanelHeader').on('click', function () {
+    const $panel = $(this).closest('.bkPanel');
+    const $body = $panel.find('> .bkPanelBody');
+    const isOpen = $panel.hasClass('isOpen');
 
     if (isOpen) {
       $body.slideUp(200);
-      $panel.removeClass('is-open');
+      $panel.removeClass('isOpen');
     } else {
       $body.slideDown(200);
-      $panel.addClass('is-open');
+      $panel.addClass('isOpen');
     }
   });
 }
@@ -169,12 +180,11 @@ function initAccordionPanels() {
 // ============================================================
 
 function initPaymentMethod() {
-
   $('input[name="paymentMethod"]').on('change', function () {
     const val = $(this).val();
 
-    $('#payOptCredit').toggleClass('is-selected', val === 'credit');
-    $('#payOptLine').toggleClass('is-selected',   val === 'linepay');
+    $('#payOptCredit').toggleClass('isSelected', val === 'credit');
+    $('#payOptLine').toggleClass('isSelected', val === 'linepay');
 
     if (val === 'credit') {
       $('#creditCardSection').slideDown(200);
@@ -205,7 +215,6 @@ function initPaymentMethod() {
 // ============================================================
 
 function handleCheckout(cart) {
-
   try {
     var u = JSON.parse(localStorage.getItem('yuruiUser'));
     if (!u || !u.name) {
@@ -217,7 +226,7 @@ function handleCheckout(cart) {
     return;
   }
 
-  const name  = $('#contactName').val().trim();
+  const name = $('#contactName').val().trim();
   const phone = $('#contactPhone').val().trim();
   const email = $('#contactEmail').val().trim();
 
@@ -236,9 +245,9 @@ function handleCheckout(cart) {
 
   const paymentMethod = $('input[name="paymentMethod"]:checked').val();
   if (paymentMethod === 'credit') {
-    const cardNum    = $('#cardNumber').val().replace(/\s/g, '');
+    const cardNum = $('#cardNumber').val().replace(/\s/g, '');
     const cardExpiry = $('#cardExpiry').val().trim();
-    const cardCvv    = $('#cardCvv').val().trim();
+    const cardCvv = $('#cardCvv').val().trim();
     if (cardNum.length < 16) {
       highlightError('#cardNumber', '請填寫完整的信用卡卡號（16 位）');
       return;
@@ -255,14 +264,12 @@ function handleCheckout(cart) {
 
   const payload = {
     ...cart,
-    contact:        { name, phone, email },
+    contact: { name, phone, email },
     payment_method: paymentMethod,
-    submitted_at:   new Date().toISOString()
+    submitted_at: new Date().toISOString(),
   };
 
-  $('#confirmPayBtn')
-    .prop('disabled', true)
-    .html('<i class="bi bi-hourglass-split"></i> 送出中...');
+  $('#confirmPayBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> 送出中...');
 
   // TODO: 未來替換為 fetch Java 後端 API
   // POST /api/bookings → { success: true, booking_id: 'BK202606110001' }
@@ -278,16 +285,14 @@ function handleCheckout(cart) {
 // ============================================================
 
 function onCheckoutSuccess() {
-
   localStorage.removeItem('bookingCart');
   console.log('[booking-checkout] bookingCart 已清除');
 
   $('#confirmPayBtn')
-    .removeClass('btn--primary')
-    .addClass('btn--outline')
+    .removeClass('btnPrimary')
+    .addClass('btnOutline isCheckoutSuccess')
     .html('<i class="bi bi-check-circle-fill"></i> ✓ 預約已成功送出')
-    .prop('disabled', true)
-    .css({ 'color': 'var(--bk-success)', 'border-color': 'var(--bk-success)' });
+    .prop('disabled', true);
 
   $('#backToCartLink').hide();
   $('#upsellBanner').slideDown(400);
@@ -302,8 +307,8 @@ function onCheckoutSuccess() {
 
 function highlightError(selector, message) {
   const $input = $(selector);
-  $input.css('border-color', 'var(--bk-danger)');
+  $input.addClass('isFieldInvalid');
   $input.focus();
-  setTimeout(() => $input.css('border-color', ''), 2000);
+  setTimeout(() => $input.removeClass('isFieldInvalid'), 2000);
   showToast(message, 'warning');
 }

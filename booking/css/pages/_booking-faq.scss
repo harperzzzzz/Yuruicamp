@@ -1,0 +1,229 @@
+/* ======================================================
+       booking-faq.html 頁面專屬樣式 — Yuruicamp v3
+       ====================================================== */
+.faqPage {
+  background: var(--yc-bg, #f8f5ee);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+/* ── 頁首橫幅 ── */
+.faqHero {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d) 0%, var(--yc-sage-action, #73816e) 100%);
+  color: #fff;
+  padding: 4rem 1.5rem 3rem;
+  text-align: center;
+}
+
+.faqHeroTitle {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+}
+
+.faqHeroSubtitle {
+  font-size: 1rem;
+  color: rgb(255 253 249 / 85%);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ── 快速跳頁錨點導覽 ── */
+.faqNav {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.faqNavLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1.1rem;
+  background: var(--yc-surface, #fffdf9);
+  border: 2px solid var(--yc-sage-soft, #eef2ec);
+  border-radius: 20px;
+  font-size: 0.875rem;
+  color: var(--yc-sage-action, #73816e);
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.faqNavLink:hover {
+  background: var(--yc-sage-action, #73816e);
+  border-color: var(--yc-sage-action, #73816e);
+  color: #fff;
+}
+
+/* ── FAQ 主內容區 ── */
+.faqContent {
+  max-width: 900px;
+  margin: 3rem auto 0;
+  padding: 0 1.5rem;
+}
+
+/* ── 每個主題區塊 ── */
+.faqSection {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 80px;
+}
+
+.faqSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--yc-sage-action, #73816e);
+  margin-bottom: 1.5rem;
+}
+
+.faqSectionIcon {
+  font-size: 1.5rem;
+}
+
+.faqSectionTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--yc-text, #3e473d);
+  margin: 0;
+}
+
+/* ── 問答 Accordion ── */
+.faqItem {
+  background: var(--yc-surface, #fffdf9);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgb(60 70 59 / 8%);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+/* 問題按鈕 */
+.faqItemQuestion {
+  width: 100%;
+  padding: 1.1rem 1.25rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--yc-text, #3e473d);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: background 0.15s;
+}
+
+.faqItemQuestion:hover {
+  background: var(--yc-sage-soft, #eef2ec);
+}
+
+.faqItemQuestion.isOpen {
+  color: var(--yc-sage-action, #73816e);
+  background: var(--yc-sage-soft, #eef2ec);
+}
+
+/* 展開箭頭 */
+.faqItemArrow {
+  font-size: 0.8rem;
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+
+.faqItemQuestion.isOpen .faqItemArrow {
+  transform: rotate(180deg);
+}
+
+/* 答案區塊（預設收合） */
+.faqItemAnswer {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--yc-text-secondary, #625e56);
+  line-height: 1.8;
+  border-top: 1px solid var(--yc-border, #d8cfc3);
+}
+
+.faqItemAnswer.isOpen {
+  display: block;
+}
+
+.faqItemAnswer ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+}
+
+.faqItemAnswer li {
+  margin-bottom: 0.35rem;
+}
+
+#damage .faqItemAnswer p + p {
+  margin-top: 0.75rem;
+}
+
+.faqItemAnswer a {
+  color: var(--yc-sage-action, #73816e);
+  text-decoration: underline;
+}
+
+/* ── 底部 CTA ── */
+.faqCta {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem;
+  text-align: center;
+}
+
+.faqCtaBox {
+  background: linear-gradient(135deg, var(--yc-sage-dark, #62705d), var(--yc-sage-action, #73816e));
+  border-radius: 16px;
+  padding: 2.5rem;
+  color: #fff;
+}
+
+.faqCtaBox h2 {
+  font-size: 1.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.faqCtaBox p {
+  font-size: 0.9rem;
+  color: rgb(255 253 249 / 85%);
+  margin-bottom: 1.5rem;
+}
+
+.faqCtaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.faqCtaBtn:hover {
+  background: var(--yc-cta-hover, #d4c27e);
+  transform: translateY(-2px);
+}
+
+/* ── RWD ── */
+@media (width <= 768px) {
+  .faqHeroTitle {
+    font-size: 1.75rem;
+  }
+}
