@@ -1,0 +1,73 @@
+// Button 元件：共用主要、次要、外框與滿版按鈕樣式。
+.btn {
+  min-block-size: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yui-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-lg);
+  padding: 0 var(--yui-space-4);
+  color: var(--yui-primary);
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--yui-transition-fast),
+    border-color var(--yui-transition-fast),
+    color var(--yui-transition-fast),
+    box-shadow var(--yui-transition-fast),
+    opacity var(--yui-transition-fast);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  text-decoration: none;
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn.isDisabled,
+.btn[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.btnPrimary {
+  background: var(--yui-primary);
+  border-color: var(--yui-primary);
+  color: var(--yui-surface);
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: var(--yui-primary-hover);
+  border-color: var(--yui-primary-hover);
+  color: var(--yui-surface);
+}
+
+.btnSecondary,
+.btnOutline {
+  background: var(--yui-surface);
+  border-color: var(--yui-border);
+  color: var(--yui-primary);
+}
+
+.btnSecondary:hover,
+.btnSecondary:focus-visible,
+.btnOutline:hover,
+.btnOutline:focus-visible {
+  background: var(--yui-primary-soft);
+  border-color: var(--yui-primary-light);
+  color: var(--yui-primary);
+}
+
+.btnBlock {
+  inline-size: 100%;
+}

@@ -6,6 +6,8 @@ module.exports = {
   ignoreFiles: ['dist/**', 'node_modules/**', 'admin/**'],
   rules: {
     'selector-class-pattern': null,
+    'selector-id-pattern': null,
     'no-descending-specificity': null,
+    'no-duplicate-selectors': null,
   },
 };

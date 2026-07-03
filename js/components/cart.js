@@ -1,296 +1,249 @@
-// ========================================
-// 購物車組件
-// ========================================
+// Shared cart drawer runtime.
+(function () {
+  'use strict';
 
-/**
- * Escapes cart item text before rendering it into the drawer.
- * @param {*} value - Value to render as text.
- * @returns {string} Safe HTML text.
- */
-function _escapeCartHtml(value) {
-  return String(value == null ? '' : value).replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  }[char]));
-}
+  var lastCartFocus = null;
 
-/**
- * Finds the shared cart drawer nodes injected by components/header.partial.
- * @returns {{drawer: HTMLElement|null, body: HTMLElement|null, footer: HTMLElement|null, backdrop: HTMLElement|null}}
- */
-function _getCartDrawerElements() {
-  return {
-    drawer: document.getElementById('siteCartDrawer'),
-    body: document.getElementById('siteCartDrawerBody'),
-    footer: document.getElementById('siteCartDrawerFooter'),
-    backdrop: document.getElementById('siteCartBackdrop'),
-  };
-}
-
-/**
- * Builds a page-relative URL for main-site pages used inside the shared drawer.
- * @param {string} pageName - Target page filename.
- * @returns {string} URL that works from index.html and pages/*.html.
- */
-function _getMainPageUrl(pageName) {
-  return window.location.pathname.includes('/pages/') ? pageName : `pages/${pageName}`;
-}
-
-/**
- * Renders the empty-cart state inside the shared drawer.
- * @returns {string} Empty-cart HTML.
- */
-function _renderCartDrawerEmpty() {
-  return [
-    '<div class="cart-drawer-empty">',
-    '  <div class="cart-drawer-empty__icon">🛒</div>',
-    '  <h3 class="cart-drawer-empty__title">購物車還是空的</h3>',
-    '  <p class="cart-drawer-empty__text">去探索一些露營好物，加入購物車吧。</p>',
-    '</div>',
-  ].join('');
-}
-
-/**
- * Renders one cart item row for the shared drawer.
- * @param {Object} item - Cart item from AppState.cart.
- * @returns {string} Cart item HTML.
- */
-function _renderCartDrawerItem(item) {
-  const itemTotal = Number(item.price || 0) * Number(item.quantity || 0);
-  return `
-    <article class="cart-drawer-item" data-product-id="${_escapeCartHtml(item.id)}">
-      <a class="cart-drawer-item__image-link" href="${_getMainPageUrl('product-detail.html')}?id=${encodeURIComponent(item.id)}">
-        <img class="cart-drawer-item__image"
-             src="${_escapeCartHtml(item.image || 'https://picsum.photos/seed/default/80/80')}"
-             alt="${_escapeCartHtml(item.name)}">
-      </a>
-      <div class="cart-drawer-item__content">
-        <div class="cart-drawer-item__brand">${_escapeCartHtml(item.brand || '')}</div>
-        <a class="cart-drawer-item__name" href="${_getMainPageUrl('product-detail.html')}?id=${encodeURIComponent(item.id)}">
-          ${_escapeCartHtml(item.name)}
-        </a>
-        <div class="cart-drawer-item__price">${window.formatCurrency(Number(item.price || 0))}</div>
-        <div class="cart-drawer-item__actions">
-          <button class="cart-qty-decrease" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="減少數量">−</button>
-          <span class="cart-drawer-item__qty">${Number(item.quantity || 0)}</span>
-          <button class="cart-qty-increase" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="增加數量">+</button>
-          <strong class="cart-drawer-item__subtotal">${window.formatCurrency(itemTotal)}</strong>
-          <button class="cart-remove-btn" data-product-id="${_escapeCartHtml(item.id)}" type="button" aria-label="移除商品">🗑️</button>
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-/**
- * Updates the drawer summary and checkout visibility from the current cart.
- */
-function _updateCartDrawerSummary() {
-  const { footer } = _getCartDrawerElements();
-  const subtotal = window.calculateCartTotal(window.AppState.cart);
-  const shipping = window.calculateShippingFee(subtotal);
-  const total = subtotal + shipping;
-
-  const subtotalEl = document.getElementById('summarySubtotal');
-  const shippingEl = document.getElementById('summaryShipping');
-  const totalEl = document.getElementById('summaryTotal');
-
-  if (subtotalEl) subtotalEl.textContent = window.formatCurrency(subtotal);
-  if (shippingEl) shippingEl.textContent = shipping === 0 ? '免運費' : window.formatCurrency(shipping);
-  if (totalEl) totalEl.textContent = window.formatCurrency(total);
-  if (footer) footer.hidden = window.AppState.cart.length === 0;
-}
-
-/**
- * Renders the shared cart drawer body from AppState.cart.
- */
-window.renderCartDrawer = () => {
-  const { body } = _getCartDrawerElements();
-  if (!body || !window.AppState) return;
-
-  const cart = window.AppState.cart || [];
-  body.innerHTML = cart.length === 0
-    ? _renderCartDrawerEmpty()
-    : cart.map(_renderCartDrawerItem).join('');
-
-  _updateCartDrawerSummary();
-};
-
-/**
- * Opens the right-side cart drawer and refreshes its content first.
- */
-window.openCartDrawer = () => {
-  const { drawer, backdrop } = _getCartDrawerElements();
-  if (!drawer) return;
-
-  // Closing other header layers prevents stacked dialogs from covering the cart drawer.
-  window.closeMainHeaderDialogs?.();
-  window.renderCartDrawer();
-  drawer.classList.add('is-open');
-  if (backdrop) backdrop.classList.add('is-visible');
-  document.body.style.overflow = 'hidden';
-
-  const cartBtn = document.querySelector('.navbar-cart-btn');
-  if (cartBtn) cartBtn.setAttribute('aria-expanded', 'true');
-};
-
-/**
- * Closes the right-side cart drawer and restores page scrolling.
- */
-window.closeCartDrawer = () => {
-  const { drawer, backdrop } = _getCartDrawerElements();
-  if (drawer) drawer.classList.remove('is-open');
-  if (backdrop) backdrop.classList.remove('is-visible');
-  document.body.style.overflow = '';
-
-  const cartBtn = document.querySelector('.navbar-cart-btn');
-  if (cartBtn) cartBtn.setAttribute('aria-expanded', 'false');
-};
-
-/**
- * 添加商品到購物車
- * @param {Object} product - 商品對象 {id, name, price, image}
- * @param {number} quantity - 數量
- */
-window.addToCart = (product, quantity = 1) => {
-  const existingItem = window.AppState.cart.find(item => item.id === product.id);
-  
-  if (existingItem) {
-    existingItem.quantity += quantity;
-  } else {
-    window.AppState.cart.push({
-      ...product,
-      quantity,
+  function escapeCartHtml(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
+      return {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[char];
     });
   }
-  
-  window.saveAppState();
-  window.updateCartBadge();
-  window.renderCartDrawer();
-  window.showToast(`已加入購物車`, 'success');
-};
 
-/**
- * 從購物車移除商品
- * @param {string} productId - 商品 ID
- */
-window.removeFromCart = (productId) => {
-  window.AppState.cart = window.AppState.cart.filter(item => item.id !== productId);
-  window.saveAppState();
-  window.updateCartBadge();
-  window.renderCartDrawer();
-  window.showToast('已從購物車移除', 'info');
-};
+  function getCartDrawerElements() {
+    return {
+      drawer: document.getElementById('siteCartDrawer'),
+      body: document.getElementById('siteCartDrawerBody'),
+      footer: document.getElementById('siteCartDrawerFooter'),
+      backdrop: document.getElementById('siteCartBackdrop'),
+    };
+  }
 
-/**
- * 更新購物車商品數量
- * @param {string} productId - 商品 ID
- * @param {number} quantity - 新數量
- */
-window.updateCartQuantity = (productId, quantity) => {
-  const item = window.AppState.cart.find(item => item.id === productId);
-  
-  if (item) {
+  function getMainPageUrl(pageName) {
+    return window.location.pathname.includes('/pages/') ? pageName : 'pages/' + pageName;
+  }
+
+  function renderEmptyCart() {
+    return [
+      '<div class="siteCartEmptyState">',
+      '  <div class="siteCartEmptyIcon" aria-hidden="true"><i class="bi bi-bag-x"></i></div>',
+      '  <h3 class="siteCartEmptyTitle">購物車目前是空的</h3>',
+      '  <p class="siteCartEmptyText">先挑選需要的露營裝備，再一起結帳。</p>',
+      '</div>',
+    ].join('');
+  }
+
+  /**
+   * 渲染購物車單一商品列，包含數量控制與垃圾桶移除按鈕。
+   * 套用元件：#siteCartDrawerBody 內的 .siteCartItem。
+   */
+  function renderCartItem(item) {
+    var itemTotal = Number(item.price || 0) * Number(item.quantity || 0);
+    var detailUrl = getMainPageUrl('product-detail.html') + '?id=' + encodeURIComponent(item.id);
+
+    return [
+      '<article class="siteCartItem" data-product-id="' + escapeCartHtml(item.id) + '">',
+      '  <a class="siteCartItemImageLink" href="' + detailUrl + '">',
+      '    <img class="siteCartItemImage" src="' + escapeCartHtml(item.image || 'https://picsum.photos/seed/default/80/80') + '" alt="' + escapeCartHtml(item.name) + '">',
+      '  </a>',
+      '  <div class="siteCartItemContent">',
+      '    <div class="siteCartItemBrand">' + escapeCartHtml(item.brand || '') + '</div>',
+      '    <a class="siteCartItemName" href="' + detailUrl + '">' + escapeCartHtml(item.name) + '</a>',
+      '    <div class="siteCartItemPrice">' + window.formatCurrency(Number(item.price || 0)) + '</div>',
+      '    <div class="siteCartItemActions">',
+      '      <button class="siteCartQuantityDecrease" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="減少數量">−</button>',
+      '      <span class="siteCartItemQuantity">' + Number(item.quantity || 0) + '</span>',
+      '      <button class="siteCartQuantityIncrease" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="增加數量">+</button>',
+      '      <strong class="siteCartItemSubtotal">' + window.formatCurrency(itemTotal) + '</strong>',
+      '      <button class="siteCartRemoveButton" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="移除商品">',
+      '        <svg class="siteCartRemoveIcon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">',
+      '          <path fill="currentColor" d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>',
+      '          <path fill="currentColor" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1h2.5a1 1 0 0 1 1 1M4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>',
+      '        </svg>',
+      '        <span class="siteCartRemoveText">移除</span>',
+      '      </button>',
+      '    </div>',
+      '  </div>',
+      '</article>',
+    ].join('');
+  }
+
+  function updateCartDrawerSummary() {
+    var elements = getCartDrawerElements();
+    var subtotal = window.calculateCartTotal(window.AppState.cart);
+    var shipping = window.calculateShippingFee(subtotal);
+    var total = subtotal + shipping;
+    var subtotalEl = document.getElementById('summarySubtotal');
+    var shippingEl = document.getElementById('summaryShipping');
+    var totalEl = document.getElementById('summaryTotal');
+
+    if (subtotalEl) subtotalEl.textContent = window.formatCurrency(subtotal);
+    if (shippingEl) shippingEl.textContent = shipping === 0 ? '免運' : window.formatCurrency(shipping);
+    if (totalEl) totalEl.textContent = window.formatCurrency(total);
+    if (elements.footer) elements.footer.hidden = window.AppState.cart.length === 0;
+  }
+
+  window.renderCartDrawer = function () {
+    var elements = getCartDrawerElements();
+    if (!elements.body || !window.AppState) return;
+
+    var cart = window.AppState.cart || [];
+    elements.body.innerHTML = cart.length === 0 ? renderEmptyCart() : cart.map(renderCartItem).join('');
+    updateCartDrawerSummary();
+  };
+
+  window.openCartDrawer = function () {
+    var elements = getCartDrawerElements();
+    var cartButton = document.querySelector('.siteCartButton');
+    if (!elements.drawer) return;
+
+    lastCartFocus = document.activeElement;
+    window.closeMainHeaderDialogs?.();
+    window.renderCartDrawer();
+    elements.drawer.classList.add('isOpen');
+    elements.drawer.setAttribute('aria-hidden', 'false');
+    if (elements.backdrop) {
+      elements.backdrop.hidden = false;
+      elements.backdrop.classList.add('isVisible');
+    }
+    if (cartButton) cartButton.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('isHeaderLayerOpen');
+    elements.drawer.querySelector('.siteCartDrawerClose')?.focus();
+  };
+
+  window.closeCartDrawer = function () {
+    var elements = getCartDrawerElements();
+    var cartButton = document.querySelector('.siteCartButton');
+    if (elements.drawer) {
+      elements.drawer.classList.remove('isOpen');
+      elements.drawer.setAttribute('aria-hidden', 'true');
+    }
+    if (elements.backdrop) {
+      elements.backdrop.classList.remove('isVisible');
+      elements.backdrop.hidden = true;
+    }
+    if (cartButton) cartButton.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('isHeaderLayerOpen');
+    if (lastCartFocus) lastCartFocus.focus();
+  };
+
+  window.addToCart = function (product, quantity) {
+    var amount = quantity || 1;
+    var existingItem = window.AppState.cart.find(function (item) {
+      return item.id === product.id;
+    });
+
+    if (existingItem) existingItem.quantity += amount;
+    else window.AppState.cart.push(Object.assign({}, product, { quantity: amount }));
+
+    window.saveAppState();
+    window.updateCartBadge();
+    window.renderCartDrawer();
+    window.showToast && window.showToast('已加入購物車', 'success');
+  };
+
+  window.removeFromCart = function (productId) {
+    window.AppState.cart = window.AppState.cart.filter(function (item) {
+      return item.id !== productId;
+    });
+    window.saveAppState();
+    window.updateCartBadge();
+    window.renderCartDrawer();
+    window.showToast && window.showToast('已從購物車移除', 'info');
+  };
+
+  window.updateCartQuantity = function (productId, quantity) {
+    var item = window.AppState.cart.find(function (cartItem) {
+      return cartItem.id === productId;
+    });
+    if (!item) return;
+
     if (quantity <= 0) {
       window.removeFromCart(productId);
-    } else if (quantity <= window.AppConfig.CART.MAX_QUANTITY) {
+      return;
+    }
+    if (quantity <= window.AppConfig.CART.MAX_QUANTITY) {
       item.quantity = quantity;
       window.saveAppState();
       window.updateCartBadge();
       window.renderCartDrawer();
     }
-  }
-};
+  };
 
-/**
- * 清空購物車
- */
-window.clearCart = () => {
-  window.AppState.cart = [];
-  window.saveAppState();
-  window.updateCartBadge();
-  window.renderCartDrawer();
-};
+  window.clearCart = function () {
+    window.AppState.cart = [];
+    window.saveAppState();
+    window.updateCartBadge();
+    window.renderCartDrawer();
+  };
 
-/**
- * Sends the user to checkout when the drawer checkout link is clicked.
- */
-function _handleDrawerCheckout(event) {
-  if (event) event.preventDefault();
-  if (!window.AppState.cart || window.AppState.cart.length === 0) {
-    window.showToast && window.showToast('購物車目前是空的', 'warning');
-    return;
+  function handleDrawerCheckout(event) {
+    if (event) event.preventDefault();
+    if (!window.AppState.cart || window.AppState.cart.length === 0) {
+      window.showToast && window.showToast('購物車沒有商品', 'warning');
+      return;
+    }
+    window.location.href = getMainPageUrl('checkout.html');
   }
 
-  window.location.href = _getMainPageUrl('checkout.html');
-}
+  function initCartDrawer() {
+    var elements = getCartDrawerElements();
+    var closeButton = elements.drawer ? elements.drawer.querySelector('.siteCartDrawerClose') : null;
+    var cartButton = document.querySelector('.siteCartButton');
+    var checkoutButton = document.getElementById('checkoutBtn');
 
-/**
- * Binds the shared cart drawer controls once after header markup is loaded.
- */
-function _initCartDrawer() {
-  const { drawer, backdrop } = _getCartDrawerElements();
-  const closeBtn = drawer ? drawer.querySelector('.cart-drawer__close') : null;
-  const cartBtn = document.querySelector('.navbar-cart-btn');
-  const checkoutBtn = document.getElementById('checkoutBtn');
+    if (cartButton && cartButton.dataset.cartDrawerBound !== 'true') {
+      cartButton.dataset.cartDrawerBound = 'true';
+      cartButton.addEventListener('click', function (event) {
+        event.preventDefault();
+        window.openCartDrawer();
+      });
+    }
+    if (closeButton && closeButton.dataset.cartDrawerBound !== 'true') {
+      closeButton.dataset.cartDrawerBound = 'true';
+      closeButton.addEventListener('click', window.closeCartDrawer);
+    }
+    if (elements.backdrop && elements.backdrop.dataset.cartDrawerBound !== 'true') {
+      elements.backdrop.dataset.cartDrawerBound = 'true';
+      elements.backdrop.addEventListener('click', window.closeCartDrawer);
+    }
+    if (checkoutButton && checkoutButton.dataset.cartDrawerBound !== 'true') {
+      checkoutButton.dataset.cartDrawerBound = 'true';
+      checkoutButton.addEventListener('click', handleDrawerCheckout);
+    }
+  }
 
-  if (cartBtn && cartBtn.dataset.cartDrawerBound !== 'true') {
-    cartBtn.dataset.cartDrawerBound = 'true';
-    cartBtn.addEventListener('click', (event) => {
-      event.preventDefault();
-      window.openCartDrawer();
+  window.initCartListeners = function () {
+    initCartDrawer();
+    window.renderCartDrawer();
+
+    if (document.body.dataset.cartActionsBound === 'true') return;
+    document.body.dataset.cartActionsBound = 'true';
+    document.addEventListener('click', function (event) {
+      var increaseButton = event.target.closest('.siteCartQuantityIncrease');
+      var decreaseButton = event.target.closest('.siteCartQuantityDecrease');
+      var removeButton = event.target.closest('.siteCartRemoveButton');
+      var item;
+
+      if (increaseButton) {
+        item = window.AppState.cart.find(function (cartItem) {
+          return cartItem.id === increaseButton.dataset.productId;
+        });
+        if (item) window.updateCartQuantity(item.id, item.quantity + 1);
+      }
+      if (decreaseButton) {
+        item = window.AppState.cart.find(function (cartItem) {
+          return cartItem.id === decreaseButton.dataset.productId;
+        });
+        if (item) window.updateCartQuantity(item.id, item.quantity - 1);
+      }
+      if (removeButton) window.removeFromCart(removeButton.dataset.productId);
     });
-  }
-  if (closeBtn && closeBtn.dataset.cartDrawerBound !== 'true') {
-    closeBtn.dataset.cartDrawerBound = 'true';
-    closeBtn.addEventListener('click', window.closeCartDrawer);
-  }
-  if (backdrop && backdrop.dataset.cartDrawerBound !== 'true') {
-    backdrop.dataset.cartDrawerBound = 'true';
-    backdrop.addEventListener('click', window.closeCartDrawer);
-  }
-  if (checkoutBtn && checkoutBtn.dataset.cartDrawerBound !== 'true') {
-    checkoutBtn.dataset.cartDrawerBound = 'true';
-    checkoutBtn.addEventListener('click', _handleDrawerCheckout);
-  }
-}
-
-/**
- * 初始化購物車面板事件
- */
-window.initCartListeners = () => {
-  _initCartDrawer();
-  window.renderCartDrawer();
-
-  // 購物車中數量增減
-  if (document.body.dataset.cartActionsBound === 'true') return;
-  document.body.dataset.cartActionsBound = 'true';
-  document.addEventListener('click', (e) => {
-    if (e.target.classList.contains('cart-qty-increase')) {
-      const productId = e.target.dataset.productId;
-      const item = window.AppState.cart.find(i => i.id === productId);
-      if (item) {
-        window.updateCartQuantity(productId, item.quantity + 1);
-      }
-    }
-    
-    if (e.target.classList.contains('cart-qty-decrease')) {
-      const productId = e.target.dataset.productId;
-      const item = window.AppState.cart.find(i => i.id === productId);
-      if (item) {
-        window.updateCartQuantity(productId, item.quantity - 1);
-      }
-    }
-    
-    const removeBtn = e.target.closest('.cart-remove-btn');
-    if (removeBtn) {
-      const productId = removeBtn.dataset.productId;
-      window.removeFromCart(productId);
-    }
-  });
-};
-
-console.log('✓ Cart 組件已初始化');
+  };
+}());

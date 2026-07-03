@@ -21,33 +21,31 @@
   <!-- ===================================================
        頁面頂部 Banner（商品列表頁小型 Banner）
        =================================================== -->
-  <div class="page-banner">
+  <div class="pageBanner">
     <div class="container">
       <!-- 麵包屑 -->
-      <nav aria-label="麵包屑">
-        <ol class="breadcrumb" style="margin-bottom:0.75rem;">
-          <li class="breadcrumb-item"><a href="home.html">首頁</a></li>
-          <li class="breadcrumb-sep">/</li>
-          <li class="breadcrumb-item active">全部商品</li>
-        </ol>
-      </nav>
-      <h1 class="page-banner-title">全部商品</h1>
-      <p class="page-banner-sub">精選 18 款頂級露營裝備，探索你的下一個冒險</p>
+      <ol class="breadcrumb">
+        <li class="breadcrumbItem"><a href="home.html">首頁</a></li>
+        <li class="breadcrumbItem">/</li>
+        <li class="breadcrumbItem active">全部商品</li>
+      </ol>
+      <h1 class="pageBannerTitle">全部商品</h1>
+      <p class="pageBannerSub">精選 18 款頂級露營裝備，探索你的下一個冒險</p>
     </div>
   </div>
 
   <!-- ===================================================
-       廣告輪播系統（優先依 survey-tags / interest_tags 推薦）
+       廣告輪播系統（優先依 surveyTags / interest_tags 推薦）
        Advertisement Carousel (Personalized Products)
        =================================================== -->
-  <div class="ad-carousel-container">
-    <div class="ad-carousel">
-      <div class="ad-carousel-slides" id="adCarouselSlides">
-        <!-- 重點：由 JS 動態生成，優先抓取符合使用者 survey-tags 的 interest_tags 商品。 -->
+  <div class="adCarouselContainer">
+    <div class="adCarousel">
+      <div class="adCarouselSlides" id="adCarouselSlides">
+        <!-- 重點：由 JS 動態生成，優先抓取符合使用者 surveyTags 的 interest_tags 商品。 -->
       </div>
-      <button class="ad-carousel-btn ad-carousel-prev" id="adCarouselPrev" title="上一個" aria-label="上一個廣告">❮</button>
-      <button class="ad-carousel-btn ad-carousel-next" id="adCarouselNext" title="下一個" aria-label="下一個廣告">❯</button>
-      <div class="ad-carousel-dots" id="adCarouselDots">
+      <button class="adCarouselBtn adCarouselPrev" id="adCarouselPrev" title="上一個" aria-label="上一個廣告">❮</button>
+      <button class="adCarouselBtn adCarouselNext" id="adCarouselNext" title="下一個" aria-label="下一個廣告">❯</button>
+      <div class="adCarouselDots" id="adCarouselDots">
         <!-- 由 JS 動態生成 dot indicators -->
       </div>
     </div>
@@ -56,58 +54,59 @@
   <!-- ===================================================
        主內容：側邊欄 + 商品網格
        =================================================== -->
-  <main style="padding: 0 0 4rem 0;">
+  <main class="productsPageMain">
     <div class="container">
-      <div style="display:flex; gap:1.5rem; align-items:flex-start;">
+      <div class="productsPageLayout">
 
         <!-- =============================================
              步驟 5.1：PC 版篩選側邊欄
-             在手機版會被隱藏（CSS .hidden-mobile for sidebar）
+             在手機版會被隱藏（CSS .hiddenMobile for sidebar）
              ============================================= -->
-        <aside class="filter-sidebar" style="width:240px; flex-shrink:0;" id="filterSidebar">
+        <aside class="filterSidebar" id="filterSidebar">
 
           <!-- 側邊欄標題 + 重置按鈕 -->
-          <div class="filter-sidebar-title">
+          <div class="filterSidebarTitle">
             篩選商品
-            <button class="filter-reset-btn" id="resetFiltersBtn" title="清除所有篩選">清除</button>
+            <button class="filterResetBtn" id="resetFiltersBtn" title="清除所有篩選">清除</button>
           </div>
 
           <!-- 篩選：分類 -->
-          <div class="filter-group">
-            <p class="filter-group-title">商品分類</p>
-            <ul class="filter-category-list" id="categoryFilterList">
+          <div class="filterGroup">
+            <p class="filterGroupTitle">商品分類</p>
+            <ul class="filterCategoryList" id="categoryFilterList">
               <!-- 由 JS 動態生成 -->
               <li>
-                <button class="filter-category-btn active" data-category="">全部</button>
+                <button class="filterCategoryBtn active" data-category="">全部</button>
               </li>
             </ul>
           </div>
 
           <!-- 篩選：價格範圍 -->
-          <div class="filter-group">
-            <p class="filter-group-title">價格範圍 (NT$)</p>
-            <div class="filter-price-range">
-              <div class="filter-price-inputs">
+          <div class="filterGroup">
+            <p class="filterGroupTitle">價格範圍 (NT$)</p>
+            <div class="filterPriceRange">
+              <div class="filterPriceInputs">
                 <input
                   type="number"
                   id="priceMin"
                   placeholder="最低"
                   min="0"
+                  step="100"
                   aria-label="最低價格"
                 >
-                <span class="filter-price-sep">—</span>
+                <span class="filterPriceSep">—</span>
                 <input
                   type="number"
                   id="priceMax"
                   placeholder="最高"
                   min="0"
+                  step="100"
                   aria-label="最高價格"
                 >
               </div>
               <button
-                class="btn btn-outline btn-sm"
+                class="btn btnOutline btnSm productPriceApply"
                 id="applyPriceBtn"
-                style="margin-top:0.5rem;"
               >
                 套用
               </button>
@@ -115,19 +114,23 @@
           </div>
 
           <!-- 篩選：品牌（Checkbox 清單） -->
-          <div class="filter-group">
-            <p class="filter-group-title">品牌</p>
-            <ul class="filter-brand-list" id="brandFilterList">
+          <div class="filterGroup">
+            <p class="filterGroupTitle">品牌</p>
+            <ul class="filterBrandList" id="brandFilterList">
               <!-- 由 JS 動態生成 -->
             </ul>
           </div>
 
           <!-- 篩選：標籤快選 -->
-          <div class="filter-group">
-            <p class="filter-group-title">快選</p>
-            <ul class="filter-category-list">
-              <button class="filter-category-btn" data-tag="new" id="filterNewBtn">🆕 最新商品</button>
-              <button class="filter-category-btn" data-tag="bestseller" id="filterBestBtn">🔥 熱銷商品</button>
+          <div class="filterGroup">
+            <p class="filterGroupTitle">快選</p>
+            <ul class="filterCategoryList">
+              <li>
+                <button class="filterCategoryBtn" data-tag="new" id="filterNewBtn">最新商品</button>
+              </li>
+              <li>
+                <button class="filterCategoryBtn" data-tag="bestseller" id="filterBestBtn">熱銷商品</button>
+              </li>
             </ul>
           </div>
 
@@ -136,12 +139,12 @@
         <!-- =============================================
              步驟 5.2：商品主區域（工具列 + 網格）
              ============================================= -->
-        <div style="flex:1; min-width:0;">
+        <div class="productsListContent">
 
           <!-- 工具列：商品數量 + 排序下拉 -->
-          <div class="product-list-toolbar">
-            <span class="product-count" id="productCount">共 0 件商品</span>
-            <select class="product-sort-select" id="sortSelect" aria-label="排序方式">
+          <div class="productListToolbar">
+            <span class="productCount" id="productCount">共 0 件商品</span>
+            <select class="productSortSelect" id="sortSelect" aria-label="排序方式">
               <option value="default">預設排序</option>
               <option value="price-asc">價格：低到高</option>
               <option value="price-desc">價格：高到低</option>
@@ -151,18 +154,18 @@
           </div>
 
           <!-- 商品網格（由 JS 動態生成） -->
-          <div class="products-grid" id="productsGrid">
+          <div class="productsGrid" id="productsGrid">
             <!-- 骨架屏加載佔位 -->
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
-            <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-body"><div class="skeleton-line short"></div><div class="skeleton-line long"></div><div class="skeleton-line price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
+            <div class="skeletonCard"><div class="skeletonImg"></div><div class="skeletonBody"><div class="skeletonLine short"></div><div class="skeletonLine long"></div><div class="skeletonLine price"></div></div></div>
           </div>
 
           <!-- 分頁 -->
-          <div class="pagination" id="pagination" style="display:none;">
+          <div class="pagination productPagination" id="pagination" hidden>
             <!-- 由 JS 動態生成 -->
           </div>
         </div>
@@ -174,57 +177,55 @@
   <!-- ===================================================
        步驟 5.3：手機版底部篩選按鈕（固定）
        =================================================== -->
-  <button class="mobile-filter-btn" id="mobileFilterBtn" aria-label="開啟篩選">
-    ⚙️ 篩選
-  </button>
+  <button class="mobileFilterBtn" id="mobileFilterBtn" aria-label="開啟篩選">篩選</button>
 
   <!-- ===================================================
        步驟 5.3：手機版 Bottom Sheet（由下往上滑出）
        =================================================== -->
-  <div id="filterSheet" class="filter-sheet" role="dialog" aria-modal="true" aria-label="商品篩選">
+  <div id="filterSheet" class="filterSheet" role="dialog" aria-modal="true" aria-label="商品篩選">
     <!-- 拖動把手 -->
-    <div class="filter-sheet-handle"></div>
+    <div class="filterSheetHandle"></div>
 
     <!-- 標題 -->
-    <div class="filter-sheet-header">
-      <h3 class="filter-sheet-title">篩選商品</h3>
-      <button class="filter-sheet-close" id="filterSheetClose" aria-label="關閉">✕</button>
+    <div class="filterSheetHeader">
+      <h3 class="filterSheetTitle">篩選商品</h3>
+      <button class="filterSheetClose" id="filterSheetClose" aria-label="關閉">✕</button>
     </div>
 
     <!-- 分類（Chip 樣式） -->
-    <div class="filter-group">
-      <p class="filter-group-title">商品分類</p>
-      <ul class="filter-category-list" id="mobileCategoryFilterList">
-        <li><button class="filter-category-btn active" data-category="">全部</button></li>
+    <div class="filterGroup">
+      <p class="filterGroupTitle">商品分類</p>
+      <ul class="filterCategoryList" id="mobileCategoryFilterList">
+        <li><button class="filterCategoryBtn active" data-category="">全部</button></li>
       </ul>
     </div>
 
     <!-- 價格 -->
-    <div class="filter-group">
-      <p class="filter-group-title">價格範圍 (NT$)</p>
-      <div class="filter-price-inputs">
-        <input type="number" id="mobilePriceMin" placeholder="最低" min="0" aria-label="最低價格">
-        <span class="filter-price-sep">—</span>
-        <input type="number" id="mobilePriceMax" placeholder="最高" min="0" aria-label="最高價格">
+    <div class="filterGroup">
+      <p class="filterGroupTitle">價格範圍 (NT$)</p>
+      <div class="filterPriceInputs">
+        <input type="number" id="mobilePriceMin" placeholder="最低" min="0" step="100" aria-label="最低價格">
+        <span class="filterPriceSep">—</span>
+        <input type="number" id="mobilePriceMax" placeholder="最高" min="0" step="100" aria-label="最高價格">
       </div>
     </div>
 
     <!-- 品牌 -->
-    <div class="filter-group">
-      <p class="filter-group-title">品牌</p>
-      <ul class="filter-brand-list" id="mobileBrandFilterList">
+    <div class="filterGroup">
+      <p class="filterGroupTitle">品牌</p>
+      <ul class="filterBrandList" id="mobileBrandFilterList">
       </ul>
     </div>
 
     <!-- 底部：重置 + 應用 -->
-    <div class="filter-sheet-footer">
-      <button class="btn btn-outline" id="mobileResetBtn" style="flex:1;">重置篩選</button>
-      <button class="btn btn-primary" id="mobileApplyBtn" style="flex:2;">套用篩選</button>
+    <div class="filterSheetFooter">
+      <button class="btn btnOutline mobileFilterReset" id="mobileResetBtn">重置篩選</button>
+      <button class="btn btnPrimary mobileFilterApply" id="mobileApplyBtn">套用篩選</button>
     </div>
   </div>
 
   <!-- Filter Sheet 背景遮罩 -->
-  <div class="offcanvas-backdrop" id="filterSheetBackdrop"></div>
+  <div class="offcanvasBackdrop" id="filterSheetBackdrop"></div>
 
    <div id="footer"></div>
 
@@ -249,5 +250,3 @@
 
 </body>
 </html>
-
-

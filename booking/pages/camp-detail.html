@@ -8,11 +8,7 @@
   <title>營區詳情 | Yuruicamp 露營選物</title>
 
   <!-- 預約模組樣式 / Booking stylesheet -->
-  <link rel="stylesheet" href="../css/base.css">
-  <link rel="stylesheet" href="../css/layout.css">
-  <link rel="stylesheet" href="../css/booking.css">
-  <link rel="stylesheet" href="../css/yuruicamp-tags-status.css">
-  <link rel="stylesheet" href="../css/camp-detail.css">
+  <link rel="stylesheet" href="../css/booking-main.css">
 
   <!-- Flatpickr 日期選擇器 CSS / Flatpickr datepicker CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -31,7 +27,7 @@
     <!-- 麵包屑 / Breadcrumb -->
     <nav class="breadcrumb" aria-label="麵包屑導航">
       <a href="./camp-search.html"><i class="bi bi-house"></i> 搜尋營區</a>
-      <span style="margin:0 .4rem;color:var(--yc-text-muted,#7B756D);">/</span>
+      <span>/</span>
       <span id="breadcrumbName">載入中...</span>
     </nav>
 
@@ -76,12 +72,12 @@
         </div>
 
         <!-- 日期計算結果 / Date calculation result -->
-        <div class="date-summary" id="dateSummary" style="display:none;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem;">
+        <div class="date-summary" id="dateSummary">
+          <div>
             <span>總天數</span>
             <strong><span id="totalDays">0</span> 晚</strong>
           </div>
-          <div style="display:flex;justify-content:space-between;">
+          <div>
             <span id="weekdayLabel">平日 0 晚</span>
             <span id="holidayLabel">假日 0 晚</span>
           </div>
@@ -100,14 +96,14 @@
         <div class="form-group">
           <label><i class="bi bi-grid-3x3-gap"></i> 選擇營位類型</label>
           <div class="zone-list" id="zoneList">
-            <p style="font-size:.875rem;color:var(--yc-text-muted,#7B756D);text-align:center;padding:1rem 0;">
+            <p>
               請先選擇日期後，再選擇營位類型
             </p>
           </div>
         </div>
 
         <!-- 費用小計 / Price subtotal -->
-        <div class="price-summary" id="priceSummary" style="display:none;">
+        <div class="price-summary" id="priceSummary">
           <span class="price-summary__label">住宿費小計</span>
           <strong class="price-summary__amount" id="zonePriceTotal">NT$0</strong>
         </div>
@@ -129,7 +125,7 @@
          ===================================================== -->
     <section class="zone-table-section">
       <h3><i class="bi bi-table"></i> 營位類型完整資訊</h3>
-      <div style="overflow-x:auto;">
+      <div>
         <table class="zone-table">
           <thead>
             <tr>

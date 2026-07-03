@@ -1,0 +1,208 @@
+/*
+  Yuruicamp AI style tokens
+  Purpose: simplified CSS contract for AI-assisted implementation.
+  Source: existing Yuruicamp SCSS, booking CSS, and UI/UX accessibility rules.
+*/
+
+:root {
+  --yui-primary: #244d4d;
+  --yui-primary-dark: #1a3838;
+  --yui-primary-hover: #316868;
+  --yui-primary-light: #4a7777;
+  --yui-primary-soft: #e8f4f4;
+  --yui-secondary: #779999;
+  --yui-secondary-light: #a8bcbc;
+  --yui-bg: #f6fbf6;
+  --yui-surface: #ffffff;
+  --yui-surface-muted: #f2f2f2;
+  --yui-booking-bg: #f2f0eb;
+  --yui-text: #333333;
+  --yui-text-muted: #666666;
+  --yui-text-subtle: #999999;
+  --yui-border: #e0e0e0;
+  --yui-border-strong: #cccccc;
+  --yui-success: #4caf50;
+  --yui-warning: #ff9800;
+  --yui-danger: #d32f2f;
+  --yui-info: #2196f3;
+  --yui-gold: #d4a017;
+  --yui-orange: #e07b39;
+
+  --yui-font-sans: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
+  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New", monospace;
+
+  --yui-space-1: 4px;
+  --yui-space-2: 8px;
+  --yui-space-3: 12px;
+  --yui-space-4: 16px;
+  --yui-space-5: 20px;
+  --yui-space-6: 24px;
+  --yui-space-8: 32px;
+  --yui-space-10: 40px;
+  --yui-space-12: 48px;
+  --yui-space-16: 64px;
+
+  --yui-radius-sm: 4px;
+  --yui-radius-md: 6px;
+  --yui-radius-lg: 8px;
+  --yui-radius-xl: 12px;
+  --yui-radius-pill: 9999px;
+
+  --yui-shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
+  --yui-shadow-md: 0 4px 12px rgb(36 77 77 / 10%);
+  --yui-shadow-lg: 0 12px 28px rgb(36 77 77 / 14%);
+
+  --yui-transition-fast: 150ms ease;
+  --yui-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  --yui-z-dropdown: 1000;
+  --yui-z-sticky: 1020;
+  --yui-z-fixed: 1030;
+  --yui-z-modal-backdrop: 1040;
+  --yui-z-modal: 1050;
+  --yui-z-tooltip: 1070;
+}
+
+.yui-page {
+  min-height: 100vh;
+  background: var(--yui-bg);
+  color: var(--yui-text);
+  font-family: var(--yui-font-sans);
+  line-height: 1.5;
+}
+
+.yui-container {
+  width: min(1120px, calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+.yui-section {
+  padding-block: clamp(32px, 6vw, 72px);
+}
+
+.yui-stack {
+  display: grid;
+  gap: var(--yui-space-4);
+}
+
+.yui-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--yui-space-5);
+}
+
+.yui-card {
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-sm);
+}
+
+.yui-card-interactive {
+  cursor: pointer;
+  transition: border-color var(--yui-transition-fast), box-shadow var(--yui-transition-fast), background-color var(--yui-transition-fast);
+}
+
+.yui-card-interactive:hover {
+  border-color: var(--yui-primary-light);
+  box-shadow: var(--yui-shadow-md);
+}
+
+.yui-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yui-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--yui-radius-lg);
+  padding: 10px 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), box-shadow var(--yui-transition-fast);
+}
+
+.yui-button:focus-visible,
+.yui-input:focus-visible,
+.yui-select:focus-visible,
+.yui-link:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 2px;
+}
+
+.yui-button-primary {
+  background: var(--yui-primary);
+  color: #ffffff;
+}
+
+.yui-button-primary:hover {
+  background: var(--yui-primary-hover);
+}
+
+.yui-button-secondary {
+  background: var(--yui-surface);
+  border-color: var(--yui-primary);
+  color: var(--yui-primary);
+}
+
+.yui-button-secondary:hover {
+  background: var(--yui-primary-soft);
+}
+
+.yui-button-danger {
+  background: var(--yui-danger);
+  color: #ffffff;
+}
+
+.yui-input,
+.yui-select,
+.yui-textarea {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--yui-border-strong);
+  border-radius: var(--yui-radius-md);
+  background: var(--yui-surface);
+  color: var(--yui-text);
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.yui-tag {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  gap: var(--yui-space-1);
+  border-radius: var(--yui-radius-pill);
+  background: var(--yui-primary-soft);
+  color: var(--yui-primary);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.yui-status-success { color: var(--yui-success); }
+.yui-status-warning { color: var(--yui-warning); }
+.yui-status-danger { color: var(--yui-danger); }
+.yui-status-info { color: var(--yui-info); }
+
+@media (width <= 768px) {
+  .yui-container {
+    width: min(100% - 24px, 1120px);
+  }
+
+  .yui-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

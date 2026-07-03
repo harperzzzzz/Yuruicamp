@@ -119,8 +119,8 @@ function initLoginGuard() {
     } catch (e) { return false; }
   }
 
-  function showNotice() { $('#loginNotice').slideDown(250); }
-  function hideNotice() { $('#loginNotice').slideUp(250); }
+  function showNotice() { $('#loginNotice').addClass('isVisible'); }
+  function hideNotice() { $('#loginNotice').removeClass('isVisible'); }
 
   if (!isLoggedIn()) {
     setTimeout(function () {

@@ -77,11 +77,16 @@ function loadScriptOnce(src, flagName) {
 }
 
 /**
- * Loads shared auth first, then the booking header controller.
+ * 載入 booking shared auth 與 header 互動腳本。
+ * 套用元件：#loginModal、#personalizationModal、.bookingHeader。
  */
 function loadBookingHeaderScript() {
-  loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded')
+  loadScriptOnce('../../js/components/modal.js', '__yuruiModalScriptLoaded')
     .then(function () {
+      return loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded');
+    })
+    .then(function () {
+      window.initModalListeners?.();
       return loadScriptOnce('../js/booking-header.js', '__bookingHeaderScriptLoaded');
     })
     .catch(function (error) {

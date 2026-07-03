@@ -127,9 +127,9 @@ function renderCampDetail(camp) {
   const allFacHTML = camp.facility_tags
     .map(t => `<span class="tag tag--facility">${t}</span>`).join('');
   $('#campDescription').html(`
-    <h3 style="color:var(--bk-primary);margin-bottom:.75rem;">營區介紹</h3>
+    <h3 class="camp-description__title">營區介紹</h3>
     <p>${camp.description}</p>
-    <div style="margin-top:.75rem;">${allFacHTML}</div>
+    <div class="camp-description__tags">${allFacHTML}</div>
   `);
 
   // 渲染營位選擇器 / Render zone selector
@@ -292,7 +292,7 @@ function calculateDays(start, end) {
   $('#totalDays').text(total);
   $('#weekdayLabel').text(`平日 ${weekdayCount} 晚`);
   $('#holidayLabel').text(`假日 ${holidayCount} 晚`);
-  $('#dateSummary').show();
+  $('#dateSummary').addClass('isVisible');
 }
 
 // ============================================================
@@ -316,7 +316,7 @@ function updatePriceSummary() {
   const subtotal = (zone.price_weekday * weekdayCount) + (zone.price_holiday * holidayCount);
 
   $('#zonePriceTotal').text(`NT$${subtotal.toLocaleString()}`);
-  $('#priceSummary').show();
+  $('#priceSummary').addClass('isVisible');
 
   // 啟用「下一步」按鈕 / Enable "next step" button
   $('#confirmBookingBtn').prop('disabled', false);

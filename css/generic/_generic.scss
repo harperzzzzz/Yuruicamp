@@ -1,27 +1,2 @@
-// 用途：重設瀏覽器環境與盒模型，讓所有頁面使用一致的渲染基準。
-// 應用：全站所有 HTML 原生元素。
-// ========================================
-// CSS Reset 和全局樣式
-// ========================================
-
-// HTML5 顯示定義
-article,
-aside,
-details,
-figcaption,
-figure,
-footer,
-header,
-main,
-menu,
-nav,
-section {
-  display: block;
-}
-
-// 盒子模型 - 使用 border-box
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+// Generic 層：放 reset、normalize 與最低權重的瀏覽器一致化規則。
+@use 'reset';

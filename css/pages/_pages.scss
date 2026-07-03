@@ -1,0 +1,12 @@
+// Pages 層：只放單一頁面範圍樣式，載入順序晚於 components，避免頁面規則污染共用元件。
+// 規則：新增頁面樣式時優先用頁面根 class 包住，例如 .homePage、.productsPage 或 .checkoutPage。
+@use 'blog-detail';
+@use 'blog';
+@use 'branches';
+@use 'checkout-success';
+@use 'checkout';
+@use 'faq';
+@use 'home';
+@use 'member-center';
+@use 'product-detail';
+@use 'products';

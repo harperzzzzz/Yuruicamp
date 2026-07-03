@@ -36,9 +36,8 @@ $(document).ready(function () {
       localStorage.removeItem('bookingCart');
       bookingCart = null;
       showToast('背包已清除', 'info');
-      $('#bkCartContent').fadeOut(250, function () {
-        showEmptyState();
-      });
+      $('#bkCartContent').removeClass('isVisible');
+      showEmptyState();
     });
   });
 
@@ -119,8 +118,8 @@ function renderAll() {
   renderRentalBody();
   renderSummary();
 
-  $('#bkCartEmpty').hide();
-  $('#bkCartContent').show();
+  $('#bkCartEmpty').removeClass('isVisible');
+  $('#bkCartContent').addClass('isVisible');
 }
 
 // ── 住宿卡內容 ──
@@ -153,7 +152,7 @@ function renderStayBody() {
             <button class="bk-qty-btn" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
           </div>
           <div class="bk-cart-item__price" id="zonePrice${idx}">NT$${z.subtotal.toLocaleString()}</div>
-          <div style="font-size:0.72rem;color:var(--bk-text-muted);">營位數量</div>
+          <div class="bk-cart-item__qty-label">營位數量</div>
         </div>
       </div>
     `;
@@ -169,7 +168,7 @@ function renderRentalBody() {
 
   if (rentals.length === 0) {
     $('#bkRentalBody').html(
-      '<div style="padding:1rem 1.25rem;color:var(--bk-text-muted);font-size:0.85rem;">本次未選擇租借裝備。</div>'
+      '<div class="bk-cart-empty-note">本次未選擇租借裝備。</div>'
     );
     return;
   }
@@ -269,8 +268,8 @@ function saveCart() {
 }
 
 function showEmptyState() {
-  $('#bkCartEmpty').show();
-  $('#bkCartContent').hide();
+  $('#bkCartEmpty').addClass('isVisible');
+  $('#bkCartContent').removeClass('isVisible');
   $('#bkCartCount').text('');
 }
 

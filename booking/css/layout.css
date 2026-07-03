@@ -8,7 +8,6 @@
   right: 28px;
   bottom: 34px;
   z-index: 1200;
-
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -20,19 +19,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   width: 60px;
   height: 60px;
   padding: 0;
   overflow: hidden;
   white-space: nowrap;
-
   border-radius: 999px;
   background-color: #5f9407;
   color: #fff;
-
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-
+  box-shadow: 0 14px 34px rgb(0 0 0 / 18%);
   transition:
     width 0.35s ease,
     padding 0.35s ease,
@@ -49,7 +44,7 @@
   justify-content: flex-start;
   background-color: #578804;
   transform: translateY(-2px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 22%);
 }
 
 .floating-line-label {
@@ -57,13 +52,11 @@
   opacity: 0;
   overflow: hidden;
   margin-right: 0;
-
   color: #fff;
   font-size: 1.02rem;
   font-weight: 600;
   letter-spacing: 1px;
   line-height: 1;
-
   transition:
     max-width 0.35s ease,
     opacity 0.25s ease,
@@ -81,7 +74,6 @@
   flex: 0 0 60px;
   width: 60px;
   height: 60px;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,7 +83,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: auto;
   height: auto;
   font-size: 1.55rem;
@@ -104,21 +95,16 @@
   height: 60px;
   border: 0;
   border-radius: 50%;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-color: var(--yc-sage-action, #73816E);
+  background-color: var(--yc-sage-action, #73816e);
   color: #fff;
   cursor: pointer;
-
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-
+  box-shadow: 0 14px 34px rgb(0 0 0 / 18%);
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px) scale(0.92);
-
   transition:
     opacity 0.35s ease,
     visibility 0.35s ease,
@@ -134,7 +120,7 @@
 
 .floating-top-btn:hover,
 .floating-top-btn:focus-visible {
-  background-color: var(--yc-sage-dark, #62705D);
+  background-color: var(--yc-sage-dark, #62705d);
   transform: translateY(-2px) scale(1);
 }
 
@@ -145,12 +131,13 @@
 
 .bk-footer__payment-icons i {
   font-size: 1.5rem;
-  color: rgba(255, 253, 249, 0.52);
+  color: rgb(255 253 249 / 52%);
   margin-right: 12px;
   transition: color 0.2s;
 }
+
 .bk-footer__payment-icons i:hover {
-  color: rgba(255, 253, 249, 0.85);
+  color: rgb(255 253 249 / 85%);
 }
 
 /* ========================================
@@ -165,7 +152,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: linear-gradient(135deg, #3C4A3A 0%, #62705D 42%, #73816E 70%, #8F9D8B 100%);
+  background: linear-gradient(135deg, #3c4a3a 0%, #62705d 42%, #73816e 70%, #8f9d8b 100%);
 }
 
 /* 背景影片：inset:0 = top/right/bottom/left 全部設為 0，讓影片撐滿整個 section */
@@ -183,7 +170,7 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(30, 40, 30, 0.32);
+  background: rgb(30 40 30 / 32%);
   z-index: 1;
 }
 
@@ -192,7 +179,7 @@
   position: relative;
   z-index: 2;
   text-align: center;
-  color: #ffffff;
+  color: #fff;
   padding: 2rem 1.25rem;
   max-width: 700px;
 }
@@ -202,7 +189,7 @@
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgb(255 255 255 / 75%);
   margin-bottom: 1rem;
 }
 
@@ -216,7 +203,7 @@
 
 .hero-subtitle {
   font-size: 1.125rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgb(255 255 255 / 85%);
   margin-bottom: 2rem;
   line-height: 1.7;
 }
@@ -233,9 +220,9 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.85rem 2.25rem;
-  background-color: var(--yc-cta, #E2D39A);
-  color: var(--yc-on-cta, #4A4537);
-  border: 2px solid var(--yc-cta, #E2D39A);
+  background-color: var(--yc-cta, #e2d39a);
+  color: var(--yc-on-cta, #4a4537);
+  border: 2px solid var(--yc-cta, #e2d39a);
   border-radius: 50px;
   font-size: 1rem;
   font-weight: 700;
@@ -245,9 +232,9 @@
 }
 
 .btn-hero-primary:hover {
-  background-color: var(--yc-cta-hover, #D4C27E);
-  border-color: var(--yc-cta-hover, #D4C27E);
-  color: var(--yc-on-cta, #4A4537);
+  background-color: var(--yc-cta-hover, #d4c27e);
+  border-color: var(--yc-cta-hover, #d4c27e);
+  color: var(--yc-on-cta, #4a4537);
   text-decoration: none;
 }
 
@@ -257,8 +244,8 @@
   gap: 0.5rem;
   padding: 0.85rem 2.25rem;
   background-color: transparent;
-  color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.65);
+  color: #fff;
+  border: 2px solid rgb(255 255 255 / 65%);
   border-radius: 50px;
   font-size: 1rem;
   font-weight: 600;
@@ -268,9 +255,9 @@
 }
 
 .btn-hero-outline:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-  border-color: #ffffff;
-  color: #ffffff;
+  background-color: rgb(255 255 255 / 15%);
+  border-color: #fff;
+  color: #fff;
   text-decoration: none;
 }
 
@@ -281,34 +268,54 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 2;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgb(255 255 255 / 60%);
   font-size: 0.75rem;
   letter-spacing: 0.15em;
   text-align: center;
-  animation: bounceDown 2s infinite;
+  animation: bounce-down 2s infinite;
 }
 
-@keyframes bounceDown {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%       { transform: translateX(-50%) translateY(8px); }
+@keyframes bounce-down {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
 }
 
-@media (max-width: 768px) {
-  .hero-banner { min-height: 75vh; }
-  .hero-title  { font-size: clamp(1.75rem, 8vw, 2.5rem); }
-  .hero-subtitle { font-size: 0.95rem; }
-  .btn-hero-primary, .btn-hero-outline { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
+@media (width <= 768px) {
+  .hero-banner {
+    min-height: 75vh;
+  }
+
+  .hero-title {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .btn-hero-primary,
+  .btn-hero-outline {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+  }
 }
 
 .logo {
-  height: 64px;       /* 請依照你 Header 的高度調整數字（例如 40px ~ 60px） */
-  width: auto;        /* 讓寬度隨著高度自動等比例縮放 */
-  display: block;     /* 消除圖片下方預設的微小空白間隙 */
+  height: 64px; /* 請依照你 Header 的高度調整數字（例如 40px ~ 60px） */
+  width: auto; /* 讓寬度隨著高度自動等比例縮放 */
+  display: block; /* 消除圖片下方預設的微小空白間隙 */
   object-fit: contain;
 }
+
 .brand {
-  display: flex;          /* 讓裡面的元素變成橫向排版 */
-  align-items: center;    /* 關鍵！讓裡面的 Logo 和文字「垂直置中」對齊 */
-  gap: 12px;              /* (選用) 用來調整 Logo 和文字之間的左右間距 */
-  text-decoration: none;  /* 如果是用 <a> 標籤，這行可以去掉底線 */
+  display: flex; /* 讓裡面的元素變成橫向排版 */
+  align-items: center; /* 關鍵！讓裡面的 Logo 和文字「垂直置中」對齊 */
+  gap: 12px; /* (選用) 用來調整 Logo 和文字之間的左右間距 */
+  text-decoration: none; /* 如果是用 <a> 標籤，這行可以去掉底線 */
 }
