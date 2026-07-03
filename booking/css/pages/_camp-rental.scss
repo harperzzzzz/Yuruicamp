@@ -1,0 +1,323 @@
+/* Camp Rental Page：裝備租借頁專屬區塊，集中管理摘要列、推薦橫幅、裝備卡片與租借側欄。 */
+
+/* Booking Summary Bar：租借流程上方摘要列，顯示目前營地、日期與人數。 */
+.bookingSummaryBar {
+  background: var(--bk-primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.bookingSummaryBar strong {
+  color: #fff;
+}
+
+/* Booking Summary Bar：摘要資訊分隔符，降低視覺權重避免干擾文字。 */
+.bookingSummaryBar .summarySep {
+  opacity: 0.5;
+  margin: 0 0.25rem;
+}
+
+/* Booking Summary Bar：返回修改連結，推到摘要列右側。 */
+#summaryEditLink {
+  margin-left: auto;
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* Booking Recommendation：租借頁推薦橫幅外層，對齊 booking 主內容寬度。 */
+.recommendationBanner {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Booking Recommendation：JS 有推薦內容時才顯示橫幅。 */
+#recommendationBanner {
+  display: none;
+}
+
+/* Booking Recommendation：推薦內容卡片，使用品牌淺底呈現輔助建議。 */
+.recommendationBannerContent {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+}
+
+.recommendationBannerContent strong {
+  color: var(--bk-primary);
+}
+
+.recommendationBannerTitle {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Recommendation：推薦標籤群組，支援多個地形或裝備提示。 */
+.recommendationTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.recommendationTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* Booking Recommendation：租借列表標題與數量資訊。 */
+.rentalItemsList h2 {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+}
+
+#rentalCount {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Booking Rental Item Card：租借裝備卡片網格。 */
+.rentalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Booking Rental Item Card：單一租借裝備卡片。 */
+.rentalItemCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Rental Item Card：卡片 hover 狀態。 */
+.rentalItemCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Rental Item Card：裝備圖片。 */
+.rentalItemCardImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+/* Booking Rental Item Card：卡片內容區。 */
+.rentalItemCardBody {
+  padding: 0.9rem;
+  flex: 1;
+}
+
+/* Booking Rental Item Card：裝備名稱。 */
+.rentalItemCardName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：情境推薦標籤間距。 */
+.rentalItemCardTag {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：裝備描述。 */
+.rentalItemCardDesc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Booking Rental Item Card：原價或單價資訊。 */
+.rentalItemCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估租借金額。 */
+.rentalItemCardEstimated {
+  font-size: 0.85rem;
+  color: var(--bk-text);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估金額重點文字。 */
+.rentalItemCardEstimated strong {
+  color: var(--bk-primary);
+  font-size: 1rem;
+}
+
+/* Booking Rental Item Card：折扣資訊。 */
+.rentalItemCardDiscount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
+
+/* Booking Rental Item Card：庫存資訊。 */
+.rentalItemCardStock {
+  font-size: 0.78rem;
+  color: var(--bk-accent);
+  margin-bottom: 0;
+}
+
+/* Booking Rental Item Card：卡片底部操作區。 */
+.rentalItemCardActions {
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Rental Item Card：加入租借按鈕滿版。 */
+.rentalAddBtn {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
+
+/* Booking Rental Item Card：已加入狀態。 */
+.rentalAddBtn.isAdded {
+  color: #2d7a4f;
+}
+
+/* Booking Rental Cart：租借背包側欄容器，供裝備租借頁固定顯示選取清單。 */
+.rentalCartSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.25rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Rental Cart：側欄標題。 */
+.rentalCartSidebar h3 {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Rental Cart：租借品項清單容器。 */
+.rentalCartList {
+  min-height: 80px;
+  margin-bottom: 1rem;
+}
+
+/* Booking Rental Cart：尚未選取裝備時的空狀態。 */
+.rentalCartListEmpty {
+  text-align: center;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+/* Booking Rental Cart：單一租借品項列。 */
+.rentalCartItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bk-border);
+  font-size: 0.875rem;
+}
+
+/* Booking Rental Cart：品項名稱欄位佔滿剩餘寬度。 */
+.rentalCartItem span:first-child {
+  flex: 1;
+  color: var(--bk-text);
+}
+
+/* Booking Rental Cart：品項金額欄位固定顯示，不換行。 */
+.rentalCartItem span:nth-child(2) {
+  color: var(--bk-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Booking Rental Cart：移除租借品項按鈕。 */
+.rentalRemoveBtn {
+  background: none;
+  border: none;
+  color: var(--bk-danger);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+/* Booking Rental Cart：移除按鈕 hover 狀態。 */
+.rentalRemoveBtn:hover {
+  background: var(--yc-error-soft);
+}
+
+/* Booking Rental Cart：租借小計區塊。 */
+.rentalCostSummary {
+  padding: 0.75rem;
+  background: var(--bk-bg);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+/* Booking Rental Cart：略過租借或返回流程的文字連結。 */
+.rentalSkipLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Rental Cart：文字連結 hover 狀態。 */
+.rentalSkipLink:hover {
+  color: var(--bk-primary);
+}
+
+@media (width <= 768px) {
+  /* Booking Rental Item Card：手機版裝備卡片改為單欄。 */
+  .rentalGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Booking Rental Cart：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
+  .rentalCartSidebar {
+    position: static;
+  }
+}
+
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Rental Item Card：平板版維持雙欄。 */
+  .rentalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

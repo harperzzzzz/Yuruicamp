@@ -1,3 +1,5 @@
+/* Camp Search Page：搜尋頁專屬區塊，集中管理 hero 搜尋、篩選側欄與搜尋結果卡片。 */
+
 /* ── Hero 搜尋列：強制單行，擴大容器寬度 ── */
 .heroContent {
   max-width: 900px;
@@ -128,4 +130,295 @@
   font-size: 0.72rem;
   color: var(--bk-text-muted);
   margin-top: 0.75rem;
+}
+
+/* Booking Search Bar：營地搜尋列外層，提供主色區塊與圓角裁切。 */
+.searchBarSection {
+  background: var(--bk-primary);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: var(--yc-radius-card, 19px);
+  overflow: hidden;
+}
+
+/* Booking Search Bar：搜尋欄位排列容器，支援多欄自動換行。 */
+.searchBar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Booking Search Bar：輸入與下拉欄位共用視覺，適合深色搜尋區塊。 */
+.searchBarInput,
+.searchBarSelect {
+  flex: 1 1 160px;
+  padding: 0.6rem 1rem;
+  border: 2px solid rgb(255 255 255 / 30%);
+  border-radius: var(--bk-radius-sm);
+  background: rgb(255 255 255 / 15%);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: var(--bk-transition);
+}
+
+.searchBarInput::placeholder {
+  color: rgb(255 255 255 / 70%);
+}
+
+.searchBarInput:focus,
+.searchBarSelect:focus {
+  border-color: #fff;
+  background: rgb(255 255 255 / 25%);
+}
+
+/* Booking Search Bar：瀏覽器原生選單選項需回到淺底，避免白字不可讀。 */
+.searchBarSelect option {
+  color: var(--bk-text);
+  background: var(--yc-surface);
+}
+
+/* Booking Filter Sidebar：搜尋結果頁側欄篩選容器，桌機維持 sticky。 */
+.filterSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Filter Sidebar：手機版展開按鈕，桌機預設隱藏。 */
+.filterSidebarToggle {
+  display: none;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bk-primary);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+}
+
+/* Booking Filter Sidebar：篩選內容區塊，承接多組 filter group。 */
+.filterSidebarBody {
+  padding: 1.25rem;
+}
+
+/* Booking Filter Sidebar：單一篩選群組間距。 */
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+/* Booking Filter Sidebar：篩選群組標題，提供明確分隔線。 */
+.filterGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bk-primary);
+  border-bottom: 2px solid var(--bk-border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Filter Sidebar：checkbox label 讓點擊區域完整包含文字。 */
+.filterGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.filterGroup label:hover {
+  color: var(--bk-primary);
+}
+
+.filterGroup input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--bk-primary);
+  cursor: pointer;
+}
+
+/* Booking Filter Sidebar：重設篩選按鈕維持次要操作權重。 */
+#resetFilterBtn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+}
+
+#resetFilterBtn:hover {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-action);
+}
+
+/* Booking Search Results：搜尋結果列表標頭，顯示結果數與排序/狀態資訊。 */
+.searchResultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Booking Camp Card：營地搜尋結果卡片網格。 */
+.campCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+/* Booking Camp Card：單一營地卡片容器。 */
+.campCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Camp Card：卡片 hover 狀態。 */
+.campCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Camp Card：圖片比例容器。 */
+.campCardImage {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+/* Booking Camp Card：圖片填滿容器。 */
+.campCardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Booking Camp Card：滑過卡片時微放大圖片。 */
+.campCard:hover .campCardImage img {
+  transform: scale(1.05);
+}
+
+/* Booking Camp Card：地區標籤。 */
+.campCardBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--bk-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+/* Booking Camp Card：卡片主要內容區。 */
+.campCardBody {
+  padding: 1rem;
+  flex: 1;
+}
+
+/* Booking Camp Card：營地名稱。 */
+.campCardName {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Camp Card：價格摘要。 */
+.campCardPrice {
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Camp Card：價格重點文字。 */
+.campCardPrice strong {
+  color: var(--yc-sage-dark);
+}
+
+/* Booking Camp Card：營地標籤列。 */
+.campCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Card：卡片底部操作區。 */
+.campCardFooter {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Camp Card：底部主操作按鈕滿版。 */
+.campCardFooter .btn {
+  width: 100%;
+}
+
+@media (width <= 768px) {
+  /* Booking Search Bar：手機版改為單欄直向排列，降低橫向擠壓。 */
+  .searchBar {
+    flex-direction: column;
+  }
+
+  .searchBarInput,
+  .searchBarSelect {
+    flex: 1 1 100%;
+  }
+
+  /* Booking Filter Sidebar：手機版取消 sticky，改由展開按鈕控制內容。 */
+  .filterSidebar {
+    position: static;
+  }
+
+  .filterSidebarToggle {
+    display: flex;
+    align-items: center;
+  }
+
+  .filterSidebarBody {
+    display: none;
+    border-top: 1px solid var(--bk-border);
+  }
+
+  .filterSidebarBody.isOpen {
+    display: block;
+  }
+
+  /* Booking Camp Card：手機版搜尋結果改為單欄。 */
+  .campCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Camp Card：平板版維持雙欄。 */
+  .campCardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

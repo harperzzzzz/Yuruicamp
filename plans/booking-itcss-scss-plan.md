@@ -25,6 +25,8 @@ Booking 目前保留一個 runtime 入口：
 - 已建立 settings、generic、elements、objects、components、pages、overrides、utilities 的 SCSS partial 結構。
 - 已將現有 booking CSS 內容機械轉入對應 SCSS partial，並把 `base.css` 中的 reset、motion helper、modal 基礎拆入對應層級。
 - 已移除不再由 runtime 載入的舊平面 CSS source，保留 SCSS source 與公開頁 CSS 編譯輸出。
+- 已完成 components 歸層審查，搜尋、詳情、結帳支援與租借流程等單頁 selector 已移入 pages layer，components layer 僅保留跨頁可重用 UI。
+- 已確認 `booking/css/settings/_tokens.scss` 內 `--yc-*` 為 source of truth，`--bk-*` 僅作相容 alias；後續新增 token 不應在 page/component partial 中另立一次性色碼。
 - 已用 Sass 重新產出 `booking/css/booking-main.css`，保留既有公開頁 HTML link 路徑。
 - 已移除 booking 會員中心專用 SCSS/CSS 入口，會員中心樣式統一由主站 `css/pages/_member-center.scss` 維護。
 - 已同步將 booking 自有 class/id 轉為語意化 camelCase，並同步更新 HTML、SCSS、JavaScript selector 與 shared booking header/footer partial；Bootstrap Icons 與 Flatpickr 等外部類別保留原套件命名。
@@ -58,11 +60,18 @@ booking/css/
     _booking-footer.scss
     _booking-form.scss
     _booking-header.scss
+    _booking-progress.scss
+    _booking-summary.scss
+    _booking-tag.scss
+    _booking-tags-status.scss
     _booking-toast.scss
+    _booking-feedback.scss
+    _modal.scss
   pages/
     _pages.scss
     _camp-search.scss
     _camp-detail.scss
+    _camp-rental.scss
     _rental-guide.scss
     _booking-cart.scss
     _booking-checkout.scss
@@ -136,12 +145,12 @@ booking/css/
 
 ### 5. Components 層
 
-將 `booking/css/components/*.css` 轉成 `_*.scss`，由 `components/_components.scss` 統一載入。
+將 `booking/css/components/*.css` 轉成 `_*.scss`，由 `components/_components.scss` 統一載入；本輪已將只服務單頁的 partial 搬出 components layer。
 
 歸層檢查：
 
 - 可跨頁重用的 UI 留在 components，例如 header、footer、button、form、card、drawer、toast、summary、progress、breadcrumb。
-- 只服務單頁流程的 selector 移到 pages。
+- 只服務單頁流程的 selector 移到 pages；已移入 pages 的代表包含搜尋頁 search bar/filter/results/camp card、詳情頁 camp detail/zone card/zone table、結帳 checkout support、租借頁 summary bar/recommendation/rental item/rental cart。
 - 第三方套件樣式覆寫不要混入 components，移到 `overrides/_flatpickr.scss`。
 
 ### 6. Pages 層
@@ -150,6 +159,7 @@ booking/css/
 
 - `camp-search.css` -> `_camp-search.scss`
 - `camp-detail.css` -> `_camp-detail.scss`
+- `camp-rental.css` 或租借流程元件 partial -> `_camp-rental.scss`
 - `rental-guide.css` -> `_rental-guide.scss`
 - `booking-cart.css` -> `_booking-cart.scss`
 - `booking-checkout.css` -> `_booking-checkout.scss`

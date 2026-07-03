@@ -1142,180 +1142,6 @@ main {
   border: 1px solid var(--yc-cta-line);
 }
 
-/* Booking Search Bar：營地搜尋列外層，提供主色區塊與圓角裁切。 */
-.searchBarSection {
-  background: var(--bk-primary);
-  padding: 2rem 0;
-  margin-bottom: 2rem;
-  border-radius: var(--yc-radius-card, 19px);
-  overflow: hidden;
-}
-
-/* Booking Search Bar：搜尋欄位排列容器，支援多欄自動換行。 */
-.searchBar {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-}
-
-/* Booking Search Bar：輸入與下拉欄位共用視覺，適合深色搜尋區塊。 */
-.searchBarInput,
-.searchBarSelect {
-  flex: 1 1 160px;
-  padding: 0.6rem 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: var(--bk-radius-sm);
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  font-size: 0.95rem;
-  outline: none;
-  transition: var(--bk-transition);
-}
-
-.searchBarInput::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.searchBarInput:focus,
-.searchBarSelect:focus {
-  border-color: #fff;
-  background: rgba(255, 255, 255, 0.25);
-}
-
-/* Booking Search Bar：瀏覽器原生選單選項需回到淺底，避免白字不可讀。 */
-.searchBarSelect option {
-  color: var(--bk-text);
-  background: var(--yc-surface);
-}
-
-@media (width <= 768px) {
-  /* Booking Search Bar：手機版改為單欄直向排列，降低橫向擠壓。 */
-  .searchBar {
-    flex-direction: column;
-  }
-  .searchBarInput,
-  .searchBarSelect {
-    flex: 1 1 100%;
-  }
-}
-/* Booking Filter Sidebar：搜尋結果頁側欄篩選容器，桌機維持 sticky。 */
-.filterSidebar {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  box-shadow: var(--bk-shadow);
-  overflow: hidden;
-  position: sticky;
-  top: 90px;
-}
-
-/* Booking Filter Sidebar：手機版展開按鈕，桌機預設隱藏。 */
-.filterSidebarToggle {
-  display: none;
-  width: 100%;
-  padding: 1rem 1.25rem;
-  background: var(--bk-primary);
-  color: #fff;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: left;
-  gap: 0.5rem;
-}
-
-/* Booking Filter Sidebar：篩選內容區塊，承接多組 filter group。 */
-.filterSidebarBody {
-  padding: 1.25rem;
-}
-
-/* Booking Filter Sidebar：單一篩選群組間距。 */
-.filterGroup {
-  margin-bottom: 1.5rem;
-}
-
-/* Booking Filter Sidebar：篩選群組標題，提供明確分隔線。 */
-.filterGroupTitle {
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--bk-primary);
-  border-bottom: 2px solid var(--bk-border);
-  padding-bottom: 0.4rem;
-  margin-bottom: 0.75rem;
-}
-
-/* Booking Filter Sidebar：checkbox label 讓點擊區域完整包含文字。 */
-.filterGroup label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.3rem 0;
-  font-size: 0.9rem;
-  color: var(--bk-text);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.filterGroup label:hover {
-  color: var(--bk-primary);
-}
-
-.filterGroup input[type=checkbox] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--bk-primary);
-  cursor: pointer;
-}
-
-/* Booking Filter Sidebar：重設篩選按鈕維持次要操作權重。 */
-#resetFilterBtn {
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-  background: var(--yc-surface);
-  color: var(--yc-sage-action);
-  border-color: var(--yc-sage-action);
-}
-
-#resetFilterBtn:hover {
-  background: var(--yc-sage-soft);
-  color: var(--yc-sage-dark);
-  border-color: var(--yc-sage-action);
-}
-
-@media (width <= 768px) {
-  /* Booking Filter Sidebar：手機版取消 sticky，改由展開按鈕控制內容。 */
-  .filterSidebar {
-    position: static;
-  }
-  .filterSidebarToggle {
-    display: flex;
-    align-items: center;
-  }
-  .filterSidebarBody {
-    display: none;
-    border-top: 1px solid var(--bk-border);
-  }
-  .filterSidebarBody.isOpen {
-    display: block;
-  }
-}
-/* Booking Search Results：搜尋結果列表標頭，顯示結果數與排序/狀態資訊。 */
-.searchResultsHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  color: var(--bk-text-muted);
-  font-size: 0.9rem;
-}
-
 /* Booking Breadcrumb：預訂頁共用麵包屑容器，限制寬度並對齊主內容。 */
 .breadcrumb {
   max-width: 1200px;
@@ -1515,101 +1341,6 @@ main {
   color: var(--bk-primary);
 }
 
-/* Booking Summary Bar：租借流程上方摘要列，顯示目前營地、日期與人數。 */
-.bookingSummaryBar {
-  background: var(--bk-primary);
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 1.5rem;
-}
-
-.bookingSummaryBar strong {
-  color: #fff;
-}
-
-/* Booking Summary Bar：摘要資訊分隔符，降低視覺權重避免干擾文字。 */
-.bookingSummaryBar .summarySep {
-  opacity: 0.5;
-  margin: 0 0.25rem;
-}
-
-/* Booking Summary Bar：返回修改連結，推到摘要列右側。 */
-#summaryEditLink {
-  margin-left: auto;
-  color: #fff;
-  font-size: 0.85rem;
-  text-decoration: underline;
-}
-
-/* Booking Recommendation：租借頁推薦橫幅外層，對齊 booking 主內容寬度。 */
-.recommendationBanner {
-  max-width: 1200px;
-  margin: 0 auto 1.5rem;
-  padding: 0 1.5rem;
-}
-
-/* Booking Recommendation：JS 有推薦內容時才顯示橫幅。 */
-#recommendationBanner {
-  display: none;
-}
-
-/* Booking Recommendation：推薦內容卡片，使用品牌淺底呈現輔助建議。 */
-.recommendationBannerContent {
-  background: var(--yc-sage-soft);
-  border: 1px solid var(--yc-sage-soft);
-  border-radius: var(--bk-radius);
-  padding: 1rem 1.25rem;
-  font-size: 0.9rem;
-  color: var(--bk-text);
-}
-
-.recommendationBannerContent strong {
-  color: var(--bk-primary);
-}
-
-.recommendationBannerTitle {
-  margin-bottom: 0.4rem;
-}
-
-/* Booking Recommendation：推薦標籤群組，支援多個地形或裝備提示。 */
-.recommendationTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.6rem;
-}
-
-.recommendationTag {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  background: var(--yc-sage-soft);
-  color: var(--yc-sage-dark);
-  border: 1px solid var(--yc-sage-light);
-  border-radius: 20px;
-  padding: 0.2rem 0.7rem;
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-
-/* Booking Recommendation：租借列表標題與數量資訊。 */
-.rentalItemsList h2 {
-  font-size: 1.15rem;
-  color: var(--bk-primary);
-  margin-bottom: 1rem;
-}
-
-#rentalCount {
-  color: var(--yc-text-muted, #7b756d);
-  font-size: 0.875rem;
-  font-weight: 400;
-}
-
 /* Booking Progress：購物車與結帳頁共用的流程進度條容器。 */
 .stepProgress {
   display: flex;
@@ -1694,603 +1425,6 @@ main {
   }
   .step {
     font-size: 0.7rem;
-  }
-}
-/* Booking Rental Cart：租借背包側欄容器，供裝備租借頁固定顯示選取清單。 */
-.rentalCartSidebar {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  box-shadow: var(--bk-shadow);
-  padding: 1.25rem;
-  position: sticky;
-  top: 90px;
-}
-
-/* Booking Rental Cart：側欄標題。 */
-.rentalCartSidebar h3 {
-  font-size: 1rem;
-  color: var(--bk-primary);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--bk-border);
-}
-
-/* Booking Rental Cart：租借品項清單容器。 */
-.rentalCartList {
-  min-height: 80px;
-  margin-bottom: 1rem;
-}
-
-/* Booking Rental Cart：尚未選取裝備時的空狀態。 */
-.rentalCartListEmpty {
-  text-align: center;
-  color: var(--bk-text-muted);
-  font-size: 0.875rem;
-  padding: 1rem 0;
-}
-
-/* Booking Rental Cart：單一租借品項列。 */
-.rentalCartItem {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--bk-border);
-  font-size: 0.875rem;
-}
-
-/* Booking Rental Cart：品項名稱欄位佔滿剩餘寬度。 */
-.rentalCartItem span:first-child {
-  flex: 1;
-  color: var(--bk-text);
-}
-
-/* Booking Rental Cart：品項金額欄位固定顯示，不換行。 */
-.rentalCartItem span:nth-child(2) {
-  color: var(--bk-primary);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-/* Booking Rental Cart：移除租借品項按鈕。 */
-.rentalRemoveBtn {
-  background: none;
-  border: none;
-  color: var(--bk-danger);
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0.1rem 0.3rem;
-  border-radius: 4px;
-  transition: background 0.15s;
-}
-
-/* Booking Rental Cart：移除按鈕 hover 狀態。 */
-.rentalRemoveBtn:hover {
-  background: var(--yc-error-soft);
-}
-
-/* Booking Rental Cart：租借小計區塊。 */
-.rentalCostSummary {
-  padding: 0.75rem;
-  background: var(--bk-bg);
-  border-radius: var(--bk-radius-sm);
-  font-size: 0.9rem;
-  color: var(--bk-primary);
-  font-weight: 600;
-  margin-bottom: 1rem;
-  text-align: right;
-}
-
-/* Booking Rental Cart：略過租借或返回流程的文字連結。 */
-.rentalSkipLink {
-  display: block;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--bk-text-muted);
-  margin-top: 0.75rem;
-  text-decoration: underline;
-}
-
-/* Booking Rental Cart：文字連結 hover 狀態。 */
-.rentalSkipLink:hover {
-  color: var(--bk-primary);
-}
-
-@media (width <= 768px) {
-  /* Booking Rental Cart：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
-  .rentalCartSidebar {
-    position: static;
-  }
-}
-/* Booking Zone Card：營區詳情頁的營位類型清單容器。 */
-.zoneList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  max-height: 280px;
-  overflow-y: auto;
-}
-
-/* Booking Zone Card：可選營位卡片。 */
-.zoneCard {
-  border: 2px solid var(--bk-border);
-  border-radius: var(--bk-radius-sm);
-  padding: 0.75rem;
-  cursor: pointer;
-  transition: var(--bk-transition);
-  background: var(--bk-white);
-}
-
-/* Booking Zone Card：滑過時提示此卡片可互動。 */
-.zoneCard:hover {
-  border-color: var(--bk-primary);
-}
-
-/* Booking Zone Card：已選取的營位卡片狀態。 */
-.zoneCard.isSelected {
-  border-color: var(--bk-primary);
-  background: var(--bk-primary-light);
-}
-
-/* Booking Zone Card：營位名稱與容量資訊列。 */
-.zoneCardInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.3rem;
-}
-
-/* Booking Zone Card：營位名稱文字。 */
-.zoneCardInfo strong {
-  font-size: 0.9rem;
-  color: var(--bk-primary);
-}
-
-/* Booking Zone Card：營位容量或補充資訊文字。 */
-.zoneCardInfo span {
-  font-size: 0.8rem;
-  color: var(--bk-text-muted);
-}
-
-/* Booking Zone Card：營位價格資訊。 */
-.zoneCardPrice {
-  font-size: 0.8rem;
-  color: var(--bk-text-muted);
-  margin-bottom: 0.3rem;
-}
-
-/* Booking Zone Card：剩餘庫存資訊。 */
-.zoneCardStock {
-  font-size: 0.8rem;
-  color: var(--bk-accent);
-}
-
-/* Booking Zone Card：選取營位按鈕，維持卡片內滿版操作。 */
-.zoneSelectBtn {
-  margin-top: 0.5rem;
-  width: 100%;
-  padding: 0.35rem;
-  font-size: 0.82rem;
-}
-
-/* Booking Checkout Support：結帳聯絡資料區塊。 */
-.contactForm {
-  margin-bottom: 1.25rem;
-}
-
-/* Booking Checkout Support：聯絡資料區塊標題。 */
-.contactForm h4 {
-  font-size: 0.9rem;
-  color: var(--bk-primary);
-  margin-bottom: 0.75rem;
-}
-
-/* Booking Checkout Support：結帳聯絡表單內的輸入欄位間距。 */
-.contactForm .formControl {
-  margin-bottom: 0.6rem;
-  font-size: 0.875rem;
-}
-
-/* Booking Checkout Support：返回購物車的文字連結。 */
-.bookingCartBackLink {
-  display: block;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--bk-text-muted);
-  margin-top: 0.75rem;
-  text-decoration: underline;
-}
-
-/* Booking Checkout Support：返回購物車連結 hover 狀態。 */
-.bookingCartBackLink:hover {
-  color: var(--bk-primary);
-}
-
-/* Booking Checkout Support：結帳加購租借裝備提示區塊。 */
-.upsellBanner {
-  margin-top: 1rem;
-  background: var(--yc-sage-soft);
-  border: 1px solid var(--yc-sage-soft);
-  border-radius: var(--bk-radius);
-  padding: 1rem;
-  text-align: center;
-}
-
-/* Booking Checkout Support：加購提示區塊主要文字。 */
-.upsellBanner p {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--bk-primary);
-  margin-bottom: 0.75rem;
-}
-
-/* Booking Camp Card：營地搜尋結果卡片網格。 */
-.campCardGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-}
-
-/* Booking Camp Card：單一營地卡片容器。 */
-.campCard {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  box-shadow: var(--bk-shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: var(--bk-transition);
-}
-
-/* Booking Camp Card：卡片 hover 狀態。 */
-.campCard:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--bk-shadow-hover);
-}
-
-/* Booking Camp Card：圖片比例容器。 */
-.campCardImage {
-  position: relative;
-  aspect-ratio: 16/10;
-  overflow: hidden;
-}
-
-/* Booking Camp Card：圖片填滿容器。 */
-.campCardImage img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-/* Booking Camp Card：滑過卡片時微放大圖片。 */
-.campCard:hover .campCardImage img {
-  transform: scale(1.05);
-}
-
-/* Booking Camp Card：地區標籤。 */
-.campCardBadge {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
-  background: var(--bk-cta);
-  color: var(--yc-on-cta);
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-}
-
-/* Booking Camp Card：卡片主要內容區。 */
-.campCardBody {
-  padding: 1rem;
-  flex: 1;
-}
-
-/* Booking Camp Card：營地名稱。 */
-.campCardName {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--bk-text);
-  margin-bottom: 0.4rem;
-}
-
-/* Booking Camp Card：價格摘要。 */
-.campCardPrice {
-  font-size: 0.875rem;
-  color: var(--bk-text-muted);
-  margin-bottom: 0.75rem;
-}
-
-/* Booking Camp Card：價格重點文字。 */
-.campCardPrice strong {
-  color: var(--yc-sage-dark);
-}
-
-/* Booking Camp Card：營地標籤列。 */
-.campCardTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-/* Booking Camp Card：卡片底部操作區。 */
-.campCardFooter {
-  padding: 0.75rem 1rem;
-  border-top: 1px solid var(--bk-border);
-}
-
-/* Booking Camp Card：底部主操作按鈕滿版。 */
-.campCardFooter .btn {
-  width: 100%;
-}
-
-@media (width <= 768px) {
-  /* Booking Camp Card：手機版搜尋結果改為單欄。 */
-  .campCardGrid {
-    grid-template-columns: 1fr;
-  }
-}
-@media (width >= 769px) and (width <= 1024px) {
-  /* Booking Camp Card：平板版維持雙欄。 */
-  .campCardGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-/* Booking Camp Detail：詳情頁內層容器，讓內容寬度與 booking 其他頁一致。 */
-.detailPage .pageInner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-/* Booking Camp Detail：營地頁首資訊區，承接標題、地區與特色標籤。 */
-.campHeader {
-  max-width: 1200px;
-  margin: 0 auto 1.5rem;
-  padding: 0 1.5rem;
-}
-
-.campHeader h1 {
-  font-size: 2rem;
-  color: var(--bk-primary);
-  margin-bottom: 0.4rem;
-}
-
-.campHeaderRegion {
-  font-size: 0.95rem;
-  color: var(--bk-text-muted);
-  margin-bottom: 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.campHeaderTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-/* Booking Camp Detail：營地圖片牆，桌機呈現首圖橫跨的重點版面。 */
-.campGallery {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-  border-radius: var(--bk-radius);
-  overflow: hidden;
-  margin-bottom: 1.25rem;
-}
-
-.galleryImg {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.galleryImg:first-child {
-  grid-column: 1/-1;
-  aspect-ratio: 16/7;
-}
-
-.galleryImg:hover {
-  transform: scale(1.03);
-}
-
-/* Booking Camp Detail：營地介紹卡片，承接文字段落與補充標籤。 */
-.campDescription {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  padding: 1.25rem;
-  box-shadow: var(--bk-shadow);
-}
-
-.campDescription p {
-  color: var(--bk-text);
-  line-height: 1.8;
-  margin-bottom: 1rem;
-}
-
-@media (width <= 768px) {
-  /* Booking Camp Detail：手機版圖片牆只保留主圖，避免列表過長。 */
-  .campGallery {
-    grid-template-columns: 1fr;
-  }
-  .campGallery img:not(:first-child) {
-    display: none;
-  }
-}
-/* Booking Zone Table：營位價格表區塊，對齊 booking 主內容寬度。 */
-.zoneTableSection {
-  max-width: 1200px;
-  margin: 1.5rem auto;
-  padding: 0 1.5rem;
-}
-
-.zoneTableSection h3 {
-  font-size: 1.1rem;
-  color: var(--bk-primary);
-  margin-bottom: 0.75rem;
-}
-
-/* Booking Zone Table：營位資訊表格基底，使用卡片式圓角與陰影。 */
-.zoneTable {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  overflow: hidden;
-  box-shadow: var(--bk-shadow);
-  font-size: 0.9rem;
-}
-
-.zoneTable th {
-  background: var(--bk-primary);
-  color: #fff;
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-weight: 600;
-}
-
-.zoneTable td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bk-border);
-  color: var(--bk-text);
-}
-
-.zoneTable tr:last-child td {
-  border-bottom: none;
-}
-
-.zoneTable tr:hover td {
-  background: var(--bk-bg);
-}
-
-@media (width <= 768px) {
-  /* Booking Zone Table：手機版允許橫向捲動，保留表格欄位可讀性。 */
-  .zoneTableSection {
-    overflow-x: auto;
-  }
-}
-/* Booking Rental Item Card：租借裝備卡片網格。 */
-.rentalGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-/* Booking Rental Item Card：單一租借裝備卡片。 */
-.rentalItemCard {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
-  box-shadow: var(--bk-shadow);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  transition: var(--bk-transition);
-}
-
-/* Booking Rental Item Card：卡片 hover 狀態。 */
-.rentalItemCard:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--bk-shadow-hover);
-}
-
-/* Booking Rental Item Card：裝備圖片。 */
-.rentalItemCardImg {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: cover;
-}
-
-/* Booking Rental Item Card：卡片內容區。 */
-.rentalItemCardBody {
-  padding: 0.9rem;
-  flex: 1;
-}
-
-/* Booking Rental Item Card：裝備名稱。 */
-.rentalItemCardName {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--bk-primary);
-  margin-bottom: 0.4rem;
-}
-
-/* Booking Rental Item Card：情境推薦標籤間距。 */
-.rentalItemCardTag {
-  margin-bottom: 0.4rem;
-}
-
-/* Booking Rental Item Card：裝備描述。 */
-.rentalItemCardDesc {
-  margin-bottom: 0.5rem;
-  color: #666;
-  font-size: 0.8rem;
-}
-
-/* Booking Rental Item Card：原價或單價資訊。 */
-.rentalItemCardPrice {
-  font-size: 0.8rem;
-  color: var(--bk-text-muted);
-  margin-bottom: 0.25rem;
-}
-
-/* Booking Rental Item Card：預估租借金額。 */
-.rentalItemCardEstimated {
-  font-size: 0.85rem;
-  color: var(--bk-text);
-  margin-bottom: 0.25rem;
-}
-
-/* Booking Rental Item Card：預估金額重點文字。 */
-.rentalItemCardEstimated strong {
-  color: var(--bk-primary);
-  font-size: 1rem;
-}
-
-/* Booking Rental Item Card：折扣資訊。 */
-.rentalItemCardDiscount {
-  color: #e07b39;
-  font-size: 0.78rem;
-}
-
-/* Booking Rental Item Card：庫存資訊。 */
-.rentalItemCardStock {
-  font-size: 0.78rem;
-  color: var(--bk-accent);
-  margin-bottom: 0;
-}
-
-/* Booking Rental Item Card：卡片底部操作區。 */
-.rentalItemCardActions {
-  padding: 0.75rem 0.9rem;
-  border-top: 1px solid var(--bk-border);
-}
-
-/* Booking Rental Item Card：加入租借按鈕滿版。 */
-.rentalAddBtn {
-  width: 100%;
-  font-size: 0.875rem;
-  padding: 0.45rem;
-}
-
-/* Booking Rental Item Card：已加入狀態。 */
-.rentalAddBtn.isAdded {
-  color: #2d7a4f;
-}
-
-@media (width <= 768px) {
-  /* Booking Rental Item Card：手機版裝備卡片改為單欄。 */
-  .rentalGrid {
-    grid-template-columns: 1fr;
-  }
-}
-@media (width >= 769px) and (width <= 1024px) {
-  /* Booking Rental Item Card：平板版維持雙欄。 */
-  .rentalGrid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 /* Booking Header：共用 booking header 品牌、導覽動作與按鈕。 */
@@ -4145,6 +3279,7 @@ main {
   border-color: var(--bk-primary-light);
 }
 
+/* Camp Search Page：搜尋頁專屬區塊，集中管理 hero 搜尋、篩選側欄與搜尋結果卡片。 */
 /* ── Hero 搜尋列：強制單行，擴大容器寬度 ── */
 .heroContent {
   max-width: 900px;
@@ -4275,7 +3410,290 @@ main {
   margin-top: 0.75rem;
 }
 
-/* Camp detail page inline-style replacements. */
+/* Booking Search Bar：營地搜尋列外層，提供主色區塊與圓角裁切。 */
+.searchBarSection {
+  background: var(--bk-primary);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: var(--yc-radius-card, 19px);
+  overflow: hidden;
+}
+
+/* Booking Search Bar：搜尋欄位排列容器，支援多欄自動換行。 */
+.searchBar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Booking Search Bar：輸入與下拉欄位共用視覺，適合深色搜尋區塊。 */
+.searchBarInput,
+.searchBarSelect {
+  flex: 1 1 160px;
+  padding: 0.6rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--bk-radius-sm);
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: var(--bk-transition);
+}
+
+.searchBarInput::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.searchBarInput:focus,
+.searchBarSelect:focus {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Booking Search Bar：瀏覽器原生選單選項需回到淺底，避免白字不可讀。 */
+.searchBarSelect option {
+  color: var(--bk-text);
+  background: var(--yc-surface);
+}
+
+/* Booking Filter Sidebar：搜尋結果頁側欄篩選容器，桌機維持 sticky。 */
+.filterSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Filter Sidebar：手機版展開按鈕，桌機預設隱藏。 */
+.filterSidebarToggle {
+  display: none;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--bk-primary);
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+}
+
+/* Booking Filter Sidebar：篩選內容區塊，承接多組 filter group。 */
+.filterSidebarBody {
+  padding: 1.25rem;
+}
+
+/* Booking Filter Sidebar：單一篩選群組間距。 */
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+/* Booking Filter Sidebar：篩選群組標題，提供明確分隔線。 */
+.filterGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bk-primary);
+  border-bottom: 2px solid var(--bk-border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Filter Sidebar：checkbox label 讓點擊區域完整包含文字。 */
+.filterGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.filterGroup label:hover {
+  color: var(--bk-primary);
+}
+
+.filterGroup input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--bk-primary);
+  cursor: pointer;
+}
+
+/* Booking Filter Sidebar：重設篩選按鈕維持次要操作權重。 */
+#resetFilterBtn {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+}
+
+#resetFilterBtn:hover {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-action);
+}
+
+/* Booking Search Results：搜尋結果列表標頭，顯示結果數與排序/狀態資訊。 */
+.searchResultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--bk-text-muted);
+  font-size: 0.9rem;
+}
+
+/* Booking Camp Card：營地搜尋結果卡片網格。 */
+.campCardGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+/* Booking Camp Card：單一營地卡片容器。 */
+.campCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Camp Card：卡片 hover 狀態。 */
+.campCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Camp Card：圖片比例容器。 */
+.campCardImage {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+/* Booking Camp Card：圖片填滿容器。 */
+.campCardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+/* Booking Camp Card：滑過卡片時微放大圖片。 */
+.campCard:hover .campCardImage img {
+  transform: scale(1.05);
+}
+
+/* Booking Camp Card：地區標籤。 */
+.campCardBadge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--bk-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+/* Booking Camp Card：卡片主要內容區。 */
+.campCardBody {
+  padding: 1rem;
+  flex: 1;
+}
+
+/* Booking Camp Card：營地名稱。 */
+.campCardName {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--bk-text);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Camp Card：價格摘要。 */
+.campCardPrice {
+  font-size: 0.875rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Camp Card：價格重點文字。 */
+.campCardPrice strong {
+  color: var(--yc-sage-dark);
+}
+
+/* Booking Camp Card：營地標籤列。 */
+.campCardTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Card：卡片底部操作區。 */
+.campCardFooter {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Camp Card：底部主操作按鈕滿版。 */
+.campCardFooter .btn {
+  width: 100%;
+}
+
+@media (width <= 768px) {
+  /* Booking Search Bar：手機版改為單欄直向排列，降低橫向擠壓。 */
+  .searchBar {
+    flex-direction: column;
+  }
+  .searchBarInput,
+  .searchBarSelect {
+    flex: 1 1 100%;
+  }
+  /* Booking Filter Sidebar：手機版取消 sticky，改由展開按鈕控制內容。 */
+  .filterSidebar {
+    position: static;
+  }
+  .filterSidebarToggle {
+    display: flex;
+    align-items: center;
+  }
+  .filterSidebarBody {
+    display: none;
+    border-top: 1px solid var(--bk-border);
+  }
+  .filterSidebarBody.isOpen {
+    display: block;
+  }
+  /* Booking Camp Card：手機版搜尋結果改為單欄。 */
+  .campCardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Camp Card：平板版維持雙欄。 */
+  .campCardGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Camp Detail Page：營地詳情頁專屬區塊，集中管理頁首、圖片牆、營位卡片與價格表。 */
 #dateSummary,
 #priceSummary {
   display: none;
@@ -4324,6 +3742,531 @@ main {
   overflow-x: auto;
 }
 
+/* Booking Camp Detail：詳情頁內層容器，讓內容寬度與 booking 其他頁一致。 */
+.detailPage .pageInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Booking Camp Detail：營地頁首資訊區，承接標題、地區與特色標籤。 */
+.campHeader {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.campHeader h1 {
+  font-size: 2rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+.campHeaderRegion {
+  font-size: 0.95rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.campHeaderTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Booking Camp Detail：營地圖片牆，桌機呈現首圖橫跨的重點版面。 */
+.campGallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.galleryImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.galleryImg:first-child {
+  grid-column: 1/-1;
+  aspect-ratio: 16/7;
+}
+
+.galleryImg:hover {
+  transform: scale(1.03);
+}
+
+/* Booking Camp Detail：營地介紹卡片，承接文字段落與補充標籤。 */
+.campDescription {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  padding: 1.25rem;
+  box-shadow: var(--bk-shadow);
+}
+
+.campDescription p {
+  color: var(--bk-text);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+/* Booking Zone Card：營區詳情頁的營位類型清單容器。 */
+.zoneList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+/* Booking Zone Card：可選營位卡片。 */
+.zoneCard {
+  border: 2px solid var(--bk-border);
+  border-radius: var(--bk-radius-sm);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: var(--bk-transition);
+  background: var(--bk-white);
+}
+
+/* Booking Zone Card：滑過時提示此卡片可互動。 */
+.zoneCard:hover {
+  border-color: var(--bk-primary);
+}
+
+/* Booking Zone Card：已選取的營位卡片狀態。 */
+.zoneCard.isSelected {
+  border-color: var(--bk-primary);
+  background: var(--bk-primary-light);
+}
+
+/* Booking Zone Card：營位名稱與容量資訊列。 */
+.zoneCardInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.3rem;
+}
+
+/* Booking Zone Card：營位名稱文字。 */
+.zoneCardInfo strong {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+}
+
+/* Booking Zone Card：營位容量或補充資訊文字。 */
+.zoneCardInfo span {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+}
+
+/* Booking Zone Card：營位價格資訊。 */
+.zoneCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.3rem;
+}
+
+/* Booking Zone Card：剩餘庫存資訊。 */
+.zoneCardStock {
+  font-size: 0.8rem;
+  color: var(--bk-accent);
+}
+
+/* Booking Zone Card：選取營位按鈕，維持卡片內滿版操作。 */
+.zoneSelectBtn {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.35rem;
+  font-size: 0.82rem;
+}
+
+/* Booking Zone Table：營位價格表區塊，對齊 booking 主內容寬度。 */
+.zoneTableSection {
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 0 1.5rem;
+}
+
+.zoneTableSection h3 {
+  font-size: 1.1rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Zone Table：營位資訊表格基底，使用卡片式圓角與陰影。 */
+.zoneTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  overflow: hidden;
+  box-shadow: var(--bk-shadow);
+  font-size: 0.9rem;
+}
+
+.zoneTable th {
+  background: var(--bk-primary);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.zoneTable td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--bk-border);
+  color: var(--bk-text);
+}
+
+.zoneTable tr:last-child td {
+  border-bottom: none;
+}
+
+.zoneTable tr:hover td {
+  background: var(--bk-bg);
+}
+
+@media (width <= 768px) {
+  /* Booking Camp Detail：手機版圖片牆只保留主圖，避免列表過長。 */
+  .campGallery {
+    grid-template-columns: 1fr;
+  }
+  .campGallery img:not(:first-child) {
+    display: none;
+  }
+  /* Booking Zone Table：手機版允許橫向捲動，保留表格欄位可讀性。 */
+  .zoneTableSection {
+    overflow-x: auto;
+  }
+}
+/* Camp Rental Page：裝備租借頁專屬區塊，集中管理摘要列、推薦橫幅、裝備卡片與租借側欄。 */
+/* Booking Summary Bar：租借流程上方摘要列，顯示目前營地、日期與人數。 */
+.bookingSummaryBar {
+  background: var(--bk-primary);
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.bookingSummaryBar strong {
+  color: #fff;
+}
+
+/* Booking Summary Bar：摘要資訊分隔符，降低視覺權重避免干擾文字。 */
+.bookingSummaryBar .summarySep {
+  opacity: 0.5;
+  margin: 0 0.25rem;
+}
+
+/* Booking Summary Bar：返回修改連結，推到摘要列右側。 */
+#summaryEditLink {
+  margin-left: auto;
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* Booking Recommendation：租借頁推薦橫幅外層，對齊 booking 主內容寬度。 */
+.recommendationBanner {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+/* Booking Recommendation：JS 有推薦內容時才顯示橫幅。 */
+#recommendationBanner {
+  display: none;
+}
+
+/* Booking Recommendation：推薦內容卡片，使用品牌淺底呈現輔助建議。 */
+.recommendationBannerContent {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--bk-text);
+}
+
+.recommendationBannerContent strong {
+  color: var(--bk-primary);
+}
+
+.recommendationBannerTitle {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Recommendation：推薦標籤群組，支援多個地形或裝備提示。 */
+.recommendationTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.recommendationTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* Booking Recommendation：租借列表標題與數量資訊。 */
+.rentalItemsList h2 {
+  font-size: 1.15rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+}
+
+#rentalCount {
+  color: var(--yc-text-muted, #7b756d);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+/* Booking Rental Item Card：租借裝備卡片網格。 */
+.rentalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Booking Rental Item Card：單一租借裝備卡片。 */
+.rentalItemCard {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--bk-transition);
+}
+
+/* Booking Rental Item Card：卡片 hover 狀態。 */
+.rentalItemCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bk-shadow-hover);
+}
+
+/* Booking Rental Item Card：裝備圖片。 */
+.rentalItemCardImg {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+/* Booking Rental Item Card：卡片內容區。 */
+.rentalItemCardBody {
+  padding: 0.9rem;
+  flex: 1;
+}
+
+/* Booking Rental Item Card：裝備名稱。 */
+.rentalItemCardName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bk-primary);
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：情境推薦標籤間距。 */
+.rentalItemCardTag {
+  margin-bottom: 0.4rem;
+}
+
+/* Booking Rental Item Card：裝備描述。 */
+.rentalItemCardDesc {
+  margin-bottom: 0.5rem;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Booking Rental Item Card：原價或單價資訊。 */
+.rentalItemCardPrice {
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估租借金額。 */
+.rentalItemCardEstimated {
+  font-size: 0.85rem;
+  color: var(--bk-text);
+  margin-bottom: 0.25rem;
+}
+
+/* Booking Rental Item Card：預估金額重點文字。 */
+.rentalItemCardEstimated strong {
+  color: var(--bk-primary);
+  font-size: 1rem;
+}
+
+/* Booking Rental Item Card：折扣資訊。 */
+.rentalItemCardDiscount {
+  color: #e07b39;
+  font-size: 0.78rem;
+}
+
+/* Booking Rental Item Card：庫存資訊。 */
+.rentalItemCardStock {
+  font-size: 0.78rem;
+  color: var(--bk-accent);
+  margin-bottom: 0;
+}
+
+/* Booking Rental Item Card：卡片底部操作區。 */
+.rentalItemCardActions {
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid var(--bk-border);
+}
+
+/* Booking Rental Item Card：加入租借按鈕滿版。 */
+.rentalAddBtn {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
+
+/* Booking Rental Item Card：已加入狀態。 */
+.rentalAddBtn.isAdded {
+  color: #2d7a4f;
+}
+
+/* Booking Rental Cart：租借背包側欄容器，供裝備租借頁固定顯示選取清單。 */
+.rentalCartSidebar {
+  background: var(--bk-white);
+  border-radius: var(--bk-radius);
+  box-shadow: var(--bk-shadow);
+  padding: 1.25rem;
+  position: sticky;
+  top: 90px;
+}
+
+/* Booking Rental Cart：側欄標題。 */
+.rentalCartSidebar h3 {
+  font-size: 1rem;
+  color: var(--bk-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--bk-border);
+}
+
+/* Booking Rental Cart：租借品項清單容器。 */
+.rentalCartList {
+  min-height: 80px;
+  margin-bottom: 1rem;
+}
+
+/* Booking Rental Cart：尚未選取裝備時的空狀態。 */
+.rentalCartListEmpty {
+  text-align: center;
+  color: var(--bk-text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+/* Booking Rental Cart：單一租借品項列。 */
+.rentalCartItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--bk-border);
+  font-size: 0.875rem;
+}
+
+/* Booking Rental Cart：品項名稱欄位佔滿剩餘寬度。 */
+.rentalCartItem span:first-child {
+  flex: 1;
+  color: var(--bk-text);
+}
+
+/* Booking Rental Cart：品項金額欄位固定顯示，不換行。 */
+.rentalCartItem span:nth-child(2) {
+  color: var(--bk-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Booking Rental Cart：移除租借品項按鈕。 */
+.rentalRemoveBtn {
+  background: none;
+  border: none;
+  color: var(--bk-danger);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+/* Booking Rental Cart：移除按鈕 hover 狀態。 */
+.rentalRemoveBtn:hover {
+  background: var(--yc-error-soft);
+}
+
+/* Booking Rental Cart：租借小計區塊。 */
+.rentalCostSummary {
+  padding: 0.75rem;
+  background: var(--bk-bg);
+  border-radius: var(--bk-radius-sm);
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+/* Booking Rental Cart：略過租借或返回流程的文字連結。 */
+.rentalSkipLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Rental Cart：文字連結 hover 狀態。 */
+.rentalSkipLink:hover {
+  color: var(--bk-primary);
+}
+
+@media (width <= 768px) {
+  /* Booking Rental Item Card：手機版裝備卡片改為單欄。 */
+  .rentalGrid {
+    grid-template-columns: 1fr;
+  }
+  /* Booking Rental Cart：手機版取消側欄 sticky，避免內容被視窗高度壓縮。 */
+  .rentalCartSidebar {
+    position: static;
+  }
+}
+@media (width >= 769px) and (width <= 1024px) {
+  /* Booking Rental Item Card：平板版維持雙欄。 */
+  .rentalGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 /* ======================================================
        rental-guide.html 頁面專屬樣式 — Yuruicamp v3
        ====================================================== */
@@ -5270,6 +5213,57 @@ main {
   display: block;
   margin-top: 0.5rem;
   text-align: center;
+}
+
+/* Booking Checkout Support：結帳聯絡資料區塊。 */
+.contactForm {
+  margin-bottom: 1.25rem;
+}
+
+/* Booking Checkout Support：聯絡資料區塊標題。 */
+.contactForm h4 {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Checkout Support：結帳聯絡表單內的輸入欄位間距。 */
+.contactForm .formControl {
+  margin-bottom: 0.6rem;
+  font-size: 0.875rem;
+}
+
+/* Booking Checkout Support：返回購物車的文字連結。 */
+.bookingCartBackLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Checkout Support：返回購物車連結 hover 狀態。 */
+.bookingCartBackLink:hover {
+  color: var(--bk-primary);
+}
+
+/* Booking Checkout Support：結帳加購租借裝備提示區塊。 */
+.upsellBanner {
+  margin-top: 1rem;
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Booking Checkout Support：加購提示區塊主要文字。 */
+.upsellBanner p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
 }
 
 /* RWD */

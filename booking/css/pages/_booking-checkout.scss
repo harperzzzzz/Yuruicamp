@@ -340,6 +340,57 @@
   text-align: center;
 }
 
+/* Booking Checkout Support：結帳聯絡資料區塊。 */
+.contactForm {
+  margin-bottom: 1.25rem;
+}
+
+/* Booking Checkout Support：聯絡資料區塊標題。 */
+.contactForm h4 {
+  font-size: 0.9rem;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
+/* Booking Checkout Support：結帳聯絡表單內的輸入欄位間距。 */
+.contactForm .formControl {
+  margin-bottom: 0.6rem;
+  font-size: 0.875rem;
+}
+
+/* Booking Checkout Support：返回購物車的文字連結。 */
+.bookingCartBackLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--bk-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+/* Booking Checkout Support：返回購物車連結 hover 狀態。 */
+.bookingCartBackLink:hover {
+  color: var(--bk-primary);
+}
+
+/* Booking Checkout Support：結帳加購租借裝備提示區塊。 */
+.upsellBanner {
+  margin-top: 1rem;
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--bk-radius);
+  padding: 1rem;
+  text-align: center;
+}
+
+/* Booking Checkout Support：加購提示區塊主要文字。 */
+.upsellBanner p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--bk-primary);
+  margin-bottom: 0.75rem;
+}
+
 /* RWD */
 @media (width <= 900px) {
   .bkCheckoutLayout {
