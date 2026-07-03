@@ -1,4 +1,12 @@
-﻿## v1.3.41 - 2026/07/03
+## v1.3.42 - 2026/07/03
+
+- 會員中心保留主站與 booking 兩個入口 shell：主站入口載入主站 header/footer，booking 入口載入 booking header/footer，兩邊共用 `components/member-center.partial`、`js/components/member-center.js` 與主站會員中心樣式。
+- 主站與 booking header 的會員中心連結會帶入安全的 `returnTo` 參數，會員中心「返回首頁」會回到各自來源頁；若來源不在允許範圍內則回主站 `home.html` 或 booking `camp-search.html`。
+- 依 `.agents/agents.md` 將會員中心樣式收斂為主站唯一來源：`pages/member-center.html` 只載入 `css/main.css`，共用會員中心 partial 補上 `.memberCenterPage` 頁面根 class，booking 入口改為載入主站會員中心樣式與 booking 自身 header/footer。
+- 刪除 booking 專用會員中心樣式入口 `booking/css/member-center-main.scss`、`booking/css/member-center-main.css` 與 `booking/css/pages/_member-center.scss`；後續會員中心樣式統一從 `css/pages/_member-center.scss` 維護。
+- 更新 `docs/itcss-architecture.md`、`plans/booking-itcss-scss-plan.md` 與 `package.json`，移除 booking 會員中心獨立 Sass 入口與格式化範圍中的已刪除 CSS 輸出。
+
+## v1.3.41 - 2026/07/03
 
 - 依 `.agents/agents.md` 產出 `plans/booking-itcss-scss-plan.md`，整理 booking CSS 漸進轉為 SCSS ITCSS 的分層目標、檔案遷移順序、命名轉換策略、編譯方式與驗收清單。
 - 新增 `booking/css/booking-main.scss` 與 `booking/css/member-center-main.scss`，並建立 settings、generic、elements、objects、components、pages、overrides、utilities 的 SCSS partial；舊平面 CSS source 已移除，Sass 編譯後仍輸出既有 `booking-main.css` 與 `member-center-main.css`，保持 HTML 載入路徑相容。

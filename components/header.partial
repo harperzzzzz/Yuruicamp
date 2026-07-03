@@ -76,7 +76,11 @@
               <i class="bi bi-chevron-down" aria-hidden="true"></i>
             </button>
             <div class="siteUserDropdown" id="siteUserDropdown" hidden>
-              <a class="siteUserDropdownItem" href="/pages/member-center.html">
+              <a
+                class="siteUserDropdownItem"
+                href="/pages/member-center.html"
+                data-member-center-entry="main"
+              >
                 <i class="bi bi-person" aria-hidden="true"></i>
                 會員中心
               </a>
@@ -298,7 +302,9 @@
               <i class="bi bi-bag-heart" aria-hidden="true"></i>
               <span class="bookingCartBadge" id="bookingBadge" hidden>0</span>
             </button>
-            <button class="siteLoginButton bookingLoginButton" type="button" data-modal-target="loginModal">登入</button>
+            <button class="siteLoginButton bookingLoginButton" type="button" data-modal-target="loginModal">
+              登入
+            </button>
             <div class="siteUserMenu bookingUserMenu" hidden>
               <button
                 class="siteUserTrigger"
@@ -311,7 +317,9 @@
                 <i class="bi bi-chevron-down" aria-hidden="true"></i>
               </button>
               <div class="siteUserDropdown" id="bookingUserDropdown" hidden>
-                <a class="siteUserDropdownItem" href="./member-center.html">會員中心</a>
+                <a class="siteUserDropdownItem" href="./member-center.html" data-member-center-entry="booking"
+                  >會員中心</a
+                >
                 <button class="siteUserDropdownItem siteLogoutButton" type="button">登出</button>
               </div>
             </div>
@@ -319,7 +327,12 @@
         </div>
       </nav>
 
-      <aside class="bookingOffcanvas" id="bkOffcanvas" aria-hidden="true" aria-labelledby="bookingOffcanvasTitle">
+      <aside
+        class="bookingOffcanvas"
+        id="bkOffcanvas"
+        aria-hidden="true"
+        aria-labelledby="bookingOffcanvasTitle"
+      >
         <div class="bookingOffcanvasHeader">
           <h2 class="bookingOffcanvasTitle" id="bookingOffcanvasTitle">預約選單</h2>
           <button class="bookingOffcanvasClose" id="bkOffcanvasClose" type="button" aria-label="關閉預約選單">
@@ -331,14 +344,23 @@
             <li><a id="navSearch" href="./camp-search.html">搜尋營地</a></li>
             <li><a id="navRentalGuide" href="./rental-guide.html">租借說明</a></li>
             <li><a id="navFaq" href="./booking-faq.html">常見問題</a></li>
-            <li><a id="navMember" href="./member-center.html">會員中心</a></li>
+            <li>
+              <a id="navMember" href="./member-center.html" data-member-center-entry="booking">會員中心</a>
+            </li>
           </ul>
         </nav>
       </aside>
       <div class="bookingOffcanvasBackdrop" id="bkBackdrop" hidden></div>
     </header>
 
-    <aside id="cartPanel" class="bookingSlidePanel" role="dialog" aria-modal="true" aria-hidden="true" aria-label="預約背包">
+    <aside
+      id="cartPanel"
+      class="bookingSlidePanel"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-label="預約背包"
+    >
       <div class="bookingSlidePanelHeader">
         <h2 class="bookingSlidePanelTitle">預約背包</h2>
         <button class="bookingSlidePanelClose" id="cartPanelClose" type="button" aria-label="關閉預約背包">

@@ -133,9 +133,7 @@ textarea {
 .reveal {
   opacity: 0;
   transform: translateY(70px);
-  transition:
-    opacity 1.4s ease,
-    transform 1.4s ease;
+  transition: opacity 1.4s ease, transform 1.4s ease;
 }
 
 .reveal.show {
@@ -186,7 +184,7 @@ textarea {
 }
 
 .scrollLine::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -24px;
   left: 0;
@@ -240,7 +238,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--yc-font-heading, 'Noto Serif TC', serif);
+  font-family: var(--yc-font-heading, "Noto Serif TC", serif);
 }
 
 body.menuOpen {
@@ -305,12 +303,7 @@ main {
   background-color: #5f9407;
   color: #fff;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-  transition:
-    width 0.35s ease,
-    padding 0.35s ease,
-    background-color 0.35s ease,
-    transform 0.35s ease,
-    box-shadow 0.35s ease;
+  transition: width 0.35s ease, padding 0.35s ease, background-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
 }
 
 .floatingLineBtn:hover,
@@ -334,10 +327,7 @@ main {
   font-weight: 600;
   letter-spacing: 1px;
   line-height: 1;
-  transition:
-    max-width 0.35s ease,
-    opacity 0.25s ease,
-    margin-right 0.35s ease;
+  transition: max-width 0.35s ease, opacity 0.25s ease, margin-right 0.35s ease;
 }
 
 .floatingLineBtn:hover .floatingLineLabel,
@@ -382,11 +372,7 @@ main {
   opacity: 0;
   visibility: hidden;
   transform: translateY(10px) scale(0.92);
-  transition:
-    opacity 0.35s ease,
-    visibility 0.35s ease,
-    transform 0.35s ease,
-    background-color 0.35s ease;
+  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease, background-color 0.35s ease;
 }
 
 .floatingTopBtn.isVisible {
@@ -443,7 +429,7 @@ main {
 
 /* 半透明遮罩，讓文字更易讀 */
 .heroBanner::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: rgba(30, 40, 30, 0.32);
@@ -552,8 +538,7 @@ main {
 }
 
 @keyframes bounce-down {
-  0%,
-  100% {
+  0%, 100% {
     transform: translateX(-50%) translateY(0);
   }
   50% {
@@ -706,7 +691,7 @@ main {
   gap: 6px;
   max-width: 100%;
   border-radius: var(--yc-radius-pill);
-  font-family: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  font-family: "Noto Sans TC", "Source Han Sans TC", sans-serif;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -782,12 +767,7 @@ main {
   background: var(--yc-surface);
   border: 1px solid var(--yc-border);
   cursor: pointer;
-  transition:
-    color var(--yc-transition),
-    background-color var(--yc-transition),
-    border-color var(--yc-transition),
-    box-shadow var(--yc-transition),
-    transform var(--yc-transition);
+  transition: color var(--yc-transition), background-color var(--yc-transition), border-color var(--yc-transition), box-shadow var(--yc-transition), transform var(--yc-transition);
 }
 
 .ycFilterChip:hover,
@@ -797,9 +777,9 @@ main {
   border-color: var(--yc-sage-light);
 }
 
-.ycFilterChip[aria-pressed='true'],
+.ycFilterChip[aria-pressed=true],
 .ycFilterChip.isActive,
-.ycSurveyChip[aria-pressed='true'],
+.ycSurveyChip[aria-pressed=true],
 .ycSurveyChip.isSelected {
   color: var(--yc-on-dark);
   background: var(--yc-sage-action);
@@ -839,7 +819,7 @@ main {
 
 /* 待確認：中性，不突出 */
 .ycOrderStatusPendingConfirmation,
-[data-order-status='pending-confirmation'] {
+[data-order-status=pending-confirmation] {
   color: var(--yc-neutral-text);
   background: var(--yc-surface);
   border-color: #b9b0a3;
@@ -847,7 +827,7 @@ main {
 
 /* 已確認：實心品牌綠，最明確的正向完成 */
 .ycOrderStatusConfirmed,
-[data-order-status='confirmed'] {
+[data-order-status=confirmed] {
   color: var(--yc-on-dark);
   background: var(--yc-success);
   border-color: var(--yc-success);
@@ -855,7 +835,7 @@ main {
 
 /* 已退款：粉灰警示，需與一般訂單明確區分 */
 .ycOrderStatusRefunded,
-[data-order-status='refunded'] {
+[data-order-status=refunded] {
   color: var(--yc-danger-text);
   background: var(--yc-danger-soft);
   border-color: var(--yc-refunded-line);
@@ -863,7 +843,7 @@ main {
 
 /* 待出貨：奶油金，流程進行中、需要多看一眼 */
 .ycOrderStatusPendingShipment,
-[data-order-status='pending-shipment'] {
+[data-order-status=pending-shipment] {
   color: var(--yc-on-cta);
   background: var(--yc-gold-soft);
   border-color: var(--yc-pending-line);
@@ -871,7 +851,7 @@ main {
 
 /* 已出貨：淺綠，完成節點但尚未結案 */
 .ycOrderStatusShipped,
-[data-order-status='shipped'] {
+[data-order-status=shipped] {
   color: var(--yc-success-text);
   background: var(--yc-sage-soft);
   border-color: var(--yc-sage-action);
@@ -879,7 +859,7 @@ main {
 
 /* 已退貨：玫瑰米灰，警示程度低於退款 */
 .ycOrderStatusReturned,
-[data-order-status='returned'] {
+[data-order-status=returned] {
   color: var(--yc-return-text);
   background: var(--yc-return-soft);
   border-color: var(--yc-return-line);
@@ -893,27 +873,27 @@ main {
 }
 
 .ycOrderStatusPendingConfirmation::before {
-  content: '○';
+  content: "○";
 }
 
 .ycOrderStatusConfirmed::before {
-  content: '✓';
+  content: "✓";
 }
 
 .ycOrderStatusRefunded::before {
-  content: '↩';
+  content: "↩";
 }
 
 .ycOrderStatusPendingShipment::before {
-  content: '▷';
+  content: "▷";
 }
 
 .ycOrderStatusShipped::before {
-  content: '✓';
+  content: "✓";
 }
 
 .ycOrderStatusReturned::before {
-  content: '◀';
+  content: "◀";
 }
 
 /* =========================================================
@@ -1285,7 +1265,7 @@ main {
   color: var(--bk-primary);
 }
 
-.filterGroup input[type='checkbox'] {
+.filterGroup input[type=checkbox] {
   width: 16px;
   height: 16px;
   accent-color: var(--bk-primary);
@@ -1656,7 +1636,7 @@ main {
 
 /* Booking Progress：步驟之間的連接線。 */
 .step + .step::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -50%;
   top: 15px;
@@ -2525,9 +2505,7 @@ main {
   font-size: 0.95rem;
   text-decoration: none;
   white-space: nowrap;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .bkNavLink:hover {
@@ -2675,7 +2653,7 @@ main {
   transition: transform 0.2s;
 }
 
-.bkUserDropdownToggle[aria-expanded='true'] .bkUserChevron {
+.bkUserDropdownToggle[aria-expanded=true] .bkUserChevron {
   transform: rotate(180deg);
 }
 
@@ -2693,10 +2671,7 @@ main {
   opacity: 0;
   transform: translateY(-6px);
   visibility: hidden;
-  transition:
-    opacity 0.18s,
-    transform 0.18s,
-    visibility 0.18s;
+  transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
 }
 
 .bkUserDropdown.isOpen {
@@ -2856,7 +2831,7 @@ main {
     display: none;
   }
   .bkSwitchBtn::after {
-    content: '租借';
+    content: "租借";
   }
 }
 @media (width <= 768px) {
@@ -2982,9 +2957,7 @@ main {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition:
-    opacity 0.2s,
-    transform 0.15s;
+  transition: opacity 0.2s, transform 0.15s;
 }
 
 #bookingHeader .btnGoogleLogin:hover,
@@ -3109,10 +3082,7 @@ main {
   border-radius: 999px;
   cursor: pointer;
   user-select: none;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 #bookingHeader .surveyTag:hover {
@@ -3155,9 +3125,7 @@ main {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition:
-    opacity 0.2s,
-    transform 0.15s;
+  transition: opacity 0.2s, transform 0.15s;
 }
 
 .oauthBtn:last-of-type {
@@ -3341,10 +3309,7 @@ main {
   border-radius: 999px;
   cursor: pointer;
   user-select: none;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .bkPersonalizationModal .surveyTag:hover {
@@ -3627,9 +3592,7 @@ main {
   cursor: pointer;
   font-size: 1.15rem;
   line-height: 1;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  transition: background 0.2s, color 0.2s;
 }
 
 .bkSlidePanelClose:hover {
@@ -4069,9 +4032,7 @@ main {
   line-height: 1.45;
   pointer-events: all;
   animation: bk-toast-in 0.28s ease;
-  transition:
-    opacity 0.28s ease,
-    transform 0.28s ease;
+  transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
 .bkToastHiding {
@@ -4227,7 +4188,7 @@ main {
 
 /* 底色軌道 */
 .priceRangeTrackWrap::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: var(--bk-border, #d8e4e4);
@@ -4246,7 +4207,7 @@ main {
 }
 
 /* 兩個 range 疊在同一位置，背景透明 */
-.priceRangeTrackWrap input[type='range'] {
+.priceRangeTrackWrap input[type=range] {
   position: absolute;
   width: 100%;
   top: 50%;
@@ -4273,7 +4234,7 @@ main {
 }
 
 /* WebKit thumb */
-.priceRangeTrackWrap input[type='range']::-webkit-slider-thumb {
+.priceRangeTrackWrap input[type=range]::-webkit-slider-thumb {
   appearance: none;
   width: 18px;
   height: 18px;
@@ -4285,13 +4246,13 @@ main {
   pointer-events: all;
 }
 
-.priceRangeTrackWrap input[type='range']::-webkit-slider-runnable-track {
+.priceRangeTrackWrap input[type=range]::-webkit-slider-runnable-track {
   background: transparent;
   height: 6px;
 }
 
 /* Firefox thumb */
-.priceRangeTrackWrap input[type='range']::-moz-range-thumb {
+.priceRangeTrackWrap input[type=range]::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -4302,7 +4263,7 @@ main {
   pointer-events: all;
 }
 
-.priceRangeTrackWrap input[type='range']::-moz-range-track {
+.priceRangeTrackWrap input[type=range]::-moz-range-track {
   background: transparent;
 }
 
@@ -4407,10 +4368,7 @@ main {
   font-size: 1rem;
   border-radius: 8px;
   text-decoration: none;
-  transition:
-    background 0.2s,
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .rgHeroCta:hover {
@@ -4492,7 +4450,7 @@ main {
 
 /* 步驟之間的箭頭（偽元素） */
 .rgStepCard:not(:last-child)::after {
-  content: '→';
+  content: "→";
   position: absolute;
   right: -1rem;
   top: 50%;
@@ -4515,9 +4473,7 @@ main {
   box-shadow: 0 2px 12px rgba(60, 70, 59, 0.1);
   padding: 1.75rem 1.25rem;
   text-align: center;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .rgEquipCard:hover {
@@ -4942,7 +4898,7 @@ main {
   text-align: center;
 }
 
-.bkCartSummaryCard > a[href='./camp-rental.html'] {
+.bkCartSummaryCard > a[href="./camp-rental.html"] {
   display: block;
   margin-top: 0.875rem;
   color: var(--bk-text-muted);
@@ -5099,9 +5055,7 @@ main {
   cursor: pointer;
   margin-bottom: 0.6rem;
   background: var(--bk-white);
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  transition: border-color 0.15s, background 0.15s;
 }
 
 .paymentOption.isSelected {
@@ -5109,7 +5063,7 @@ main {
   background: var(--bk-primary-light, #edf5f5);
 }
 
-.paymentOption input[type='radio'] {
+.paymentOption input[type=radio] {
   margin-top: 0.15rem;
   accent-color: var(--bk-primary);
   width: 17px;
@@ -5254,9 +5208,7 @@ main {
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .bkLoginNoticeBtn:hover {
@@ -5382,10 +5334,7 @@ main {
   font-size: 0.875rem;
   color: var(--yc-sage-action, #73816e);
   text-decoration: none;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .faqNavLink:hover {
@@ -5543,9 +5492,7 @@ main {
   font-size: 0.95rem;
   border-radius: 8px;
   text-decoration: none;
-  transition:
-    background 0.2s,
-    transform 0.2s;
+  transition: background 0.2s, transform 0.2s;
 }
 
 .faqCtaBtn:hover {

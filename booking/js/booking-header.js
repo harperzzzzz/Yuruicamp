@@ -312,6 +312,20 @@
     });
   }
 
+  /**
+   * 用途：booking 會員中心入口帶上目前預約頁面作為 returnTo，讓會員中心返回可回到原頁。
+   * 套用元件：[data-member-center-entry="booking"]。
+   */
+  function updateBookingMemberCenterLinks() {
+    var currentPath = window.location.pathname + window.location.search + window.location.hash;
+    var isMemberCenterPage = window.location.pathname.endsWith('/booking/pages/member-center.html');
+    document.querySelectorAll('[data-member-center-entry="booking"]').forEach(function (link) {
+      link.href = isMemberCenterPage
+        ? './member-center.html'
+        : './member-center.html?returnTo=' + encodeURIComponent(currentPath);
+    });
+  }
+
   function bindModalTriggers() {
     document.querySelectorAll('[data-modal-target]').forEach(function (button) {
       if (button.dataset.modalTriggerBound === 'true') return;
@@ -346,6 +360,7 @@
     initCartPanel();
     bindModalTriggers();
     setActiveNavLink();
+    updateBookingMemberCenterLinks();
     checkLoginState();
     bindGlobalEvents();
   }

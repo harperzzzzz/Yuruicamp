@@ -279,7 +279,8 @@
     if (type === 'rental') {
       return '取貨 / 還貨：' + (order.pickupStore || '--') + ' / ' + (order.returnStore || '--');
     }
-    if (order.shippingMethod === 'store') return '取貨門市：' + (order.storeAddress || order.shippingAddress || '--');
+    if (order.shippingMethod === 'store')
+      return '取貨門市：' + (order.storeAddress || order.shippingAddress || '--');
     return '配送地址：' + (order.shippingAddress || order.storeAddress || '--');
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -381,7 +382,15 @@
     var progress = next > 0 ? Math.min(Math.round((spent / next) * 100), 100) : 0;
     text('nextTierSpend', money(Math.max(next - spent, 0)));
     var bar = document.getElementById('tierProgressBar');
-    if (bar) bar.style.setProperty('--member-tier-progress', progress + '%');
+    if (!bar) return;
+    // 用途：用 class 呈現進度條寬度，避免在 runtime 寫入 inline style。
+    bar.className = bar.className
+      .split(/\s+/)
+      .filter(function (name) {
+        return name && !/^memberTierProgressStep\d+$/.test(name);
+      })
+      .concat('memberTierProgressStep' + progress)
+      .join(' ');
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function itemTitle(items) {
@@ -846,9 +855,7 @@
           '</span></div>'
         : '') +
       (order.deposit
-        ? '<div class="memberDetailRow"><span>押金</span><span>' +
-          money(order.deposit) +
-          '</span></div>'
+        ? '<div class="memberDetailRow"><span>押金</span><span>' + money(order.deposit) + '</span></div>'
         : '') +
       '<div class="memberDetailRow memberDetailRowTotal"><span>訂單總計</span><span>' +
       money(order.total) +

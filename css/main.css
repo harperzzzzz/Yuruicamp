@@ -5370,8 +5370,412 @@ a:focus-visible,
   background: var(--yui-success, #4caf50);
   border-radius: inherit;
   height: 100%;
-  inline-size: var(--member-tier-progress, 0%);
+  inline-size: 0%;
   transition: inline-size var(--yui-transition-base, 250ms ease);
+}
+
+.memberTierProgressStep0 {
+  inline-size: 0%;
+}
+
+.memberTierProgressStep1 {
+  inline-size: 1%;
+}
+
+.memberTierProgressStep2 {
+  inline-size: 2%;
+}
+
+.memberTierProgressStep3 {
+  inline-size: 3%;
+}
+
+.memberTierProgressStep4 {
+  inline-size: 4%;
+}
+
+.memberTierProgressStep5 {
+  inline-size: 5%;
+}
+
+.memberTierProgressStep6 {
+  inline-size: 6%;
+}
+
+.memberTierProgressStep7 {
+  inline-size: 7%;
+}
+
+.memberTierProgressStep8 {
+  inline-size: 8%;
+}
+
+.memberTierProgressStep9 {
+  inline-size: 9%;
+}
+
+.memberTierProgressStep10 {
+  inline-size: 10%;
+}
+
+.memberTierProgressStep11 {
+  inline-size: 11%;
+}
+
+.memberTierProgressStep12 {
+  inline-size: 12%;
+}
+
+.memberTierProgressStep13 {
+  inline-size: 13%;
+}
+
+.memberTierProgressStep14 {
+  inline-size: 14%;
+}
+
+.memberTierProgressStep15 {
+  inline-size: 15%;
+}
+
+.memberTierProgressStep16 {
+  inline-size: 16%;
+}
+
+.memberTierProgressStep17 {
+  inline-size: 17%;
+}
+
+.memberTierProgressStep18 {
+  inline-size: 18%;
+}
+
+.memberTierProgressStep19 {
+  inline-size: 19%;
+}
+
+.memberTierProgressStep20 {
+  inline-size: 20%;
+}
+
+.memberTierProgressStep21 {
+  inline-size: 21%;
+}
+
+.memberTierProgressStep22 {
+  inline-size: 22%;
+}
+
+.memberTierProgressStep23 {
+  inline-size: 23%;
+}
+
+.memberTierProgressStep24 {
+  inline-size: 24%;
+}
+
+.memberTierProgressStep25 {
+  inline-size: 25%;
+}
+
+.memberTierProgressStep26 {
+  inline-size: 26%;
+}
+
+.memberTierProgressStep27 {
+  inline-size: 27%;
+}
+
+.memberTierProgressStep28 {
+  inline-size: 28%;
+}
+
+.memberTierProgressStep29 {
+  inline-size: 29%;
+}
+
+.memberTierProgressStep30 {
+  inline-size: 30%;
+}
+
+.memberTierProgressStep31 {
+  inline-size: 31%;
+}
+
+.memberTierProgressStep32 {
+  inline-size: 32%;
+}
+
+.memberTierProgressStep33 {
+  inline-size: 33%;
+}
+
+.memberTierProgressStep34 {
+  inline-size: 34%;
+}
+
+.memberTierProgressStep35 {
+  inline-size: 35%;
+}
+
+.memberTierProgressStep36 {
+  inline-size: 36%;
+}
+
+.memberTierProgressStep37 {
+  inline-size: 37%;
+}
+
+.memberTierProgressStep38 {
+  inline-size: 38%;
+}
+
+.memberTierProgressStep39 {
+  inline-size: 39%;
+}
+
+.memberTierProgressStep40 {
+  inline-size: 40%;
+}
+
+.memberTierProgressStep41 {
+  inline-size: 41%;
+}
+
+.memberTierProgressStep42 {
+  inline-size: 42%;
+}
+
+.memberTierProgressStep43 {
+  inline-size: 43%;
+}
+
+.memberTierProgressStep44 {
+  inline-size: 44%;
+}
+
+.memberTierProgressStep45 {
+  inline-size: 45%;
+}
+
+.memberTierProgressStep46 {
+  inline-size: 46%;
+}
+
+.memberTierProgressStep47 {
+  inline-size: 47%;
+}
+
+.memberTierProgressStep48 {
+  inline-size: 48%;
+}
+
+.memberTierProgressStep49 {
+  inline-size: 49%;
+}
+
+.memberTierProgressStep50 {
+  inline-size: 50%;
+}
+
+.memberTierProgressStep51 {
+  inline-size: 51%;
+}
+
+.memberTierProgressStep52 {
+  inline-size: 52%;
+}
+
+.memberTierProgressStep53 {
+  inline-size: 53%;
+}
+
+.memberTierProgressStep54 {
+  inline-size: 54%;
+}
+
+.memberTierProgressStep55 {
+  inline-size: 55%;
+}
+
+.memberTierProgressStep56 {
+  inline-size: 56%;
+}
+
+.memberTierProgressStep57 {
+  inline-size: 57%;
+}
+
+.memberTierProgressStep58 {
+  inline-size: 58%;
+}
+
+.memberTierProgressStep59 {
+  inline-size: 59%;
+}
+
+.memberTierProgressStep60 {
+  inline-size: 60%;
+}
+
+.memberTierProgressStep61 {
+  inline-size: 61%;
+}
+
+.memberTierProgressStep62 {
+  inline-size: 62%;
+}
+
+.memberTierProgressStep63 {
+  inline-size: 63%;
+}
+
+.memberTierProgressStep64 {
+  inline-size: 64%;
+}
+
+.memberTierProgressStep65 {
+  inline-size: 65%;
+}
+
+.memberTierProgressStep66 {
+  inline-size: 66%;
+}
+
+.memberTierProgressStep67 {
+  inline-size: 67%;
+}
+
+.memberTierProgressStep68 {
+  inline-size: 68%;
+}
+
+.memberTierProgressStep69 {
+  inline-size: 69%;
+}
+
+.memberTierProgressStep70 {
+  inline-size: 70%;
+}
+
+.memberTierProgressStep71 {
+  inline-size: 71%;
+}
+
+.memberTierProgressStep72 {
+  inline-size: 72%;
+}
+
+.memberTierProgressStep73 {
+  inline-size: 73%;
+}
+
+.memberTierProgressStep74 {
+  inline-size: 74%;
+}
+
+.memberTierProgressStep75 {
+  inline-size: 75%;
+}
+
+.memberTierProgressStep76 {
+  inline-size: 76%;
+}
+
+.memberTierProgressStep77 {
+  inline-size: 77%;
+}
+
+.memberTierProgressStep78 {
+  inline-size: 78%;
+}
+
+.memberTierProgressStep79 {
+  inline-size: 79%;
+}
+
+.memberTierProgressStep80 {
+  inline-size: 80%;
+}
+
+.memberTierProgressStep81 {
+  inline-size: 81%;
+}
+
+.memberTierProgressStep82 {
+  inline-size: 82%;
+}
+
+.memberTierProgressStep83 {
+  inline-size: 83%;
+}
+
+.memberTierProgressStep84 {
+  inline-size: 84%;
+}
+
+.memberTierProgressStep85 {
+  inline-size: 85%;
+}
+
+.memberTierProgressStep86 {
+  inline-size: 86%;
+}
+
+.memberTierProgressStep87 {
+  inline-size: 87%;
+}
+
+.memberTierProgressStep88 {
+  inline-size: 88%;
+}
+
+.memberTierProgressStep89 {
+  inline-size: 89%;
+}
+
+.memberTierProgressStep90 {
+  inline-size: 90%;
+}
+
+.memberTierProgressStep91 {
+  inline-size: 91%;
+}
+
+.memberTierProgressStep92 {
+  inline-size: 92%;
+}
+
+.memberTierProgressStep93 {
+  inline-size: 93%;
+}
+
+.memberTierProgressStep94 {
+  inline-size: 94%;
+}
+
+.memberTierProgressStep95 {
+  inline-size: 95%;
+}
+
+.memberTierProgressStep96 {
+  inline-size: 96%;
+}
+
+.memberTierProgressStep97 {
+  inline-size: 97%;
+}
+
+.memberTierProgressStep98 {
+  inline-size: 98%;
+}
+
+.memberTierProgressStep99 {
+  inline-size: 99%;
+}
+
+.memberTierProgressStep100 {
+  inline-size: 100%;
 }
 
 .memberStats {
@@ -7916,5 +8320,3 @@ main.productDetailContainer {
     transform: scale(0.98);
   }
 }
-
-/*# sourceMappingURL=main.css.map */

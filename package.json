@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint \"js/**/*.js\" \"booking/js/**/*.js\" \"src/**/*.js\" \"tests/**/*.mjs\"",
-    "format": "prettier --check \"booking/**/*.{html,css,scss,js,json}\" \"README.md\" \"docs/itcss-architecture.md\" \"plans/booking-itcss-scss-plan.md\"",
+    "format": "prettier --check --ignore-unknown \"booking/**/*.{html,scss,js,json}\" \"README.md\" \"docs/itcss-architecture.md\" \"plans/booking-itcss-scss-plan.md\" \"pages/member-center.html\" \"components/member-center.partial\" \"js/components/member-center.js\" \"js/components/header.js\"",
     "format:all": "prettier --check \"**/*.{html,css,scss,js,json,md}\"",
     "stylelint": "stylelint \"css/**/*.scss\" \"booking/css/**/*.scss\"",
     "smoke": "node tests/smoke.mjs"

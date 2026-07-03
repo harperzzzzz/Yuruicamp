@@ -18,14 +18,18 @@
 
   function getFocusable(container) {
     if (!container) return [];
-    return Array.from(container.querySelectorAll([
-      'a[href]',
-      'button:not([disabled])',
-      'input:not([disabled])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])',
-    ].join(',')));
+    return Array.from(
+      container.querySelectorAll(
+        [
+          'a[href]',
+          'button:not([disabled])',
+          'input:not([disabled])',
+          'select:not([disabled])',
+          'textarea:not([disabled])',
+          '[tabindex]:not([tabindex="-1"])',
+        ].join(',')
+      )
+    );
   }
 
   function focusFirst(container) {
@@ -186,10 +190,25 @@
       var userAvatar = menu.querySelector('.siteUserAvatar');
       menu.hidden = !(user && user.name);
       if (userName && user) userName.textContent = user.name;
-      if (userAvatar && user) userAvatar.textContent = String(user.avatar || user.name.charAt(0)).toUpperCase();
+      if (userAvatar && user)
+        userAvatar.textContent = String(user.avatar || user.name.charAt(0)).toUpperCase();
       if (!user) toggleUserMenu(menu, false);
     });
   };
+
+  /**
+   * 用途：主站會員中心入口帶上目前主站頁面作為 returnTo，讓會員中心返回可回到原頁。
+   * 套用元件：[data-member-center-entry="main"]。
+   */
+  function updateMainMemberCenterLinks() {
+    var currentPath = window.location.pathname + window.location.search + window.location.hash;
+    var isMemberCenterPage = window.location.pathname.endsWith('/pages/member-center.html');
+    document.querySelectorAll('[data-member-center-entry="main"]').forEach(function (link) {
+      link.href = isMemberCenterPage
+        ? '/pages/member-center.html'
+        : '/pages/member-center.html?returnTo=' + encodeURIComponent(currentPath);
+    });
+  }
 
   window.handleLogout = function () {
     if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
@@ -292,6 +311,7 @@
 
     bindSearch();
     bindAuthButtons();
+    updateMainMemberCenterLinks();
     window.updateCartBadge();
     window.updateNavbarLoginState();
   };
@@ -316,4 +336,4 @@
   }
 
   window.initNavbar();
-}());
+})();

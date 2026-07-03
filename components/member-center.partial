@@ -1,4 +1,4 @@
-﻿<main class="memberCenter" id="memberCenterComponentRoot" data-component="member-center">
+<main class="memberCenter memberCenterPage" id="memberCenterComponentRoot" data-component="member-center">
   <section class="memberLoginGuard" id="memberLoginGuard" role="status" aria-live="polite">
     <div class="memberLoginGuardCard">
       <div class="memberLoginGuardIcon" aria-hidden="true">

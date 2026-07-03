@@ -199,7 +199,11 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   justify-content: center;
   min-height: 44px;
   text-decoration: none;
-  transition: background-color $member-transition, border-color $member-transition, color $member-transition, box-shadow $member-transition;
+  transition:
+    background-color $member-transition,
+    border-color $member-transition,
+    color $member-transition,
+    box-shadow $member-transition;
 }
 
 .memberNavItem,
@@ -309,8 +313,15 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   background: $member-success;
   border-radius: inherit;
   height: 100%;
-  inline-size: var(--member-tier-progress, 0%);
+  inline-size: 0%;
   transition: inline-size var(--yui-transition-base, 250ms ease);
+}
+
+// 會員等級進度條：JS 只切換 class，不寫 inline style。
+@for $member-tier-progress-step from 0 through 100 {
+  .memberTierProgressStep#{$member-tier-progress-step} {
+    inline-size: #{$member-tier-progress-step * 1%};
+  }
 }
 
 .memberStats {
@@ -948,7 +959,10 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   justify-content: center;
   min-height: 64px;
   text-decoration: none;
-  transition: background-color $member-transition, color $member-transition, box-shadow $member-transition;
+  transition:
+    background-color $member-transition,
+    color $member-transition,
+    box-shadow $member-transition;
   width: 100%;
 }
 
