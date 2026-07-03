@@ -1,6 +1,6 @@
-// 頁首黏性容器；套用於各主站頁面的 #header 掛載點與 booking 頁面的 #booking-header 掛載點。
+// 頁首黏性容器；套用於主站 #header 與 booking #bookingHeader 掛載點。
 #header,
-#booking-header {
+#bookingHeader {
   position: sticky;
   top: 0;
   z-index: var(--yui-z-sticky);
@@ -420,6 +420,4 @@
   .bookingNavbarInner {
     gap: var(--yui-space-2);
   }
-
 }
-

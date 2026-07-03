@@ -1,3 +1,9 @@
+## v1.3.44 - 2026/07/03
+
+- 依 `.agents/agents.md` 收斂主站與 booking 的 header/footer 樣式來源：booking header、footer、drawer 改為載入主站共用 widgets / drawer / offcanvas / cart-drawer 骨架，內容仍由 `data-layout-part` 各自分流。
+- `booking/css/settings/_tokens.scss` 新增 `--yui-*` 相容 alias，對應既有 `--yc-*` token，讓共用樣式在 booking runtime 可直接使用而不新增色碼、字體或間距系統。
+- 清除 booking header/footer/drawer 內未被 runtime 使用的舊 `.bk*` / `.bkFooter*` 相容樣式，保留 `#bkHamburger`、`#bkCartBtn` 等 booking JS 既有功能 hook。
+
 ## v1.3.43 - 2026/07/03
 
 - 依 `.agents/agents.md` 完成 booking ITCSS 歸層審查：將搜尋、詳情、結帳支援、裝備租借等單頁 selector 從 `booking/css/components/` 移入 `booking/css/pages/`，並新增 `booking/css/pages/_camp-rental.scss`。

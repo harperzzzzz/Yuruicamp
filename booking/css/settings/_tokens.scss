@@ -65,6 +65,58 @@
   --yc-duration-normal: 220ms;
   --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
 
+  /* yui-* 共用樣式 alias：讓主站 widgets 可在 booking runtime 直接重用。 */
+  --yui-primary: var(--yc-sage-action);
+  --yui-primary-dark: var(--yc-sage-dark);
+  --yui-primary-hover: var(--yc-sage-dark);
+  --yui-primary-light: var(--yc-sage-light);
+  --yui-primary-soft: var(--yc-sage-soft);
+  --yui-secondary: var(--yc-sage-light);
+  --yui-secondary-light: var(--yc-sage-light);
+  --yui-bg: var(--yc-bg);
+  --yui-surface: var(--yc-surface);
+  --yui-surface-muted: var(--yc-surface-soft);
+  --yui-booking-bg: var(--yc-bg);
+  --yui-text: var(--yc-text);
+  --yui-text-muted: var(--yc-text-muted);
+  --yui-text-subtle: var(--yc-text-muted);
+  --yui-border: var(--yc-border);
+  --yui-border-strong: var(--yc-sage-action);
+  --yui-success: var(--yc-success);
+  --yui-warning: var(--yc-warning);
+  --yui-danger: var(--yc-error);
+  --yui-info: var(--yc-sage-action);
+  --yui-gold: var(--yc-cta);
+  --yui-orange: var(--yc-warning);
+  --yui-font-sans: var(--yc-font-body);
+  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+  --yui-space-1: 4px;
+  --yui-space-2: 8px;
+  --yui-space-3: 12px;
+  --yui-space-4: 16px;
+  --yui-space-5: 20px;
+  --yui-space-6: 24px;
+  --yui-space-8: 32px;
+  --yui-space-10: 40px;
+  --yui-space-12: 48px;
+  --yui-space-16: 64px;
+  --yui-radius-sm: var(--yc-radius-sm);
+  --yui-radius-md: var(--yc-radius-control);
+  --yui-radius-lg: var(--yc-radius-button);
+  --yui-radius-xl: var(--yc-radius-card);
+  --yui-radius-pill: var(--yc-radius-pill);
+  --yui-shadow-sm: var(--yc-shadow-soft);
+  --yui-shadow-md: var(--yc-shadow-soft);
+  --yui-shadow-lg: var(--yc-shadow-hover);
+  --yui-transition-fast: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yui-transition-base: var(--yc-duration-normal) var(--yc-ease-soft);
+  --yui-z-dropdown: 1000;
+  --yui-z-sticky: 1020;
+  --yui-z-fixed: 1030;
+  --yui-z-modal-backdrop: 2990;
+  --yui-z-modal: 3000;
+  --yui-z-tooltip: 3100;
+
   /* bk-* 相容 token：保留既有 booking CSS API。 */
   --bk-primary: var(--yc-sage-action);
   --bk-primary-hover: var(--yc-sage-action);

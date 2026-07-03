@@ -67,6 +67,57 @@
   --yc-duration-fast: 180ms;
   --yc-duration-normal: 220ms;
   --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* yui-* 共用樣式 alias：讓主站 widgets 可在 booking runtime 直接重用。 */
+  --yui-primary: var(--yc-sage-action);
+  --yui-primary-dark: var(--yc-sage-dark);
+  --yui-primary-hover: var(--yc-sage-dark);
+  --yui-primary-light: var(--yc-sage-light);
+  --yui-primary-soft: var(--yc-sage-soft);
+  --yui-secondary: var(--yc-sage-light);
+  --yui-secondary-light: var(--yc-sage-light);
+  --yui-bg: var(--yc-bg);
+  --yui-surface: var(--yc-surface);
+  --yui-surface-muted: var(--yc-surface-soft);
+  --yui-booking-bg: var(--yc-bg);
+  --yui-text: var(--yc-text);
+  --yui-text-muted: var(--yc-text-muted);
+  --yui-text-subtle: var(--yc-text-muted);
+  --yui-border: var(--yc-border);
+  --yui-border-strong: var(--yc-sage-action);
+  --yui-success: var(--yc-success);
+  --yui-warning: var(--yc-warning);
+  --yui-danger: var(--yc-error);
+  --yui-info: var(--yc-sage-action);
+  --yui-gold: var(--yc-cta);
+  --yui-orange: var(--yc-warning);
+  --yui-font-sans: var(--yc-font-body);
+  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+  --yui-space-1: 4px;
+  --yui-space-2: 8px;
+  --yui-space-3: 12px;
+  --yui-space-4: 16px;
+  --yui-space-5: 20px;
+  --yui-space-6: 24px;
+  --yui-space-8: 32px;
+  --yui-space-10: 40px;
+  --yui-space-12: 48px;
+  --yui-space-16: 64px;
+  --yui-radius-sm: var(--yc-radius-sm);
+  --yui-radius-md: var(--yc-radius-control);
+  --yui-radius-lg: var(--yc-radius-button);
+  --yui-radius-xl: var(--yc-radius-card);
+  --yui-radius-pill: var(--yc-radius-pill);
+  --yui-shadow-sm: var(--yc-shadow-soft);
+  --yui-shadow-md: var(--yc-shadow-soft);
+  --yui-shadow-lg: var(--yc-shadow-hover);
+  --yui-transition-fast: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yui-transition-base: var(--yc-duration-normal) var(--yc-ease-soft);
+  --yui-z-dropdown: 1000;
+  --yui-z-sticky: 1020;
+  --yui-z-fixed: 1030;
+  --yui-z-modal-backdrop: 2990;
+  --yui-z-modal: 3000;
+  --yui-z-tooltip: 3100;
   /* bk-* 相容 token：保留既有 booking CSS API。 */
   --bk-primary: var(--yc-sage-action);
   --bk-primary-hover: var(--yc-sage-action);
@@ -390,17 +441,6 @@ main {
 .floatingTopBtn i {
   font-size: 1.45rem;
   line-height: 1;
-}
-
-.bkFooterPaymentIcons i {
-  font-size: 1.5rem;
-  color: rgba(255, 253, 249, 0.52);
-  margin-right: 12px;
-  transition: color 0.2s;
-}
-
-.bkFooterPaymentIcons i:hover {
-  color: rgba(255, 253, 249, 0.85);
 }
 
 /* ========================================
@@ -1427,561 +1467,420 @@ main {
     font-size: 0.7rem;
   }
 }
-/* Booking Header：共用 booking header 品牌、導覽動作與按鈕。 */
-.bookingHeaderShell,
-.bookingHeader {
-  background: var(--yc-bg);
+/* Booking Header：載入主站 header 共用骨架，保留 booking 內容與行為分流。 */
+#header,
+#bookingHeader {
+  position: sticky;
+  top: 0;
+  z-index: var(--yui-z-sticky);
 }
 
+.isHeaderLayerOpen,
+.isModalOpen {
+  overflow: hidden;
+}
+
+.siteHeader,
+.bookingHeader {
+  position: relative;
+  background: var(--yui-surface);
+  border-bottom: 1px solid var(--yui-border);
+  color: var(--yui-text);
+}
+
+.siteNavbar,
 .bookingNavbar {
   min-height: 72px;
-  background: var(--yc-header-bg);
-  color: var(--yc-on-dark);
 }
 
-.bookingNavbarInner,
-.bookingFooterInner {
-  width: min(1120px, 100vw - 32px);
-  margin: 0 auto;
-}
-
+.siteNavbarInner,
 .bookingNavbarInner {
+  width: min(1120px, 100vw - 32px);
   min-height: 72px;
-  display: flex;
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: var(--yui-space-4);
 }
 
-.bookingBrandLink,
-.bookingSwitchLink,
-.bookingPanelCheckoutLink,
-.bookingFooterLinks a,
-.bookingFooterPolicies a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.bookingBrandLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 800;
-}
-
-.bookingBrandImage {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-}
-
-.bookingBrandSub {
-  color: var(--yc-on-dark-muted);
-  font-size: 0.875rem;
-}
-
-.bookingHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.bookingMenuButton,
-.bookingCartButton,
-.bookingOffcanvasClose,
-.bookingSlidePanelClose,
-.bookingLoginButton,
-.bookingSwitchLink,
-.bookingPanelCheckoutLink,
-.bookingCartPanelEmptyLink,
-.bookingCartPanelClear {
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
+.siteMenuButton,
+.siteSearchToggle,
+.siteSearchSubmit,
+.siteCartButton,
+.siteOffcanvasClose,
+.siteCartDrawerClose,
+.siteUserTrigger,
 .bookingMenuButton,
 .bookingCartButton,
 .bookingOffcanvasClose,
 .bookingSlidePanelClose {
   min-width: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--yc-on-dark);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  background: var(--yui-surface);
+  color: var(--yui-primary);
+  cursor: pointer;
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), box-shadow var(--yui-transition-fast);
 }
 
-.bookingLoginButton,
+.siteMenuButton:hover,
+.siteSearchToggle:hover,
+.siteSearchSubmit:hover,
+.siteCartButton:hover,
+.siteOffcanvasClose:hover,
+.siteCartDrawerClose:hover,
+.siteUserTrigger:hover,
+.bookingMenuButton:hover,
+.bookingCartButton:hover,
+.bookingOffcanvasClose:hover,
+.bookingSlidePanelClose:hover {
+  background: var(--yui-primary-soft);
+  border-color: var(--yui-primary-light);
+}
+
+.siteMenuButton:focus-visible,
+.siteSearchToggle:focus-visible,
+.siteSearchSubmit:focus-visible,
+.siteCartButton:focus-visible,
+.siteOffcanvasClose:focus-visible,
+.siteCartDrawerClose:focus-visible,
+.siteUserTrigger:focus-visible,
+.bookingMenuButton:focus-visible,
+.bookingCartButton:focus-visible,
+.bookingOffcanvasClose:focus-visible,
+.bookingSlidePanelClose:focus-visible,
+.siteBookingLink:focus-visible,
+.siteLoginButton:focus-visible,
+.siteUserDropdownItem:focus-visible,
+.bookingSwitchLink:focus-visible,
+.bookingPanelCheckoutLink:focus-visible {
+  outline: 3px solid rgba(36, 77, 77, 0.35);
+  outline-offset: 2px;
+}
+
+.siteBrandLink,
+.bookingBrandLink {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: var(--yui-space-3);
+  color: var(--yui-primary);
+  font-family: var(--yui-font-sans);
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.siteMenuButton,
+.bookingMenuButton {
+  justify-self: start;
+}
+
+.siteBrandImage,
+.bookingBrandImage {
+  width: clamp(48px, 5vw, 70px);
+  height: clamp(48px, 5vw, 70px);
+  object-fit: contain;
+}
+
+.siteBrandText,
+.bookingBrandLink > span:first-of-type {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  line-height: 1;
+}
+
+.siteHeaderActions,
+.bookingHeaderActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--yui-space-3);
+  justify-self: end;
+  min-width: 0;
+}
+
+.siteSearch {
+  position: relative;
+}
+
+.siteSearchForm {
+  position: absolute;
+  top: calc(100% + var(--yui-space-2));
+  right: 0;
+  width: min(360px, 100vw - 32px);
+  gap: var(--yui-space-2);
+  padding: var(--yui-space-2);
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-md);
+}
+
+.siteSearchForm:not([hidden]) {
+  display: flex;
+}
+
+.siteSearchInput {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-md);
+  padding: 0 var(--yui-space-3);
+  color: var(--yui-text);
+}
+
+.siteSearchDropdown {
+  position: absolute;
+  top: calc(100% + 64px);
+  right: 0;
+  width: min(360px, 100vw - 32px);
+  padding: var(--yui-space-3);
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-md);
+}
+
+.siteSearchDropdownTitle,
+.siteSearchEmptyState {
+  color: var(--yui-text-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.siteSearchDropdownList {
+  display: grid;
+  gap: var(--yui-space-2);
+  margin: var(--yui-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.siteSearchSuggestion {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-md);
+  background: var(--yui-surface);
+  color: var(--yui-text);
+  text-align: left;
+  padding: 0 var(--yui-space-3);
+  cursor: pointer;
+}
+
+.siteSearchSuggestion:hover {
+  background: var(--yui-primary-soft);
+}
+
+.siteBookingLink,
+.siteLoginButton,
 .bookingSwitchLink,
-.bookingPanelCheckoutLink {
+.bookingLoginButton,
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink,
+.surveyActionButton,
+.sharedConfirmSubmit,
+.sharedConfirmCancel,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
-  background: var(--yc-cta);
-  color: var(--yc-on-cta);
-  padding: 0 1rem;
+  border-radius: var(--yui-radius-lg);
+  padding: 0 var(--yui-space-4);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast);
 }
 
+.siteBookingLink,
+.siteLoginButton:not([hidden]),
+.bookingSwitchLink,
+.bookingLoginButton:not([hidden]),
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink,
+.surveyActionButton,
+.sharedConfirmSubmit,
+.sharedConfirmCancel,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  display: inline-flex;
+}
+
+.siteBookingLink,
+.siteLoginButton,
+.bookingSwitchLink,
+.bookingLoginButton,
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink,
+.surveyActionButton,
+.sharedConfirmSubmit {
+  background: var(--yui-primary);
+  color: #fff;
+}
+
+.siteBookingLink:hover,
+.siteLoginButton:hover,
+.bookingSwitchLink:hover,
+.bookingLoginButton:hover,
+.siteCartCheckoutLink:hover,
+.bookingPanelCheckoutLink:hover,
+.surveyActionButton:hover,
+.sharedConfirmSubmit:hover {
+  background: var(--yui-primary-hover);
+  color: #fff;
+}
+
+.sharedConfirmCancel,
+.bookingCartPanelEmptyLink,
+.bookingCartPanelClear {
+  background: var(--yui-surface);
+  border-color: var(--yui-border);
+  color: var(--yui-primary);
+}
+
+.siteCartButton,
 .bookingCartButton {
   position: relative;
 }
 
+.siteCartBadge,
 .bookingCartBadge {
   position: absolute;
   top: -6px;
   right: -6px;
   min-width: 20px;
   height: 20px;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  background: var(--yc-error);
+  border-radius: var(--yui-radius-pill);
+  background: var(--yui-danger);
   color: #fff;
   font-size: 12px;
   font-weight: 800;
 }
 
+.siteCartBadge:not([hidden]),
+.bookingCartBadge:not([hidden]) {
+  display: inline-flex;
+}
+
+.siteUserMenu {
+  position: relative;
+}
+
+.siteUserTrigger {
+  gap: var(--yui-space-2);
+  padding-inline: var(--yui-space-2);
+  border-color: transparent;
+}
+
+.siteUserTrigger:hover {
+  background-color: var(--yui-bg);
+  border-color: transparent;
+}
+
+.siteUserAvatar {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--yui-radius-pill);
+  background: var(--yui-primary-soft);
+  color: var(--yui-primary);
+  font-weight: 800;
+}
+
+.siteUserDropdown {
+  position: absolute;
+  top: calc(100% + var(--yui-space-2));
+  right: 0;
+  min-width: 168px;
+  gap: var(--yui-space-1);
+  padding: var(--yui-space-2);
+  background: var(--yui-surface);
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-lg);
+  box-shadow: var(--yui-shadow-md);
+}
+
+.siteUserDropdown:not([hidden]) {
+  display: grid;
+}
+
+.siteUserDropdownItem {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: var(--yui-space-2);
+  border: 0;
+  border-radius: var(--yui-radius-md);
+  background: transparent;
+  color: var(--yui-text);
+  text-decoration: none;
+  padding: 0 var(--yui-space-3);
+  cursor: pointer;
+}
+
+.siteUserDropdownItem:hover {
+  background: var(--yui-primary-soft);
+}
+
+.bookingHeaderShell {
+  background: var(--yui-booking-bg);
+}
+
+.bookingHeader {
+  background: var(--yui-booking-bg);
+}
+
+.bookingBrandSub {
+  color: var(--yui-text-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
 @media (width <= 768px) {
-  .bookingNavbarInner,
-  .bookingFooterInner {
+  .siteNavbarInner,
+  .bookingNavbarInner {
     width: min(100% - 24px, 1120px);
   }
+  .siteBrandText,
   .bookingBrandSub,
+  .siteBookingLink,
   .bookingSwitchLink {
     display: none;
   }
+  .siteHeaderActions,
+  .bookingHeaderActions {
+    gap: var(--yui-space-2);
+  }
 }
-/* 舊版 Booking Header：保留現有 bk* class API 的主導覽列。 */
+@media (width <= 480px) {
+  .siteNavbarInner,
+  .bookingNavbarInner {
+    gap: var(--yui-space-2);
+  }
+}
+/* Booking Header 差異：booking shell 使用預約系統背景，內容仍由 bookingHeader partial 顯示。 */
+.bookingHeaderShell,
 .bookingHeader {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: var(--yc-header-bg);
-  box-shadow: 0 2px 10px rgba(60, 70, 59, 0.22);
+  background: var(--yc-bg);
 }
 
-/* 舊版 Header 版心：控制左側選單、置中品牌與右側動作區。 */
-.bkNavbarInner {
-  position: relative;
-  max-width: 1200px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+.bookingBrandSub {
+  color: var(--yc-text-muted);
 }
 
-/* 舊版品牌區：讓 logo 與品牌文字在桌機維持置中。 */
-.bkNavbarBrand {
-  position: absolute;
-  left: 50%;
-  z-index: 1;
-  flex-shrink: 0;
-  transform: translateX(-50%);
-}
-
-.bkNavbarBrand .brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  color: #fdf1db;
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.bkNavbarBrand .logo {
-  width: 28px;
-  height: 28px;
-}
-
-.bkBrandLink {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
-  color: var(--yc-on-dark);
-  font-size: 1.25rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.bkBrandLink:hover {
-  color: #fff;
-}
-
-.brandSub {
-  color: rgba(255, 253, 249, 0.6);
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-}
-
-/* 舊版桌機導覽：保留 active 與 hover 狀態。 */
-.bkNavbarMenu {
-  flex: 1;
-  display: none;
-  gap: 0.25rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.bkNavLink {
-  display: block;
-  padding: 0.45rem 0.9rem;
-  border-radius: 6px;
-  color: rgba(255, 253, 249, 0.82);
-  font-size: 0.95rem;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: background 0.2s, color 0.2s;
-}
-
-.bkNavLink:hover {
-  background: rgba(255, 253, 249, 0.12);
-  color: var(--yc-on-dark);
-}
-
-.bkNavLink.active {
-  border-bottom: 2px solid rgba(255, 253, 249, 0.75);
-  border-radius: 0;
-  color: var(--yc-on-dark);
-  font-weight: 600;
-}
-
-/* 舊版 Header 動作區：切換、購物車、登入與會員選單。 */
-.bkNavbarActions {
-  z-index: 2;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-left: auto;
-}
-
-.bkSwitchBtn {
-  padding: 0.45rem 1rem;
-  border-color: rgba(255, 253, 249, 0.42);
-  background: rgba(255, 253, 249, 0.1);
-  color: var(--yc-on-dark);
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-.bkSwitchBtn:hover {
-  border-color: rgba(255, 253, 249, 0.75);
-  background: rgba(255, 253, 249, 0.2);
-  color: #fff;
-}
-
-.bkCartBtn {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  border-radius: 8px;
-  background: none;
-  color: var(--yc-on-dark);
-  cursor: pointer;
-  font-size: 1.35rem;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-
-.bkCartBtn:hover {
-  background: rgba(255, 253, 249, 0.14);
-}
-
-.bkBadge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  min-width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4px;
-  border-radius: 9px;
-  background: var(--yc-cta);
-  color: var(--yc-on-cta);
-  font-size: 0.68rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.bkBadgeInline {
-  position: static;
-  margin-left: 0.4rem;
-  vertical-align: middle;
-}
-
-.bkLoginBtn {
-  padding: 0.4rem 0.9rem;
-  border-color: rgba(255, 253, 249, 0.5);
-  background: transparent;
-  color: var(--yc-on-dark);
-  font-size: 0.875rem;
-}
-
-.bkLoginBtn:hover {
-  border-color: rgba(255, 253, 249, 0.85);
-  background: rgba(255, 253, 249, 0.14);
-  color: #fff;
-}
-
-/* 舊版會員下拉選單：保留登入後的 avatar、名稱與危險操作狀態。 */
-.bkUserMenu {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--yc-on-dark);
-  font-size: 0.875rem;
-}
-
-.bkUserAvatar {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 253, 249, 0.2);
-  color: var(--yc-on-dark);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.bkUserName {
-  max-width: 80px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bkUserDropdownToggle {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--yc-on-dark);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.875rem;
-}
-
-.bkUserChevron {
-  font-size: 0.75rem;
-  opacity: 0.72;
-  transition: transform 0.2s;
-}
-
-.bkUserDropdownToggle[aria-expanded=true] .bkUserChevron {
-  transform: rotate(180deg);
-}
-
-.bkUserDropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 1100;
-  min-width: 148px;
-  padding: 0.35rem 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 10px;
-  background: var(--yc-surface);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-  opacity: 0;
-  transform: translateY(-6px);
-  visibility: hidden;
-  transition: opacity 0.18s, transform 0.18s, visibility 0.18s;
-}
-
-.bkUserDropdown.isOpen {
-  opacity: 1;
-  transform: translateY(0);
-  visibility: visible;
-}
-
-.bkUserDropdownItem {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.65rem 1.1rem;
-  border: none;
-  background: none;
-  color: var(--yc-text);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9rem;
-  text-align: left;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.bkUserDropdownItem:hover {
-  background: var(--yc-surface-soft);
-}
-
-.bkUserDropdownItemDanger {
-  color: var(--yc-error);
-}
-
-.bkUserDropdownItemDanger:hover {
-  background: var(--yc-error-soft);
-}
-
-/* 舊版手機控制：漢堡選單與 RWD 顯示工具。 */
-.bkHamburger {
-  z-index: 2;
-  flex-shrink: 0;
-  display: inline-flex;
-  margin-right: auto;
-  padding: 0.3rem;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  color: var(--yc-on-dark);
-  cursor: pointer;
-  font-size: 1.5rem;
-  line-height: 1;
-  transition: background 0.2s;
-}
-
-.bkHamburger:hover {
-  background: rgba(255, 253, 249, 0.14);
-}
-
-.bkHiddenMobile {
-  display: flex;
-}
-
-.bkHiddenDesktop {
-  display: none;
-}
-
-/* Header 登入狀態：支援新版 navbarLoginBtn 與會員下拉 class。 */
-.bookingHeader .navbarLoginBtn {
-  padding: 0.4rem 0.9rem;
-  border-color: rgba(255, 253, 249, 0.5);
-  background: transparent;
-  color: var(--yc-on-dark);
-  font-size: 0.875rem;
-}
-
-.bookingHeader .navbarLoginBtn:hover {
-  border-color: rgba(255, 253, 249, 0.85);
-  background: rgba(255, 253, 249, 0.14);
-  color: #fff;
-}
-
-.bookingHeader .navbarUserMenu {
-  position: relative;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--yc-on-dark);
-  font-size: 0.875rem;
-}
-
-.bookingHeader .userInfo {
-  color: var(--yc-on-dark);
-}
-
-.bookingHeader .userAvatar {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 253, 249, 0.2);
-  color: var(--yc-on-dark);
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.bookingHeader .userName {
-  max-width: 80px;
-  overflow: hidden;
-  color: var(--yc-on-dark);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.bookingHeader .navbarUserDropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  z-index: 2100;
-  min-width: 168px;
-  padding: 0.35rem 0;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 8px;
-  background: var(--yc-surface);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-}
-
-.bookingHeader .navbarUserDropdown .dropdownItem,
-.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1rem;
-  border: none;
-  background: none;
-  color: var(--yc-text);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.9rem;
-  text-align: left;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.bookingHeader .navbarUserDropdown .dropdownItem:hover,
-.bookingHeader .navbarUserDropdown .navbarLogoutBtn:hover {
-  background: var(--yc-surface-soft);
-}
-
-.bookingHeader .navbarUserDropdown .navbarLogoutBtn {
-  color: var(--yc-error);
-}
-
-@media (width <= 900px) {
-  .bkSwitchBtnText {
-    display: none;
-  }
-  .bkSwitchBtn::after {
-    content: "租借";
-  }
-}
-@media (width <= 768px) {
-  .bkHiddenMobile {
-    display: none;
-  }
-  .bkHiddenDesktop {
-    display: block;
-  }
-  .bkNavbarInner {
-    gap: 1rem;
-  }
-  .bkSwitchBtn {
-    display: none;
-  }
-}
 .modal {
   display: none;
   position: fixed;
@@ -2457,82 +2356,319 @@ main {
   color: #fff;
 }
 
-/* Booking Drawer：共用左側導覽抽屜與右側購物面板外殼。 */
+/* Booking Drawer：載入主站抽屜、導覽與購物面板共用互動骨架。 */
+.siteOffcanvas,
+.siteCartDrawer,
 .bookingOffcanvas,
 .bookingSlidePanel {
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: 3000;
+  z-index: var(--yui-z-modal);
   width: min(420px, 100vw);
-  background: var(--yc-surface);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
-  transition: transform var(--yc-duration-normal) var(--yc-ease-soft);
+  background: var(--yui-surface);
+  box-shadow: var(--yui-shadow-lg);
+  transition: transform var(--yui-transition-base);
 }
 
+.siteOffcanvas,
 .bookingOffcanvas {
   left: 0;
   transform: translateX(-100%);
 }
 
+.siteCartDrawer,
 .bookingSlidePanel {
   right: 0;
   transform: translateX(100%);
 }
 
+.siteOffcanvas.isOpen,
+.siteCartDrawer.isOpen,
 .bookingOffcanvas.isOpen,
 .bookingSlidePanel.isOpen {
   transform: translateX(0);
 }
 
+.siteOffcanvasBackdrop,
+.siteCartDrawerBackdrop,
 .bookingOffcanvasBackdrop,
 .bookingPanelBackdrop {
   position: fixed;
   inset: 0;
-  z-index: 2990;
+  z-index: var(--yui-z-modal-backdrop);
   background: rgba(0, 0, 0, 0.45);
   opacity: 0;
-  transition: opacity var(--yc-duration-normal) var(--yc-ease-soft);
+  transition: opacity var(--yui-transition-base);
 }
 
+.siteOffcanvasBackdrop.isVisible,
+.siteCartDrawerBackdrop.isVisible,
 .bookingOffcanvasBackdrop.isVisible,
 .bookingPanelBackdrop.isVisible {
   opacity: 1;
 }
 
+.siteOffcanvasHeader,
+.siteCartDrawerHeader,
 .bookingOffcanvasHeader,
 .bookingSlidePanelHeader {
   min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid var(--yc-border);
+  gap: var(--yui-space-3);
+  padding: var(--yui-space-4);
+  border-bottom: 1px solid var(--yui-border);
 }
 
+.siteOffcanvasTitle,
+.siteCartDrawerTitle,
 .bookingOffcanvasTitle,
-.bookingSlidePanelTitle,
-.bookingCartPanelLabel {
+.bookingSlidePanelTitle {
   margin: 0;
-  color: var(--yc-sage-action);
-  font-size: 1.125rem;
+  color: var(--yui-primary);
+  font-size: 20px;
   font-weight: 800;
 }
 
+.siteOffcanvasBody,
+.siteCartDrawerBody,
+.bookingOffcanvasBody,
+.bookingSlidePanelBody {
+  height: calc(100% - 72px);
+  overflow: auto;
+  padding: var(--yui-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siteOffcanvas,
+  .siteCartDrawer,
+  .bookingOffcanvas,
+  .bookingSlidePanel,
+  .siteOffcanvasBackdrop,
+  .siteCartDrawerBackdrop,
+  .bookingOffcanvasBackdrop,
+  .bookingPanelBackdrop {
+    transition-duration: 0.01ms;
+  }
+}
+.siteOffcanvasNavigation ul,
 .bookingOffcanvasLinks {
+  display: grid;
+  gap: var(--yui-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.siteOffcanvasNavigation a,
 .bookingOffcanvasLinks a {
   min-height: 44px;
   display: flex;
   align-items: center;
-  padding: 0 1rem;
-  color: var(--yc-text);
+  border-radius: var(--yui-radius-md);
+  color: var(--yui-text);
   font-weight: 700;
   text-decoration: none;
+  padding: 0 var(--yui-space-3);
+}
+
+.siteOffcanvasNavigation a:hover,
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: var(--yui-primary-soft);
+  color: var(--yui-primary);
+}
+
+.siteCartDrawer {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.siteCartDrawerBody {
+  height: auto;
+}
+
+.siteCartDrawerFooter,
+.bookingSlidePanelFooter {
+  padding: var(--yui-space-4);
+  border-top: 1px solid var(--yui-border);
+  background: var(--yui-surface);
+}
+
+.siteCartSummary,
+.siteCartSummaryTotal,
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--yui-space-4);
+}
+
+.siteCartSummary {
+  color: var(--yui-text-muted);
+  margin-bottom: var(--yui-space-2);
+}
+
+.siteCartSummaryTotal,
+.bookingCartPanelTotal {
+  color: var(--yui-primary);
+  font-size: 18px;
+  font-weight: 800;
+  margin-block: var(--yui-space-3);
+}
+
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink {
+  width: 100%;
+}
+
+.siteCartEmptyState,
+.bookingCartPanelEmpty {
+  display: grid;
+  justify-items: center;
+  gap: var(--yui-space-3);
+  padding: var(--yui-space-10) var(--yui-space-4);
+  text-align: center;
+}
+
+.siteCartEmptyIcon {
+  color: var(--yui-primary);
+  font-size: 40px;
+}
+
+.siteCartEmptyTitle {
+  margin: 0;
+  color: var(--yui-primary);
+  font-size: 20px;
+}
+
+.siteCartEmptyText {
+  margin: 0;
+  color: var(--yui-text-muted);
+}
+
+.siteCartItem {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: var(--yui-space-3);
+  padding-block: var(--yui-space-4);
+  border-bottom: 1px solid var(--yui-border);
+}
+
+.siteCartItemImage {
+  width: 88px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--yui-radius-lg);
+}
+
+.siteCartItemContent {
+  min-width: 0;
+  display: grid;
+  gap: var(--yui-space-1);
+}
+
+.siteCartItemBrand,
+.siteCartItemPrice {
+  color: var(--yui-text-muted);
+  font-size: 13px;
+}
+
+.siteCartItemName {
+  color: var(--yui-text);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.siteCartItemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yui-space-2);
+}
+
+.siteCartQuantityDecrease,
+.siteCartQuantityIncrease,
+.siteCartRemoveButton {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yui-border);
+  border-radius: var(--yui-radius-md);
+  background: var(--yui-surface);
+  color: var(--yui-primary);
+  cursor: pointer;
+}
+
+.siteCartRemoveIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.siteCartRemoveText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.siteCartItemQuantity,
+.siteCartItemSubtotal {
+  font-weight: 800;
+}
+
+.bookingSlidePanelBody {
+  height: auto;
+}
+
+.bookingCartPanelSection {
+  display: grid;
+  gap: var(--yui-space-2);
+  padding-block: var(--yui-space-3);
+  border-bottom: 1px solid var(--yui-border);
+}
+
+.bookingCartPanelLabel {
+  margin: 0;
+  color: var(--yui-primary);
+  font-size: 16px;
+}
+
+.bookingCartPanelMeta {
+  margin: 0;
+  color: var(--yui-text-muted);
+  font-size: 14px;
+}
+
+@media (width <= 480px) {
+  .siteCartItem {
+    grid-template-columns: 72px 1fr;
+  }
+  .siteCartItemImage {
+    width: 72px;
+  }
+}
+/* Booking Drawer 差異：預約選單與預約背包使用 booking token 呈現內容層級。 */
+.bookingOffcanvas,
+.bookingSlidePanel {
+  background: var(--yc-surface);
+}
+
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle,
+.bookingCartPanelLabel {
+  color: var(--yc-sage-action);
+}
+
+.bookingOffcanvasLinks a {
+  color: var(--yc-text);
 }
 
 .bookingOffcanvasLinks a:hover,
@@ -2541,604 +2677,227 @@ main {
   color: var(--yc-sage-action);
 }
 
-.bookingSlidePanelBody,
-.bookingOffcanvasBody {
-  padding: 1rem;
-}
-
-/* Booking Cart Panel：右側預約背包內容列與總計。 */
-.bookingCartPanelSection {
-  display: grid;
-  gap: 0.5rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--yc-border);
-}
-
-.bookingCartPanelRow,
-.bookingCartPanelTotal {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
 .bookingCartPanelMeta {
   color: var(--yc-text-muted);
-  font-size: 0.875rem;
 }
 
 .bookingCartPanelTotal {
-  margin: 1rem 0;
-  color: var(--yc-sage-action);
-  font-weight: 800;
-}
-
-/* 舊版 Offcanvas：左側手機導覽抽屜。 */
-.bkOffcanvas {
-  position: fixed;
-  top: 0;
-  left: -320px;
-  z-index: 2000;
-  width: 300px;
-  max-width: 85vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--yc-bg);
-  box-shadow: -4px 0 20px rgba(60, 70, 59, 0.18);
-  transition: left 0.3s ease;
-}
-
-.bkOffcanvas.isOpen {
-  left: 0;
-}
-
-.bkOffcanvasHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--yc-border);
-}
-
-.bkOffcanvasTitle {
-  color: var(--yc-sage-action);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.bkOffcanvasClose {
-  padding: 0.2rem;
-  border: none;
-  border-radius: 4px;
-  background: none;
-  color: var(--yc-sage-action);
-  cursor: pointer;
-  font-size: 1.25rem;
-  transition: background 0.2s;
-}
-
-.bkOffcanvasClose:hover {
-  background: rgba(115, 129, 110, 0.1);
-}
-
-.bkOffcanvasBody {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem 0;
-}
-
-.bkOffcanvasList {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.bkOffcanvasList li a {
-  display: block;
-  padding: 0.85rem 1.5rem;
-  color: var(--yc-text);
-  font-size: 0.95rem;
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.bkOffcanvasList li a:hover {
-  background: rgba(115, 129, 110, 0.08);
   color: var(--yc-sage-action);
 }
 
-.bkOffcanvasDivider {
-  height: 1px;
-  margin: 0.5rem 1.5rem;
-  background: var(--yc-border);
-}
-
-.bkOffcanvasSwitch {
-  color: var(--yc-sage-action);
-  font-weight: 600;
-}
-
-.bkOffcanvasCart,
-.bkOffcanvasCart {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.bkOffcanvasBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1999;
-  display: none;
-  background: rgba(0, 0, 0, 0.4);
-}
-
-.bkOffcanvasBackdrop.isVisible {
-  display: block;
-}
-
-/* 舊版 Slide Panel：右側登入與購物面板外殼。 */
-.bkSlidePanel {
-  position: fixed;
-  top: 0;
-  right: -480px;
-  z-index: 3000;
-  width: 420px;
-  max-width: 92vw;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--yc-surface);
-  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.18);
-  transition: right 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bkSlidePanel.isOpen {
-  right: 0;
-}
-
-.bkSlidePanelHeader {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--bk-border);
-}
-
-.bkSlidePanelTitle {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  color: var(--bk-primary);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.bkSlidePanelClose {
-  flex-shrink: 0;
-  padding: 0.35rem 0.5rem;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  color: var(--bk-text-muted);
-  cursor: pointer;
-  font-size: 1.15rem;
-  line-height: 1;
-  transition: background 0.2s, color 0.2s;
-}
-
-.bkSlidePanelClose:hover {
-  background: rgba(115, 129, 110, 0.1);
-  color: var(--bk-primary);
-}
-
-.bkSlidePanelBody {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-.bkSlidePanelFooter {
-  flex-shrink: 0;
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--bk-border);
-}
-
-.bkPanelBackdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 2999;
-  display: none;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-}
-
-.bkPanelBackdrop.isVisible {
-  display: block;
-}
-
-/* 舊版購物面板：空狀態、費用列與清空按鈕。 */
-.cartPanelEmpty {
-  padding: 3rem 0;
-  color: var(--bk-text-muted);
-  text-align: center;
-}
-
-.cartPanelEmpty i {
-  display: block;
-  margin-bottom: 0.75rem;
-  color: var(--bk-border);
-  font-size: 3rem;
-}
-
-.cartPanelEmpty p {
-  margin-bottom: 0.5rem;
-}
-
-.cartPanelEmptyLink {
-  margin-top: 0.75rem;
-}
-
-.cartPanelSection {
-  margin-bottom: 1.25rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--bk-border);
-}
-
-.cartPanelLabel {
-  margin-bottom: 0.6rem;
-  color: var(--bk-accent);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.cartPanelRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.3rem;
-  color: var(--bk-text);
-  font-size: 0.9rem;
-}
-
-.cartPanelRow span:last-child {
-  flex-shrink: 0;
-  color: var(--bk-primary);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.cartPanelMeta {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-top: 0.4rem;
-  color: var(--bk-text-muted);
-  font-size: 0.8rem;
-}
-
-.cartPanelTotal {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.25rem;
-  padding: 0.75rem 0 0.5rem;
-  border-top: 2px solid var(--bk-primary);
-  color: var(--bk-primary);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.cartPanelClear {
-  width: 100%;
-  display: block;
-  margin-top: 0.5rem;
-  padding: 0.4rem;
-  border: none;
-  background: none;
-  color: var(--bk-text-muted);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.8rem;
-  text-align: center;
-  text-decoration: underline;
-  transition: color 0.15s;
-}
-
-.cartPanelClear:hover {
-  color: var(--bk-danger);
-}
-
-/* 舊版 Offcanvas 動作按鈕：購物車入口與登出。 */
-.bkOffcanvasCartBtn,
-.bkOffcanvasLogoutBtn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.85rem 1.5rem;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-family: inherit;
-  text-align: left;
-  transition: background 0.15s;
-}
-
-.bkOffcanvasCartBtn {
-  color: var(--yc-text);
-  font-size: 0.95rem;
-}
-
-.bkOffcanvasCartBtn:hover {
-  background: rgba(115, 129, 110, 0.08);
-  color: var(--yc-sage-action);
-}
-
-.bkOffcanvasLogoutBtn {
-  color: var(--yc-error);
-  font-size: 1rem;
-}
-
-.bkOffcanvasLogoutBtn:hover {
-  background: var(--yc-error-soft);
-}
-
-/* Booking Footer：共用 booking footer 版面、連結與社群按鈕。 */
+/* Booking Footer：載入主站 footer 共用骨架，booking 只保留品牌色差異。 */
+.siteFooter,
 .bookingFooter {
-  background: var(--yc-footer-bg);
-  color: var(--yc-on-dark);
+  color: #fff;
 }
 
+.siteFooter {
+  background: var(--yui-primary-dark);
+}
+
+.bookingFooter {
+  background: var(--yui-primary);
+}
+
+.siteFooterInner,
 .bookingFooterInner {
-  padding: 3rem 0 1.5rem;
+  width: min(1120px, 100vw - 32px);
+  margin-inline: auto;
+  padding-block: var(--yui-space-12) var(--yui-space-6);
 }
 
+.siteFooterGrid,
 .bookingFooterGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 2rem;
+  gap: var(--yui-space-8);
 }
 
+.siteFooterSection,
 .bookingFooterSection {
   display: grid;
   align-content: start;
-  gap: 0.75rem;
+  gap: var(--yui-space-3);
 }
 
+.siteFooterTitle,
 .bookingFooterHeading {
   margin: 0;
-  color: var(--yc-on-dark);
-  font-size: 1.125rem;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
 }
 
-.bookingFooterText,
-.bookingFooterLinks a,
-.bookingFooterPolicies a {
-  color: var(--yc-on-dark-muted);
+.siteFooterText,
+.bookingFooterText {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.8;
 }
 
+.siteFooterLinks,
 .bookingFooterLinks,
+.siteFooterSocialLinks,
 .bookingFooterSocialLinks,
+.siteFooterPolicies,
 .bookingFooterPolicies,
+.siteFooterPaymentMethods,
 .bookingFooterPaymentMethods {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.bookingFooterSocialLinks,
-.bookingFooterPolicies,
-.bookingFooterPaymentMethods {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+.siteFooterLinks,
+.bookingFooterLinks {
+  display: grid;
+  gap: var(--yui-space-2);
 }
 
+.siteFooterLink,
+.bookingFooterLinks a,
+.bookingFooterPolicies a {
+  color: rgba(255, 255, 255, 0.72);
+  text-decoration: none;
+  transition: color var(--yui-transition-fast);
+}
+
+.siteFooterLink:hover,
+.bookingFooterLinks a:hover,
+.bookingFooterPolicies a:hover {
+  color: #fff;
+}
+
+.siteFooterLink:focus-visible,
+.bookingFooterLinks a:focus-visible,
+.bookingFooterPolicies a:focus-visible,
+.siteFooterSocialLink:focus-visible,
+.bookingFooterSocialLinks a:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 3px;
+}
+
+.siteFooterContactItem,
+.bookingFooterContactItem {
+  display: grid;
+  gap: var(--yui-space-1);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.siteFooterContactItem strong,
+.bookingFooterContactItem strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.siteFooterSocialLinks,
+.bookingFooterSocialLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yui-space-2);
+}
+
+.siteFooterSocialLink,
 .bookingFooterSocialLinks a {
   width: 44px;
   height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 8px;
-  color: var(--yc-on-dark);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--yui-radius-lg);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  text-decoration: none;
+  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast);
 }
 
+.siteFooterSocialLink:hover,
+.bookingFooterSocialLinks a:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.42);
+}
+
+.siteFooterDivider {
+  height: 1px;
+  margin-block: var(--yui-space-8) var(--yui-space-5);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.siteFooterBottom,
 .bookingFooterBottom {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 1rem;
   align-items: center;
-  margin-top: 2rem;
-  padding-top: 1.25rem;
+  gap: var(--yui-space-4);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+}
+
+.siteFooterBottom p,
+.bookingFooterBottom p {
+  margin: 0;
+}
+
+.siteFooterPolicies,
+.bookingFooterPolicies,
+.siteFooterPaymentMethods,
+.bookingFooterPaymentMethods {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yui-space-3);
+}
+
+.siteFooterPaymentMethods,
+.bookingFooterPaymentMethods {
+  color: #fff;
+}
+
+.siteFooterPaymentMethods li,
+.bookingFooterPaymentMethods li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--yui-space-1);
+}
+
+.bookingFooterInner {
+  padding-block: var(--yui-space-10) var(--yui-space-6);
+}
+
+.bookingFooterBottom {
+  margin-top: var(--yui-space-8);
+  padding-top: var(--yui-space-5);
   border-top: 1px solid rgba(255, 255, 255, 0.18);
-  color: var(--yc-on-dark-muted);
 }
 
 @media (width <= 1024px) {
+  .siteFooterGrid,
   .bookingFooterGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .siteFooterBottom,
   .bookingFooterBottom {
     grid-template-columns: 1fr;
   }
 }
-@media (width <= 768px) {
+@media (width <= 640px) {
+  .siteFooterInner,
+  .bookingFooterInner {
+    width: min(100% - 24px, 1120px);
+    padding-block: var(--yui-space-8) var(--yui-space-5);
+  }
+  .siteFooterGrid,
   .bookingFooterGrid {
     grid-template-columns: 1fr;
+    gap: var(--yui-space-6);
   }
 }
-/* 舊版 Booking Footer：保留 bookingFooter 與 bk-footer__* class API。 */
+/* Booking Footer 差異：預約頁尾使用 booking footer token，不影響主站 footer 內容。 */
 .bookingFooter {
-  margin-top: 4rem;
-  padding: 3rem 0 1.5rem;
   background: var(--yc-footer-bg);
-  color: var(--yc-on-dark-muted);
 }
 
-.bkFooterInner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-/* 舊版 Footer 欄位：桌機四欄、手機逐步收斂。 */
-.bkFooterGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.bkFooterHeading {
-  margin-bottom: 1rem;
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.bkFooterSubheading {
-  margin-bottom: 0.75rem;
-  color: var(--yc-sage-light);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.bkFooterTagline {
-  margin-bottom: 0.5rem;
-  color: rgba(255, 253, 249, 0.7);
-  font-size: 0.875rem;
-  line-height: 1.7;
-}
-
-/* 舊版 Footer 連結與重要連結狀態。 */
-.bkFooterLinks {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.bkFooterLinks li {
-  margin-bottom: 0.5rem;
-}
-
-.bkFooterLinks a {
-  color: rgba(255, 253, 249, 0.72);
-  font-size: 0.875rem;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.bkFooterLinks a:hover {
-  color: var(--yc-on-dark);
-}
-
-.bkFooterLinks a.important {
-  color: var(--yc-on-dark);
-  font-weight: 600;
-}
-
-.bkFooterLinks a.important:hover {
-  color: #fff;
-}
-
-.bkFooterContactItem {
-  margin-bottom: 0.5rem;
-  color: rgba(255, 253, 249, 0.7);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-.bkFooterContactItem strong {
-  color: var(--yc-on-dark);
-}
-
-/* 舊版社群與站台 footer 補充樣式。 */
-.social {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 18px;
-}
-
-.social a i {
-  padding: 20px;
-  color: var(--yc-on-dark);
-  font-size: 1.5rem;
-  transition: color 0.3s ease;
-}
-
-.social a i:hover {
-  color: var(--yc-cta);
-}
-
-.siteFooter p {
-  margin-bottom: 10px;
-}
-
-/* 舊版 Footer 底部：版權、政策連結與付款方式。 */
-.bkFooterDivider {
-  margin: 0 0 1.5rem;
-  border: none;
-  border-top: 1px solid rgba(255, 253, 249, 0.15);
-}
-
-.bkFooterBottom {
-  text-align: center;
-}
-
-.bkFooterCopyright {
-  margin-bottom: 0.75rem;
-  color: rgba(255, 253, 249, 0.5);
-  font-size: 0.8rem;
-}
-
-.bkFooterPolicy {
-  margin-bottom: 1rem;
-}
-
-.bkFooterPolicy a {
-  margin: 0 0.75rem;
-  color: rgba(255, 253, 249, 0.52);
-  font-size: 0.8rem;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.bkFooterPolicy a:hover {
-  color: rgba(255, 253, 249, 0.85);
-}
-
-.bkFooterPayment {
-  margin-bottom: 0.5rem;
-  color: rgba(255, 253, 249, 0.52);
-  font-size: 0.8rem;
-}
-
-.bkFooterPaymentIcons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  font-size: 1.5rem;
-}
-
-@media (width <= 768px) {
-  .bkFooterGrid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-}
-@media (width <= 480px) {
-  .bkFooterGrid {
-    grid-template-columns: 1fr;
-  }
-}
 /* Booking Toast：全域浮動通知容器。 */
 #bkToastContainer {
   position: fixed;

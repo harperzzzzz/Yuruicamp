@@ -1029,7 +1029,7 @@ a:focus-visible,
   }
 }
 #header,
-#booking-header {
+#bookingHeader {
   position: sticky;
   top: 0;
   z-index: var(--yui-z-sticky);
