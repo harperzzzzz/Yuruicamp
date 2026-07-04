@@ -1,23 +1,23 @@
-// 會員中心頁 token alias：把會員中心局部變數對應到全站 --yui-* 設計 token。
-$member-text: var(--yui-text, #333);
-$member-muted: var(--yui-text-muted, #666);
-$member-subtle: var(--yui-text-subtle, #999);
-$member-primary: var(--yui-primary, #244d4d);
-$member-primary-hover: var(--yui-primary-hover, #316868);
-$member-primary-soft: var(--yui-primary-soft, #e8f4f4);
-$member-bg: var(--yui-bg, #f6fbf6);
-$member-surface: var(--yui-surface, #fff);
-$member-surface-muted: var(--yui-surface-muted, #f2f2f2);
-$member-border: var(--yui-border, #e0e0e0);
-$member-border-strong: var(--yui-border-strong, #ccc);
-$member-success: var(--yui-success, #4caf50);
-$member-danger: var(--yui-danger, #d32f2f);
-$member-warning: var(--yui-warning, #ff9800);
-$member-radius-lg: var(--yui-radius-lg, 8px);
-$member-radius-xl: var(--yui-radius-xl, 12px);
-$member-shadow-sm: var(--yui-shadow-sm, 0 1px 2px rgb(0 0 0 / 5%));
-$member-shadow-md: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
-$member-transition: var(--yui-transition-fast, 150ms ease);
+﻿// 會員中心頁 token alias：把會員中心局部變數對應到全站 --yc-* 設計 token。
+$member-text: var(--yc-text);
+$member-muted: var(--yc-text-muted);
+$member-subtle: var(--yc-text-muted);
+$member-primary: var(--yc-sage-action);
+$member-primary-hover: var(--yc-sage-dark);
+$member-primary-soft: var(--yc-sage-soft);
+$member-bg: var(--yc-bg);
+$member-surface: var(--yc-surface);
+$member-surface-muted: var(--yc-surface-soft);
+$member-border: var(--yc-border);
+$member-border-strong: var(--yc-sage-action);
+$member-success: var(--yc-success);
+$member-danger: var(--yc-error);
+$member-warning: var(--yc-warning);
+$member-radius-lg: var(--yc-radius-button, 8px);
+$member-radius-xl: var(--yc-radius-card, 12px);
+$member-shadow-sm: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
+$member-shadow-md: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+$member-transition: var(--yc-transition-fast, 150ms ease);
 
 .memberCenter {
   background: $member-bg;
@@ -292,7 +292,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberTierName {
   background: rgb(255 255 255 / 18%);
-  border-radius: var(--yui-radius-pill, 9999px);
+  border-radius: var(--yc-radius-pill, 9999px);
   padding: 0.25rem 0.65rem;
 }
 
@@ -304,7 +304,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberTierProgress {
   background: rgb(255 255 255 / 22%);
-  border-radius: var(--yui-radius-pill, 9999px);
+  border-radius: var(--yc-radius-pill, 9999px);
   height: 10px;
   overflow: hidden;
 }
@@ -314,7 +314,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   border-radius: inherit;
   height: 100%;
   inline-size: 0%;
-  transition: inline-size var(--yui-transition-base, 250ms ease);
+  transition: inline-size var(--yc-transition-base, 250ms ease);
 }
 
 // 會員等級進度條：JS 只切換 class，不寫 inline style。
@@ -519,7 +519,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberOrderStatus {
-  border-radius: var(--yui-radius-pill, 9999px);
+  border-radius: var(--yc-radius-pill, 9999px);
   display: inline-flex;
   font-size: 0.8125rem;
   font-weight: 800;
@@ -637,7 +637,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   background: $member-surface-muted;
   border-radius: $member-radius-lg;
   color: $member-primary;
-  font-family: var(--yui-font-mono, monospace);
+  font-family: var(--yc-font-mono, monospace);
   font-weight: 800;
   padding: 0.4rem 0.6rem;
 }
@@ -663,14 +663,13 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 }
 
 .memberActivityItem {
-  border-bottom: 1px solid $member-border;
   display: grid;
   gap: 0.2rem;
   padding: 0.75rem 0;
 }
 
-.memberActivityItem:last-child {
-  border-bottom: 0;
+.memberActivityItem + .memberActivityItem {
+  border-top: 1px solid $member-border;
 }
 
 .memberActivityTitleButton {
@@ -708,7 +707,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   justify-content: center;
   padding: 1rem;
   position: fixed;
-  z-index: var(--yui-z-modal, 1050);
+  z-index: var(--yc-z-modal, 1050);
 }
 
 .memberModalOverlay.isOpen {
@@ -717,7 +716,7 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberModalDialog {
   border-color: color-mix(in srgb, $member-primary 18%, $member-border);
-  box-shadow: var(--yui-shadow-lg, 0 12px 28px rgb(36 77 77 / 14%));
+  box-shadow: var(--yc-shadow-hover, 0 12px 28px rgb(36 77 77 / 14%));
   max-height: min(720px, calc(100vh - 2rem));
   max-width: 612px;
   overflow: auto;
@@ -776,11 +775,11 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   padding: 0.875rem 1rem;
 }
 
-.memberDetailRow span:first-child {
+.memberDetailRowLabel {
   color: $member-muted;
 }
 
-.memberDetailRow span:last-child {
+.memberDetailRowValue {
   color: $member-text;
   font-weight: 800;
 }
@@ -798,7 +797,8 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   border-color: color-mix(in srgb, $member-primary 24%, $member-border);
 }
 
-.memberDetailRowTotal span {
+.memberDetailRowTotal .memberDetailRowLabel,
+.memberDetailRowTotal .memberDetailRowValue {
   color: $member-primary;
   font-weight: 800;
 }
@@ -852,15 +852,14 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberDetailItem {
   align-items: center;
-  border-bottom: 1px solid color-mix(in srgb, $member-border 72%, transparent);
   display: grid;
   gap: 0.875rem;
   grid-template-columns: 56px minmax(0, 1fr);
   padding: 0.875rem 0;
 }
 
-.memberDetailItem:first-child {
-  padding-top: 0.25rem;
+.memberDetailItem + .memberDetailItem {
+  border-top: 1px solid color-mix(in srgb, $member-border 72%, transparent);
 }
 
 .memberDetailItemImage {
@@ -903,11 +902,11 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   padding: 0;
 }
 
-.memberDetailRow span:first-child {
+.memberDetailRowLabel {
   color: $member-text;
 }
 
-.memberDetailRow span:last-child {
+.memberDetailRowValue {
   font-weight: 400;
   text-align: right;
 }
@@ -919,11 +918,13 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
   padding-top: 0.875rem;
 }
 
-.memberDetailRowSuccess span {
+.memberDetailRowSuccess .memberDetailRowLabel,
+.memberDetailRowSuccess .memberDetailRowValue {
   color: color-mix(in srgb, $member-success 72%, $member-primary);
 }
 
-.memberDetailRowDanger span {
+.memberDetailRowDanger .memberDetailRowLabel,
+.memberDetailRowDanger .memberDetailRowValue {
   color: $member-danger;
 }
 
@@ -950,9 +951,9 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 // LINE 諮詢按鈕：使用品牌綠做外框 CTA，保留會員中心按鈕尺寸節奏。
 .memberDetailLineButton {
   align-items: center;
-  border: 2px solid #06c755;
+  border: 2px solid var(--yc-brand-line);
   border-radius: $member-radius-lg;
-  color: #06c755;
+  color: var(--yc-brand-line);
   display: inline-flex;
   font-weight: 800;
   gap: 0.5rem;
@@ -968,10 +969,11 @@ $member-transition: var(--yui-transition-fast, 150ms ease);
 
 .memberDetailLineButton:hover,
 .memberDetailLineButton:focus-visible {
-  background: color-mix(in srgb, #06c755 8%, $member-surface);
-  box-shadow: 0 0 0 3px color-mix(in srgb, #06c755 22%, transparent);
-  color: #05a846;
-  outline: 0;
+  background: color-mix(in srgb, var(--yc-brand-line) 8%, $member-surface);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-brand-line) 22%, transparent);
+  color: color-mix(in srgb, var(--yc-brand-line) 88%, $member-primary);
+  outline: 3px solid transparent;
+  outline-offset: 2px;
 }
 
 .memberReviewForm {

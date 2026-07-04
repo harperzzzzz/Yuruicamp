@@ -118,7 +118,7 @@ function renderCampDetail(camp) {
       (i) => `
     <img src="https://picsum.photos/seed/${camp.campground_id}_${i}/600/400"
          alt="${camp.name} 第 ${i + 1} 張圖"
-         class="galleryImg"
+         class="galleryImg${i === 0 ? ' galleryImgHero' : ''}"
          loading="lazy">
   `
     )

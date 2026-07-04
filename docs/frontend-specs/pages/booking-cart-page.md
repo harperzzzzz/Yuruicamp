@@ -1,4 +1,4 @@
-# BookingCartPage Spec
+﻿# BookingCartPage Spec
 
 **Status:** Draft
 **Category:** Page
@@ -79,7 +79,7 @@ export interface BookingCartPageProps {
 |-------|---------|---------------|
 | Default | Page loaded | Primary content areas render with Yuruicamp green tokens and existing spacing. |
 | Hover | Interactive card, row, tab, or button hover | Border, shadow, or background changes without layout shift. |
-| Active | Selected tab, filter, nav item, or table row | Uses `--yui-primary` or `--yui-primary-soft` plus text label. |
+| Active | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label. |
 | Disabled | Unavailable action or incomplete form | Lower opacity, blocked pointer, preserved element dimensions. |
 | Loading | `loading={true}` | Skeleton rows, disabled submit buttons, or stable placeholder blocks. |
 | Error | `errorMessage` exists | Inline alert near the failed area and retry action when possible. |
@@ -100,12 +100,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 
@@ -119,7 +119,7 @@ const colors = {
   data={{
     title: 'BookingCartPage',
     sourcePath: 'booking/pages/booking-cart.html',
-    keyAreas: 'bkCartEmpty, bkStayCard, bkRentalCard, bkCostRows'.split(', '),
+    keyAreas: 'cartEmptyBooking, cartStayCardBooking, cartRentalCardBooking, cartCostRowsBooking'.split(', '),
   }}
 />
 ```
@@ -151,7 +151,7 @@ const colors = {
 - Source file: `booking/pages/booking-cart.html`.
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
-- Key UI areas: bkCartEmpty, bkStayCard, bkRentalCard, bkCostRows.
+- Key UI areas: cartEmptyBooking, cartStayCardBooking, cartRentalCardBooking, cartCostRowsBooking.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.

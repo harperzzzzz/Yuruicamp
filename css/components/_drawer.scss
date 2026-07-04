@@ -1,4 +1,4 @@
-// 抽屜元件：共用主站與訂位流程的側邊滑出面板外殼。
+﻿// 抽屜元件：共用主站與訂位流程的側邊滑出面板外殼。
 .siteOffcanvas,
 .siteCartDrawer,
 .bookingOffcanvas,
@@ -6,11 +6,11 @@
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: var(--yui-z-modal);
+  z-index: var(--yc-z-modal);
   width: min(420px, 100vw);
-  background: var(--yui-surface);
-  box-shadow: var(--yui-shadow-lg);
-  transition: transform var(--yui-transition-base);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-hover);
+  transition: transform var(--yc-transition-base);
 }
 
 // 左側抽屜：主站與訂位導覽選單。
@@ -41,10 +41,10 @@
 .bookingPanelBackdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--yui-z-modal-backdrop);
+  z-index: var(--yc-z-overlay);
   background: rgb(0 0 0 / 45%);
   opacity: 0;
-  transition: opacity var(--yui-transition-base);
+  transition: opacity var(--yc-transition-base);
 }
 
 .siteOffcanvasBackdrop.isVisible,
@@ -63,9 +63,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--yui-space-3);
-  padding: var(--yui-space-4);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .siteOffcanvasTitle,
@@ -73,7 +73,7 @@
 .bookingOffcanvasTitle,
 .bookingSlidePanelTitle {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 20px;
   font-weight: 800;
 }
@@ -85,7 +85,7 @@
 .bookingSlidePanelBody {
   height: calc(100% - 72px);
   overflow: auto;
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
 }
 
 @media (prefers-reduced-motion: reduce) {

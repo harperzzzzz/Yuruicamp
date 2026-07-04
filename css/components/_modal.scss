@@ -1,12 +1,12 @@
-// Modal 元件：共用登入、個人化問卷與確認流程的遮罩外殼。
+﻿// Modal 元件：共用登入、個人化問卷與確認流程的遮罩外殼。
 .modal {
   position: fixed;
   inset: 0;
-  z-index: var(--yui-z-modal);
+  z-index: var(--yc-z-modal);
   display: none;
   align-items: center;
   justify-content: center;
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
   background: rgb(0 0 0 / 45%);
 }
 
@@ -21,10 +21,10 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-lg);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-hover);
 }
 
 // Modal 標題列：保留標題與關閉按鈕的固定高度。
@@ -33,21 +33,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--yui-space-3);
-  padding: var(--yui-space-4);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .modalTitle {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 20px;
   font-weight: 800;
 }
 
 .modalBody {
   overflow: auto;
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
 }
 
 // Modal 關閉按鈕：使用全站 token，避免依賴 header 專用 Sass 變數。
@@ -57,15 +57,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  background: var(--yui-surface);
-  color: var(--yui-primary);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
   cursor: pointer;
 }
 
 .modalClose:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 .modalClose:focus-visible {
@@ -75,7 +75,7 @@
 
 @media (width <= 480px) {
   .modal {
-    padding: var(--yui-space-3);
+    padding: var(--yc-space-3);
   }
 
   .modalContent {

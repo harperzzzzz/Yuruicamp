@@ -1,4 +1,4 @@
-/* Booking Button：預訂流程共用按鈕基底，維持舊有 .btn 與 btnPrimary 命名相容。 */
+/* Booking Button：預訂流程共用按鈕基底。 */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -11,27 +11,28 @@
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+  transition:
+    background-color var(--yc-duration-normal) var(--yc-ease-soft),
+    border-color var(--yc-duration-normal) var(--yc-ease-soft),
+    color var(--yc-duration-normal) var(--yc-ease-soft),
+    box-shadow var(--yc-duration-normal) var(--yc-ease-soft);
   line-height: 1.4;
   white-space: nowrap;
 }
 
 /* Booking Button：主要 CTA 按鈕，用於下一步、加入與確認等高優先行動。 */
-.btnPrimary,
 .btnPrimary {
   background: var(--yc-cta);
   color: var(--yc-on-cta);
   border-color: var(--yc-cta);
 }
 
-.btnPrimary:hover,
 .btnPrimary:hover {
   background: var(--yc-cta-hover);
   border-color: var(--yc-cta-hover);
   color: var(--yc-on-cta);
 }
 
-.btnPrimary:active,
 .btnPrimary:active {
   background: var(--yc-cta-hover);
   border-color: var(--yc-cta-hover);
@@ -39,14 +40,12 @@
 }
 
 /* Booking Button：柔和外框按鈕，保留轉換色系但降低視覺權重。 */
-.btnOutline,
 .btnOutline {
   background: var(--yc-cta-soft);
   color: var(--yc-on-cta);
   border-color: var(--yc-cta-line);
 }
 
-.btnOutline:hover,
 .btnOutline:hover {
   background: var(--yc-cta);
   color: var(--yc-on-cta);
@@ -54,7 +53,6 @@
 }
 
 /* Booking Button：滿版按鈕修飾，常用於表單與抽屜底部操作。 */
-.btnFull,
 .btnFull {
   width: 100%;
 }

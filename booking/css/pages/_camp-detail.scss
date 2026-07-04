@@ -32,12 +32,13 @@
   margin-top: 0.75rem;
 }
 
-.dateSummary > div {
+.dateSummaryTotalRow,
+.dateSummaryBreakdownRow {
   display: flex;
   justify-content: space-between;
 }
 
-.dateSummary > div:first-child {
+.dateSummaryTotalRow {
   align-items: center;
   margin-bottom: 0.3rem;
 }
@@ -102,7 +103,7 @@
   transition: transform 0.3s ease;
 }
 
-.galleryImg:first-child {
+.galleryImgHero {
   grid-column: 1 / -1;
   aspect-ratio: 16/7;
 }
@@ -217,12 +218,11 @@
 
 .zoneTable td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--yc-border);
   color: var(--yc-text);
 }
 
-.zoneTable tr:last-child td {
-  border-bottom: none;
+.zoneTable tr + tr td {
+  border-top: 1px solid var(--yc-border);
 }
 
 .zoneTable tr:hover td {
@@ -234,7 +234,7 @@
     grid-template-columns: 1fr;
   }
 
-  .campGallery img:not(:first-child) {
+  .galleryImg:not(.galleryImgHero) {
     display: none;
   }
 

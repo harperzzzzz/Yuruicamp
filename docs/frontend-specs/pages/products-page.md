@@ -1,4 +1,4 @@
-# ProductsPage 商品頁規格
+﻿# ProductsPage 商品頁規格
 
 **狀態：** 草稿
 **類別：** 頁面
@@ -81,7 +81,7 @@ export interface ProductsPageProps {
 | -------- | --------------------- | -------------------------------------------------- |
 | 預設       | 頁面已載入                 | 主要內容區以 Yuruicamp 綠色 Token 與既有間距呈現。                 |
 | Hover    | 卡片、資料列、分頁標籤或按鈕被滑鼠移入   | 改變邊框、陰影或背景，不可造成版面位移。                               |
-| Active   | 已選取的分頁標籤、篩選器、導覽項目或表格列 | 使用 `--yui-primary` 或 `--yui-primary-soft`，並搭配文字標示。 |
+| Active   | 已選取的分頁標籤、篩選器、導覽項目或表格列 | 使用 `--yc-sage-action` 或 `--yc-sage-soft`，並搭配文字標示。 |
 | Disabled | 無法使用的操作或未完成的表單        | 降低透明度、禁止指標操作、保留元素尺寸。                               |
 | 載入中      | `loading={true}`      | 使用 Skeleton 列、停用送出按鈕或穩定的預留區塊。                      |
 | 錯誤       | 存在 `errorMessage`     | 在失敗區域附近顯示行內警示，並在可行時提供重試操作。                         |
@@ -102,12 +102,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 

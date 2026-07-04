@@ -1,41 +1,41 @@
-// 分店頁 token alias：把頁面局部變數對應到全站 --yui-* 設計 token。
-$branches-primary: var(--yui-primary, #244d4d);
-$branches-primary-dark: var(--yui-primary-dark, #1a3838);
-$branches-primary-hover: var(--yui-primary-hover, #316868);
-$branches-primary-light: var(--yui-primary-light, #4a7777);
-$branches-primary-soft: var(--yui-primary-soft, #e8f4f4);
-$branches-secondary: var(--yui-secondary, #799);
-$branches-bg: var(--yui-bg, #f6fbf6);
-$branches-surface: var(--yui-surface, #fff);
-$branches-surface-muted: var(--yui-surface-muted, #f2f2f2);
-$branches-text: var(--yui-text, #333);
-$branches-muted: var(--yui-text-muted, #666);
-$branches-subtle: var(--yui-text-subtle, #999);
-$branches-border: var(--yui-border, #e0e0e0);
-$branches-border-strong: var(--yui-border-strong, #ccc);
-$branches-success: var(--yui-success, #4caf50);
-$branches-danger: var(--yui-danger, #d32f2f);
-$branches-orange: var(--yui-orange, #e07b39);
-$branches-gold: var(--yui-gold, #d4a017);
-$branches-space-1: var(--yui-space-1, 4px);
-$branches-space-2: var(--yui-space-2, 8px);
-$branches-space-3: var(--yui-space-3, 12px);
-$branches-space-4: var(--yui-space-4, 16px);
-$branches-space-5: var(--yui-space-5, 20px);
-$branches-space-6: var(--yui-space-6, 24px);
-$branches-space-8: var(--yui-space-8, 32px);
-$branches-space-10: var(--yui-space-10, 40px);
-$branches-space-12: var(--yui-space-12, 48px);
-$branches-space-16: var(--yui-space-16, 64px);
-$branches-radius-md: var(--yui-radius-md, 6px);
-$branches-radius-lg: var(--yui-radius-lg, 8px);
-$branches-radius-xl: var(--yui-radius-xl, 12px);
-$branches-radius-pill: var(--yui-radius-pill, 9999px);
-$branches-shadow-sm: var(--yui-shadow-sm, 0 1px 2px rgb(0 0 0 / 5%));
-$branches-shadow-md: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
-$branches-shadow-lg: var(--yui-shadow-lg, 0 12px 28px rgb(36 77 77 / 14%));
-$branches-transition-fast: var(--yui-transition-fast, 150ms ease);
-$branches-transition-base: var(--yui-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
+﻿// 分店頁 token alias：把頁面局部變數對應到全站 --yc-* 設計 token。
+$branches-primary: var(--yc-sage-action);
+$branches-primary-dark: var(--yc-sage-dark);
+$branches-primary-hover: var(--yc-sage-dark);
+$branches-primary-light: var(--yc-sage-light);
+$branches-primary-soft: var(--yc-sage-soft);
+$branches-secondary: var(--yc-sage-light);
+$branches-bg: var(--yc-bg);
+$branches-surface: var(--yc-surface);
+$branches-surface-muted: var(--yc-surface-soft);
+$branches-text: var(--yc-text);
+$branches-muted: var(--yc-text-muted);
+$branches-subtle: var(--yc-text-muted);
+$branches-border: var(--yc-border);
+$branches-border-strong: var(--yc-sage-action);
+$branches-success: var(--yc-success);
+$branches-danger: var(--yc-error);
+$branches-orange: var(--yc-warning);
+$branches-gold: var(--yc-cta);
+$branches-space-1: var(--yc-space-1, 4px);
+$branches-space-2: var(--yc-space-2, 8px);
+$branches-space-3: var(--yc-space-3, 12px);
+$branches-space-4: var(--yc-space-4, 16px);
+$branches-space-5: var(--yc-space-5, 20px);
+$branches-space-6: var(--yc-space-6, 24px);
+$branches-space-8: var(--yc-space-8, 32px);
+$branches-space-10: var(--yc-space-10, 40px);
+$branches-space-12: var(--yc-space-12, 48px);
+$branches-space-16: var(--yc-space-16, 64px);
+$branches-radius-md: var(--yc-radius-control, 6px);
+$branches-radius-lg: var(--yc-radius-button, 8px);
+$branches-radius-xl: var(--yc-radius-card, 12px);
+$branches-radius-pill: var(--yc-radius-pill, 9999px);
+$branches-shadow-sm: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
+$branches-shadow-md: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+$branches-shadow-lg: var(--yc-shadow-hover, 0 12px 28px rgb(36 77 77 / 14%));
+$branches-transition-fast: var(--yc-transition-fast, 150ms ease);
+$branches-transition-base: var(--yc-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 1));
 
 // 分店頁外殼：只套用 pages/branches.html 的內容範圍。
 .branchesPage {
@@ -147,7 +147,7 @@ $branches-transition-base: var(--yui-transition-base, 250ms cubic-bezier(0.4, 0,
   border-radius: $branches-radius-pill;
   background: $branches-primary-soft;
   color: $branches-primary;
-  font-family: var(--yui-font-mono, monospace);
+  font-family: var(--yc-font-mono, monospace);
   font-size: 0.875rem;
   font-weight: 900;
 }

@@ -1,54 +1,157 @@
-// 全站設計 token：鏡像 docs/ai-style-tokens.css 的 --yui-* 合約。
-// 這些 custom properties 會輸出到編譯後 CSS，提供 components、pages、booking 相容樣式共用。
+﻿// 全站設計 token：以 --yc-* 作為 source of truth。
 :root {
-  --yui-primary: #244d4d;
-  --yui-primary-dark: #1a3838;
-  --yui-primary-hover: #316868;
-  --yui-primary-light: #4a7777;
-  --yui-primary-soft: #e8f4f4;
-  --yui-secondary: #799;
-  --yui-secondary-light: #a8bcbc;
-  --yui-bg: #f6fbf6;
-  --yui-surface: #fff;
-  --yui-surface-muted: #f2f2f2;
-  --yui-booking-bg: #f2f0eb;
-  --yui-text: #333;
-  --yui-text-muted: #666;
-  --yui-text-subtle: #999;
-  --yui-border: #e0e0e0;
-  --yui-border-strong: #ccc;
-  --yui-success: #4caf50;
-  --yui-warning: #ff9800;
-  --yui-danger: #d32f2f;
-  --yui-info: #2196f3;
-  --yui-gold: #d4a017;
-  --yui-orange: #e07b39;
-  --yui-font-sans: -apple-system, blinkmacsystemfont, "Segoe UI", roboto, "Helvetica Neue", arial, sans-serif;
-  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, "Liberation Mono", "Courier New", monospace;
-  --yui-space-1: 4px;
-  --yui-space-2: 8px;
-  --yui-space-3: 12px;
-  --yui-space-4: 16px;
-  --yui-space-5: 20px;
-  --yui-space-6: 24px;
-  --yui-space-8: 32px;
-  --yui-space-10: 40px;
-  --yui-space-12: 48px;
-  --yui-space-16: 64px;
-  --yui-radius-sm: 4px;
-  --yui-radius-md: 6px;
-  --yui-radius-lg: 8px;
-  --yui-radius-xl: 12px;
-  --yui-radius-pill: 9999px;
-  --yui-shadow-sm: 0 1px 2px rgb(0 0 0 / 5%);
-  --yui-shadow-md: 0 4px 12px rgb(36 77 77 / 10%);
-  --yui-shadow-lg: 0 12px 28px rgb(36 77 77 / 14%);
-  --yui-transition-fast: 150ms ease;
-  --yui-transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --yui-z-dropdown: 1000;
-  --yui-z-sticky: 1020;
-  --yui-z-fixed: 1030;
-  --yui-z-modal-backdrop: 1040;
-  --yui-z-modal: 1050;
-  --yui-z-tooltip: 1070;
+  /* Base / Cream */
+  --yc-bg: #f8f5ee;
+  --yc-surface: #fffdf9;
+  --yc-surface-soft: #f0ece3;
+  --yc-border: #d8cfc3;
+
+  /* Sage Brand */
+  --yc-sage-soft: #eef2ec;
+  --yc-sage-light: #b7c3b3;
+  --yc-sage-action: #73816e;
+  --yc-sage-dark: #62705d;
+
+  /* Conversion CTA */
+  --yc-cta: #e2d39a;
+  --yc-cta-hover: #d4c27e;
+  --yc-cta-soft: #fbf3d1;
+  --yc-cta-line: #d9c98f;
+  --yc-on-cta: #4a4537;
+
+  /* Text */
+  --yc-text: #3e473d;
+  --yc-text-secondary: #625e56;
+  --yc-text-muted: #7b756d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
+
+  /* Status */
+  --yc-success: #73816e;
+  --yc-success-soft: #e7efe3;
+  --yc-success-text: #4f624a;
+  --yc-warning: #9a7455;
+  --yc-warning-soft: #f4ece2;
+  --yc-warning-text: #6b4d32;
+  --yc-error: #a65f58;
+  --yc-error-soft: #f4e7e4;
+  --yc-error-text: #8a4842;
+
+  /* Tag / Status */
+  --yc-gold-soft: var(--yc-cta-soft);
+  --yc-gold-line: var(--yc-cta-line);
+  --yc-gold: var(--yc-cta);
+  --yc-gold-hover: var(--yc-cta-hover);
+  --yc-gold-active: #c4af62;
+  --yc-neutral-soft: #f4f0e8;
+  --yc-neutral-line: var(--yc-border);
+  --yc-neutral-text: var(--yc-text-secondary);
+  --yc-tag-success-soft: var(--yc-success-soft);
+  --yc-danger-soft: var(--yc-error-soft);
+  --yc-danger-line: #d4a29d;
+  --yc-danger: #b8645d;
+  --yc-danger-text: var(--yc-error-text);
+  --yc-return-soft: #f3ece7;
+  --yc-return-line: #cdaa9c;
+  --yc-return-text: #7a4d40;
+  --yc-refunded-line: #c97872;
+  --yc-pending-line: #d7b75f;
+  --yc-tag-height: 30px;
+  --yc-chip-height: 40px;
+  --yc-tag-gap: 8px;
+
+  /* Header / Footer */
+  --yc-header-bg: var(--yc-sage-action);
+  --yc-header-bg-solid: var(--yc-sage-dark);
+  --yc-header-border: rgb(255 253 249 / 14%);
+  --yc-footer-bg: #71806d;
+  --yc-footer-bottom: var(--yc-sage-dark);
+  --yc-header-height: 64px;
+  --yc-sticky-offset: 90px;
+
+  /* External Brand / Contact */
+  --yc-brand-google-surface: #fff;
+  --yc-brand-google-border: #dadce0;
+  --yc-brand-google-text: #3c4043;
+  --yc-brand-facebook: #1877f2;
+  --yc-brand-line: #00b900;
+  --yc-brand-on-color: #fff;
+  --yc-floating-line: #5f9407;
+  --yc-floating-line-hover: #578804;
+
+  /* Layout */
+  --yc-container-sm: 900px;
+  --yc-container-md: 1100px;
+  --yc-container-lg: 1200px;
+  --yc-container-page: min(1200px, calc(100vw - 48px));
+
+  /* Typography */
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', system-ui, sans-serif;
+  --yc-font-ui: var(--yc-font-body);
+  --yc-font-mono: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+  --yc-text-xs: 0.75rem;
+  --yc-text-sm: 0.875rem;
+  --yc-text-md: 1rem;
+  --yc-text-lg: 1.125rem;
+  --yc-text-xl: 1.25rem;
+  --yc-text-2xl: 1.5rem;
+  --yc-text-3xl: 1.875rem;
+  --yc-text-4xl: 2.25rem;
+
+  /* Spacing */
+  --yc-space-1: 4px;
+  --yc-space-2: 8px;
+  --yc-space-3: 12px;
+  --yc-space-4: 16px;
+  --yc-space-5: 20px;
+  --yc-space-6: 24px;
+  --yc-space-8: 32px;
+  --yc-space-10: 40px;
+  --yc-space-12: 48px;
+  --yc-space-16: 64px;
+  --yc-space-24: 96px;
+
+  /* Radius */
+  --yc-radius-sm: 10px;
+  --yc-radius-control: 12px;
+  --yc-radius-button: 12px;
+  --yc-radius-card: 19px;
+  --yc-radius-section: 24px;
+  --yc-radius-modal: 8px;
+  --yc-radius-pill: 9999px;
+
+  /* Shadow */
+  --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
+  --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
+  --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
+  --yc-shadow-modal: 0 24px 60px rgb(0 0 0 / 22%);
+
+  /* Motion */
+  --yc-duration-instant: 80ms;
+  --yc-duration-fast: 180ms;
+  --yc-duration-normal: 220ms;
+  --yc-duration-slow: 320ms;
+  --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --yc-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yc-transition: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yc-transition-fast: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yc-transition-base: var(--yc-duration-normal) var(--yc-ease-soft);
+  --yc-target-min: 44px;
+  --yc-icon-button-size: 44px;
+  --yc-control-height-md: 44px;
+  --yc-focus-ring: 0 0 0 3px rgb(115 129 110 / 24%);
+  --yc-focus-ring-strong: 0 0 0 4px rgb(115 129 110 / 30%);
+
+  /* Z-index */
+  --yc-z-base: 0;
+  --yc-z-raised: 1;
+  --yc-z-sticky: 10;
+  --yc-z-header: 20;
+  --yc-z-dropdown: 30;
+  --yc-z-overlay: 40;
+  --yc-z-modal: 50;
+  --yc-z-toast: 60;
+
 }

@@ -117,15 +117,20 @@
   line-height: 1.6;
 }
 
-.rgStepCard:not(:last-child)::after {
+.rgStepCard::before {
   content: '>';
+  display: none;
   position: absolute;
-  right: -1rem;
+  left: -1rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.5rem;
   color: var(--yc-border);
   z-index: 1;
+}
+
+.rgStepCard + .rgStepCard::before {
+  display: block;
 }
 
 .rgEquipGrid {

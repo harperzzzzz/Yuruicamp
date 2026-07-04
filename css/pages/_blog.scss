@@ -1,13 +1,13 @@
-// 部落格列表頁：管理文章列表、分類篩選與列表頁 hero 的頁面專屬樣式。
+﻿// 部落格列表頁：管理文章列表、分類篩選與列表頁 hero 的頁面專屬樣式。
 .blogPage {
-  background: var(--yui-bg, #f6fbf6);
-  color: var(--yui-text, #333);
+  background: var(--yc-bg);
+  color: var(--yc-text);
   min-height: 100vh;
 }
 
 .blogHero {
-  background: linear-gradient(135deg, var(--yui-primary-dark, #1a3838), var(--yui-primary, #244d4d));
-  color: var(--yui-surface, #fff);
+  background: linear-gradient(135deg, var(--yc-sage-dark), var(--yc-sage-action));
+  color: var(--yc-surface);
   padding-block: clamp(2.5rem, 7vw, 5rem);
 }
 
@@ -19,7 +19,7 @@
 
 .blogHeroContent {
   display: grid;
-  gap: var(--yui-space-3, 12px);
+  gap: var(--yc-space-3, 12px);
 }
 
 .blogHeroKicker {
@@ -48,7 +48,7 @@
 
 .blogContent {
   display: grid;
-  gap: var(--yui-space-8, 32px);
+  gap: var(--yc-space-8, 32px);
   padding-block: clamp(1.5rem, 5vw, 4rem);
 }
 
@@ -59,10 +59,10 @@
 
 .blogFeaturedCard,
 .blogArticleCard {
-  background: var(--yui-surface, #fff);
-  border: 1px solid var(--yui-border, #e0e0e0);
-  border-radius: var(--yui-radius-lg, 8px);
-  box-shadow: var(--yui-shadow-sm, 0 1px 2px rgb(0 0 0 / 5%));
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  box-shadow: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
   overflow: hidden;
 }
 
@@ -95,9 +95,9 @@
 
 .blogFeaturedContent {
   bottom: 0;
-  color: var(--yui-surface, #fff);
+  color: var(--yc-surface);
   display: grid;
-  gap: var(--yui-space-3, 12px);
+  gap: var(--yc-space-3, 12px);
   left: 0;
   padding: clamp(1.25rem, 4vw, 2rem);
   position: absolute;
@@ -107,9 +107,9 @@
 .blogFeaturedTag,
 .blogArticleTag {
   align-items: center;
-  background: var(--yui-primary-soft, #e8f4f4);
-  border-radius: var(--yui-radius-pill, 9999px);
-  color: var(--yui-primary, #244d4d);
+  background: var(--yc-sage-soft);
+  border-radius: var(--yc-radius-pill, 9999px);
+  color: var(--yc-sage-action);
   display: inline-flex;
   font-size: 0.8125rem;
   font-weight: 800;
@@ -121,7 +121,7 @@
 
 .blogFeaturedTag {
   background: rgb(255 255 255 / 18%);
-  color: var(--yui-surface, #fff);
+  color: var(--yc-surface);
 }
 
 .blogFeaturedTitle {
@@ -144,22 +144,22 @@
   color: rgb(255 255 255 / 82%);
   flex-wrap: wrap;
   font-size: 0.875rem;
-  gap: var(--yui-space-3, 12px);
+  gap: var(--yc-space-3, 12px);
 }
 
 .blogArticleMeta {
-  border-top: 1px solid var(--yui-border, #e0e0e0);
-  color: var(--yui-text-muted, #666);
+  border-top: 1px solid var(--yc-border);
+  color: var(--yc-text-muted);
   font-size: 0.8125rem;
-  gap: var(--yui-space-3, 12px);
+  gap: var(--yc-space-3, 12px);
   justify-content: space-between;
   margin-top: auto;
-  padding-top: var(--yui-space-4, 16px);
+  padding-top: var(--yc-space-4, 16px);
 }
 
 .blogFeaturedAuthor,
 .blogArticleAuthor {
-  gap: var(--yui-space-2, 8px);
+  gap: var(--yc-space-2, 8px);
   min-width: 0;
 }
 
@@ -184,14 +184,14 @@
 .blogCategoryTabs {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-2, 8px);
+  gap: var(--yc-space-2, 8px);
 }
 
 .blogCategoryTab {
-  background: var(--yui-surface, #fff);
-  border: 1px solid var(--yui-border, #e0e0e0);
-  border-radius: var(--yui-radius-pill, 9999px);
-  color: var(--yui-text-muted, #666);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill, 9999px);
+  color: var(--yc-text-muted);
   cursor: pointer;
   display: inline-flex;
   font: inherit;
@@ -199,15 +199,15 @@
   justify-content: center;
   min-height: 44px;
   padding: 0.625rem 1rem;
-  transition: background-color var(--yui-transition-fast, 150ms ease), border-color var(--yui-transition-fast, 150ms ease), color var(--yui-transition-fast, 150ms ease), box-shadow var(--yui-transition-fast, 150ms ease);
+  transition: background-color var(--yc-transition-fast, 150ms ease), border-color var(--yc-transition-fast, 150ms ease), color var(--yc-transition-fast, 150ms ease), box-shadow var(--yc-transition-fast, 150ms ease);
 }
 
 .blogCategoryTab:hover,
 .blogCategoryTab:focus-visible,
 .blogCategoryTab.isActive {
-  background: var(--yui-primary-soft, #e8f4f4);
-  border-color: var(--yui-primary, #244d4d);
-  color: var(--yui-primary, #244d4d);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-sage-action);
 }
 
 .blogCategoryTab:focus-visible,
@@ -219,16 +219,16 @@
 
 .blogArticlesSection {
   display: grid;
-  gap: var(--yui-space-5, 20px);
+  gap: var(--yc-space-5, 20px);
 }
 
 .blogArticlesHeader {
   display: grid;
-  gap: var(--yui-space-2, 8px);
+  gap: var(--yc-space-2, 8px);
 }
 
 .blogArticlesTitle {
-  color: var(--yui-text, #333);
+  color: var(--yc-text);
   font-size: 1.5rem;
   font-weight: 800;
   line-height: 1.25;
@@ -236,26 +236,26 @@
 }
 
 .blogArticlesDescription {
-  color: var(--yui-text-muted, #666);
+  color: var(--yc-text-muted);
   line-height: 1.6;
   margin: 0;
 }
 
 .blogArticlesGrid {
   display: grid;
-  gap: var(--yui-space-5, 20px);
+  gap: var(--yc-space-5, 20px);
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 .blogArticleCard {
   min-width: 0;
-  transition: border-color var(--yui-transition-fast, 150ms ease), box-shadow var(--yui-transition-fast, 150ms ease), background-color var(--yui-transition-fast, 150ms ease);
+  transition: border-color var(--yc-transition-fast, 150ms ease), box-shadow var(--yc-transition-fast, 150ms ease), background-color var(--yc-transition-fast, 150ms ease);
 }
 
 .blogArticleCard:hover,
 .blogArticleCard:focus-within {
-  border-color: var(--yui-primary-light, #4a7777);
-  box-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
+  border-color: var(--yc-sage-light);
+  box-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 }
 
 .blogArticleLink {
@@ -278,12 +278,12 @@
 
 .blogArticleContent {
   display: grid;
-  gap: var(--yui-space-3, 12px);
-  padding: var(--yui-space-4, 16px);
+  gap: var(--yc-space-3, 12px);
+  padding: var(--yc-space-4, 16px);
 }
 
 .blogArticleTitle {
-  color: var(--yui-text, #333);
+  color: var(--yc-text);
   display: -webkit-box;
   font-size: 1rem;
   font-weight: 800;
@@ -294,7 +294,7 @@
 }
 
 .blogArticleExcerpt {
-  color: var(--yui-text-muted, #666);
+  color: var(--yc-text-muted);
   display: -webkit-box;
   font-size: 0.875rem;
   line-height: 1.7;
@@ -310,21 +310,21 @@
 .blogLoadingState,
 .blogEmptyState,
 .blogErrorState {
-  background: var(--yui-surface, #fff);
-  border: 1px solid var(--yui-border, #e0e0e0);
-  border-radius: var(--yui-radius-lg, 8px);
-  color: var(--yui-text-muted, #666);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  color: var(--yc-text-muted);
   display: grid;
-  gap: var(--yui-space-3, 12px);
+  gap: var(--yc-space-3, 12px);
   min-height: 160px;
-  padding: var(--yui-space-6, 24px);
+  padding: var(--yc-space-6, 24px);
   place-items: center;
   text-align: center;
 }
 
 .blogLoadingIcon {
   animation: blog-loading-pulse 1s ease-in-out infinite;
-  background: var(--yui-primary-soft, #e8f4f4);
+  background: var(--yc-sage-soft);
   border-radius: 50%;
   display: inline-block;
   height: 44px;
@@ -332,7 +332,7 @@
 }
 
 .blogEmptyIcon {
-  color: var(--yui-primary, #244d4d);
+  color: var(--yc-sage-action);
   font-size: 2rem;
 }
 
@@ -341,8 +341,8 @@
 }
 
 .blogErrorState {
-  border-color: color-mix(in srgb, var(--yui-danger, #d32f2f) 32%, var(--yui-border, #e0e0e0));
-  color: var(--yui-danger, #d32f2f);
+  border-color: color-mix(in srgb, var(--yc-error) 32%, var(--yc-border));
+  color: var(--yc-error);
 }
 
 @keyframes blog-loading-pulse {
@@ -374,7 +374,7 @@
 
   .blogCategoryTabs {
     overflow-x: auto;
-    padding-bottom: var(--yui-space-1, 4px);
+    padding-bottom: var(--yc-space-1, 4px);
   }
 
   .blogCategoryTab {
@@ -393,7 +393,7 @@
 
   .blogFeaturedContent,
   .blogArticleContent {
-    padding: var(--yui-space-4, 16px);
+    padding: var(--yc-space-4, 16px);
   }
 
   .blogFeaturedMeta,
@@ -405,7 +405,7 @@
 
 @media (width <= 375px) {
   .blogCategoryTab {
-    min-width: calc(50% - var(--yui-space-1, 4px));
+    min-width: calc(50% - var(--yc-space-1, 4px));
   }
 
   .blogFeaturedLink {

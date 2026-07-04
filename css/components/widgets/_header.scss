@@ -1,9 +1,9 @@
-// 頁首黏性容器；主站使用 #header，booking 使用語意 mount class。
+﻿// 頁首黏性容器；主站使用 #header，booking 使用語意 mount class。
 #header,
 .bookingHeaderMount {
   position: sticky;
   top: 0;
-  z-index: var(--yui-z-sticky);
+  z-index: var(--yc-z-sticky);
 }
 
 .isHeaderLayerOpen,
@@ -15,9 +15,9 @@
 .siteHeader,
 .bookingHeader {
   position: relative;
-  background: var(--yui-surface);
-  border-bottom: 1px solid var(--yui-border);
-  color: var(--yui-text);
+  background: var(--yc-surface);
+  border-bottom: 1px solid var(--yc-border);
+  color: var(--yc-text);
 }
 
 .siteNavbar,
@@ -33,7 +33,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 // 頁首圖示按鈕；套用於主選單、搜尋、購物車、關閉與 booking 控制按鈕。
@@ -53,16 +53,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  background: var(--yui-surface);
-  color: var(--yui-primary);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
   cursor: pointer;
   transition:
-    background-color var(--yui-transition-fast),
-    border-color var(--yui-transition-fast),
-    color var(--yui-transition-fast),
-    box-shadow var(--yui-transition-fast);
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast),
+    box-shadow var(--yc-transition-fast);
 }
 
 .siteMenuButton:hover,
@@ -76,8 +76,8 @@
 .bookingCartButton:hover,
 .bookingOffcanvasClose:hover,
 .bookingSlidePanelClose:hover {
-  background: var(--yui-primary-soft);
-  border-color: var(--yui-primary-light);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-light);
 }
 
 .siteMenuButton:focus-visible,
@@ -106,9 +106,9 @@
   display: inline-flex;
   align-items: center;
   justify-self: center;
-  gap: var(--yui-space-3);
-  color: var(--yui-primary);
-  font-family: var(--yui-font-sans);
+  gap: var(--yc-space-3);
+  color: var(--yc-sage-action);
+  font-family: var(--yc-font-body);
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -139,7 +139,7 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
   justify-self: end;
   min-width: 0;
 }
@@ -151,15 +151,15 @@
 // Header 搜尋表單；套用於 components/header.partial 的 #siteSearchForm。
 .siteSearchForm {
   position: absolute;
-  top: calc(100% + var(--yui-space-2));
+  top: calc(100% + var(--yc-space-2));
   right: 0;
   width: min(360px, calc(100vw - 32px));
-  gap: var(--yui-space-2);
-  padding: var(--yui-space-2);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  gap: var(--yc-space-2);
+  padding: var(--yc-space-2);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteSearchForm:not([hidden]) {
@@ -171,10 +171,10 @@
   min-width: 0;
   width: 100%;
   min-height: 44px;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  padding: 0 var(--yui-space-3);
-  color: var(--yui-text);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  padding: 0 var(--yc-space-3);
+  color: var(--yc-text);
 }
 
 // Header 搜尋建議層；套用於 components/header.partial 的 .siteSearchDropdown。
@@ -183,24 +183,24 @@
   top: calc(100% + 64px);
   right: 0;
   width: min(360px, calc(100vw - 32px));
-  padding: var(--yui-space-3);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  padding: var(--yc-space-3);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteSearchDropdownTitle,
 .siteSearchEmptyState {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
 
 .siteSearchDropdownList {
   display: grid;
-  gap: var(--yui-space-2);
-  margin: var(--yui-space-2) 0 0;
+  gap: var(--yc-space-2);
+  margin: var(--yc-space-2) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -208,17 +208,17 @@
 .siteSearchSuggestion {
   width: 100%;
   min-height: 40px;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  background: var(--yui-surface);
-  color: var(--yui-text);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-text);
   text-align: left;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
   cursor: pointer;
 }
 
 .siteSearchSuggestion:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 .siteBookingLink,
@@ -236,15 +236,15 @@
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: var(--yui-radius-lg);
-  padding: 0 var(--yui-space-4);
+  border-radius: var(--yc-radius-button);
+  padding: 0 var(--yc-space-4);
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   transition:
-    background-color var(--yui-transition-fast),
-    border-color var(--yui-transition-fast),
-    color var(--yui-transition-fast);
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast);
 }
 
 .siteBookingLink,
@@ -269,8 +269,8 @@
 .bookingPanelCheckoutLink,
 .surveyActionButton,
 .sharedConfirmSubmit {
-  background: var(--yui-primary);
-  color: var(--yui-surface);
+  background: var(--yc-sage-action);
+  color: var(--yc-surface);
 }
 
 .siteBookingLink:hover,
@@ -281,16 +281,16 @@
 .bookingPanelCheckoutLink:hover,
 .surveyActionButton:hover,
 .sharedConfirmSubmit:hover {
-  background: var(--yui-primary-hover);
-  color: var(--yui-surface);
+  background: var(--yc-sage-dark);
+  color: var(--yc-surface);
 }
 
 .sharedConfirmCancel,
 .bookingCartPanelEmptyLink,
 .bookingCartPanelClear {
-  background: var(--yui-surface);
-  border-color: var(--yui-border);
-  color: var(--yui-primary);
+  background: var(--yc-surface);
+  border-color: var(--yc-border);
+  color: var(--yc-sage-action);
 }
 
 .siteCartButton,
@@ -307,9 +307,9 @@
   height: 20px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--yui-radius-pill);
-  background: var(--yui-danger);
-  color: var(--yui-surface);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-error);
+  color: var(--yc-surface);
   font-size: 12px;
   font-weight: 800;
 }
@@ -324,13 +324,13 @@
 }
 
 .siteUserTrigger {
-  gap: var(--yui-space-2);
-  padding-inline: var(--yui-space-2);
+  gap: var(--yc-space-2);
+  padding-inline: var(--yc-space-2);
   border-color: transparent;
 }
 
 .siteUserTrigger:hover {
-  background-color: var(--yui-bg);
+  background-color: var(--yc-bg);
   border-color: transparent;
 }
 
@@ -340,24 +340,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--yui-radius-pill);
-  background: var(--yui-primary-soft);
-  color: var(--yui-primary);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
   font-weight: 800;
 }
 
 // 會員下拉選單；套用於 components/header.partial 的 .siteUserDropdown。
 .siteUserDropdown {
   position: absolute;
-  top: calc(100% + var(--yui-space-2));
+  top: calc(100% + var(--yc-space-2));
   right: 0;
   min-width: 168px;
-  gap: var(--yui-space-1);
-  padding: var(--yui-space-2);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  gap: var(--yc-space-1);
+  padding: var(--yc-space-2);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteUserDropdown:not([hidden]) {
@@ -368,30 +368,30 @@
   min-height: 40px;
   display: flex;
   align-items: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
   border: 0;
-  border-radius: var(--yui-radius-md);
+  border-radius: var(--yc-radius-control);
   background: transparent;
-  color: var(--yui-text);
+  color: var(--yc-text);
   text-decoration: none;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
   cursor: pointer;
 }
 
 .siteUserDropdownItem:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 .bookingHeaderShell {
-  background: var(--yui-booking-bg);
+  background: var(--yc-bg);
 }
 
 .bookingHeader {
-  background: var(--yui-booking-bg);
+  background: var(--yc-bg);
 }
 
 .bookingBrandSub {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
@@ -411,13 +411,13 @@
 
   .siteHeaderActions,
   .bookingHeaderActions {
-    gap: var(--yui-space-2);
+    gap: var(--yc-space-2);
   }
 }
 
 @media (width <= 480px) {
   .siteNavbarInner,
   .bookingNavbarInner {
-    gap: var(--yui-space-2);
+    gap: var(--yc-space-2);
   }
 }

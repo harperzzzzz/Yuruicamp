@@ -1,16 +1,16 @@
-// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yui-* 設計 token。
-$product-text: var(--yui-text, #333);
-$product-muted: var(--yui-text-muted, #666);
-$product-subtle: var(--yui-text-subtle, #999);
-$product-primary: var(--yui-primary, #244d4d);
-$product-primary-dark: var(--yui-primary-dark, #1a3838);
-$product-primary-soft: var(--yui-primary-soft, #e0eeee);
-$product-surface: var(--yui-surface, #fff);
-$product-surface-soft: var(--yui-surface-soft, #f6fbf6);
-$product-background-soft: var(--yui-bg-soft, #f2f2f2);
-$product-border: var(--yui-border, #e0e0e0);
-$product-accent: var(--yui-accent, #f59e0b);
-$product-danger: var(--yui-danger, #e74c3c);
+﻿// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yc-* 設計 token。
+$product-text: var(--yc-text);
+$product-muted: var(--yc-text-muted);
+$product-subtle: var(--yc-text-muted);
+$product-primary: var(--yc-sage-action);
+$product-primary-dark: var(--yc-sage-dark);
+$product-primary-soft: var(--yc-sage-soft);
+$product-surface: var(--yc-surface);
+$product-surface-soft: var(--yc-surface-soft);
+$product-background-soft: var(--yc-surface-soft);
+$product-border: var(--yc-border);
+$product-accent: var(--yc-cta);
+$product-danger: var(--yc-error);
 $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 
 // 商品頁橫幅：管理列表頁標題與說明區，不影響共用 header。
@@ -39,7 +39,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   color: $product-surface;
 }
 
-.pageBanner .breadcrumbItem.active {
+.pageBanner .breadcrumbItem.isSelected {
   color: $product-surface;
   font-weight: 800;
 }
@@ -100,13 +100,13 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   color: $product-primary;
 }
 
-.breadcrumbItem.active {
+.breadcrumbItem.isSelected {
   color: $product-text;
   font-weight: 600;
 }
 
 .adCarouselContainer {
-  background: linear-gradient(135deg, var(--yui-primary-50, #f0f7f7), var(--yui-primary-100, #e6f3f3));
+  background: linear-gradient(135deg, var(--yc-sage-soft), var(--yc-sage-soft));
   margin: 2rem 0;
   padding: 1.5rem 0;
 }
@@ -137,7 +137,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 
 .adCarouselSlide {
   align-items: center;
-  background: linear-gradient(135deg, $product-primary, var(--yui-primary-hover, #316868));
+  background: linear-gradient(135deg, $product-primary, var(--yc-sage-dark));
   color: $product-surface;
   cursor: pointer;
   display: flex;
@@ -247,19 +247,32 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .adCarouselDot {
-  background: rgb(255 255 255 / 55%);
+  background: transparent;
   border: 0;
-  border-radius: 50%;
+  border-radius: 999px;
   cursor: pointer;
   height: 10px;
   padding: 0;
-  transition: background 200ms ease, width 200ms ease;
+  position: relative;
+  transition: box-shadow var(--yc-transition-fast);
+  width: 24px;
+}
+
+.adCarouselDot::after {
+  background: rgb(255 255 255 / 55%);
+  border-radius: 50%;
+  content: '';
+  height: 10px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
   width: 10px;
 }
 
-.adCarouselDot.active {
+.adCarouselDot.isSelected::after {
   background: $product-surface;
-  border-radius: 5px;
+  border-radius: 999px;
   width: 24px;
 }
 
@@ -315,7 +328,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .productCardBrand {
-  color: var(--yui-primary-muted, #799);
+  color: var(--yc-sage-light);
   font-size: 0.7rem;
   font-weight: 600;
   height: 0.9rem;
@@ -394,14 +407,14 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .priceOriginal {
-  color: #bbb;
+  color: $product-subtle;
   flex-shrink: 0;
   font-size: 0.78rem;
   text-decoration: line-through;
 }
 
 .priceDiscount {
-  background: var(--yui-danger-soft, #fef2f2);
+  background: var(--yc-error-soft);
   border-radius: 4px;
   color: $product-danger;
   display: block;
@@ -477,7 +490,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 .filterResetBtn {
   background: none;
   border: 0;
-  color: var(--yui-primary-muted, #799);
+  color: var(--yc-sage-light);
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
@@ -489,11 +502,11 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .filterGroup {
-  margin-bottom: 1.5rem;
+  margin: 0;
 }
 
-.filterGroup:last-child {
-  margin-bottom: 0;
+.filterGroup + .filterGroup {
+  margin-top: 1.5rem;
 }
 
 .filterGroupTitle {
@@ -536,7 +549,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   color: $product-primary;
 }
 
-.filterCategoryBtn.active {
+.filterCategoryBtn.isSelected {
   background: $product-primary;
   border-color: $product-primary;
   color: $product-surface;
@@ -567,7 +580,9 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 .filterPriceInputs input[type='number']:focus,
 .productSortSelect:focus {
   border-color: $product-primary;
-  outline: none;
+  box-shadow: var(--yc-focus-ring);
+  outline: 3px solid transparent;
+  outline-offset: 2px;
 }
 
 .filterPriceSep {
@@ -650,7 +665,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   padding: 0.4rem 0.7rem;
 }
 
-.paginationBtn.active {
+.paginationBtn.isSelected {
   background: $product-primary;
   border-color: $product-primary;
   color: $product-surface;
@@ -712,7 +727,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
   z-index: 1050;
 }
 
-.filterSheet.active {
+.filterSheet.isOpen {
   transform: translateY(0);
 }
 

@@ -1,8 +1,8 @@
-// 側邊導覽元件：主站與訂位頁共用的 offcanvas 導覽列表。
+﻿// 側邊導覽元件：主站與訂位頁共用的 offcanvas 導覽列表。
 .siteOffcanvasNavigation ul,
 .bookingOffcanvasLinks {
   display: grid;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -14,16 +14,16 @@
   min-height: 44px;
   display: flex;
   align-items: center;
-  border-radius: var(--yui-radius-md);
-  color: var(--yui-text);
+  border-radius: var(--yc-radius-control);
+  color: var(--yc-text);
   font-weight: 700;
   text-decoration: none;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
 }
 
 .siteOffcanvasNavigation a:hover,
 .bookingOffcanvasLinks a:hover,
 .bookingOffcanvasLinks a.isSelected {
-  background: var(--yui-primary-soft);
-  color: var(--yui-primary);
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
 }

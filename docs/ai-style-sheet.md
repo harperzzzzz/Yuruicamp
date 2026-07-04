@@ -1,4 +1,4 @@
-# Yuruicamp AI 樣式規範
+﻿# Yuruicamp AI 樣式規範
 
 **狀態：** 草稿
 **最後更新：** 2026-06-30
@@ -8,8 +8,8 @@
 
 ## 目的
 
-這份樣式規範提供 AI 程式設計工具一份簡化、可直接實作的 Yuruicamp 視覺合約。
-它會保留目前戶外電商與露營訂房的品牌識別，同時將設計語言整理為可重複使用的設計 token、版面規則、元件類別與無障礙檢查項目。
+這份樣式規範保留為主站歷史參考文件；新的設計 token source of truth 為 `booking/booking-style-tokens.md` 的 `--yc-*` 規格。
+主站與 booking 目前統一使用 `--yc-*`，不再輸出 `--yui-*` 或 `--bk-*` 相容 alias。
 
 ## 設計方向
 
@@ -21,21 +21,7 @@
 
 ## 核心 Token
 
-| Token                 |         值 | 用途                |
-| --------------------- | --------: | ----------------- |
-| `--yui-primary`       | `#244d4d` | 頁首、主要按鈕、啟用狀態、重要標題 |
-| `--yui-primary-dark`  | `#1a3838` | 按鈕 hover、強調內容     |
-| `--yui-primary-hover` | `#316868` | Hover 背景、已選取的表格列  |
-| `--yui-primary-soft`  | `#e8f4f4` | 已選取的篩選器、柔和的面板背景   |
-| `--yui-secondary`     | `#779999` | 次要操作、低調的品牌輔助色     |
-| `--yui-bg`            | `#f6fbf6` | 主要淺色頁面背景          |
-| `--yui-surface`       | `#ffffff` | 卡片、表單、覆蓋層         |
-| `--yui-surface-muted` | `#f2f2f2` | 表單區塊、中性面板         |
-| `--yui-booking-bg`    | `#f2f0eb` | 訂房頁首與暖色面板         |
-| `--yui-gold`          | `#d4a017` | 評分、Premium 標記     |
-| `--yui-orange`        | `#e07b39` | 價格重點、警示型 CTA      |
-| `--yui-danger`        | `#d32f2f` | 錯誤、破壞性操作          |
-| `--yui-success`       | `#4caf50` | 成功與已完成狀態          |
+核心 token 已移至 `booking/booking-style-tokens.md`，本文件只保留設計語氣與元件規則。實作時使用 `--yc-*`，不要新增 `--yui-*` 或 `--bk-*`。
 
 ## 字體排版
 

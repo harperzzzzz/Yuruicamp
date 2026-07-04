@@ -839,29 +839,29 @@
       '</section>' +
       '<div class="memberDetailDivider" aria-hidden="true"></div>' +
       '<section class="memberDetailSection" aria-label="費用明細">' +
-      '<div class="memberDetailRow"><span>' +
+      '<div class="memberDetailRow"><span class="memberDetailRowLabel">' +
       subtotalLabel +
-      '</span><span>' +
+      '</span><span class="memberDetailRowValue">' +
       money(order.subtotal) +
       '</span></div>' +
       (type === 'purchase'
-        ? '<div class="memberDetailRow"><span>運費</span><span>' +
+        ? '<div class="memberDetailRow"><span class="memberDetailRowLabel">運費</span><span class="memberDetailRowValue">' +
           (shippingFee > 0 ? money(shippingFee) : '免費') +
           '</span></div>'
         : '') +
       (order.discount
-        ? '<div class="memberDetailRow memberDetailRowDanger"><span>折扣</span><span>- ' +
+        ? '<div class="memberDetailRow memberDetailRowDanger"><span class="memberDetailRowLabel">折扣</span><span class="memberDetailRowValue">- ' +
           money(order.discount) +
           '</span></div>'
         : '') +
       (order.deposit
-        ? '<div class="memberDetailRow"><span>押金</span><span>' + money(order.deposit) + '</span></div>'
+        ? '<div class="memberDetailRow"><span class="memberDetailRowLabel">押金</span><span class="memberDetailRowValue">' + money(order.deposit) + '</span></div>'
         : '') +
-      '<div class="memberDetailRow memberDetailRowTotal"><span>訂單總計</span><span>' +
+      '<div class="memberDetailRow memberDetailRowTotal"><span class="memberDetailRowLabel">訂單總計</span><span class="memberDetailRowValue">' +
       money(order.total) +
       '</span></div>' +
       (type === 'purchase'
-        ? '<div class="memberDetailRow memberDetailRowSuccess"><span>回饋點數</span><span>' +
+        ? '<div class="memberDetailRow memberDetailRowSuccess"><span class="memberDetailRowLabel">回饋點數</span><span class="memberDetailRowValue">' +
           Number(order.points || pointOf(order)).toLocaleString('zh-TW') +
           ' 點</span></div>'
         : '') +

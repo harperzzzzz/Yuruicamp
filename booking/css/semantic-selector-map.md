@@ -7,7 +7,7 @@
 | `.stepProgress` | `.bookingStepProgress` | 否 | 是 | Booking 流程進度條，避免與泛用 step 命名撞名。 |
 | `.step` | `.bookingStep` | 否 | 是 | Booking 流程步驟項目。 |
 | `.step.completed` | `.bookingStep.isCompleted` | 否 | 是 | 狀態統一改用 `is*` 命名。 |
-| `.step.active` | `.bookingStep.isSelected` | 否 | 是 | 目前步驟使用 `isSelected`。 |
+| 舊步驟選取狀態 | `.bookingStep.isSelected` | 否 | 是 | 目前步驟使用 `isSelected`。 |
 | `.breadcrumb` | `.bookingBreadcrumb` | 否 | 是 | `#breadcrumbName` 保留給 JS 更新文字。 |
 | `.tag` | `.bookingTag` | 是 | 是 | 營區、設施、推薦標籤的共用 base class。 |
 | `.tagEnv` | `.bookingTagEnv` | 是 | 是 | 環境標籤。 |
@@ -60,4 +60,4 @@
 - `.btn` 與 `.modal` 仍是主站與 booking 共用 runtime contract，不在本輪強制移除。
 - `flatpickr-*` 與 Bootstrap Icons class 是外部套件 selector，不改名。
 - `#bookingCartContent`、`#priceSummary`、`#loginNotice` 等 ID 保留作為 JS hook；CSS 已改由語意 class 承接。
-- `--yui-*` 只保留在 `settings` 作 shared widget bridge；`--bk-*` 只保留在 `settings` 作 deprecated compatibility alias。
+- `--yc-*` 是唯一 runtime token source；不再新增 `--yui-*` 或 `--bk-*` alias。

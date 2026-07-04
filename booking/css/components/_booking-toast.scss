@@ -1,4 +1,4 @@
-/* Booking Toast：全域浮動通知容器，供 booking-utils.js 動態插入訊息。 */
+﻿/* Booking Toast：全域浮動通知容器，供 booking-utils.js 動態插入訊息。 */
 .bookingToastContainer {
   position: fixed;
   top: 1.25rem;
@@ -24,7 +24,7 @@
   font-size: 0.9rem;
   line-height: 1.45;
   pointer-events: all;
-  animation: bk-toast-in 0.28s ease;
+  animation: booking-toast-enter 0.28s ease;
   transition:
     opacity 0.28s ease,
     transform 0.28s ease;
@@ -112,7 +112,7 @@
 }
 
 /* Toast 進場動畫：從右側滑入並淡入。 */
-@keyframes bk-toast-in {
+@keyframes booking-toast-enter {
   from {
     opacity: 0;
     transform: translateX(110%);

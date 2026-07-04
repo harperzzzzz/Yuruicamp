@@ -2,7 +2,7 @@
 /* --------------------------------------------------------------
 >>> BOOKING ITCSS TABLE OF CONTENTS
 ----------------------------------------------------------------
-# Settings：booking 設計 token 與相容 alias
+# Settings：booking 設計 token
 # Generic：reset 與低權重動態基底
 # Elements：HTML 元素基礎樣式
 # Objects：共用版面與 grid 結構
@@ -33,14 +33,18 @@
   --yc-text: #3e473d;
   --yc-text-secondary: #625e56;
   --yc-text-muted: #7b756d;
+  --yc-on-dark: #fffdf9;
+  --yc-on-dark-muted: rgb(255 253 249 / 76%);
   /* Status */
   --yc-success: #73816e;
-  --yc-success-soft: #eef2ec;
+  --yc-success-soft: #e7efe3;
+  --yc-success-text: #4f624a;
   --yc-warning: #9a7455;
   --yc-warning-soft: #f4ece2;
   --yc-warning-text: #6b4d32;
   --yc-error: #a65f58;
   --yc-error-soft: #f4e7e4;
+  --yc-error-text: #8a4842;
   /* Tag / Status：booking 標籤與訂單狀態共用 token，集中於 settings 供元件消費。 */
   --yc-gold-soft: var(--yc-cta-soft);
   --yc-gold-line: var(--yc-cta-line);
@@ -50,12 +54,11 @@
   --yc-neutral-soft: #f4f0e8;
   --yc-neutral-line: var(--yc-border);
   --yc-neutral-text: var(--yc-text-secondary);
-  --yc-tag-success-soft: #e7efe3;
-  --yc-success-text: #4f624a;
+  --yc-tag-success-soft: var(--yc-success-soft);
   --yc-danger-soft: var(--yc-error-soft);
   --yc-danger-line: #d4a29d;
   --yc-danger: #b8645d;
-  --yc-danger-text: #8a4842;
+  --yc-danger-text: var(--yc-error-text);
   --yc-return-soft: #f3ece7;
   --yc-return-line: #cdaa9c;
   --yc-return-text: #7a4d40;
@@ -64,13 +67,14 @@
   --yc-tag-height: 30px;
   --yc-chip-height: 40px;
   --yc-tag-gap: 8px;
-  --yc-transition: 180ms ease;
   /* Header / Footer */
-  --yc-header-bg: #73816e;
+  --yc-header-bg: var(--yc-sage-action);
+  --yc-header-bg-solid: var(--yc-sage-dark);
+  --yc-header-border: rgb(255 253 249 / 14%);
   --yc-footer-bg: #71806d;
-  --yc-footer-bottom: #62705d;
-  --yc-on-dark: #fffdf9;
-  --yc-on-dark-muted: rgb(255 253 249 / 76%);
+  --yc-footer-bottom: var(--yc-sage-dark);
+  --yc-header-height: 64px;
+  --yc-sticky-offset: 90px;
   /* External Brand / Contact */
   --yc-brand-google-surface: #fff;
   --yc-brand-google-border: #dadce0;
@@ -80,101 +84,75 @@
   --yc-brand-on-color: #fff;
   --yc-floating-line: #5f9407;
   --yc-floating-line-hover: #578804;
+  /* Layout */
+  --yc-container-sm: 900px;
+  --yc-container-md: 1100px;
+  --yc-container-lg: 1200px;
+  --yc-container-page: min(1200px, calc(100vw - 48px));
+  /* Typography */
+  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
+  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', system-ui, sans-serif;
+  --yc-font-ui: var(--yc-font-body);
+  --yc-font-mono: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
+  --yc-text-xs: 0.75rem;
+  --yc-text-sm: 0.875rem;
+  --yc-text-md: 1rem;
+  --yc-text-lg: 1.125rem;
+  --yc-text-xl: 1.25rem;
+  --yc-text-2xl: 1.5rem;
+  --yc-text-3xl: 1.875rem;
+  --yc-text-4xl: 2.25rem;
+  /* Spacing */
+  --yc-space-1: 4px;
+  --yc-space-2: 8px;
+  --yc-space-3: 12px;
+  --yc-space-4: 16px;
+  --yc-space-5: 20px;
+  --yc-space-6: 24px;
+  --yc-space-8: 32px;
+  --yc-space-10: 40px;
+  --yc-space-12: 48px;
+  --yc-space-16: 64px;
+  --yc-space-24: 96px;
   /* Shadow */
   --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
   --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
   --yc-shadow-cta: 0 8px 22px rgb(129 111 54 / 14%);
+  --yc-shadow-modal: 0 24px 60px rgb(0 0 0 / 22%);
   /* Radius */
   --yc-radius-sm: 10px;
   --yc-radius-control: 12px;
   --yc-radius-button: 12px;
   --yc-radius-card: 19px;
   --yc-radius-section: 24px;
-  --yc-radius-pill: 999px;
-  /* Typography */
-  --yc-font-global: 'Noto Serif TC', 'Source Han Serif TC', serif;
-  --yc-font-heading: 'Noto Serif TC', 'Source Han Serif TC', serif;
-  --yc-font-body: 'Noto Sans TC', 'Source Han Sans TC', sans-serif;
+  --yc-radius-modal: 8px;
+  --yc-radius-pill: 9999px;
   /* Motion */
+  --yc-duration-instant: 80ms;
   --yc-duration-fast: 180ms;
   --yc-duration-normal: 220ms;
+  --yc-duration-slow: 320ms;
   --yc-ease-soft: cubic-bezier(0.2, 0.7, 0.2, 1);
-  /* yui-* 共用樣式 alias：讓主站 widgets 可在 booking runtime 直接重用。 */
-  --yui-primary: var(--yc-sage-action);
-  --yui-primary-dark: var(--yc-sage-dark);
-  --yui-primary-hover: var(--yc-sage-dark);
-  --yui-primary-light: var(--yc-sage-light);
-  --yui-primary-soft: var(--yc-sage-soft);
-  --yui-secondary: var(--yc-sage-light);
-  --yui-secondary-light: var(--yc-sage-light);
-  --yui-bg: var(--yc-bg);
-  --yui-surface: var(--yc-surface);
-  --yui-surface-muted: var(--yc-surface-soft);
-  --yui-booking-bg: var(--yc-bg);
-  --yui-text: var(--yc-text);
-  --yui-text-muted: var(--yc-text-muted);
-  --yui-text-subtle: var(--yc-text-muted);
-  --yui-border: var(--yc-border);
-  --yui-border-strong: var(--yc-sage-action);
-  --yui-success: var(--yc-success);
-  --yui-warning: var(--yc-warning);
-  --yui-danger: var(--yc-error);
-  --yui-info: var(--yc-sage-action);
-  --yui-gold: var(--yc-cta);
-  --yui-orange: var(--yc-warning);
-  --yui-font-sans: var(--yc-font-body);
-  --yui-font-mono: sfmono-regular, menlo, monaco, consolas, 'Liberation Mono', 'Courier New', monospace;
-  --yui-space-1: 4px;
-  --yui-space-2: 8px;
-  --yui-space-3: 12px;
-  --yui-space-4: 16px;
-  --yui-space-5: 20px;
-  --yui-space-6: 24px;
-  --yui-space-8: 32px;
-  --yui-space-10: 40px;
-  --yui-space-12: 48px;
-  --yui-space-16: 64px;
-  --yui-radius-sm: var(--yc-radius-sm);
-  --yui-radius-md: var(--yc-radius-control);
-  --yui-radius-lg: var(--yc-radius-button);
-  --yui-radius-xl: var(--yc-radius-card);
-  --yui-radius-pill: var(--yc-radius-pill);
-  --yui-shadow-sm: var(--yc-shadow-soft);
-  --yui-shadow-md: var(--yc-shadow-soft);
-  --yui-shadow-lg: var(--yc-shadow-hover);
-  --yui-transition-fast: var(--yc-duration-fast) var(--yc-ease-soft);
-  --yui-transition-base: var(--yc-duration-normal) var(--yc-ease-soft);
-  --yui-z-dropdown: 1000;
-  --yui-z-sticky: 1020;
-  --yui-z-fixed: 1030;
-  --yui-z-modal-backdrop: 2990;
-  --yui-z-modal: 3000;
-  --yui-z-tooltip: 3100;
-  /* yui-* / bk-* compatibility only: do not use in new booking SCSS. */
-  --bk-primary: var(--yc-sage-action);
-  --bk-primary-hover: var(--yc-sage-action);
-  --bk-primary-light: var(--yc-sage-soft);
-  --bk-on-dark: var(--yc-on-dark);
-  --bk-cta: var(--yc-cta);
-  --bk-cta-hover: var(--yc-cta-hover);
-  --bk-white: var(--yc-surface);
-  --bk-bg: var(--yc-bg);
-  --bk-card-bg: var(--yc-surface);
-  --bk-border: var(--yc-border);
-  --bk-border-strong: var(--yc-sage-action);
-  --bk-text: var(--yc-text);
-  --bk-text-muted: var(--yc-text-muted);
-  --bk-accent: var(--yc-sage-action);
-  --bk-gold: var(--yc-on-cta);
-  --bk-sage: var(--yc-sage-light);
-  --bk-orange: var(--yc-warning);
-  --bk-success: var(--yc-success);
-  --bk-danger: var(--yc-error);
-  --bk-shadow: var(--yc-shadow-soft);
-  --bk-shadow-hover: var(--yc-shadow-hover);
-  --bk-radius: var(--yc-radius-card);
-  --bk-radius-sm: var(--yc-radius-control);
-  --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+  --yc-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --yc-transition: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yc-transition-fast: var(--yc-duration-fast) var(--yc-ease-soft);
+  --yc-transition-base: var(--yc-duration-normal) var(--yc-ease-soft);
+  --yc-target-min: 44px;
+  --yc-icon-button-size: 44px;
+  --yc-control-height-md: 44px;
+  --yc-focus-ring: 0 0 0 3px rgb(115 129 110 / 24%);
+  --yc-focus-ring-strong: 0 0 0 4px rgb(115 129 110 / 30%);
+  /* Z-index */
+  --yc-z-base: 0;
+  --yc-z-raised: 1;
+  --yc-z-sticky: 10;
+  --yc-z-header: 20;
+  --yc-z-dropdown: 30;
+  --yc-z-overlay: 40;
+  --yc-z-modal: 50;
+  --yc-z-toast: 60;
+  /* Legacy Layout Constants */
   --font-main: var(--yc-font-heading, 'Noto Serif TC', serif);
   --header-height: 70px;
   --container-wide: min(1180px, 90%);
@@ -583,7 +561,8 @@ main {
 
 .ycFilterChip:focus-visible,
 .ycSurveyChip:focus-visible {
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-sage-action) 22%, transparent);
 }
 
@@ -831,15 +810,17 @@ main {
   background: var(--yc-surface);
   color: var(--yc-text);
   font-size: 0.95rem;
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   transition: border-color 0.2s;
 }
 
 .formControl:focus {
   border-color: var(--yc-sage-action);
+  box-shadow: var(--yc-focus-ring);
 }
 
-/* Booking Button：預訂流程共用按鈕基底，維持舊有 .btn 與 btnPrimary 命名相容。 */
+/* Booking Button：預訂流程共用按鈕基底。 */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -852,27 +833,24 @@ main {
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: all var(--yc-duration-normal) var(--yc-ease-soft);
+  transition: background-color var(--yc-duration-normal) var(--yc-ease-soft), border-color var(--yc-duration-normal) var(--yc-ease-soft), color var(--yc-duration-normal) var(--yc-ease-soft), box-shadow var(--yc-duration-normal) var(--yc-ease-soft);
   line-height: 1.4;
   white-space: nowrap;
 }
 
 /* Booking Button：主要 CTA 按鈕，用於下一步、加入與確認等高優先行動。 */
-.btnPrimary,
 .btnPrimary {
   background: var(--yc-cta);
   color: var(--yc-on-cta);
   border-color: var(--yc-cta);
 }
 
-.btnPrimary:hover,
 .btnPrimary:hover {
   background: var(--yc-cta-hover);
   border-color: var(--yc-cta-hover);
   color: var(--yc-on-cta);
 }
 
-.btnPrimary:active,
 .btnPrimary:active {
   background: var(--yc-cta-hover);
   border-color: var(--yc-cta-hover);
@@ -880,14 +858,12 @@ main {
 }
 
 /* Booking Button：柔和外框按鈕，保留轉換色系但降低視覺權重。 */
-.btnOutline,
 .btnOutline {
   background: var(--yc-cta-soft);
   color: var(--yc-on-cta);
   border-color: var(--yc-cta-line);
 }
 
-.btnOutline:hover,
 .btnOutline:hover {
   background: var(--yc-cta);
   color: var(--yc-on-cta);
@@ -895,7 +871,6 @@ main {
 }
 
 /* Booking Button：滿版按鈕修飾，常用於表單與抽屜底部操作。 */
-.btnFull,
 .btnFull {
   width: 100%;
 }
@@ -1076,14 +1051,13 @@ main {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--yc-bg);
   font-size: 0.9rem;
   color: var(--yc-text);
 }
 
-/* Booking Summary：最後一列不顯示分隔線。 */
-.bookingSummaryRow:last-child {
-  border-bottom: none;
+/* Booking Summary：後續列用上邊線分隔，避免依賴最後一列結構。 */
+.bookingSummaryRow + .bookingSummaryRow {
+  border-top: 1px solid var(--yc-bg);
 }
 
 /* Booking Summary：明細補充資訊列，降低視覺權重。 */
@@ -1344,7 +1318,7 @@ main {
 .bookingHeaderMount {
   position: sticky;
   top: 0;
-  z-index: var(--yui-z-sticky);
+  z-index: var(--yc-z-sticky);
 }
 
 .isHeaderLayerOpen,
@@ -1355,9 +1329,9 @@ main {
 .siteHeader,
 .bookingHeader {
   position: relative;
-  background: var(--yui-surface);
-  border-bottom: 1px solid var(--yui-border);
-  color: var(--yui-text);
+  background: var(--yc-surface);
+  border-bottom: 1px solid var(--yc-border);
+  color: var(--yc-text);
 }
 
 .siteNavbar,
@@ -1373,7 +1347,7 @@ main {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 .siteMenuButton,
@@ -1392,12 +1366,12 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  background: var(--yui-surface);
-  color: var(--yui-primary);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
   cursor: pointer;
-  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), box-shadow var(--yui-transition-fast);
+  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast), box-shadow var(--yc-transition-fast);
 }
 
 .siteMenuButton:hover,
@@ -1411,8 +1385,8 @@ main {
 .bookingCartButton:hover,
 .bookingOffcanvasClose:hover,
 .bookingSlidePanelClose:hover {
-  background: var(--yui-primary-soft);
-  border-color: var(--yui-primary-light);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-light);
 }
 
 .siteMenuButton:focus-visible,
@@ -1440,9 +1414,9 @@ main {
   display: inline-flex;
   align-items: center;
   justify-self: center;
-  gap: var(--yui-space-3);
-  color: var(--yui-primary);
-  font-family: var(--yui-font-sans);
+  gap: var(--yc-space-3);
+  color: var(--yc-sage-action);
+  font-family: var(--yc-font-body);
   font-weight: 800;
   text-decoration: none;
   white-space: nowrap;
@@ -1471,7 +1445,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
   justify-self: end;
   min-width: 0;
 }
@@ -1482,15 +1456,15 @@ main {
 
 .siteSearchForm {
   position: absolute;
-  top: calc(100% + var(--yui-space-2));
+  top: calc(100% + var(--yc-space-2));
   right: 0;
   width: min(360px, 100vw - 32px);
-  gap: var(--yui-space-2);
-  padding: var(--yui-space-2);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  gap: var(--yc-space-2);
+  padding: var(--yc-space-2);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteSearchForm:not([hidden]) {
@@ -1501,10 +1475,10 @@ main {
   min-width: 0;
   width: 100%;
   min-height: 44px;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  padding: 0 var(--yui-space-3);
-  color: var(--yui-text);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  padding: 0 var(--yc-space-3);
+  color: var(--yc-text);
 }
 
 .siteSearchDropdown {
@@ -1512,24 +1486,24 @@ main {
   top: calc(100% + 64px);
   right: 0;
   width: min(360px, 100vw - 32px);
-  padding: var(--yui-space-3);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  padding: var(--yc-space-3);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteSearchDropdownTitle,
 .siteSearchEmptyState {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
 
 .siteSearchDropdownList {
   display: grid;
-  gap: var(--yui-space-2);
-  margin: var(--yui-space-2) 0 0;
+  gap: var(--yc-space-2);
+  margin: var(--yc-space-2) 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1537,17 +1511,17 @@ main {
 .siteSearchSuggestion {
   width: 100%;
   min-height: 40px;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  background: var(--yui-surface);
-  color: var(--yui-text);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-text);
   text-align: left;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
   cursor: pointer;
 }
 
 .siteSearchSuggestion:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 .siteBookingLink,
@@ -1565,12 +1539,12 @@ main {
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: var(--yui-radius-lg);
-  padding: 0 var(--yui-space-4);
+  border-radius: var(--yc-radius-button);
+  padding: 0 var(--yc-space-4);
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast);
+  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast);
 }
 
 .siteBookingLink,
@@ -1595,8 +1569,8 @@ main {
 .bookingPanelCheckoutLink,
 .surveyActionButton,
 .sharedConfirmSubmit {
-  background: var(--yui-primary);
-  color: var(--yui-surface);
+  background: var(--yc-sage-action);
+  color: var(--yc-surface);
 }
 
 .siteBookingLink:hover,
@@ -1607,16 +1581,16 @@ main {
 .bookingPanelCheckoutLink:hover,
 .surveyActionButton:hover,
 .sharedConfirmSubmit:hover {
-  background: var(--yui-primary-hover);
-  color: var(--yui-surface);
+  background: var(--yc-sage-dark);
+  color: var(--yc-surface);
 }
 
 .sharedConfirmCancel,
 .bookingCartPanelEmptyLink,
 .bookingCartPanelClear {
-  background: var(--yui-surface);
-  border-color: var(--yui-border);
-  color: var(--yui-primary);
+  background: var(--yc-surface);
+  border-color: var(--yc-border);
+  color: var(--yc-sage-action);
 }
 
 .siteCartButton,
@@ -1633,9 +1607,9 @@ main {
   height: 20px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--yui-radius-pill);
-  background: var(--yui-danger);
-  color: var(--yui-surface);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-error);
+  color: var(--yc-surface);
   font-size: 12px;
   font-weight: 800;
 }
@@ -1650,13 +1624,13 @@ main {
 }
 
 .siteUserTrigger {
-  gap: var(--yui-space-2);
-  padding-inline: var(--yui-space-2);
+  gap: var(--yc-space-2);
+  padding-inline: var(--yc-space-2);
   border-color: transparent;
 }
 
 .siteUserTrigger:hover {
-  background-color: var(--yui-bg);
+  background-color: var(--yc-bg);
   border-color: transparent;
 }
 
@@ -1666,23 +1640,23 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--yui-radius-pill);
-  background: var(--yui-primary-soft);
-  color: var(--yui-primary);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
   font-weight: 800;
 }
 
 .siteUserDropdown {
   position: absolute;
-  top: calc(100% + var(--yui-space-2));
+  top: calc(100% + var(--yc-space-2));
   right: 0;
   min-width: 168px;
-  gap: var(--yui-space-1);
-  padding: var(--yui-space-2);
-  background: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-md);
+  gap: var(--yc-space-1);
+  padding: var(--yc-space-2);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .siteUserDropdown:not([hidden]) {
@@ -1693,30 +1667,30 @@ main {
   min-height: 40px;
   display: flex;
   align-items: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
   border: 0;
-  border-radius: var(--yui-radius-md);
+  border-radius: var(--yc-radius-control);
   background: transparent;
-  color: var(--yui-text);
+  color: var(--yc-text);
   text-decoration: none;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
   cursor: pointer;
 }
 
 .siteUserDropdownItem:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 .bookingHeaderShell {
-  background: var(--yui-booking-bg);
+  background: var(--yc-bg);
 }
 
 .bookingHeader {
-  background: var(--yui-booking-bg);
+  background: var(--yc-bg);
 }
 
 .bookingBrandSub {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
   font-weight: 700;
 }
@@ -1734,13 +1708,13 @@ main {
   }
   .siteHeaderActions,
   .bookingHeaderActions {
-    gap: var(--yui-space-2);
+    gap: var(--yc-space-2);
   }
 }
 @media (width <= 480px) {
   .siteNavbarInner,
   .bookingNavbarInner {
-    gap: var(--yui-space-2);
+    gap: var(--yc-space-2);
   }
 }
 /* Booking Header 差異：booking shell 使用預約系統背景，內容仍由 bookingHeader partial 顯示。 */
@@ -2003,11 +1977,11 @@ main {
   position: fixed;
   top: 0;
   bottom: 0;
-  z-index: var(--yui-z-modal);
+  z-index: var(--yc-z-modal);
   width: min(420px, 100vw);
-  background: var(--yui-surface);
-  box-shadow: var(--yui-shadow-lg);
-  transition: transform var(--yui-transition-base);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-hover);
+  transition: transform var(--yc-transition-base);
 }
 
 .siteOffcanvas,
@@ -2035,10 +2009,10 @@ main {
 .bookingPanelBackdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--yui-z-modal-backdrop);
+  z-index: var(--yc-z-overlay);
   background: rgba(0, 0, 0, 0.45);
   opacity: 0;
-  transition: opacity var(--yui-transition-base);
+  transition: opacity var(--yc-transition-base);
 }
 
 .siteOffcanvasBackdrop.isVisible,
@@ -2056,9 +2030,9 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--yui-space-3);
-  padding: var(--yui-space-4);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .siteOffcanvasTitle,
@@ -2066,7 +2040,7 @@ main {
 .bookingOffcanvasTitle,
 .bookingSlidePanelTitle {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 20px;
   font-weight: 800;
 }
@@ -2077,7 +2051,7 @@ main {
 .bookingSlidePanelBody {
   height: calc(100% - 72px);
   overflow: auto;
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2095,7 +2069,7 @@ main {
 .siteOffcanvasNavigation ul,
 .bookingOffcanvasLinks {
   display: grid;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2106,18 +2080,18 @@ main {
   min-height: 44px;
   display: flex;
   align-items: center;
-  border-radius: var(--yui-radius-md);
-  color: var(--yui-text);
+  border-radius: var(--yc-radius-control);
+  color: var(--yc-text);
   font-weight: 700;
   text-decoration: none;
-  padding: 0 var(--yui-space-3);
+  padding: 0 var(--yc-space-3);
 }
 
 .siteOffcanvasNavigation a:hover,
 .bookingOffcanvasLinks a:hover,
 .bookingOffcanvasLinks a.isSelected {
-  background: var(--yui-primary-soft);
-  color: var(--yui-primary);
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
 }
 
 .siteCartDrawer {
@@ -2131,9 +2105,9 @@ main {
 
 .siteCartDrawerFooter,
 .bookingSlidePanelFooter {
-  padding: var(--yui-space-4);
-  border-top: 1px solid var(--yui-border);
-  background: var(--yui-surface);
+  padding: var(--yc-space-4);
+  border-top: 1px solid var(--yc-border);
+  background: var(--yc-surface);
 }
 
 .siteCartSummary,
@@ -2142,20 +2116,20 @@ main {
 .bookingCartPanelTotal {
   display: flex;
   justify-content: space-between;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 .siteCartSummary {
-  color: var(--yui-text-muted);
-  margin-bottom: var(--yui-space-2);
+  color: var(--yc-text-muted);
+  margin-bottom: var(--yc-space-2);
 }
 
 .siteCartSummaryTotal,
 .bookingCartPanelTotal {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 18px;
   font-weight: 800;
-  margin-block: var(--yui-space-3);
+  margin-block: var(--yc-space-3);
 }
 
 .siteCartCheckoutLink,
@@ -2167,56 +2141,56 @@ main {
 .bookingCartPanelEmpty {
   display: grid;
   justify-items: center;
-  gap: var(--yui-space-3);
-  padding: var(--yui-space-10) var(--yui-space-4);
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-10) var(--yc-space-4);
   text-align: center;
 }
 
 .siteCartEmptyIcon {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 40px;
 }
 
 .siteCartEmptyTitle {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 20px;
 }
 
 .siteCartEmptyText {
   margin: 0;
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
 }
 
 .siteCartItem {
   display: grid;
   grid-template-columns: 88px 1fr;
-  gap: var(--yui-space-3);
-  padding-block: var(--yui-space-4);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-3);
+  padding-block: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .siteCartItemImage {
   width: 88px;
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: var(--yui-radius-lg);
+  border-radius: var(--yc-radius-button);
 }
 
 .siteCartItemContent {
   min-width: 0;
   display: grid;
-  gap: var(--yui-space-1);
+  gap: var(--yc-space-1);
 }
 
 .siteCartItemBrand,
 .siteCartItemPrice {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 13px;
 }
 
 .siteCartItemName {
-  color: var(--yui-text);
+  color: var(--yc-text);
   font-weight: 800;
   text-decoration: none;
 }
@@ -2225,7 +2199,7 @@ main {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .siteCartQuantityDecrease,
@@ -2236,10 +2210,10 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  background: var(--yui-surface);
-  color: var(--yui-primary);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
   cursor: pointer;
 }
 
@@ -2269,20 +2243,20 @@ main {
 
 .bookingCartPanelSection {
   display: grid;
-  gap: var(--yui-space-2);
-  padding-block: var(--yui-space-3);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-2);
+  padding-block: var(--yc-space-3);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .bookingCartPanelLabel {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 16px;
 }
 
 .bookingCartPanelMeta {
   margin: 0;
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
 }
 
@@ -2327,42 +2301,42 @@ main {
 /* Booking Footer：載入主站 footer 共用骨架，booking 只保留品牌色差異。 */
 .siteFooter,
 .bookingFooter {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooter {
-  background: var(--yui-primary-dark);
+  background: var(--yc-sage-dark);
 }
 
 .bookingFooter {
-  background: var(--yui-primary);
+  background: var(--yc-sage-action);
 }
 
 .siteFooterInner,
 .bookingFooterInner {
   width: min(1120px, 100vw - 32px);
   margin-inline: auto;
-  padding-block: var(--yui-space-12) var(--yui-space-6);
+  padding-block: var(--yc-space-12) var(--yc-space-6);
 }
 
 .siteFooterGrid,
 .bookingFooterGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--yui-space-8);
+  gap: var(--yc-space-8);
 }
 
 .siteFooterSection,
 .bookingFooterSection {
   display: grid;
   align-content: start;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
 }
 
 .siteFooterTitle,
 .bookingFooterHeading {
   margin: 0;
-  color: var(--yui-surface);
+  color: var(--yc-surface);
   font-size: 18px;
   font-weight: 800;
 }
@@ -2370,7 +2344,7 @@ main {
 .siteFooterText,
 .bookingFooterText {
   margin: 0;
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   line-height: 1.8;
 }
 
@@ -2390,21 +2364,21 @@ main {
 .siteFooterLinks,
 .bookingFooterLinks {
   display: grid;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .siteFooterLink,
 .bookingFooterLinks a,
 .bookingFooterPolicies a {
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   text-decoration: none;
-  transition: color var(--yui-transition-fast);
+  transition: color var(--yc-transition-fast);
 }
 
 .siteFooterLink:hover,
 .bookingFooterLinks a:hover,
 .bookingFooterPolicies a:hover {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooterLink:focus-visible,
@@ -2412,20 +2386,20 @@ main {
 .bookingFooterPolicies a:focus-visible,
 .siteFooterSocialLink:focus-visible,
 .bookingFooterSocialLinks a:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--yui-surface) 35%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--yc-surface) 35%, transparent);
   outline-offset: 3px;
 }
 
 .siteFooterContactItem,
 .bookingFooterContactItem {
   display: grid;
-  gap: var(--yui-space-1);
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  gap: var(--yc-space-1);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
 }
 
 .siteFooterContactItem strong,
 .bookingFooterContactItem strong {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
   font-weight: 700;
 }
 
@@ -2433,7 +2407,7 @@ main {
 .bookingFooterSocialLinks {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .siteFooterSocialLink,
@@ -2443,24 +2417,24 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--yui-surface) 18%, transparent);
-  border-radius: var(--yui-radius-lg);
-  background: color-mix(in srgb, var(--yui-surface) 10%, transparent);
-  color: var(--yui-surface);
+  border: 1px solid color-mix(in srgb, var(--yc-surface) 18%, transparent);
+  border-radius: var(--yc-radius-button);
+  background: color-mix(in srgb, var(--yc-surface) 10%, transparent);
+  color: var(--yc-surface);
   text-decoration: none;
-  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast);
+  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast);
 }
 
 .siteFooterSocialLink:hover,
 .bookingFooterSocialLinks a:hover {
-  background: color-mix(in srgb, var(--yui-surface) 18%, transparent);
-  border-color: color-mix(in srgb, var(--yui-surface) 42%, transparent);
+  background: color-mix(in srgb, var(--yc-surface) 18%, transparent);
+  border-color: color-mix(in srgb, var(--yc-surface) 42%, transparent);
 }
 
 .siteFooterDivider {
   height: 1px;
-  margin-block: var(--yui-space-8) var(--yui-space-5);
-  background: color-mix(in srgb, var(--yui-surface) 18%, transparent);
+  margin-block: var(--yc-space-8) var(--yc-space-5);
+  background: color-mix(in srgb, var(--yc-surface) 18%, transparent);
 }
 
 .siteFooterBottom,
@@ -2468,8 +2442,8 @@ main {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: var(--yui-space-4);
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  gap: var(--yc-space-4);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   font-size: 14px;
 }
 
@@ -2485,29 +2459,29 @@ main {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
 }
 
 .siteFooterPaymentMethods,
 .bookingFooterPaymentMethods {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooterPaymentMethods li,
 .bookingFooterPaymentMethods li {
   display: inline-flex;
   align-items: center;
-  gap: var(--yui-space-1);
+  gap: var(--yc-space-1);
 }
 
 .bookingFooterInner {
-  padding-block: var(--yui-space-10) var(--yui-space-6);
+  padding-block: var(--yc-space-10) var(--yc-space-6);
 }
 
 .bookingFooterBottom {
-  margin-top: var(--yui-space-8);
-  padding-top: var(--yui-space-5);
-  border-top: 1px solid color-mix(in srgb, var(--yui-surface) 18%, transparent);
+  margin-top: var(--yc-space-8);
+  padding-top: var(--yc-space-5);
+  border-top: 1px solid color-mix(in srgb, var(--yc-surface) 18%, transparent);
 }
 
 @media (width <= 1024px) {
@@ -2524,12 +2498,12 @@ main {
   .siteFooterInner,
   .bookingFooterInner {
     width: min(100% - 24px, 1120px);
-    padding-block: var(--yui-space-8) var(--yui-space-5);
+    padding-block: var(--yc-space-8) var(--yc-space-5);
   }
   .siteFooterGrid,
   .bookingFooterGrid {
     grid-template-columns: 1fr;
-    gap: var(--yui-space-6);
+    gap: var(--yc-space-6);
   }
 }
 /* Booking Footer 差異：預約頁尾使用 booking footer token，不影響主站 footer 內容。 */
@@ -2563,7 +2537,7 @@ main {
   font-size: 0.9rem;
   line-height: 1.45;
   pointer-events: all;
-  animation: bk-toast-in 0.28s ease;
+  animation: booking-toast-enter 0.28s ease;
   transition: opacity 0.28s ease, transform 0.28s ease;
 }
 
@@ -2649,7 +2623,7 @@ main {
 }
 
 /* Toast 進場動畫：從右側滑入並淡入。 */
-@keyframes bk-toast-in {
+@keyframes booking-toast-enter {
   from {
     opacity: 0;
     transform: translateX(110%);
@@ -2797,7 +2771,8 @@ main {
   appearance: none;
   margin: 0;
   padding: 0;
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
 }
 
 .priceRangeThumbMin {
@@ -2879,7 +2854,8 @@ main {
   background: color-mix(in srgb, var(--yc-on-dark) 15%, transparent);
   color: var(--yc-on-dark);
   font-size: 0.95rem;
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   transition: var(--yc-transition);
 }
 
@@ -2891,6 +2867,7 @@ main {
 .searchBarSelect:focus {
   border-color: var(--yc-on-dark);
   background: color-mix(in srgb, var(--yc-on-dark) 25%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-on-dark) 24%, transparent);
 }
 
 .searchBarSelect option {
@@ -3134,12 +3111,13 @@ main {
   margin-top: 0.75rem;
 }
 
-.dateSummary > div {
+.dateSummaryTotalRow,
+.dateSummaryBreakdownRow {
   display: flex;
   justify-content: space-between;
 }
 
-.dateSummary > div:first-child {
+.dateSummaryTotalRow {
   align-items: center;
   margin-bottom: 0.3rem;
 }
@@ -3204,7 +3182,7 @@ main {
   transition: transform 0.3s ease;
 }
 
-.galleryImg:first-child {
+.galleryImgHero {
   grid-column: 1/-1;
   aspect-ratio: 16/7;
 }
@@ -3319,12 +3297,11 @@ main {
 
 .zoneTable td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--yc-border);
   color: var(--yc-text);
 }
 
-.zoneTable tr:last-child td {
-  border-bottom: none;
+.zoneTable tr + tr td {
+  border-top: 1px solid var(--yc-border);
 }
 
 .zoneTable tr:hover td {
@@ -3335,7 +3312,7 @@ main {
   .campGallery {
     grid-template-columns: 1fr;
   }
-  .campGallery img:not(:first-child) {
+  .galleryImg:not(.galleryImgHero) {
     display: none;
   }
   .zoneTableSection {
@@ -3731,15 +3708,20 @@ main {
   line-height: 1.6;
 }
 
-.rgStepCard:not(:last-child)::after {
+.rgStepCard::before {
   content: ">";
+  display: none;
   position: absolute;
-  right: -1rem;
+  left: -1rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1.5rem;
   color: var(--yc-border);
   z-index: 1;
+}
+
+.rgStepCard + .rgStepCard::before {
+  display: block;
 }
 
 .rgEquipGrid {
@@ -3943,12 +3925,11 @@ main {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--yc-border);
   gap: 1rem;
 }
 
-.cartItemBooking:last-child {
-  border-bottom: none;
+.cartItemBooking + .cartItemBooking {
+  border-top: 1px solid var(--yc-border);
 }
 
 .cartItemInfoBooking {
@@ -4166,21 +4147,21 @@ main {
   text-decoration: none;
 }
 
-.cartSummaryCardBooking > div:last-child {
+.cartSummaryNoticeBooking {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
-.cartSummaryCardBooking > div:last-child p {
+.cartSummaryNoticeLine {
   font-size: 0.75rem;
   color: var(--yc-text-muted);
   margin: 0;
 }
 
-.cartSummaryCardBooking > div:last-child p:first-child {
-  margin-bottom: 0.25rem;
+.cartSummaryNoticeLine + .cartSummaryNoticeLine {
+  margin-top: 0.25rem;
 }
 
 .bookingCheckoutPage {
@@ -4355,7 +4336,8 @@ main {
   font-size: 0.9rem;
   color: var(--yc-text);
   background: var(--yc-surface);
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   box-sizing: border-box;
   transition: border-color 0.2s;
   font-family: inherit;
@@ -4364,6 +4346,7 @@ main {
 
 .ccInput:focus {
   border-color: var(--yc-sage-action);
+  box-shadow: var(--yc-focus-ring);
 }
 
 .formControl.isInvalid,
@@ -4372,11 +4355,11 @@ main {
 }
 
 .ccField {
-  margin-bottom: 0.75rem;
+  margin: 0;
 }
 
-.ccField:last-child {
-  margin-bottom: 0;
+.ccField + .ccField {
+  margin-top: 0.75rem;
 }
 
 .ccRow {
@@ -4479,21 +4462,21 @@ main {
   margin-bottom: 0;
 }
 
-.summaryCardBooking > .costTotal + div {
+.summarySecurityNoteBooking {
   padding-top: 1rem;
   margin-top: 1rem;
   border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
-.summaryCardBooking > .costTotal + div p {
+.summarySecurityNoteLine {
   color: var(--yc-text-muted);
   font-size: 0.75rem;
   margin: 0;
 }
 
-.summaryCardBooking > .costTotal + div p:first-child {
-  margin-bottom: 0.25rem;
+.summarySecurityNoteLine + .summarySecurityNoteLine {
+  margin-top: 0.25rem;
 }
 
 .checkoutUpsellBannerBooking p + p {
@@ -4762,3 +4745,5 @@ main {
     font-size: 1.75rem;
   }
 }
+
+/*# sourceMappingURL=booking-main.css.map */

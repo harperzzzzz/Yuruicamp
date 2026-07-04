@@ -1,18 +1,18 @@
-// 結帳頁 token alias：把 checkout 頁面局部變數對應到全站 --yui-* 設計 token。
-$checkout-text: var(--yui-text, #333);
-$checkout-muted: var(--yui-text-muted, #666);
-$checkout-subtle: var(--yui-text-subtle, #999);
-$checkout-primary: var(--yui-primary, #244d4d);
-$checkout-primary-hover: var(--yui-primary-hover, #316868);
-$checkout-primary-soft: var(--yui-primary-soft, #e8f4f4);
-$checkout-bg: var(--yui-bg, #f6fbf6);
-$checkout-surface: var(--yui-surface, #fff);
-$checkout-surface-muted: var(--yui-surface-muted, #f2f2f2);
-$checkout-border: var(--yui-border, #e0e0e0);
-$checkout-border-strong: var(--yui-border-strong, #ccc);
-$checkout-success: var(--yui-success, #4caf50);
-$checkout-danger: var(--yui-danger, #d32f2f);
-$checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
+﻿// 結帳頁 token alias：把 checkout 頁面局部變數對應到全站 --yc-* 設計 token。
+$checkout-text: var(--yc-text);
+$checkout-muted: var(--yc-text-muted);
+$checkout-subtle: var(--yc-text-muted);
+$checkout-primary: var(--yc-sage-action);
+$checkout-primary-hover: var(--yc-sage-dark);
+$checkout-primary-soft: var(--yc-sage-soft);
+$checkout-bg: var(--yc-bg);
+$checkout-surface: var(--yc-surface);
+$checkout-surface-muted: var(--yc-surface-soft);
+$checkout-border: var(--yc-border);
+$checkout-border-strong: var(--yc-sage-action);
+$checkout-success: var(--yc-success);
+$checkout-danger: var(--yc-error);
+$checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 // 結帳頁外層：控制頁面上下留白，內部表單與摘要區塊維持頁面範圍。
 .checkoutPage {
@@ -204,7 +204,8 @@ $checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
   color: $checkout-text;
   font: inherit;
   min-height: 44px;
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   padding: 0.65rem 0.875rem;
   transition: border-color 200ms ease, box-shadow 200ms ease;
   width: 100%;
@@ -219,7 +220,7 @@ $checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 .checkoutTextarea:focus,
 .couponInput:focus {
   border-color: $checkout-primary;
-  box-shadow: 0 0 0 3px rgb(36 77 77 / 12%);
+  box-shadow: var(--yc-focus-ring);
 }
 
 .checkoutSecondaryAction {
@@ -284,7 +285,7 @@ $checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 }
 
 .linePayText {
-  color: #00b900;
+  color: var(--yc-brand-line);
 }
 
 .checkoutAddressField {
@@ -347,17 +348,14 @@ $checkout-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutSummaryItem {
   align-items: flex-start;
-  border-bottom: 1px solid $checkout-border;
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 0.875rem;
-  padding-bottom: 0.875rem;
 }
 
-.checkoutSummaryItem:last-child {
-  border-bottom: 0;
-  margin-bottom: 0;
-  padding-bottom: 0;
+.checkoutSummaryItem + .checkoutSummaryItem {
+  border-top: 1px solid $checkout-border;
+  margin-top: 0.875rem;
+  padding-top: 0.875rem;
 }
 
 .checkoutSummaryItemImageWrap {

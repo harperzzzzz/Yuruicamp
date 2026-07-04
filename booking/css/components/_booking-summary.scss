@@ -43,14 +43,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--yc-bg);
   font-size: 0.9rem;
   color: var(--yc-text);
 }
 
-/* Booking Summary：最後一列不顯示分隔線。 */
-.bookingSummaryRow:last-child {
-  border-bottom: none;
+/* Booking Summary：後續列用上邊線分隔，避免依賴最後一列結構。 */
+.bookingSummaryRow + .bookingSummaryRow {
+  border-top: 1px solid var(--yc-bg);
 }
 
 /* Booking Summary：明細補充資訊列，降低視覺權重。 */

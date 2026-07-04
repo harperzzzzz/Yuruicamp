@@ -19,10 +19,12 @@
   background: var(--yc-surface);
   color: var(--yc-text);
   font-size: 0.95rem;
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   transition: border-color 0.2s;
 }
 
 .formControl:focus {
   border-color: var(--yc-sage-action);
+  box-shadow: var(--yc-focus-ring);
 }

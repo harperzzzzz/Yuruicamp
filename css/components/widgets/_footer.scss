@@ -1,17 +1,17 @@
-// Footer 元件：主站與 booking 共用的頁尾樣式。
+﻿// Footer 元件：主站與 booking 共用的頁尾樣式。
 
 // 頁尾外層：主站與 booking 使用不同主色背景。
 .siteFooter,
 .bookingFooter {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooter {
-  background: var(--yui-primary-dark);
+  background: var(--yc-sage-dark);
 }
 
 .bookingFooter {
-  background: var(--yui-primary);
+  background: var(--yc-sage-action);
 }
 
 // 頁尾內層容器：維持與全站 container 一致的最大寬度。
@@ -19,7 +19,7 @@
 .bookingFooterInner {
   width: min(1120px, calc(100vw - 32px));
   margin-inline: auto;
-  padding-block: var(--yui-space-12) var(--yui-space-6);
+  padding-block: var(--yc-space-12) var(--yc-space-6);
 }
 
 // 頁尾欄位網格：桌機四欄，平板與手機逐步收合。
@@ -27,21 +27,21 @@
 .bookingFooterGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--yui-space-8);
+  gap: var(--yc-space-8);
 }
 
 .siteFooterSection,
 .bookingFooterSection {
   display: grid;
   align-content: start;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
 }
 
 // 頁尾標題與文字：在深色背景上維持清楚對比。
 .siteFooterTitle,
 .bookingFooterHeading {
   margin: 0;
-  color: var(--yui-surface);
+  color: var(--yc-surface);
   font-size: 18px;
   font-weight: 800;
 }
@@ -49,7 +49,7 @@
 .siteFooterText,
 .bookingFooterText {
   margin: 0;
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   line-height: 1.8;
 }
 
@@ -70,22 +70,22 @@
 .siteFooterLinks,
 .bookingFooterLinks {
   display: grid;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 // 頁尾文字連結：hover 與 focus 狀態在深色背景上提高可見度。
 .siteFooterLink,
 .bookingFooterLinks a,
 .bookingFooterPolicies a {
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   text-decoration: none;
-  transition: color var(--yui-transition-fast);
+  transition: color var(--yc-transition-fast);
 }
 
 .siteFooterLink:hover,
 .bookingFooterLinks a:hover,
 .bookingFooterPolicies a:hover {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooterLink:focus-visible,
@@ -93,7 +93,7 @@
 .bookingFooterPolicies a:focus-visible,
 .siteFooterSocialLink:focus-visible,
 .bookingFooterSocialLinks a:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--yui-surface) 35%, transparent);
+  outline: 3px solid color-mix(in srgb, var(--yc-surface) 35%, transparent);
   outline-offset: 3px;
 }
 
@@ -101,13 +101,13 @@
 .siteFooterContactItem,
 .bookingFooterContactItem {
   display: grid;
-  gap: var(--yui-space-1);
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  gap: var(--yc-space-1);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
 }
 
 .siteFooterContactItem strong,
 .bookingFooterContactItem strong {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
   font-weight: 700;
 }
 
@@ -116,7 +116,7 @@
 .bookingFooterSocialLinks {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .siteFooterSocialLink,
@@ -126,27 +126,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid color-mix(in srgb, var(--yui-surface) 18%, transparent);
-  border-radius: var(--yui-radius-lg);
-  background: color-mix(in srgb, var(--yui-surface) 10%, transparent);
-  color: var(--yui-surface);
+  border: 1px solid color-mix(in srgb, var(--yc-surface) 18%, transparent);
+  border-radius: var(--yc-radius-button);
+  background: color-mix(in srgb, var(--yc-surface) 10%, transparent);
+  color: var(--yc-surface);
   text-decoration: none;
   transition:
-    background-color var(--yui-transition-fast),
-    border-color var(--yui-transition-fast);
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast);
 }
 
 .siteFooterSocialLink:hover,
 .bookingFooterSocialLinks a:hover {
-  background: color-mix(in srgb, var(--yui-surface) 18%, transparent);
-  border-color: color-mix(in srgb, var(--yui-surface) 42%, transparent);
+  background: color-mix(in srgb, var(--yc-surface) 18%, transparent);
+  border-color: color-mix(in srgb, var(--yc-surface) 42%, transparent);
 }
 
 // 主站頁尾分隔線：切開內容區與底部政策列。
 .siteFooterDivider {
   height: 1px;
-  margin-block: var(--yui-space-8) var(--yui-space-5);
-  background: color-mix(in srgb, var(--yui-surface) 18%, transparent);
+  margin-block: var(--yc-space-8) var(--yc-space-5);
+  background: color-mix(in srgb, var(--yc-surface) 18%, transparent);
 }
 
 // 頁尾底部：版權、政策與付款方式並列。
@@ -155,8 +155,8 @@
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: var(--yui-space-4);
-  color: color-mix(in srgb, var(--yui-surface) 72%, transparent);
+  gap: var(--yc-space-4);
+  color: color-mix(in srgb, var(--yc-surface) 72%, transparent);
   font-size: 14px;
 }
 
@@ -172,30 +172,30 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
 }
 
 .siteFooterPaymentMethods,
 .bookingFooterPaymentMethods {
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .siteFooterPaymentMethods li,
 .bookingFooterPaymentMethods li {
   display: inline-flex;
   align-items: center;
-  gap: var(--yui-space-1);
+  gap: var(--yc-space-1);
 }
 
 // Booking 頁尾：間距較主站略緊，並用上框線分隔底部列。
 .bookingFooterInner {
-  padding-block: var(--yui-space-10) var(--yui-space-6);
+  padding-block: var(--yc-space-10) var(--yc-space-6);
 }
 
 .bookingFooterBottom {
-  margin-top: var(--yui-space-8);
-  padding-top: var(--yui-space-5);
-  border-top: 1px solid color-mix(in srgb, var(--yui-surface) 18%, transparent);
+  margin-top: var(--yc-space-8);
+  padding-top: var(--yc-space-5);
+  border-top: 1px solid color-mix(in srgb, var(--yc-surface) 18%, transparent);
 }
 
 @media (width <= 1024px) {
@@ -214,12 +214,12 @@
   .siteFooterInner,
   .bookingFooterInner {
     width: min(100% - 24px, 1120px);
-    padding-block: var(--yui-space-8) var(--yui-space-5);
+    padding-block: var(--yc-space-8) var(--yc-space-5);
   }
 
   .siteFooterGrid,
   .bookingFooterGrid { 
     grid-template-columns: 1fr;
-    gap: var(--yui-space-6);
+    gap: var(--yc-space-6);
   }
 }

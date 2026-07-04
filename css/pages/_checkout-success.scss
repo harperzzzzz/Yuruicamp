@@ -1,23 +1,23 @@
-// 結帳成功頁 token alias：把成功頁局部變數對應到全站 --yui-* 設計 token。
-$success-text: var(--yui-text, #333);
-$success-muted: var(--yui-text-muted, #666);
-$success-subtle: var(--yui-text-subtle, #999);
-$success-primary: var(--yui-primary, #244d4d);
-$success-primary-hover: var(--yui-primary-hover, #316868);
-$success-primary-soft: var(--yui-primary-soft, #e8f4f4);
-$success-bg: var(--yui-bg, #f6fbf6);
-$success-surface: var(--yui-surface, #fff);
-$success-surface-muted: var(--yui-surface-muted, #f2f2f2);
-$success-border: var(--yui-border, #e0e0e0);
-$success-border-strong: var(--yui-border-strong, #ccc);
-$success-color: var(--yui-success, #4caf50);
-$success-danger: var(--yui-danger, #d32f2f);
-$success-gold: var(--yui-gold, #d4a017);
-$success-radius-lg: var(--yui-radius-lg, 8px);
-$success-radius-xl: var(--yui-radius-xl, 12px);
-$success-shadow-sm: var(--yui-shadow-sm, 0 1px 2px rgb(0 0 0 / 5%));
-$success-shadow-md: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
-$success-transition: var(--yui-transition-fast, 150ms ease);
+﻿// 結帳成功頁 token alias：把成功頁局部變數對應到全站 --yc-* 設計 token。
+$success-text: var(--yc-text);
+$success-muted: var(--yc-text-muted);
+$success-subtle: var(--yc-text-muted);
+$success-primary: var(--yc-sage-action);
+$success-primary-hover: var(--yc-sage-dark);
+$success-primary-soft: var(--yc-sage-soft);
+$success-bg: var(--yc-bg);
+$success-surface: var(--yc-surface);
+$success-surface-muted: var(--yc-surface-soft);
+$success-border: var(--yc-border);
+$success-border-strong: var(--yc-sage-action);
+$success-color: var(--yc-success);
+$success-danger: var(--yc-error);
+$success-gold: var(--yc-cta);
+$success-radius-lg: var(--yc-radius-button, 8px);
+$success-radius-xl: var(--yc-radius-card, 12px);
+$success-shadow-sm: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
+$success-shadow-md: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+$success-transition: var(--yc-transition-fast, 150ms ease);
 
 .checkoutSuccessPage {
   align-items: center;
@@ -129,7 +129,7 @@ $success-transition: var(--yui-transition-fast, 150ms ease);
 
 .orderNumberValue {
   color: $success-primary;
-  font-family: var(--yui-font-mono, monospace);
+  font-family: var(--yc-font-mono, monospace);
   font-size: clamp(1.125rem, 4vw, 1.5rem);
   font-weight: 800;
   line-height: 1.3;
@@ -288,7 +288,7 @@ $success-transition: var(--yui-transition-fast, 150ms ease);
   position: fixed;
   top: -20px;
   width: var(--confetti-size, 8px);
-  z-index: var(--yui-z-tooltip, 1070);
+  z-index: var(--yc-z-toast, 1070);
 }
 
 @keyframes success-icon-enter {

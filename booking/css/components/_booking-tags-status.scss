@@ -125,7 +125,8 @@
 
 .ycFilterChip:focus-visible,
 .ycSurveyChip:focus-visible {
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-sage-action) 22%, transparent);
 }
 

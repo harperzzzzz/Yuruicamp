@@ -1,4 +1,4 @@
-# ITCSS (Inverted Triangle CSS) 架構規範
+﻿# ITCSS (Inverted Triangle CSS) 架構規範
 
 通用樣式規則放在最前面，覆蓋規則放在最後，按照優先順序排列成一個倒三角形。
 
@@ -76,17 +76,17 @@ Booking runtime 頁面載入編譯輸出 `booking/css/booking-main.css`。舊的
 - Booking 單頁流程 selector 需放在 `booking/css/pages/`；例如搜尋頁篩選側欄、營地詳情圖牆、結帳加購提示與裝備租借側欄不放在 `booking/css/components/`。
 - Booking objects 層目前不保留頁面 shell 或 grid；若 selector 帶有 `.searchPage`、`.detailPage`、`.rentalPage`、`.bookingCartPage` 等頁面語意，必須放回 `booking/css/pages/`。
 - Booking 跨頁懸浮操作屬於 component，維護於 `booking/css/components/_floating-actions.scss`。
-- 新增色彩、間距、圓角、陰影時，優先使用 `--yui-*` token；需要新 token 時先補在 `settings`。
+- 新增色彩、間距、圓角、陰影時，優先使用 `--yc-*` token；需要新 token 時先補在 `settings`，不再輸出 `--yui-*` 或 `--bk-*` alias。
 - 原生元素基礎樣式需放在 `css/elements/`。
 - 大量重複佈局需放在 `css/objects/`。
-- Components 層的共用元件應直接使用 `--yui-*` token，避免依賴其他 partial 先宣告的 Sass 變數。
+- Components 層的共用元件應直接使用 `--yc-*` token，避免依賴其他 partial 先宣告的 Sass 變數或舊 alias。
 - Components 層目前不保留 Sass `$...` alias；若需要新 token，先回到 `settings` 定義 runtime custom property。
 
 ## 樣式歸層判斷表
 
 | 新增 selector 或規則                                      | 放置層級     | 判斷理由                                               |
 | --------------------------------------------------------- | ------------ | ------------------------------------------------------ |
-| `:root`、全站 `--yui-*` token                             | `settings`   | 只提供設計設定或 runtime token，不直接描述元件外觀。   |
+| `:root`、全站 `--yc-*` token             | `settings`   | 只提供設計設定或 runtime token，不直接描述元件外觀。   |
 | `*`、`*::before`、reset、normalize                        | `generic`    | 用來消除瀏覽器預設差異，權重應低於所有專案樣式。       |
 | `body`、`a`、`button`、`img`、`a:hover`                   | `elements`   | 直接套用原生 HTML 元素，沒有綁定 component class。     |
 | `.container`、`.stack`、`.cluster`、`.grid`               | `objects`    | 只管理寬度、排列、節奏與結構，不放品牌顏色或元件狀態。 |
@@ -97,4 +97,4 @@ Booking runtime 頁面載入編譯輸出 `booking/css/booking-main.css`。舊的
 
 - Booking 自有 selector 已同步改成語意化 camelCase；Bootstrap Icons、Flatpickr 等外部套件 class 保留原套件命名。
 - `admin/css/admin.css` 仍是獨立 CSS 系統，後續可再拆成自己的 ITCSS entry。
-- `css/pages/*.scss` 仍保留頁面局部 Sass alias，用來讓大型頁面 partial 維持可讀性；後續若要收斂，可逐頁改成直接使用 `--yui-*`。
+- `css/pages/*.scss` 仍可保留頁面局部 Sass alias，用來讓大型頁面 partial 維持可讀性；局部 alias 應對應到 `--yc-*`。

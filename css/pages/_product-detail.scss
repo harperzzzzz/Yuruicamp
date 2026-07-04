@@ -1,20 +1,20 @@
-// 商品詳情頁 token alias：把商品詳情局部變數對應到全站 --yui-* 設計 token。
-$product-text: var(--yui-text, #333);
-$product-muted: var(--yui-text-muted, #666);
-$product-subtle: var(--yui-text-subtle, #999);
-$product-primary: var(--yui-primary, #244d4d);
-$product-primary-dark: var(--yui-primary-dark, #1a3838);
-$product-primary-hover: var(--yui-primary-hover, #316868);
-$product-primary-soft: var(--yui-primary-soft, #e8f4f4);
-$product-surface: var(--yui-surface, #fff);
-$product-surface-muted: var(--yui-surface-muted, #f2f2f2);
-$product-bg: var(--yui-bg, #f6fbf6);
-$product-border: var(--yui-border, #e0e0e0);
-$product-border-strong: var(--yui-border-strong, #ccc);
-$product-success: var(--yui-success, #4caf50);
-$product-danger: var(--yui-danger, #d32f2f);
-$product-gold: var(--yui-gold, #d4a017);
-$product-shadow: var(--yui-shadow-md, 0 4px 12px rgb(36 77 77 / 10%));
+﻿// 商品詳情頁 token alias：把商品詳情局部變數對應到全站 --yc-* 設計 token。
+$product-text: var(--yc-text);
+$product-muted: var(--yc-text-muted);
+$product-subtle: var(--yc-text-muted);
+$product-primary: var(--yc-sage-action);
+$product-primary-dark: var(--yc-sage-dark);
+$product-primary-hover: var(--yc-sage-dark);
+$product-primary-soft: var(--yc-sage-soft);
+$product-surface: var(--yc-surface);
+$product-surface-muted: var(--yc-surface-soft);
+$product-bg: var(--yc-bg);
+$product-border: var(--yc-border);
+$product-border-strong: var(--yc-sage-action);
+$product-success: var(--yc-success);
+$product-danger: var(--yc-error);
+$product-gold: var(--yc-cta);
+$product-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 // 商品詳情頁外層：控制內容上下留白，避免干擾共用 header / footer。
 .productDetailContainer {
@@ -372,7 +372,7 @@ main.productDetailContainer {
   align-items: stretch;
   overflow: hidden;
   border: 1px solid $product-border;
-  border-radius: var(--yui-radius-lg);
+  border-radius: var(--yc-radius-button);
   background: $product-surface;
 }
 
@@ -413,8 +413,8 @@ main.productDetailContainer {
 }
 
 .progressContainer {
-  background: var(--yui-success-soft, #f0fdf4);
-  border: 1px solid var(--yui-success-border, #bbf7d0);
+  background: var(--yc-success-soft);
+  border: 1px solid var(--yc-sage-light);
   border-radius: 8px;
   padding: 0.875rem 1rem;
 }
@@ -445,18 +445,18 @@ main.productDetailContainer {
 }
 
 .shippingProgressBar::-webkit-progress-bar {
-  background: #dcfce7;
+  background: var(--yc-success-soft);
   border-radius: 999px;
 }
 
 .shippingProgressBar::-webkit-progress-value {
-  background: linear-gradient(90deg, $product-success, #16a34a);
+  background: linear-gradient(90deg, $product-success, var(--yc-success));
   border-radius: 999px;
   transition: inline-size 300ms ease;
 }
 
 .shippingProgressBar::-moz-progress-bar {
-  background: linear-gradient(90deg, $product-success, #16a34a);
+  background: linear-gradient(90deg, $product-success, var(--yc-success));
   border-radius: 999px;
 }
 
@@ -590,12 +590,11 @@ main.productDetailContainer {
 }
 
 .productSpecRow {
-  border-bottom: 1px solid $product-border;
   display: flex;
 }
 
-.productSpecRow:last-child {
-  border-bottom: 0;
+.productSpecRow + .productSpecRow {
+  border-top: 1px solid $product-border;
 }
 
 .productSpecLabel {

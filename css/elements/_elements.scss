@@ -1,10 +1,10 @@
-// Elements 層：設定原生 HTML 元素的基礎外觀，不綁定特定 component class。
+﻿// Elements 層：設定原生 HTML 元素的基礎外觀，不綁定特定 component class。
 // 全站頁面基底：集中設定 body 的最小寬度、背景、文字色與主要字體。
 body {
   min-inline-size: 320px;
-  background: var(--yui-bg);
-  color: var(--yui-text);
-  font-family: var(--yui-font-sans);
+  background: var(--yc-bg);
+  color: var(--yc-text);
+  font-family: var(--yc-font-body);
   line-height: 1.5;
 }
 

@@ -1,11 +1,11 @@
-// 用途：pages/home.html 首頁專屬樣式；保留既有首頁與 home.js 動態產生的 class。
+﻿// 用途：pages/home.html 首頁專屬樣式；保留既有首頁與 home.js 動態產生的 class。
 
 .homeProductLoadError {
-  color: var(--yui-danger);
+  color: var(--yc-error);
   font-size: 1rem;
   margin: 0;
   min-block-size: 320px;
-  padding: var(--yui-space-12) var(--yui-space-4);
+  padding: var(--yc-space-12) var(--yc-space-4);
   text-align: center;
   width: 100%;
 }
@@ -13,7 +13,7 @@
 // Hero 主視覺：影片載入失敗時仍以深綠色作為背景。
 .heroBanner {
   align-items: center;
-  background-color: var(--yui-primary-dark);
+  background-color: var(--yc-sage-dark);
   display: flex;
   isolation: isolate;
   justify-content: center;
@@ -42,9 +42,9 @@
 }
 
 .heroContent {
-  color: var(--yui-surface);
-  inline-size: min(100% - (var(--yui-space-4) * 2), 700px);
-  padding-block: clamp(var(--yui-space-16), 14vh, 9rem);
+  color: var(--yc-surface);
+  inline-size: min(100% - (var(--yc-space-4) * 2), 700px);
+  padding-block: clamp(var(--yc-space-16), 14vh, 9rem);
   position: relative;
   text-align: center;
   z-index: 2;
@@ -56,7 +56,7 @@
   font-weight: 700;
   letter-spacing: 0.16em;
   line-height: 1.4;
-  margin: 0 0 var(--yui-space-3);
+  margin: 0 0 var(--yc-space-3);
   text-transform: uppercase;
 }
 
@@ -65,20 +65,20 @@
   font-weight: 700;
   letter-spacing: 0;
   line-height: 1.15;
-  margin: 0 0 var(--yui-space-5);
+  margin: 0 0 var(--yc-space-5);
 }
 
 .heroSubtitle {
   color: rgb(255 255 255 / 88%);
   font-size: clamp(1rem, 1.5vw, 1.125rem);
   line-height: 1.7;
-  margin: 0 0 var(--yui-space-8);
+  margin: 0 0 var(--yc-space-8);
 }
 
 .heroActions {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
   justify-content: center;
 }
 
@@ -86,64 +86,64 @@
 .heroSecondaryLink {
   align-items: center;
   border: 1px solid transparent;
-  border-radius: var(--yui-radius-lg);
+  border-radius: var(--yc-radius-button);
   display: inline-flex;
   font-size: 1rem;
   font-weight: 700;
   justify-content: center;
   min-block-size: 44px;
-  padding-inline: var(--yui-space-6);
+  padding-inline: var(--yc-space-6);
   text-decoration: none;
-  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), box-shadow var(--yui-transition-fast);
+  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast), box-shadow var(--yc-transition-fast);
 }
 
 .heroPrimaryLink {
-  background-color: var(--yui-surface);
-  border-color: var(--yui-surface);
-  color: var(--yui-primary-dark);
+  background-color: var(--yc-surface);
+  border-color: var(--yc-surface);
+  color: var(--yc-sage-dark);
 }
 
 .heroPrimaryLink:hover {
-  background-color: var(--yui-primary-soft);
-  border-color: var(--yui-primary-soft);
-  color: var(--yui-primary-dark);
+  background-color: var(--yc-sage-soft);
+  border-color: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
   text-decoration: none;
 }
 
 .heroSecondaryLink {
   background-color: transparent;
   border-color: rgb(255 255 255 / 72%);
-  color: var(--yui-surface);
+  color: var(--yc-surface);
 }
 
 .heroSecondaryLink:hover {
   background-color: rgb(255 255 255 / 14%);
-  border-color: var(--yui-surface);
-  color: var(--yui-surface);
+  border-color: var(--yc-surface);
+  color: var(--yc-surface);
   text-decoration: none;
 }
 
 .heroPrimaryLink:focus-visible,
 .heroSecondaryLink:focus-visible {
-  outline: 3px solid var(--yui-surface);
+  outline: 3px solid var(--yc-surface);
   outline-offset: 3px;
 }
 
 // 合作品牌跑馬燈。
 .brandCarouselSection {
-  background-color: var(--yui-surface);
-  border-block: 1px solid var(--yui-border);
+  background-color: var(--yc-surface);
+  border-block: 1px solid var(--yc-border);
   overflow: hidden;
-  padding-block: var(--yui-space-8);
+  padding-block: var(--yc-space-8);
 }
 
 .brandCarouselTitle {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   line-height: 1.4;
-  margin: 0 0 var(--yui-space-5);
+  margin: 0 0 var(--yc-space-5);
   text-align: center;
   text-transform: uppercase;
 }
@@ -157,7 +157,7 @@
 .brandMarqueeTrack {
   animation: brand-marquee-scroll 25s linear infinite;
   display: flex;
-  gap: var(--yui-space-8);
+  gap: var(--yc-space-8);
   width: max-content;
 }
 
@@ -167,25 +167,25 @@
 
 .brandLogoItem {
   align-items: center;
-  background-color: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-pill);
-  color: var(--yui-secondary);
+  background-color: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill);
+  color: var(--yc-sage-light);
   cursor: default;
   display: flex;
   font-size: 0.875rem;
   font-weight: 700;
   min-block-size: 44px;
-  padding-inline: var(--yui-space-4);
-  transition: border-color var(--yui-transition-fast), color var(--yui-transition-fast), background-color var(--yui-transition-fast);
+  padding-inline: var(--yc-space-4);
+  transition: border-color var(--yc-transition-fast), color var(--yc-transition-fast), background-color var(--yc-transition-fast);
   user-select: none;
   white-space: nowrap;
 }
 
 .brandLogoItem:hover {
-  background-color: var(--yui-primary-soft);
-  border-color: var(--yui-primary);
-  color: var(--yui-primary);
+  background-color: var(--yc-sage-soft);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-sage-action);
 }
 
 // 最新商品與熱銷商品。
@@ -194,24 +194,24 @@
 }
 
 .homeSectionWhite {
-  background-color: var(--yui-surface);
+  background-color: var(--yc-surface);
 }
 
 .homeSectionMuted {
-  background-color: var(--yui-bg);
+  background-color: var(--yc-bg);
 }
 
 .homeSectionHeader {
   align-items: flex-end;
-  border-bottom: 2px solid var(--yui-border);
+  border-bottom: 2px solid var(--yc-border);
   display: flex;
   justify-content: space-between;
-  margin-bottom: var(--yui-space-5);
-  padding-bottom: var(--yui-space-3);
+  margin-bottom: var(--yc-space-5);
+  padding-bottom: var(--yc-space-3);
 }
 
 .homeSectionTitle {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: clamp(1.5rem, 2.5vw, 2rem);
   font-weight: 700;
   line-height: 1.25;
@@ -220,35 +220,35 @@
 }
 
 .homeSectionTitle::before {
-  background-color: var(--yui-primary);
-  border-radius: var(--yui-radius-sm);
-  bottom: calc(var(--yui-space-3) * -1 - 2px);
+  background-color: var(--yc-sage-action);
+  border-radius: var(--yc-radius-sm);
+  bottom: calc(var(--yc-space-3) * -1 - 2px);
   content: '';
   height: 3px;
-  inline-size: var(--yui-space-10);
+  inline-size: var(--yc-space-10);
   inset-inline-start: 0;
   position: absolute;
 }
 
 .homeSectionLink {
   align-items: center;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   display: inline-flex;
   font-size: 0.875rem;
   font-weight: 700;
   min-block-size: 44px;
   text-decoration: none;
-  transition: color var(--yui-transition-fast), text-decoration-color var(--yui-transition-fast);
+  transition: color var(--yc-transition-fast), text-decoration-color var(--yc-transition-fast);
 }
 
 .homeSectionLink::after {
   content: '→';
-  margin-inline-start: var(--yui-space-1);
-  transition: transform var(--yui-transition-fast);
+  margin-inline-start: var(--yc-space-1);
+  transition: transform var(--yc-transition-fast);
 }
 
 .homeSectionLink:hover {
-  color: var(--yui-primary-dark);
+  color: var(--yc-sage-dark);
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
@@ -258,19 +258,19 @@
 }
 
 .homeSectionLink:focus-visible {
-  outline: 3px solid var(--yui-primary);
+  outline: 3px solid var(--yc-sage-action);
   outline-offset: 3px;
 }
 
 .homeProductRow {
   display: flex;
-  gap: var(--yui-space-5);
+  gap: var(--yc-space-5);
   max-inline-size: 100%;
   min-block-size: 400px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  padding-block-end: var(--yui-space-2);
-  scrollbar-color: var(--yui-secondary) var(--yui-surface-muted);
+  padding-block-end: var(--yc-space-2);
+  scrollbar-color: var(--yc-sage-light) var(--yc-surface-soft);
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
@@ -280,8 +280,8 @@
 }
 
 .homeProductRow::-webkit-scrollbar-thumb {
-  background-color: var(--yui-secondary);
-  border-radius: var(--yui-radius-sm);
+  background-color: var(--yc-sage-light);
+  border-radius: var(--yc-radius-sm);
 }
 
 .homeSkeletonCard,
@@ -292,17 +292,17 @@
 }
 
 .homeSkeletonCard {
-  background-color: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-sm);
+  background-color: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
   overflow: hidden;
 }
 
 .homeSkeletonImage,
 .homeSkeletonLine {
   animation: home-skeleton-pulse 1.2s ease-in-out infinite;
-  background: linear-gradient(90deg, var(--yui-surface-muted) 25%, var(--yui-border) 37%, var(--yui-surface-muted) 63%);
+  background: linear-gradient(90deg, var(--yc-surface-soft) 25%, var(--yc-border) 37%, var(--yc-surface-soft) 63%);
   background-size: 400% 100%;
 }
 
@@ -311,13 +311,13 @@
 }
 
 .homeSkeletonBody {
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
 }
 
 .homeSkeletonLine {
-  border-radius: var(--yui-radius-sm);
+  border-radius: var(--yc-radius-sm);
   height: 12px;
-  margin-block-end: var(--yui-space-2);
+  margin-block-end: var(--yc-space-2);
 }
 
 .homeSkeletonLineShort {
@@ -335,33 +335,33 @@
 
 // home.js 動態產生的首頁商品卡。
 .homeProductCard {
-  background-color: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  box-shadow: var(--yui-shadow-sm);
+  background-color: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-soft);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  transition: border-color var(--yui-transition-base), box-shadow var(--yui-transition-base), transform var(--yui-transition-base);
+  transition: border-color var(--yc-transition-base), box-shadow var(--yc-transition-base), transform var(--yc-transition-base);
 }
 
 .homeProductCard:hover,
 .homeProductCard:focus-visible {
-  border-color: var(--yui-primary-hover);
-  box-shadow: var(--yui-shadow-lg);
+  border-color: var(--yc-sage-dark);
+  box-shadow: var(--yc-shadow-hover);
   transform: translateY(-5px) scale(1.015);
 }
 
 .homeProductCard:focus-visible {
-  outline: 3px solid var(--yui-primary);
+  outline: 3px solid var(--yc-sage-action);
   outline-offset: 3px;
 }
 
 .homeProductImage {
   aspect-ratio: 4 / 3;
-  background-color: var(--yui-surface-muted);
+  background-color: var(--yc-surface-soft);
   overflow: hidden;
   position: relative;
 }
@@ -370,7 +370,7 @@
   display: block;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--yui-transition-base);
+  transition: transform var(--yc-transition-base);
   width: 100%;
 }
 
@@ -381,51 +381,51 @@
 
 .productCardBadge {
   align-items: center;
-  border-radius: var(--yui-radius-pill);
-  color: var(--yui-surface);
+  border-radius: var(--yc-radius-pill);
+  color: var(--yc-surface);
   display: inline-flex;
   font-size: 0.8125rem;
   font-weight: 700;
-  inset-block-start: var(--yui-space-2);
-  inset-inline-start: var(--yui-space-2);
+  inset-block-start: var(--yc-space-2);
+  inset-inline-start: var(--yc-space-2);
   min-block-size: 28px;
-  padding-inline: var(--yui-space-3);
+  padding-inline: var(--yc-space-3);
   position: absolute;
 }
 
 .productBadgeNew {
-  background-color: var(--yui-success);
+  background-color: var(--yc-success);
 }
 
 .productBadgeHot {
-  background-color: var(--yui-orange);
+  background-color: var(--yc-warning);
 }
 
 .homeProductBody {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: var(--yui-space-4);
+  padding: var(--yc-space-4);
 }
 
 .homeProductBrand {
-  color: var(--yui-secondary);
+  color: var(--yc-sage-light);
   font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   line-height: 1.35;
-  margin: 0 0 var(--yui-space-1);
+  margin: 0 0 var(--yc-space-1);
   min-block-size: 1.1rem;
   text-transform: uppercase;
 }
 
 .homeProductName {
-  color: var(--yui-text);
+  color: var(--yc-text);
   display: -webkit-box;
   font-size: 1rem;
   font-weight: 700;
   line-height: 1.4;
-  margin: 0 0 var(--yui-space-3);
+  margin: 0 0 var(--yc-space-3);
   min-block-size: 2.8rem;
   overflow: hidden;
   -webkit-box-orient: vertical;
@@ -434,13 +434,13 @@
 
 .homeProductRating {
   align-items: center;
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   display: flex;
   flex-wrap: wrap;
   font-size: 0.8125rem;
-  gap: var(--yui-space-1);
+  gap: var(--yc-space-1);
   line-height: 1.35;
-  margin-block-end: var(--yui-space-3);
+  margin-block-end: var(--yc-space-3);
   min-block-size: 1.2rem;
 }
 
@@ -454,11 +454,11 @@
 }
 
 .starRatingBase {
-  color: var(--yui-border);
+  color: var(--yc-border);
 }
 
 .starRatingFill {
-  color: var(--yui-gold);
+  color: var(--yc-cta);
   inset: 0 auto 0 0;
   overflow: hidden;
   position: absolute;
@@ -476,58 +476,58 @@
   align-items: baseline;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-2);
-  margin-block: auto var(--yui-space-2);
-  min-block-size: var(--yui-space-6);
+  gap: var(--yc-space-2);
+  margin-block: auto var(--yc-space-2);
+  min-block-size: var(--yc-space-6);
 }
 
 .homeProductPriceCurrent {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   flex-shrink: 0;
   font-size: clamp(1.125rem, 1.5vw, 1.25rem);
   font-weight: 700;
 }
 
 .homeProductPriceOriginal {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   flex-shrink: 0;
   font-size: 0.8125rem;
   text-decoration: line-through;
 }
 
 .homeProductDiscount {
-  background-color: var(--yui-surface-muted);
-  border-radius: var(--yui-radius-sm);
-  color: var(--yui-danger);
+  background-color: var(--yc-surface-soft);
+  border-radius: var(--yc-radius-sm);
+  color: var(--yc-error);
   display: block;
   font-size: 0.8125rem;
   font-weight: 700;
-  padding: var(--yui-space-1) var(--yui-space-2);
+  padding: var(--yc-space-1) var(--yc-space-2);
   width: fit-content;
 }
 
 .homeProductAddButton {
-  background-color: var(--yui-primary);
-  border: 1px solid var(--yui-primary);
-  border-radius: var(--yui-radius-lg);
-  color: var(--yui-surface);
+  background-color: var(--yc-sage-action);
+  border: 1px solid var(--yc-sage-action);
+  border-radius: var(--yc-radius-button);
+  color: var(--yc-surface);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 700;
-  margin-block-start: var(--yui-space-4);
+  margin-block-start: var(--yc-space-4);
   min-block-size: 44px;
-  padding-inline: var(--yui-space-3);
-  transition: background-color var(--yui-transition-fast), border-color var(--yui-transition-fast), color var(--yui-transition-fast), opacity var(--yui-transition-fast);
+  padding-inline: var(--yc-space-3);
+  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast), opacity var(--yc-transition-fast);
   width: 100%;
 }
 
 .homeProductAddButton:hover {
-  background-color: var(--yui-primary-hover);
-  border-color: var(--yui-primary-hover);
+  background-color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-dark);
 }
 
 .homeProductAddButton:focus-visible {
-  outline: 3px solid var(--yui-primary);
+  outline: 3px solid var(--yc-sage-action);
   outline-offset: 3px;
 }
 
@@ -537,14 +537,14 @@
 }
 
 .homeEmptyState {
-  background-color: var(--yui-surface);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  color: var(--yui-text-muted);
+  background-color: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  color: var(--yc-text-muted);
   display: grid;
   flex: 1 0 100%;
   min-block-size: 320px;
-  padding: var(--yui-space-12) var(--yui-space-4);
+  padding: var(--yc-space-12) var(--yc-space-4);
   place-items: center;
   text-align: center;
 }
@@ -552,7 +552,7 @@
 .homeEmptyStateIcon {
   display: block;
   font-size: 2.25rem;
-  margin-block-end: var(--yui-space-2);
+  margin-block-end: var(--yc-space-2);
 }
 
 .homeEmptyStateTitle {
@@ -562,8 +562,8 @@
 
 // 品牌服務賣點。
 .brandBenefits {
-  background-color: var(--yui-primary);
-  color: var(--yui-surface);
+  background-color: var(--yc-sage-action);
+  color: var(--yc-surface);
   padding-block: clamp(32px, 6vw, 72px);
 }
 
@@ -571,18 +571,18 @@
   clip: auto;
   block-size: auto;
   inline-size: auto;
-  margin: 0 0 var(--yui-space-8);
+  margin: 0 0 var(--yc-space-8);
   overflow: visible;
   position: static;
   white-space: normal;
-  color: var(--yui-surface);
+  color: var(--yc-surface);
   font-size: 2.5em;
   text-align: center;
 }
 
 .brandBenefitsGrid {
   display: grid;
-  gap: var(--yui-space-8);
+  gap: var(--yc-space-8);
   grid-template-columns: repeat(3, minmax(0, 1fr));
   text-align: center;
 }
@@ -594,14 +594,14 @@
 .brandBenefitsIcon {
   font-size: 2.5rem;
   line-height: 1;
-  margin-block-end: var(--yui-space-3);
+  margin-block-end: var(--yc-space-3);
 }
 
 .brandBenefitsTitle {
   font-size: clamp(1.125rem, 1.5vw, 1.25rem);
   font-weight: 700;
   line-height: 1.35;
-  margin: 0 0 var(--yui-space-2);
+  margin: 0 0 var(--yc-space-2);
 }
 
 .brandBenefitsText {
@@ -613,7 +613,7 @@
 
 @media (width <= 768px) {
   .heroContent {
-    inline-size: min(100% - (var(--yui-space-6) * 2), 640px);
+    inline-size: min(100% - (var(--yc-space-6) * 2), 640px);
   }
 
   .homeProductCard,
@@ -638,8 +638,8 @@
   }
 
   .heroContent {
-    inline-size: min(100% - (var(--yui-space-4) * 2), 520px);
-    padding-block: var(--yui-space-16);
+    inline-size: min(100% - (var(--yc-space-4) * 2), 520px);
+    padding-block: var(--yc-space-16);
   }
 
   .heroActions {
@@ -655,11 +655,11 @@
   .homeSectionHeader {
     align-items: flex-start;
     flex-direction: column;
-    gap: var(--yui-space-1);
+    gap: var(--yc-space-1);
   }
 
   .homeProductRow {
-    gap: var(--yui-space-3);
+    gap: var(--yc-space-3);
     min-block-size: 360px;
   }
 
@@ -671,15 +671,15 @@
   }
 
   .homeProductBody {
-    padding: var(--yui-space-3);
+    padding: var(--yc-space-3);
   }
 
   .homeProductPrice {
-    gap: var(--yui-space-1);
+    gap: var(--yc-space-1);
   }
 
   .brandBenefits {
-    padding-block: var(--yui-space-8);
+    padding-block: var(--yc-space-8);
   }
 
   .brandBenefitsIcon {

@@ -55,7 +55,7 @@ function _readStorageJson(key, fallback) {
   }
 }
 
-// Get the same surveyTag values that member-center displays as active.
+// Get the same surveyTag values that member-center displays as selected.
 function _getSavedSurveyTags() {
   const appPrefs = _normalizeSurveyTagValues(window.AppState && window.AppState.preferences);
   if (appPrefs.length > 0) return appPrefs;
@@ -165,10 +165,10 @@ function _getPaginationItems(totalPages) {
 
 // Build a single pagination button.
 function _buildPaginationButton(page, label, options = {}) {
-  const activeClass = options.active ? ' active' : '';
+  const selectedClass = options.isSelected ? ' isSelected' : '';
   const disabled = options.disabled ? ' disabled' : '';
-  const current = options.active ? ' aria-current="page"' : '';
-  return `<button class="paginationBtn${activeClass}" data-page="${page}" aria-label="${options.ariaLabel || label}"${current}${disabled}>${label}</button>`;
+  const current = options.isSelected ? ' aria-current="page"' : '';
+  return `<button class="paginationBtn${selectedClass}" data-page="${page}" aria-label="${options.ariaLabel || label}"${current}${disabled}>${label}</button>`;
 }
 
 // Render pagination controls for the filtered product list.
@@ -186,7 +186,7 @@ function _renderPagination() {
   const pageItems = _getPaginationItems(totalPages).map(item => {
     if (item.type === 'ellipsis') return '<span class="paginationEllipsis">...</span>';
     return _buildPaginationButton(item.page, item.page, {
-      active: item.page === _state.currentPage,
+      isSelected: item.page === _state.currentPage,
       ariaLabel: `? ${item.page} ?`,
     });
   });
@@ -257,10 +257,10 @@ function _applyFilters() {
 // Reset all filters and synced filter controls.
 window._resetAllFilters = function () {
   _state.filters = { category: '', brands: [], minPrice: null, maxPrice: null, tag: '', keyword: '' };
-  document.querySelectorAll('.filterCategoryBtn').forEach(btn => btn.classList.toggle('active', btn.dataset.category === ''));
+  document.querySelectorAll('.filterCategoryBtn').forEach(btn => btn.classList.toggle('isSelected', btn.dataset.category === ''));
   document.querySelectorAll('.filterBrandList input[type="checkbox"]').forEach(input => { input.checked = false; });
   document.querySelectorAll('#priceMin, #mobilePriceMin, #priceMax, #mobilePriceMax').forEach(input => { input.value = ''; });
-  document.querySelectorAll('[data-tag]').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('[data-tag]').forEach(btn => btn.classList.remove('isSelected'));
   _applyFilters();
 };
 
@@ -271,7 +271,7 @@ function _bindCategoryFilterList(listId, categories) {
 
   list.innerHTML = categories.map(category => {
     const value = category === '\u5168\u90e8' ? '' : category;
-    return `<li><button class="filterCategoryBtn${value === '' ? ' active' : ''}" data-category="${value}">${category}</button></li>`;
+    return `<li><button class="filterCategoryBtn${value === '' ? ' isSelected' : ''}" data-category="${value}">${category}</button></li>`;
   }).join('');
 
   list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
@@ -328,7 +328,7 @@ function _bindQuickFilterButtons() {
     el.addEventListener('click', () => {
       const isActive = _state.filters.tag !== tag;
       _state.filters.tag = isActive ? tag : '';
-      buttons.forEach(item => item.el?.classList.toggle('active', item.tag === _state.filters.tag));
+      buttons.forEach(item => item.el?.classList.toggle('isSelected', item.tag === _state.filters.tag));
       _applyFilters();
     });
   });
@@ -350,7 +350,7 @@ function _syncCategoryFilters(category) {
     const list = document.getElementById(listId);
     if (!list) return;
     list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.category === category);
+      btn.classList.toggle('isSelected', btn.dataset.category === category);
     });
   });
 }
@@ -359,8 +359,8 @@ function _syncCategoryFilters(category) {
 function _setFilterSheetOpen(isOpen) {
   const sheet = document.getElementById('filterSheet');
   const backdrop = document.getElementById('filterSheetBackdrop');
-  sheet?.classList.toggle('active', isOpen);
-  backdrop?.classList.toggle('active', isOpen);
+  sheet?.classList.toggle('isOpen', isOpen);
+  backdrop?.classList.toggle('isOpen', isOpen);
   document.body.classList.toggle('filterSheetLocked', isOpen);
 }
 
@@ -408,7 +408,7 @@ function _handleUrlParams() {
   if (['new', 'bestseller'].includes(filter)) {
     _state.filters.tag = filter;
     const btn = document.getElementById(filter === 'new' ? 'filterNewBtn' : 'filterBestBtn');
-    btn?.classList.add('active');
+    btn?.classList.add('isSelected');
   }
 }
 
@@ -476,7 +476,7 @@ function _renderAdCarouselMarkup(products) {
   const loopProducts = products.length > 1 ? [...products, products[0]] : products;
   document.getElementById('adCarouselSlides').innerHTML = loopProducts.map(_buildAdCarouselSlide).join('');
   document.getElementById('adCarouselDots').innerHTML = products.map((_, index) => (
-    `<button class="adCarouselDot${index === 0 ? ' active' : ''}" data-slide="${index}" aria-label="\u7b2c ${index + 1} \u500b\u63a8\u85a6\u5546\u54c1"></button>`
+    `<button class="adCarouselDot${index === 0 ? ' isSelected' : ''}" data-slide="${index}" aria-label="\u7b2c ${index + 1} \u500b\u63a8\u85a6\u5546\u54c1"></button>`
   )).join('');
 }
 
@@ -491,7 +491,7 @@ function _bindAdCarouselControls(products) {
     slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
     const visibleIndex = ((currentSlide % products.length) + products.length) % products.length;
     document.querySelectorAll('.adCarouselDot').forEach((dot, index) => {
-      dot.classList.toggle('active', index === visibleIndex);
+      dot.classList.toggle('isSelected', index === visibleIndex);
     });
   };
 

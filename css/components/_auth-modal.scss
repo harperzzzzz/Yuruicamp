@@ -1,4 +1,4 @@
-// Auth Modal 內容元件：管理登入、個人化問卷與確認流程共用的 modal 內層版面。
+﻿// Auth Modal 內容元件：管理登入、個人化問卷與確認流程共用的 modal 內層版面。
 .sharedAuthContent {
   width: min(440px, calc(100vw - 32px));
 }
@@ -17,9 +17,9 @@
   min-height: 100dvh;
   border-block: 0;
   border-inline-end: 0;
-  border-radius: var(--yui-radius-lg) 0 0 var(--yui-radius-lg);
+  border-radius: var(--yc-radius-button) 0 0 var(--yc-radius-button);
   transform: translateX(100%);
-  animation: login-modal-slide-in var(--yui-transition-base) forwards;
+  animation: login-modal-slide-in var(--yc-transition-base) forwards;
 }
 
 .sharedSurveyContent {
@@ -29,13 +29,13 @@
 // 登入內容區：讓第三方登入按鈕與說明文字維持一致間距。
 .sharedAuthBody {
   display: grid;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 // 登入內容面板：讓說明文字、社群按鈕與隱私文字維持固定垂直間距。
 #loginModal .modalTabPanel.isOpen {
   display: grid;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
 }
 
 // 第三方登入按鈕：保留 44px 以上可點擊高度，顏色直接使用全站 token。
@@ -45,41 +45,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--yui-space-2);
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-lg);
-  background: var(--yui-surface);
-  color: var(--yui-text);
+  gap: var(--yc-space-2);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-text);
   font-weight: 700;
   cursor: pointer;
 }
 
 .authProviderButton:hover {
-  background: var(--yui-primary-soft);
+  background: var(--yc-sage-soft);
 }
 
 // Facebook 登入按鈕：使用既有 info token 混合出淺藍底，不新增一次性色碼。
 .btnFacebookLogin {
-  background: color-mix(in srgb, var(--yui-info) 12%, var(--yui-surface));
-  border-color: color-mix(in srgb, var(--yui-info) 36%, var(--yui-border));
-  color: var(--yui-primary);
+  background: color-mix(in srgb, var(--yc-sage-action) 12%, var(--yc-surface));
+  border-color: color-mix(in srgb, var(--yc-sage-action) 36%, var(--yc-border));
+  color: var(--yc-sage-action);
 }
 
 .btnFacebookLogin:hover {
-  background: color-mix(in srgb, var(--yui-info) 18%, var(--yui-surface));
-  border-color: var(--yui-info);
+  background: color-mix(in srgb, var(--yc-sage-action) 18%, var(--yc-surface));
+  border-color: var(--yc-sage-action);
 }
 
 // LINE 登入按鈕：依任務指定使用成功色 token 作為主要背景。
 .btnLineLogin {
-  background: var(--yui-success);
-  border-color: var(--yui-success);
-  color: var(--yui-surface);
+  background: var(--yc-success);
+  border-color: var(--yc-success);
+  color: var(--yc-surface);
 }
 
 .btnLineLogin:hover {
-  background: color-mix(in srgb, var(--yui-success) 86%, var(--yui-primary));
-  border-color: color-mix(in srgb, var(--yui-success) 86%, var(--yui-primary));
+  background: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
+  border-color: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
 }
 
 // Modal 輔助文字：OAuth、問卷提示與確認訊息共用閱讀節奏。
@@ -87,7 +87,7 @@
 .oauthPrivacy,
 .surveyHint,
 .modalConfirmMessage {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   line-height: 1.7;
 }
 
@@ -98,37 +98,37 @@
 
 .surveyStep.isOpen {
   display: grid;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 // 問卷標籤：可換行排列，選取狀態沿用主色 token。
 .surveyTags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .surveyTag {
   min-height: 40px;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-pill);
-  background: var(--yui-surface);
-  color: var(--yui-text);
-  padding: 0 var(--yui-space-4);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-surface);
+  color: var(--yc-text);
+  padding: 0 var(--yc-space-4);
   cursor: pointer;
 }
 
 .surveyTag.isSelected {
-  background: var(--yui-primary);
-  border-color: var(--yui-primary);
-  color: #fff;
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
 }
 
 // 問卷步驟指示器：圓點與連線顯示目前填寫進度。
 .stepperHeader {
   display: flex;
   align-items: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .stepperDot {
@@ -137,30 +137,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-pill);
-  color: var(--yui-text-muted);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill);
+  color: var(--yc-text-muted);
   font-weight: 800;
 }
 
 .stepperDot.isSelected {
-  background: var(--yui-primary);
-  border-color: var(--yui-primary);
-  color: #fff;
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
 }
 
 .stepperLine {
   width: 48px;
   height: 1px;
-  background: var(--yui-border);
+  background: var(--yc-border);
 }
 
 // 確認視窗動作列：讓取消與送出按鈕固定靠右。
 .sharedConfirmActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--yui-space-3);
-  padding: 0 var(--yui-space-4) var(--yui-space-4);
+  gap: var(--yc-space-3);
+  padding: 0 var(--yc-space-4) var(--yc-space-4);
 }
 
 // 登入 Modal 動畫：右側面板從視窗外滑入。

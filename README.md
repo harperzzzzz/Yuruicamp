@@ -1,3 +1,28 @@
+## v1.3.59 - 2026/07/04
+
+- 第四輪殘留清理：將剩餘 `:first-child` / `:last-child` 結構 selector 改為相鄰兄弟 selector 或明確語意 class，降低清單尾端與 DOM 順序相依。
+- 清理 booking button 殘留註解與重複 selector，並將 `transition: all` 改為明確 transition property，避免尺寸與 spacing 被動畫化。
+- 更新 booking SCSS 入口與 settings 註解，不再描述相容 alias，維持 `--yc-*` 為唯一 runtime token source。
+
+## v1.3.58 - 2026/07/04
+
+- 第三輪殘留清理：移除 `css/settings/_tokens.scss` 與 `booking/css/settings/_tokens.scss` 中的 `--yui-*` / `--bk-*` 相容 alias，runtime token source 統一只保留 `--yc-*`。
+- 更新 `booking/booking-style-tokens.md`、`docs/ai-style-tokens.css`、`docs/ai-style-sheet.md`、`docs/itcss-architecture.md` 與 `booking/css/semantic-selector-map.md`，不再把舊 alias 當成可用規格。
+- 清理 `bookingToast` 動畫 keyframes 與 booking cart spec 的 `bk*` 文件殘留，讓新規範掃描聚焦在正式命名。
+
+## v1.3.57 - 2026/07/04
+
+- 第二輪殘留清理：`docs/frontend-specs` 與結帳成功頁內嵌腳本改用 `--yc-*` token，來源檔不再直接引用舊 `--yui-*`。
+- 商品列表頁狀態 class 從 `active` 收斂為 `isSelected` / `isOpen`，並調整輪播指示器為固定尺寸，避免狀態切換造成版面位移。
+- booking 表單、篩選 chip、價格滑桿與搜尋列補回透明 outline 加可見 focus ring；LINE、成功、表面白與刪除線色彩改為共用 token 引用。
+
+## v1.3.56 - 2026/07/04
+
+- 將主站與 booking 的設計 token source 統一到 `--yc-*`：`css/settings/_tokens.scss` 與 `booking/css/settings/_tokens.scss` 皆定義同一套 base、status、layout、typography、spacing、radius、shadow、motion 與 z-index token。
+- 保留 `--yui-*` 與 `--bk-*` 相容 alias；主站 SCSS 使用點已從 `--yui-*` 逐步改為 `--yc-*`，舊 selector 仍可透過 alias 過渡。
+- `booking/booking-style-tokens.md` 補齊 alias mapping，`docs/ai-style-tokens.css` 改為 alias 文件，`docs/ai-style-sheet.md` 與 `docs/itcss-architecture.md` 同步標明 `--yc-*` 為新的樣式規格來源。
+- 驗證：`npm.cmd run stylelint`、`npx.cmd sass css/main.scss:css/main.css booking/css/booking-main.scss:booking/css/booking-main.css --style=expanded --source-map`、`npm.cmd run smoke`、`npm.cmd run build` 通過；dev server 在本環境可短暫回應 `/`，但後續頁面 HTTP 批次讀取時 port 未保持 listening，完整瀏覽器頁面 QA 未完成。
+
 ## v1.3.55 - 2026/07/03
 
 - 租借頁靜態區塊補齊 base + Booking variant 雙 class：`summaryBar summaryBarBooking`、`recommendationBanner recommendationBannerBooking`、`rentalLayout rentalLayoutBooking`、`rentalCartSidebar rentalCartSidebarBooking` 等。

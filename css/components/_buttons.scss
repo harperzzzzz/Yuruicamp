@@ -1,25 +1,25 @@
-// Button 元件：共用主要、次要、外框與滿版按鈕樣式。
+﻿// Button 元件：共用主要、次要、外框與滿版按鈕樣式。
 .btn {
   min-block-size: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
   border: 1px solid transparent;
-  border-radius: var(--yui-radius-lg);
-  padding: 0 var(--yui-space-4);
-  color: var(--yui-primary);
+  border-radius: var(--yc-radius-button);
+  padding: 0 var(--yc-space-4);
+  color: var(--yc-sage-action);
   font-weight: 700;
   line-height: 1.2;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
   transition:
-    background-color var(--yui-transition-fast),
-    border-color var(--yui-transition-fast),
-    color var(--yui-transition-fast),
-    box-shadow var(--yui-transition-fast),
-    opacity var(--yui-transition-fast);
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast),
+    box-shadow var(--yc-transition-fast),
+    opacity var(--yc-transition-fast);
 }
 
 .btn:hover,
@@ -40,32 +40,32 @@
 }
 
 .btnPrimary {
-  background: var(--yui-primary);
-  border-color: var(--yui-primary);
-  color: var(--yui-surface);
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-surface);
 }
 
 .btnPrimary:hover,
 .btnPrimary:focus-visible {
-  background: var(--yui-primary-hover);
-  border-color: var(--yui-primary-hover);
-  color: var(--yui-surface);
+  background: var(--yc-sage-dark);
+  border-color: var(--yc-sage-dark);
+  color: var(--yc-surface);
 }
 
 .btnSecondary,
 .btnOutline {
-  background: var(--yui-surface);
-  border-color: var(--yui-border);
-  color: var(--yui-primary);
+  background: var(--yc-surface);
+  border-color: var(--yc-border);
+  color: var(--yc-sage-action);
 }
 
 .btnSecondary:hover,
 .btnSecondary:focus-visible,
 .btnOutline:hover,
 .btnOutline:focus-visible {
-  background: var(--yui-primary-soft);
-  border-color: var(--yui-primary-light);
-  color: var(--yui-primary);
+  background: var(--yc-sage-soft);
+  border-color: var(--yc-sage-light);
+  color: var(--yc-sage-action);
 }
 
 .btnBlock {

@@ -1,4 +1,4 @@
-# HomePage Spec
+﻿# HomePage Spec
 
 **狀態：** 草稿
 **類別：** 頁面
@@ -78,7 +78,7 @@ export interface HomePageProps {
 |-------|---------|---------------|
 | 預設 | 頁面已載入 | 主要內容區域以 Yuruicamp 綠色標記和現有間距渲染。 |
 | 懸停 | 互動式卡片、行、標籤或按鈕懸停 | 邊框、陰影或背景變化，佈局不變。 |
-| 啟動 | 選取標籤、篩選器、導覽項目或表格行 | 使用 `--yui-primary` 或 `--yui-primary-soft` 加上文字標籤。 |
+| 啟動 | 選取標籤、篩選器、導覽項目或表格行 | 使用 `--yc-sage-action` 或 `--yc-sage-soft` 加上文字標籤。 |
 | 停用 | 操作不可用或表單未填寫 | 降低不透明度，指標被遮擋，元素尺寸不變。 |
 | 載入中 | `loading={true}` | 骨架行、停用的提交按鈕或穩定的佔位符區塊。 |
 | 錯誤 | `errorMessage` 存在 | 在失敗區域附近顯示內聯警告，並在可能的情況下重試操作。 |
@@ -99,12 +99,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 

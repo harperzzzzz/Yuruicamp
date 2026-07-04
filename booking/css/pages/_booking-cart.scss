@@ -76,12 +76,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--yc-border);
   gap: 1rem;
 }
 
-.cartItemBooking:last-child {
-  border-bottom: none;
+.cartItemBooking + .cartItemBooking {
+  border-top: 1px solid var(--yc-border);
 }
 
 .cartItemInfoBooking {
@@ -299,19 +298,19 @@
   text-decoration: none;
 }
 
-.cartSummaryCardBooking > div:last-child {
+.cartSummaryNoticeBooking {
   margin-top: 1.25rem;
   padding-top: 1rem;
   border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
-.cartSummaryCardBooking > div:last-child p {
+.cartSummaryNoticeLine {
   font-size: 0.75rem;
   color: var(--yc-text-muted);
   margin: 0;
 }
 
-.cartSummaryCardBooking > div:last-child p:first-child {
-  margin-bottom: 0.25rem;
+.cartSummaryNoticeLine + .cartSummaryNoticeLine {
+  margin-top: 0.25rem;
 }

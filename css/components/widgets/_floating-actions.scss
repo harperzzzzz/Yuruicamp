@@ -1,13 +1,13 @@
-// Floating Actions 元件：由 js/main.js 動態產生的回頂部與 LINE 客服快捷按鈕。
+﻿// Floating Actions 元件：由 js/main.js 動態產生的回頂部與 LINE 客服快捷按鈕。
 
 // 浮動動作容器：固定在視窗右下角，讓兩個快捷按鈕垂直排列。
 .floating-actions {
   position: fixed;
-  right: var(--yui-space-4);
-  bottom: var(--yui-space-4);
-  z-index: var(--yui-z-tooltip);
+  right: var(--yc-space-4);
+  bottom: var(--yc-space-4);
+  z-index: var(--yc-z-toast);
   display: grid;
-  gap: var(--yui-space-3);
+  gap: var(--yc-space-3);
   justify-items: end;
 }
 
@@ -20,15 +20,15 @@
   align-items: center;
   justify-content: center;
   border: 1px solid transparent;
-  border-radius: var(--yui-radius-pill);
-  color: var(--yui-surface-muted);
-  box-shadow: var(--yui-shadow-md);
+  border-radius: var(--yc-radius-pill);
+  color: var(--yc-surface-soft);
+  box-shadow: var(--yc-shadow-soft);
   cursor: pointer;
   text-decoration: none;
   transition:
-    transform var(--yui-transition-fast),
-    box-shadow var(--yui-transition-fast),
-    filter var(--yui-transition-fast);
+    transform var(--yc-transition-fast),
+    box-shadow var(--yc-transition-fast),
+    filter var(--yc-transition-fast);
 }
 
 .floating-top-btn i,
@@ -39,7 +39,7 @@
 
 // 回頂部按鈕：預設隱藏，捲動後由 JS 加上 is-visible 顯示。
 .floating-top-btn {
-  background: var(--yui-orange);
+  background: var(--yc-warning);
   opacity: 0;
   pointer-events: none;
   transform: translateY(8px);
@@ -53,7 +53,7 @@
 
 // LINE 客服按鈕：保留品牌成功色，文字使用視覺隱藏方式輔助螢幕閱讀器。
 .floatingLineBtn {
-  background: var(--yui-success);
+  background: var(--yc-success);
 }
 
 .floating-line-label {
@@ -68,9 +68,9 @@
 // 浮動按鈕互動狀態：hover 加深陰影，focus 顯示鍵盤導覽外框。
 .floating-top-btn:hover,
 .floatingLineBtn:hover {
-  color: var(--yui-surface-muted);
+  color: var(--yc-surface-soft);
   filter: brightness(1.06);
-  box-shadow: var(--yui-shadow-lg);
+  box-shadow: var(--yc-shadow-hover);
 }
 
 .floating-top-btn:focus-visible,
@@ -81,8 +81,8 @@
 
 @media (width <= 480px) {
   .floating-actions {
-    right: var(--yui-space-3);
-    bottom: var(--yui-space-3);
+    right: var(--yc-space-3);
+    bottom: var(--yc-space-3);
   }
 }
 

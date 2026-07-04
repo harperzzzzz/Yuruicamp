@@ -172,7 +172,8 @@
   font-size: 0.9rem;
   color: var(--yc-text);
   background: var(--yc-surface);
-  outline: none;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
   box-sizing: border-box;
   transition: border-color 0.2s;
   font-family: inherit;
@@ -181,6 +182,7 @@
 
 .ccInput:focus {
   border-color: var(--yc-sage-action);
+  box-shadow: var(--yc-focus-ring);
 }
 
 .formControl.isInvalid,
@@ -189,11 +191,11 @@
 }
 
 .ccField {
-  margin-bottom: 0.75rem;
+  margin: 0;
 }
 
-.ccField:last-child {
-  margin-bottom: 0;
+.ccField + .ccField {
+  margin-top: 0.75rem;
 }
 
 .ccRow {
@@ -298,21 +300,21 @@
   margin-bottom: 0;
 }
 
-.summaryCardBooking > .costTotal + div {
+.summarySecurityNoteBooking {
   padding-top: 1rem;
   margin-top: 1rem;
   border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
-.summaryCardBooking > .costTotal + div p {
+.summarySecurityNoteLine {
   color: var(--yc-text-muted);
   font-size: 0.75rem;
   margin: 0;
 }
 
-.summaryCardBooking > .costTotal + div p:first-child {
-  margin-bottom: 0.25rem;
+.summarySecurityNoteLine + .summarySecurityNoteLine {
+  margin-top: 0.25rem;
 }
 
 .checkoutUpsellBannerBooking p + p {

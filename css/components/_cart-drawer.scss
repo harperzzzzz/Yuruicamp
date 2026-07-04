@@ -1,4 +1,4 @@
-// 購物車抽屜元件：主站購物車使用三段式 header / body / footer。
+﻿// 購物車抽屜元件：主站購物車使用三段式 header / body / footer。
 .siteCartDrawer {
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -11,9 +11,9 @@
 // 購物車抽屜底部：固定結帳摘要與主要動作。
 .siteCartDrawerFooter,
 .bookingSlidePanelFooter {
-  padding: var(--yui-space-4);
-  border-top: 1px solid var(--yui-border);
-  background: var(--yui-surface);
+  padding: var(--yc-space-4);
+  border-top: 1px solid var(--yc-border);
+  background: var(--yc-surface);
 }
 
 .siteCartSummary,
@@ -22,20 +22,20 @@
 .bookingCartPanelTotal {
   display: flex;
   justify-content: space-between;
-  gap: var(--yui-space-4);
+  gap: var(--yc-space-4);
 }
 
 .siteCartSummary {
-  color: var(--yui-text-muted);
-  margin-bottom: var(--yui-space-2);
+  color: var(--yc-text-muted);
+  margin-bottom: var(--yc-space-2);
 }
 
 .siteCartSummaryTotal,
 .bookingCartPanelTotal {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 18px;
   font-weight: 800;
-  margin-block: var(--yui-space-3);
+  margin-block: var(--yc-space-3);
 }
 
 .siteCartCheckoutLink,
@@ -48,57 +48,57 @@
 .bookingCartPanelEmpty {
   display: grid;
   justify-items: center;
-  gap: var(--yui-space-3);
-  padding: var(--yui-space-10) var(--yui-space-4);
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-10) var(--yc-space-4);
   text-align: center;
 }
 
 .siteCartEmptyIcon {
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 40px;
 }
 
 .siteCartEmptyTitle {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 20px;
 }
 
 .siteCartEmptyText {
   margin: 0;
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
 }
 
 // 購物車品項列：圖片固定寬度，內容欄位彈性收合。
 .siteCartItem {
   display: grid;
   grid-template-columns: 88px 1fr;
-  gap: var(--yui-space-3);
-  padding-block: var(--yui-space-4);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-3);
+  padding-block: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .siteCartItemImage {
   width: 88px;
   aspect-ratio: 1;
   object-fit: cover;
-  border-radius: var(--yui-radius-lg);
+  border-radius: var(--yc-radius-button);
 }
 
 .siteCartItemContent {
   min-width: 0;
   display: grid;
-  gap: var(--yui-space-1);
+  gap: var(--yc-space-1);
 }
 
 .siteCartItemBrand,
 .siteCartItemPrice {
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 13px;
 }
 
 .siteCartItemName {
-  color: var(--yui-text);
+  color: var(--yc-text);
   font-weight: 800;
   text-decoration: none;
 }
@@ -107,7 +107,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--yui-space-2);
+  gap: var(--yc-space-2);
 }
 
 .siteCartQuantityDecrease,
@@ -118,10 +118,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--yui-border);
-  border-radius: var(--yui-radius-md);
-  background: var(--yui-surface);
-  color: var(--yui-primary);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
   cursor: pointer;
 }
 
@@ -152,20 +152,20 @@
 
 .bookingCartPanelSection {
   display: grid;
-  gap: var(--yui-space-2);
-  padding-block: var(--yui-space-3);
-  border-bottom: 1px solid var(--yui-border);
+  gap: var(--yc-space-2);
+  padding-block: var(--yc-space-3);
+  border-bottom: 1px solid var(--yc-border);
 }
 
 .bookingCartPanelLabel {
   margin: 0;
-  color: var(--yui-primary);
+  color: var(--yc-sage-action);
   font-size: 16px;
 }
 
 .bookingCartPanelMeta {
   margin: 0;
-  color: var(--yui-text-muted);
+  color: var(--yc-text-muted);
   font-size: 14px;
 }
 
