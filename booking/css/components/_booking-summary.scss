@@ -1,11 +1,11 @@
 /* Booking Summary：日期摘要區塊，供營區詳情側欄顯示已選日期。 */
 .dateSummary {
-  background: var(--bk-primary-light);
-  border-radius: var(--bk-radius-sm);
+  background: var(--yc-sage-soft);
+  border-radius: var(--yc-radius-control);
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
 }
 
 /* Booking Summary：日期摘要內文保持緊湊行距。 */
@@ -14,10 +14,10 @@
 }
 
 /* Booking Summary：預訂價格小計，以主色背景強化目前金額狀態。 */
-.priceSummary {
-  background: var(--bk-primary);
-  color: #fff;
-  border-radius: var(--bk-radius-sm);
+.bookingPriceSummary {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  border-radius: var(--yc-radius-control);
   padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -26,36 +26,36 @@
 }
 
 /* Booking Summary：價格小計標籤。 */
-.priceSummaryLabel {
+.bookingPriceSummaryLabel {
   font-size: 0.9rem;
   opacity: 0.9;
 }
 
 /* Booking Summary：價格小計金額。 */
-.priceSummaryAmount {
+.bookingPriceSummaryAmount {
   font-size: 1.2rem;
   font-weight: 700;
 }
 
 /* Booking Summary：訂單明細列，供營位與租借明細共用。 */
-.detailRow {
+.bookingSummaryRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--bk-bg);
+  border-bottom: 1px solid var(--yc-bg);
   font-size: 0.9rem;
-  color: var(--bk-text);
+  color: var(--yc-text);
 }
 
 /* Booking Summary：最後一列不顯示分隔線。 */
-.detailRow:last-child {
+.bookingSummaryRow:last-child {
   border-bottom: none;
 }
 
 /* Booking Summary：明細補充資訊列，降低視覺權重。 */
-.detailRowMeta {
-  color: var(--bk-text-muted);
+.bookingSummaryRowMeta {
+  color: var(--yc-text-muted);
   font-size: 0.85rem;
   justify-content: flex-start;
   gap: 0.5rem;
@@ -63,25 +63,25 @@
 }
 
 /* Booking Summary：無租借品項時的提示文字。 */
-.noRental {
-  color: var(--bk-text-muted);
+.bookingNoRental {
+  color: var(--yc-text-muted);
   font-size: 0.875rem;
   font-style: italic;
 }
 
 /* Booking Summary：費用明細列，供購物車與結帳摘要共用。 */
-.costRow {
+.bookingCostRow {
   display: flex;
   justify-content: space-between;
   padding: 0.4rem 0;
   font-size: 0.9rem;
-  color: var(--bk-text);
-  border-bottom: 1px solid var(--bk-bg);
+  color: var(--yc-text);
+  border-bottom: 1px solid var(--yc-bg);
 }
 
 /* Booking Summary：折扣列使用輔助警示色呈現。 */
-.costRowDiscount {
-  color: var(--bk-orange);
+.bookingCostRowDiscount {
+  color: var(--yc-warning);
   font-weight: 600;
 }
 
@@ -91,7 +91,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-top: 2px solid var(--bk-primary);
+  border-top: 2px solid var(--yc-sage-action);
   margin-top: 0.5rem;
   margin-bottom: 1rem;
   font-weight: 700;
@@ -100,5 +100,5 @@
 /* Booking Summary：總計金額。 */
 .costTotalAmount {
   font-size: 1.4rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
 }

@@ -23,7 +23,7 @@
   </head>
 
   <body>
-    <div id="bookingHeader"></div>
+    <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <section class="heroBanner" id="heroBanner">
       <video autoplay loop muted playsinline>
@@ -39,20 +39,20 @@
             <input
               type="text"
               id="dateRange"
-              class="searchBarInput"
+              class="searchBarInput dateRangeSearchInput"
               placeholder="入住日期 → 退房日期"
               readonly
               aria-label="預約日期範圍"
             />
 
-            <select id="guestCount" class="searchBarSelect" title="人數">
+            <select id="guestCount" class="searchBarSelect searchGuestSelect" title="人數">
               <option value="">人數</option>
               <option value="1">1 人</option>
               <option value="2">2 人</option>
               <option value="4">4 人</option>
               <option value="6">6 人以上</option>
             </select>
-            <select id="regionFilter" class="searchBarSelect" title="地區">
+            <select id="regionFilter" class="searchBarSelect searchRegionSelect" title="地區">
               <option value="">所有地區</option>
               <option value="北部">北部</option>
               <option value="中部">中部</option>
@@ -99,8 +99,24 @@
                 <div class="priceRangeDisplay" id="priceRangeDisplay">NT$500 - NT$5,000+</div>
                 <div class="priceRangeTrackWrap">
                   <div class="priceRangeFill" id="priceRangeFill"></div>
-                  <input type="range" id="priceMin" min="500" max="5000" step="500" value="500" />
-                  <input type="range" id="priceMax" min="500" max="5000" step="500" value="5000" />
+                  <input
+                    type="range"
+                    id="priceMin"
+                    class="priceRangeThumb priceRangeThumbMin"
+                    min="500"
+                    max="5000"
+                    step="500"
+                    value="500"
+                  />
+                  <input
+                    type="range"
+                    id="priceMax"
+                    class="priceRangeThumb priceRangeThumbMax"
+                    min="500"
+                    max="5000"
+                    step="500"
+                    value="5000"
+                  />
                 </div>
                 <div class="priceRangeLabels">
                   <span>NT$500</span>
@@ -109,7 +125,7 @@
               </div>
             </div>
 
-            <button id="resetFilterBtn" class="btn btnOutline">
+            <button id="resetFilterBtn" class="btn btnOutline resetFilterButtonBooking">
               <i class="bi bi-arrow-counterclockwise"></i> 重設篩選
             </button>
           </div>

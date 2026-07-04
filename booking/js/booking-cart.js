@@ -209,11 +209,11 @@ function renderSummary() {
   var s = bookingCart.summary || {};
 
   var html = `
-    <div class="costRow">
+    <div class="bookingCostRow">
       <span>住宿費</span>
       <span>NT$${(s.zone_total || 0).toLocaleString()}</span>
     </div>
-    <div class="costRow">
+    <div class="bookingCostRow">
       <span>裝備租借費</span>
       <span>NT$${(s.rental_total || 0).toLocaleString()}</span>
     </div>
@@ -221,7 +221,7 @@ function renderSummary() {
 
   if (s.applied_discount > 0) {
     html += `
-      <div class="costRow costRowDiscount">
+      <div class="bookingCostRow bookingCostRowDiscount">
         <span><i class="bi bi-tag"></i> 租借折扣優惠</span>
         <span>-NT$${s.applied_discount.toLocaleString()}</span>
       </div>

@@ -112,12 +112,14 @@ function renderCampCards(camps) {
     const maxHolidayPrice = Math.max(...camp.zones.map((z) => z.price_holiday));
 
     // 環境標籤 HTML / Environment tags HTML
-    const envTagsHTML = camp.environment_tags.map((t) => `<span class="tag tagEnv">${t}</span>`).join('');
+    const envTagsHTML = camp.environment_tags
+      .map((t) => `<span class="bookingTag bookingTagEnv">${t}</span>`)
+      .join('');
 
     // 設施標籤 HTML（最多顯示 3 個）/ Facility tags HTML (max 3)
     const facTagsHTML = camp.facility_tags
       .slice(0, 3)
-      .map((t) => `<span class="tag tagFacility">${t}</span>`)
+      .map((t) => `<span class="bookingTag bookingTagFacility">${t}</span>`)
       .join('');
 
     // 建立營區卡片 HTML：輸出 campCard 共通語意與 campCardBooking 預約流程變體。
@@ -293,7 +295,7 @@ function initPriceRangeSlider() {
     const maxVal = parseInt($maxEl.val());
 
     // min thumb 靠近右側時提高層級，避免被 max thumb 擋住。
-    $minEl.toggleClass('isRangeThumbRaised', minVal >= TOTAL_MAX - 500);
+    $minEl.toggleClass('isRaised', minVal >= TOTAL_MAX - 500);
 
     // 文字顯示
     const maxLabel = maxVal >= TOTAL_MAX ? 'NT$5,000+' : 'NT$' + maxVal.toLocaleString();

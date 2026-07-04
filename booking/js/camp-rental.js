@@ -206,7 +206,7 @@ function renderRentalItems(rentals) {
 
     // terrain_tag 推薦標籤：輸出共通語意 class 與 Booking 變體 class，讓樣式責任集中在變體 selector。
     const tagHTML = item.terrain_tag
-      ? `<span class="tag tagRecommend rentalItemCardTag rentalItemCardTagBooking">${item.terrain_tag}</span>`
+      ? `<span class="bookingTag bookingTagRecommend rentalItemCardTag rentalItemCardTagBooking">${item.terrain_tag}</span>`
       : '';
 
     // 折扣說明 / Discount note
@@ -254,9 +254,9 @@ function renderRentalItems(rentals) {
 
     // 按鈕短暫反饋 / Brief button feedback
     const $btn = $(this);
-    $btn.html('<i class="bi bi-check-circle-fill"></i> 已加入').addClass('isAdded');
+    $btn.html('<i class="bi bi-check-circle-fill"></i> 已加入').addClass('isSelected');
     setTimeout(() => {
-      $btn.html('<i class="bi bi-plus-circle"></i> 再加一件').removeClass('isAdded');
+      $btn.html('<i class="bi bi-plus-circle"></i> 再加一件').removeClass('isSelected');
     }, 1000);
   });
 }

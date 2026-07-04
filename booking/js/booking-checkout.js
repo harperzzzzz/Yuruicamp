@@ -42,7 +42,7 @@ function renderCheckoutPage(cart) {
   const zoneRowsHTML = zones
     .map(
       (z) => `
-    <div class="detailRow">
+    <div class="bookingSummaryRow">
       <span>
         <strong>${info.campground_name}</strong>・${z.zone_type}・×${z.quantity} 個營位
       </span>
@@ -53,12 +53,12 @@ function renderCheckoutPage(cart) {
     .join('');
 
   $('#stayDetail').html(`
-    <div class="detailRow detailRowMeta">
+    <div class="bookingSummaryRow bookingSummaryRowMeta">
       <i class="bi bi-calendar3"></i>
       ${info.check_in} ～ ${info.check_out}
       （${info.total_days} 晚｜平日 ${info.weekday_count} 晚、假日 ${info.holiday_count} 晚）
     </div>
-    <div class="detailRow detailRowMeta">
+    <div class="bookingSummaryRow bookingSummaryRowMeta">
       <i class="bi bi-geo-alt"></i> ${info.region}
       &nbsp;&nbsp;
       <i class="bi bi-people"></i> ${info.guest_count} 人
@@ -68,12 +68,12 @@ function renderCheckoutPage(cart) {
 
   // 租借裝備
   if (!rentals || rentals.length === 0) {
-    $('#rentalDetail').html('<p class="noRental">本次未選擇租借裝備。</p>');
+    $('#rentalDetail').html('<p class="bookingNoRental">本次未選擇租借裝備。</p>');
   } else {
     const rentalRowsHTML = rentals
       .map(
         (r) => `
-      <div class="detailRow">
+      <div class="bookingSummaryRow">
         <span>${r.name} ×${r.quantity}</span>
         <span><strong>NT$${r.subtotal.toLocaleString()}</strong></span>
       </div>
@@ -85,11 +85,11 @@ function renderCheckoutPage(cart) {
 
   // 費用明細
   let breakdownHTML = `
-    <div class="costRow">
+    <div class="bookingCostRow">
       <span>住宿費</span>
       <span>NT$${summary.zone_total.toLocaleString()}</span>
     </div>
-    <div class="costRow">
+    <div class="bookingCostRow">
       <span>裝備租借費</span>
       <span>NT$${summary.rental_total.toLocaleString()}</span>
     </div>
@@ -97,7 +97,7 @@ function renderCheckoutPage(cart) {
 
   if (summary.applied_discount > 0) {
     breakdownHTML += `
-      <div class="costRow costRowDiscount">
+      <div class="bookingCostRow bookingCostRowDiscount">
         <span><i class="bi bi-tag"></i> 租借折扣優惠</span>
         <span>-NT$${summary.applied_discount.toLocaleString()}</span>
       </div>
@@ -291,7 +291,7 @@ function onCheckoutSuccess() {
 
   $('#confirmPayBtn')
     .removeClass('btnPrimary')
-    .addClass('btnOutline isCheckoutSuccess')
+    .addClass('btnOutline isSuccess')
     .html('<i class="bi bi-check-circle-fill"></i> ✓ 預約已成功送出')
     .prop('disabled', true);
 
@@ -308,8 +308,8 @@ function onCheckoutSuccess() {
 
 function highlightError(selector, message) {
   const $input = $(selector);
-  $input.addClass('isFieldInvalid');
+  $input.addClass('isInvalid');
   $input.focus();
-  setTimeout(() => $input.removeClass('isFieldInvalid'), 2000);
+  setTimeout(() => $input.removeClass('isInvalid'), 2000);
   showToast(message, 'warning');
 }

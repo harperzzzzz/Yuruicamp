@@ -1,15 +1,9 @@
-/* ======================================================
-       rental-guide.html 頁面專屬樣式 — Yuruicamp v3
-       ====================================================== */
-
-/* 整體頁面背景 */
-.rentalGuidePage {
+﻿.rentalGuidePage {
   background: var(--yc-bg);
   min-height: 100vh;
   padding-bottom: 4rem;
 }
 
-/* ── Hero Banner ── */
 .rgHero {
   background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
   color: var(--yc-on-dark);
@@ -55,7 +49,6 @@
   box-shadow: var(--yc-shadow-cta);
 }
 
-/* ── 通用 Section ── */
 .rgSection {
   max-width: 1100px;
   margin: 4rem auto 0;
@@ -77,7 +70,6 @@
   margin-bottom: 2.5rem;
 }
 
-/* ── 流程步驟 ── */
 .rgSteps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -93,7 +85,6 @@
   position: relative;
 }
 
-/* 步驟數字圓圈 */
 .rgStepCardNum {
   width: 48px;
   height: 48px;
@@ -126,9 +117,8 @@
   line-height: 1.6;
 }
 
-/* 步驟之間的箭頭（偽元素） */
 .rgStepCard:not(:last-child)::after {
-  content: '→';
+  content: '>';
   position: absolute;
   right: -1rem;
   top: 50%;
@@ -138,7 +128,6 @@
   z-index: 1;
 }
 
-/* ── 裝備分類展示 ── */
 .rgEquipGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -179,7 +168,6 @@
   line-height: 1.5;
 }
 
-/* ── 押金說明區塊（警示強調） ── */
 .rgDepositBox {
   background: var(--yc-warning-soft);
   border: 2px solid var(--yc-warning);
@@ -223,7 +211,6 @@
   color: var(--yc-sage-dark);
 }
 
-/* ── 底部 CTA ── */
 .rgCtaSection {
   background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
   padding: 4rem 1.5rem;
@@ -244,7 +231,6 @@
   margin-bottom: 1.75rem;
 }
 
-/* ── RWD ── */
 @media (width <= 768px) {
   .rgHeroTitle {
     font-size: 1.75rem;
@@ -258,7 +244,6 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* 手機版隱藏步驟箭頭 */
   .rgStepCard::after {
     display: none;
   }

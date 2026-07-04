@@ -20,11 +20,11 @@
   </head>
   <body>
     <!-- 預約系統專屬 Header / Booking header -->
-    <div id="bookingHeader"></div>
+    <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <main class="detailPage">
       <!-- 麵包屑 / Breadcrumb -->
-      <nav class="breadcrumb" aria-label="麵包屑導航">
+      <nav class="bookingBreadcrumb" aria-label="麵包屑導航">
         <a href="./camp-search.html"><i class="bi bi-house"></i> 搜尋營區</a>
         <span>/</span>
         <span id="breadcrumbName">載入中...</span>
@@ -97,9 +97,9 @@
           </div>
 
           <!-- 費用小計 / Price subtotal -->
-          <div class="priceSummary" id="priceSummary">
-            <span class="priceSummaryLabel">住宿費小計</span>
-            <strong class="priceSummaryAmount" id="zonePriceTotal">NT$0</strong>
+          <div class="bookingPriceSummary" id="priceSummary">
+            <span class="bookingPriceSummaryLabel">住宿費小計</span>
+            <strong class="bookingPriceSummaryAmount" id="zonePriceTotal">NT$0</strong>
           </div>
 
           <!-- 確認按鈕 / Confirm button -->

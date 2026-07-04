@@ -1,41 +1,27 @@
-/* ── 預約背包頁面基底：頁面根只處理背景與上下留白。 ── */
-.bookingCartPage {
+﻿.bookingCartPage {
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 4rem;
-  background: var(--bk-bg);
+  background: var(--yc-bg);
 }
 
-/* 預約背包 Layout：cartLayout 是共用語意，Booking 變體定義本流程兩欄寬度。 */
-.cartLayoutBooking {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 2rem;
-  align-items: start;
-  padding: 1.5rem 0 4rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-/* 顯示狀態：保留 ID 作為單頁狀態容器，名稱明確指向 booking cart。 */
-#bookingCartContent,
-#bookingCartEmpty {
+.bookingCartContent,
+.bookingCartEmptyState {
   display: none;
 }
 
-#bookingCartContent.isVisible {
+.bookingCartContent.isVisible {
   display: grid;
 }
 
-#bookingCartEmpty.isVisible {
+.bookingCartEmptyState.isVisible {
   display: block;
 }
 
-.bookingCartPage .stepProgress {
+.bookingCartPage .bookingStepProgress {
   padding-top: 1rem;
 }
 
-/* 頁面標題：取代 nth-of-type 相依，讓 HTML 結構調整不影響樣式。 */
 .cartPageHeaderBooking {
   max-width: 1100px;
   margin: 1.5rem auto 0;
@@ -45,21 +31,20 @@
 .cartPageTitleBooking {
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--bk-text);
+  color: var(--yc-text);
   margin: 0 0 0.25rem;
 }
 
 .cartCountTextBooking {
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.9rem;
   margin: 0;
 }
 
-/* ── 背包卡片：住宿與裝備共用 cartCard 結構，Booking 變體負責視覺外框。 ── */
 .cartCardBooking {
-  background: var(--bk-white);
-  border: 1px solid var(--bk-border);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
   overflow: hidden;
   margin-bottom: 1rem;
 }
@@ -69,14 +54,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.9rem 1.25rem;
-  border-bottom: 1px solid var(--bk-border);
-  background: var(--bk-bg);
+  border-bottom: 1px solid var(--yc-border);
+  background: var(--yc-bg);
 }
 
 .cartCardTitleBooking {
   font-weight: 700;
   font-size: 0.95rem;
-  color: var(--bk-text);
+  color: var(--yc-text);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -86,13 +71,12 @@
   padding: 0;
 }
 
-/* ── 項目列：cartItem 是購物項目語意，Booking 變體管理行高、邊線與價格排列。 ── */
 .cartItemBooking {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--bk-border);
+  border-bottom: 1px solid var(--yc-border);
   gap: 1rem;
 }
 
@@ -107,13 +91,13 @@
 .cartItemTitleBooking {
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--bk-text);
+  color: var(--yc-text);
   margin-bottom: 0.25rem;
 }
 
 .cartItemMetaBooking {
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -122,46 +106,38 @@
 .cartItemPriceBooking {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   white-space: nowrap;
 }
 
-/* ── 修改連結：共用 cartEditLink 語意，Booking 變體套用低調文字連結。 ── */
 .cartEditLinkBooking {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   text-decoration: none;
   transition: color 0.15s;
 }
 
 .cartEditLinkBooking:hover {
-  color: var(--bk-primary);
-}
-
-/* ── 右側 Sticky 摘要：Booking 變體維持預約背包桌機黏滯欄。 ── */
-.cartSummaryColumnBooking {
-  position: sticky;
-  top: 5rem;
+  color: var(--yc-sage-action);
 }
 
 .cartSummaryCardBooking {
-  background: var(--bk-white);
-  border: 1px solid var(--bk-border);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
   padding: 1.5rem;
 }
 
 .cartSummaryCardBooking h3 {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin: 0 0 1.25rem;
 }
 
-/* ── 空背包狀態：cartEmpty* 可與主站 cart 對齊，Booking 變體只控制此頁間距。 ── */
 .cartEmptyBooking {
   text-align: center;
   padding: 5rem 2rem;
@@ -169,28 +145,27 @@
 
 .cartEmptyIconBooking {
   font-size: 4rem;
-  color: var(--bk-border);
+  color: var(--yc-border);
   margin-bottom: 1rem;
 }
 
 .cartEmptyTitleBooking {
   font-size: 1.3rem;
   font-weight: 700;
-  color: var(--bk-text);
+  color: var(--yc-text);
   margin-bottom: 0.5rem;
 }
 
 .cartEmptyTextBooking {
   font-size: 0.9rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-bottom: 1.5rem;
 }
 
-/* ── 清除背包按鈕：cartClearButton 語意化危險操作，Booking 變體保留文字按鈕外觀。 ── */
 .cartClearButtonBooking {
   background: none;
   border: none;
-  color: var(--bk-danger);
+  color: var(--yc-error);
   font-size: 0.82rem;
   cursor: pointer;
   padding: 0.2rem 0.5rem;
@@ -202,13 +177,11 @@
   opacity: 0.7;
 }
 
-/* 清除操作列：避免依賴 rental card 後方兄弟節點位置。 */
 .cartClearActionBooking {
   text-align: right;
   padding: 0 0.25rem;
 }
 
-/* ── 項目右側：集中數量調整器、價格與刪除操作。 ── */
 .cartItemActionsBooking {
   display: flex;
   flex-direction: column;
@@ -217,12 +190,11 @@
   flex-shrink: 0;
 }
 
-/* ── 數量調整器：quantity* 命名可供主站 cart 與 booking cart 對齊。 ── */
 .quantityStepperBooking {
   display: flex;
   align-items: center;
   gap: 0;
-  border: 1.5px solid var(--bk-border);
+  border: 1.5px solid var(--yc-border);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -230,12 +202,12 @@
 .quantityButtonBooking {
   width: 30px;
   height: 30px;
-  background: var(--bk-bg);
+  background: var(--yc-bg);
   border: none;
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
-  color: var(--bk-text);
+  color: var(--yc-text);
   transition: background 0.15s;
   font-family: inherit;
   display: flex;
@@ -244,7 +216,7 @@
 }
 
 .quantityButtonBooking:hover:not(:disabled) {
-  background: var(--bk-primary);
+  background: var(--yc-sage-action);
   color: var(--yc-on-dark);
 }
 
@@ -258,18 +230,17 @@
   text-align: center;
   font-weight: 700;
   font-size: 0.9rem;
-  color: var(--bk-text);
-  border-left: 1.5px solid var(--bk-border);
-  border-right: 1.5px solid var(--bk-border);
+  color: var(--yc-text);
+  border-left: 1.5px solid var(--yc-border);
+  border-right: 1.5px solid var(--yc-border);
   padding: 0 4px;
   line-height: 30px;
 }
 
-/* ── 項目移除按鈕：cartRemoveButton 表示刪除購物項目，不綁死 rental 名稱。 ── */
 .cartRemoveButtonBooking {
   background: none;
   border: none;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.8rem;
   cursor: pointer;
   padding: 0;
@@ -281,22 +252,21 @@
 }
 
 .cartRemoveButtonBooking:hover {
-  color: var(--bk-danger);
+  color: var(--yc-error);
 }
 
 .cartItemQtyLabelBooking {
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.72rem;
 }
 
 .cartEmptyNoteBooking {
   padding: 1rem 1.25rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.85rem;
 }
 
-/* 費用列容器：由 JS 填入 costRow，頁面只負責垂直節奏。 */
-#bookingCartCostRows {
+.bookingCartCostRows {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -305,7 +275,7 @@
 
 .cartSummaryCardBooking > hr {
   border: none;
-  border-top: 2px solid var(--bk-border);
+  border-top: 2px solid var(--yc-border);
   margin: 0 0 1rem;
 }
 
@@ -313,7 +283,7 @@
   margin-bottom: 1.5rem;
 }
 
-#bookingCartCheckoutButton {
+.bookingCartCheckoutButton {
   display: block;
   padding: 0.9rem;
   font-size: 1rem;
@@ -323,7 +293,7 @@
 .cartSummaryCardBooking > a[href='./camp-rental.html'] {
   display: block;
   margin-top: 0.875rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.85rem;
   text-align: center;
   text-decoration: none;
@@ -332,28 +302,16 @@
 .cartSummaryCardBooking > div:last-child {
   margin-top: 1.25rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--bk-border);
+  border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
 .cartSummaryCardBooking > div:last-child p {
   font-size: 0.75rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin: 0;
 }
 
 .cartSummaryCardBooking > div:last-child p:first-child {
   margin-bottom: 0.25rem;
-}
-
-/* RWD */
-@media (width <= 860px) {
-  .cartLayoutBooking {
-    grid-template-columns: 1fr;
-  }
-
-  .cartSummaryColumnBooking {
-    position: static;
-    order: -1;
-  }
 }

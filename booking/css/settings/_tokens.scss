@@ -67,6 +67,16 @@
   --yc-on-dark: #fffdf9;
   --yc-on-dark-muted: rgb(255 253 249 / 76%);
 
+  /* External Brand / Contact */
+  --yc-brand-google-surface: #fff;
+  --yc-brand-google-border: #dadce0;
+  --yc-brand-google-text: #3c4043;
+  --yc-brand-facebook: #1877f2;
+  --yc-brand-line: #00b900;
+  --yc-brand-on-color: #fff;
+  --yc-floating-line: #5f9407;
+  --yc-floating-line-hover: #578804;
+
   /* Shadow */
   --yc-shadow-soft: 0 5px 20px rgb(60 70 59 / 6.5%);
   --yc-shadow-hover: 0 16px 38px rgb(60 70 59 / 13%);
@@ -142,7 +152,7 @@
   --yui-z-modal: 3000;
   --yui-z-tooltip: 3100;
 
-  /* bk-* 相容 token：保留既有 booking CSS API。 */
+  /* yui-* / bk-* compatibility only: do not use in new booking SCSS. */
   --bk-primary: var(--yc-sage-action);
   --bk-primary-hover: var(--yc-sage-action);
   --bk-primary-light: var(--yc-sage-soft);
@@ -167,17 +177,6 @@
   --bk-radius: var(--yc-radius-card);
   --bk-radius-sm: var(--yc-radius-control);
   --bk-transition: all var(--yc-duration-normal) var(--yc-ease-soft);
-
-  /* 舊版 color-* alias：支援 base/layout 與既有 booking 元件。 */
-  --color-text: var(--yc-text, #3e473d);
-  --color-muted: var(--yc-text-muted, #7b756d);
-  --color-light-muted: var(--yc-text-muted, #7b756d);
-  --color-primary: var(--yc-sage-action, #73816e);
-  --color-primary-dark: var(--yc-sage-dark, #62705d);
-  --color-bg: var(--yc-bg, #f8f5ee);
-  --color-bg-soft: var(--yc-surface-soft, #f0ece3);
-  --color-cta: var(--yc-cta, #e2d39a);
-  --color-black: #000;
   --font-main: var(--yc-font-heading, 'Noto Serif TC', serif);
   --header-height: 70px;
   --container-wide: min(1180px, 90%);

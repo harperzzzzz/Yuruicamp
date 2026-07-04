@@ -7,11 +7,11 @@
   padding: 0.6rem 1.25rem;
   font-size: 0.95rem;
   font-weight: 600;
-  border-radius: var(--bk-radius-sm);
+  border-radius: var(--yc-radius-control);
   border: 2px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: var(--bk-transition);
+  transition: all var(--yc-duration-normal) var(--yc-ease-soft);
   line-height: 1.4;
   white-space: nowrap;
 }
@@ -19,15 +19,15 @@
 /* Booking Button：主要 CTA 按鈕，用於下一步、加入與確認等高優先行動。 */
 .btnPrimary,
 .btnPrimary {
-  background: var(--bk-cta);
+  background: var(--yc-cta);
   color: var(--yc-on-cta);
-  border-color: var(--bk-cta);
+  border-color: var(--yc-cta);
 }
 
 .btnPrimary:hover,
 .btnPrimary:hover {
-  background: var(--bk-cta-hover);
-  border-color: var(--bk-cta-hover);
+  background: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
   color: var(--yc-on-cta);
 }
 
@@ -48,9 +48,9 @@
 
 .btnOutline:hover,
 .btnOutline:hover {
-  background: var(--bk-cta);
+  background: var(--yc-cta);
   color: var(--yc-on-cta);
-  border-color: var(--bk-cta);
+  border-color: var(--yc-cta);
 }
 
 /* Booking Button：滿版按鈕修飾，常用於表單與抽屜底部操作。 */

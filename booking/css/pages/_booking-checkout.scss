@@ -1,27 +1,14 @@
-/* ══ 預約結帳頁面基底：頁面根只處理背景與上下留白。 ══ */
-.bookingCheckoutPage {
+﻿.bookingCheckoutPage {
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 4rem;
-  background: var(--bk-bg);
+  background: var(--yc-bg);
 }
 
-/* 結帳 Layout：checkoutLayout 是共用語意，Booking 變體定義本流程欄寬與間距。 */
-.checkoutLayoutBooking {
-  display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 2rem;
-  align-items: start;
-  padding: 1.5rem 0 4rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.bookingCheckoutPage .stepProgress {
+.bookingCheckoutPage .bookingStepProgress {
   padding-top: 1rem;
 }
 
-/* ── 手風琴面板：checkoutPanel* 可與其他結帳流程對齊，Booking 變體控制視覺。 ── */
 .checkoutPanelBooking {
   margin-bottom: 0.75rem;
 }
@@ -32,19 +19,19 @@
   justify-content: space-between;
   padding: 1.1rem 1.25rem;
   cursor: pointer;
-  background: var(--bk-white);
-  border: 1px solid var(--bk-border);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
   transition: background 0.15s;
   user-select: none;
 }
 
 .checkoutPanelHeaderBooking:hover {
-  background: var(--bk-bg);
+  background: var(--yc-bg);
 }
 
 .checkoutPanelBooking.isOpen .checkoutPanelHeaderBooking {
-  border-radius: var(--bk-radius) var(--bk-radius) 0 0;
+  border-radius: var(--yc-radius-card) var(--yc-radius-card) 0 0;
 }
 
 .checkoutPanelTitleBooking {
@@ -53,14 +40,14 @@
   gap: 0.75rem;
   font-weight: 700;
   font-size: 1rem;
-  color: var(--bk-text);
+  color: var(--yc-text);
 }
 
 .checkoutPanelNumberBooking {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--bk-primary);
+  background: var(--yc-sage-action);
   color: var(--yc-on-dark);
   display: flex;
   align-items: center;
@@ -71,10 +58,10 @@
 }
 
 .checkoutPanelBodyBooking {
-  background: var(--bk-white);
-  border: 1px solid var(--bk-border);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
   border-top: none;
-  border-radius: 0 0 var(--bk-radius) var(--bk-radius);
+  border-radius: 0 0 var(--yc-radius-card) var(--yc-radius-card);
   padding: 1.5rem;
 }
 
@@ -84,7 +71,7 @@
 
 .checkoutPanelArrowBooking {
   font-size: 1rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   transition: transform 0.2s;
 }
 
@@ -96,99 +83,95 @@
   transform: rotate(0deg);
 }
 
-/* ── 右側 Sticky 摘要：Booking 變體維持桌機黏滯欄與摘要卡外觀。 ── */
 .checkoutSummaryColumnBooking {
   position: sticky;
   top: 5rem;
 }
 
 .summaryCardBooking {
-  background: var(--bk-white);
-  border: 1px solid var(--bk-border);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
   padding: 1.5rem;
 }
 
 .summaryCardBooking h3 {
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin: 0 0 1.25rem;
 }
 
-/* ── 付款方式 ── */
-.paymentOption {
+.bookingPaymentOption {
   display: flex;
   align-items: flex-start;
   gap: 0.875rem;
   padding: 0.875rem 1rem;
-  border: 2px solid var(--bk-border);
-  border-radius: var(--bk-radius);
+  border: 2px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
   cursor: pointer;
   margin-bottom: 0.6rem;
-  background: var(--bk-white);
+  background: var(--yc-surface);
   transition:
     border-color 0.15s,
     background 0.15s;
 }
 
-.paymentOption.isSelected {
-  border-color: var(--bk-primary);
-  background: var(--bk-primary-light);
+.bookingPaymentOption.isSelected {
+  border-color: var(--yc-sage-action);
+  background: var(--yc-sage-soft);
 }
 
-.paymentOption input[type='radio'] {
+.bookingPaymentOption input[type='radio'] {
   margin-top: 0.15rem;
-  accent-color: var(--bk-primary);
+  accent-color: var(--yc-sage-action);
   width: 17px;
   height: 17px;
   flex-shrink: 0;
   cursor: pointer;
 }
 
-.paymentOptionTitle {
+.bookingPaymentOptionTitle {
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--bk-text);
+  color: var(--yc-text);
 }
 
-/* LINE Pay 品牌色：使用外部品牌識別色，不併入 booking token。 */
-#payOptLine .paymentOptionTitle span {
-  color: #00b900;
+.linePayBrandText {
+  color: var(--yc-brand-line);
   font-weight: 800;
 }
 
-.paymentOptionDesc {
+.bookingPaymentOptionDesc {
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-top: 0.2rem;
 }
 
-/* 信用卡輸入區 */
-#creditCardSection {
+.creditCardSectionBooking {
   margin-top: 0.75rem;
   padding: 1.1rem;
-  background: var(--bk-bg);
-  border-radius: var(--bk-radius);
-  border: 1px solid var(--bk-border);
+  background: var(--yc-bg);
+  border-radius: var(--yc-radius-card);
+  border: 1px solid var(--yc-border);
 }
 
 .ccLabel {
   display: block;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin-bottom: 0.3rem;
 }
 
 .ccInput {
   width: 100%;
   padding: 0.55rem 0.8rem;
-  border: 1.5px solid var(--bk-border);
-  border-radius: var(--bk-radius-sm);
+  border: 1.5px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
   font-size: 0.9rem;
-  color: var(--bk-text);
-  background: var(--bk-white);
+  color: var(--yc-text);
+  background: var(--yc-surface);
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
@@ -197,12 +180,12 @@
 }
 
 .ccInput:focus {
-  border-color: var(--bk-primary);
+  border-color: var(--yc-sage-action);
 }
 
-.formControl.isFieldInvalid,
-.ccInput.isFieldInvalid {
-  border-color: var(--bk-danger);
+.formControl.isInvalid,
+.ccInput.isInvalid {
+  border-color: var(--yc-error);
 }
 
 .ccField {
@@ -219,65 +202,59 @@
   gap: 0.75rem;
 }
 
-/* 確認送出區：集中登入提示、送出 CTA、條款與返回背包連結。 */
 .checkoutConfirmAreaBooking {
   margin-top: 1.5rem;
 }
 
-#confirmPayBtn {
+.confirmPayButtonBooking {
   padding: 1rem;
   font-size: 1.05rem;
 }
 
-#confirmPayBtn.isCheckoutSuccess {
-  color: var(--bk-success);
-  border-color: var(--bk-success);
+.confirmPayButtonBooking.isSuccess {
+  color: var(--yc-success);
+  border-color: var(--yc-success);
 }
 
 .termsNoteBooking {
   text-align: center;
   font-size: 0.75rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-top: 0.4rem;
 }
 
 .sslNote {
   font-size: 0.75rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   text-align: center;
   margin-top: 0.6rem;
 }
 
-/* 未登入提示橫幅：loginNotice 是共用狀態語意，Booking 變體控制警示視覺。 */
 .loginNoticeBooking {
-  display: flex;
+  display: none;
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
   padding: 0.875rem 1rem;
   background: var(--yc-warning-soft);
   border: 1.5px solid var(--yc-warning);
-  border-radius: var(--bk-radius);
+  border-radius: var(--yc-radius-card);
   font-size: 0.875rem;
   color: var(--yc-warning-text);
   margin-bottom: 1rem;
 }
 
-#loginNotice {
-  display: none;
-}
-
-#loginNotice.isVisible {
+.loginNoticeBooking.isVisible {
   display: flex;
 }
 
 .loginNoticeButtonBooking {
   margin-left: auto;
   padding: 0.35rem 0.9rem;
-  border: 1.5px solid var(--bk-primary);
-  background: var(--bk-white);
-  color: var(--bk-primary);
-  border-radius: var(--bk-radius-sm);
+  border: 1.5px solid var(--yc-sage-action);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-radius: var(--yc-radius-control);
   font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
@@ -289,32 +266,32 @@
 }
 
 .loginNoticeButtonBooking:hover {
-  background: var(--bk-primary);
+  background: var(--yc-sage-action);
   color: var(--yc-on-dark);
 }
 
-#upsellSection,
-#upsellBanner {
+.checkoutUpsellSection,
+.checkoutUpsellBannerBooking {
   display: none;
 }
 
-#upsellSection .cartSectionTitle {
-  color: var(--bk-gold);
+.checkoutUpsellSection .cartSectionTitle {
+  color: var(--yc-on-cta);
 }
 
-#upsellSection > p {
+.checkoutUpsellSection > p {
   color: var(--yc-text-secondary);
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
-#panelContact .contactForm {
+.checkoutContactFormBooking {
   padding: 0;
   background: none;
   border: none;
 }
 
-#panelContact .contactForm p {
+.checkoutContactHint {
   color: var(--yc-text-muted);
   font-size: 0.78rem;
   margin-top: 0.25rem;
@@ -324,12 +301,12 @@
 .summaryCardBooking > .costTotal + div {
   padding-top: 1rem;
   margin-top: 1rem;
-  border-top: 1px solid var(--bk-border);
+  border-top: 1px solid var(--yc-border);
   text-align: center;
 }
 
 .summaryCardBooking > .costTotal + div p {
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.75rem;
   margin: 0;
 }
@@ -338,76 +315,57 @@
   margin-bottom: 0.25rem;
 }
 
-#upsellBanner p + p {
+.checkoutUpsellBannerBooking p + p {
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
 }
 
-#upsellBanner .rentalSkipLink {
+.checkoutUpsellBannerBooking .rentalSkipLink {
   display: block;
   margin-top: 0.5rem;
   text-align: center;
 }
 
-/* Booking Checkout Support：結帳聯絡資料區塊。 */
 .contactForm {
   margin-bottom: 1.25rem;
 }
 
-/* Booking Checkout Support：聯絡資料區塊標題。 */
 .contactForm h4 {
   font-size: 0.9rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin-bottom: 0.75rem;
 }
 
-/* Booking Checkout Support：結帳聯絡表單內的輸入欄位間距。 */
 .contactForm .formControl {
   margin-bottom: 0.6rem;
   font-size: 0.875rem;
 }
 
-/* Booking Checkout Support：返回購物車的文字連結。 */
 .bookingCartBackLink {
   display: block;
   text-align: center;
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-top: 0.75rem;
   text-decoration: underline;
 }
 
-/* Booking Checkout Support：返回購物車連結 hover 狀態。 */
 .bookingCartBackLink:hover {
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
 }
 
-/* Booking Checkout Support：結帳加購租借裝備提示區塊。 */
 .upsellBanner {
   margin-top: 1rem;
   background: var(--yc-sage-soft);
   border: 1px solid var(--yc-sage-soft);
-  border-radius: var(--bk-radius);
+  border-radius: var(--yc-radius-card);
   padding: 1rem;
   text-align: center;
 }
 
-/* Booking Checkout Support：加購提示區塊主要文字。 */
 .upsellBanner p {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin-bottom: 0.75rem;
-}
-
-/* RWD */
-@media (width <= 900px) {
-  .checkoutLayoutBooking {
-    grid-template-columns: 1fr;
-  }
-
-  .checkoutSummaryColumnBooking {
-    position: static;
-    order: -1;
-  }
 }

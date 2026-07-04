@@ -1,6 +1,6 @@
 // Motion helpers：保留既有 reveal、zoom 與 scroll indicator 動態效果。
 .sectionSubtitle {
-  color: var(--yc-sage-action, var(--color-primary));
+  color: var(--yc-sage-action);
   letter-spacing: 4px;
   font-size: 0.82rem;
   margin-bottom: 16px;
@@ -14,7 +14,7 @@
     transform 1.4s ease;
 }
 
-.reveal.show {
+.reveal.isVisible {
   opacity: 1;
   transform: translateY(0);
 }
@@ -31,8 +31,8 @@
   transition: transform var(--transition-slow);
 }
 
-.reveal.show .zoomBox img,
-.zoomBox.show img {
+.reveal.isVisible .zoomBox img,
+.zoomBox.isVisible img {
   transform: scale(1);
 }
 
@@ -46,7 +46,7 @@
   bottom: 36px;
   left: 50%;
   transform: translateX(-50%);
-  color: #fff;
+  color: var(--yc-on-dark);
   text-align: center;
   letter-spacing: 3px;
   font-size: 0.75rem;
@@ -55,7 +55,7 @@
 .scrollLine {
   width: 1px;
   height: 54px;
-  background-color: rgb(255 255 255 / 42%);
+  background-color: color-mix(in srgb, var(--yc-on-dark) 42%, transparent);
   margin: 12px auto 0;
   position: relative;
   overflow: hidden;
@@ -68,7 +68,7 @@
   left: 0;
   width: 1px;
   height: 24px;
-  background-color: #fff;
+  background-color: var(--yc-on-dark);
   animation: scroll-line-move 1.8s infinite;
 }
 

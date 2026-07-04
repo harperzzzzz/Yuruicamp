@@ -1,44 +1,31 @@
-/* Camp Detail Page：營地詳情頁專屬區塊，集中管理頁首、圖片牆、營位卡片與價格表。 */
-
-/* Camp Detail Shell：詳情頁外殼與主內容 grid，避免 objects 層承擔頁面語意。 */
-.detailPage {
+﻿.detailPage {
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 4rem;
-  background: var(--bk-bg);
+  background: var(--yc-bg);
 }
 
-.detailLayout {
-  max-width: 1200px;
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  align-items: start;
-  gap: 1.5rem;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-#dateSummary,
-#priceSummary {
+.dateSummary,
+.bookingPriceSummary {
   display: none;
 }
 
-#dateSummary.isVisible {
+.dateSummary.isVisible {
   display: block;
 }
 
-#priceSummary.isVisible {
+.bookingPriceSummary.isVisible {
   display: flex;
 }
 
-.breadcrumb span:first-of-type {
+.bookingBreadcrumb span:first-of-type {
   margin: 0 0.4rem;
-  color: var(--yc-text-muted, #7b756d);
+  color: var(--yc-text-muted);
 }
 
 .campDescriptionTitle {
   margin-bottom: 0.75rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
 }
 
 .campDescriptionTags {
@@ -55,8 +42,8 @@
   margin-bottom: 0.3rem;
 }
 
-#zoneList > p {
-  color: var(--yc-text-muted, #7b756d);
+.zoneList > p {
+  color: var(--yc-text-muted);
   font-size: 0.875rem;
   padding: 1rem 0;
   text-align: center;
@@ -66,14 +53,12 @@
   overflow-x: auto;
 }
 
-/* Booking Camp Detail：詳情頁內層容器，讓內容寬度與 booking 其他頁一致。 */
 .detailPage .pageInner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
 
-/* Booking Camp Detail：營地頁首資訊區，承接標題、地區與特色標籤。 */
 .campHeader {
   max-width: 1200px;
   margin: 0 auto 1.5rem;
@@ -82,13 +67,13 @@
 
 .campHeader h1 {
   font-size: 2rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin-bottom: 0.4rem;
 }
 
 .campHeaderRegion {
   font-size: 0.95rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-bottom: 0.6rem;
   display: flex;
   align-items: center;
@@ -101,12 +86,11 @@
   gap: 0.4rem;
 }
 
-/* Booking Camp Detail：營地圖片牆，桌機呈現首圖橫跨的重點版面。 */
 .campGallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
-  border-radius: var(--bk-radius);
+  border-radius: var(--yc-radius-card);
   overflow: hidden;
   margin-bottom: 1.25rem;
 }
@@ -127,21 +111,19 @@
   transform: scale(1.03);
 }
 
-/* Booking Camp Detail：營地介紹卡片，承接文字段落與補充標籤。 */
 .campDescription {
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
   padding: 1.25rem;
-  box-shadow: var(--bk-shadow);
+  box-shadow: var(--yc-shadow-soft);
 }
 
 .campDescription p {
-  color: var(--bk-text);
+  color: var(--yc-text);
   line-height: 1.8;
   margin-bottom: 1rem;
 }
 
-/* Booking Zone Card：營區詳情頁的營位類型清單容器。 */
 .zoneList {
   display: flex;
   flex-direction: column;
@@ -150,28 +132,24 @@
   overflow-y: auto;
 }
 
-/* Booking Zone Card：Booking 變體卡片承接頁面視覺，base zoneCard 保留為未來共用語意。 */
 .zoneCardBooking {
-  border: 2px solid var(--bk-border);
-  border-radius: var(--bk-radius-sm);
+  border: 2px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
   padding: 0.75rem;
   cursor: pointer;
-  transition: var(--bk-transition);
-  background: var(--bk-white);
+  transition: var(--yc-transition);
+  background: var(--yc-surface);
 }
 
-/* Booking Zone Card：滑過時提示此卡片可互動。 */
 .zoneCardBooking:hover {
-  border-color: var(--bk-primary);
+  border-color: var(--yc-sage-action);
 }
 
-/* Booking Zone Card：已選取的營位卡片狀態。 */
 .zoneCardBooking.isSelected {
-  border-color: var(--bk-primary);
-  background: var(--bk-primary-light);
+  border-color: var(--yc-sage-action);
+  background: var(--yc-sage-soft);
 }
 
-/* Booking Zone Card：營位名稱與容量資訊列。 */
 .zoneCardInfoBooking {
   display: flex;
   justify-content: space-between;
@@ -179,32 +157,27 @@
   margin-bottom: 0.3rem;
 }
 
-/* Booking Zone Card：營位名稱文字。 */
 .zoneCardInfoBooking strong {
   font-size: 0.9rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
 }
 
-/* Booking Zone Card：營位容量或補充資訊文字。 */
 .zoneCardInfoBooking span {
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
 }
 
-/* Booking Zone Card：營位價格資訊。 */
 .zoneCardPriceBooking {
   font-size: 0.8rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   margin-bottom: 0.3rem;
 }
 
-/* Booking Zone Card：剩餘庫存資訊。 */
 .zoneCardStockBooking {
   font-size: 0.8rem;
-  color: var(--bk-accent);
+  color: var(--yc-sage-action);
 }
 
-/* Booking Zone Card：選取營位按鈕，使用 Button 命名對齊互動元件語意。 */
 .zoneSelectButtonBooking {
   margin-top: 0.5rem;
   width: 100%;
@@ -212,7 +185,6 @@
   font-size: 0.82rem;
 }
 
-/* Booking Zone Table：營位價格表區塊，對齊 booking 主內容寬度。 */
 .zoneTableSection {
   max-width: 1200px;
   margin: 1.5rem auto;
@@ -221,24 +193,23 @@
 
 .zoneTableSection h3 {
   font-size: 1.1rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   margin-bottom: 0.75rem;
 }
 
-/* Booking Zone Table：營位資訊表格基底，使用卡片式圓角與陰影。 */
 .zoneTable {
   width: 100%;
   border-collapse: collapse;
-  background: var(--bk-white);
-  border-radius: var(--bk-radius);
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
   overflow: hidden;
-  box-shadow: var(--bk-shadow);
+  box-shadow: var(--yc-shadow-soft);
   font-size: 0.9rem;
 }
 
 .zoneTable th {
-  background: var(--bk-primary);
-  color: #fff;
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
   padding: 0.75rem 1rem;
   text-align: left;
   font-weight: 600;
@@ -246,8 +217,8 @@
 
 .zoneTable td {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--bk-border);
-  color: var(--bk-text);
+  border-bottom: 1px solid var(--yc-border);
+  color: var(--yc-text);
 }
 
 .zoneTable tr:last-child td {
@@ -255,15 +226,10 @@
 }
 
 .zoneTable tr:hover td {
-  background: var(--bk-bg);
+  background: var(--yc-bg);
 }
 
 @media (width <= 768px) {
-  .detailLayout {
-    grid-template-columns: 1fr;
-  }
-
-  /* Booking Camp Detail：手機版圖片牆只保留主圖，避免列表過長。 */
   .campGallery {
     grid-template-columns: 1fr;
   }
@@ -272,14 +238,7 @@
     display: none;
   }
 
-  /* Booking Zone Table：手機版允許橫向捲動，保留表格欄位可讀性。 */
   .zoneTableSection {
     overflow-x: auto;
-  }
-}
-
-@media (width >= 769px) and (width <= 1024px) {
-  .detailLayout {
-    grid-template-columns: 1fr 300px;
   }
 }

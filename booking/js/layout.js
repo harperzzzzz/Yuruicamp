@@ -79,6 +79,46 @@ function loadScriptOnce(src, flagName) {
 }
 
 /**
+ * Adds booking-scoped semantic classes to the shared auth partial without
+ * changing the shared main-site markup contract or modal IDs.
+ * @param {Element} target - Header container that received the shared auth partial.
+ */
+function applyBookingAuthSemanticClasses(target) {
+  const classMap = [
+    ['#loginModal', 'bookingAuthModal bookingLoginModal'],
+    ['#personalizationModal', 'bookingAuthModal bookingPersonalizationModal'],
+    ['#surveyCloseConfirmModal', 'bookingAuthModal bookingSurveyCloseConfirmModal'],
+    ['.modalContent', 'bookingAuthModalContent'],
+    ['.modalHeader', 'bookingAuthModalHeader'],
+    ['.modalTitle', 'bookingAuthModalTitle'],
+    ['.modalClose', 'bookingAuthModalClose'],
+    ['.modalBody', 'bookingAuthModalBody'],
+    ['.btnGoogleLogin', 'bookingAuthProviderGoogle'],
+    ['.btnFacebookLogin', 'bookingAuthProviderFacebook'],
+    ['.btnLineLogin', 'bookingAuthProviderLine'],
+    ['.oauthDesc', 'bookingAuthOauthDesc'],
+    ['.oauthPrivacy', 'bookingAuthOauthPrivacy'],
+    ['.stepperHeader', 'bookingAuthStepperHeader'],
+    ['.stepperDot', 'bookingAuthStepperDot'],
+    ['.stepperLine', 'bookingAuthStepperLine'],
+    ['.stepperText', 'bookingAuthStepperText'],
+    ['.surveyStep', 'bookingAuthSurveyStep'],
+    ['.surveyQuestion', 'bookingAuthSurveyQuestion'],
+    ['.surveyHint', 'bookingAuthSurveyHint'],
+    ['.surveyTags', 'bookingAuthSurveyTags'],
+    ['.surveyTag', 'bookingAuthSurveyTag'],
+    ['#surveyNextBtn', 'bookingSurveyNextButton'],
+    ['#surveyFinishBtn', 'bookingSurveyFinishButton'],
+  ];
+
+  classMap.forEach(function ([selector, classNames]) {
+    target.querySelectorAll(selector).forEach(function (element) {
+      element.classList.add(...classNames.split(' '));
+    });
+  });
+}
+
+/**
  * 載入 booking shared auth 與 header 互動腳本。
  * 套用元件：#loginModal、#personalizationModal、.bookingHeader。
  */
@@ -125,6 +165,7 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
       // Shared auth is appended after the booking header so both systems use one modal.
       if (partSelector === '[data-layout-part="shared-auth"]') {
         target.insertAdjacentHTML('beforeend', content);
+        applyBookingAuthSemanticClasses(target);
       } else {
         target.innerHTML = content;
       }

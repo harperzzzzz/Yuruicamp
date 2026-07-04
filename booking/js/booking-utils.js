@@ -19,7 +19,10 @@
     if (!el) {
       el = document.createElement('div');
       el.id = 'bookingToastContainer';
+      el.className = 'bookingToastContainer';
       document.body.appendChild(el);
+    } else {
+      el.classList.add('bookingToastContainer');
     }
     return el;
   }

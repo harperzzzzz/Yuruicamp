@@ -97,8 +97,12 @@ function renderCampDetail(camp) {
   $('#breadcrumbName').text(camp.name);
 
   // 渲染 Header 區塊 / Render camp header section
-  const envTagsHTML = camp.environment_tags.map((t) => `<span class="tag tagEnv">${t}</span>`).join('');
-  const facTagsHTML = camp.facility_tags.map((t) => `<span class="tag tagFacility">${t}</span>`).join('');
+  const envTagsHTML = camp.environment_tags
+    .map((t) => `<span class="bookingTag bookingTagEnv">${t}</span>`)
+    .join('');
+  const facTagsHTML = camp.facility_tags
+    .map((t) => `<span class="bookingTag bookingTagFacility">${t}</span>`)
+    .join('');
 
   $('#campHeader').html(`
     <h1>${camp.name}</h1>
@@ -122,7 +126,9 @@ function renderCampDetail(camp) {
   $('#campGallery').html(galleryHTML);
 
   // 渲染介紹文字與設施 / Render description and facilities
-  const allFacHTML = camp.facility_tags.map((t) => `<span class="tag tagFacility">${t}</span>`).join('');
+  const allFacHTML = camp.facility_tags
+    .map((t) => `<span class="bookingTag bookingTagFacility">${t}</span>`)
+    .join('');
   $('#campDescription').html(`
     <h3 class="campDescriptionTitle">營區介紹</h3>
     <p>${camp.description}</p>

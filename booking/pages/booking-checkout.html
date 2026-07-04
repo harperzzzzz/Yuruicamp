@@ -15,28 +15,28 @@
     />
   </head>
   <body>
-    <div id="bookingHeader"></div>
+    <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <main class="bookingCheckoutPage">
       <!-- 步驟進度列 / Step Progress Bar -->
-      <div class="stepProgress">
-        <div class="step completed">
+      <div class="bookingStepProgress">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           選擇營區
         </div>
-        <div class="step completed">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           選擇日期
         </div>
-        <div class="step completed">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           租借裝備
         </div>
-        <div class="step completed">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           確認背包
         </div>
-        <div class="step active">
+        <div class="bookingStep isSelected">
           <span>5</span>
           確認結帳
         </div>
@@ -72,7 +72,7 @@
                 </div>
               </section>
 
-              <section class="cartSection" id="upsellSection">
+              <section class="cartSection checkoutUpsellSection" id="upsellSection">
                 <h3 class="cartSectionTitle"><i class="bi bi-star"></i> 喜歡這些裝備嗎？</h3>
                 <p>租借體驗後，若想擁有自己的裝備，可至選物商店選購全新商品。</p>
                 <a href="../../pages/products.html" class="btn btnOutline">
@@ -92,11 +92,11 @@
               <span class="checkoutPanelArrow checkoutPanelArrowBooking">▼</span>
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
-              <div class="contactForm">
+              <div class="contactForm checkoutContactFormBooking">
                 <input type="text" id="contactName" class="formControl" placeholder="訂購人姓名 *" required />
                 <input type="tel" id="contactPhone" class="formControl" placeholder="手機號碼 *" required />
                 <input type="email" id="contactEmail" class="formControl" placeholder="電子信箱 *" required />
-                <p>* 確認信將寄送至此信箱</p>
+                <p class="checkoutContactHint">* 確認信將寄送至此信箱</p>
               </div>
             </div>
           </div>
@@ -112,25 +112,25 @@
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
               <!-- 信用卡 -->
-              <label class="paymentOption isSelected" id="payOptCredit">
+              <label class="bookingPaymentOption isSelected" id="payOptCredit">
                 <input type="radio" name="paymentMethod" value="credit" id="payCredit" checked />
                 <div>
-                  <div class="paymentOptionTitle">💳 信用卡付款</div>
-                  <div class="paymentOptionDesc">支援 VISA / MasterCard / JCB，可分期</div>
+                  <div class="bookingPaymentOptionTitle">💳 信用卡付款</div>
+                  <div class="bookingPaymentOptionDesc">支援 VISA / MasterCard / JCB，可分期</div>
                 </div>
               </label>
 
               <!-- LINE Pay -->
-              <label class="paymentOption" id="payOptLine">
+              <label class="bookingPaymentOption" id="payOptLine">
                 <input type="radio" name="paymentMethod" value="linepay" id="payLine" />
                 <div>
-                  <div class="paymentOptionTitle"><span>LINE</span> Pay</div>
-                  <div class="paymentOptionDesc">使用 LINE Pay 電子錢包付款，快速便利</div>
+                  <div class="bookingPaymentOptionTitle"><span class="linePayBrandText">LINE</span> Pay</div>
+                  <div class="bookingPaymentOptionDesc">使用 LINE Pay 電子錢包付款，快速便利</div>
                 </div>
               </label>
 
               <!-- 信用卡資訊欄位（選信用卡時顯示）-->
-              <div id="creditCardSection">
+              <div id="creditCardSection" class="creditCardSectionBooking">
                 <div class="ccField">
                   <label class="ccLabel" for="cardNumber">卡號</label>
                   <input
@@ -181,7 +181,7 @@
               </button>
             </div>
 
-            <button class="btn btnPrimary btnFull" id="confirmPayBtn">
+            <button class="btn btnPrimary btnFull confirmPayButtonBooking" id="confirmPayBtn">
               <i class="bi bi-lock-fill"></i> 確認預約並送出
             </button>
             <p class="termsNote termsNoteBooking">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
@@ -213,7 +213,7 @@
             </div>
 
             <!-- 結帳後導購橫幅（預設隱藏）-->
-            <div class="upsellBanner" id="upsellBanner">
+            <div class="upsellBanner checkoutUpsellBannerBooking" id="upsellBanner">
               <p>🎉 預約已成功送出！</p>
               <p>喜歡這次的裝備體驗嗎？前往選購屬於你的露營裝備。</p>
               <a href="../../pages/products.html" class="btn btnOutline btnFull">

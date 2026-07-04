@@ -1,13 +1,9 @@
-/* ======================================================
-       booking-faq.html 頁面專屬樣式 — Yuruicamp v3
-       ====================================================== */
-.faqPage {
+﻿.faqPage {
   background: var(--yc-bg);
   min-height: 100vh;
   padding-bottom: 4rem;
 }
 
-/* ── 頁首橫幅 ── */
 .faqHero {
   background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
   color: var(--yc-on-dark);
@@ -28,7 +24,6 @@
   margin: 0 auto;
 }
 
-/* ── 快速跳頁錨點導覽 ── */
 .faqNav {
   max-width: 900px;
   margin: 2rem auto 0;
@@ -62,14 +57,12 @@
   color: var(--yc-on-dark);
 }
 
-/* ── FAQ 主內容區 ── */
 .faqContent {
   max-width: 900px;
   margin: 3rem auto 0;
   padding: 0 1.5rem;
 }
 
-/* ── 每個主題區塊 ── */
 .faqSection {
   margin-bottom: 3.5rem;
   scroll-margin-top: 80px;
@@ -95,7 +88,6 @@
   margin: 0;
 }
 
-/* ── 問答 Accordion ── */
 .faqItem {
   background: var(--yc-surface);
   border-radius: 10px;
@@ -104,7 +96,6 @@
   overflow: hidden;
 }
 
-/* 問題按鈕 */
 .faqItemQuestion {
   width: 100%;
   padding: 1.1rem 1.25rem;
@@ -131,7 +122,6 @@
   background: var(--yc-sage-soft);
 }
 
-/* 展開箭頭 */
 .faqItemArrow {
   font-size: 0.8rem;
   transition: transform 0.25s;
@@ -142,7 +132,6 @@
   transform: rotate(180deg);
 }
 
-/* 答案區塊（預設收合） */
 .faqItemAnswer {
   display: none;
   padding: 0 1.25rem 1.25rem;
@@ -165,7 +154,7 @@
   margin-bottom: 0.35rem;
 }
 
-#damage .faqItemAnswer p + p {
+.faqDamageSection .faqItemAnswer p + p {
   margin-top: 0.75rem;
 }
 
@@ -174,7 +163,6 @@
   text-decoration: underline;
 }
 
-/* ── 底部 CTA ── */
 .faqCta {
   max-width: 900px;
   margin: 2rem auto 0;
@@ -221,7 +209,6 @@
   transform: translateY(-2px);
 }
 
-/* ── RWD ── */
 @media (width <= 768px) {
   .faqHeroTitle {
     font-size: 1.75rem;

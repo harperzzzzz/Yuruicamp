@@ -6,7 +6,7 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 3rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   font-size: 0.95rem;
   text-align: center;
 }
@@ -15,17 +15,17 @@
 .noResult {
   grid-column: 1 / -1;
   padding: 2.5rem;
-  border-radius: var(--bk-radius);
-  background: var(--bk-white);
-  box-shadow: var(--bk-shadow);
-  color: var(--bk-text-muted);
+  border-radius: var(--yc-radius-card);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-soft);
+  color: var(--yc-text-muted);
   font-size: 0.95rem;
   text-align: center;
 }
 
 .errorState {
   padding: 2rem;
-  color: var(--bk-danger);
+  color: var(--yc-error);
   text-align: center;
 }
 

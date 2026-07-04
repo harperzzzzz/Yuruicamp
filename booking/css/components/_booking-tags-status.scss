@@ -115,7 +115,7 @@
 }
 
 .ycFilterChip[aria-pressed='true'],
-.ycFilterChip.isActive,
+.ycFilterChip.isSelected,
 .ycSurveyChip[aria-pressed='true'],
 .ycSurveyChip.isSelected {
   color: var(--yc-on-dark);

@@ -10,7 +10,7 @@
   gap: 14px;
 }
 
-/* LINE 聯絡按鈕：使用 LINE 品牌綠，hover 時展開文字標籤。 */
+/* LINE 聯絡按鈕：使用 contact action token，hover 時展開文字標籤。 */
 .floatingLineBtn {
   width: 60px;
   height: 60px;
@@ -20,7 +20,7 @@
   padding: 0;
   overflow: hidden;
   border-radius: var(--yc-radius-pill);
-  background-color: #5f9407;
+  background-color: var(--yc-floating-line);
   box-shadow: 0 14px 34px rgb(0 0 0 / 18%);
   color: var(--yc-on-dark);
   text-decoration: none;
@@ -39,7 +39,7 @@
   justify-content: flex-start;
   padding-right: 10px;
   padding-left: 18px;
-  background-color: #578804;
+  background-color: var(--yc-floating-line-hover);
   box-shadow: 0 18px 40px rgb(0 0 0 / 22%);
   color: var(--yc-on-dark);
   transform: translateY(-2px);

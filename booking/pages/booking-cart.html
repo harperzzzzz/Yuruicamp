@@ -14,28 +14,28 @@
     />
   </head>
   <body>
-    <div id="bookingHeader"></div>
+    <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <main class="bookingCartPage">
       <!-- 步驟進度列 -->
-      <div class="stepProgress">
-        <div class="step completed">
+      <div class="bookingStepProgress">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           選擇營區
         </div>
-        <div class="step completed">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           選擇日期
         </div>
-        <div class="step completed">
+        <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
           租借裝備
         </div>
-        <div class="step active">
+        <div class="bookingStep isSelected">
           <span>4</span>
           確認背包
         </div>
-        <div class="step">
+        <div class="bookingStep">
           <span>5</span>
           確認結帳
         </div>
@@ -48,7 +48,7 @@
       </div>
 
       <!-- 空背包狀態：共用 cartEmpty* 語意，保留 booking 變體供本流程覆寫。 -->
-      <div id="bookingCartEmpty" class="cartEmpty cartEmptyBooking">
+      <div id="bookingCartEmpty" class="cartEmpty cartEmptyBooking bookingCartEmptyState">
         <div class="cartEmptyIcon cartEmptyIconBooking"><i class="bi bi-bag-x"></i></div>
         <div class="cartEmptyTitle cartEmptyTitleBooking">背包是空的</div>
         <p class="cartEmptyText cartEmptyTextBooking">還沒有選擇任何營區或裝備，去探索看看吧！</p>
@@ -56,7 +56,7 @@
       </div>
 
       <!-- 有內容時的兩欄佈局：cartLayout 是功能語意，cartLayoutBooking 是 booking 專屬尺寸。 -->
-      <div id="bookingCartContent" class="cartLayout cartLayoutBooking">
+      <div id="bookingCartContent" class="cartLayout cartLayoutBooking bookingCartContent">
         <!-- ══ 左側：項目列表 ══ -->
         <div>
           <!-- 住宿卡 -->
@@ -99,7 +99,7 @@
             <h3>費用摘要</h3>
 
             <!-- 費用逐項 -->
-            <div id="bookingCartCostRows"></div>
+            <div id="bookingCartCostRows" class="bookingCartCostRows"></div>
 
             <hr />
 
@@ -112,7 +112,7 @@
             <!-- 前往結帳 -->
             <a
               href="./booking-checkout.html"
-              class="btn btnPrimary btnFull cartCheckoutButton cartCheckoutButtonBooking"
+              class="btn btnPrimary btnFull cartCheckoutButton cartCheckoutButtonBooking bookingCartCheckoutButton"
               id="bookingCartCheckoutButton"
             >
               <i class="bi bi-arrow-right-circle"></i> 前往結帳

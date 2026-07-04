@@ -6,7 +6,7 @@
 .formGroup label {
   display: block;
   margin-bottom: 0.35rem;
-  color: var(--bk-primary);
+  color: var(--yc-sage-action);
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -14,15 +14,15 @@
 .formControl {
   width: 100%;
   padding: 0.6rem 0.9rem;
-  border: 2px solid var(--bk-border);
-  border-radius: var(--bk-radius-sm);
-  background: var(--bk-white);
-  color: var(--bk-text);
+  border: 2px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-text);
   font-size: 0.95rem;
   outline: none;
   transition: border-color 0.2s;
 }
 
 .formControl:focus {
-  border-color: var(--bk-primary);
+  border-color: var(--yc-sage-action);
 }

@@ -1,6 +1,6 @@
-// 頁首黏性容器；套用於主站 #header 與 booking #bookingHeader 掛載點。
+// 頁首黏性容器；主站使用 #header，booking 使用語意 mount class。
 #header,
-#bookingHeader {
+.bookingHeaderMount {
   position: sticky;
   top: 0;
   z-index: var(--yui-z-sticky);
@@ -270,7 +270,7 @@
 .surveyActionButton,
 .sharedConfirmSubmit {
   background: var(--yui-primary);
-  color: #fff;
+  color: var(--yui-surface);
 }
 
 .siteBookingLink:hover,
@@ -282,7 +282,7 @@
 .surveyActionButton:hover,
 .sharedConfirmSubmit:hover {
   background: var(--yui-primary-hover);
-  color: #fff;
+  color: var(--yui-surface);
 }
 
 .sharedConfirmCancel,
@@ -309,7 +309,7 @@
   justify-content: center;
   border-radius: var(--yui-radius-pill);
   background: var(--yui-danger);
-  color: #fff;
+  color: var(--yui-surface);
   font-size: 12px;
   font-weight: 800;
 }

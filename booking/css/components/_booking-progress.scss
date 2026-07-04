@@ -1,5 +1,5 @@
 /* Booking Progress：購物車與結帳頁共用的流程進度條容器。 */
-.stepProgress {
+.bookingStepProgress {
   display: flex;
   justify-content: center;
   gap: 0;
@@ -11,41 +11,41 @@
 }
 
 /* Booking Progress：單一步驟節點，文字置中並保留連接線定位基準。 */
-.step {
+.bookingStep {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
   font-size: 0.78rem;
-  color: var(--bk-text-muted);
+  color: var(--yc-text-muted);
   text-align: center;
 }
 
 /* Booking Progress：步驟之間的連接線。 */
-.step + .step::before {
+.bookingStep + .bookingStep::before {
   content: '';
   position: absolute;
   left: -50%;
   top: 15px;
   width: 100%;
   height: 2px;
-  background: var(--bk-border);
+  background: var(--yc-border);
   z-index: 0;
 }
 
 /* Booking Progress：已完成步驟後方的連接線改為主色。 */
-.step.completed + .step::before {
-  background: var(--bk-primary);
+.bookingStep.isCompleted + .bookingStep::before {
+  background: var(--yc-sage-action);
 }
 
 /* Booking Progress：步驟數字圓點。 */
-.step span {
+.bookingStep span {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--bk-border);
-  color: var(--bk-text-muted);
+  background: var(--yc-border);
+  color: var(--yc-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,31 +57,31 @@
 }
 
 /* Booking Progress：已完成步驟狀態。 */
-.step.completed span {
-  background: var(--bk-primary);
-  color: #fff;
+.bookingStep.isCompleted span {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
 }
 
 /* Booking Progress：目前步驟圓點，以淡色外暈標示。 */
-.step.active span {
-  background: var(--bk-primary);
-  color: #fff;
-  box-shadow: 0 0 0 4px var(--bk-primary-light);
+.bookingStep.isSelected span {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  box-shadow: 0 0 0 4px var(--yc-sage-soft);
 }
 
 /* Booking Progress：目前步驟文字加重。 */
-.step.active {
-  color: var(--bk-primary);
+.bookingStep.isSelected {
+  color: var(--yc-sage-action);
   font-weight: 600;
 }
 
 @media (width <= 768px) {
   /* Booking Progress：手機版降低文字尺寸，避免五步驟擠壓。 */
-  .stepProgress {
+  .bookingStepProgress {
     gap: 0;
   }
 
-  .step {
+  .bookingStep {
     font-size: 0.7rem;
   }
 }
