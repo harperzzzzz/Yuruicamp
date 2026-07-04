@@ -1,0 +1,754 @@
+﻿// 商品詳情頁 token alias：把商品詳情局部變數對應到全站 --yc-* 設計 token。
+$product-text: var(--yc-text);
+$product-muted: var(--yc-text-muted);
+$product-subtle: var(--yc-text-muted);
+$product-primary: var(--yc-sage-action);
+$product-primary-dark: var(--yc-sage-dark);
+$product-primary-hover: var(--yc-sage-dark);
+$product-primary-soft: var(--yc-sage-soft);
+$product-surface: var(--yc-surface);
+$product-surface-muted: var(--yc-surface-soft);
+$product-bg: var(--yc-bg);
+$product-border: var(--yc-border);
+$product-border-strong: var(--yc-sage-action);
+$product-success: var(--yc-success);
+$product-danger: var(--yc-error);
+$product-gold: var(--yc-cta);
+$product-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+
+// 商品詳情頁外層：控制內容上下留白，避免干擾共用 header / footer。
+.productDetailContainer {
+  padding-bottom: 3rem;
+  padding-top: 1rem;
+}
+
+// 商品詳情主容器：對應 pages/product-detail.html 的 main.productDetailContainer。
+main.productDetailContainer {
+  margin-inline: auto;
+  padding-inline: 0;
+  width: min(1120px, calc(100vw - 32px));
+}
+
+.productDetailHero {
+  background: linear-gradient(135deg, $product-primary-dark, $product-primary);
+  color: $product-surface;
+  padding: clamp(1.75rem, 5vw, 3rem) 0;
+}
+
+.productDetailHeroInner {
+  display: grid;
+  gap: 1rem;
+}
+
+.productDetailHeroEyebrow {
+  color: color-mix(in srgb, $product-surface 78%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.productDetailHeroLead {
+  color: color-mix(in srgb, $product-surface 88%, transparent);
+  font-size: clamp(1rem, 2.2vw, 1.25rem);
+  font-weight: 800;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 40rem;
+}
+
+.detailBreadcrumb {
+  color: $product-muted;
+  font-size: 0.875rem;
+}
+
+.detailBreadcrumbList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.detailBreadcrumbItem {
+  align-items: center;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.detailBreadcrumbItem + .detailBreadcrumbItem::before {
+  color: $product-subtle;
+  content: '>';
+  margin-right: 0.5rem;
+}
+
+.detailBreadcrumbLink {
+  color: $product-primary;
+  text-decoration: none;
+}
+
+.detailBreadcrumbLink:hover,
+.detailBreadcrumbLink:focus-visible {
+  color: $product-primary-hover;
+  text-decoration: underline;
+}
+
+.productDetailHero .detailBreadcrumb {
+  color: color-mix(in srgb, $product-surface 76%, transparent);
+}
+
+.productDetailHero .detailBreadcrumbLink {
+  color: inherit;
+}
+
+.productDetailHero .detailBreadcrumbLink:hover,
+.productDetailHero .detailBreadcrumbLink:focus-visible {
+  color: $product-surface;
+}
+
+.productDetailHero .detailBreadcrumbItem[aria-current='page'] {
+  color: $product-surface;
+  font-weight: 800;
+}
+
+.productDetailHero .detailBreadcrumbItem + .detailBreadcrumbItem::before {
+  color: color-mix(in srgb, $product-surface 56%, transparent);
+}
+
+.productLoading,
+.productError {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.productLoading[hidden],
+.productError[hidden],
+.productDetailContent[hidden],
+.productOriginalPrice[hidden],
+.productDiscount[hidden],
+.specGroup[hidden] {
+  display: none;
+}
+
+.loadingIcon {
+  border: 3px solid $product-border;
+  border-top-color: $product-primary;
+  border-radius: 50%;
+  height: 44px;
+  margin: 0 auto 1rem;
+  width: 44px;
+  animation: product-detail-spin 800ms linear infinite;
+}
+
+.productLoadingText,
+.errorSubText {
+  color: $product-muted;
+}
+
+.errorText {
+  color: $product-text;
+}
+
+.productDetailLayout {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  padding: 2.5rem 0 4rem;
+}
+
+.productGallery,
+.productInfo {
+  min-width: 0;
+}
+
+.galleryMain {
+  aspect-ratio: 1 / 1;
+  background: $product-surface-muted;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.galleryMainImg {
+  border-radius: 12px;
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  opacity: 1;
+  transition: opacity 200ms ease, transform 250ms ease;
+  width: 100%;
+}
+
+.galleryMainImg.isSwitching {
+  opacity: 0.35;
+}
+
+.galleryMainImg:hover {
+  transform: scale(1.02);
+}
+
+.galleryThumbs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.galleryThumb {
+  background: $product-surface;
+  border: 2px solid $product-border;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 0 0 auto;
+  height: 72px;
+  overflow: hidden;
+  padding: 0;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+  width: 72px;
+}
+
+.galleryThumb:hover,
+.galleryThumb:focus-visible,
+.galleryThumb.isSelected {
+  border-color: $product-primary;
+  box-shadow: 0 0 0 3px rgb(36 77 77 / 12%);
+}
+
+.galleryThumbImage {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.productBrand {
+  color: $product-primary;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.productName {
+  color: $product-text;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 0.75rem;
+}
+
+.ratingContainer1 {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.rating,
+.starStyle {
+  color: $product-gold;
+  letter-spacing: 0.08em;
+}
+
+.rating {
+  font-size: 1.1rem;
+}
+
+.reviewPoint {
+  color: $product-text;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.reviewNumber,
+.ratingDate {
+  color: $product-subtle;
+  font-size: 0.875rem;
+}
+
+.priceSection {
+  background: $product-bg;
+  border: 1px solid $product-border;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+}
+
+.priceBox {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.currentPrice {
+  color: $product-primary;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  font-weight: 800;
+}
+
+.productOriginalPrice {
+  color: $product-subtle;
+  font-size: 1.1rem;
+  text-decoration: line-through;
+}
+
+.productDiscount {
+  background: $product-danger;
+  border-radius: 4px;
+  color: $product-surface;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+}
+
+.specGroup,
+.quantityContainer,
+.progressContainer {
+  margin-bottom: 1.5rem;
+}
+
+.specGroup {
+  border: 0;
+  margin-inline: 0;
+  padding: 0;
+}
+
+.specLabel {
+  color: $product-text;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+  padding: 0;
+}
+
+.selectedSpecLabel {
+  color: $product-muted;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+
+.specOptions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.specOptionBtn {
+  background: $product-surface;
+  border: 1.5px solid $product-border;
+  border-radius: 8px;
+  color: $product-text;
+  cursor: pointer;
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+.specOptionBtn:hover,
+.specOptionBtn:focus-visible,
+.specOptionBtn.isSelected {
+  background: $product-primary;
+  border-color: $product-primary;
+  color: $product-surface;
+}
+
+.quantityContainer {
+  align-items: center;
+  color: $product-text;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-weight: 700;
+}
+
+.qtyStepper {
+  display: inline-grid;
+  grid-template-columns: 44px minmax(56px, 72px) 44px;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid $product-border;
+  border-radius: var(--yc-radius-button);
+  background: $product-surface;
+}
+
+.qtyBtn {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: $product-surface;
+  color: $product-primary;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+.qtyBtn:hover,
+.qtyBtn:focus-visible {
+  background: $product-primary-soft;
+  color: $product-primary-dark;
+}
+
+.qtyBtn:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: -3px;
+}
+
+.qtyInput {
+  min-width: 0;
+  min-height: 44px;
+  border: 0;
+  border-inline: 1px solid $product-border;
+  background: $product-surface;
+  color: $product-text;
+  font: inherit;
+  font-weight: 800;
+  text-align: center;
+}
+
+.progressContainer {
+  background: var(--yc-success-soft);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+}
+
+.progressBox {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.progressIcon,
+.shippingProgressText {
+  color: $product-success;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.shippingProgressBar {
+  appearance: none;
+  block-size: 10px;
+  border: 0;
+  border-radius: 999px;
+  display: block;
+  inline-size: 100%;
+  overflow: hidden;
+}
+
+.shippingProgressBar::-webkit-progress-bar {
+  background: var(--yc-success-soft);
+  border-radius: 999px;
+}
+
+.shippingProgressBar::-webkit-progress-value {
+  background: linear-gradient(90deg, $product-success, var(--yc-success));
+  border-radius: 999px;
+  transition: inline-size 300ms ease;
+}
+
+.shippingProgressBar::-moz-progress-bar {
+  background: linear-gradient(90deg, $product-success, var(--yc-success));
+  border-radius: 999px;
+}
+
+.shippingProgressHint {
+  color: $product-muted;
+  font-size: 0.8rem;
+  margin: 0.4rem 0 0;
+}
+
+.shippingProgressHint.isSuccess {
+  color: $product-success;
+}
+
+.actionBtnContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cartBtn {
+  flex: 1;
+  font-size: 1rem;
+  min-width: 140px;
+}
+
+
+.productTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+}
+
+.productTag {
+  background: $product-primary-soft;
+  border-radius: 999px;
+  color: $product-primary;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+}
+
+.bottomAreaContainer {
+  margin-top: 3rem;
+}
+
+.productTabsNav {
+  border-bottom: 2px solid $product-border;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  margin-bottom: 2rem;
+}
+
+.productTabBtn {
+  background: none;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: $product-muted;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: -2px;
+  min-height: 44px;
+  padding: 0.875rem 1.75rem;
+  transition: color 200ms ease, border-color 200ms ease;
+  white-space: nowrap;
+}
+
+.productTabBtn:hover,
+.productTabBtn:focus-visible,
+.productTabBtn.isSelected {
+  border-bottom-color: $product-primary;
+  color: $product-primary;
+}
+
+.productTabPanel {
+  display: none;
+}
+
+.productTabPanel.isSelected {
+  display: block;
+}
+
+.descriptionContainer {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.productDescriptionTitle,
+.descriptionProductTitle,
+.productFeaturesTitle {
+  color: $product-primary;
+  font-weight: 700;
+}
+
+.productDescriptionTitle,
+.descriptionProductTitle {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.productDescription {
+  color: $product-muted;
+  font-size: 0.95rem;
+  line-height: 1.8;
+}
+
+.productFeatures {
+  margin-top: 1.25rem;
+}
+
+.productFeaturesTitle {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+}
+
+.productFeaturesList {
+  color: $product-muted;
+  font-size: 0.9rem;
+  line-height: 2;
+  padding-left: 1.25rem;
+}
+
+.productSpecTable {
+  border: 1px solid $product-border;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  overflow: hidden;
+}
+
+.productSpecRow {
+  display: flex;
+}
+
+.productSpecRow + .productSpecRow {
+  border-top: 1px solid $product-border;
+}
+
+.productSpecLabel {
+  background: $product-surface-muted;
+  color: $product-text;
+  font-size: 0.875rem;
+  font-weight: 700;
+  padding: 0.6rem 0.875rem;
+  width: 40%;
+}
+
+.productSpecValue {
+  color: $product-muted;
+  flex: 1;
+  font-size: 0.875rem;
+  padding: 0.6rem 0.875rem;
+}
+
+.productSpecEmpty {
+  color: $product-subtle;
+  padding: 1rem;
+}
+
+.ratingContainer2 {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+}
+
+.reviewCard {
+  background: $product-surface;
+  border: 1px solid $product-border;
+  border-radius: 12px;
+  box-shadow: $product-shadow;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.reviewHeader {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.reviewAvatar {
+  align-items: center;
+  background: linear-gradient(135deg, $product-primary, $product-primary-hover);
+  border-radius: 50%;
+  color: $product-surface;
+  display: flex;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.reviewAuthorName {
+  color: $product-text;
+  font-weight: 700;
+}
+
+.ratingDate {
+  margin-left: auto;
+}
+
+.reviewText {
+  color: $product-muted;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin: 0 0 0.875rem;
+}
+
+.reviewImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.ratingImage {
+  border-radius: 8px;
+  height: 100px;
+  object-fit: cover;
+  width: 100px;
+}
+
+@keyframes product-detail-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (width <= 1024px) {
+  .productDetailLayout {
+    gap: 2rem;
+  }
+}
+
+@media (width <= 768px) {
+  .productDetailLayout,
+  .descriptionContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .productDetailLayout {
+    padding: 1.5rem 0 3rem;
+  }
+}
+
+@media (width <= 440px) {
+  .productDetailContainer {
+    padding-inline: 0;
+  }
+
+  .productTabBtn {
+    padding-inline: 1rem;
+  }
+
+  .productSpecRow {
+    display: block;
+  }
+
+  .productSpecLabel {
+    width: 100%;
+  }
+}
+
+@media (width <= 375px) {
+  .actionBtnContainer,
+  .quantityContainer,
+  .progressBox {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cartBtn {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galleryMainImg,
+  .galleryThumb,
+  .productTabBtn,
+  .specOptionBtn,
+  .qtyBtn,
+  .shippingProgressBar::-webkit-progress-value {
+    transition-duration: 0.01ms;
+  }
+
+  .loadingIcon {
+    animation: none;
+  }
+}

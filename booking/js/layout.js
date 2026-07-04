@@ -2,13 +2,13 @@
  * Creates the floating scroll-to-top and LINE shortcut buttons on booking pages.
  */
 function initFloatingActions() {
-  if (document.querySelector('.floating-actions')) return;
+  if (document.querySelector('.floatingActions')) return;
 
   const floatingActions = document.createElement('div');
-  floatingActions.className = 'floating-actions';
+  floatingActions.className = 'floatingActions';
   floatingActions.innerHTML = `
     <button
-      class="floating-top-btn"
+      class="floatingTopBtn"
       type="button"
       aria-label="回到頁面頂端"
       title="回到頁面頂端"
@@ -16,15 +16,15 @@ function initFloatingActions() {
       <i class="bi bi-chevron-up"></i>
     </button>
     <a
-      class="floating-line-btn"
+      class="floatingLineBtn"
       href="https://line.me"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="LINE 聯絡"
       title="LINE 聯絡"
     >
-      <span class="floating-line-label">LINE 聯絡</span>
-      <span class="floating-line-icon" aria-hidden="true">
+      <span class="floatingLineLabel">LINE 聯絡</span>
+      <span class="floatingLineIcon" aria-hidden="true">
         <i class="bi bi-chat-dots-fill"></i>
       </span>
     </a>
@@ -32,15 +32,15 @@ function initFloatingActions() {
 
   document.body.appendChild(floatingActions);
 
-  const topButton = floatingActions.querySelector('.floating-top-btn');
+  const topButton = floatingActions.querySelector('.floatingTopBtn');
 
   /**
    * Shows the top button only after the user scrolls past the first viewport segment.
    */
   function toggleTopButton() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const shouldShow = scrollTop > (window.innerHeight / 5);
-    topButton.classList.toggle('is-visible', shouldShow);
+    const shouldShow = scrollTop > window.innerHeight / 5;
+    topButton.classList.toggle('isVisible', shouldShow);
   }
 
   topButton.addEventListener('click', function () {
@@ -67,7 +67,9 @@ function loadScriptOnce(src, flagName) {
     window[flagName] = true;
     const script = document.createElement('script');
     script.src = src;
-    script.onload = function () { resolve(); };
+    script.onload = function () {
+      resolve();
+    };
     script.onerror = function () {
       window[flagName] = false;
       reject(new Error('script load failed: ' + src));
@@ -77,11 +79,56 @@ function loadScriptOnce(src, flagName) {
 }
 
 /**
- * Loads shared auth first, then the booking header controller.
+ * Adds booking-scoped semantic classes to the shared auth partial without
+ * changing the shared main-site markup contract or modal IDs.
+ * @param {Element} target - Header container that received the shared auth partial.
+ */
+function applyBookingAuthSemanticClasses(target) {
+  const classMap = [
+    ['#loginModal', 'bookingAuthModal bookingLoginModal'],
+    ['#personalizationModal', 'bookingAuthModal bookingPersonalizationModal'],
+    ['#surveyCloseConfirmModal', 'bookingAuthModal bookingSurveyCloseConfirmModal'],
+    ['.modalContent', 'bookingAuthModalContent'],
+    ['.modalHeader', 'bookingAuthModalHeader'],
+    ['.modalTitle', 'bookingAuthModalTitle'],
+    ['.modalClose', 'bookingAuthModalClose'],
+    ['.modalBody', 'bookingAuthModalBody'],
+    ['.btnGoogleLogin', 'bookingAuthProviderGoogle'],
+    ['.btnFacebookLogin', 'bookingAuthProviderFacebook'],
+    ['.btnLineLogin', 'bookingAuthProviderLine'],
+    ['.oauthDesc', 'bookingAuthOauthDesc'],
+    ['.oauthPrivacy', 'bookingAuthOauthPrivacy'],
+    ['.stepperHeader', 'bookingAuthStepperHeader'],
+    ['.stepperDot', 'bookingAuthStepperDot'],
+    ['.stepperLine', 'bookingAuthStepperLine'],
+    ['.stepperText', 'bookingAuthStepperText'],
+    ['.surveyStep', 'bookingAuthSurveyStep'],
+    ['.surveyQuestion', 'bookingAuthSurveyQuestion'],
+    ['.surveyHint', 'bookingAuthSurveyHint'],
+    ['.surveyTags', 'bookingAuthSurveyTags'],
+    ['.surveyTag', 'bookingAuthSurveyTag'],
+    ['#surveyNextBtn', 'bookingSurveyNextButton'],
+    ['#surveyFinishBtn', 'bookingSurveyFinishButton'],
+  ];
+
+  classMap.forEach(function ([selector, classNames]) {
+    target.querySelectorAll(selector).forEach(function (element) {
+      element.classList.add(...classNames.split(' '));
+    });
+  });
+}
+
+/**
+ * 載入 booking shared auth 與 header 互動腳本。
+ * 套用元件：#loginModal、#personalizationModal、.bookingHeader。
  */
 function loadBookingHeaderScript() {
-  loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded')
+  loadScriptOnce('../../js/components/modal.js', '__yuruiModalScriptLoaded')
     .then(function () {
+      return loadScriptOnce('../../js/components/auth.js', '__yuruiAuthScriptLoaded');
+    })
+    .then(function () {
+      window.initModalListeners?.();
       return loadScriptOnce('../js/booking-header.js', '__bookingHeaderScriptLoaded');
     })
     .catch(function (error) {
@@ -118,6 +165,7 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
       // Shared auth is appended after the booking header so both systems use one modal.
       if (partSelector === '[data-layout-part="shared-auth"]') {
         target.insertAdjacentHTML('beforeend', content);
+        applyBookingAuthSemanticClasses(target);
       } else {
         target.innerHTML = content;
       }
@@ -136,13 +184,27 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
  * Loads the booking header, shared auth modal, and footer for booking pages.
  */
 window.loadBookingSharedLayout = function () {
-  loadBookingLayoutPartial('#booking-header', '../../components/header.partial', '[data-layout-part="booking-header"]', function (ok) {
-    if (!ok) return;
-    loadBookingLayoutPartial('#booking-header', '../../components/header.partial', '[data-layout-part="shared-auth"]', function () {
-      loadBookingHeaderScript();
-    });
-  });
-  loadBookingLayoutPartial('#booking-footer', '../../components/footer.partial', '[data-layout-part="booking-footer"]');
+  loadBookingLayoutPartial(
+    '#bookingHeader',
+    '../../components/header.partial',
+    '[data-layout-part="bookingHeader"]',
+    function (ok) {
+      if (!ok) return;
+      loadBookingLayoutPartial(
+        '#bookingHeader',
+        '../../components/header.partial',
+        '[data-layout-part="shared-auth"]',
+        function () {
+          loadBookingHeaderScript();
+        }
+      );
+    }
+  );
+  loadBookingLayoutPartial(
+    '#bookingFooter',
+    '../../components/footer.partial',
+    '[data-layout-part="bookingFooter"]'
+  );
 };
 
 document.addEventListener('DOMContentLoaded', initFloatingActions);

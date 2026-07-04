@@ -1,15 +1,14 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-TW">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Yuruicamp 露營生活誌 - 探索戶外的每一步，都是故事。新手教學、景點推薦、裝備評測一次看。"
+      content="Yuruicamp 露營生活誌 - 探索戶外的每一步，都是故事。新手教學、景點推薦、生活技巧與裝備評測一次看。"
     />
     <meta name="theme-color" content="#244d4d" />
-    <title>部落格 - Yuruicamp 露營選物</title>
-    <!-- 預先連線外部資源，減少 DNS 查詢延遲 / Preconnect to reduce DNS lookup latency -->
+    <title>露營生活誌 - Yuruicamp 露營選物</title>
     <link rel="preconnect" href="https://picsum.photos" />
     <link rel="dns-prefetch" href="https://picsum.photos" />
     <link rel="stylesheet" href="../css/main.css" />
@@ -25,64 +24,52 @@
   <body>
     <div id="header"></div>
 
-    <!-- ===================================================
-       主要內容
-       =================================================== -->
-    <main>
-      <!-- -----------------------------------------------
-         頁面 Banner：深綠漸層背景
-         ----------------------------------------------- -->
-      <section class="page-banner u-migrated-013">
-        <div class="container">
-          <h1 class="page-banner-title">📖 露營生活誌</h1>
-          <p class="page-banner-subtitle">探索戶外的每一步，都是故事</p>
+    <main class="blogPage">
+      <section class="blogHero" aria-labelledby="blogPageTitle">
+        <div class="blogHeroContent">
+          <p class="blogHeroKicker">Yuruicamp Journal</p>
+          <h1 class="blogHeroTitle" id="blogPageTitle">露營生活誌</h1>
+          <p class="blogHeroDescription">探索戶外的每一步，都是故事。整理新手教學、景點推薦、生活技巧與裝備評測。</p>
         </div>
       </section>
 
-      <!-- -----------------------------------------------
-         主要內容容器
-         ----------------------------------------------- -->
-      <div class="container u-migrated-001">
-        <!-- 精選文章（Featured Article）- 由 JS 動態渲染 -->
-        <section id="featuredArticle" class="blog-featured u-migrated-014">
-          <!-- JS 會把精選文章渲染到這裡 -->
-          <div class="u-migrated-015">載入中...</div>
+      <div class="blogContent">
+        <section class="blogFeaturedSection isLoading" id="featuredArticle" aria-live="polite" aria-labelledby="blogFeaturedTitle">
+          <div class="blogLoadingState" role="status">
+            <span class="blogLoadingIcon" aria-hidden="true"></span>
+            <span>載入精選文章中...</span>
+          </div>
         </section>
 
-        <!-- 分類篩選 Tab -->
-        <div class="category-tabs u-migrated-016" id="categoryTabs">
-          <button class="filter-btn active" data-cat="all">全部</button>
-          <button class="filter-btn" data-cat="新手教學">新手教學</button>
-          <button class="filter-btn" data-cat="景點推薦">景點推薦</button>
-          <button class="filter-btn" data-cat="生活技巧">生活技巧</button>
-          <button class="filter-btn" data-cat="裝備評測">裝備評測</button>
-        </div>
+        <nav class="blogCategoryTabs" id="categoryTabs" aria-label="文章分類">
+          <button class="blogCategoryTab isActive" type="button" data-cat="all" aria-pressed="true">全部</button>
+          <button class="blogCategoryTab" type="button" data-cat="新手教學" aria-pressed="false">新手教學</button>
+          <button class="blogCategoryTab" type="button" data-cat="景點推薦" aria-pressed="false">景點推薦</button>
+          <button class="blogCategoryTab" type="button" data-cat="生活技巧" aria-pressed="false">生活技巧</button>
+          <button class="blogCategoryTab" type="button" data-cat="裝備評測" aria-pressed="false">裝備評測</button>
+        </nav>
 
-        <!-- 文章網格 - 由 JS 動態渲染 -->
-        <div class="products-grid" id="articlesGrid">
-          <!-- JS 會把文章卡片渲染到這裡 -->
-        </div>
+        <section class="blogArticlesSection" aria-labelledby="blogArticlesTitle">
+          <div class="blogArticlesHeader">
+            <h2 class="blogArticlesTitle" id="blogArticlesTitle">最新文章</h2>
+            <p class="blogArticlesDescription" id="blogArticlesDescription">依照分類篩選你感興趣的露營內容。</p>
+          </div>
+          <div class="blogArticlesGrid isLoading" id="articlesGrid" aria-live="polite">
+            <div class="blogLoadingState" role="status">
+              <span class="blogLoadingIcon" aria-hidden="true"></span>
+              <span>載入文章中...</span>
+            </div>
+          </div>
+        </section>
 
-        <!-- 若沒有文章則顯示空狀態 -->
-        <div class="u-migrated-017" id="noArticles">
-          <div class="u-migrated-018">📭</div>
+        <div class="blogEmptyState isHidden" id="noArticles" role="status" hidden>
+          <div class="blogEmptyIcon" aria-hidden="true"><i class="bi bi-journal-x"></i></div>
           <p>目前沒有符合條件的文章</p>
         </div>
       </div>
     </main>
 
     <div id="footer"></div>
-    <!-- ===================================================
-       Script 載入順序（注意：有依賴關係）
-       1. config.js   → 全局設定
-       2. api-mock.js → 模擬 API（window.API）
-       3. toast.js    → showToast 函數
-       4. modal.js    → openModal 函數
-       5. header.js   → 導航欄功能
-       6. cart.js     → 購物車功能
-       7. blog.js     → 部落格頁邏輯（本頁主要邏輯）
-       8. main.js     → 應用初始化
-       =================================================== -->
     <script src="../js/config.js" defer></script>
     <script src="../js/storage.js" defer></script>
     <script src="../js/state.js" defer></script>

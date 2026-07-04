@@ -22,7 +22,7 @@ window.initApp = async () => {
 
   // 全局事件監聽（online/offline/beforeunload）始終需要設定
   window.initGlobalListeners();
-  // 先載入 header/footer HTML 與 header.js
+  // 先載入 header/footer HTML 與 shared auth 所需腳本
   await initGlobalLayout();
 
   // Header partial 注入完成後才綁定共用互動，避免 product-detail 等頁面先初始化造成空 DOM 綁定。
@@ -34,7 +34,11 @@ window.initApp = async () => {
     window.initPersonalizationModal();
     window._appComponentsInitialized = true;
   } else {
-    // Header markup may be injected after a page script already ran init.
+    // Header markup may be injected after a page script already ran init; these init functions are idempotent.
+    window.initNavbar?.();
+    window.initModalListeners?.();
+    window.initCartListeners?.();
+    window.initPersonalizationModal?.();
     window.updateNavbarLoginState?.();
     window.updateCartBadge?.();
   }
@@ -102,12 +106,12 @@ window.initGlobalListeners = () => {
 window.initBodyScrollLock = () => {
   let scrollY = 0; // 記錄捲動位置，關閉時還原
 
-  // 觀察 body 是否有 offcanvas-open class
-  // Watch for offcanvas-open class on body
+  // 觀察 body 是否有 offcanvasOpen class
+  // Watch for offcanvasOpen class on body
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const isOpen = document.body.classList.contains('offcanvas-open');
+        const isOpen = document.body.classList.contains('offcanvasOpen');
         if (isOpen) {
           // 記住目前捲動位置，套用固定
           // Remember scroll position and fix body
@@ -207,7 +211,8 @@ function loadComponentScript(src) {
 }
 
 /**
- * Loads the shared header/footer fragments and the scripts that operate on them.
+ * 載入共用 header/footer partial 與 shared auth/header 互動腳本。
+ * 套用元件：components/header.partial、#loginModal、#personalizationModal。
  */
 async function initGlobalLayout() {
   const rootPrefix = getRootPathPrefix();
@@ -222,6 +227,7 @@ async function initGlobalLayout() {
   // 2. 確定 HTML 結構長到網頁上後，才動態載入原本的互動 JS
   try {
     await loadComponentScript(`${rootPrefix}/js/components/auth.js`);
+    await loadComponentScript(`${rootPrefix}/js/components/modal.js`);
     // 這樣可以確保手機版漢堡選單、登入彈出視窗的功能不會失效
     await loadComponentScript(`${rootPrefix}/js/components/header.js`);
     
@@ -251,7 +257,7 @@ function initFloatingActions() {
     </button>
 
     <a
-      class="floating-line-btn"
+      class="floatingLineBtn"
       href="https://line.me"
       target="_blank"
       rel="noopener noreferrer"

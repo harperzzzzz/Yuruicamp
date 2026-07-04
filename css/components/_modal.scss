@@ -1,0 +1,85 @@
+﻿// Modal 元件：共用登入、個人化問卷與確認流程的遮罩外殼。
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yc-z-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yc-space-4);
+  background: rgb(0 0 0 / 45%);
+}
+
+.modal.isOpen {
+  display: flex;
+}
+
+// Modal 內容框：限制寬度與高度，讓內容區在小螢幕可獨立捲動。
+.modalContent {
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-hover);
+}
+
+// Modal 標題列：保留標題與關閉按鈕的固定高度。
+.modalHeader {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.modalTitle {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.modalBody {
+  overflow: auto;
+  padding: var(--yc-space-4);
+}
+
+// Modal 關閉按鈕：使用全站 token，避免依賴 header 專用 Sass 變數。
+.modalClose {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  cursor: pointer;
+}
+
+.modalClose:hover {
+  background: var(--yc-sage-soft);
+}
+
+.modalClose:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 2px;
+}
+
+@media (width <= 480px) {
+  .modal {
+    padding: var(--yc-space-3);
+  }
+
+  .modalContent {
+    width: min(100%, calc(100vw - 24px));
+    max-height: calc(100vh - 24px);
+  }
+}

@@ -14,21 +14,20 @@
 // ============================================================
 // 全域狀態 / Global State
 // ============================================================
-let currentCamp   = null;  // 當前營區完整資料 / Current campground data
+let currentCamp = null; // 當前營區完整資料 / Current campground data
 let selectedZoneId = null; // 使用者選擇的 zone_id / Selected zone ID
-let checkInDate   = null;  // 入住日期（Date 物件）/ Check-in Date object
-let checkOutDate  = null;  // 退房日期（Date 物件）/ Check-out Date object
-let weekdayCount  = 0;     // 平日天數 / Weekday nights count
-let holidayCount  = 0;     // 假日天數 / Holiday nights count
+let checkInDate = null; // 入住日期（Date 物件）/ Check-in Date object
+let checkOutDate = null; // 退房日期（Date 物件）/ Check-out Date object
+let weekdayCount = 0; // 平日天數 / Weekday nights count
+let holidayCount = 0; // 假日天數 / Holiday nights count
 
 // ============================================================
 // 頁面初始化 / Page Initialization
 // ============================================================
 $(document).ready(function () {
-
   // 步驟 1：從 URL 取得 id 參數 / Step 1: Get id from URL
   const params = new URLSearchParams(window.location.search);
-  const campId  = params.get('id');
+  const campId = params.get('id');
 
   // 防呆：缺少 id 時返回搜尋頁 / Guard: redirect if id missing
   if (!campId) {
@@ -42,7 +41,6 @@ $(document).ready(function () {
 
   // 步驟 3：確認按鈕綁定 / Step 3: Bind confirm button
   $('#confirmBookingBtn').on('click', saveToLocalStorageAndNext);
-
 });
 
 // ============================================================
@@ -56,32 +54,31 @@ $(document).ready(function () {
  * @param {string} campId - URL 傳入的 campground_id
  */
 function loadCampDetail(campId) {
-
   // TODO: 未來在此替換為 fetch Java 後端 API
   // Future backend endpoint: GET /api/campgrounds/{campId}
   // Response: { success: true, data: { campground } }
   $.ajax({
     url: '../data/campgrounds.json',
     method: 'GET',
-    dataType: 'json'
+    dataType: 'json',
   })
-  .done(function (data) {
-    // 從陣列中找到指定 ID 的營區 / Find campground by ID in array
-    currentCamp = data.find(c => c.campground_id === campId);
+    .done(function (data) {
+      // 從陣列中找到指定 ID 的營區 / Find campground by ID in array
+      currentCamp = data.find((c) => c.campground_id === campId);
 
-    if (!currentCamp) {
-      showToast('找不到此營區（ID: ' + campId + '），即將返回搜尋頁。', 'error');
-      window.location.href = './camp-search.html';
-      return;
-    }
+      if (!currentCamp) {
+        showToast('找不到此營區（ID: ' + campId + '），即將返回搜尋頁。', 'error');
+        window.location.href = './camp-search.html';
+        return;
+      }
 
-    renderCampDetail(currentCamp);
-    initDatePicker();
-  })
-  .fail(function (xhr, textStatus) {
-    console.error('[camp-detail] AJAX 失敗:', textStatus);
-    $('#campHeader').html('<p class="error-msg">資料載入失敗，請重新整理頁面。</p>');
-  });
+      renderCampDetail(currentCamp);
+      initDatePicker();
+    })
+    .fail(function (xhr, textStatus) {
+      console.error('[camp-detail] AJAX 失敗:', textStatus);
+      $('#campHeader').html('<p class="errorMsg">資料載入失敗，請重新整理頁面。</p>');
+    });
 }
 
 // ============================================================
@@ -95,41 +92,47 @@ function loadCampDetail(campId) {
  * @param {Object} camp - 單一營區物件
  */
 function renderCampDetail(camp) {
-
   // 更新頁面標題與麵包屑 / Update page title and breadcrumb
   document.title = camp.name + ' - Yuruicamp 露營選物';
   $('#breadcrumbName').text(camp.name);
 
   // 渲染 Header 區塊 / Render camp header section
   const envTagsHTML = camp.environment_tags
-    .map(t => `<span class="tag tag--env">${t}</span>`).join('');
+    .map((t) => `<span class="bookingTag bookingTagEnv">${t}</span>`)
+    .join('');
   const facTagsHTML = camp.facility_tags
-    .map(t => `<span class="tag tag--facility">${t}</span>`).join('');
+    .map((t) => `<span class="bookingTag bookingTagFacility">${t}</span>`)
+    .join('');
 
   $('#campHeader').html(`
     <h1>${camp.name}</h1>
-    <p class="camp-header__region">
+    <p class="campHeaderRegion">
       <i class="bi bi-geo-alt-fill"></i> ${camp.region}
     </p>
-    <div class="camp-header__tags">${envTagsHTML}${facTagsHTML}</div>
+    <div class="campHeaderTags">${envTagsHTML}${facTagsHTML}</div>
   `);
 
   // 渲染圖片區（3 張 picsum 佔位圖）/ Render gallery with picsum placeholders
-  const galleryHTML = [0, 1, 2].map(i => `
+  const galleryHTML = [0, 1, 2]
+    .map(
+      (i) => `
     <img src="https://picsum.photos/seed/${camp.campground_id}_${i}/600/400"
          alt="${camp.name} 第 ${i + 1} 張圖"
-         class="gallery-img"
+         class="galleryImg${i === 0 ? ' galleryImgHero' : ''}"
          loading="lazy">
-  `).join('');
+  `
+    )
+    .join('');
   $('#campGallery').html(galleryHTML);
 
   // 渲染介紹文字與設施 / Render description and facilities
   const allFacHTML = camp.facility_tags
-    .map(t => `<span class="tag tag--facility">${t}</span>`).join('');
+    .map((t) => `<span class="bookingTag bookingTagFacility">${t}</span>`)
+    .join('');
   $('#campDescription').html(`
-    <h3 style="color:var(--bk-primary);margin-bottom:.75rem;">營區介紹</h3>
+    <h3 class="campDescriptionTitle">營區介紹</h3>
     <p>${camp.description}</p>
-    <div style="margin-top:.75rem;">${allFacHTML}</div>
+    <div class="campDescriptionTags">${allFacHTML}</div>
   `);
 
   // 渲染營位選擇器 / Render zone selector
@@ -149,19 +152,20 @@ function renderZoneSelector(zones) {
   const $list = $('#zoneList').empty();
 
   zones.forEach(function (zone) {
+    // 營位卡片輸出共通語意 class 與 Booking 變體 class；樣式由 *Booking selector 接手，保留基底 class 供未來共用。
     const html = `
-      <div class="zone-card" data-zone-id="${zone.zone_id}">
-        <div class="zone-card__info">
+      <div class="zoneCard zoneCardBooking" data-zone-id="${zone.zone_id}">
+        <div class="zoneCardInfo zoneCardInfoBooking">
           <strong>${zone.type}</strong>
           <span>最多 ${zone.capacity_per_site} 人</span>
         </div>
-        <div class="zone-card__price">
+        <div class="zoneCardPrice zoneCardPriceBooking">
           平日 NT$${zone.price_weekday.toLocaleString()} ／ 假日 NT$${zone.price_holiday.toLocaleString()}
         </div>
-        <div class="zone-card__stock">
+        <div class="zoneCardStock zoneCardStockBooking">
           <i class="bi bi-tent"></i> 剩餘 <strong>${zone.total_sites}</strong> 個營位
         </div>
-        <button class="btn btn--outline zone-select-btn">
+        <button class="btn btnOutline zoneSelectButton zoneSelectButtonBooking">
           <i class="bi bi-check-circle"></i> 選擇此類型
         </button>
       </div>
@@ -169,16 +173,16 @@ function renderZoneSelector(zones) {
     $list.append(html);
   });
 
-  // 綁定選擇事件 / Bind zone selection event
-  $list.on('click', '.zone-select-btn', function () {
-    const $card = $(this).closest('.zone-card');
+  // 綁定營位選擇事件：使用 zoneSelectButtonBooking 作為互動 hook，對齊 booking 語意命名。
+  $list.on('click', '.zoneSelectButtonBooking', function () {
+    const $card = $(this).closest('.zoneCardBooking');
 
     // 移除其他卡片的選中狀態 / Remove selected state from others
-    $('.zone-card').removeClass('is-selected');
-    $('.zone-select-btn').html('<i class="bi bi-check-circle"></i> 選擇此類型');
+    $('.zoneCardBooking').removeClass('isSelected');
+    $('.zoneSelectButtonBooking').html('<i class="bi bi-check-circle"></i> 選擇此類型');
 
     // 選中當前卡片 / Select current card
-    $card.addClass('is-selected');
+    $card.addClass('isSelected');
     $(this).html('<i class="bi bi-check-circle-fill"></i> ✓ 已選擇');
     selectedZoneId = $card.data('zone-id');
 
@@ -220,16 +224,16 @@ function renderZoneTable(zones) {
  */
 function initDatePicker() {
   flatpickr('#dateRange', {
-    mode: 'range',        // 範圍模式：選擇開始與結束日期 / Range mode
-    locale: 'zh_tw',      // 繁體中文 / Traditional Chinese locale
-    minDate: 'today',     // 最早可選今天 / Minimum: today
-    dateFormat: 'Y-m-d',  // 儲存格式 / Storage format: YYYY-MM-DD
+    mode: 'range', // 範圍模式：選擇開始與結束日期 / Range mode
+    locale: 'zh_tw', // 繁體中文 / Traditional Chinese locale
+    minDate: 'today', // 最早可選今天 / Minimum: today
+    dateFormat: 'Y-m-d', // 儲存格式 / Storage format: YYYY-MM-DD
     showMonths: 1,
 
     // 使用者選完日期後觸發 / Fires when user finishes selecting a range
     onChange: function (selectedDates) {
       if (selectedDates.length === 2) {
-        checkInDate  = selectedDates[0];
+        checkInDate = selectedDates[0];
         checkOutDate = selectedDates[1];
 
         // 計算平日/假日天數 / Calculate weekday/holiday nights
@@ -240,7 +244,7 @@ function initDatePicker() {
           updatePriceSummary();
         }
       }
-    }
+    },
   });
 }
 
@@ -292,7 +296,7 @@ function calculateDays(start, end) {
   $('#totalDays').text(total);
   $('#weekdayLabel').text(`平日 ${weekdayCount} 晚`);
   $('#holidayLabel').text(`假日 ${holidayCount} 晚`);
-  $('#dateSummary').show();
+  $('#dateSummary').addClass('isVisible');
 }
 
 // ============================================================
@@ -308,15 +312,15 @@ function updatePriceSummary() {
   if (weekdayCount + holidayCount <= 0) return;
 
   // 找到選擇的 zone 資料 / Find selected zone data
-  const zone = currentCamp.zones.find(z => z.zone_id === selectedZoneId);
+  const zone = currentCamp.zones.find((z) => z.zone_id === selectedZoneId);
   if (!zone) return;
 
   // 公式：(平日價 × 平日天數) + (假日價 × 假日天數)
   // Formula: (weekday_price × weekday_count) + (holiday_price × holiday_count)
-  const subtotal = (zone.price_weekday * weekdayCount) + (zone.price_holiday * holidayCount);
+  const subtotal = zone.price_weekday * weekdayCount + zone.price_holiday * holidayCount;
 
   $('#zonePriceTotal').text(`NT$${subtotal.toLocaleString()}`);
-  $('#priceSummary').show();
+  $('#priceSummary').addClass('isVisible');
 
   // 啟用「下一步」按鈕 / Enable "next step" button
   $('#confirmBookingBtn').prop('disabled', false);
@@ -331,7 +335,6 @@ function updatePriceSummary() {
  * Validate selections, write to LocalStorage, redirect to rental page
  */
 function saveToLocalStorageAndNext() {
-
   // 驗證：日期是否已選 / Validate: dates selected?
   if (!checkInDate || !checkOutDate) {
     showToast('請先選擇入住和退房日期。', 'warning');
@@ -344,42 +347,42 @@ function saveToLocalStorageAndNext() {
     return;
   }
 
-  const zone = currentCamp.zones.find(z => z.zone_id === selectedZoneId);
+  const zone = currentCamp.zones.find((z) => z.zone_id === selectedZoneId);
   if (!zone) return;
 
   // 計算費用 / Calculate cost
-  const subtotal = (zone.price_weekday * weekdayCount) + (zone.price_holiday * holidayCount);
+  const subtotal = zone.price_weekday * weekdayCount + zone.price_holiday * holidayCount;
   const totalDays = weekdayCount + holidayCount;
   const guestCount = parseInt($('#guestNum').val()) || 2;
 
   // 建立 bookingCart 資料結構 / Build bookingCart data structure
   const bookingCart = {
     booking_info: {
-      campground_id:    currentCamp.campground_id,
-      campground_name:  currentCamp.name,
-      region:           currentCamp.region,
-      check_in:         formatDate(checkInDate),
-      check_out:        formatDate(checkOutDate),
-      total_days:       totalDays,
-      weekday_count:    weekdayCount,
-      holiday_count:    holidayCount,
-      guest_count:      guestCount
+      campground_id: currentCamp.campground_id,
+      campground_name: currentCamp.name,
+      region: currentCamp.region,
+      check_in: formatDate(checkInDate),
+      check_out: formatDate(checkOutDate),
+      total_days: totalDays,
+      weekday_count: weekdayCount,
+      holiday_count: holidayCount,
+      guest_count: guestCount,
     },
     selected_zones: [
       {
-        zone_id:    zone.zone_id,
-        zone_type:  zone.type,
-        quantity:   1,
-        subtotal:   subtotal
-      }
+        zone_id: zone.zone_id,
+        zone_type: zone.type,
+        quantity: 1,
+        subtotal: subtotal,
+      },
     ],
-    selected_rentals: [],  // 下一頁（camp-rental）填入 / Filled by next page
+    selected_rentals: [], // 下一頁（camp-rental）填入 / Filled by next page
     summary: {
-      zone_total:       subtotal,
-      rental_total:     0,
+      zone_total: subtotal,
+      rental_total: 0,
       applied_discount: 0,
-      final_amount:     subtotal
-    }
+      final_amount: subtotal,
+    },
   };
 
   // 寫入 LocalStorage / Write to LocalStorage

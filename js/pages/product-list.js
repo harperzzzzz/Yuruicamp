@@ -1,89 +1,61 @@
-// ========================================
-// 商品列表頁面邏輯 (Product List Page)
-// 步驟 5.1 ~ 5.4
-// ========================================
-
-// ----------------------------------------
-// 應用狀態（只在這個頁面用到）
-// Page-level state
-// ----------------------------------------
+// Product list page state and behavior.
 const _state = {
-  allProducts:      [],   // 從 API 取得的全部商品
-  filteredProducts: [],   // 套用篩選後的商品
-  currentPage:      1,    // 當前頁碼
-  pageSize:         12,   // 每頁顯示幾筆
-
-  // 篩選條件
+  allProducts: [],
+  filteredProducts: [],
+  currentPage: 1,
+  pageSize: 12,
   filters: {
-    category:   '',      // 分類（空 = 全部）
-    brands:     [],      // 品牌（空陣列 = 全部）
-    minPrice:   null,    // 最低價格
-    maxPrice:   null,    // 最高價格
-    tag:        '',      // 快選標籤（'new' | 'bestseller' | ''）
+    category: '',
+    brands: [],
+    minPrice: null,
+    maxPrice: null,
+    tag: '',
+    keyword: '',
   },
-
-  sortBy: 'default',    // 排序方式
+  sortBy: 'default',
 };
 
-let _adCarouselTimer = null; // 重點：輪播可因 survey-tags 更新而重算，需保留 timer 供重置。
+let _adCarouselTimer = null;
 
-// ----------------------------------------
-// 工具：計算折扣百分比
-// ----------------------------------------
+// Calculate the discount percentage label for a product.
 function _calcDiscount(original, current) {
   if (!original || original <= current) return '';
   return `-${Math.round((1 - current / original) * 100)}%`;
 }
 
-// ----------------------------------------
-// 工具：渲染星星
-// ----------------------------------------
+// Render a simple star rating using text symbols.
 function _renderStars(rating) {
-  const full  = Math.floor(rating);
-  const empty = 5 - full;
-  let html    = '';
-  for (let i = 0; i < full; i++)  html += '<span class="star">★</span>';
-  for (let i = 0; i < empty; i++) html += '<span class="star empty">★</span>';
-  return `<span class="star-rating">${html}</span>`;
+  const normalizedRating = Math.max(0, Math.min(5, Number(rating) || 0));
+  const ratingClass = `starRatingValue${Math.round(normalizedRating * 10)}`;
+  const stars = '<span class="star">\u2605</span>'.repeat(5);
+  return `
+    <span class="starRating ${ratingClass}" aria-label="${normalizedRating.toFixed(1)} 顆星">
+      <span class="starRatingBase" aria-hidden="true">${stars}</span>
+      <span class="starRatingFill" aria-hidden="true">${stars}</span>
+    </span>
+  `;
 }
 
-/**
- * Normalize survey preference storage from AppState or profile localStorage.
- * @param {Array|string|Object} preferences - Survey preferences saved by the shared header modal
- * @returns {string[]} Flat survey-tag values
- */
+// Normalize survey preference storage from AppState or profile localStorage.
 function _normalizeSurveyTagValues(preferences) {
   if (Array.isArray(preferences)) return preferences;
   if (typeof preferences === 'string' && preferences) return [preferences];
   if (!preferences || typeof preferences !== 'object') return [];
-
-  // 重點：header 問卷用 styles / equipment 分開存，member-center 與商品推薦使用同一份攤平後的 survey-tags。
-  return [
-    ...(preferences.styles || []),
-    ...(preferences.equipment || []),
-  ];
+  return [...(preferences.styles || []), ...(preferences.equipment || [])];
 }
 
-/**
- * Read JSON from localStorage without breaking carousel rendering on corrupt values.
- * @param {string} key - localStorage key
- * @param {*} fallback - Value used when parsing fails
- * @returns {*}
- */
+// Read JSON from localStorage without breaking carousel rendering on corrupt values.
 function _readStorageJson(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : fallback;
   } catch (error) {
-    console.warn(`讀取 ${key} 偏好失敗，改用預設推薦`, error);
+    console.warn(`Failed to parse ${key} from localStorage`, error);
     return fallback;
   }
 }
 
-/**
- * Get the same survey-tag values that pages/member-center.html displays as active.
- * @returns {string[]} Saved survey-tag values
- */
+// Get the same surveyTag values that member-center displays as selected.
 function _getSavedSurveyTags() {
   const appPrefs = _normalizeSurveyTagValues(window.AppState && window.AppState.preferences);
   if (appPrefs.length > 0) return appPrefs;
@@ -94,702 +66,516 @@ function _getSavedSurveyTags() {
   return _normalizeSurveyTagValues(_readStorageJson('preferences', {}));
 }
 
-/**
- * Randomize carousel products so matching interest_tags do not always show in JSON order.
- * @param {Array} products - Products selected for the ad carousel
- * @returns {Array} Shuffled products
- */
+// Randomize carousel products so matched products do not always show in JSON order.
 function _shuffleProducts(products) {
   const shuffled = [...products];
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
 }
 
-/**
- * Select ad-carousel products by matching saved survey-tags with products.interest_tags.
- * @returns {Array} Personalized products, or NEW products when no preference match exists
- */
+// Select ad carousel products by matching saved surveyTags with products.interest_tags.
 function _selectAdCarouselProducts() {
   const selectedTags = new Set(_getSavedSurveyTags());
-
-  // 重點：products.json 的 interest_tags 直接對應 header.partial / member-center 的 survey-tag data-value。
   const matchedProducts = selectedTags.size === 0 ? [] : _state.allProducts.filter(product => {
     const interestTags = Array.isArray(product.interest_tags) ? product.interest_tags : [];
     return interestTags.some(tag => selectedTags.has(tag));
   });
-
-  // 重點：沒有使用者偏好或沒有符合 interest_tags 時，維持原本 NEW 商品輪播作為備援。
   const fallbackProducts = _state.allProducts.filter(product => product.isNew);
   return _shuffleProducts(matchedProducts.length > 0 ? matchedProducts : fallbackProducts);
 }
 
-// ----------------------------------------
-// 工具：建立商品卡片 HTML
-// Build product card HTML
-// ----------------------------------------
+// Build product card HTML for the products grid.
 function _buildCard(product) {
   const discount = _calcDiscount(product.originalPrice, product.price);
-
-  let badgeHTML = '';
-  if (product.isNew)          badgeHTML = '<span class="product-card-badge badge-new">NEW</span>';
-  else if (product.isBestSeller) badgeHTML = '<span class="product-card-badge badge-hot">熱銷</span>';
-
-  const priceFormatted    = product.price.toLocaleString('zh-TW');
-  const origPriceFormatted = product.originalPrice
-    ? product.originalPrice.toLocaleString('zh-TW')
-    : null;
+  const badgeHTML = product.isNew
+    ? '<span class="productCardBadge badgeNew">NEW</span>'
+    : product.isBestSeller ? '<span class="productCardBadge badgeHot">\u71b1\u92b7</span>' : '';
+  const priceFormatted = product.price.toLocaleString('zh-TW');
+  const originalPrice = product.originalPrice ? product.originalPrice.toLocaleString('zh-TW') : null;
 
   return `
-    <div class="product-card" data-product-id="${product.id}" role="article">
-      <div class="product-card-image-wrap">
-        <img
-          src="${product.image}"
-          alt="${product.name}"
-          loading="lazy"
-          onerror="this.src='https://placehold.co/400x300/f2f2f2/999?text=${encodeURIComponent(product.name)}'"
-        >
+    <div class="productCard" data-product-id="${product.id}" role="article">
+      <div class="productCardImageWrap">
+        <img src="${product.image}" alt="${product.name}" loading="lazy" onerror="this.src='https://placehold.co/400x300/f2f2f2/999?text=${encodeURIComponent(product.name)}'">
         ${badgeHTML}
       </div>
-      <div class="product-card-body">
-        <p class="product-card-brand">${product.brand}</p>
-        <h3 class="product-card-name">${product.name}</h3>
-        <div class="product-card-rating">
+      <div class="productCardBody">
+        <p class="productCardBrand">${product.brand}</p>
+        <h3 class="productCardName">${product.name}</h3>
+        <div class="productCardRating">
           ${_renderStars(product.rating)}
           <span>${product.rating}</span>
           <span>(${product.reviews})</span>
         </div>
-        <div class="product-card-price">
-          <span class="price-current">NT$ ${priceFormatted}</span>
-          ${origPriceFormatted ? `<span class="price-original">NT$ ${origPriceFormatted}</span>` : ''}
+        <div class="productCardPrice">
+          <span class="priceCurrent">NT$ ${priceFormatted}</span>
+          ${originalPrice ? `<span class="priceOriginal">NT$ ${originalPrice}</span>` : ''}
         </div>
-        ${discount ? `<span class="price-discount">${discount}</span>` : ''}
-        <button class="product-card-add-btn" data-product-id="${product.id}">
-          加入購物車
-        </button>
+        ${discount ? `<span class="priceDiscount">${discount}</span>` : ''}
+        <button class="productCardAddBtn" data-product-id="${product.id}">\u52a0\u5165\u8cfc\u7269\u8eca</button>
       </div>
     </div>
   `;
 }
 
-// ----------------------------------------
-// 渲染商品網格（含空狀態）
-// Render products grid
-// ----------------------------------------
+// Render the current product page into the grid.
 function _renderGrid() {
   const grid = document.getElementById('productsGrid');
   const countEl = document.getElementById('productCount');
   if (!grid) return;
 
-  // 計算當前頁的商品
-  const start    = (_state.currentPage - 1) * _state.pageSize;
-  const end      = start + _state.pageSize;
-  const paginated = _state.filteredProducts.slice(start, end);
+  const start = (_state.currentPage - 1) * _state.pageSize;
+  const paginated = _state.filteredProducts.slice(start, start + _state.pageSize);
+  if (countEl) countEl.textContent = `\u5171 ${_state.filteredProducts.length} \u4ef6\u5546\u54c1`;
 
-  // 更新商品數量顯示
-  if (countEl) {
-    countEl.textContent = `共 ${_state.filteredProducts.length} 件商品`;
-  }
-
-  // 沒有商品 → 顯示空狀態
   if (_state.filteredProducts.length === 0) {
     grid.innerHTML = `
-      <div class="empty-state" style="grid-column:1/-1;">
-        <span class="empty-state-icon">🔍</span>
-        <p class="empty-state-title">沒有符合條件的商品</p>
-        <p class="empty-state-desc">試著調整篩選條件看看</p>
-        <button class="btn btn-outline" style="margin-top:1rem;" onclick="_resetAllFilters()">
-          清除篩選
-        </button>
+      <div class="emptyState productGridEmptyState">
+        <span class="emptyState-icon">!</span>
+        <p class="emptyState-title">\u6c92\u6709\u7b26\u5408\u689d\u4ef6\u7684\u5546\u54c1</p>
+        <p class="emptyState-desc">\u8abf\u6574\u7be9\u9078\u689d\u4ef6\u5f8c\u518d\u8a66\u4e00\u6b21</p>
+        <button class="btn btnOutline productFilterResetAction" onclick="_resetAllFilters()">\u6e05\u9664\u7be9\u9078</button>
       </div>
     `;
     _renderPagination();
     return;
   }
 
-  grid.innerHTML = paginated.map(p => _buildCard(p)).join('');
+  grid.innerHTML = paginated.map(product => _buildCard(product)).join('');
   _renderPagination();
   _bindCardEvents();
 }
 
-// ----------------------------------------
-// 渲染分頁控制列
-// Render pagination buttons
-// ----------------------------------------
+// Return pagination item descriptors for the current page window.
+function _getPaginationItems(totalPages) {
+  const range = 2;
+  const items = [];
+  for (let page = 1; page <= totalPages; page += 1) {
+    const isEdge = page === 1 || page === totalPages;
+    const isNearCurrent = page >= _state.currentPage - range && page <= _state.currentPage + range;
+    const isGapEdge = page === _state.currentPage - range - 1 || page === _state.currentPage + range + 1;
+    if (isEdge || isNearCurrent) items.push({ type: 'page', page });
+    else if (isGapEdge) items.push({ type: 'ellipsis' });
+  }
+  return items;
+}
+
+// Build a single pagination button.
+function _buildPaginationButton(page, label, options = {}) {
+  const selectedClass = options.isSelected ? ' isSelected' : '';
+  const disabled = options.disabled ? ' disabled' : '';
+  const current = options.isSelected ? ' aria-current="page"' : '';
+  return `<button class="paginationBtn${selectedClass}" data-page="${page}" aria-label="${options.ariaLabel || label}"${current}${disabled}>${label}</button>`;
+}
+
+// Render pagination controls for the filtered product list.
 function _renderPagination() {
   const paginationEl = document.getElementById('pagination');
   if (!paginationEl) return;
 
   const totalPages = Math.ceil(_state.filteredProducts.length / _state.pageSize);
-
-  // 商品數不超過一頁就不顯示分頁
+  paginationEl.hidden = totalPages <= 1;
   if (totalPages <= 1) {
-    paginationEl.style.display = 'none';
+    paginationEl.innerHTML = '';
     return;
   }
 
-  paginationEl.style.display = 'flex';
-
-  let html = '';
-
-  // 上一頁按鈕
-  html += `<button
-    class="pagination-btn"
-    ${_state.currentPage === 1 ? 'disabled' : ''}
-    data-page="${_state.currentPage - 1}"
-    aria-label="上一頁"
-  >‹</button>`;
-
-  // 頁碼按鈕（最多顯示 5 頁）
-  const range = 2;
-  for (let i = 1; i <= totalPages; i++) {
-    if (
-      i === 1 ||
-      i === totalPages ||
-      (i >= _state.currentPage - range && i <= _state.currentPage + range)
-    ) {
-      html += `<button
-        class="pagination-btn${i === _state.currentPage ? ' active' : ''}"
-        data-page="${i}"
-        aria-label="第 ${i} 頁"
-        ${i === _state.currentPage ? 'aria-current="page"' : ''}
-      >${i}</button>`;
-    } else if (
-      i === _state.currentPage - range - 1 ||
-      i === _state.currentPage + range + 1
-    ) {
-      html += `<span style="padding:0 0.25rem; color:#999;">…</span>`;
-    }
-  }
-
-  // 下一頁按鈕
-  html += `<button
-    class="pagination-btn"
-    ${_state.currentPage === totalPages ? 'disabled' : ''}
-    data-page="${_state.currentPage + 1}"
-    aria-label="下一頁"
-  >›</button>`;
-
-  paginationEl.innerHTML = html;
-
-  // 綁定頁碼點擊
-  paginationEl.querySelectorAll('.pagination-btn:not([disabled])').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const page = parseInt(btn.dataset.page, 10);
-      _goToPage(page);
+  const pageItems = _getPaginationItems(totalPages).map(item => {
+    if (item.type === 'ellipsis') return '<span class="paginationEllipsis">...</span>';
+    return _buildPaginationButton(item.page, item.page, {
+      isSelected: item.page === _state.currentPage,
+      ariaLabel: `? ${item.page} ?`,
     });
+  });
+
+  paginationEl.innerHTML = [
+    _buildPaginationButton(_state.currentPage - 1, '\u2039', { disabled: _state.currentPage === 1, ariaLabel: '\u4e0a\u4e00\u9801' }),
+    ...pageItems,
+    _buildPaginationButton(_state.currentPage + 1, '\u203a', { disabled: _state.currentPage === totalPages, ariaLabel: '\u4e0a\u4e00\u9801' }),
+  ].join('');
+
+  paginationEl.querySelectorAll('.paginationBtn:not([disabled])').forEach(btn => {
+    btn.addEventListener('click', () => _goToPage(parseInt(btn.dataset.page, 10)));
   });
 }
 
-// ----------------------------------------
-// 跳轉至指定頁
-// ----------------------------------------
+// Navigate to a product list page and keep the viewport near the top.
 function _goToPage(page) {
   const totalPages = Math.ceil(_state.filteredProducts.length / _state.pageSize);
   if (page < 1 || page > totalPages) return;
   _state.currentPage = page;
   _renderGrid();
-  // 捲回頂部
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ----------------------------------------
-// 套用所有篩選條件，更新 filteredProducts
-// Apply all current filters to allProducts
-// ----------------------------------------
+// Apply category, brand, price, tag, and sorting rules.
+function _filterBySelectedOptions(products) {
+  const filters = _state.filters;
+  const keyword = filters.keyword.trim().toLowerCase();
+  return products.filter(product => {
+    const searchableText = [
+      product.name,
+      product.brand,
+      product.category,
+      product.description,
+      ...(Array.isArray(product.tags) ? product.tags : []),
+      ...(Array.isArray(product.interest_tags) ? product.interest_tags : []),
+    ].join(' ').toLowerCase();
+    const matchKeyword = !keyword || searchableText.includes(keyword);
+    const matchCategory = !filters.category || product.category === filters.category;
+    const matchBrand = filters.brands.length === 0 || filters.brands.includes(product.brand);
+    const matchMin = filters.minPrice === null || product.price >= filters.minPrice;
+    const matchMax = filters.maxPrice === null || product.price <= filters.maxPrice;
+    const matchTag = !filters.tag || (filters.tag === 'new' ? product.isNew : product.isBestSeller);
+    return matchKeyword && matchCategory && matchBrand && matchMin && matchMax && matchTag;
+  });
+}
+
+// Sort products by the selected sort option.
+function _sortProducts(products) {
+  const sorted = [...products];
+  const sorters = {
+    'price-asc': (a, b) => a.price - b.price,
+    'price-desc': (a, b) => b.price - a.price,
+    rating: (a, b) => b.rating - a.rating,
+    reviews: (a, b) => b.reviews - a.reviews,
+  };
+  if (sorters[_state.sortBy]) sorted.sort(sorters[_state.sortBy]);
+  return sorted;
+}
+
+// Apply all current filters and refresh the grid.
 function _applyFilters() {
-  let result = [..._state.allProducts];
-  const f = _state.filters;
-
-  // ① 分類篩選
-  if (f.category) {
-    result = result.filter(p => p.category === f.category);
-  }
-
-  // ② 品牌篩選（多選）
-  if (f.brands.length > 0) {
-    result = result.filter(p => f.brands.includes(p.brand));
-  }
-
-  // ③ 價格範圍
-  if (f.minPrice !== null) {
-    result = result.filter(p => p.price >= f.minPrice);
-  }
-  if (f.maxPrice !== null) {
-    result = result.filter(p => p.price <= f.maxPrice);
-  }
-
-  // ④ 快選標籤
-  if (f.tag === 'new') {
-    result = result.filter(p => p.isNew === true);
-  } else if (f.tag === 'bestseller') {
-    result = result.filter(p => p.isBestSeller === true);
-  }
-
-  // ⑤ 排序
-  switch (_state.sortBy) {
-    case 'price-asc':
-      result.sort((a, b) => a.price - b.price);
-      break;
-    case 'price-desc':
-      result.sort((a, b) => b.price - a.price);
-      break;
-    case 'rating':
-      result.sort((a, b) => b.rating - a.rating);
-      break;
-    case 'reviews':
-      result.sort((a, b) => b.reviews - a.reviews);
-      break;
-    default:
-      break;
-  }
-
-  _state.filteredProducts = result;
-  _state.currentPage = 1; // 篩選後從第一頁開始
+  _state.filteredProducts = _sortProducts(_filterBySelectedOptions(_state.allProducts));
+  _state.currentPage = 1;
   _renderGrid();
 }
 
-// ----------------------------------------
-// 重置全部篩選
-// ----------------------------------------
+// Reset all filters and synced filter controls.
 window._resetAllFilters = function () {
-  _state.filters = { category: '', brands: [], minPrice: null, maxPrice: null, tag: '' };
-
-  // 重置 UI
-  document.querySelectorAll('.filter-category-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.category === '');
-  });
-  document.querySelectorAll('.filter-brand-list input[type="checkbox"]').forEach(cb => {
-    cb.checked = false;
-  });
-
-  const priceMinEls = document.querySelectorAll('#priceMin, #mobilePriceMin');
-  const priceMaxEls = document.querySelectorAll('#priceMax, #mobilePriceMax');
-  priceMinEls.forEach(el => { if (el) el.value = ''; });
-  priceMaxEls.forEach(el => { if (el) el.value = ''; });
-
-  // 快選標籤
-  document.querySelectorAll('[data-tag]').forEach(b => b.classList.remove('active'));
-
+  _state.filters = { category: '', brands: [], minPrice: null, maxPrice: null, tag: '', keyword: '' };
+  document.querySelectorAll('.filterCategoryBtn').forEach(btn => btn.classList.toggle('isSelected', btn.dataset.category === ''));
+  document.querySelectorAll('.filterBrandList input[type="checkbox"]').forEach(input => { input.checked = false; });
+  document.querySelectorAll('#priceMin, #mobilePriceMin, #priceMax, #mobilePriceMax').forEach(input => { input.value = ''; });
+  document.querySelectorAll('[data-tag]').forEach(btn => btn.classList.remove('isSelected'));
   _applyFilters();
 };
 
-// ----------------------------------------
-// 步驟 5.1：初始化 PC 版篩選器
-// Initialize desktop sidebar filters
-// ----------------------------------------
-function _initSidebarFilters() {
-  // 從所有商品取得不重複的分類和品牌
-  const categories = ['全部', ...new Set(_state.allProducts.map(p => p.category))];
-  const brands     = [...new Set(_state.allProducts.map(p => p.brand))].sort();
+// Render and bind category filter buttons for desktop and mobile lists.
+function _bindCategoryFilterList(listId, categories) {
+  const list = document.getElementById(listId);
+  if (!list) return;
 
-  // 渲染分類按鈕（Desktop + Mobile）
-  ['categoryFilterList', 'mobileCategoryFilterList'].forEach(listId => {
-    const list = document.getElementById(listId);
-    if (!list) return;
-    list.innerHTML = categories.map(cat => {
-      const value = cat === '全部' ? '' : cat;
-      return `<li><button class="filter-category-btn${value === '' ? ' active' : ''}" data-category="${value}">${cat}</button></li>`;
-    }).join('');
+  list.innerHTML = categories.map(category => {
+    const value = category === '\u5168\u90e8' ? '' : category;
+    return `<li><button class="filterCategoryBtn${value === '' ? ' isSelected' : ''}" data-category="${value}">${category}</button></li>`;
+  }).join('');
 
-    // 點擊事件
-    list.querySelectorAll('.filter-category-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        list.querySelectorAll('.filter-category-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        _state.filters.category = btn.dataset.category;
-
-        // 同步兩個篩選器的選中狀態
-        _syncCategoryFilters(btn.dataset.category);
-
-        if (listId === 'categoryFilterList') {
-          _applyFilters();
-        }
-      });
+  list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      _state.filters.category = btn.dataset.category;
+      _syncCategoryFilters(btn.dataset.category);
+      if (listId === 'categoryFilterList') _applyFilters();
     });
   });
-
-  // 渲染品牌 Checkbox（Desktop + Mobile）
-  ['brandFilterList', 'mobileBrandFilterList'].forEach(listId => {
-    const list = document.getElementById(listId);
-    if (!list) return;
-    list.innerHTML = brands.map(brand => `
-      <li class="filter-brand-item">
-        <input
-          type="checkbox"
-          id="${listId}-${brand}"
-          name="brand"
-          value="${brand}"
-          aria-label="${brand}"
-        >
-        <label for="${listId}-${brand}">${brand}</label>
-      </li>
-    `).join('');
-
-    // PC 版品牌 Checkbox 直接觸發篩選
-    if (listId === 'brandFilterList') {
-      list.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', () => {
-          _state.filters.brands = Array.from(
-            document.querySelectorAll('#brandFilterList input:checked')
-          ).map(el => el.value);
-          _applyFilters();
-        });
-      });
-    }
-  });
-
-  // PC 版：套用價格
-  const applyPriceBtn = document.getElementById('applyPriceBtn');
-  if (applyPriceBtn) {
-    applyPriceBtn.addEventListener('click', () => {
-      const minVal = parseFloat(document.getElementById('priceMin').value);
-      const maxVal = parseFloat(document.getElementById('priceMax').value);
-      _state.filters.minPrice = isNaN(minVal) ? null : minVal;
-      _state.filters.maxPrice = isNaN(maxVal) ? null : maxVal;
-      _applyFilters();
-    });
-  }
-
-  // PC 版：重置按鈕
-  const resetBtn = document.getElementById('resetFiltersBtn');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', window._resetAllFilters);
-  }
-
-  // 快選標籤（最新/熱銷）
-  const filterNewBtn  = document.getElementById('filterNewBtn');
-  const filterBestBtn = document.getElementById('filterBestBtn');
-
-  if (filterNewBtn) {
-    filterNewBtn.addEventListener('click', () => {
-      const isActive = filterNewBtn.classList.toggle('active');
-      _state.filters.tag = isActive ? 'new' : '';
-      if (filterBestBtn) filterBestBtn.classList.remove('active');
-      _applyFilters();
-    });
-  }
-
-  if (filterBestBtn) {
-    filterBestBtn.addEventListener('click', () => {
-      const isActive = filterBestBtn.classList.toggle('active');
-      _state.filters.tag = isActive ? 'bestseller' : '';
-      if (filterNewBtn) filterNewBtn.classList.remove('active');
-      _applyFilters();
-    });
-  }
 }
 
-// ----------------------------------------
-// 同步兩個篩選器的分類選中狀態
-// Sync category selection between desktop and mobile
-// ----------------------------------------
+// Render and bind brand checkboxes for desktop and mobile lists.
+function _bindBrandFilterList(listId, brands) {
+  const list = document.getElementById(listId);
+  if (!list) return;
+
+  list.innerHTML = brands.map(brand => `
+    <li class="filterBrandItem">
+      <input type="checkbox" id="${listId}-${brand}" name="brand" value="${brand}" aria-label="${brand}">
+      <label for="${listId}-${brand}">${brand}</label>
+    </li>
+  `).join('');
+
+  if (listId !== 'brandFilterList') return;
+  list.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', () => {
+      _state.filters.brands = Array.from(list.querySelectorAll('input:checked')).map(el => el.value);
+      _applyFilters();
+    });
+  });
+}
+
+// Bind desktop price controls and reset action.
+function _bindDesktopPriceFilter() {
+  document.getElementById('applyPriceBtn')?.addEventListener('click', () => {
+    const minVal = parseFloat(document.getElementById('priceMin')?.value);
+    const maxVal = parseFloat(document.getElementById('priceMax')?.value);
+    _state.filters.minPrice = Number.isNaN(minVal) ? null : minVal;
+    _state.filters.maxPrice = Number.isNaN(maxVal) ? null : maxVal;
+    _applyFilters();
+  });
+  document.getElementById('resetFiltersBtn')?.addEventListener('click', window._resetAllFilters);
+}
+
+// Bind quick filter buttons for new and best seller products.
+function _bindQuickFilterButtons() {
+  const buttons = [
+    { el: document.getElementById('filterNewBtn'), tag: 'new' },
+    { el: document.getElementById('filterBestBtn'), tag: 'bestseller' },
+  ];
+
+  buttons.forEach(({ el, tag }) => {
+    if (!el) return;
+    el.addEventListener('click', () => {
+      const isActive = _state.filters.tag !== tag;
+      _state.filters.tag = isActive ? tag : '';
+      buttons.forEach(item => item.el?.classList.toggle('isSelected', item.tag === _state.filters.tag));
+      _applyFilters();
+    });
+  });
+}
+
+// Initialize desktop and shared filter controls.
+function _initSidebarFilters() {
+  const categories = ['\u5168\u90e8', ...new Set(_state.allProducts.map(product => product.category))];
+  const brands = [...new Set(_state.allProducts.map(product => product.brand))].sort();
+  ['categoryFilterList', 'mobileCategoryFilterList'].forEach(id => _bindCategoryFilterList(id, categories));
+  ['brandFilterList', 'mobileBrandFilterList'].forEach(id => _bindBrandFilterList(id, brands));
+  _bindDesktopPriceFilter();
+  _bindQuickFilterButtons();
+}
+
+// Sync category selection between desktop and mobile lists.
 function _syncCategoryFilters(category) {
   ['categoryFilterList', 'mobileCategoryFilterList'].forEach(listId => {
     const list = document.getElementById(listId);
     if (!list) return;
-    list.querySelectorAll('.filter-category-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.category === category);
+    list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
+      btn.classList.toggle('isSelected', btn.dataset.category === category);
     });
   });
 }
 
-// ----------------------------------------
-// 步驟 5.3：初始化手機版 Bottom Sheet
-// Initialize mobile filter sheet
-// ----------------------------------------
-function _initMobileFilterSheet() {
-  const openBtn   = document.getElementById('mobileFilterBtn');
-  const sheet     = document.getElementById('filterSheet');
-  const closeBtn  = document.getElementById('filterSheetClose');
-  const backdrop  = document.getElementById('filterSheetBackdrop');
-  const applyBtn  = document.getElementById('mobileApplyBtn');
-  const resetBtn  = document.getElementById('mobileResetBtn');
-
-  if (!openBtn || !sheet) return;
-
-  // 開啟 Sheet
-  function openSheet() {
-    sheet.classList.add('active');
-    if (backdrop) backdrop.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
-  // 關閉 Sheet
-  function closeSheet() {
-    sheet.classList.remove('active');
-    if (backdrop) backdrop.classList.remove('active');
-    document.body.style.overflow = '';
-  }
-
-  openBtn.addEventListener('click', openSheet);
-  if (closeBtn)  closeBtn.addEventListener('click', closeSheet);
-  if (backdrop)  backdrop.addEventListener('click', closeSheet);
-
-  // 套用篩選
-  if (applyBtn) {
-    applyBtn.addEventListener('click', () => {
-      // 讀取手機篩選表單的值
-      _state.filters.brands = Array.from(
-        document.querySelectorAll('#mobileBrandFilterList input:checked')
-      ).map(el => el.value);
-
-      const mobileMin = parseFloat(document.getElementById('mobilePriceMin')?.value);
-      const mobileMax = parseFloat(document.getElementById('mobilePriceMax')?.value);
-      _state.filters.minPrice = isNaN(mobileMin) ? null : mobileMin;
-      _state.filters.maxPrice = isNaN(mobileMax) ? null : mobileMax;
-
-      closeSheet();
-      _applyFilters();
-    });
-  }
-
-  // 重置
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      window._resetAllFilters();
-      closeSheet();
-    });
-  }
+// Toggle the mobile filter sheet and backdrop.
+function _setFilterSheetOpen(isOpen) {
+  const sheet = document.getElementById('filterSheet');
+  const backdrop = document.getElementById('filterSheetBackdrop');
+  sheet?.classList.toggle('isOpen', isOpen);
+  backdrop?.classList.toggle('isOpen', isOpen);
+  document.body.classList.toggle('filterSheetLocked', isOpen);
 }
 
-// ----------------------------------------
-// 初始化排序下拉
-// Initialize sort dropdown
-// ----------------------------------------
+// Apply mobile-only brand and price inputs before refreshing the grid.
+function _applyMobileFilters() {
+  _state.filters.brands = Array.from(document.querySelectorAll('#mobileBrandFilterList input:checked')).map(el => el.value);
+  const mobileMin = parseFloat(document.getElementById('mobilePriceMin')?.value);
+  const mobileMax = parseFloat(document.getElementById('mobilePriceMax')?.value);
+  _state.filters.minPrice = Number.isNaN(mobileMin) ? null : mobileMin;
+  _state.filters.maxPrice = Number.isNaN(mobileMax) ? null : mobileMax;
+  _setFilterSheetOpen(false);
+  _applyFilters();
+}
+
+// Initialize mobile bottom sheet controls.
+function _initMobileFilterSheet() {
+  if (!document.getElementById('mobileFilterBtn') || !document.getElementById('filterSheet')) return;
+  document.getElementById('mobileFilterBtn').addEventListener('click', () => _setFilterSheetOpen(true));
+  document.getElementById('filterSheetClose')?.addEventListener('click', () => _setFilterSheetOpen(false));
+  document.getElementById('filterSheetBackdrop')?.addEventListener('click', () => _setFilterSheetOpen(false));
+  document.getElementById('mobileApplyBtn')?.addEventListener('click', _applyMobileFilters);
+  document.getElementById('mobileResetBtn')?.addEventListener('click', () => {
+    window._resetAllFilters();
+    _setFilterSheetOpen(false);
+  });
+}
+
+// Initialize sort dropdown.
 function _initSortSelect() {
   const select = document.getElementById('sortSelect');
   if (!select) return;
-
   select.addEventListener('change', () => {
     _state.sortBy = select.value;
     _applyFilters();
   });
 }
 
-// ----------------------------------------
-// 處理從 URL 參數帶入的快選篩選
-// Handle URL query params (e.g. ?filter=new)
-// ----------------------------------------
+// Apply URL query params such as ?filter=new or ?keyword=帳篷.
 function _handleUrlParams() {
   const params = new URLSearchParams(window.location.search);
   const filter = params.get('filter');
+  const keyword = params.get('keyword');
 
-  if (filter === 'new') {
-    _state.filters.tag = 'new';
-    const btn = document.getElementById('filterNewBtn');
-    if (btn) btn.classList.add('active');
-  } else if (filter === 'bestseller') {
-    _state.filters.tag = 'bestseller';
-    const btn = document.getElementById('filterBestBtn');
-    if (btn) btn.classList.add('active');
+  if (keyword) _state.filters.keyword = keyword.trim();
+  if (['new', 'bestseller'].includes(filter)) {
+    _state.filters.tag = filter;
+    const btn = document.getElementById(filter === 'new' ? 'filterNewBtn' : 'filterBestBtn');
+    btn?.classList.add('isSelected');
   }
 }
 
-// ----------------------------------------
-// 綁定商品卡片點擊事件
-// Bind click events on product cards
-// ----------------------------------------
+// Bind click events on product cards through a cloned grid to avoid duplicate listeners.
 function _bindCardEvents() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
 
-  // 移除舊的監聽器再加新的，避免重複綁定
   const newGrid = grid.cloneNode(true);
   grid.parentNode.replaceChild(newGrid, grid);
-
-  newGrid.addEventListener('click', async (e) => {
-    // ① 底部「加入購物車」按鈕
-    if (e.target.classList.contains('product-card-add-btn')) {
-      e.stopPropagation();
-      await _handleAddToCart(e.target.dataset.productId);
+  newGrid.addEventListener('click', async event => {
+    if (event.target.classList.contains('productCardAddBtn')) {
+      event.stopPropagation();
+      await _handleAddToCart(event.target.dataset.productId);
       return;
     }
-
-    // ② 點卡片其他區域 → 跳轉詳情頁
-    const card = e.target.closest('.product-card');
-    if (card) {
-      window.location.href = `product-detail.html?id=${card.dataset.productId}`;
-    }
+    const card = event.target.closest('.productCard');
+    if (card) window.location.href = `product-detail.html?id=${card.dataset.productId}`;
   });
 }
 
-// ----------------------------------------
-// 處理加入購物車
-// ----------------------------------------
+// Add the selected product to cart and animate the cart badge.
 async function _handleAddToCart(productId) {
   try {
-    const product = _state.allProducts.find(p => p.id === productId);
+    const product = _state.allProducts.find(item => item.id === productId);
     if (!product) return;
 
     window.addToCart({
-      id:    product.id,
-      name:  product.name,
+      id: product.id,
+      name: product.name,
       price: product.price,
       image: product.image,
       brand: product.brand,
     }, 1);
 
-    // Badge 動畫
-    const badge = document.querySelector('.cart-badge');
+    const badge = document.querySelector('.cartBadge');
     if (badge) {
-      badge.classList.add('badge-bounce');
-      setTimeout(() => badge.classList.remove('badge-bounce'), 600);
+      badge.classList.add('badgeBounce');
+      setTimeout(() => badge.classList.remove('badgeBounce'), 600);
     }
   } catch (error) {
-    console.error('加入購物車失敗:', error);
-    window.showToast('加入失敗，請稍後再試', 'error');
+    console.error('Failed to add product to cart', error);
+    window.showToast?.('\u52a0\u5165\u8cfc\u7269\u8eca\u5931\u6557\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66', 'error');
   }
 }
 
-// ========================================
-// 廣告輪播初始化（依 survey-tags 對應 interest_tags）
-// ========================================
+// Build one ad carousel slide.
+function _buildAdCarouselSlide(product) {
+  const badge = product.isNew ? 'NEW' : '\u63a8\u85a6';
+  return `
+    <div class="adCarouselSlide" data-product-id="${product.id}">
+      <div class="adCarouselContent">
+        <span class="adCarouselBadge">${badge}</span>
+        <h3 class="adCarouselTitle">${product.name}</h3>
+        <p class="adCarouselDesc">${product.brand}</p>
+        <p class="adCarouselPrice">NT$ ${product.price.toLocaleString('zh-TW')}</p>
+      </div>
+      <img src="${product.image}" alt="${product.name}" class="adCarouselImage" loading="lazy" onerror="this.src='https://placehold.co/200x200/f2f2f2/999?text=Image'">
+    </div>
+  `;
+}
+
+// Render carousel slides and dot controls.
+function _renderAdCarouselMarkup(products) {
+  const loopProducts = products.length > 1 ? [...products, products[0]] : products;
+  document.getElementById('adCarouselSlides').innerHTML = loopProducts.map(_buildAdCarouselSlide).join('');
+  document.getElementById('adCarouselDots').innerHTML = products.map((_, index) => (
+    `<button class="adCarouselDot${index === 0 ? ' isSelected' : ''}" data-slide="${index}" aria-label="\u7b2c ${index + 1} \u500b\u63a8\u85a6\u5546\u54c1"></button>`
+  )).join('');
+}
+
+// Bind carousel navigation, dots, product links, and auto rotation.
+function _bindAdCarouselControls(products) {
+  let currentSlide = 0;
+  const slidesContainer = document.getElementById('adCarouselSlides');
+  const isLooping = products.length > 1;
+  const goToSlide = nextIndex => {
+    currentSlide = isLooping ? nextIndex : 0;
+    slidesContainer.classList.remove('isResetting');
+    slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
+    const visibleIndex = ((currentSlide % products.length) + products.length) % products.length;
+    document.querySelectorAll('.adCarouselDot').forEach((dot, index) => {
+      dot.classList.toggle('isSelected', index === visibleIndex);
+    });
+  };
+
+  document.getElementById('adCarouselPrev')?.addEventListener('click', () => {
+    if (!isLooping) return;
+    goToSlide(currentSlide === 0 ? products.length - 1 : currentSlide - 1);
+  });
+  document.getElementById('adCarouselNext')?.addEventListener('click', () => goToSlide(currentSlide + 1));
+  document.querySelectorAll('.adCarouselDot').forEach(dot => {
+    dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.slide, 10)));
+  });
+  slidesContainer.addEventListener('click', event => {
+    const slide = event.target.closest('.adCarouselSlide');
+    if (slide) window.location.href = `product-detail.html?id=${slide.dataset.productId}`;
+  });
+  slidesContainer.addEventListener('transitionend', () => {
+    if (!isLooping || currentSlide !== products.length) return;
+    slidesContainer.classList.add('isResetting');
+    currentSlide = 0;
+    slidesContainer.style.transform = 'translateX(0)';
+    requestAnimationFrame(() => slidesContainer.classList.remove('isResetting'));
+  });
+
+  if (_adCarouselTimer) clearInterval(_adCarouselTimer);
+  _adCarouselTimer = isLooping ? setInterval(() => goToSlide(currentSlide + 1), 5000) : null;
+  goToSlide(0);
+}
+
+// Initialize personalized ad carousel by saved preferences.
 function _initAdCarousel() {
   const slidesContainer = document.getElementById('adCarouselSlides');
   const dotsContainer = document.getElementById('adCarouselDots');
-  
+  const container = document.querySelector('.adCarouselContainer');
   if (!slidesContainer || !dotsContainer) return;
 
-  const adProducts = _selectAdCarouselProducts();
-  const container = document.querySelector('.ad-carousel-container');
-  if (!adProducts || adProducts.length === 0) {
-    // 重點：偏好與 NEW 商品都沒有資料時才隱藏廣告輪播容器。
-    if (container) container.style.display = 'none';
-    return;
-  }
-  if (container) container.style.display = '';
+  const products = _selectAdCarouselProducts();
+  container.hidden = products.length === 0;
+  if (products.length === 0) return;
 
-  let currentSlide = 0;
-  slidesContainer.style.transform = 'translateX(0%)';
-
-  // 生成 slides 和 dots
-  slidesContainer.innerHTML = adProducts.map((product, idx) => `
-    <div class="ad-carousel-slide" data-product-id="${product.id}">
-      <div class="ad-carousel-content">
-        <span class="ad-carousel-badge">${product.isNew ? '🆕 NEW' : '推薦'}</span>
-        <h3 class="ad-carousel-title">${product.name}</h3>
-        <p class="ad-carousel-desc">${product.brand}</p>
-        <p class="ad-carousel-price">NT$ ${product.price.toLocaleString('zh-TW')}</p>
-      </div>
-      <img src="${product.image}" alt="${product.name}" class="ad-carousel-image" loading="lazy" onerror="this.src='https://placehold.co/200x200/f2f2f2/999?text=Image'">
-    </div>
-  `).join('');
-
-  dotsContainer.innerHTML = adProducts.map((_, idx) =>
-    `<button class="ad-carousel-dot ${idx === 0 ? 'active' : ''}" data-slide="${idx}" title="第 ${idx + 1} 個廣告"></button>`
-  ).join('');
-
-  // 輪播邏輯
-  function goToSlide(n) {
-    if (n >= adProducts.length) currentSlide = 0;
-    else if (n < 0) currentSlide = adProducts.length - 1;
-    else currentSlide = n;
-
-    const offset = -currentSlide * 100;
-    slidesContainer.style.transform = `translateX(${offset}%)`;
-
-    // 更新 dots
-    document.querySelectorAll('.ad-carousel-dot').forEach((dot, idx) => {
-      dot.classList.toggle('active', idx === currentSlide);
-    });
-  }
-
-  // 按鈕事件
-  const prevBtn = document.getElementById('adCarouselPrev');
-  const nextBtn = document.getElementById('adCarouselNext');
-  if (prevBtn) prevBtn.onclick = () => goToSlide(currentSlide - 1);
-  if (nextBtn) nextBtn.onclick = () => goToSlide(currentSlide + 1);
-
-  // Dots 點擊
-  document.querySelectorAll('.ad-carousel-dot').forEach(dot => {
-    dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.slide)));
-  });
-
-  // Slide 點擊進入商品詳情
-  slidesContainer.onclick = (e) => {
-    const slide = e.target.closest('.ad-carousel-slide');
-    if (slide) {
-      window.location.href = `product-detail.html?id=${slide.dataset.productId}`;
-    }
-  };
-
-  // 自動輪播（可選）
-  if (_adCarouselTimer) clearInterval(_adCarouselTimer);
-  _adCarouselTimer = setInterval(() => goToSlide(currentSlide + 1), 5000);
+  _renderAdCarouselMarkup(products);
+  _bindAdCarouselControls(products);
 }
 
-/**
- * Rebuild the ad carousel when the shared header survey updates preferences.
- */
+// Rebuild the ad carousel when the shared header survey updates preferences.
 function _initAdCarouselPreferenceListener() {
   if (window.__productInterestCarouselBound) return;
   window.__productInterestCarouselBound = true;
-
-  // 重點：使用者在商品頁完成問卷時，立即用新的 survey-tags 重算 interest_tags 輪播。
-  window.addEventListener('yurui:preferences-updated', () => {
-    _initAdCarousel();
-  });
+  window.addEventListener('yurui:preferences-updated', _initAdCarousel);
 }
 
-// ========================================
-// 商品列表頁初始化入口
-// Product list page init entry point
-// ========================================
+// Product list page init entry point.
 window.initProductListPage = async () => {
-  console.log('📌 商品列表頁初始化中...');
-
-  // 初始化全局組件，並設旗標告知 main.js 已完成
-  // Initialize global components, set flag so main.js won't run them again
-  window.initNavbar();
-  window.initModalListeners();
-  window.initPersonalizationModal();
-  window.initCartListeners();
-  window._appComponentsInitialized = true;
-
   try {
-    // ① 從 Mock API 取得所有商品
+    window.initNavbar?.();
+    window.initModalListeners?.();
+    window.initPersonalizationModal?.();
+    window.initCartListeners?.();
+    window._appComponentsInitialized = true;
+
     _state.allProducts = await window.API.products.getAll();
-
-    // ② 處理 URL 參數（如 ?filter=new）
     _handleUrlParams();
-
-    // ③ 初始化各種篩選 UI
     _initSidebarFilters();
     _initMobileFilterSheet();
     _initSortSelect();
-
-    // ④ 套用初始篩選（可能來自 URL 參數）並渲染
     _applyFilters();
-
-    // ⑤ 初始化廣告輪播（優先抓取符合 survey-tags / interest_tags 的商品）
     _initAdCarousel();
     _initAdCarouselPreferenceListener();
-
-    console.log(`✓ 商品列表載入完成，共 ${_state.allProducts.length} 件商品`);
-
   } catch (error) {
-    console.error('商品列表載入失敗:', error);
+    console.error('Product list failed to initialize', error);
     const grid = document.getElementById('productsGrid');
     if (grid) {
       grid.innerHTML = `
-        <div class="empty-state" style="grid-column:1/-1;">
-          <span class="empty-state-icon">⚠️</span>
-          <p class="empty-state-title">商品載入失敗</p>
-          <p class="empty-state-desc">請重新整理頁面，或稍後再試</p>
+        <div class="emptyState productGridEmptyState">
+          <span class="emptyState-icon">!</span>
+          <p class="emptyState-title">\u5546\u54c1\u8f09\u5165\u5931\u6557</p>
+          <p class="emptyState-desc">\u91cd\u65b0\u6574\u7406\u9801\u9762\uff0c\u6216\u7a0d\u5f8c\u518d\u8a66</p>
         </div>
       `;
     }
   }
 };
 
-// 等 DOM 完成後自動執行
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', window.initProductListPage);
 } else {
   window.initProductListPage();
 }
-
-console.log('✓ product-list.js 已載入');

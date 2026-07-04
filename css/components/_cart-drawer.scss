@@ -1,0 +1,180 @@
+﻿// 購物車抽屜元件：主站購物車使用三段式 header / body / footer。
+.siteCartDrawer {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.siteCartDrawerBody {
+  height: auto;
+}
+
+// 購物車抽屜底部：固定結帳摘要與主要動作。
+.siteCartDrawerFooter,
+.bookingSlidePanelFooter {
+  padding: var(--yc-space-4);
+  border-top: 1px solid var(--yc-border);
+  background: var(--yc-surface);
+}
+
+.siteCartSummary,
+.siteCartSummaryTotal,
+.bookingCartPanelRow,
+.bookingCartPanelTotal {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--yc-space-4);
+}
+
+.siteCartSummary {
+  color: var(--yc-text-muted);
+  margin-bottom: var(--yc-space-2);
+}
+
+.siteCartSummaryTotal,
+.bookingCartPanelTotal {
+  color: var(--yc-sage-action);
+  font-size: 18px;
+  font-weight: 800;
+  margin-block: var(--yc-space-3);
+}
+
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink {
+  width: 100%;
+}
+
+// 空購物車狀態：主站與 booking cart panel 共用置中提示。
+.siteCartEmptyState,
+.bookingCartPanelEmpty {
+  display: grid;
+  justify-items: center;
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-10) var(--yc-space-4);
+  text-align: center;
+}
+
+.siteCartEmptyIcon {
+  color: var(--yc-sage-action);
+  font-size: 40px;
+}
+
+.siteCartEmptyTitle {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 20px;
+}
+
+.siteCartEmptyText {
+  margin: 0;
+  color: var(--yc-text-muted);
+}
+
+// 購物車品項列：圖片固定寬度，內容欄位彈性收合。
+.siteCartItem {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: var(--yc-space-3);
+  padding-block: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.siteCartItemImage {
+  width: 88px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--yc-radius-button);
+}
+
+.siteCartItemContent {
+  min-width: 0;
+  display: grid;
+  gap: var(--yc-space-1);
+}
+
+.siteCartItemBrand,
+.siteCartItemPrice {
+  color: var(--yc-text-muted);
+  font-size: 13px;
+}
+
+.siteCartItemName {
+  color: var(--yc-text);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.siteCartItemActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--yc-space-2);
+}
+
+.siteCartQuantityDecrease,
+.siteCartQuantityIncrease,
+.siteCartRemoveButton {
+  min-width: 36px;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  cursor: pointer;
+}
+
+.siteCartRemoveIcon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.siteCartRemoveText {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.siteCartItemQuantity,
+.siteCartItemSubtotal {
+  font-weight: 800;
+}
+
+// Booking 購物車面板：保留營地、日期與價格區塊的垂直節奏。
+.bookingSlidePanelBody {
+  height: auto;
+}
+
+.bookingCartPanelSection {
+  display: grid;
+  gap: var(--yc-space-2);
+  padding-block: var(--yc-space-3);
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.bookingCartPanelLabel {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 16px;
+}
+
+.bookingCartPanelMeta {
+  margin: 0;
+  color: var(--yc-text-muted);
+  font-size: 14px;
+}
+
+@media (width <= 480px) {
+  .siteCartItem {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .siteCartItemImage {
+    width: 72px;
+  }
+}

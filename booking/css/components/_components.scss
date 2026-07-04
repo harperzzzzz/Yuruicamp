@@ -1,0 +1,16 @@
+// Components 層：載入跨 booking 頁面重用的 UI 元件。
+@use 'booking-tags-status';
+@use 'booking-feedback';
+@use 'booking-form';
+@use 'booking-button';
+@use 'booking-tag';
+@use 'booking-breadcrumb';
+@use 'booking-card';
+@use 'booking-summary';
+@use 'booking-progress';
+@use 'floating-actions';
+@use 'booking-header';
+@use 'booking-auth-modal';
+@use 'booking-drawer';
+@use 'booking-footer';
+@use 'booking-toast';
