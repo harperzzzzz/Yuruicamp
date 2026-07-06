@@ -7043,30 +7043,454 @@ main.productDetailContainer {
   font-weight: 700;
 }
 
+@property --shipping-progress-value {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
 .shippingProgressBar {
+  --shipping-progress-value: 0%;
   appearance: none;
   block-size: 10px;
   border: 0;
   border-radius: 999px;
+  background: var(--yc-success-soft);
   display: block;
   inline-size: 100%;
   overflow: hidden;
+  transition: --shipping-progress-value var(--yc-duration-normal) var(--yc-ease-soft), background var(--yc-transition-fast), filter var(--yc-transition-fast);
 }
 
 .shippingProgressBar::-webkit-progress-bar {
-  background: var(--yc-success-soft);
+  background: transparent;
   border-radius: 999px;
 }
 
 .shippingProgressBar::-webkit-progress-value {
-  background: linear-gradient(90deg, var(--yc-success), var(--yc-success));
+  background: transparent;
   border-radius: 999px;
-  transition: inline-size 300ms ease;
 }
 
 .shippingProgressBar::-moz-progress-bar {
-  background: linear-gradient(90deg, var(--yc-success), var(--yc-success));
+  background: transparent;
   border-radius: 999px;
+}
+
+.shippingProgressBar.isEmpty {
+  background: var(--yc-success-soft);
+}
+
+.shippingProgressBar.isInProgress {
+  background: linear-gradient(90deg, var(--yc-success-text) 0 var(--shipping-progress-value), var(--yc-on-dark) var(--shipping-progress-value) 100%);
+}
+
+.shippingProgressBar.shippingProgressValue0 {
+  --shipping-progress-value: 0%;
+}
+
+.shippingProgressBar.shippingProgressValue1 {
+  --shipping-progress-value: 1%;
+}
+
+.shippingProgressBar.shippingProgressValue2 {
+  --shipping-progress-value: 2%;
+}
+
+.shippingProgressBar.shippingProgressValue3 {
+  --shipping-progress-value: 3%;
+}
+
+.shippingProgressBar.shippingProgressValue4 {
+  --shipping-progress-value: 4%;
+}
+
+.shippingProgressBar.shippingProgressValue5 {
+  --shipping-progress-value: 5%;
+}
+
+.shippingProgressBar.shippingProgressValue6 {
+  --shipping-progress-value: 6%;
+}
+
+.shippingProgressBar.shippingProgressValue7 {
+  --shipping-progress-value: 7%;
+}
+
+.shippingProgressBar.shippingProgressValue8 {
+  --shipping-progress-value: 8%;
+}
+
+.shippingProgressBar.shippingProgressValue9 {
+  --shipping-progress-value: 9%;
+}
+
+.shippingProgressBar.shippingProgressValue10 {
+  --shipping-progress-value: 10%;
+}
+
+.shippingProgressBar.shippingProgressValue11 {
+  --shipping-progress-value: 11%;
+}
+
+.shippingProgressBar.shippingProgressValue12 {
+  --shipping-progress-value: 12%;
+}
+
+.shippingProgressBar.shippingProgressValue13 {
+  --shipping-progress-value: 13%;
+}
+
+.shippingProgressBar.shippingProgressValue14 {
+  --shipping-progress-value: 14%;
+}
+
+.shippingProgressBar.shippingProgressValue15 {
+  --shipping-progress-value: 15%;
+}
+
+.shippingProgressBar.shippingProgressValue16 {
+  --shipping-progress-value: 16%;
+}
+
+.shippingProgressBar.shippingProgressValue17 {
+  --shipping-progress-value: 17%;
+}
+
+.shippingProgressBar.shippingProgressValue18 {
+  --shipping-progress-value: 18%;
+}
+
+.shippingProgressBar.shippingProgressValue19 {
+  --shipping-progress-value: 19%;
+}
+
+.shippingProgressBar.shippingProgressValue20 {
+  --shipping-progress-value: 20%;
+}
+
+.shippingProgressBar.shippingProgressValue21 {
+  --shipping-progress-value: 21%;
+}
+
+.shippingProgressBar.shippingProgressValue22 {
+  --shipping-progress-value: 22%;
+}
+
+.shippingProgressBar.shippingProgressValue23 {
+  --shipping-progress-value: 23%;
+}
+
+.shippingProgressBar.shippingProgressValue24 {
+  --shipping-progress-value: 24%;
+}
+
+.shippingProgressBar.shippingProgressValue25 {
+  --shipping-progress-value: 25%;
+}
+
+.shippingProgressBar.shippingProgressValue26 {
+  --shipping-progress-value: 26%;
+}
+
+.shippingProgressBar.shippingProgressValue27 {
+  --shipping-progress-value: 27%;
+}
+
+.shippingProgressBar.shippingProgressValue28 {
+  --shipping-progress-value: 28%;
+}
+
+.shippingProgressBar.shippingProgressValue29 {
+  --shipping-progress-value: 29%;
+}
+
+.shippingProgressBar.shippingProgressValue30 {
+  --shipping-progress-value: 30%;
+}
+
+.shippingProgressBar.shippingProgressValue31 {
+  --shipping-progress-value: 31%;
+}
+
+.shippingProgressBar.shippingProgressValue32 {
+  --shipping-progress-value: 32%;
+}
+
+.shippingProgressBar.shippingProgressValue33 {
+  --shipping-progress-value: 33%;
+}
+
+.shippingProgressBar.shippingProgressValue34 {
+  --shipping-progress-value: 34%;
+}
+
+.shippingProgressBar.shippingProgressValue35 {
+  --shipping-progress-value: 35%;
+}
+
+.shippingProgressBar.shippingProgressValue36 {
+  --shipping-progress-value: 36%;
+}
+
+.shippingProgressBar.shippingProgressValue37 {
+  --shipping-progress-value: 37%;
+}
+
+.shippingProgressBar.shippingProgressValue38 {
+  --shipping-progress-value: 38%;
+}
+
+.shippingProgressBar.shippingProgressValue39 {
+  --shipping-progress-value: 39%;
+}
+
+.shippingProgressBar.shippingProgressValue40 {
+  --shipping-progress-value: 40%;
+}
+
+.shippingProgressBar.shippingProgressValue41 {
+  --shipping-progress-value: 41%;
+}
+
+.shippingProgressBar.shippingProgressValue42 {
+  --shipping-progress-value: 42%;
+}
+
+.shippingProgressBar.shippingProgressValue43 {
+  --shipping-progress-value: 43%;
+}
+
+.shippingProgressBar.shippingProgressValue44 {
+  --shipping-progress-value: 44%;
+}
+
+.shippingProgressBar.shippingProgressValue45 {
+  --shipping-progress-value: 45%;
+}
+
+.shippingProgressBar.shippingProgressValue46 {
+  --shipping-progress-value: 46%;
+}
+
+.shippingProgressBar.shippingProgressValue47 {
+  --shipping-progress-value: 47%;
+}
+
+.shippingProgressBar.shippingProgressValue48 {
+  --shipping-progress-value: 48%;
+}
+
+.shippingProgressBar.shippingProgressValue49 {
+  --shipping-progress-value: 49%;
+}
+
+.shippingProgressBar.shippingProgressValue50 {
+  --shipping-progress-value: 50%;
+}
+
+.shippingProgressBar.shippingProgressValue51 {
+  --shipping-progress-value: 51%;
+}
+
+.shippingProgressBar.shippingProgressValue52 {
+  --shipping-progress-value: 52%;
+}
+
+.shippingProgressBar.shippingProgressValue53 {
+  --shipping-progress-value: 53%;
+}
+
+.shippingProgressBar.shippingProgressValue54 {
+  --shipping-progress-value: 54%;
+}
+
+.shippingProgressBar.shippingProgressValue55 {
+  --shipping-progress-value: 55%;
+}
+
+.shippingProgressBar.shippingProgressValue56 {
+  --shipping-progress-value: 56%;
+}
+
+.shippingProgressBar.shippingProgressValue57 {
+  --shipping-progress-value: 57%;
+}
+
+.shippingProgressBar.shippingProgressValue58 {
+  --shipping-progress-value: 58%;
+}
+
+.shippingProgressBar.shippingProgressValue59 {
+  --shipping-progress-value: 59%;
+}
+
+.shippingProgressBar.shippingProgressValue60 {
+  --shipping-progress-value: 60%;
+}
+
+.shippingProgressBar.shippingProgressValue61 {
+  --shipping-progress-value: 61%;
+}
+
+.shippingProgressBar.shippingProgressValue62 {
+  --shipping-progress-value: 62%;
+}
+
+.shippingProgressBar.shippingProgressValue63 {
+  --shipping-progress-value: 63%;
+}
+
+.shippingProgressBar.shippingProgressValue64 {
+  --shipping-progress-value: 64%;
+}
+
+.shippingProgressBar.shippingProgressValue65 {
+  --shipping-progress-value: 65%;
+}
+
+.shippingProgressBar.shippingProgressValue66 {
+  --shipping-progress-value: 66%;
+}
+
+.shippingProgressBar.shippingProgressValue67 {
+  --shipping-progress-value: 67%;
+}
+
+.shippingProgressBar.shippingProgressValue68 {
+  --shipping-progress-value: 68%;
+}
+
+.shippingProgressBar.shippingProgressValue69 {
+  --shipping-progress-value: 69%;
+}
+
+.shippingProgressBar.shippingProgressValue70 {
+  --shipping-progress-value: 70%;
+}
+
+.shippingProgressBar.shippingProgressValue71 {
+  --shipping-progress-value: 71%;
+}
+
+.shippingProgressBar.shippingProgressValue72 {
+  --shipping-progress-value: 72%;
+}
+
+.shippingProgressBar.shippingProgressValue73 {
+  --shipping-progress-value: 73%;
+}
+
+.shippingProgressBar.shippingProgressValue74 {
+  --shipping-progress-value: 74%;
+}
+
+.shippingProgressBar.shippingProgressValue75 {
+  --shipping-progress-value: 75%;
+}
+
+.shippingProgressBar.shippingProgressValue76 {
+  --shipping-progress-value: 76%;
+}
+
+.shippingProgressBar.shippingProgressValue77 {
+  --shipping-progress-value: 77%;
+}
+
+.shippingProgressBar.shippingProgressValue78 {
+  --shipping-progress-value: 78%;
+}
+
+.shippingProgressBar.shippingProgressValue79 {
+  --shipping-progress-value: 79%;
+}
+
+.shippingProgressBar.shippingProgressValue80 {
+  --shipping-progress-value: 80%;
+}
+
+.shippingProgressBar.shippingProgressValue81 {
+  --shipping-progress-value: 81%;
+}
+
+.shippingProgressBar.shippingProgressValue82 {
+  --shipping-progress-value: 82%;
+}
+
+.shippingProgressBar.shippingProgressValue83 {
+  --shipping-progress-value: 83%;
+}
+
+.shippingProgressBar.shippingProgressValue84 {
+  --shipping-progress-value: 84%;
+}
+
+.shippingProgressBar.shippingProgressValue85 {
+  --shipping-progress-value: 85%;
+}
+
+.shippingProgressBar.shippingProgressValue86 {
+  --shipping-progress-value: 86%;
+}
+
+.shippingProgressBar.shippingProgressValue87 {
+  --shipping-progress-value: 87%;
+}
+
+.shippingProgressBar.shippingProgressValue88 {
+  --shipping-progress-value: 88%;
+}
+
+.shippingProgressBar.shippingProgressValue89 {
+  --shipping-progress-value: 89%;
+}
+
+.shippingProgressBar.shippingProgressValue90 {
+  --shipping-progress-value: 90%;
+}
+
+.shippingProgressBar.shippingProgressValue91 {
+  --shipping-progress-value: 91%;
+}
+
+.shippingProgressBar.shippingProgressValue92 {
+  --shipping-progress-value: 92%;
+}
+
+.shippingProgressBar.shippingProgressValue93 {
+  --shipping-progress-value: 93%;
+}
+
+.shippingProgressBar.shippingProgressValue94 {
+  --shipping-progress-value: 94%;
+}
+
+.shippingProgressBar.shippingProgressValue95 {
+  --shipping-progress-value: 95%;
+}
+
+.shippingProgressBar.shippingProgressValue96 {
+  --shipping-progress-value: 96%;
+}
+
+.shippingProgressBar.shippingProgressValue97 {
+  --shipping-progress-value: 97%;
+}
+
+.shippingProgressBar.shippingProgressValue98 {
+  --shipping-progress-value: 98%;
+}
+
+.shippingProgressBar.shippingProgressValue99 {
+  --shipping-progress-value: 99%;
+}
+
+.shippingProgressBar.shippingProgressValue100 {
+  --shipping-progress-value: 100%;
+}
+
+.shippingProgressBar.isComplete {
+  background: linear-gradient(100deg, var(--yc-on-dark), var(--yc-success-text));
+  filter: saturate(0.9);
 }
 
 .shippingProgressHint {
@@ -7089,6 +7513,15 @@ main.productDetailContainer {
   flex: 1;
   font-size: 1rem;
   min-width: 140px;
+  background: var(--yc-cta);
+  border: solid 2px var(--yc-cta);
+  color: var(--yc-on-cta);
+}
+
+.cartBtn:hover {
+  background: var(--yc-cta-hover);
+  border: solid 2px var(--yc-cta-hover);
+  color: var(--yc-on-cta);
 }
 
 .productTags {
@@ -7342,6 +7775,7 @@ main.productDetailContainer {
   .productTabBtn,
   .specOptionBtn,
   .qtyBtn,
+  .shippingProgressBar,
   .shippingProgressBar::-webkit-progress-value {
     transition-duration: 0.01ms;
   }

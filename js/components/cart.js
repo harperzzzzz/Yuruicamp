@@ -50,18 +50,28 @@
     return [
       '<article class="siteCartItem" data-product-id="' + escapeCartHtml(item.id) + '">',
       '  <a class="siteCartItemImageLink" href="' + detailUrl + '">',
-      '    <img class="siteCartItemImage" src="' + escapeCartHtml(item.image || 'https://picsum.photos/seed/default/80/80') + '" alt="' + escapeCartHtml(item.name) + '">',
+      '    <img class="siteCartItemImage" src="' +
+        escapeCartHtml(item.image || 'https://picsum.photos/seed/default/80/80') +
+        '" alt="' +
+        escapeCartHtml(item.name) +
+        '">',
       '  </a>',
       '  <div class="siteCartItemContent">',
       '    <div class="siteCartItemBrand">' + escapeCartHtml(item.brand || '') + '</div>',
       '    <a class="siteCartItemName" href="' + detailUrl + '">' + escapeCartHtml(item.name) + '</a>',
       '    <div class="siteCartItemPrice">' + window.formatCurrency(Number(item.price || 0)) + '</div>',
       '    <div class="siteCartItemActions">',
-      '      <button class="siteCartQuantityDecrease" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="減少數量">−</button>',
+      '      <button class="siteCartQuantityDecrease" data-product-id="' +
+        escapeCartHtml(item.id) +
+        '" type="button" aria-label="減少數量">−</button>',
       '      <span class="siteCartItemQuantity">' + Number(item.quantity || 0) + '</span>',
-      '      <button class="siteCartQuantityIncrease" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="增加數量">+</button>',
+      '      <button class="siteCartQuantityIncrease" data-product-id="' +
+        escapeCartHtml(item.id) +
+        '" type="button" aria-label="增加數量">+</button>',
       '      <strong class="siteCartItemSubtotal">' + window.formatCurrency(itemTotal) + '</strong>',
-      '      <button class="siteCartRemoveButton" data-product-id="' + escapeCartHtml(item.id) + '" type="button" aria-label="移除商品">',
+      '      <button class="siteCartRemoveButton" data-product-id="' +
+        escapeCartHtml(item.id) +
+        '" type="button" aria-label="移除商品">',
       '        <svg class="siteCartRemoveIcon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">',
       '          <path fill="currentColor" d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>',
       '          <path fill="currentColor" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1h2.5a1 1 0 0 1 1 1M4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>',
@@ -87,6 +97,28 @@
     if (shippingEl) shippingEl.textContent = shipping === 0 ? '免運' : window.formatCurrency(shipping);
     if (totalEl) totalEl.textContent = window.formatCurrency(total);
     if (elements.footer) elements.footer.hidden = window.AppState.cart.length === 0;
+  }
+
+  /**
+   * 廣播購物車內容已變更，讓商品詳情頁免運進度條等跨元件 UI 可同步刷新。
+   * detail 會帶上目前小計與商品數量，避免各頁面重複推導基礎狀態。
+   */
+  function notifyCartChanged(action) {
+    var cart = window.AppState && Array.isArray(window.AppState.cart) ? window.AppState.cart : [];
+    var subtotal = window.calculateCartTotal ? window.calculateCartTotal(cart) : 0;
+    var itemCount = cart.reduce(function (sum, item) {
+      return sum + Number(item.quantity || 0);
+    }, 0);
+
+    document.dispatchEvent(
+      new CustomEvent('yurui:cart-changed', {
+        detail: {
+          action: action,
+          subtotal: subtotal,
+          itemCount: itemCount,
+        },
+      })
+    );
   }
 
   window.renderCartDrawer = function () {
@@ -145,6 +177,7 @@
     window.saveAppState();
     window.updateCartBadge();
     window.renderCartDrawer();
+    notifyCartChanged('add');
     window.showToast && window.showToast('已加入購物車', 'success');
   };
 
@@ -155,6 +188,7 @@
     window.saveAppState();
     window.updateCartBadge();
     window.renderCartDrawer();
+    notifyCartChanged('remove');
     window.showToast && window.showToast('已從購物車移除', 'info');
   };
 
@@ -173,6 +207,7 @@
       window.saveAppState();
       window.updateCartBadge();
       window.renderCartDrawer();
+      notifyCartChanged('quantity');
     }
   };
 
@@ -181,6 +216,7 @@
     window.saveAppState();
     window.updateCartBadge();
     window.renderCartDrawer();
+    notifyCartChanged('clear');
   };
 
   function handleDrawerCheckout(event) {
@@ -246,4 +282,4 @@
       if (removeButton) window.removeFromCart(removeButton.dataset.productId);
     });
   };
-}());
+})();

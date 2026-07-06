@@ -1,3 +1,32 @@
+## v1.3.70 - 2026/07/06
+
+- 為商品詳情頁免運進度條新增動畫：註冊 `--shipping-progress-value` 為可動畫 percentage，讓深色填滿區在購物車增加、減少或清空時平滑推進 / 回退。
+- 進度條仍使用既有 `shippingProgressValue0~100` class 與 `--yc-*` token，不新增 inline style 或新色碼。
+- `prefers-reduced-motion` 會套用既有 reduced motion 規則，降低進度變化動畫時間。
+
+## v1.3.69 - 2026/07/06
+
+- 修正商品詳情頁免運進度條在畫面上未呈現「深色目前進度 + 淺色剩餘軌道」的問題。
+- 不再依賴 native `<progress>` 的瀏覽器 pseudo element 來顯示填滿色，改由 `.shippingProgressBar` 本體背景搭配 `shippingProgressValue0~100` class 繪製進度比例。
+- `<progress>` 仍保留 `value` 與 `aria-valuenow` 作為語意與無障礙狀態，視覺則由 SCSS 使用既有 `--yc-*` token 控制。
+
+## v1.3.68 - 2026/07/06
+
+- 依 `docs/ai-style-sheet.md` 使用既有 `--yc-*` token，為商品詳情頁免運進度條新增 `isEmpty`、`isInProgress`、`isComplete` 三種狀態。
+- 未滿 100% 時以深色填滿目前進度、淺色軌道表示剩餘進度；達到 100% 後整條改為較淺完成色，讓使用者更直覺分辨剩餘進度與已達標狀態。
+- 進度條狀態由 `_renderShippingProgress()` 統一切換，並補齊 `prefers-reduced-motion` 對進度條本體 transition 的處理。
+
+## v1.3.67 - 2026/07/06
+
+- 修正商品詳情頁免運進度條渲染：`#shippingProgressBar` 不再於購物車為空時使用假進度值，改與實際購物車小計計算出的百分比同步。
+- 進度條同步更新 `value` 與 `aria-valuenow`，讓清空購物車、減少數量與移除商品後，視覺填滿比例、文字百分比與輔助資訊保持一致。
+
+## v1.3.66 - 2026/07/06
+
+- 新增主站購物車共用事件 `yurui:cart-changed`，在加入、移除、數量異動與清空購物車後統一廣播最新購物車狀態。
+- `pages/product-detail.html` 的免運進度條現在會監聽購物車變更事件，清空購物車、減少商品數量或移除商品時會即時更新 `#shippingProgressBar`、百分比文字與免運提示。
+- 事件 detail 會帶出購物車小計與商品總數，後續其他頁面若需要同步購物車衍生 UI，可共用同一個事件來源。
+
 ## v1.3.65 - 2026/07/06
 
 - 依需求將商品列表頁廣告輪播改為完整 slides + 首尾 clone 架構，取代三張視窗式重建，避免動畫結束後畫面往前再往後固定。

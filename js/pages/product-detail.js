@@ -40,6 +40,7 @@ function _renderProductPage(product) {
   _renderSpecOptions(product, 'size');
   _renderSpecTable(product);
   _renderShippingProgress();
+  _initShippingProgressSync();
   _initQtyStepper();
   _initActionButtons(product);
   _initTabSwitching();
@@ -84,7 +85,10 @@ function _renderPrice(product) {
   const hasDiscount = product.originalPrice && product.originalPrice > product.price;
   _setText('productPrice', window.formatCurrency(product.price));
   _setText('productOriginalPrice', hasDiscount ? window.formatCurrency(product.originalPrice) : '');
-  _setText('productDiscount', hasDiscount ? `-${Math.round((1 - product.price / product.originalPrice) * 100)}%` : '');
+  _setText(
+    'productDiscount',
+    hasDiscount ? `-${Math.round((1 - product.price / product.originalPrice) * 100)}%` : ''
+  );
   document.getElementById('productOriginalPrice')?.toggleAttribute('hidden', !hasDiscount);
   document.getElementById('productDiscount')?.toggleAttribute('hidden', !hasDiscount);
 }
@@ -93,7 +97,7 @@ function _renderPrice(product) {
 function _renderTags(tags) {
   const tagsEl = document.getElementById('productTags');
   if (!tagsEl) return;
-  tagsEl.innerHTML = tags.map(tag => `<span class="productTag">#${tag}</span>`).join('');
+  tagsEl.innerHTML = tags.map((tag) => `<span class="productTag">#${tag}</span>`).join('');
 }
 
 // Convert numeric rating to five star characters.
@@ -110,20 +114,21 @@ function _average(values) {
 // Read star values from static review cards.
 function _getReviewCardRatings() {
   return Array.from(document.querySelectorAll('[data-review-rating]'))
-    .map(element => Number(element.dataset.reviewRating))
-    .filter(value => Number.isFinite(value));
+    .map((element) => Number(element.dataset.reviewRating))
+    .filter((value) => Number.isFinite(value));
 }
 
 // Render image gallery with semantic thumbnail buttons.
 function _renderGallery(product) {
-  const images = product.images && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
+  const images =
+    product.images && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
   const mainImg = document.getElementById('galleryMainImg');
   const thumbs = document.getElementById('galleryThumbs');
   if (!mainImg || !thumbs || images.length === 0) return;
 
   _setMainImage(mainImg, images[0], product.name);
   thumbs.innerHTML = images.map((src, index) => _buildGalleryThumb(src, index, product.name)).join('');
-  thumbs.addEventListener('click', event => _handleGalleryClick(event, mainImg, product.name));
+  thumbs.addEventListener('click', (event) => _handleGalleryClick(event, mainImg, product.name));
 }
 
 // Set the main gallery image source and alt text.
@@ -147,7 +152,7 @@ function _buildGalleryThumb(src, index, name) {
 function _handleGalleryClick(event, mainImg, productName) {
   const thumb = event.target.closest('.galleryThumb');
   if (!thumb) return;
-  document.querySelectorAll('.galleryThumb').forEach(item => item.classList.remove('isSelected'));
+  document.querySelectorAll('.galleryThumb').forEach((item) => item.classList.remove('isSelected'));
   thumb.classList.add('isSelected');
   mainImg.classList.add('isSwitching');
   window.setTimeout(() => _setMainImage(mainImg, thumb.dataset.src, productName), 150);
@@ -164,7 +169,7 @@ function _renderSpecOptions(product, type) {
   if (!options || !container || options.length === 0) return;
   if (label) label.textContent = options[0];
   container.innerHTML = options.map((value, index) => _buildSpecButton(type, value, index)).join('');
-  container.addEventListener('click', event => _handleSpecClick(event, type, container, label));
+  container.addEventListener('click', (event) => _handleSpecClick(event, type, container, label));
 }
 
 // Build one spec option button.
@@ -177,7 +182,7 @@ function _buildSpecButton(type, value, index) {
 function _handleSpecClick(event, type, container, label) {
   const button = event.target.closest('.specOptionBtn');
   if (!button) return;
-  container.querySelectorAll('.specOptionBtn').forEach(item => item.classList.remove('isSelected'));
+  container.querySelectorAll('.specOptionBtn').forEach((item) => item.classList.remove('isSelected'));
   button.classList.add('isSelected');
   if (label) label.textContent = button.dataset[type];
 }
@@ -192,18 +197,24 @@ function _renderSpecTable(product) {
   const specTable = document.getElementById('productSpecTable');
   if (!specTable) return;
   const specs = product.specifications || {};
-  specTable.innerHTML = Object.keys(specs).length ? _buildSpecRows(specs) : '<div class="productSpecEmpty">\u66ab\u7121\u898f\u683c\u8cc7\u6599</div>';
+  specTable.innerHTML = Object.keys(specs).length
+    ? _buildSpecRows(specs)
+    : '<div class="productSpecEmpty">\u66ab\u7121\u898f\u683c\u8cc7\u6599</div>';
   _renderFeatures(product.tags || []);
 }
 
 // Build specification rows from key-value data.
 function _buildSpecRows(specs) {
-  return Object.entries(specs).map(([key, value]) => `
+  return Object.entries(specs)
+    .map(
+      ([key, value]) => `
     <div class="productSpecRow">
       <div class="productSpecLabel">${_getSpecLabel(key)}</div>
       <div class="productSpecValue">${value}</div>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 // Map known specification keys to labels.
@@ -230,7 +241,7 @@ function _renderFeatures(tags) {
   if (!features || tags.length === 0) return;
   features.innerHTML = `
     <h4 class="productFeaturesTitle">\u5546\u54c1\u7279\u8272</h4>
-    <ul class="productFeaturesList">${tags.map(tag => `<li>${tag}</li>`).join('')}</ul>
+    <ul class="productFeaturesList">${tags.map((tag) => `<li>${tag}</li>`).join('')}</ul>
   `;
 }
 
@@ -239,12 +250,39 @@ function _renderShippingProgress() {
   const cartTotal = window.calculateCartTotal ? window.calculateCartTotal() : 0;
   const progress = Math.min(Math.round((cartTotal / FREE_SHIPPING_THRESHOLD) * 100), 100);
   const remaining = Math.max(FREE_SHIPPING_THRESHOLD - cartTotal, 0);
-  const displayProgress = cartTotal === 0 ? 80 : progress;
 
   const progressBar = document.getElementById('shippingProgressBar');
-  if (progressBar) progressBar.value = displayProgress;
-  _setText('shippingProgressText', cartTotal >= FREE_SHIPPING_THRESHOLD ? '\u5df2\u9054\u514d\u904b' : `${progress}%`);
+  if (progressBar) {
+    // 免運進度條渲染值必須與實際購物車進度一致，避免清空購物車後仍殘留假進度。
+    progressBar.value = progress;
+    progressBar.setAttribute('aria-valuenow', String(progress));
+    _setShippingProgressBarState(progressBar, progress);
+  }
+  _setText(
+    'shippingProgressText',
+    cartTotal >= FREE_SHIPPING_THRESHOLD ? '\u5df2\u9054\u514d\u904b' : `${progress}%`
+  );
   _setShippingHint(cartTotal, remaining);
+}
+
+// 同步免運進度條狀態與百分比 class，讓 CSS 可直接畫出深色進度與淺色剩餘軌道。
+function _setShippingProgressBarState(progressBar, progress) {
+  const previousProgressClass = progressBar.dataset.progressClass;
+  const progressClass = `shippingProgressValue${progress}`;
+
+  if (previousProgressClass) progressBar.classList.remove(previousProgressClass);
+  progressBar.dataset.progressClass = progressClass;
+  progressBar.classList.add(progressClass);
+  progressBar.classList.toggle('isEmpty', progress === 0);
+  progressBar.classList.toggle('isInProgress', progress > 0 && progress < 100);
+  progressBar.classList.toggle('isComplete', progress >= 100);
+}
+
+// 監聽共用購物車變更事件，讓抽屜清空、移除與減少商品時同步更新免運進度條。
+function _initShippingProgressSync() {
+  if (document.body.dataset.shippingProgressBound === 'true') return;
+  document.body.dataset.shippingProgressBound = 'true';
+  document.addEventListener('yurui:cart-changed', _renderShippingProgress);
 }
 
 // Render shipping hint text and status class.
@@ -253,7 +291,8 @@ function _setShippingHint(cartTotal, remaining) {
   if (!hint) return;
   hint.classList.toggle('isSuccess', cartTotal >= FREE_SHIPPING_THRESHOLD);
   if (cartTotal >= FREE_SHIPPING_THRESHOLD) hint.textContent = '\u5df2\u9054\u514d\u904b\u9580\u6abb';
-  else if (cartTotal === 0) hint.textContent = `\u8cfc\u7269\u6eff NT$${FREE_SHIPPING_THRESHOLD.toLocaleString()} \u514d\u904b\uff0c\u9084\u5dee NT$${remaining.toLocaleString()}`;
+  else if (cartTotal === 0)
+    hint.textContent = `\u8cfc\u7269\u6eff NT$${FREE_SHIPPING_THRESHOLD.toLocaleString()} \u514d\u904b\uff0c\u9084\u5dee NT$${remaining.toLocaleString()}`;
   else hint.textContent = `\u518d\u8cfc\u8cb7 NT$${remaining.toLocaleString()} \u5373\u53ef\u514d\u904b`;
 }
 
@@ -282,11 +321,12 @@ function _normalizeQuantity(input) {
 function _initActionButtons(product) {
   document.getElementById('addToCartBtn')?.addEventListener('click', () => {
     _addSelectedProductToCart(product);
-    _renderShippingProgress();
   });
   document.getElementById('buyNowBtn')?.addEventListener('click', () => {
     _addSelectedProductToCart(product);
-    window.setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
+    window.setTimeout(() => {
+      window.location.href = 'checkout.html';
+    }, 500);
   });
 }
 
@@ -295,13 +335,16 @@ function _addSelectedProductToCart(product) {
   const qty = parseInt(document.getElementById('qtyInput')?.value || '1', 10);
   const specs = _getSelectedSpecs();
   const specSuffix = [specs.color, specs.size].filter(Boolean).join(' / ');
-  window.addToCart({
-    id: product.id,
-    name: specSuffix ? `${product.name}\uff08${specSuffix}\uff09` : product.name,
-    price: product.price,
-    image: product.image,
-    brand: product.brand,
-  }, qty);
+  window.addToCart(
+    {
+      id: product.id,
+      name: specSuffix ? `${product.name}\uff08${specSuffix}\uff09` : product.name,
+      price: product.price,
+      image: product.image,
+      brand: product.brand,
+    },
+    qty
+  );
 }
 
 // Get currently selected color and size.
@@ -316,7 +359,7 @@ function _getSelectedSpecs() {
 function _initTabSwitching() {
   const tabBtns = document.querySelectorAll('.productTabBtn');
   const tabPanels = document.querySelectorAll('.productTabPanel');
-  tabBtns.forEach(button => {
+  tabBtns.forEach((button) => {
     button.addEventListener('click', () => _activateTab(button, tabBtns, tabPanels));
   });
 }
@@ -324,8 +367,8 @@ function _initTabSwitching() {
 // Activate one tab and its matching panel.
 function _activateTab(activeButton, tabBtns, tabPanels) {
   const targetTab = activeButton.dataset.tab;
-  tabBtns.forEach(button => button.classList.toggle('isSelected', button === activeButton));
-  tabPanels.forEach(panel => panel.classList.toggle('isSelected', panel.dataset.panel === targetTab));
+  tabBtns.forEach((button) => button.classList.toggle('isSelected', button === activeButton));
+  tabPanels.forEach((panel) => panel.classList.toggle('isSelected', panel.dataset.panel === targetTab));
 }
 
 if (document.readyState === 'loading') {

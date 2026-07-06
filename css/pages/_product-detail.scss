@@ -177,7 +177,9 @@ main.productDetailContainer {
   height: 100%;
   object-fit: cover;
   opacity: 1;
-  transition: opacity 200ms ease, transform 250ms ease;
+  transition:
+    opacity 200ms ease,
+    transform 250ms ease;
   width: 100%;
 }
 
@@ -205,7 +207,9 @@ main.productDetailContainer {
   height: 72px;
   overflow: hidden;
   padding: 0;
-  transition: border-color 200ms ease, box-shadow 200ms ease;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
   width: 72px;
 }
 
@@ -346,7 +350,10 @@ main.productDetailContainer {
   cursor: pointer;
   min-height: 44px;
   padding: 0.55rem 0.9rem;
-  transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
 }
 
 .specOptionBtn:hover,
@@ -386,7 +393,9 @@ main.productDetailContainer {
   font-size: 1.25rem;
   font-weight: 800;
   line-height: 1;
-  transition: background-color 200ms ease, color 200ms ease;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
 }
 
 .qtyBtn:hover,
@@ -434,30 +443,67 @@ main.productDetailContainer {
   font-weight: 700;
 }
 
+// 註冊進度百分比為可動畫屬性，讓深色填滿區在購物車變更時平滑推進或回退。
+@property --shipping-progress-value {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 0%;
+}
+
 .shippingProgressBar {
+  --shipping-progress-value: 0%;
+
   appearance: none;
   block-size: 10px;
   border: 0;
   border-radius: 999px;
+  background: var(--yc-success-soft);
   display: block;
   inline-size: 100%;
   overflow: hidden;
+  transition:
+    --shipping-progress-value var(--yc-duration-normal) var(--yc-ease-soft),
+    background var(--yc-transition-fast),
+    filter var(--yc-transition-fast);
 }
 
 .shippingProgressBar::-webkit-progress-bar {
-  background: var(--yc-success-soft);
+  background: transparent;
   border-radius: 999px;
 }
 
 .shippingProgressBar::-webkit-progress-value {
-  background: linear-gradient(90deg, $product-success, var(--yc-success));
+  background: transparent;
   border-radius: 999px;
-  transition: inline-size 300ms ease;
 }
 
 .shippingProgressBar::-moz-progress-bar {
-  background: linear-gradient(90deg, $product-success, var(--yc-success));
+  background: transparent;
   border-radius: 999px;
+}
+
+// 免運進度條狀態：空值、未滿與已達標分別呈現剩餘進度與完成狀態。
+.shippingProgressBar.isEmpty {
+  background: var(--yc-success-soft);
+}
+
+.shippingProgressBar.isInProgress {
+  background: linear-gradient(
+    90deg,
+    var(--yc-success-text) 0 var(--shipping-progress-value),
+    var(--yc-on-dark) var(--shipping-progress-value) 100%
+  );
+}
+
+@for $shipping-progress-step from 0 through 100 {
+  .shippingProgressBar.shippingProgressValue#{$shipping-progress-step} {
+    --shipping-progress-value: #{$shipping-progress-step * 1%};
+  }
+}
+
+.shippingProgressBar.isComplete {
+  background: linear-gradient(100deg, var(--yc-on-dark), var(--yc-success-text));
+  filter: saturate(0.9);
 }
 
 .shippingProgressHint {
@@ -480,8 +526,16 @@ main.productDetailContainer {
   flex: 1;
   font-size: 1rem;
   min-width: 140px;
+  background: var(--yc-cta);
+  border: solid 2px var(--yc-cta);
+  color: var(--yc-on-cta);
 }
 
+.cartBtn:hover {
+  background: var(--yc-cta-hover);
+  border: solid 2px var(--yc-cta-hover);
+  color: var(--yc-on-cta);
+}
 
 .productTags {
   display: flex;
@@ -522,7 +576,9 @@ main.productDetailContainer {
   margin-bottom: -2px;
   min-height: 44px;
   padding: 0.875rem 1.75rem;
-  transition: color 200ms ease, border-color 200ms ease;
+  transition:
+    color 200ms ease,
+    border-color 200ms ease;
   white-space: nowrap;
 }
 
@@ -744,6 +800,7 @@ main.productDetailContainer {
   .productTabBtn,
   .specOptionBtn,
   .qtyBtn,
+  .shippingProgressBar,
   .shippingProgressBar::-webkit-progress-value {
     transition-duration: 0.01ms;
   }
