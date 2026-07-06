@@ -7,7 +7,7 @@
 ## 依據文件
 
 - `docs/itcss-architecture.md`：ITCSS 層級、載入順序與 selector 歸層規則。
-- `booking/booking-style-tokens.md`：Booking `--yc-*` token source of truth 與 `--bk-*` 相容 alias 規則。
+- `docs/ai-style-sheet.md`：Yuruicamp 主站與 Booking `--yc-*` token source of truth 與 AI 樣式規範。
 - `booking/css/`：Booking 現有 runtime CSS 入口與頁面、元件、物件樣式。
 - `css/`：主站目前採用的 SCSS partial、聚合 partial 與 `@use` 載入模式。
 
@@ -114,10 +114,10 @@ booking/css/
 
 規則：
 
-- `--yc-*` 是 booking source of truth。
-- `--bk-*` 只能映射到 `--yc-*`，不得獨立漂移。
+- `--yc-*` 是主站與 booking source of truth。
+- 不新增 `--bk-*` 或 `--yui-*` 相容 alias。
 - 不新增未定義色碼、字體、間距系統。
-- 若發現現有 CSS 使用文件未定義 token，先回到 `booking/booking-style-tokens.md` 與 `settings/_tokens.scss` 做一致性審核，不直接在元件檔補一次性色碼。
+- 若發現現有 CSS 使用文件未定義 token，先回到 `docs/ai-style-sheet.md` 與 `settings/_tokens.scss` 做一致性審核，不直接在元件檔補一次性色碼。
 
 ### 3. Generic 與 Elements 層
 

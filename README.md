@@ -1,3 +1,9 @@
+## v1.3.60 - 2026/07/06
+
+- 將 `booking/booking-style-tokens.md` 的 booking token、互動規則、z-index、元件規則與 AI 檢查清單整併進 `docs/ai-style-sheet.md`，讓 AI 樣式規範成為單一 source of truth。
+- 刪除已整併的 `booking/booking-style-tokens.md`，並更新 `docs/ai-style-tokens.css` 與 `plans/booking-itcss-scss-plan.md` 的現行參考路徑。
+- `docs/ai-style-sheet.md` 的實作 prompt 改為要求閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`，並明確禁止新增 `--bk-*` / `--yui-*` alias。
+
 ## v1.3.59 - 2026/07/04
 
 - 第四輪殘留清理：將剩餘 `:first-child` / `:last-child` 結構 selector 改為相鄰兄弟 selector 或明確語意 class，降低清單尾端與 DOM 順序相依。
