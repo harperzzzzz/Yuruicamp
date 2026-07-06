@@ -53,7 +53,8 @@
 
 // LINE 客服按鈕：保留品牌成功色，文字使用視覺隱藏方式輔助螢幕閱讀器。
 .floatingLineBtn {
-  background: var(--yc-success);
+  background: var(--yc-brand-line);
+  will-change: transform;
 }
 
 .floating-line-label {

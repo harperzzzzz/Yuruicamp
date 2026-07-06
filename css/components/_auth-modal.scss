@@ -55,40 +55,39 @@
 }
 
 .authProviderButton:hover {
-  background: var(--yc-sage-soft);
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
 // Facebook 登入按鈕：使用既有 info token 混合出淺藍底，不新增一次性色碼。
 .btnFacebookLogin {
-  background: color-mix(in srgb, var(--yc-sage-action) 12%, var(--yc-surface));
-  border-color: color-mix(in srgb, var(--yc-sage-action) 36%, var(--yc-border));
-  color: var(--yc-sage-action);
-}
-
-.btnFacebookLogin:hover {
-  background: color-mix(in srgb, var(--yc-sage-action) 18%, var(--yc-surface));
-  border-color: var(--yc-sage-action);
+  background: var(--yc-brand-facebook);
+  color: var(--yc-brand-on-color);
 }
 
 // LINE 登入按鈕：依任務指定使用成功色 token 作為主要背景。
 .btnLineLogin {
-  background: var(--yc-success);
-  border-color: var(--yc-success);
-  color: var(--yc-surface);
-}
-
-.btnLineLogin:hover {
-  background: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
-  border-color: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
+  background: var(--yc-brand-line);
+  color: var(--yc-brand-on-color);
 }
 
 // Modal 輔助文字：OAuth、問卷提示與確認訊息共用閱讀節奏。
-.oauthDesc,
 .oauthPrivacy,
 .surveyHint,
 .modalConfirmMessage {
   color: var(--yc-text-muted);
   line-height: 1.7;
+}
+
+.oauthDesc {
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthPrivacy {
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
 }
 
 // 問卷步驟：預設隱藏，由 JS 切換 isOpen 後使用 grid 排版。

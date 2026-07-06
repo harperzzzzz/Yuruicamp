@@ -319,8 +319,8 @@ a:focus-visible,
 .modalTitle {
   margin: 0;
   color: var(--yc-sage-action);
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
 
 .modalBody {
@@ -410,37 +410,36 @@ a:focus-visible,
 }
 
 .authProviderButton:hover {
-  background: var(--yc-sage-soft);
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
 .btnFacebookLogin {
-  background: color-mix(in srgb, var(--yc-sage-action) 12%, var(--yc-surface));
-  border-color: color-mix(in srgb, var(--yc-sage-action) 36%, var(--yc-border));
-  color: var(--yc-sage-action);
-}
-
-.btnFacebookLogin:hover {
-  background: color-mix(in srgb, var(--yc-sage-action) 18%, var(--yc-surface));
-  border-color: var(--yc-sage-action);
+  background: var(--yc-brand-facebook);
+  color: var(--yc-brand-on-color);
 }
 
 .btnLineLogin {
-  background: var(--yc-success);
-  border-color: var(--yc-success);
-  color: var(--yc-surface);
+  background: var(--yc-brand-line);
+  color: var(--yc-brand-on-color);
 }
 
-.btnLineLogin:hover {
-  background: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
-  border-color: color-mix(in srgb, var(--yc-success) 86%, var(--yc-sage-action));
-}
-
-.oauthDesc,
 .oauthPrivacy,
 .surveyHint,
 .modalConfirmMessage {
   color: var(--yc-text-muted);
   line-height: 1.7;
+}
+
+.oauthDesc {
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthPrivacy {
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
 }
 
 .surveyStep {
@@ -1081,7 +1080,8 @@ a:focus-visible,
 }
 
 .floatingLineBtn {
-  background: var(--yc-success);
+  background: var(--yc-brand-line);
+  will-change: transform;
 }
 
 .floating-line-label {
@@ -8800,10 +8800,6 @@ main.productDetailContainer {
 .mobileFilterApply:hover {
   background: transparent;
   color: var(--yc-sage-action);
-}
-
-.floatingLineBtn {
-  will-change: transform;
 }
 
 @media (width <= 992px) {

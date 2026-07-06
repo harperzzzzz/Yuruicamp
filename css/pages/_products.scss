@@ -808,10 +808,6 @@ $product-rating: var(--yc-pending-line);
   color: $product-primary;
 }
 
-.floatingLineBtn {
-  will-change: transform;
-}
-
 @media (width <= 992px) {
   .productsPageLayout {
     display: block;

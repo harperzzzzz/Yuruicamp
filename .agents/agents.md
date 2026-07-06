@@ -1,16 +1,19 @@
 請先讀取：
 - `docs/ai-style-sheet.md`
-- `pages/home.html`
-- 
+- `js/main.js`
+- `css/components/widgets/_floating-actions.scss`
+- `booking/css/components/_floating-actions.scss`
 
 
 ## 任務目標:
-  
+統一booking 和主站的floatingActions 元件。
 
 ## 問題解決流程:
-
+`css/components/widgets/_floating-actions.scss` 刪除，`booking/css/components/_floating-actions.scss`移動到css/components/widgets 並且可以支援主站和booking 的渲染。
+`js/main.js` 移除掉整個div.floating-actions，div.floatingActions 也要渲染到pages/ 中的每個網頁。
 
 ## 預期結果：
+主站的div.floating-actions 要被booking 的div.floatingActions 取代。
 
 ## 技術限制：
 - 保留現有 Vite 專案結構。
