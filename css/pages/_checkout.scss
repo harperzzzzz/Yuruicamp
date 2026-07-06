@@ -225,6 +225,16 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutSecondaryAction {
   margin-top: 0.25rem;
+  background: var(--yc-cta);
+  border: solid 2px var(--yc-cta);
+  color: var(--yc-on-cta);
+}
+
+.checkoutSecondaryAction:hover {
+  margin-top: 0.25rem;
+  background: var(--yc-cta-hover);
+  border: solid 2px var(--yc-cta-hover);
+  color: var(--yc-on-cta);
 }
 
 .checkoutChoice {
@@ -314,6 +324,15 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutConfirmBtn {
   min-height: 48px;
+  background: var(--yc-cta);
+  border: solid 2px var(--yc-cta);
+  color: var(--yc-on-cta);
+}
+
+.checkoutConfirmBtn:hover {
+  background: var(--yc-cta-hover);
+  border: solid 2px var(--yc-cta-hover);
+  color: var(--yc-on-cta);
 }
 
 .checkoutConfirmBtn.isLoading {

@@ -413,7 +413,8 @@ $faq-transition-base: var(--yc-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 
 
 .faqSupportLink:hover {
   box-shadow: $faq-shadow-md;
-  color: $faq-primary;
+  color: var(--yc-on-cta);
+  background: var(--yc-cta);
 }
 
 // FAQ feedback：套用於 NPS 評分與文字回饋表單。
@@ -516,13 +517,13 @@ $faq-transition-base: var(--yc-transition-base, 250ms cubic-bezier(0.4, 0, 0.2, 
 
 .faqSubmitButton {
   min-width: 140px;
-  background: $faq-primary;
-  color: $faq-surface;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
 }
 
 .faqSubmitButton:hover {
-  background: $faq-primary-hover;
-  box-shadow: $faq-shadow-md;
+  background: var(--yc-cta-hover);
+  color: var(--yc-on-cta);
 }
 
 .faqSubmitButton:disabled {

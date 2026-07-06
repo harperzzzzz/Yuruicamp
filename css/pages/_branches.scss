@@ -295,10 +295,10 @@ $branches-transition-base: var(--yc-transition-base, 250ms cubic-bezier(0.4, 0, 
   min-height: 44px;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
+  border: 1px solid var(--yc-cta);
   border-radius: $branches-radius-lg;
-  background: $branches-primary;
-  color: $branches-surface;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
   cursor: pointer;
   font: inherit;
   font-weight: 900;
@@ -314,9 +314,9 @@ $branches-transition-base: var(--yc-transition-base, 250ms cubic-bezier(0.4, 0, 
 
 .branchesDirectionsLink:hover,
 .partnerModalAction:hover {
-  background: $branches-primary-hover;
+  background: var(--yc-cta-hover);
   box-shadow: $branches-shadow-md;
-  color: $branches-surface;
+  color: var(--yc-on-cta);
   text-decoration: none;
 }
 
