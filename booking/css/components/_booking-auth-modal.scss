@@ -1,0 +1,48 @@
+/* Booking Auth Modal：只保留 booking 登入 Modal 差異；偏好問卷與關閉確認視窗使用主站共用樣式。 */
+.bookingLoginModal {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+}
+
+/* Booking 登入面板：維持右側抽屜式登入體驗，不影響 #personalizationModal 與 #surveyCloseConfirmModal。 */
+.bookingLoginModal .bookingAuthModalContent {
+  width: min(420px, 100vw);
+  max-height: 100dvh;
+  min-height: 100dvh;
+  border-block: 0;
+  border-inline-end: 0;
+  border-radius: var(--yc-radius-button) 0 0 var(--yc-radius-button);
+}
+
+/* Booking OAuth 品牌補強：Google、Facebook、LINE 使用外部品牌識別色，不併入設計 token 系統。 */
+.bookingLoginModal .bookingAuthProviderGoogle {
+  background: var(--yc-brand-google-surface);
+  border-color: var(--yc-brand-google-border);
+  color: var(--yc-brand-google-text);
+}
+
+.bookingLoginModal .bookingAuthProviderFacebook {
+  background: var(--yc-brand-facebook);
+  border-color: var(--yc-brand-facebook);
+  color: var(--yc-brand-on-color);
+}
+
+.bookingLoginModal .bookingAuthProviderLine {
+  background: var(--yc-brand-line);
+  border-color: var(--yc-brand-line);
+  color: var(--yc-brand-on-color);
+}
+
+.bookingLoginModal .bookingAuthOauthPrivacy a {
+  color: var(--yc-sage-action);
+  text-decoration: underline;
+}
+
+@media (width <= 480px) {
+  /* 手機 booking 登入 Modal：沿用主站滿版登入體驗，避免 375px 產生水平捲動。 */
+  .bookingLoginModal .bookingAuthModalContent {
+    width: 100vw;
+    border-radius: 0;
+  }
+}

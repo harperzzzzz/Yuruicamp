@@ -1,6 +1,9 @@
-// 用途：ITCSS components 匯總入口，連接 comments、content、media、navigation、widgets。
-@import 'comments/comments';
-@import 'content/content';
-@import 'media/media';
-@import 'navigation/navigation';
-@import 'widgets/widgets';
+// Components 層：只放跨頁可重用 UI 元件，避免混入單一頁面專屬樣式。
+// 載入順序：先匯入基礎互動元件，再匯入 header 與 widgets。
+@use 'buttons';
+@use 'modal';
+@use 'auth-modal';
+@use 'drawer';
+@use 'offcanvas';
+@use 'cart-drawer';
+@use 'widgets/widgets';

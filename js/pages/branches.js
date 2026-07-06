@@ -1,339 +1,396 @@
-// ============================================================
-// 分店頁面邏輯 (Branches Page Logic)
-// 負責：載入分店資料、渲染地圖、合作店家網格
-// Handles: loading branch data, map update, partner grid
-// ============================================================
+const PARTNER_IMAGE_FALLBACK = 'https://picsum.photos/seed/partner-fallback/500/281';
+const PARTNER_MODAL_ID = 'partnerModal';
 
-// ============================================================
-// 靜態合作店家資料
-// Static partner data (hardcoded mock)
-// ============================================================
+let partnerModalScrollPosition = { x: 0, y: 0 };
+let partnerModalTrigger = null;
+
 const PARTNER_DATA = [
   {
-    name: '天空之城露營農場',
+    name: '森谷露營區',
     image: 'https://picsum.photos/seed/partner1/400/300',
-    tags: ['景觀露營', '親子友善', '設備租借'],
-    discount: 'YURUI88 享88折',
-    desc: '海拔1200公尺的雲霧之間，景色無敵。白天俯瞰翠綠山谷，夜晚仰望璀璨星空，是離天空最近的夢幻露營地。提供完善的設備租借，讓你無需負重即可享受高山露營。'
+    tags: ['山林營位', '親子友善', '裝備租借'],
+    discount: 'YURUI88 享 88 折',
+    desc: '位於中海拔山區的寬敞營地，提供草地營位、衛浴設施與夜間照明，適合第一次露營的家庭與小型團體。',
   },
   {
-    name: '森林秘境生態農場',
+    name: '湖畔野營俱樂部',
     image: 'https://picsum.photos/seed/partner2/400/300',
-    tags: ['生態體驗', '野外教學', 'DIY'],
-    discount: 'FOREST10 享9折',
-    desc: '在深山原始林中，體驗真實的自然教育。從辨識野生植物到建造野外遮蔽所，每一項活動都讓大人與孩子重新認識大自然。每週末固定舉辦 DIY 工作坊。'
+    tags: ['湖景', 'SUP 體驗', '寵物友善'],
+    discount: 'LAKE100 折抵 NT$100',
+    desc: '鄰近湖岸的輕量野營場域，白天可預約水上體驗，夜晚適合觀星與小型聚會。',
   },
   {
-    name: '海岸星空露營基地',
+    name: '星野高原營地',
     image: 'https://picsum.photos/seed/partner3/400/300',
-    tags: ['海景', '夜觀星空', '衝浪'],
-    discount: 'STAR15 折150元',
-    desc: '面對太平洋的絕美海景，夜晚數星星、聆聽浪濤聲入睡。白天可參加衝浪體驗課程，基地提供專業衝浪板租借與教練指導，是海岸冒險愛好者的首選。'
+    tags: ['高海拔', '觀星', '團體包場'],
+    discount: 'STAR15 享 85 折',
+    desc: '高原草地與低光害環境是觀星愛好者的首選，營區提供團體包場與專人營位導引服務。',
   },
   {
-    name: '梅花湖湖景渡假村',
+    name: '杉木工作室',
     image: 'https://picsum.photos/seed/partner4/400/300',
-    tags: ['湖景', '划船', '釣魚'],
-    discount: 'LAKE100 折100元',
-    desc: '鄰近梅花湖的精緻露營場，可划船釣魚，水上活動豐富多樣。湖畔搭帳聽水聲入眠，清晨在湖霧中醒來，享受如詩如畫的寧靜時光。'
+    tags: ['木作課程', '咖啡', '選物店'],
+    discount: 'WOOD10 享 9 折',
+    desc: '結合戶外選物、木作課程與咖啡吧的複合空間，適合行前採買與午後休息。',
   },
   {
-    name: '古道芬多精山莊',
+    name: '溪谷漫遊營地',
     image: 'https://picsum.photos/seed/partner5/400/300',
-    tags: ['芬多精', '登山步道', '早餐服務'],
-    discount: 'FOREST88 享88折',
-    desc: '千年古道旁的靜謐山莊，充滿負離子與芬多精。沿途種植百年老樟樹，空氣清新令人神清氣爽。提供豐盛台式早餐，讓你元氣滿滿出發登山健行。'
+    tags: ['溪流', '夏季戲水', '車宿'],
+    discount: 'RIVER200 折抵 NT$200',
+    desc: '營位沿溪谷排列，夏季可安排安全戲水活動，也提供車宿與簡易電源配置。',
   },
   {
-    name: '荷花池畔戀人角落',
+    name: '北海岸風格露營',
     image: 'https://picsum.photos/seed/partner6/400/300',
-    tags: ['荷花池', '情侶推薦', '燭光晚餐'],
-    discount: 'LOVE200 折200元',
-    desc: '充滿浪漫氛圍的荷花池畔，適合兩人世界。每晚提供精心設計的燭光晚餐，帳篷內備有紅酒與小點心。夏夜螢火蟲飛舞，是求婚告白的絕佳場所。'
-  }
+    tags: ['海景', '懶人露營', '餐食預訂'],
+    discount: 'COAST12 享 88 折',
+    desc: '面向海岸線的懶人露營區，提供帳篷搭設、餐食預訂與基礎裝備，適合週末短行程。',
+  },
 ];
 
-// ============================================================
-// 分店卡片渲染
-// Branch card rendering
-// ============================================================
-
-/**
- * 渲染單一分店卡片 HTML
- * Build branch card HTML for one branch object
- * @param {Object} branch   - 分店資料物件
- * @param {boolean} isFirst - 是否為第一張（預設 active）
- * @returns {string} HTML 字串
- */
-function buildBranchCard(branch, isFirst) {
-  // 特色標籤 HTML
-  // Feature tag HTML
-  const featureTagsHTML = (branch.features || [])
-    .map(f => `<span class="branch-feature-tag">${f}</span>`)
-    .join('');
-
-  return `
-    <div class="branch-card ${isFirst ? 'active' : ''}"
-         data-branch-id="${branch.id}"
-         data-map-query="${encodeURIComponent(branch.mapQuery)}"
-         data-address="${encodeURIComponent(branch.address)}">
-
-      <!-- 上區塊：店名（淺綠底色）/ Top block: branch name (light green background) -->
-      <div class="branch-card-header">${branch.name}</div>
-
-      <!-- 下區塊：聯絡資訊 + 特色標籤 / Bottom block: contact info + feature tags -->
-      <div class="branch-card-body">
-        <!-- 地址 / Address -->
-        <div class="branch-card-info">
-          <span>📍</span>
-          <span>${branch.address}</span>
-        </div>
-        <!-- 電話 / Phone -->
-        <div class="branch-card-info">
-          <span>📞</span>
-          <span>${branch.phone}</span>
-        </div>
-        <!-- 營業時間 / Hours -->
-        <div class="branch-card-info">
-          <span>🕐</span>
-          <span>${branch.hours}</span>
-        </div>
-        <!-- 特色標籤（橫排）/ Feature tags (horizontal row) -->
-        <div class="branch-card-features">
-          ${featureTagsHTML}
-        </div>
-      </div>
-
-    </div>
-  `;
+function createElement(tagName, className, textContent = '') {
+  const element = document.createElement(tagName);
+  if (className) element.className = className;
+  if (textContent) element.textContent = textContent;
+  return element;
 }
 
-/**
- * 更新右側地圖 iframe 與規劃路線連結
- * Update the map iframe src and directions link
- * @param {string} mapQuery  - 地圖查詢字串（例如：台北市信義區...）
- * @param {string} address   - 完整地址（用於規劃路線）
- */
+function getReducedMotionBehavior() {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
+function getBranchMapQuery(branch) {
+  return branch.mapQuery || branch.address || branch.name || '';
+}
+
 function updateMap(mapQuery, address) {
   const iframe = document.getElementById('branchMapIframe');
-  const dirBtn = document.getElementById('directionsBtn');
+  const directionsBtn = document.getElementById('directionsBtn');
+  const safeMapQuery = encodeURIComponent(mapQuery || '');
+  const safeAddress = encodeURIComponent(address || mapQuery || '');
 
   if (iframe) {
-    // 更新 Google Maps iframe src
-    // Update Google Maps embed URL
-    iframe.src = `https://maps.google.com/maps?q=${mapQuery}&output=embed&hl=zh-TW`;
+    iframe.src = `https://maps.google.com/maps?q=${safeMapQuery}&output=embed&hl=zh-TW`;
   }
 
-  if (dirBtn) {
-    // 更新「規劃路線」連結
-    // Update directions link
-    dirBtn.href = `https://www.google.com/maps/search/?api=1&query=${address}`;
+  if (directionsBtn) {
+    directionsBtn.href = `https://www.google.com/maps/search/?api=1&query=${safeAddress}`;
   }
 }
 
-/**
- * 載入並渲染所有分店
- * Load branches from API or JSON, then render cards
- */
+function createBranchInfo(label, value) {
+  const item = createElement('li', 'branchCardInfo');
+  const labelElement = createElement('span', 'branchCardInfoIcon', label);
+  const valueElement = createElement('span', 'branchCardInfoText', value || '未提供');
+
+  item.append(labelElement, valueElement);
+  return item;
+}
+
+function createBranchCard(branch, isSelected) {
+  const button = createElement('button', `branchCard${isSelected ? ' isSelected' : ''}`);
+  button.type = 'button';
+  button.role = 'option';
+  button.setAttribute('aria-selected', String(isSelected));
+  button.dataset.branchId = branch.id || '';
+  button.dataset.mapQuery = getBranchMapQuery(branch);
+  button.dataset.address = branch.address || '';
+
+  const title = createElement('span', 'branchCardTitle', branch.name || 'Yuruicamp 門市');
+  const content = createElement('span', 'branchCardContent');
+  const infoList = createElement('ul', 'branchCardInfoList');
+  infoList.append(
+    createBranchInfo('地址', branch.address),
+    createBranchInfo('電話', branch.phone),
+    createBranchInfo('營業', branch.hours)
+  );
+
+  const features = createElement('span', 'branchCardFeatures');
+  (branch.features || []).forEach((feature) => {
+    features.append(createElement('span', 'branchFeatureTag', feature));
+  });
+
+  content.append(infoList, features);
+  button.append(title, content);
+  return button;
+}
+
+function setBranchesState(container, stateClass) {
+  container.classList.remove('isLoading', 'isError', 'isEmpty');
+  if (stateClass) container.classList.add(stateClass);
+}
+
+function renderBranchError(container) {
+  setBranchesState(container, 'isError');
+  container.replaceChildren();
+
+  const error = createElement('div', 'branchesErrorState');
+  error.setAttribute('role', 'alert');
+  error.append(
+    createElement('span', 'branchesErrorIcon', 'i'),
+    createElement('span', 'branchesErrorText', '載入分店資料失敗，請稍後再試。')
+  );
+  container.append(error);
+}
+
+function renderBranchEmpty(container) {
+  setBranchesState(container, 'isEmpty');
+  container.replaceChildren();
+
+  const empty = createElement('div', 'branchesErrorState');
+  empty.setAttribute('role', 'status');
+  empty.append(
+    createElement('span', 'branchesErrorIcon', 'i'),
+    createElement('span', 'branchesErrorText', '目前沒有可顯示的門市。')
+  );
+  container.append(empty);
+}
+
+function selectBranchCard(container, selectedCard) {
+  container.querySelectorAll('.branchCard').forEach((branchCard) => {
+    const isSelected = branchCard === selectedCard;
+    branchCard.classList.toggle('isSelected', isSelected);
+    branchCard.setAttribute('aria-selected', String(isSelected));
+  });
+
+  updateMap(selectedCard.dataset.mapQuery, selectedCard.dataset.address);
+
+  const mapWrap = document.getElementById('mapWrap');
+  if (mapWrap && window.innerWidth < 992) {
+    mapWrap.scrollIntoView({ behavior: getReducedMotionBehavior(), block: 'start' });
+  }
+}
+
+async function fetchBranches() {
+  if (window.API?.branches?.getAll) {
+    return window.API.branches.getAll();
+  }
+
+  const response = await fetch('../data/branches.json', { cache: 'no-store' });
+  return response.json();
+}
+
 async function loadBranches() {
   const container = document.getElementById('branchList');
   if (!container) return;
 
-  let branches = [];
+  setBranchesState(container, 'isLoading');
 
   try {
-    // 嘗試從 API mock 取得分店資料
-    // Try fetching via API mock
-    if (window.API && window.API.branches && window.API.branches.getAll) {
-      branches = await window.API.branches.getAll();
-    } else {
-      // Fallback：直接 fetch JSON 檔案
-      // Fallback: fetch JSON file directly
-      const res = await fetch('../data/branches.json');
-      branches   = await res.json();
+    const branches = await fetchBranches();
+    if (!Array.isArray(branches) || branches.length === 0) {
+      renderBranchEmpty(container);
+      return;
     }
-  } catch (err) {
-    console.error('載入分店失敗 / Failed to load branches:', err);
-    container.innerHTML = `
-      <div style="text-align:center;padding:2rem;color:#e74c3c;">
-        <div style="font-size:2rem;margin-bottom:0.5rem;">⚠️</div>
-        載入失敗，請稍後再試
-      </div>`;
-    return;
+
+    setBranchesState(container);
+    const cards = branches.map((branch, index) => createBranchCard(branch, index === 0));
+    container.replaceChildren(...cards);
+
+    updateMap(getBranchMapQuery(branches[0]), branches[0].address);
+  } catch (error) {
+    console.error('Failed to load branches:', error);
+    renderBranchError(container);
   }
-
-  // 渲染分店卡片
-  // Render branch cards
-  container.innerHTML = branches
-    .map((branch, idx) => buildBranchCard(branch, idx === 0))
-    .join('');
-
-  // 預設顯示第一間分店的地圖
-  // Default to first branch map on load
-  if (branches.length > 0) {
-    updateMap(
-      encodeURIComponent(branches[0].mapQuery),
-      encodeURIComponent(branches[0].address)
-    );
-  }
-
-  // 綁定分店卡片點擊事件
-  // Bind click events to each branch card
-  container.querySelectorAll('.branch-card').forEach(card => {
-    card.addEventListener('click', () => {
-      // 移除所有 active class，只給被點擊的加上
-      // Remove active from all cards, add to clicked one
-      container.querySelectorAll('.branch-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-
-      // 更新地圖（card 上的 data-* 屬性已做 encodeURIComponent）
-      // Update map (data attributes are already encoded)
-      updateMap(card.dataset.mapQuery, card.dataset.address);
-
-      // 手機版：自動滾動到地圖位置
-      // Mobile: scroll map into view
-      const mapWrap = document.getElementById('mapWrap');
-      if (mapWrap && window.innerWidth < 992) {
-        mapWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  });
 }
 
-// ============================================================
-// 合作店家網格渲染
-// Partner grid rendering
-// ============================================================
-
-/**
- * 產生單一合作店家卡片 HTML
- * Build a single partner card HTML
- * @param {Object} partner - 合作店家資料
- * @param {number} idx     - 索引（用於 onclick 綁定）
- * @returns {string} HTML 字串
- */
-function buildPartnerCard(partner, idx) {
-  // 標籤 HTML
-  const tagsHTML = partner.tags
-    .map(t => `<span class="partner-tag">${t}</span>`)
-    .join('');
-
-  return `
-    <div class="partner-card" onclick="openPartnerDetail(${idx})">
-      <!-- 圖片 -->
-      <div class="partner-card-img">
-        <img src="${partner.image}"
-             alt="${partner.name}"
-             loading="lazy"
-             onerror="this.src='https://picsum.photos/seed/fallback/400/300'">
-      </div>
-      <!-- 卡片內容 -->
-      <div class="partner-card-body">
-        <div class="partner-card-name">${partner.name}</div>
-        <div class="partner-tags">${tagsHTML}</div>
-        <!-- 優惠碼預覽 -->
-        <div style="margin-top:0.5rem;font-size:0.72rem;color:#244d4d;font-weight:700;">
-          🎁 ${partner.discount}
-        </div>
-      </div>
-    </div>
-  `;
+function createTag(tagName) {
+  return createElement('span', 'partnerTag', tagName);
 }
 
-/**
- * 渲染合作店家網格
- * Render all partner cards into #partnersGrid
- */
+function createPartnerCard(partner, index) {
+  const article = createElement('article', 'partnerCard');
+  const trigger = createElement('button', 'partnerCardTrigger');
+  trigger.type = 'button';
+  trigger.dataset.partnerIndex = String(index);
+
+  const imageWrap = createElement('span', 'partnerCardImageWrap');
+  const image = createElement('img', 'partnerCardImage');
+  image.src = partner.image;
+  image.alt = partner.name;
+  image.loading = 'lazy';
+  image.addEventListener(
+    'error',
+    () => {
+      image.src = PARTNER_IMAGE_FALLBACK;
+    },
+    { once: true }
+  );
+  imageWrap.append(image);
+
+  const content = createElement('span', 'partnerCardContent');
+  const title = createElement('span', 'partnerCardTitle', partner.name);
+  const tags = createElement('span', 'partnerTags');
+  partner.tags.forEach((tag) => tags.append(createTag(tag)));
+  const discount = createElement('span', 'partnerDiscountPreview', partner.discount);
+
+  content.append(title, tags, discount);
+  trigger.append(imageWrap, content);
+  article.append(trigger);
+  return article;
+}
+
 function renderPartners() {
   const container = document.getElementById('partnersGrid');
   if (!container) return;
 
-  container.innerHTML = PARTNER_DATA
-    .map((partner, idx) => buildPartnerCard(partner, idx))
-    .join('');
+  container.replaceChildren(...PARTNER_DATA.map((partner, index) => createPartnerCard(partner, index)));
 }
 
-// ============================================================
-// 合作店家詳情 Modal
-// Partner detail modal
-// ============================================================
+function setPartnerModalImage(imageElement, partner) {
+  imageElement.src = partner.image;
+  imageElement.alt = partner.name;
+  imageElement.addEventListener(
+    'error',
+    () => {
+      imageElement.src = PARTNER_IMAGE_FALLBACK;
+    },
+    { once: true }
+  );
+}
 
-/**
- * 開啟合作店家詳情 Modal
- * Open partner detail modal and populate with partner data
- * @param {number} idx - PARTNER_DATA 中的索引
- */
-window.openPartnerDetail = function(idx) {
-  const partner = PARTNER_DATA[idx];
+function openPartnerDetail(index) {
+  const partner = PARTNER_DATA[index];
   if (!partner) return;
 
-  // 填充 Modal 內容
-  // Populate modal elements
-  const titleEl    = document.getElementById('partnerModalTitle');
-  const imgEl      = document.getElementById('partnerModalImg');
-  const tagsEl     = document.getElementById('partnerModalTags');
-  const descEl     = document.getElementById('partnerModalDesc');
-  const discountEl = document.getElementById('partnerModalDiscount');
+  const titleElement = document.getElementById('partnerModalTitle');
+  const imageElement = document.getElementById('partnerModalImg');
+  const tagsElement = document.getElementById('partnerModalTags');
+  const descElement = document.getElementById('partnerModalDesc');
+  const discountElement = document.getElementById('partnerModalDiscount');
 
-  if (titleEl)    titleEl.textContent   = partner.name;
-  if (imgEl) {
-    imgEl.src = partner.image;
-    imgEl.alt = partner.name;
-  }
-  if (tagsEl) {
-    tagsEl.innerHTML = partner.tags
-      .map(t => `<span class="partner-tag" style="font-size:0.78rem;">${t}</span>`)
-      .join('');
-  }
-  if (descEl)     descEl.textContent    = partner.desc;
-  if (discountEl) discountEl.textContent = partner.discount;
+  if (titleElement) titleElement.textContent = partner.name;
+  if (imageElement) setPartnerModalImage(imageElement, partner);
+  if (tagsElement)
+    tagsElement.replaceChildren(
+      ...partner.tags.map((tag) => createElement('span', 'partnerTag partnerModalTag', tag))
+    );
+  if (descElement) descElement.textContent = partner.desc;
+  if (discountElement) discountElement.textContent = partner.discount;
 
-  // 開啟 Modal
-  window.openModal && window.openModal('partnerModal');
-};
-
-// ============================================================
-// 主初始化函數
-// Main initialization function
-// ============================================================
-
-/**
- * 初始化分店頁面
- * Initialize the branches page
- * Called early so global components are registered before main.js runs
- */
-window.initBranchesPage = function() {
-  console.log('📍 初始化分店頁面 / Initializing branches page...');
-
-  // 告訴 main.js：全局組件由這個頁面 JS 負責初始化
-  // Signal main.js that global components are initialized here
-  window._appComponentsInitialized = true;
-
-  // 初始化全局組件
-  // Initialize global components (navbar, modal, cart)
-  if (window.initNavbar)               window.initNavbar();
-  if (window.initModalListeners)       window.initModalListeners();
-  if (window.initCartListeners)        window.initCartListeners();
-  if (window.initPersonalizationModal) window.initPersonalizationModal();
-
-  // 初始化頁面專屬功能
-  // Initialize page-specific features
-  loadBranches();   // 載入分店資料並渲染地圖
-  renderPartners(); // 渲染合作店家網格
-
-  console.log('✅ 分店頁面初始化完成 / Branches page initialized');
-};
-
-// ============================================================
-// 頁面自動啟動
-// Auto-start when DOM is ready
-// ============================================================
-if (document.readyState === 'loading') {
-  // DOM 仍在載入中
-  document.addEventListener('DOMContentLoaded', window.initBranchesPage);
-} else {
-  // DOM 已載入完成
-  window.initBranchesPage();
+  window.openModal?.(PARTNER_MODAL_ID);
 }
 
-console.log('✓ branches.js 已載入 / branches.js loaded');
+/**
+ * 開啟合作夥伴詳情並保留目前捲動位置，避免 Modal 聚焦造成頁面跳到最上方。
+ * 套用元件：pages/branches.html 的 .partnerCardTrigger。
+ */
+function openPartnerDetailWithoutScrollJump(index, trigger) {
+  partnerModalTrigger = trigger || document.activeElement;
+  partnerModalScrollPosition = {
+    x: window.scrollX,
+    y: window.scrollY,
+  };
+
+  openPartnerDetail(index);
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo(partnerModalScrollPosition.x, partnerModalScrollPosition.y);
+  });
+}
+
+/**
+ * 關閉合作夥伴詳情並還原原本捲動位置，避免 close button、背景遮罩或 Esc 把頁面帶到頂部。
+ * 套用元件：pages/branches.html 的 #partnerModal。
+ */
+function closePartnerDetailWithoutScrollJump(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  window.closeModal?.(PARTNER_MODAL_ID);
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo(partnerModalScrollPosition.x, partnerModalScrollPosition.y);
+    if (partnerModalTrigger && document.contains(partnerModalTrigger)) {
+      partnerModalTrigger.focus({ preventScroll: true });
+    }
+  });
+}
+
+function bindBranchSelection() {
+  const container = document.getElementById('branchList');
+  if (!container || container.dataset.branchesBound === 'true') return;
+  container.dataset.branchesBound = 'true';
+
+  container.addEventListener('click', (event) => {
+    const selectedCard = event.target.closest('.branchCard');
+    if (!selectedCard || !container.contains(selectedCard)) return;
+    selectBranchCard(container, selectedCard);
+  });
+}
+
+function bindPartnerGrid() {
+  const partnersGrid = document.getElementById('partnersGrid');
+  if (!partnersGrid || partnersGrid.dataset.partnersBound === 'true') return;
+  partnersGrid.dataset.partnersBound = 'true';
+
+  partnersGrid.addEventListener('click', (event) => {
+    const trigger = event.target.closest('.partnerCardTrigger');
+    if (!trigger || !partnersGrid.contains(trigger)) return;
+    event.preventDefault();
+    openPartnerDetailWithoutScrollJump(Number(trigger.dataset.partnerIndex), trigger);
+  });
+}
+
+function bindPartnerModalCloseWithoutScrollJump() {
+  const modal = document.getElementById(PARTNER_MODAL_ID);
+  if (!modal || modal.dataset.partnerCloseScrollBound === 'true') return;
+  modal.dataset.partnerCloseScrollBound = 'true';
+
+  modal.addEventListener(
+    'click',
+    (event) => {
+      const closeButton = event.target.closest('.partnerModalClose');
+      const isBackdropClick = event.target === modal;
+      if (!closeButton && !isBackdropClick) return;
+      closePartnerDetailWithoutScrollJump(event);
+    },
+    true
+  );
+
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key !== 'Escape' || !modal.classList.contains('isOpen')) return;
+      closePartnerDetailWithoutScrollJump(event);
+    },
+    true
+  );
+}
+
+function bindPartnerModalActions() {
+  const modal = document.getElementById('partnerModal');
+  if (!modal || modal.dataset.partnerActionsBound === 'true') return;
+  modal.dataset.partnerActionsBound = 'true';
+
+  modal.addEventListener('click', (event) => {
+    const action = event.target.closest('[data-action="use-partner-discount"]');
+    if (!action || !modal.contains(action)) return;
+    window.showToast?.('優惠已記錄，前往合作夥伴時出示即可。', 'success');
+  });
+}
+
+window.initBranchesPage = function initBranchesPage() {
+  window._appComponentsInitialized = true;
+
+  window.initNavbar?.();
+  window.initModalListeners?.();
+  window.initCartListeners?.();
+  window.initPersonalizationModal?.();
+
+  bindBranchSelection();
+  bindPartnerGrid();
+  bindPartnerModalCloseWithoutScrollJump();
+  bindPartnerModalActions();
+  renderPartners();
+  loadBranches();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', window.initBranchesPage);
+} else {
+  window.initBranchesPage();
+}

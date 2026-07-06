@@ -22,7 +22,7 @@ window.initApp = async () => {
 
   // 全局事件監聽（online/offline/beforeunload）始終需要設定
   window.initGlobalListeners();
-  // 先載入 header/footer HTML 與 header.js
+  // 先載入 header/footer HTML 與 shared auth 所需腳本
   await initGlobalLayout();
 
   // Header partial 注入完成後才綁定共用互動，避免 product-detail 等頁面先初始化造成空 DOM 綁定。
@@ -34,7 +34,11 @@ window.initApp = async () => {
     window.initPersonalizationModal();
     window._appComponentsInitialized = true;
   } else {
-    // Header markup may be injected after a page script already ran init.
+    // Header markup may be injected after a page script already ran init; these init functions are idempotent.
+    window.initNavbar?.();
+    window.initModalListeners?.();
+    window.initCartListeners?.();
+    window.initPersonalizationModal?.();
     window.updateNavbarLoginState?.();
     window.updateCartBadge?.();
   }
@@ -54,12 +58,12 @@ window.initApp = async () => {
   console.log('AppState:', window.AppState);
 };
 
-window.initGlobalListeners = () => { 
+window.initGlobalListeners = () => {
   // 記錄頁面卸載
   window.addEventListener('beforeunload', () => {
     window.saveAppState();
   });
-  
+
   // 性能監測（使用 PerformanceObserver 更精確）
   // Performance monitoring using PerformanceObserver
   window.addEventListener('load', () => {
@@ -102,12 +106,12 @@ window.initGlobalListeners = () => {
 window.initBodyScrollLock = () => {
   let scrollY = 0; // 記錄捲動位置，關閉時還原
 
-  // 觀察 body 是否有 offcanvas-open class
-  // Watch for offcanvas-open class on body
+  // 觀察 body 是否有 offcanvasOpen class
+  // Watch for offcanvasOpen class on body
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-        const isOpen = document.body.classList.contains('offcanvas-open');
+        const isOpen = document.body.classList.contains('offcanvasOpen');
         if (isOpen) {
           // 記住目前捲動位置，套用固定
           // Remember scroll position and fix body
@@ -207,26 +211,31 @@ function loadComponentScript(src) {
 }
 
 /**
- * Loads the shared header/footer fragments and the scripts that operate on them.
+ * 載入共用 header/footer partial 與 shared auth/header 互動腳本。
+ * 套用元件：components/header.partial、#loginModal、#personalizationModal。
  */
 async function initGlobalLayout() {
   const rootPrefix = getRootPathPrefix();
 
   // 1. 根據目錄樹，從 pages/* 往上找頂層的 components/
   await Promise.all([
-    loadPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="main-header"]'),
-    loadPartial("footer", `${rootPrefix}/components/footer.partial`, '[data-layout-part="main-footer"]')
+    loadPartial('header', `${rootPrefix}/components/header.partial`, '[data-layout-part="main-header"]'),
+    loadPartial('footer', `${rootPrefix}/components/footer.partial`, '[data-layout-part="main-footer"]'),
   ]);
-  await appendPartial("header", `${rootPrefix}/components/header.partial`, '[data-layout-part="shared-auth"]');
+  await appendPartial(
+    'header',
+    `${rootPrefix}/components/header.partial`,
+    '[data-layout-part="shared-auth"]'
+  );
 
   // 2. 確定 HTML 結構長到網頁上後，才動態載入原本的互動 JS
   try {
     await loadComponentScript(`${rootPrefix}/js/components/auth.js`);
+    await loadComponentScript(`${rootPrefix}/js/components/modal.js`);
     // 這樣可以確保手機版漢堡選單、登入彈出視窗的功能不會失效
     await loadComponentScript(`${rootPrefix}/js/components/header.js`);
-    
   } catch (error) {
-    console.error("組件腳本載入失敗:", error);
+    console.error('組件腳本載入失敗:', error);
   }
 }
 
@@ -234,15 +243,15 @@ async function initGlobalLayout() {
  * Adds global floating actions once per page and wires their scroll behavior.
  */
 function initFloatingActions() {
-  if (document.querySelector(".floating-actions")) return;
+  if (document.querySelector('.floatingActions')) return;
 
-  const floatingActions = document.createElement("div");
-  floatingActions.className = "floating-actions";
+  const floatingActions = document.createElement('div');
+  floatingActions.className = 'floatingActions';
 
   // 按鈕順序：回到頂部在上，Line客服在下
   floatingActions.innerHTML = `
     <button
-      class="floating-top-btn"
+      class="floatingTopBtn"
       type="button"
       aria-label="回到頁面頂部"
       title="回到頂部"
@@ -251,16 +260,16 @@ function initFloatingActions() {
     </button>
 
     <a
-      class="floating-line-btn"
+      class="floatingLineBtn"
       href="https://line.me"
       target="_blank"
       rel="noopener noreferrer"
-      aria-label=" Line 客服"
-      title="Line客服"
+      aria-label="LINE 聯絡"
+      title="LINE 聯絡"
     >
-      <span class="floating-line-label">Line客服</span>
+      <span class="floatingLineLabel">LINE 客服</span>
 
-      <span class="floating-line-icon" aria-hidden="true">
+      <span class="floatingLineIcon" aria-hidden="true">
         <i class="bi bi-chat-dots-fill"></i>
       </span>
     </a>
@@ -268,30 +277,29 @@ function initFloatingActions() {
 
   document.body.appendChild(floatingActions);
 
-  const topButton = floatingActions.querySelector(".floating-top-btn");
+  const topButton = floatingActions.querySelector('.floatingTopBtn');
 
   /**
    * Shows the top button after the user scrolls away from the first viewport area.
    */
   function toggleTopButton() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const documentHeight = document.documentElement.scrollHeight;
 
-    // 核心修改：當向下捲動的距離超過「總頁面高度的 1/5」時，就顯示按鈕
-    const isScrolledOneThird = scrollTop >= (window.innerHeight / 5);
+    // 核心修改：當向下捲動的距離超過目前視窗高度的 1/5 時，就顯示按鈕。
+    const shouldShowTopButton = scrollTop >= window.innerHeight / 5;
 
-    topButton.classList.toggle("is-visible", isScrolledOneThird);
+    topButton.classList.toggle('isVisible', shouldShowTopButton);
   }
 
-  topButton.addEventListener("click", function () {
+  topButton.addEventListener('click', function () {
     window.scrollTo({
       top: 0,
-      behavior: "smooth"
+      behavior: 'smooth',
     });
   });
 
-  window.addEventListener("scroll", toggleTopButton, { passive: true });
-  window.addEventListener("resize", toggleTopButton);
+  window.addEventListener('scroll', toggleTopButton, { passive: true });
+  window.addEventListener('resize', toggleTopButton);
 
   // 初始化時執行一次，確保重整網頁時狀態正確
   toggleTopButton();

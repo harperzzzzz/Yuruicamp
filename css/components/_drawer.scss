@@ -1,0 +1,102 @@
+﻿// 抽屜元件：共用主站與訂位流程的側邊滑出面板外殼。
+.siteOffcanvas,
+.siteCartDrawer,
+.bookingOffcanvas,
+.bookingSlidePanel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: var(--yc-z-modal);
+  width: min(420px, 100vw);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-hover);
+  transition: transform var(--yc-transition-base);
+}
+
+// 左側抽屜：主站與訂位導覽選單。
+.siteOffcanvas,
+.bookingOffcanvas {
+  left: 0;
+  transform: translateX(-100%);
+}
+
+// 右側抽屜：主站購物車與訂位購物車面板。
+.siteCartDrawer,
+.bookingSlidePanel {
+  right: 0;
+  transform: translateX(100%);
+}
+
+.siteOffcanvas.isOpen,
+.siteCartDrawer.isOpen,
+.bookingOffcanvas.isOpen,
+.bookingSlidePanel.isOpen {
+  transform: translateX(0);
+}
+
+// 抽屜遮罩：搭配 JS 切換 isVisible 狀態。
+.siteOffcanvasBackdrop,
+.siteCartDrawerBackdrop,
+.bookingOffcanvasBackdrop,
+.bookingPanelBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yc-z-overlay);
+  background: rgb(0 0 0 / 45%);
+  opacity: 0;
+  transition: opacity var(--yc-transition-base);
+}
+
+.siteOffcanvasBackdrop.isVisible,
+.siteCartDrawerBackdrop.isVisible,
+.bookingOffcanvasBackdrop.isVisible,
+.bookingPanelBackdrop.isVisible {
+  opacity: 1;
+}
+
+// 抽屜標題列：保留標題與關閉按鈕的固定高度。
+.siteOffcanvasHeader,
+.siteCartDrawerHeader,
+.bookingOffcanvasHeader,
+.bookingSlidePanelHeader {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.siteOffcanvasTitle,
+.siteCartDrawerTitle,
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+// 抽屜內容區：扣除標題列高度後可獨立捲動。
+.siteOffcanvasBody,
+.siteCartDrawerBody,
+.bookingOffcanvasBody,
+.bookingSlidePanelBody {
+  height: calc(100% - 72px);
+  overflow: auto;
+  padding: var(--yc-space-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siteOffcanvas,
+  .siteCartDrawer,
+  .bookingOffcanvas,
+  .bookingSlidePanel,
+  .siteOffcanvasBackdrop,
+  .siteCartDrawerBackdrop,
+  .bookingOffcanvasBackdrop,
+  .bookingPanelBackdrop {
+    transition-duration: 0.01ms;
+  }
+}

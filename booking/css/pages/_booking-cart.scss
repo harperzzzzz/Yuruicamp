@@ -1,0 +1,316 @@
+﻿.bookingCartPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--yc-bg);
+}
+
+.bookingCartContent,
+.bookingCartEmptyState {
+  display: none;
+}
+
+.bookingCartContent.isVisible {
+  display: grid;
+}
+
+.bookingCartEmptyState.isVisible {
+  display: block;
+}
+
+.bookingCartPage .bookingStepProgress {
+  padding-top: 1rem;
+}
+
+.cartPageHeaderBooking {
+  max-width: 1100px;
+  margin: 1.5rem auto 0;
+  padding: 0 1rem;
+}
+
+.cartPageTitleBooking {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--yc-text);
+  margin: 0 0 0.25rem;
+}
+
+.cartCountTextBooking {
+  color: var(--yc-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.cartCardBooking {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.cartCardHeaderBooking {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--yc-border);
+  background: var(--yc-bg);
+}
+
+.cartCardTitleBooking {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--yc-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cartCardBodyBooking {
+  padding: 0;
+}
+
+.cartItemBooking {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  gap: 1rem;
+}
+
+.cartItemBooking + .cartItemBooking {
+  border-top: 1px solid var(--yc-border);
+}
+
+.cartItemInfoBooking {
+  flex: 1;
+}
+
+.cartItemTitleBooking {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--yc-text);
+  margin-bottom: 0.25rem;
+}
+
+.cartItemMetaBooking {
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.cartItemPriceBooking {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--yc-sage-action);
+  white-space: nowrap;
+}
+
+.cartEditLinkBooking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.cartEditLinkBooking:hover {
+  color: var(--yc-sage-action);
+}
+
+.cartSummaryCardBooking {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
+  padding: 1.5rem;
+}
+
+.cartSummaryCardBooking h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--yc-sage-action);
+  margin: 0 0 1.25rem;
+}
+
+.cartEmptyBooking {
+  text-align: center;
+  padding: 5rem 2rem;
+}
+
+.cartEmptyIconBooking {
+  font-size: 4rem;
+  color: var(--yc-border);
+  margin-bottom: 1rem;
+}
+
+.cartEmptyTitleBooking {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--yc-text);
+  margin-bottom: 0.5rem;
+}
+
+.cartEmptyTextBooking {
+  font-size: 0.9rem;
+  color: var(--yc-text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.cartClearButtonBooking {
+  background: none;
+  border: none;
+  color: var(--yc-error);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+
+.cartClearButtonBooking:hover {
+  opacity: 0.7;
+}
+
+.cartClearActionBooking {
+  text-align: right;
+  padding: 0 0.25rem;
+}
+
+.cartItemActionsBooking {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.quantityStepperBooking {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1.5px solid var(--yc-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.quantityButtonBooking {
+  width: 30px;
+  height: 30px;
+  background: var(--yc-bg);
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--yc-text);
+  transition: background 0.15s;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantityButtonBooking:hover:not(:disabled) {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+}
+
+.quantityButtonBooking:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.quantityValueBooking {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--yc-text);
+  border-left: 1.5px solid var(--yc-border);
+  border-right: 1.5px solid var(--yc-border);
+  padding: 0 4px;
+  line-height: 30px;
+}
+
+.cartRemoveButtonBooking {
+  background: none;
+  border: none;
+  color: var(--yc-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  transition: color 0.15s;
+}
+
+.cartRemoveButtonBooking:hover {
+  color: var(--yc-error);
+}
+
+.cartItemQtyLabelBooking {
+  color: var(--yc-text-muted);
+  font-size: 0.72rem;
+}
+
+.cartEmptyNoteBooking {
+  padding: 1rem 1.25rem;
+  color: var(--yc-text-muted);
+  font-size: 0.85rem;
+}
+
+.bookingCartCostRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.cartSummaryCardBooking > hr {
+  border: none;
+  border-top: 2px solid var(--yc-border);
+  margin: 0 0 1rem;
+}
+
+.cartSummaryCardBooking .costTotal {
+  margin-bottom: 1.5rem;
+}
+
+.bookingCartCheckoutButton {
+  display: block;
+  padding: 0.9rem;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.cartSummaryCardBooking > a[href='./camp-rental.html'] {
+  display: block;
+  margin-top: 0.875rem;
+  color: var(--yc-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cartSummaryNoticeBooking {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--yc-border);
+  text-align: center;
+}
+
+.cartSummaryNoticeLine {
+  font-size: 0.75rem;
+  color: var(--yc-text-muted);
+  margin: 0;
+}
+
+.cartSummaryNoticeLine + .cartSummaryNoticeLine {
+  margin-top: 0.25rem;
+}

@@ -1,0 +1,104 @@
+// Motion helpers：保留既有 reveal、zoom 與 scroll indicator 動態效果。
+.sectionSubtitle {
+  color: var(--yc-sage-action);
+  letter-spacing: 4px;
+  font-size: 0.82rem;
+  margin-bottom: 16px;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(70px);
+  transition:
+    opacity 1.4s ease,
+    transform 1.4s ease;
+}
+
+.reveal.isVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.zoomBox {
+  overflow: hidden;
+}
+
+.zoomBox img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.18);
+  transition: transform var(--transition-slow);
+}
+
+.reveal.isVisible .zoomBox img,
+.zoomBox.isVisible img {
+  transform: scale(1);
+}
+
+.zoomBox:hover img {
+  transform: scale(1.09);
+}
+
+.scrollDown {
+  position: absolute;
+  z-index: 3;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--yc-on-dark);
+  text-align: center;
+  letter-spacing: 3px;
+  font-size: 0.75rem;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 54px;
+  background-color: color-mix(in srgb, var(--yc-on-dark) 42%, transparent);
+  margin: 12px auto 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.scrollLine::after {
+  content: '';
+  position: absolute;
+  top: -24px;
+  left: 0;
+  width: 1px;
+  height: 24px;
+  background-color: var(--yc-on-dark);
+  animation: scroll-line-move 1.8s infinite;
+}
+
+@keyframes scroll-line-move {
+  0% {
+    top: -24px;
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    top: 54px;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

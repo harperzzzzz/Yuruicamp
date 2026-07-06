@@ -1,0 +1,19 @@
+/* --------------------------------------------------------------
+>>> BOOKING ITCSS TABLE OF CONTENTS
+----------------------------------------------------------------
+# Settings：booking 設計 token
+# Generic：reset 與低權重動態基底
+# Elements：HTML 元素基礎樣式
+# Objects：共用版面與 grid 結構
+# Components：跨頁重用 UI 元件
+# Overrides：第三方套件樣式覆寫
+# Pages：公開 booking 頁面範圍樣式
+-------------------------------------------------------------- */
+
+@use 'settings/settings';
+@use 'generic/generic';
+@use 'elements/elements';
+@use 'objects/objects';
+@use 'components/components';
+@use 'overrides/flatpickr';
+@use 'pages/pages';
