@@ -104,16 +104,24 @@ function buildCheckoutCouponSnapshots(subtotal) {
 }
 
 /**
- * 取得本機日期字串
- * 重點：createdAt 使用今天日期 yyyy-mm-dd，不使用 UTC ISO 避免跨時區日期偏移。
- * @returns {string} 本機日期
+ * 取得本機日期時間字串
+ * 重點：createdAt 使用 YYYY-MM-DD HH:mm:ss，方便之後後端 LocalDateTime 直接對接。
+ * @returns {string} 本機日期時間
  */
+function getCheckoutDateTimeString() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mi = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+/** @deprecated 保留相容；請改用 getCheckoutDateTimeString */
 function getCheckoutTodayString() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
+  return getCheckoutDateTimeString().slice(0, 10);
 }
 
 /** 重點：統一取得目前登入者 id，找不到登入資料時才使用測試預設會員。 */
@@ -741,7 +749,7 @@ function initConfirmOrderBtn() {
       discount,
       total,
       status: 'unshipped',
-      createdAt: getCheckoutTodayString(),
+      createdAt: getCheckoutDateTimeString(),
       deliveredAt: '',
       trackingNumber: '',
       canReview: false,

@@ -1184,12 +1184,7 @@ function getAnalyticsMinStockValue(productId, locationId) {
 }
 
 /**
- * 判斷商店商品是否低庫存（雙層判斷，與 products.js 邏輯一致）：
- * ① 任一分店實際庫存 < 該分店最低值
- * ② 總庫存 < 所有分店最低值加總
- *
- * Returns true if the store product is considered low-stock.
- * Mirrors isStoreProductLowStock() in products.js to avoid cross-module coupling.
+ * 判斷商店商品是否低庫存（任一分店實際庫存 < 該分店最低值，與 products.js 邏輯一致）
  *
  * @param {Object} product - products.json 中的單一商品物件
  * @returns {boolean}
@@ -1199,22 +1194,12 @@ function isAnalyticsProductLowStock(product) {
 
   var branch = product.branch || {};
 
-  // 判斷①：任一分店庫存 < 最低值
-  var anyBranchLow = ANALYTICS_BRANCH_IDS.some(function (branchId) {
+  return ANALYTICS_BRANCH_IDS.some(function (branchId) {
     var actual  = parseInt(branch[branchId], 10);
     actual      = isNaN(actual) ? 0 : Math.max(actual, 0);
     var minimum = getAnalyticsMinStockValue(product.id, branchId);
     return actual < minimum;
   });
-
-  if (anyBranchLow) { return true; }
-
-  // 判斷②：總庫存 < 所有分店最低值加總
-  var totalMinimum = ANALYTICS_BRANCH_IDS.reduce(function (sum, branchId) {
-    return sum + getAnalyticsMinStockValue(product.id, branchId);
-  }, 0);
-
-  return getAnalyticsProductTotalStock(product) < totalMinimum;
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -862,6 +862,21 @@
 // 套用：p#productDescription。
 .u-migrated-172 { color:#4b5563;line-height:1.8;font-size:0.95rem; }
 
+// 商品描述富文字內容（Summernote 輸出）/ Rich product description from Summernote
+.product-description-rich {
+  h1, h2, h3, h4 { color: #1f2937; font-weight: 700; margin: 1rem 0 0.5rem; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.1rem; }
+  p { margin-bottom: 0.75rem; }
+  ul, ol { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  table th, table td { border: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; text-align: left; }
+  table th { background: #f9fafb; font-weight: 600; }
+  blockquote { border-left: 3px solid #244d4d; padding-left: 1rem; color: #6b7280; margin: 1rem 0; }
+  img { max-width: 100%; height: auto; border-radius: 4px; }
+}
+
 // 來源：pages/product-detail.html。
 // 用途：搬移原 HTML inline style，維持 div#productFeatures 的既有視覺。
 // 套用：div#productFeatures。

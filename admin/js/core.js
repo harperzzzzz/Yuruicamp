@@ -7,6 +7,10 @@
  *  4. Topbar 頁面標題動態更新
  *  5. 登出邏輯
  *  6. Toast 工廠函式（供所有模組呼叫）
+ *
+ *  API 持久化：各模組透過 admin/js/admin-api.js 預留 REST 接口。
+ *  後端就緒後在登入成功處或此處呼叫：
+ *    AdminAPI.configure({ useBackend: true, baseUrl: '/api/admin' });
  */
 
 // ==========================================================
@@ -15,7 +19,7 @@
 var EDIT_PERMISSION_SELECTORS = {
   orders: '.btn-ship-order',
   products: '[data-bs-target="#addProductModal"], .edit-product-name, .stock-edit-btn, .stock-confirm-btn, .stock-cancel-btn, .stock-step-btn, #submitAddProduct',
-  customers: '.phone-edit-btn, .email-edit-btn, .birthday-edit-btn, .tier-edit-btn, .points-edit-btn, .tags-edit-btn, .tags-done-btn, .tags-cancel-btn, .tag-add-btn, .tag-delete-btn, .customer-edit-confirm-btn, .customer-edit-cancel-all-btn, #customerEditConfirmBtn',
+  customers: '#addCustomerBtn, #saveCustomerBtn, #addCustomerModal input:not([readonly]), #addCustomerModal select, #addCustomerModal button:not(.btn-close):not([data-bs-dismiss="modal"]), .shipping-address-edit-btn, #saveCustomerShippingAddressBtn, #customerShippingAddressModal input, #customerShippingAddressModal select, #customerShippingAddressModal button:not(.btn-close):not([data-bs-dismiss="modal"]), .phone-edit-btn, .email-edit-btn, .birthday-edit-btn, .tier-edit-btn, .points-edit-btn, .tags-edit-btn, .tags-done-btn, .tags-cancel-btn, .tag-add-btn, .tag-delete-btn, .customer-edit-confirm-btn, .customer-edit-cancel-all-btn, #customerEditConfirmBtn',
   discounts: '#submitAddCoupon, .btn-toggle-coupon, .btn-delete-coupon, #generateCouponCode, #addCouponForm input, #addCouponForm select, #addCouponForm textarea, #addCouponForm button:not(.btn-close)',
   reviews: '.btn-open-reply-modal, #btnSubmitReviewReply, #btnDeleteReviewReply, #reviewReplyTextarea',
   bookings: '.btn-confirm-booking, .btn-cancel-booking',

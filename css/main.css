@@ -9334,6 +9334,57 @@ body {
   font-size: 0.95rem;
 }
 
+.product-description-rich h1,
+.product-description-rich h2,
+.product-description-rich h3,
+.product-description-rich h4 {
+  color: #1f2937;
+  font-weight: 700;
+  margin: 1rem 0 0.5rem;
+}
+
+.product-description-rich h1 { font-size: 1.5rem; }
+.product-description-rich h2 { font-size: 1.25rem; }
+.product-description-rich h3 { font-size: 1.1rem; }
+.product-description-rich p { margin-bottom: 0.75rem; }
+.product-description-rich ul,
+.product-description-rich ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.product-description-rich table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.product-description-rich table th,
+.product-description-rich table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.product-description-rich table th {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+.product-description-rich blockquote {
+  border-left: 3px solid #244d4d;
+  padding-left: 1rem;
+  color: #6b7280;
+  margin: 1rem 0;
+}
+
+.product-description-rich img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
 .u-migrated-173 {
   margin-top: 1.25rem;
 }

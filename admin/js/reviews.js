@@ -4,7 +4,8 @@
  * Review management — filter, search, sort, reply modal, localStorage persistence
  *
  * 使用 jQuery Event Namespace (.reviews) 防止重複導覽時事件堆疊
- * Data: admin/data/reviews.json（種子）+ localStorage.adminReviews（使用者變更）
+ * Data: admin/data/reviews.json（種子）
+ * 持久化：AdminAPI.reviews（後端就緒後）+ localStorage 開發期備援
  */
 
 var REVIEWS_STORAGE_KEY = 'adminReviews';
@@ -35,13 +36,35 @@ window.initReviews = function () {
 
 /**
  * 從 localStorage 或 JSON 種子載入評論
- * Load reviews from localStorage override or JSON seed
+ * 後端啟用時改由 AdminAPI.reviews.list() 載入（見 loadReviews）
  */
 function loadReviews(callback) {
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
+    AdminAPI.reviews.list()
+      .then(function (res) {
+        callback((res && res.data) || []);
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '載入評論失敗');
+        callback([]);
+      });
+    return;
+  }
+
+  /** 舊版 localStorage 可能仍用 R001 格式，轉為 REV001 */
+  function normalizeLegacyReviewIds(reviews) {
+    return (reviews || []).map(function (r) {
+      if (r && /^R\d+$/.test(r.id)) {
+        return Object.assign({}, r, { id: 'REV' + r.id.slice(1) });
+      }
+      return r;
+    });
+  }
+
   var cached = localStorage.getItem(REVIEWS_STORAGE_KEY);
   if (cached) {
     try {
-      callback(JSON.parse(cached));
+      callback(normalizeLegacyReviewIds(JSON.parse(cached)));
       return;
     } catch (e) {
       localStorage.removeItem(REVIEWS_STORAGE_KEY);
@@ -60,12 +83,20 @@ function loadReviews(callback) {
 }
 
 /**
- * 寫入 localStorage（模擬後端持久化）
- * Persist reviews to localStorage
+ * 持久化評論：先更新 state，再呼叫 AdminAPI；開發期另寫 localStorage 備援
  */
 function saveReviews(reviews) {
-  localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
   reviewsState.allReviews = reviews;
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.reviews) {
+    AdminAPI.reviews.saveAll(reviews).catch(function (err) {
+      AdminAPI.handleError(err, '同步評論失敗');
+    });
+  }
+
+  if (!AdminAPI || !AdminAPI.isBackendEnabled || !AdminAPI.isBackendEnabled()) {
+    localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
+  }
 }
 
 /** 取得目前登入的管理員資訊 / Current admin from sessionStorage */
@@ -466,6 +497,23 @@ function submitReviewReply() {
   });
 
   saveReviews(updated);
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.reviews) {
+    var replyPayload = updated.find(function (r) { return r.id === reviewId; });
+    if (replyPayload) {
+      AdminAPI.reviews.reply(reviewId, {
+        replyText: replyPayload.replyText,
+        replied: replyPayload.replied,
+        replyAt: replyPayload.replyAt,
+        repliedBy: replyPayload.repliedBy,
+        repliedByName: replyPayload.repliedByName,
+        replyUpdatedAt: replyPayload.replyUpdatedAt
+      }).catch(function (err) {
+        AdminAPI.handleError(err, '同步評論回覆失敗');
+      });
+    }
+  }
+
   updateReviewTabCounts();
   applyFiltersAndRender();
 
@@ -495,6 +543,13 @@ function deleteReviewReply() {
   });
 
   saveReviews(updated);
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.reviews) {
+    AdminAPI.reviews.deleteReply(reviewId).catch(function (err) {
+      AdminAPI.handleError(err, '刪除評論回覆同步失敗');
+    });
+  }
+
   updateReviewTabCounts();
   applyFiltersAndRender();
 

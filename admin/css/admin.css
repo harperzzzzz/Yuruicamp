@@ -307,7 +307,7 @@ button[data-permission-disabled="true"] {
 
 .customer-summary-row td.cell-name {
   color: var(--admin-brand-accent, #244d4d);
-  font-weight: 500;
+  font-weight: 700; /* 粗體：僅資料列，不含 thead 標題 / Bold data cells only */
 }
 
 .customer-summary-row td.cell-email {
@@ -319,6 +319,10 @@ button[data-permission-disabled="true"] {
 }
 
 .customer-summary-row td.cell-spent {
+  white-space: nowrap;
+}
+
+.customer-summary-row td.cell-points {
   white-space: nowrap;
 }
 
@@ -388,9 +392,56 @@ button[data-permission-disabled="true"] {
   margin-top: 0.75rem;
 }
 
+.customer-change-summary {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.customer-change-summary th:first-child {
+  width: 5.5rem;
+}
+
 .customer-change-summary th,
 .customer-change-summary td {
-  vertical-align: middle;
+  vertical-align: top;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* 手機 / Email：hover 顯示複製鈕 */
+.customer-copyable-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.375rem;
+  transition: background-color 0.15s ease;
+}
+
+.customer-copyable-field:hover,
+.customer-copyable-field:focus-within {
+  background-color: #f1f3f5;
+}
+
+.customer-copy-btn {
+  opacity: 0;
+  visibility: hidden;
+  flex-shrink: 0;
+  line-height: 1;
+  color: #6c757d;
+  text-decoration: none;
+}
+
+.customer-copyable-field:hover .customer-copy-btn,
+.customer-copyable-field:focus-within .customer-copy-btn {
+  opacity: 1;
+  visibility: visible;
+}
+
+.customer-copy-btn:hover {
+  color: var(--admin-brand-accent, #244d4d);
 }
 
 /* 手機版卡片 / Mobile card layout */
@@ -573,8 +624,9 @@ button[data-permission-disabled="true"] {
 /* 可水平捲動的庫存欄（分店 / 各營區）統一欄寬
    Scrollable stock columns - compact width for display / inline input */
 .scrollable-stock-col {
-  width: 64px;
-  min-width: 64px;
+  width: 72px;
+  min-width: 72px;
+  text-align: center;
 }
 
 /* 右側 sticky 欄（表格最後一欄「修改庫存數量」）
@@ -598,12 +650,9 @@ button[data-permission-disabled="true"] {
   text-align: center;
   font-size: 0.72rem;
   line-height: 1.2;
-  white-space: normal;
+  white-space: nowrap;
 }
 
-.table tr.table-danger .sticky-col-right {
-  background-color: #f8d7da;
-}
 
 #productsTable thead.min-stock-mode-header .sticky-col-right,
 #rentalProductsTable thead.min-stock-mode-header .sticky-col-right {
@@ -633,25 +682,72 @@ button[data-permission-disabled="true"] {
   font-weight: 600;
 }
 
-.stock-display-value.text-danger,
-.table-danger .stock-display-value {
+.stock-display-value.text-danger {
   color: #dc3545;
 }
 
 /* 編輯模式：精簡 input / Compact inline stock input */
 .stock-input-inline {
-  width: 56px;
+  width: 52px;
+  max-width: 100%;
   margin: 0 auto;
   text-align: center;
   padding: 0.2rem 0.35rem;
 }
 
-/* 各欄位的左側偏移（8px 網格：48 → 168 → 232 → 296） */
-.sticky-col-img          { left: 0;     width: 48px;  min-width: 48px; }
-.sticky-col-name         { left: 48px;  width: 120px; min-width: 120px; }
-.sticky-col-category     { left: 168px; width: 64px;  min-width: 64px; }
-.sticky-col-action       { left: 232px; width: 64px;  min-width: 64px; }
-.sticky-col-total-stock  { left: 296px; width: 112px; min-width: 112px; }
+/* 各欄位的左側偏移（圖片欄 28px 含 padding，對應 20px 縮圖） */
+.sticky-col-img          { left: 0;     width: 28px;  min-width: 28px; }
+.sticky-col-name         { left: 28px;  width: 120px; min-width: 120px; }
+.sticky-col-category     { left: 148px; width: 80px;  min-width: 80px; }
+.sticky-col-action       { left: 228px; width: 64px;  min-width: 64px; }
+.sticky-col-total-stock  { left: 292px; width: 72px; min-width: 72px; text-align: center; }
+
+/* 商店表已移除「操作」欄，總庫存 sticky 左移對齊分類欄後方（28 + 120 + 80 = 228） */
+#productsTable .sticky-col-total-stock {
+  left: 228px;
+}
+
+/* 商品表分類篩選 dropdown 需高於 sticky 表頭 */
+#productsTable .filter-dropdown,
+#rentalProductsTable .filter-dropdown {
+  z-index: 300;
+}
+
+/* 商品表縮圖：20×20，減少上下 padding 讓列更緊湊 / Compact 20px product thumbnails */
+.admin-data-table.product-table-fixed .sticky-col-img {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+
+.admin-data-table.product-table-fixed .product-table-thumb {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* 庫存欄縮小 padding，表頭與數字置中對齊一致
+   Compact padding on stock columns so centered numbers align with headers */
+.admin-data-table.product-table-fixed th.scrollable-stock-col,
+.admin-data-table.product-table-fixed th.sticky-col-total-stock,
+.admin-data-table.product-table-fixed td.stock-cell {
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+/* 最低庫存模式：步進器寬度限制在欄寬內 / Min-stock stepper fits column width */
+.admin-data-table.product-table-fixed .admin-stock-control {
+  width: 100%;
+  min-width: 0;
+  max-width: 72px;
+  margin: 0 auto;
+}
+
+.admin-data-table.product-table-fixed .admin-stock-control .stock-input {
+  min-width: 0;
+  flex: 1 1 auto;
+}
 
 /* 商品表 sticky 欄：縮小左右 padding，避免 admin-data-table 大 padding 擠爆窄欄 */
 .admin-data-table.product-table-fixed .sticky-col {
@@ -669,21 +765,11 @@ button[data-permission-disabled="true"] {
   box-sizing: border-box;
 }
 
-/* 低庫存列（table-danger）下的 sticky 欄需覆寫背景，維持淡紅色
-   .table tr.table-danger .sticky-col → specificity [0,3,1]，最高，確保蓋過上方所有規則 */
-.table tr.table-danger .sticky-col {
-  background-color: #f8d7da;     /* Bootstrap danger 淺紅背景色 */
-}
-
 /* ── 單格庫存不足標示（.stock-cell-below-min）────────────────────────────────
    任一分店 / 營地的實際庫存低於其最低庫存閾值時，由 JS 加上此 class。
-   橘色邊框 + 淡橘色背景，游標 hover 時 title tooltip 顯示「目前 N 件，最低需 M 件」。
-   Orange border + light orange background for cells below minimum threshold.
-   Tooltip via title attribute: "目前 N 件，最低需 M 件"
+   數字以 text-danger 顯示紅色；編輯模式 input 保留橘色邊框提示。
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* 正常列內的不足格：淡橘色背景 + 橘色邊框 / 數字 */
-/* Orange cell in a normal (non-danger) row */
 .stock-cell-below-min .admin-stock-control .stock-input,
 .stock-cell-below-min .stock-input-inline {
   border-color: #fd7e14;
@@ -691,15 +777,7 @@ button[data-permission-disabled="true"] {
 }
 
 .stock-cell-below-min .stock-display-value {
-  color: #e65c00;
-}
-
-/* table-danger（淡紅列）內的不足格：橘色加深版本，確保與紅色底色區別 */
-/* Orange cell inside a table-danger row: use deeper orange to contrast with red row bg */
-.table tr.table-danger .stock-cell-below-min .admin-stock-control .stock-input,
-.table tr.table-danger .stock-cell-below-min .stock-input-inline {
-  border-color: #e65c00;
-  background-color: #ffe0b2;
+  color: #dc3545;
 }
 
 /* 最低庫存設定模式（isMinStockMode）：表格 header 加上黃色背景，提醒管理員 */
@@ -785,6 +863,13 @@ button[data-permission-disabled="true"] {
   top: -5px;
   left: -4px;
   vertical-align: top;
+}
+
+/* 預約表營區篩選：選項名稱較長，加寬並允許捲動 */
+#bookingsTable .filter-th[data-filter-key="campground"] .filter-dropdown {
+  min-width: 200px;
+  max-height: 240px;
+  overflow-y: auto;
 }
 
 /* 篩選 Dropdown 容器：絕對定位，浮在表格上方 */
@@ -935,4 +1020,105 @@ button[data-permission-disabled="true"] {
 
 .review-modal-summary {
   border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ===== 商品描述 Summernote 編輯器（addProductModal 內） ===== */
+#addProductModal .note-editor {
+  border-color: #dee2e6;
+  border-radius: 0.375rem;
+}
+
+#addProductModal .note-toolbar {
+  background: #f8f9fa;
+  border-bottom-color: #dee2e6;
+}
+
+#addProductModal .note-editable {
+  min-height: 200px;
+  background: #fff;
+}
+
+/* ===== 商品 Modal 圖片預覽 ===== */
+.product-image-preview-box {
+  border: 1px dashed #dee2e6;
+  border-radius: 0.375rem;
+  padding: 0.5rem;
+  min-height: 5rem;
+  background: #f8f9fa;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.product-image-preview-main {
+  display: block;
+  max-width: 100%;
+  max-height: 7.5rem;
+  object-fit: contain;
+  border-radius: 0.25rem;
+}
+
+.product-image-preview-thumb {
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 0.375rem;
+  border: 2px solid #dee2e6;
+}
+
+.product-image-preview-item {
+  display: inline-block;
+  line-height: 0;
+}
+
+.product-image-preview-item .product-glightbox {
+  display: block;
+  position: relative;
+}
+
+.product-image-zoom-badge {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.product-image-remove-btn {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  line-height: 1;
+  border-radius: 999px;
+  z-index: 2;
+}
+
+/* GLightbox 需高於 Bootstrap Modal（1055） */
+.glightbox-container,
+.goverlay {
+  z-index: 2000 !important;
+}
+
+/* 隱藏 GLightbox 下方標題/說明白底區塊 */
+.glightbox-container .gslide-description,
+.glightbox-container .gdesc {
+  display: none !important;
+}
+
+/* dropdown / popover 需高於 Bootstrap Modal（z-index: 1055） */
+.note-editor .dropdown-menu,
+.note-popover {
+  z-index: 1060;
 }

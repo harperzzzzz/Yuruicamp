@@ -14,6 +14,12 @@
   <!-- flatpickr 日期選擇器 CSS（供各頁面期間篩選器使用） -->
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <!-- Summernote 富文字編輯器 v0.9.1（Bootstrap 5 版，修復 dropdown 相容性） -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-bs5.min.css">
+  <!-- GLightbox 圖片放大預覽 -->
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
   <!-- 後台專屬樣式 -->
   <link rel="stylesheet" href="css/admin.css">
 </head>
@@ -441,7 +447,7 @@
        ============================================================ -->
   <div class="modal fade" id="customerEditConfirmModal" tabindex="-1"
        aria-labelledby="customerEditConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="customerEditConfirmModalLabel">
@@ -450,7 +456,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <p class="text-muted small mb-2">以下欄位將一併儲存：</p>
+          <p class="text-muted small mb-2">以下為本次變更的欄位：</p>
           <div id="customerEditChangeSummary"></div>
         </div>
         <div class="modal-footer">
@@ -459,6 +465,98 @@
           </button>
           <button type="button" id="customerEditConfirmBtn" class="btn btn-success">
             <i class="fas fa-check me-1"></i>確認儲存
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       全域 Modal：編輯配送地址（由 customers.js 控制）
+       ============================================================ -->
+  <div class="modal fade" id="customerShippingAddressModal" tabindex="-1"
+       aria-labelledby="customerShippingAddressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="customerShippingAddressModalLabel">
+            <i class="fas fa-truck me-2"></i>編輯配送地址
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+        </div>
+        <div class="modal-body">
+          
+          <form id="customerShippingAddressForm" novalidate>
+            <input type="hidden" id="shippingEditCustomerId" value="">
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipLastName">姓</label>
+                <input type="text" class="form-control" id="shipLastName" placeholder="例：王">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipFirstName">名字</label>
+                <input type="text" class="form-control" id="shipFirstName" placeholder="例：小華">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label class="form-label fw-semibold" for="shipPostalCode">郵遞區號</label>
+                <input type="text" class="form-control" id="shipPostalCode" maxlength="5"
+                       inputmode="numeric" placeholder="427">
+              </div>
+              <div class="col-md-8 mb-3">
+                <label class="form-label fw-semibold" for="shipCity">縣/市</label>
+                <select class="form-select" id="shipCity">
+                  <option value="">請選擇縣/市</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipDistrict">區</label>
+                <select class="form-select" id="shipDistrict" disabled>
+                  <option value="">請先選擇縣/市</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipTownship">鄉/鎮/市/區</label>
+                <input type="text" class="form-control" id="shipTownship"
+                       >
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="shipAddressLine1">地址</label>
+              <input type="text" class="form-control" id="shipAddressLine1"
+                     placeholder="例：昌平路三段142號">
+            </div>
+
+            <div class="mb-3">
+              <input type="text" class="form-control" id="shipAddressLine2"
+                     placeholder="單位、套房、樓層、大樓 (選填)">
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipEmail">電子郵件</label>
+                <input type="email" class="form-control" id="shipEmail"
+                       >
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-semibold" for="shipPhone">電話</label>
+                <input type="tel" class="form-control" id="shipPhone" maxlength="10"
+                       inputmode="numeric" >
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-success" id="saveCustomerShippingAddressBtn">
+            <i class="fas fa-check me-1"></i>套用至草稿
           </button>
         </div>
       </div>
@@ -499,7 +597,7 @@
        ============================================================ -->
   <div class="modal fade" id="addProductModal" tabindex="-1"
        aria-labelledby="addProductModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="addProductModalLabel">
@@ -520,26 +618,30 @@
               <div class="invalid-feedback">請輸入商品名稱</div>
             </div>
 
-            <!-- 商品描述：只作為表單輸入欄位，不寫回 JSON、不渲染到商品列表 -->
+            <!-- 商品描述：Summernote 富文字編輯器（HTML 存入 products.json 的 description） -->
             <div class="mb-3">
               <label class="form-label fw-semibold" for="newProductDescription">
                 商品描述
               </label>
               <textarea class="form-control" id="newProductDescription"
-                        rows="3" placeholder="請填入商品描述"></textarea>
+                        placeholder="請填入商品描述"></textarea>
             </div>
 
-            <!-- 商品圖片 -->
-            <div class="row g-2 mb-3">
-              <div class="col-6">
-                <label class="form-label fw-semibold" for="newProductMainImage">主要圖片</label>
-                <input type="file" class="form-control" id="newProductMainImage"
-                       accept="image/*">
-              </div>
-              <div class="col-6">
-                <label class="form-label fw-semibold" for="newProductImages">次要圖片（可多選）</label>
-                <input type="file" class="form-control" id="newProductImages"
-                       accept="image/*" multiple>
+            <!-- 商品圖片（file input 無法顯示既有檔案，預覽區由 JS 渲染） -->
+            <div class="mb-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label fw-semibold" for="newProductMainImage">主要圖片</label>
+                  <input type="file" class="form-control" id="newProductMainImage"
+                         accept="image/*">
+                  <div id="newProductMainImagePreview" class="product-image-preview-box mt-2"></div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-semibold" for="newProductImages">次要圖片（可多選）</label>
+                  <input type="file" class="form-control" id="newProductImages"
+                         accept="image/*" multiple>
+                  <div id="newProductSecondaryImagesPreview" class="product-image-preview-box mt-2"></div>
+                </div>
               </div>
             </div>
 
@@ -755,9 +857,17 @@
   <!-- flatpickr 日期選擇器 JS + 繁體中文語系 -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/zh-tw.js"></script>
+  <!-- Summernote 富文字編輯器 v0.9.1 + 繁體中文語系（須在 jQuery、Bootstrap 之後） -->
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/summernote-bs5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/summernote@0.9.1/dist/lang/summernote-zh-TW.min.js"></script>
+  <!-- GLightbox 圖片放大預覽（須在 Bootstrap 之後） -->
+  <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 
   <!-- 後台自訂 JS（permissions.js 須在 core.js 之前，提供 ADMIN_SECTIONS 與員工資料） -->
   <script src="../js/validators.js"></script>
+  <script src="js/admin-api.js"></script>
+  <!-- 編號工具：資料存數字 id，畫面顯示加前綴（須在 orders / bookings / movement 之前） -->
+  <script src="js/id-utils.js"></script>
   <script src="js/permissions.js"></script>
   <script src="js/core.js"></script>
   <script src="js/analytics.js"></script>

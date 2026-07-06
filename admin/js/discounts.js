@@ -3,6 +3,9 @@
  * 折扣優惠管理模組
  * 使用 jQuery Event Namespace (.discounts) 防止重複導覽時事件堆疊
  *
+ * 資料：coupons.json 種子 + window.couponsCache（記憶體）
+ * 持久化：AdminAPI.coupons（後端就緒後啟用 useBackend）
+ *
  * 表單為 inline（非 Modal），欄位 ID：
  *   #newCouponCode, #newCouponDiscount, #newCouponQty
  *   #newCouponStart, #newCouponEnd（起始/結束時間，datetime-local）
@@ -10,6 +13,27 @@
  *   #generateCouponCode（隨機產生按鈕）, #submitAddCoupon（新增按鈕）
  *   #setCouponStartNow（填入現在時間按鈕）
  */
+
+window.couponsCache = window.couponsCache || [];
+
+/** 依 code 更新快取中的優惠券 / Upsert coupon in cache by code */
+function upsertCouponInCache(coupon) {
+  var idx = window.couponsCache.findIndex(function (c) {
+    return c.code === coupon.code;
+  });
+  if (idx >= 0) {
+    window.couponsCache[idx] = coupon;
+  } else {
+    window.couponsCache.unshift(coupon);
+  }
+}
+
+/** 從快取移除優惠券 / Remove coupon from cache */
+function removeCouponFromCache(code) {
+  window.couponsCache = window.couponsCache.filter(function (c) {
+    return c.code !== code;
+  });
+}
 
 /**
  * 將 "YYYY-MM-DDTHH:MM" 格式的時間字串轉為 "YYYY/MM/DD HH:MM" 顯示格式
@@ -30,7 +54,8 @@ window.initDiscounts = function () {
   $(document).off('.discounts');
 
   $.getJSON('data/coupons.json', function (coupons) {
-    renderCouponsTable(coupons);
+    window.couponsCache = coupons || [];
+    renderCouponsTable(window.couponsCache);
   }).fail(function () {
     $('#couponsTableBody').html(
       '<tr><td colspan="9" class="text-center text-danger py-4">' +
@@ -93,6 +118,7 @@ window.initDiscounts = function () {
     var $row     = $btn.closest('tr');
     var code     = $row.data('coupon-code');
     var isActive = $row.data('coupon-status') === 'active';
+    var newStatus = isActive ? 'disabled' : 'active';
 
     if (isActive) {
       $row.data('coupon-status', 'disabled');
@@ -105,6 +131,17 @@ window.initDiscounts = function () {
       $btn.text('停用').removeClass('btn-outline-success').addClass('btn-outline-warning');
       window.showAdminToast('優惠券 ' + code + ' 已啟用');
     }
+
+    var cached = window.couponsCache.find(function (c) { return c.code === code; });
+    if (cached) {
+      cached.status = newStatus;
+    }
+
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.coupons) {
+      AdminAPI.coupons.updateStatus(code, newStatus).catch(function (err) {
+        AdminAPI.handleError(err, '同步優惠券狀態失敗');
+      });
+    }
   });
 
   // 刪除優惠券
@@ -112,8 +149,15 @@ window.initDiscounts = function () {
     var $row = $(this).closest('tr');
     var code = $row.data('coupon-code');
     if (!window.confirm('確定要刪除優惠券「' + code + '」嗎？')) return;
+    removeCouponFromCache(code);
     $row.fadeOut(300, function () { $(this).remove(); });
     window.showAdminToast('優惠券 ' + code + ' 已刪除', 'danger');
+
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.coupons) {
+      AdminAPI.coupons.remove(code).catch(function (err) {
+        AdminAPI.handleError(err, '刪除優惠券同步失敗');
+      });
+    }
   });
 
   // 新增優惠券（inline form，無 Modal）
@@ -173,6 +217,24 @@ window.initDiscounts = function () {
       '</td></tr>';
 
     $('#couponsTableBody').prepend($(newRow).hide().fadeIn(400));
+
+    var newCoupon = {
+      code: code,
+      discount: isPercent ? discountRaw : Math.floor(discountRaw),
+      discountType: isPercent ? 'percent' : 'amount',
+      quantity: quantity,
+      used: 0,
+      startDate: startVal || '',
+      endDate: endVal || '',
+      status: 'active'
+    };
+    upsertCouponInCache(newCoupon);
+
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.coupons) {
+      AdminAPI.coupons.create(newCoupon).catch(function (err) {
+        AdminAPI.handleError(err, '新增優惠券同步失敗');
+      });
+    }
 
     // --- 重設表單欄位 ---
     $('#newCouponCode').val('');

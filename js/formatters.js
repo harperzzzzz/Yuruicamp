@@ -31,6 +31,27 @@ window.formatDate = (dateString) => {
 };
 
 /**
+ * 格式化日期時間（含時分秒），供訂單/預約詳情顯示
+ * Format datetime with time for order/booking detail views.
+ * @param {string|Date} dateString - e.g. "2026-06-27 17:58:27"
+ * @returns {string} Localized datetime text
+ */
+window.formatDateTime = (dateString) => {
+  if (!dateString) return '';
+  const normalized = String(dateString).trim().replace(' ', 'T');
+  const formatter = new Intl.DateTimeFormat('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+  return formatter.format(new Date(normalized));
+};
+
+/**
  * Generates a lightweight unique id for mock records and UI nodes.
  * @returns {string} Unique id string.
  */

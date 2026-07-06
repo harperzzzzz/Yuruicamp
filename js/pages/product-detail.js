@@ -152,9 +152,11 @@ function renderProductInfo(product) {
     }
   }
 
-  // 商品描述 Product description
+  // 商品描述 Product description（支援 Summernote 輸出的 HTML）
   const descEl = document.getElementById('productDescription');
-  if (descEl) descEl.textContent = product.description || '';
+  if (descEl) {
+    descEl.innerHTML = product.description || '';
+  }
 
   // 商品標籤 Tags（用小 badge 顯示）
   const tagsEl = document.getElementById('productTags');
