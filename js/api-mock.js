@@ -58,13 +58,19 @@ const _getNextOrderSerial = (orders = []) => {
   return Math.max(0, ...serials) + 1;
 };
 
-/** 重點：createdAt 與訂單編號都用使用者本機日期，避免 ISO UTC 跨日時出現日期少一天。 */
-const _formatLocalDate = (date = new Date()) => {
+/** 重點：createdAt 使用本機 YYYY-MM-DD HH:mm:ss，避免 ISO UTC 跨日且方便後端對接。 */
+const _formatLocalDateTime = (date = new Date()) => {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mi = String(date.getMinutes()).padStart(2, '0');
+  const ss = String(date.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 };
+
+/** 只取日期部分（訂單編號等用途） */
+const _formatLocalDate = (date = new Date()) => _formatLocalDateTime(date).slice(0, 10);
 
 const _formatOrderId = (serial) => `ord-${String(serial).padStart(3, '0')}`;
 
@@ -271,7 +277,7 @@ window.API = {
           shippingAddress: orderData.shippingAddress || orderData.deliveryAddress || '',
           payment: orderData.payment || orderData.paymentMethod || 'credit-card',
           paymentStatus: orderData.paymentStatus || ((orderData.payment || orderData.paymentMethod) === 'cod' ? 'paid' : 'unpaid'),
-          createdAt: orderData.createdAt || _formatLocalDate(now),
+          createdAt: orderData.createdAt || _formatLocalDateTime(now),
           // 重點：checkout 傳入的空字串也要保留，讓會員中心訂單詳細欄位結構固定。
           deliveredAt: orderData.deliveredAt || '',
           trackingNumber: orderData.trackingNumber || '',

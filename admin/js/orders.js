@@ -4,12 +4,14 @@
  *
  * 設計重點：
  *   1. 從 orders.json 載入後存入 window.ordersCache，避免重複 fetch
+ *   2. 訂單含 customer_id；items 含 productId（舊資料可從 customers.orders 反查）
  *   2. 付款狀態支援 3 種：已付款 / 未付款 / 貨到付款
  *   3. 訂單狀態支援 3 種：未出貨 / 已出貨 / 已退貨
  *   4. 點擊訂單編號開啟 modal，modal 內顯示訂單紀錄時間軸
  *   5. 點擊出貨按鈕後更新 orderStatus 並 push 新 history 紀錄
  *   6. 欄位排序（可疊加）：訂單日期、總金額
  *   7. 多選篩選：付款狀態、訂單狀態（漏斗 icon + checkbox Dropdown）
+ *   8. 顧客姓名連結：設定 window.pendingCustomerId 後觸發切換至客戶管理
  *
  * 使用 jQuery Event Namespace (.orders) 防止重複導覽時事件堆疊
  */
@@ -90,22 +92,20 @@ window.initOrders = function () {
     applyOrderDayRange(30);
   }
   // 注意：applyOrderDayRange / applyOrderCustomRange 內部已呼叫 applyFiltersAndSort()
-  // 若快取尚未就緒，下面的 $.getJSON callback 會再呼叫一次 applyFiltersAndSort()
+  // 若快取尚未就緒，下面的資料載入 callback 會再呼叫一次 applyFiltersAndSort()
 
-  // ── 載入訂單資料（若快取已存在則不重新 fetch） ──────
-  if (!window.ordersCache || !window.ordersCache.length) {
-    $.getJSON('data/orders.json', function (orders) {
-      window.ordersCache = orders;   // 存入全域快取，供 modal 讀取
-      applyFiltersAndSort();
-    }).fail(function () {
-      $('#ordersTableBody').html(
-        '<tr><td colspan="7" class="text-center text-danger py-4">' +
-        '<i class="fas fa-exclamation-triangle me-2"></i>載入訂單數據失敗' +
-        '</td></tr>'
-      );
-    });
+  // ── 確保 customersCache 已載入，再載入 orders ──
+  // 顧客姓名超連結需從 customers.orders 反查 customer id
+  if (window.customersCache && window.customersCache.length > 0) {
+    loadOrdersData();
   } else {
-    applyFiltersAndSort();
+    $.getJSON('data/customers.json', function (customers) {
+      window.customersCache = customers;
+      loadOrdersData();
+    }).fail(function () {
+      // customers 載入失敗不阻斷 orders 渲染（姓名仍顯示 buyerName，但無連結）
+      loadOrdersData();
+    });
   }
 
   // ── 排序：點擊 .sortable-th 標頭（限定 #ordersTable，避免跨頁衝突）──
@@ -175,9 +175,17 @@ window.initOrders = function () {
   // ── 點擊訂單編號 → 開啟訂單明細 modal ───────────────
   $(document).on('click.orders', '.order-id-link', function () {
     var orderId = $(this).data('order-id');
-    var order = (window.ordersCache || []).find(function (o) { return o.id === orderId; });
+    var order = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (!order) return;
     showOrderModal(order);
+  });
+
+  // ── 顧客名稱連結 → 切換至客戶管理並展開該顧客 ───────────────
+  $(document).on('click.orders', '.order-customer-link', function (e) {
+    e.preventDefault();
+    var customerId = $(this).data('customer-id');
+    window.pendingCustomerId = customerId;
+    $('.sidebar-link[data-section="customers"]').first().trigger('click');
   });
 
   // ── 「完成」按鈕：已出貨 + 非貨到付款 訂單才可標記完成 ──────────
@@ -185,7 +193,7 @@ window.initOrders = function () {
   $(document).on('click.orders', '.btn-complete-order', function () {
     var $row    = $(this).closest('tr');
     var orderId = $row.data('order-id');
-    var order   = (window.ordersCache || []).find(function (o) { return o.id === orderId; });
+    var order   = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (!order) return;
 
     // 二次防護：COD 訂單不允許完成（按鈕邏輯已過濾，此處防止異常呼叫）
@@ -206,7 +214,16 @@ window.initOrders = function () {
     order.history = order.history || [];
     order.history.push({ time: timeStr, action: '已完成' });
 
-    window.showAdminToast('訂單 ' + orderId + ' 已標記為「已完成」');
+    window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 已標記為「已完成」');
+
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.orders) {
+      AdminAPI.orders.complete(orderId, {
+        orderStatus: order.orderStatus,
+        history: order.history
+      }).catch(function (err) {
+        AdminAPI.handleError(err, '同步訂單完成狀態失敗');
+      });
+    }
 
     // 重新跑管線，讓篩選器即時反映新的 orderStatus
     applyFiltersAndSort();
@@ -219,7 +236,7 @@ window.initOrders = function () {
     var orderId = $row.data('order-id');
 
     // 更新記憶體中的快取資料
-    var order = (window.ordersCache || []).find(function (o) { return o.id === orderId; });
+    var order = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (order) {
       order.orderStatus = 'shipped';
 
@@ -237,7 +254,16 @@ window.initOrders = function () {
       order.history.push({ time: timeStr, action: '已出貨' });
     }
 
-    window.showAdminToast('訂單 ' + orderId + ' 已更新為「已出貨」');
+    window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 已更新為「已出貨」');
+
+    if (order && typeof AdminAPI !== 'undefined' && AdminAPI.orders) {
+      AdminAPI.orders.ship(orderId, {
+        orderStatus: order.orderStatus,
+        history: order.history
+      }).catch(function (err) {
+        AdminAPI.handleError(err, '同步訂單出貨狀態失敗');
+      });
+    }
 
     // 出貨後重新跑管線：讓篩選器能即時反映新的 orderStatus
     // （例如目前篩選「未出貨」，出貨後此列應從結果中消失）
@@ -544,7 +570,8 @@ function applyFiltersAndSort() {
       var cmp = compareOrderValues(key, a[key], b[key]);
       if (cmp !== 0) return cmp * dir;
     }
-    return 0;
+    // 時間相同時依 id 降序（較新 id 在前）
+    return (b.id - a.id);
   });
 
   // ── Step 3：渲染 + 更新 UI ────────────────────────
@@ -663,6 +690,10 @@ function renderOrdersTable(orders) {
     completed: '<span class="badge bg-primary order-status-badge">已完成</span>'
   };
 
+  // 建立「訂單編號 → 顧客 id」對照表
+  // 優先使用 orders.json 的 customer_id，其次才從 customers.orders 反查
+  var orderCustomerMap = buildOrderToCustomerMap();
+
   var html = orders.map(function (order) {
     var payBadge    = payBadgeMap[order.paymentStatus]  || '';
     var statusBadge = orderStatusMap[order.orderStatus] || '';
@@ -687,13 +718,28 @@ function renderOrdersTable(orders) {
     var idLink = '<span class="admin-cell-link order-id-link" ' +
                  'data-order-id="' + order.id + '" ' +
                  'title="點擊查看訂單明細">' +
-                 order.id + '</span>';
+                 window.formatOrderId(order.id) + '</span>';
+
+    // ── 顧客姓名超連結（參考 bookings.js）──
+    var customerId   = orderCustomerMap[order.id];
+    var displayName  = order.buyerName || '';
+    var customerCell;
+    if (customerId) {
+      customerCell =
+        '<span class="admin-cell-link order-customer-link fw-semibold" ' +
+        'data-customer-id="' + customerId + '" ' +
+        'title="查看顧客檔案">' +
+        displayName +
+        '</span>';
+    } else {
+      customerCell = '<span class="fw-semibold">' + displayName + '</span>';
+    }
 
     return '<tr data-order-id="' + order.id + '"' +
            ' data-order-status="' + order.orderStatus + '">' +
            '<td>' + idLink + '</td>' +
            '<td>' + date + '</td>' +
-           '<td class="fw-semibold">' + order.buyerName + '</td>' +
+           '<td>' + customerCell + '</td>' +
            '<td class="admin-cell-amount">NT$ ' + order.total.toLocaleString() + '</td>' +
            '<td>' + payBadge + '</td>' +
            '<td>' + statusBadge + '</td>' +
@@ -719,7 +765,8 @@ function renderOrdersTable(orders) {
  */
 window.showOrderModal = function (order) {
   // 基本資訊
-  $('#modalOrderId').text(order.id);
+  $('#orderDetailModal').data('order-id', order.id);
+  $('#modalOrderId').text(window.formatOrderId(order.id));
   $('#modalBuyerName').text(order.buyerName);
 
   // 訂單狀態 badge（4 種，需與 renderOrdersTable 的 orderStatusMap 保持一致）
@@ -769,3 +816,65 @@ window.showOrderModal = function (order) {
   // 開啟 modal
   new bootstrap.Modal('#orderDetailModal').show();
 };
+
+// ─────────────────────────────────────────────
+// 資料載入與顧客查詢輔助
+// ─────────────────────────────────────────────
+
+/**
+ * 載入訂單資料（若快取已存在則不重新 fetch）
+ * Load orders data after customers cache is ready
+ */
+function loadOrdersData() {
+  if (!window.ordersCache || !window.ordersCache.length) {
+    $.getJSON('data/orders.json', function (orders) {
+      window.ordersCache = orders;
+      applyFiltersAndSort();
+    }).fail(function () {
+      $('#ordersTableBody').html(
+        '<tr><td colspan="7" class="text-center text-danger py-4">' +
+        '<i class="fas fa-exclamation-triangle me-2"></i>載入訂單數據失敗' +
+        '</td></tr>'
+      );
+    });
+  } else {
+    applyFiltersAndSort();
+  }
+}
+
+/**
+ * 從 ordersCache / customersCache 建立「訂單編號 → 顧客 id」對照表
+ * 優先 orders.customer_id，再以 customers.orders 補齊
+ * @returns {Object} 例：{ 1: "U024", ... }（key 為數字訂單 id）
+ */
+function buildOrderToCustomerMap() {
+  var map = {};
+
+  (window.ordersCache || []).forEach(function (order) {
+    if (order && order.id && order.customer_id) {
+      map[order.id] = order.customer_id;
+    }
+  });
+
+  (window.customersCache || []).forEach(function (customer) {
+    (customer.orders || []).forEach(function (orderId) {
+      if (!map[orderId]) {
+        map[orderId] = customer.id;
+      }
+    });
+  });
+
+  return map;
+}
+
+/**
+ * 取得單筆訂單的顧客 ID
+ * @param {Object} order
+ * @returns {string|null}
+ */
+function getOrderCustomerId(order) {
+  if (!order) { return null; }
+  if (order.customer_id) { return order.customer_id; }
+  var map = buildOrderToCustomerMap();
+  return map[order.id] || null;
+}

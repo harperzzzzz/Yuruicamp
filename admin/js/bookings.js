@@ -12,7 +12,7 @@
  *   7. 「標記已完成」在明細 Modal 內，僅 confirmed 狀態顯示
  *   8. 顧客姓名連結：設定 window.pendingCustomerId 後觸發切換至客戶管理
  *   9. KPI 導航：讀取 window.pendingNavFilter，預先套用日期 + 狀態篩選
- *  10. 篩選：欄位標頭漏斗 icon（付款狀態/訂單狀態/含租借/地區）多選 checkbox Dropdown
+ *  10. 篩選：欄位標頭漏斗 icon（付款狀態/訂單狀態/含租借/營區/地區）多選 checkbox Dropdown
  *  11. 排序：下單日期、訂單金額（可疊加，三段循環；預設隱含下單日期 desc）
  *  12. 日期：快速選鈕（近7天/近30天/本月/近3個月/自定義）+ flatpickr
  *
@@ -41,6 +41,7 @@ var bookingFilterState = {
   paymentStatus: [],   // e.g. ['paid', 'refunded']
   bookingStatus: [],   // e.g. ['pending', 'confirmed']
   hasRental:     [],   // e.g. ['true', 'false']
+  campground:    [],   // e.g. ['雲海仙境露營區', '溪谷秘境野營地']
   region:        [],   // e.g. ['北部', '中部']
   dateStart:     null, // e.g. '2026-05-23'
   dateEnd:       null  // e.g. '2026-06-22'
@@ -68,7 +69,7 @@ window.initBookings = function () {
 
   // ── 每次進入預約頁重置排序與篩選狀態（排序回到隱含預設：日期降冪） ──
   bookingSortStack   = [];
-  bookingFilterState = { paymentStatus: [], bookingStatus: [], hasRental: [], region: [], dateStart: null, dateEnd: null };
+  bookingFilterState = { paymentStatus: [], bookingStatus: [], hasRental: [], campground: [], region: [], dateStart: null, dateEnd: null };
   bookingDateState   = { days: 30, startDate: null, endDate: null };
 
   // ── 初始化日期篩選器 UI ─────────────────────────
@@ -156,7 +157,7 @@ window.initBookings = function () {
   // ── 篩選 checkbox 勾選/取消 ────────────────────────
   $(document).on('change.bookings', '#bookingsTable .filter-dropdown input[type="checkbox"]', function () {
     var $th  = $(this).closest('.filter-th');
-    var key  = $th.data('filter-key'); // 'paymentStatus' / 'bookingStatus' / 'hasRental' / 'region'
+    var key  = $th.data('filter-key'); // 'paymentStatus' / 'bookingStatus' / 'hasRental' / 'campground' / 'region'
 
     // 收集該欄位所有勾選中的 checkbox 值
     var selected = [];
@@ -174,6 +175,7 @@ window.initBookings = function () {
     bookingFilterState.paymentStatus = [];
     bookingFilterState.bookingStatus = [];
     bookingFilterState.hasRental     = [];
+    bookingFilterState.campground    = [];
     bookingFilterState.region        = [];
     // applyBookingDayRange 內部會呼叫 applyBookingFiltersAndSort()
     applyBookingDayRange(30);
@@ -183,7 +185,7 @@ window.initBookings = function () {
   $(document).on('click.bookings', '.booking-id-link', function () {
     var bookingId = $(this).data('booking-id');
     var booking = (window.bookingsCache || []).find(function (b) {
-      return b.id === bookingId;
+      return window.sameId(b.id, bookingId);
     });
     if (!booking) return;
     showBookingModal(booking);
@@ -197,7 +199,7 @@ window.initBookings = function () {
     var bookingId = $row.data('booking-id');
 
     var booking = (window.bookingsCache || []).find(function (b) {
-      return b.id === bookingId;
+      return window.sameId(b.id, bookingId);
     });
     if (!booking) return;
 
@@ -217,7 +219,7 @@ window.initBookings = function () {
     // 確認後操作欄改為只顯示「取消」
     $row.find('.btn-confirm-booking').remove();
 
-    window.showAdminToast('預約 ' + bookingId + ' 已確認');
+    window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 已確認');
   });
 
   // ── 取消按鈕 → 開啟取消確認 Modal ───────────────────────────
@@ -241,7 +243,7 @@ window.initBookings = function () {
       : '已取消';
 
     var booking = (window.bookingsCache || []).find(function (b) {
-      return b.id === bookingId;
+      return window.sameId(b.id, bookingId);
     });
     if (booking) {
       booking.status = 'cancelled';
@@ -268,7 +270,7 @@ window.initBookings = function () {
     bootstrap.Modal.getInstance(document.getElementById('bookingCancelModal')).hide();
     window._cancelTargetId = null;
 
-    window.showAdminToast('預約 ' + bookingId + ' 已取消', 'info');
+    window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 已取消', 'info');
   });
 
   // ── 顧客名稱連結 → 切換至客戶管理並展開該顧客 ───────────────
@@ -283,9 +285,9 @@ window.initBookings = function () {
 
   // ── 標記已完成（在明細 Modal 內）──────────────────────────
   $(document).on('click.bookings', '#btnCompleteBooking', function () {
-    var bookingId = $('#bkModalId').text();
+    var bookingId = $('#bookingDetailModal').data('booking-id');
     var booking = (window.bookingsCache || []).find(function (b) {
-      return b.id === bookingId;
+      return window.sameId(b.id, bookingId);
     });
     if (!booking) return;
 
@@ -308,7 +310,7 @@ window.initBookings = function () {
     // 關閉 Modal
     bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal')).hide();
 
-    window.showAdminToast('預約 ' + bookingId + ' 已標記為完成');
+    window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 已標記為完成');
   });
 
   if (typeof window.applyEditPermission === 'function') {
@@ -579,6 +581,14 @@ function applyBookingFiltersAndSort() {
     });
   }
 
+  // 營區篩選（OR）：來自 booking_info.campground_name
+  if (bookingFilterState.campground.length > 0) {
+    data = data.filter(function (b) {
+      var name = b.booking_info && b.booking_info.campground_name;
+      return bookingFilterState.campground.indexOf(name) !== -1;
+    });
+  }
+
   // 地區篩選（OR）：來自 booking_info.region
   if (bookingFilterState.region.length > 0) {
     data = data.filter(function (b) {
@@ -611,14 +621,16 @@ function applyBookingFiltersAndSort() {
         valA = (a.summary && a.summary.final_amount) || 0;
         valB = (b.summary && b.summary.final_amount) || 0;
       } else {
-        valA = (a.submitted_at || '').slice(0, 10);
-        valB = (b.submitted_at || '').slice(0, 10);
+        // 用完整 submitted_at（含時分秒）排序，列表仍只顯示日期
+        valA = a.submitted_at || '';
+        valB = b.submitted_at || '';
       }
 
       var cmp = compareBookingValues(key, valA, valB);
       if (cmp !== 0) return cmp * dir;
     }
-    return 0;
+    // 時間相同時依 id 降序（較新 id 在前）
+    return (b.id - a.id);
   });
 
   // ── Step 3：渲染 + 更新 UI ────────────────────────
@@ -652,11 +664,12 @@ function updateBookingSortUI() {
   // 預設排序：使用者尚未明確修改 bookingSortStack（隱含 submitted_at desc）
   var isDefaultSort = bookingSortStack.length === 0;
 
-  // 欄位篩選：四個漏斗欄位任一有勾選
+  // 欄位篩選：五個漏斗欄位任一有勾選
   var hasColumnFilter = (
     bookingFilterState.paymentStatus.length > 0 ||
     bookingFilterState.bookingStatus.length > 0 ||
     bookingFilterState.hasRental.length > 0 ||
+    bookingFilterState.campground.length > 0 ||
     bookingFilterState.region.length > 0
   );
 
@@ -677,8 +690,8 @@ function updateBookingSortUI() {
  * 同時同步日期按鈕 active 狀態與期間文字標籤
  */
 function updateBookingFilterUI() {
-  // 遍歷四個可篩選的欄位（漏斗 icon + 紅點）
-  ['paymentStatus', 'bookingStatus', 'hasRental', 'region'].forEach(function (key) {
+  // 遍歷五個可篩選的欄位（漏斗 icon + 紅點）
+  ['paymentStatus', 'bookingStatus', 'hasRental', 'campground', 'region'].forEach(function (key) {
     var $th   = $('#bookingsTable .filter-th[data-filter-key="' + key + '"]');
     var $icon = $th.find('.filter-icon');
     var $dot  = $th.find('.filter-dot');
@@ -768,7 +781,7 @@ function renderBookingsTable(bookings) {
     var idLink =
       '<span class="admin-cell-link booking-id-link" ' +
       'data-booking-id="' + booking.id + '" ' +
-      'title="點擊查看預約明細">' + booking.id + '</span>';
+      'title="點擊查看預約明細">' + window.formatBookingId(booking.id) + '</span>';
 
     // ── 顧客姓名超連結 ──
     var customerLink =
@@ -819,7 +832,8 @@ function showBookingModal(booking) {
   var summary = booking.summary          || {};
 
   // ── 標題：預約單號 + 狀態 badge ──
-  $('#bkModalId').text(booking.id);
+  $('#bookingDetailModal').data('booking-id', booking.id);
+  $('#bkModalId').text(window.formatBookingId(booking.id));
 
   var statusLabelMap = {
     pending:   '<span class="badge bg-warning text-dark">待確認</span>',
@@ -950,6 +964,9 @@ function showBookingModal(booking) {
     window.applyEditPermission('bookings', $('#contentArea'));
   }
 }
+
+/** 供 customers.js 等模組呼叫 / Expose for customers.js and other modules */
+window.showBookingModal = showBookingModal;
 
 // ═══════════════════════════════════════════════════════════════
 // 工具函式

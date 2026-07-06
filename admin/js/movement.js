@@ -18,7 +18,7 @@ window.movementBaseLoaded = false;
  * 排序堆疊：依點擊時間順序排列
  * 初始值設為日期降冪（最新異動在最上面）
  */
-var movementSortStack = [{ key: 'date', dir: 'desc' }];
+var movementSortStack = [{ key: 'created_at', dir: 'desc' }];
 
 /**
  * 日期篩選 UI 狀態（對齊 orders.js orderDateState）
@@ -37,13 +37,18 @@ var movementFilterState = {
   dateEnd:      null
 };
 
+/** 取得異動時間（支援舊欄位 date）/ Get movement timestamp string */
+function getMovementCreatedAt(record) {
+  return (record && (record.created_at || record.date)) || '';
+}
+
 window.initMovement = function () {
   // 清除 orders / movement 舊事件（共用 .sortable-th / .filter-icon 選擇器）
   $(document).off('.orders');
   $(document).off('.movement');
 
   // 每次進入頁面重置排序與篩選（預設：日期降冪 + 近 30 天）
-  movementSortStack = [{ key: 'date', dir: 'desc' }];
+  movementSortStack = [{ key: 'created_at', dir: 'desc' }];
   movementFilterState = { employeeId: [], movementType: [], dateStart: null, dateEnd: null };
   movementDateState = { days: 30, startDate: null, endDate: null };
 
@@ -124,7 +129,7 @@ window.initMovement = function () {
 
   // ── 清除條件按鈕：還原預設排序 + 清空欄位篩選 + 還原近 30 天 ──
   $(document).on('click.movement', '#btnClearMovementSort', function () {
-    movementSortStack = [{ key: 'date', dir: 'desc' }];
+    movementSortStack = [{ key: 'created_at', dir: 'desc' }];
     movementFilterState.employeeId = [];
     movementFilterState.movementType = [];
     applyMovementDayRange(30);
@@ -134,7 +139,7 @@ window.initMovement = function () {
   $(document).on('click.movement', '.movement-detail-link', function () {
     var movementId = $(this).data('movement-id');
     var record = (window.movementCache || []).find(function (item) {
-      return item.id === movementId;
+      return window.sameId(item.id, movementId);
     });
 
     if (record) {
@@ -151,6 +156,12 @@ window.addMovementRecord = function (record) {
 
   if (Array.isArray(window.movementCache)) {
     window.movementCache.unshift(normalizedRecord);
+  }
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.movement) {
+    AdminAPI.movement.create(normalizedRecord).catch(function (err) {
+      AdminAPI.handleError(err, '同步庫存異動紀錄失敗');
+    });
   }
 
   if ($('#movementTableBody').length > 0) {
@@ -175,6 +186,39 @@ function mergeMovementRecords(generatedRecords, baseRecords) {
   return merged;
 }
 
+/**
+ * 產生下一筆庫存異動編號（純數字，顯示時用 formatMovementId）
+ * Generate next movement record ID as numeric PK.
+ */
+function createMovementRecordId() {
+  var existingRecords = [];
+
+  if (Array.isArray(window.movementCache)) {
+    existingRecords = existingRecords.concat(window.movementCache);
+  }
+
+  if (Array.isArray(window.generatedMovementRecords)) {
+    existingRecords = existingRecords.concat(window.generatedMovementRecords);
+  }
+
+  return window.getNextMovementId(existingRecords);
+}
+
+/** 格式化為 YYYY-MM-DD HH:mm:ss / Format datetime for movement records */
+function formatMovementDateTime(date) {
+  var pad = function (num) {
+    return String(num).padStart(2, '0');
+  };
+  return date.getFullYear() + '-' +
+    pad(date.getMonth() + 1) + '-' +
+    pad(date.getDate()) + ' ' +
+    pad(date.getHours()) + ':' +
+    pad(date.getMinutes()) + ':' +
+    pad(date.getSeconds());
+}
+
+window.createMovementRecordId = createMovementRecordId;
+
 function normalizeMovementRecord(record) {
   var items = Array.isArray(record && record.items)
     ? record.items
@@ -187,8 +231,8 @@ function normalizeMovementRecord(record) {
     }];
 
   return {
-    id: (record && record.id) || 'MV-NEW-' + Date.now(),
-    date: (record && record.date) || '',
+    id: (record && record.id) || createMovementRecordId(),
+    created_at: getMovementCreatedAt(record) || formatMovementDateTime(new Date()),
     employeeId: (record && (record.employeeId || record.adminId || record.staffId)) || '—',
     items: items.map(function (item) {
       return {
@@ -427,15 +471,15 @@ function applyMovementFiltersAndSort() {
     });
   }
 
-  // 日期範圍篩選（比對 record.date，格式 YYYY-MM-DD）
+  // 日期範圍篩選（比對 created_at 的日期部分）
   if (movementFilterState.dateStart) {
     data = data.filter(function (record) {
-      return (record.date || '').slice(0, 10) >= movementFilterState.dateStart;
+      return getMovementCreatedAt(record).slice(0, 10) >= movementFilterState.dateStart;
     });
   }
   if (movementFilterState.dateEnd) {
     data = data.filter(function (record) {
-      return (record.date || '').slice(0, 10) <= movementFilterState.dateEnd;
+      return getMovementCreatedAt(record).slice(0, 10) <= movementFilterState.dateEnd;
     });
   }
 
@@ -445,12 +489,12 @@ function applyMovementFiltersAndSort() {
       for (var i = 0; i < movementSortStack.length; i++) {
         var key = movementSortStack[i].key;
         var dir = movementSortStack[i].dir === 'asc' ? 1 : -1;
-        var valA = a[key] || '';
-        var valB = b[key] || '';
+        var valA = key === 'created_at' ? getMovementCreatedAt(a) : (a[key] || '');
+        var valB = key === 'created_at' ? getMovementCreatedAt(b) : (b[key] || '');
         if (valA < valB) return -1 * dir;
         if (valA > valB) return  1 * dir;
       }
-      return 0;
+      return (b.id - a.id);
     });
   }
 
@@ -478,7 +522,7 @@ function updateMovementSortUI() {
 
   var isDefaultSort = (
     movementSortStack.length === 1 &&
-    movementSortStack[0].key === 'date' &&
+    movementSortStack[0].key === 'created_at' &&
     movementSortStack[0].dir === 'desc'
   );
 
@@ -535,10 +579,10 @@ function renderMovementTable(records) {
       '<td>' +
       '<span class="admin-cell-link movement-detail-link" ' +
       'data-movement-id="' + escapeMovementHtml(record.id) + '">' +
-      escapeMovementHtml(record.id) +
+      escapeMovementHtml(window.formatMovementId(record.id)) +
       '</span>' +
       '</td>' +
-      '<td>' + escapeMovementHtml(record.date) + '</td>' +
+      '<td>' + escapeMovementHtml(getMovementCreatedAt(record).slice(0, 10)) + '</td>' +
       '<td>' + escapeMovementHtml(record.employeeId || '—') + '</td>' +
       '<td>' + itemCount + ' 筆</td>' +
       '<td>' + escapeMovementHtml(typesSummary) + '</td>' +
@@ -549,8 +593,9 @@ function renderMovementTable(records) {
 }
 
 function showMovementDetailModal(record) {
-  $('#modalMovementId').text(record.id);
-  $('#modalMovementDate').text(record.date);
+  $('#movementDetailModal').data('movement-id', record.id);
+  $('#modalMovementId').text(window.formatMovementId(record.id));
+  $('#modalMovementDate').text(getMovementCreatedAt(record));
   $('#modalMovementEmployeeId').text(record.employeeId || '—');
 
   var itemsHtml = (record.items || []).map(function (item) {

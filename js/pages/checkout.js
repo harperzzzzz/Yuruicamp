@@ -75,13 +75,22 @@ function _buildCheckoutCouponSnapshots(subtotal) {
   }));
 }
 
+// Return local datetime as YYYY-MM-DD HH:mm:ss for mock order storage.
+// 重點：createdAt 使用完整日期時間，方便之後後端 LocalDateTime 直接對接。
+function _getCheckoutDateTimeString() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mi = String(now.getMinutes()).padStart(2, '0');
+  const ss = String(now.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
 // Return today's local date in yyyy-mm-dd format.
 function _getCheckoutTodayString() {
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, '0');
-  const dd = String(today.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
+  return _getCheckoutDateTimeString().slice(0, 10);
 }
 
 // Get the current checkout user id.
@@ -541,7 +550,7 @@ async function _buildOrderData(formData) {
     discount,
     total,
     status: 'unshipped',
-    createdAt: _getCheckoutTodayString(),
+    createdAt: _getCheckoutDateTimeString(),
     deliveredAt: '',
     trackingNumber: '',
     canReview: false,

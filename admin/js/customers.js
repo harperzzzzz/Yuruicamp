@@ -8,6 +8,8 @@
  *   - phone / email / birthday / tier / points / tags：可連續編輯多欄，面板底部「確認變更」一次提交（Bootstrap Modal 預覽，不用 alert）
  *   - 手機 / Email / 生日：必填；手機須 09 開頭 10 碼；Email 格式由 validators.js 驗證
  *   - 標籤庫：新增 / 刪除標籤（刪除仍用 confirm）
+ *   - 新增客戶：Modal 表單一次填完所有欄位，寫入 customersCache 後重渲染列表
+ *   - 配送地址：展開區標籤下方顯示，鉛筆開 Modal 編輯（與會員姓名/手機獨立）
  * 主列為唯讀摘要（桌面 table / 手機卡片）；展開後才可編輯，儲存後同步更新主列
  * 篩選：會員等級/標籤（欄內 OR，兩欄 AND 疊加）；排序：註冊日期/消費總額（三段式）
  */
@@ -69,6 +71,408 @@ function formatDateDisplay(isoDate) {
   return String(isoDate).slice(0, 10);
 }
 
+// ==========================================================================
+// 配送地址：台灣縣市／區 + 資料 helper
+// Shipping address — TW city/district map (approach B)
+// ==========================================================================
+
+/** 台灣縣市 → 行政區對照表 / Taiwan city → district map */
+var TW_CITY_DISTRICTS = {
+  '臺北市': [
+    '中正區', '大同區', '中山區', '松山區', '大安區', '萬華區',
+    '信義區', '士林區', '北投區', '內湖區', '南港區', '文山區'
+  ],
+  '新北市': [
+    '板橋區', '三重區', '中和區', '永和區', '新莊區', '新店區',
+    '樹林區', '鶯歌區', '三峽區', '淡水區', '汐止區', '瑞芳區'
+  ],
+  '桃園市': [
+    '桃園區', '中壢區', '平鎮區', '八德區', '楊梅區', '蘆竹區',
+    '大溪區', '龍潭區', '龜山區', '大園區', '觀音區', '新屋區', '復興區'
+  ],
+  '臺中市': [
+    '中區', '東區', '南區', '西區', '北區', '西屯區', '南屯區',
+    '北屯區', '豐原區', '東勢區', '大甲區', '清水區', '沙鹿區',
+    '梧棲區', '后里區', '神岡區', '潭子區', '大雅區', '大肚區',
+    '龍井區', '霧峰區', '太平區', '烏日區', '新社區', '石岡區',
+    '外埔區', '大安區', '和平區'
+  ],
+  '臺南市': [
+    '中西區', '東區', '南區', '北區', '安平區', '安南區',
+    '永康區', '歸仁區', '新化區', '善化區', '新市區', '安定區'
+  ],
+  '高雄市': [
+    '新興區', '前金區', '苓雅區', '鹽埕區', '鼓山區', '旗津區',
+    '前鎮區', '三民區', '左營區', '楠梓區', '小港區', '鳳山區'
+  ],
+  '基隆市': ['仁愛區', '信義區', '中正區', '中山區', '安樂區', '暖暖區', '七堵區'],
+  '新竹市': ['東區', '北區', '香山區'],
+  '新竹縣': ['竹北市', '竹東鎮', '新埔鎮', '關西鎮', '湖口鄉', '芎林鄉'],
+  '苗栗縣': ['苗栗市', '頭份市', '竹南鎮', '後龍鎮', '通霄鎮', '苑裡鎮'],
+  '彰化縣': ['彰化市', '員林市', '和美鎮', '鹿港鎮', '溪湖鎮', '二林鎮'],
+  '南投縣': ['南投市', '埔里鎮', '草屯鎮', '竹山鎮', '集集鎮', '名間鄉'],
+  '雲林縣': ['斗六市', '斗南鎮', '虎尾鎮', '西螺鎮', '土庫鎮', '北港鎮'],
+  '嘉義市': ['東區', '西區'],
+  '嘉義縣': ['太保市', '朴子市', '布袋鎮', '大林鎮', '民雄鄉', '水上鄉'],
+  '屏東縣': ['屏東市', '潮州鎮', '東港鎮', '恆春鎮', '內埔鄉', '萬丹鄉'],
+  '宜蘭縣': ['宜蘭市', '羅東鎮', '蘇澳鎮', '頭城鎮', '礁溪鄉', '冬山鄉'],
+  '花蓮縣': ['花蓮市', '玉里鎮', '新城鄉', '吉安鄉', '壽豐鄉', '鳳林鎮'],
+  '臺東縣': ['臺東市', '成功鎮', '關山鎮', '卑南鄉', '鹿野鄉', '池上鄉'],
+  '澎湖縣': ['馬公市', '湖西鄉', '白沙鄉', '西嶼鄉', '望安鄉', '七美鄉'],
+  '金門縣': ['金城鎮', '金湖鎮', '金沙鎮', '金寧鄉', '烈嶼鄉', '烏坵鄉'],
+  '連江縣': ['南竿鄉', '北竿鄉', '莒光鄉', '東引鄉']
+};
+
+/** 統一「台」→「臺」/ Normalize TW city name */
+function normalizeTwCityName(city) {
+  return String(city || '').trim().replace(/^台/, '臺');
+}
+
+/** 基本 HTML 跳脫 / Escape HTML for display */
+function escapeCustomerHtml(text) {
+  return String(text || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/** 產生 hover 顯示複製鈕區塊 / Copy-on-hover field wrapper */
+function buildCopyableFieldHtml(displayClass, displayText, copyValue) {
+  var text = displayText || '—';
+  var canCopy = Boolean(copyValue && copyValue !== '—');
+  var copyBtn = canCopy
+    ? '<button type="button" class="btn btn-link btn-sm p-0 customer-copy-btn" ' +
+      'data-copy-value="' + escapeCustomerHtml(copyValue) + '" title="複製">' +
+      '<i class="far fa-copy"></i></button>'
+    : '';
+
+  return (
+    '<div class="customer-copyable-field">' +
+      '<span class="' + displayClass + '">' + escapeCustomerHtml(text) + '</span>' +
+      copyBtn +
+    '</div>'
+  );
+}
+
+/** 手機顯示 + 複製鈕 / Phone display with copy button */
+function buildPhoneDisplayHtml(phone) {
+  var display = formatPhoneDisplay(phone);
+  var copyVal = normalizePhoneValue(phone);
+  return buildCopyableFieldHtml('phone-display', display, copyVal || '');
+}
+
+/** Email 顯示 + 複製鈕 / Email display with copy button */
+function buildEmailDisplayHtml(email) {
+  var text = email || '—';
+  return buildCopyableFieldHtml('email-display', text, email || '');
+}
+
+/** 還原可複製欄位（手機 / Email）/ Restore copyable phone or email field */
+function restoreCopyableFieldDisplay($panel, wrapSelector, inputSelector, buildHtmlFn, value, editBtnSelector) {
+  var $wrap = $panel.find(wrapSelector);
+  $wrap.find(inputSelector).remove();
+  var html = buildHtmlFn(value);
+  var $copyable = $wrap.find('.customer-copyable-field');
+  if ($copyable.length) {
+    $copyable.replaceWith(html);
+  } else {
+    $wrap.find(editBtnSelector).first().before(html);
+  }
+  $wrap.find(editBtnSelector).show();
+}
+
+/** 複製文字到剪貼簿 / Copy text to clipboard */
+function copyTextToClipboard(text) {
+  if (!text) {
+    return Promise.reject(new Error('empty'));
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+
+  return new Promise(function (resolve, reject) {
+    var $temp = $('<textarea class="visually-hidden">').val(text).appendTo('body');
+    $temp[0].select();
+    try {
+      document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+    } catch (err) {
+      reject(err);
+    } finally {
+      $temp.remove();
+    }
+  });
+}
+
+/** 深拷貝配送地址物件 / Clone shipping address object */
+function cloneShippingAddress(addr) {
+  addr = addr || {};
+  return {
+    lastName: String(addr.lastName || '').trim(),
+    firstName: String(addr.firstName || '').trim(),
+    postalCode: String(addr.postalCode || '').trim(),
+    city: normalizeTwCityName(addr.city),
+    district: String(addr.district || '').trim(),
+    township: String(addr.township || '').trim(),
+    addressLine1: String(addr.addressLine1 || '').trim(),
+    addressLine2: String(addr.addressLine2 || '').trim(),
+    email: String(addr.email || '').trim(),
+    phone: normalizePhoneValue(addr.phone)
+  };
+}
+
+/** 空配送地址 / Empty shipping address template */
+function emptyShippingAddress() {
+  return cloneShippingAddress(null);
+}
+
+/** 配送地址是否全空 / Check if shipping address is empty */
+function isShippingAddressEmpty(addr) {
+  var a = cloneShippingAddress(addr);
+  return !a.lastName && !a.firstName && !a.postalCode && !a.city &&
+    !a.district && !a.township && !a.addressLine1 && !a.addressLine2 &&
+    !a.email && !a.phone;
+}
+
+/** 比對兩筆配送地址 / Compare shipping addresses */
+function shippingAddressEqual(a, b) {
+  return JSON.stringify(cloneShippingAddress(a)) === JSON.stringify(cloneShippingAddress(b));
+}
+
+/** 展開區顯示用 HTML / Shipping address display HTML */
+function formatShippingAddressDisplay(addr) {
+  if (isShippingAddressEmpty(addr)) {
+    return '<span class="text-muted">尚未設定</span>';
+  }
+  var a = cloneShippingAddress(addr);
+  var name = escapeCustomerHtml(a.lastName + a.firstName);
+  var line1 = escapeCustomerHtml([
+    a.postalCode,
+    a.city,
+    a.district,
+    a.township,
+    a.addressLine1
+  ].filter(Boolean).join(''));
+  var line2 = a.addressLine2 ? escapeCustomerHtml(a.addressLine2) : '';
+  var contactParts = [];
+  if (a.phone) { contactParts.push(escapeCustomerHtml(formatPhoneDisplay(a.phone))); }
+  if (a.email) { contactParts.push(escapeCustomerHtml(a.email)); }
+  var contact = contactParts.join(' · ');
+  return (
+    '<div>' +
+      (name ? '<strong>' + name + '</strong><br>' : '') +
+      line1 +
+      (line2 ? '<br>' + line2 : '') +
+      (contact ? '<br><span class="text-muted">' + contact + '</span>' : '') +
+    '</div>'
+  );
+}
+
+/** 確認 Modal 摘要用多行 HTML（避免長地址撐破表格）/ Multi-line summary HTML */
+function formatShippingAddressSummaryHtml(addr) {
+  if (isShippingAddressEmpty(addr)) { return '尚未設定'; }
+  var a = cloneShippingAddress(addr);
+  var lines = [];
+
+  var name = a.lastName + a.firstName;
+  if (name) {
+    lines.push(escapeCustomerHtml(name));
+  }
+
+  lines.push(escapeCustomerHtml(
+    [a.postalCode, a.city, a.district, a.township, a.addressLine1].filter(Boolean).join('')
+  ));
+
+  if (a.addressLine2) {
+    lines.push(escapeCustomerHtml(a.addressLine2));
+  }
+
+  var contact = [
+    a.phone ? formatPhoneDisplay(a.phone) : '',
+    a.email
+  ].filter(Boolean).join(' · ');
+
+  if (contact) {
+    lines.push(escapeCustomerHtml(contact));
+  }
+
+  return lines.join('<br>');
+}
+
+/** 取得排序後縣市清單 / Get sorted city names */
+function getTwCityNames() {
+  return Object.keys(TW_CITY_DISTRICTS).sort(function (a, b) {
+    return a.localeCompare(b, 'zh-Hant');
+  });
+}
+
+/** 填入 #shipCity / Fill city select */
+function fillShippingCitySelect(selectedCity) {
+  selectedCity = normalizeTwCityName(selectedCity);
+  var cities = getTwCityNames();
+  $('#shipCity').html(
+    '<option value="">請選擇縣/市</option>' +
+    cities.map(function (name) {
+      var selected = name === selectedCity ? ' selected' : '';
+      return '<option value="' + escapeCustomerHtml(name) + '"' + selected + '>' +
+        escapeCustomerHtml(name) + '</option>';
+    }).join('')
+  );
+}
+
+/** 填入 #shipDistrict（含舊資料保留）/ Fill district select with legacy fallback */
+function fillShippingDistrictSelect(city, selectedDistrict) {
+  city = normalizeTwCityName(city);
+  selectedDistrict = String(selectedDistrict || '').trim();
+  var $district = $('#shipDistrict');
+  var list = TW_CITY_DISTRICTS[city] || [];
+
+  if (!city) {
+    $district.html('<option value="">請先選擇縣/市</option>').prop('disabled', true);
+    return;
+  }
+
+  $district.prop('disabled', false).html(
+    '<option value="">請選擇區</option>' +
+    list.map(function (name) {
+      var selected = name === selectedDistrict ? ' selected' : '';
+      return '<option value="' + escapeCustomerHtml(name) + '"' + selected + '>' +
+        escapeCustomerHtml(name) + '</option>';
+    }).join('')
+  );
+
+  if (selectedDistrict && list.indexOf(selectedDistrict) === -1) {
+    $district.append(
+      '<option value="' + escapeCustomerHtml(selectedDistrict) + '" selected>' +
+      escapeCustomerHtml(selectedDistrict) + '（舊資料）</option>'
+    );
+  }
+}
+
+/** 初始化 Modal 縣市／區下拉 / Init city & district selects */
+function initShippingCityDistrictSelects(selectedCity, selectedDistrict) {
+  fillShippingCitySelect(selectedCity || '');
+  fillShippingDistrictSelect(selectedCity || '', selectedDistrict || '');
+}
+
+/** 從 Modal 讀取配送地址 / Read shipping address from modal form */
+function readShippingAddressFromForm() {
+  return cloneShippingAddress({
+    lastName: $('#shipLastName').val(),
+    firstName: $('#shipFirstName').val(),
+    postalCode: $('#shipPostalCode').val(),
+    city: $('#shipCity').val(),
+    district: $('#shipDistrict').val(),
+    township: $('#shipTownship').val(),
+    addressLine1: $('#shipAddressLine1').val(),
+    addressLine2: $('#shipAddressLine2').val(),
+    email: $('#shipEmail').val(),
+    phone: $('#shipPhone').val()
+  });
+}
+
+/** 將配送地址填入 Modal / Fill modal form from address object */
+function fillShippingAddressForm(addr) {
+  addr = cloneShippingAddress(addr);
+  $('#shipLastName').val(addr.lastName);
+  $('#shipFirstName').val(addr.firstName);
+  $('#shipPostalCode').val(addr.postalCode);
+  $('#shipTownship').val(addr.township);
+  $('#shipAddressLine1').val(addr.addressLine1);
+  $('#shipAddressLine2').val(addr.addressLine2);
+  $('#shipEmail').val(addr.email);
+  $('#shipPhone').val(addr.phone ? formatPhoneDisplay(addr.phone) : '');
+  initShippingCityDistrictSelects(addr.city, addr.district);
+}
+
+/** 驗證配送地址（全空允許；有填則檢查必填）/ Validate shipping address */
+function validateShippingAddress(addr) {
+  var errors = [];
+  var a = cloneShippingAddress(addr);
+
+  if (isShippingAddressEmpty(a)) {
+    return { ok: true, errors: [] };
+  }
+
+  if (!a.lastName) { errors.push('請填寫配送收件人「姓」'); }
+  if (!a.firstName) { errors.push('請填寫配送收件人「名字」'); }
+  if (!a.postalCode) { errors.push('請填寫郵遞區號'); }
+  if (!a.city) { errors.push('請選擇縣/市'); }
+  if (!a.district) { errors.push('請選擇區'); }
+  if (!a.addressLine1) { errors.push('請填寫地址'); }
+  if (a.phone && !isValidAdminCustomerPhone(a.phone)) {
+    errors.push('配送電話須為 09 開頭的 10 碼數字');
+  }
+  if (a.email && typeof window.isValidEmail === 'function' && !window.isValidEmail(a.email)) {
+    errors.push('配送 Email 格式不正確');
+  }
+
+  return { ok: errors.length === 0, errors: errors };
+}
+
+/** 從 panel 讀取配送地址草稿 / Read shipping address draft from panel */
+function readShippingAddressFromPanel($panel) {
+  var draftAddr = $panel.data('draftShippingAddress');
+  if (draftAddr) {
+    return cloneShippingAddress(draftAddr);
+  }
+  var customerId = $panel.data('customer-id');
+  var customer = (window.customersCache || []).find(function (c) { return c.id === customerId; });
+  return cloneShippingAddress(customer ? customer.shippingAddress : null);
+}
+
+/** 開啟配送地址 Modal / Open shipping address edit modal */
+function openCustomerShippingAddressModal(customerId, $panel) {
+  var addr = readShippingAddressFromPanel($panel);
+  $('#shippingEditCustomerId').val(customerId);
+  fillShippingAddressForm(addr);
+  window.pendingShippingAddressPanel = $panel;
+  var modalEl = document.getElementById('customerShippingAddressModal');
+  if (modalEl) {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  }
+}
+
+/** Modal 儲存 → 寫入 panel 草稿（尚未 commit cache）/ Save shipping draft to panel */
+function saveCustomerShippingAddressDraft() {
+  var addr = readShippingAddressFromForm();
+  var validation = validateShippingAddress(addr);
+  if (!validation.ok) {
+    window.showAdminToast(validation.errors[0], 'error');
+    return;
+  }
+
+  var $panel = window.pendingShippingAddressPanel;
+  if (!$panel || !$panel.length) { return; }
+
+  var customerId = $panel.data('customer-id');
+  var displayHtml = formatShippingAddressDisplay(addr);
+
+  getCustomerPanels(customerId).each(function () {
+    $(this).data('draftShippingAddress', cloneShippingAddress(addr));
+    $(this).find('.shipping-address-display').html(displayHtml);
+  });
+
+  updateCustomerEditActions($panel);
+
+  var modalEl = document.getElementById('customerShippingAddressModal');
+  if (modalEl) {
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) { modal.hide(); }
+  }
+}
+
+/** 會員編輯草稿驗證（含配送地址）/ Validate customer edit draft */
+function validateCustomerEditDraft(draft, changes) {
+  var result = validateCustomerDraft(draft);
+  if (!result.ok) { return result; }
+  if (changes && changes.shippingAddress) {
+    return validateShippingAddress(draft.shippingAddress);
+  }
+  return result;
+}
+
 /**
  * 從展開區的編輯控制項向上找到客戶 ID
  * @param {jQuery} $el
@@ -92,13 +496,19 @@ function syncCustomerMainRow(customerId, fields) {
     var displayPhone = formatPhoneDisplay(fields.phone);
     $summary.find('.cell-phone').text(displayPhone);
     $card.find('.card-field-phone .card-value').text(displayPhone);
-    $details.find('.phone-display').text(displayPhone);
+    $details.find('.phone-wrap').each(function () {
+      if ($(this).find('.phone-input').length) { return; }
+      $(this).find('.customer-copyable-field').replaceWith(buildPhoneDisplayHtml(fields.phone));
+    });
   }
   if (fields.email !== undefined) {
     var emailText = fields.email || '—';
     $summary.find('.cell-email').text(emailText);
     $card.find('.card-field-email .card-value').text(emailText);
-    $details.find('.email-display').text(emailText);
+    $details.find('.email-wrap').each(function () {
+      if ($(this).find('.email-input').length) { return; }
+      $(this).find('.customer-copyable-field').replaceWith(buildEmailDisplayHtml(fields.email));
+    });
   }
   if (fields.birthday !== undefined) {
     var birthdayText = formatDateDisplay(fields.birthday);
@@ -116,6 +526,9 @@ function syncCustomerMainRow(customerId, fields) {
     $details.find('.tags-display').html(fields.tagsHtml);
   }
   if (fields.points !== undefined) {
+    var pointsText = (fields.points || 0).toLocaleString();
+    $summary.find('.cell-points').text(pointsText);
+    $card.find('.card-field-points .card-value').text(pointsText);
     $details.find('.points-display').text(fields.points);
   }
 }
@@ -131,8 +544,9 @@ var CUSTOMER_FIELD_LABELS = {
   email: '電子信箱',
   birthday: '生日',
   tier: '會員等級',
-  points: '點數',
-  tags: '標籤'
+  points: '點數餘額',
+  tags: '標籤',
+  shippingAddress: '配送地址'
 };
 
 /** 將畫面上的「—」視為空字串 / Treat em dash display as empty */
@@ -185,6 +599,148 @@ function validateCustomerDraft(draft) {
   return { ok: errors.length === 0, errors: errors };
 }
 
+// ─────────────────────────────────────────────
+// 新增客戶 Modal
+// Add customer modal helpers
+// ─────────────────────────────────────────────
+
+/** 產生下一個會員編號（U001 格式）/ Generate next customer id */
+function getNextCustomerId(customers) {
+  var maxNum = 0;
+  (customers || []).forEach(function (c) {
+    var m = String(c.id || '').match(/^U(\d+)$/);
+    if (m) {
+      var num = parseInt(m[1], 10);
+      if (num > maxNum) { maxNum = num; }
+    }
+  });
+  return 'U' + String(maxNum + 1).padStart(3, '0');
+}
+
+/** 從新增客戶 Modal 讀取表單 / Read add-customer form values */
+function readNewCustomerFromModal() {
+  var tags = [];
+  $('#newCustomerTagsList .tag-checkbox:checked').each(function () {
+    tags.push($(this).val());
+  });
+
+  return {
+    id: $('#newCustomerId').val().trim(),
+    name: $('#newCustomerName').val().trim(),
+    phone: normalizePhoneValue($('#newCustomerPhone').val()),
+    email: $('#newCustomerEmail').val().trim(),
+    birthday: normalizeBirthdayValue($('#newCustomerBirthday').val()),
+    registeredAt: normalizeBirthdayValue($('#newCustomerRegisteredAt').val()),
+    tier: $('#newCustomerTier').val() || '一般',
+    points: parseInt($('#newCustomerPoints').val(), 10) || 0,
+    totalSpent: parseInt($('#newCustomerTotalSpent').val(), 10) || 0,
+    tags: tags
+  };
+}
+
+/** 新增客戶表單驗證（在 validateCustomerDraft 基礎上補姓名、註冊日期、手機重複） */
+function validateNewCustomerForm(data) {
+  var result = validateCustomerDraft(data);
+
+  if (!data.name) {
+    result.errors.unshift('客戶姓名不可為空');
+    result.ok = false;
+  }
+  if (!data.registeredAt) {
+    result.errors.push('註冊日期不可為空');
+    result.ok = false;
+  }
+  if (data.points < 0) {
+    result.errors.push('點數餘額不可小於 0');
+    result.ok = false;
+  }
+  if (data.totalSpent < 0) {
+    result.errors.push('消費總額不可小於 0');
+    result.ok = false;
+  }
+
+  var duplicatePhone = (window.customersCache || []).some(function (c) {
+    return normalizePhoneValue(c.phone) === data.phone;
+  });
+  if (duplicatePhone) {
+    result.errors.push('此手機號碼已被使用');
+    result.ok = false;
+  }
+
+  return result;
+}
+
+/** 重置新增客戶 Modal / Reset add-customer modal form */
+function resetAddCustomerModal() {
+  var form = document.getElementById('addCustomerForm');
+  if (form) { form.reset(); }
+  $('#newCustomerTier').val('一般');
+  $('#newCustomerPoints').val(0);
+  $('#newCustomerTotalSpent').val(0);
+  $('#newCustomerTagsList').html(buildTagsDropdown([]));
+}
+
+/** 開啟新增客戶 Modal / Open add-customer modal */
+function openAddCustomerModal() {
+  var nextId = getNextCustomerId(window.customersCache);
+  $('#newCustomerId').val(nextId);
+  $('#newCustomerRegisteredAt').val(new Date().toISOString().slice(0, 10));
+  $('#newCustomerTagsList').html(buildTagsDropdown([]));
+  new bootstrap.Modal('#addCustomerModal').show();
+}
+
+/** 儲存新客戶至 customersCache 並重渲染 / Save new customer from modal */
+function saveCustomerFromModal() {
+  var data = readNewCustomerFromModal();
+  var validation = validateNewCustomerForm(data);
+
+  if (!validation.ok) {
+    window.showAdminToast(validation.errors[0], 'error');
+    return;
+  }
+
+  var newCustomer = {
+    id: data.id,
+    avatar: '../assets/images/avatar-01.jpg',
+    name: data.name,
+    phone: data.phone,
+    email: data.email,
+    birthday: data.birthday,
+    registeredAt: data.registeredAt,
+    totalSpent: data.totalSpent,
+    tier: data.tier,
+    points: data.points,
+    coupons: 0,
+    tags: data.tags,
+    orders: [],
+    rentals: [],
+    shippingAddress: emptyShippingAddress()
+  };
+
+  window.customersCache = window.customersCache || [];
+  window.customersCache.push(newCustomer);
+
+  applyCustomerFiltersAndSort();
+
+  var modalEl = document.getElementById('addCustomerModal');
+  if (modalEl) {
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) { modal.hide(); }
+  }
+
+  window.showAdminToast('客戶「' + newCustomer.name + '」已新增');
+
+  // 儲存後自動展開新客戶列
+  window.pendingCustomerId = newCustomer.id;
+  handlePendingCustomerId();
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.customers) {
+    AdminAPI.customers.create(newCustomer).catch(function (err) {
+      AdminAPI.handleError(err, '新增客戶同步失敗');
+    });
+  }
+}
+
 /** 標籤比對用：排序後比較，忽略順序 / Compare tags ignoring order */
 function tagsEqual(tagsA, tagsB) {
   var a = (tagsA || []).slice().sort();
@@ -202,7 +758,8 @@ function captureCustomerSnapshot(customerId) {
     birthday: normalizeBirthdayValue(customer.birthday),
     tier: customer.tier || '一般',
     points: customer.points || 0,
-    tags: (customer.tags || []).slice()
+    tags: (customer.tags || []).slice(),
+    shippingAddress: cloneShippingAddress(customer.shippingAddress)
   };
 }
 
@@ -251,7 +808,8 @@ function readCustomerDraftFromPanel($panel) {
     points: $panel.find('.points-input').length
       ? parseInt($panel.find('.points-input').val(), 10) || 0
       : parseInt($panel.find('.points-display').text().trim(), 10) || 0,
-    tags: readTagsFromPanel($panel)
+    tags: readTagsFromPanel($panel),
+    shippingAddress: readShippingAddressFromPanel($panel)
   };
 }
 
@@ -269,6 +827,9 @@ function diffCustomerDraft(original, draft) {
   if (!tagsEqual(draft.tags, original.tags)) {
     changes.tags = draft.tags.slice();
   }
+  if (!shippingAddressEqual(draft.shippingAddress, original.shippingAddress)) {
+    changes.shippingAddress = cloneShippingAddress(draft.shippingAddress);
+  }
   return changes;
 }
 
@@ -280,6 +841,7 @@ function formatFieldForSummary(key, value) {
   if (key === 'tier') { return value || '一般'; }
   if (key === 'points') { return String(value); }
   if (key === 'tags') { return tagsToHtml(value || []); }
+  if (key === 'shippingAddress') { return formatShippingAddressSummaryHtml(value); }
   return String(value || '—');
 }
 
@@ -350,15 +912,11 @@ function applyPanelFieldDisplays($panel, draft, options) {
   options = options || {};
   var persistDraftTags = options.persistDraftTags !== false;
 
-  restoreInlineFieldDisplay(
-    $panel, '.phone-wrap', '.phone-input', 'phone-display',
-    '<span class="phone-display">' + formatPhoneDisplay(draft.phone) + '</span>',
-    '.phone-edit-btn'
+  restoreCopyableFieldDisplay(
+    $panel, '.phone-wrap', '.phone-input', buildPhoneDisplayHtml, draft.phone, '.phone-edit-btn'
   );
-  restoreInlineFieldDisplay(
-    $panel, '.email-wrap', '.email-input', 'email-display',
-    '<span class="email-display">' + (draft.email || '—') + '</span>',
-    '.email-edit-btn'
+  restoreCopyableFieldDisplay(
+    $panel, '.email-wrap', '.email-input', buildEmailDisplayHtml, draft.email, '.email-edit-btn'
   );
   restoreInlineFieldDisplay(
     $panel, '.birthday-wrap', '.birthday-input', 'birthday-display',
@@ -377,6 +935,11 @@ function applyPanelFieldDisplays($panel, draft, options) {
   );
 
   closeTagsEditor($panel, draft.tags, persistDraftTags);
+
+  $panel.find('.shipping-address-display').html(formatShippingAddressDisplay(draft.shippingAddress));
+  if (!persistDraftTags) {
+    $panel.removeData('draftShippingAddress');
+  }
 }
 
 /** 任一 panel 相對快照是否有未確認變更 / Any panel has pending edits */
@@ -415,6 +978,7 @@ function initCustomerPanelSnapshots() {
     var customerId = $(this).data('customer-id');
     $(this).data('originalSnapshot', captureCustomerSnapshot(customerId));
     $(this).removeData('draftTags');
+    $(this).removeData('draftShippingAddress');
     $(this).find('.customer-edit-actions').addClass('d-none');
   });
 }
@@ -437,7 +1001,13 @@ function commitCustomerDraft(customerId, draft, changes) {
   if (!customer) { return; }
 
   Object.keys(changes).forEach(function (key) {
-    customer[key] = draft[key];
+    if (key === 'shippingAddress') {
+      customer.shippingAddress = cloneShippingAddress(draft.shippingAddress);
+    } else if (key === 'tags') {
+      customer.tags = draft.tags.slice();
+    } else {
+      customer[key] = draft[key];
+    }
   });
 
   var syncFields = {};
@@ -462,7 +1032,12 @@ function commitCustomerDraft(customerId, draft, changes) {
   if (changes.tier || changes.tags) {
     applyCustomerFiltersAndSort();
   }
-  // TODO: PATCH /api/customers/:id  { ...changes }
+
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.customers) {
+    AdminAPI.customers.update(customerId, changes).catch(function (err) {
+      AdminAPI.handleError(err, '更新客戶資料同步失敗');
+    });
+  }
 }
 
 // ==========================================================================
@@ -727,6 +1302,51 @@ window.initCustomers = function () {
 
   buildCustomerTagsFilterOptions();
 
+  // 新增客戶 Modal
+  $(document).on('click.customers', '#addCustomerBtn', function () {
+    openAddCustomerModal();
+  });
+
+  $(document).on('click.customers', '#saveCustomerBtn', function () {
+    saveCustomerFromModal();
+  });
+
+  $(document).on('hidden.bs.modal.customers', '#addCustomerModal', function () {
+    resetAddCustomerModal();
+  });
+
+  // 配送地址 Modal
+  $(document).on('click.customers', '.shipping-address-edit-btn', function (e) {
+    e.stopPropagation();
+    var $panel = $(this).closest('.customer-detail-panel');
+    openCustomerShippingAddressModal($panel.data('customer-id'), $panel);
+  });
+
+  $(document).on('click.customers', '#saveCustomerShippingAddressBtn', function () {
+    saveCustomerShippingAddressDraft();
+  });
+
+  $(document).on('change.customers', '#shipCity', function () {
+    fillShippingDistrictSelect($(this).val(), '');
+  });
+
+  $(document).on('hidden.bs.modal.customers', '#customerShippingAddressModal', function () {
+    window.pendingShippingAddressPanel = null;
+  });
+
+  // 手機 / Email：hover 複製
+  $(document).on('click.customers', '.customer-copy-btn', function (e) {
+    e.stopPropagation();
+    var text = $(this).attr('data-copy-value') || '';
+    copyTextToClipboard(text)
+      .then(function () {
+        window.showAdminToast('已複製', 'success');
+      })
+      .catch(function () {
+        window.showAdminToast('複製失敗，請手動選取', 'error');
+      });
+  });
+
   // 載入客戶資料並渲染列表
   $.getJSON('data/customers.json', function (customers) {
     window.customersCache = customers;
@@ -734,7 +1354,7 @@ window.initCustomers = function () {
   }).fail(function () {
     var errHtml = '<i class="fas fa-exclamation-triangle me-2"></i>載入客戶數據失敗';
     $('#customersTableBody').html(
-      '<tr><td colspan="8" class="text-center py-4 text-danger">' + errHtml + '</td></tr>'
+      '<tr><td colspan="9" class="text-center py-4 text-danger">' + errHtml + '</td></tr>'
     );
     $('#customersCardList').html('<div class="alert alert-danger m-3">' + errHtml + '</div>');
   });
@@ -833,9 +1453,9 @@ window.initCustomers = function () {
     var $panel  = $(this).closest('.customer-detail-panel');
     var current = normalizePhoneValue($wrap.find('.phone-display').text());
 
-    $wrap.find('.phone-display').replaceWith(
+    $wrap.find('.customer-copyable-field').replaceWith(
       '<input type="tel" class="form-control form-control-sm phone-input d-inline-block" ' +
-      'value="' + current + '" maxlength="10" inputmode="numeric" pattern="09[0-9]{8}" ' +
+      'value="' + escapeCustomerHtml(current) + '" maxlength="10" inputmode="numeric" pattern="09[0-9]{8}" ' +
       'placeholder="0912345678" required style="width:112px">'
     );
     $(this).hide();
@@ -850,9 +1470,9 @@ window.initCustomers = function () {
     var current = $wrap.find('.email-display').text().trim();
     if (current === '—') { current = ''; }
 
-    $wrap.find('.email-display').replaceWith(
+    $wrap.find('.customer-copyable-field').replaceWith(
       '<input type="email" class="form-control form-control-sm email-input d-inline-block" ' +
-      'value="' + current + '" placeholder="name@example.com" required style="width:160px">'
+      'value="' + escapeCustomerHtml(current) + '" placeholder="name@example.com" required style="width:160px">'
     );
     $(this).hide();
     $wrap.find('.email-input').focus();
@@ -925,7 +1545,7 @@ window.initCustomers = function () {
       return;
     }
 
-    var validation = validateCustomerDraft(draft);
+    var validation = validateCustomerEditDraft(draft, changes);
     if (!validation.ok) {
       window.showAdminToast(validation.errors[0], 'error');
       return;
@@ -945,7 +1565,7 @@ window.initCustomers = function () {
     var pending = window.pendingCustomerEdit;
     if (!pending) { return; }
 
-    var validation = validateCustomerDraft(pending.draft);
+    var validation = validateCustomerEditDraft(pending.draft, pending.changes);
     if (!validation.ok) {
       window.showAdminToast(validation.errors[0], 'error');
       return;
@@ -1056,7 +1676,12 @@ window.initCustomers = function () {
 
     buildCustomerTagsFilterOptions();
 
-    // TODO: PUT /api/tag-pool  { tagColorMap: window.tagColorMap }
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags) {
+      AdminAPI.tags.savePool(window.tagColorMap).catch(function (err) {
+        AdminAPI.handleError(err, '同步標籤池失敗');
+      });
+    }
+
     window.showAdminToast('標籤「' + newName + '」已新增');
   });
 
@@ -1101,7 +1726,12 @@ window.initCustomers = function () {
 
     applyCustomerFiltersAndSort();
 
-    // TODO: PUT /api/tag-pool  { tagColorMap: window.tagColorMap }
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags) {
+      AdminAPI.tags.savePool(window.tagColorMap).catch(function (err) {
+        AdminAPI.handleError(err, '同步標籤池失敗');
+      });
+    }
+
     window.showAdminToast('標籤「' + tagName + '」已刪除');
   });
 
@@ -1111,9 +1741,9 @@ window.initCustomers = function () {
     var orderId = $(this).data('order-id');
 
     function openModal(orders) {
-      var order = orders.find(function (o) { return o.id === orderId; });
+      var order = orders.find(function (o) { return window.sameId(o.id, orderId); });
       if (!order) {
-        window.showAdminToast('找不到訂單 ' + orderId + ' 的資料');
+        window.showAdminToast('找不到訂單 ' + window.formatOrderId(orderId) + ' 的資料');
         return;
       }
       window.showOrderModal(order);
@@ -1127,6 +1757,36 @@ window.initCustomers = function () {
         openModal(orders);
       }).fail(function () {
         window.showAdminToast('載入訂單資料失敗，請稍後再試');
+      });
+    }
+  });
+
+  // === 租借紀錄：點擊預約單 ID 開啟預約明細 Modal ===
+  // Rental records: fetch bookings.json if cache missing, then open booking modal
+  $(document).on('click.customers', '.customer-rental-link', function () {
+    var bookingId = $(this).data('booking-id');
+
+    function openModal(bookings) {
+      var booking = bookings.find(function (b) { return window.sameId(b.id, bookingId); });
+      if (!booking) {
+        window.showAdminToast('找不到預約單 ' + window.formatBookingId(bookingId) + ' 的資料');
+        return;
+      }
+      if (!booking.selected_rentals || booking.selected_rentals.length === 0) {
+        window.showAdminToast('此預約單沒有租借裝備');
+        return;
+      }
+      window.showBookingModal(booking);
+    }
+
+    if (window.bookingsCache && window.bookingsCache.length > 0) {
+      openModal(window.bookingsCache);
+    } else {
+      $.getJSON('data/bookings.json', function (bookings) {
+        window.bookingsCache = bookings;
+        openModal(bookings);
+      }).fail(function () {
+        window.showAdminToast('載入預約資料失敗，請稍後再試');
       });
     }
   });
@@ -1194,9 +1854,27 @@ function buildTagsRowHtml(customerId, tagsHtml) {
 }
 
 /**
- * 產生展開區完整 HTML（手機/Email/生日/註冊日期/等級/點數/標籤/購買紀錄）
+ * 產生配送地址列 HTML（Modal 編輯，與會員基本資料獨立）
  */
-function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, registeredDisplay, tierDisplay, tagsHtml, ordersHtml) {
+function buildShippingAddressRowHtml(shippingAddressHtml) {
+  return (
+    '<tr>' +
+      '<th class="text-muted">配送地址</th>' +
+      '<td>' +
+        '<div class="shipping-address-wrap d-flex align-items-start gap-1">' +
+          '<span class="shipping-address-display small">' + shippingAddressHtml + '</span>' +
+          '<button type="button" class="btn btn-link btn-sm p-0 flex-shrink-0 shipping-address-edit-btn" ' +
+                  'title="編輯配送地址">' + EDIT_BTN_ICON + '</button>' +
+        '</div>' +
+      '</td>' +
+    '</tr>'
+  );
+}
+
+/**
+ * 產生展開區完整 HTML（手機/Email/生日/註冊日期/等級/點數/標籤/配送地址/購買紀錄/租借紀錄）
+ */
+function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, registeredDisplay, tierDisplay, tagsHtml, shippingAddressHtml, ordersHtml, rentalsHtml) {
   return (
     '<div class="customer-detail-panel" data-customer-id="' + c.id + '">' +
       '<table class="table table-sm mb-0 customer-detail-table"><tbody>' +
@@ -1204,7 +1882,7 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
           '<th class="text-muted" style="width:72px">手機號碼</th>' +
           '<td>' +
             '<div class="phone-wrap d-flex align-items-center gap-1">' +
-              '<span class="phone-display">' + phoneDisplay + '</span>' +
+              buildPhoneDisplayHtml(c.phone) +
               '<button class="btn btn-link btn-sm p-0 phone-edit-btn" title="編輯手機">' + EDIT_BTN_ICON + '</button>' +
             '</div>' +
           '</td>' +
@@ -1213,7 +1891,7 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
           '<th class="text-muted">電子信箱</th>' +
           '<td>' +
             '<div class="email-wrap d-flex align-items-center gap-1">' +
-              '<span class="email-display">' + emailDisplay + '</span>' +
+              buildEmailDisplayHtml(c.email) +
               '<button class="btn btn-link btn-sm p-0 email-edit-btn" title="編輯 Email">' + EDIT_BTN_ICON + '</button>' +
             '</div>' +
           '</td>' +
@@ -1241,7 +1919,7 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
           '</td>' +
         '</tr>' +
         '<tr>' +
-          '<th class="text-muted">點數</th>' +
+          '<th class="text-muted">點數餘額</th>' +
           '<td>' +
             '<div class="points-wrap d-flex align-items-center gap-1">' +
               '<span class="points-display">' + (c.points || 0) + '</span>' +
@@ -1250,6 +1928,7 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
           '</td>' +
         '</tr>' +
         buildTagsRowHtml(c.id, tagsHtml) +
+        buildShippingAddressRowHtml(shippingAddressHtml) +
       '</tbody></table>' +
       '<div class="customer-edit-actions d-none d-flex gap-2 justify-content-end border-top pt-3">' +
         '<button type="button" class="btn btn-sm btn-outline-secondary customer-edit-cancel-all-btn">' +
@@ -1261,6 +1940,8 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
       '</div>' +
       '<p class="mb-1 mt-3 fw-semibold small text-muted">購買記錄</p>' +
       '<ul class="list-group list-group-flush mb-0">' + ordersHtml + '</ul>' +
+      '<p class="mb-1 mt-3 fw-semibold small text-muted">租借紀錄</p>' +
+      '<ul class="list-group list-group-flush mb-0">' + rentalsHtml + '</ul>' +
     '</div>'
   );
 }
@@ -1361,7 +2042,7 @@ function renderCustomersList(customers) {
       ? '<i class="fas fa-inbox me-2"></i>沒有符合條件的會員'
       : '目前沒有客戶資料';
     $('#customersTableBody').html(
-      '<tr><td colspan="8" class="text-center text-muted py-4">' + emptyMsg + '</td></tr>'
+      '<tr><td colspan="9" class="text-center text-muted py-4">' + emptyMsg + '</td></tr>'
     );
     $('#customersCardList').html(
       '<div class="text-center text-muted py-4">' + emptyMsg + '</div>'
@@ -1378,6 +2059,7 @@ function renderCustomersList(customers) {
     var phoneDisplay     = formatPhoneDisplay(c.phone);
     var tierDisplay      = c.tier || '一般';
     var spentDisplay     = 'NT$ ' + c.totalSpent.toLocaleString();
+    var pointsDisplay    = (c.points || 0).toLocaleString();
     var emailDisplay      = c.email || '—';
     var birthdayDisplay   = formatDateDisplay(c.birthday);
     var registeredDisplay = formatDateDisplay(c.registeredAt);
@@ -1391,12 +2073,25 @@ function renderCustomersList(customers) {
             '<i class="fas fa-receipt me-2 text-muted"></i>' +
             '<span class="admin-cell-link customer-order-link" ' +
             'data-order-id="' + orderId + '" ' +
-            'title="點擊查看訂單明細">' + orderId + '</span></li>';
+            'title="點擊查看訂單明細">' + window.formatOrderId(orderId) + '</span></li>';
         }).join('')
       : '<li class="list-group-item text-muted small">無購買記錄</li>';
 
+    var rentalsHtml = (c.rentals && c.rentals.length > 0)
+      ? c.rentals.map(function (bookingId) {
+          return '<li class="list-group-item list-group-item-action py-1 small">' +
+            '<i class="fas fa-campground me-2 text-muted"></i>' +
+            '<span class="admin-cell-link customer-rental-link" ' +
+            'data-booking-id="' + bookingId + '" ' +
+            'title="點擊查看租借明細">' + window.formatBookingId(bookingId) + '</span></li>';
+        }).join('')
+      : '<li class="list-group-item text-muted small">無租借紀錄</li>';
+
+    var shippingAddressHtml = formatShippingAddressDisplay(c.shippingAddress);
+
     var detailHtml = buildDetailPanelHtml(
-      c, phoneDisplay, emailDisplay, birthdayDisplay, registeredDisplay, tierDisplay, tagsHtml, ordersHtml
+      c, phoneDisplay, emailDisplay, birthdayDisplay, registeredDisplay,
+      tierDisplay, tagsHtml, shippingAddressHtml, ordersHtml, rentalsHtml
     );
 
     // 桌面：摘要列 + 展開列
@@ -1410,13 +2105,14 @@ function renderCustomersList(customers) {
         '<td class="cell-registered">' + registeredDisplay + '</td>' +
         '<td class="cell-tier">' + tierDisplay + '</td>' +
         '<td class="cell-spent admin-cell-amount">' + spentDisplay + '</td>' +
+        '<td class="cell-points admin-cell-amount">' + pointsDisplay + '</td>' +
         '<td class="cell-tags">' + tagsHtml + '</td>' +
         '<td class="cell-expand text-center text-muted">' +
           '<i class="fas fa-chevron-down customer-row-chevron" aria-hidden="true"></i>' +
         '</td>' +
       '</tr>' +
       '<tr class="customer-detail-row">' +
-        '<td colspan="8" class="p-0">' +
+        '<td colspan="9" class="p-0">' +
           '<div id="' + collapseId + '" class="collapse">' + detailHtml + '</div>' +
         '</td>' +
       '</tr>';
@@ -1451,6 +2147,10 @@ function renderCustomersList(customers) {
           '<div class="card-field card-field-spent">' +
             '<div class="card-label">消費總額</div>' +
             '<div class="card-value admin-cell-amount">' + spentDisplay + '</div>' +
+          '</div>' +
+          '<div class="card-field card-field-points">' +
+            '<div class="card-label">點數餘額</div>' +
+            '<div class="card-value">' + pointsDisplay + '</div>' +
           '</div>' +
           '<div class="card-field card-field-tags">' +
             '<div class="card-label">標籤</div>' +

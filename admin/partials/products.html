@@ -2,6 +2,7 @@
      商品與庫存管理頁面
      由 core.js 的 $.load() 注入到 #contentArea
      表格數據由 products.js 的 $.getJSON() 動態產生
+     分類欄多選篩選由 products.js 驅動（參考 customers 會員等級）
 -->
 
 <div class="card shadow-sm border-0" id="productsModuleCard">
@@ -28,8 +29,14 @@
       </button>
     </div>
 
-    <!-- 右側按鈕群組：產生異動紀錄 | 設定最低庫存 | 新增商品 -->
+    <!-- 右側按鈕群組：清除篩選 | 產生異動紀錄 | 設定最低庫存 | 新增商品 -->
     <div class="d-flex flex-row flex-wrap align-items-center gap-2">
+      <!-- 有分類篩選時才顯示，由 products.js 控制 -->
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary d-none"
+              id="btnClearProductFilters">
+        <i class="fas fa-rotate-left me-1"></i>清除篩選
+      </button>
       <!-- 產生異動紀錄：有待確認的庫存異動後才啟用，由 products.js 控制 disabled 狀態 -->
       <button type="button"
               class="btn btn-sm btn-outline-success"
@@ -60,11 +67,24 @@
       <table class="table table-hover mb-0 admin-data-table product-table-fixed" id="productsTable">
         <thead class="table-light">
           <tr>
-            <!-- 固定欄位（sticky）：圖片、名稱、分類、操作、總庫存（唯讀，自動計算）-->
+            <!-- 固定欄位（sticky）：圖片、名稱、分類、總庫存（唯讀，自動計算）-->
             <th class="sticky-col sticky-col-img">圖片</th>
             <th class="sticky-col sticky-col-name">商品名稱</th>
-            <th class="sticky-col sticky-col-category">分類</th>
-            <th class="sticky-col sticky-col-action">操作</th>
+            <!-- 分類：多選篩選（欄內 OR，商店 / 租借共用 productFilterState） -->
+            <th class="sticky-col sticky-col-category filter-th" data-filter-key="category">
+              分類
+              <i class="fas fa-filter filter-icon ms-1"></i>
+              <span class="filter-dot d-none"></span>
+              <div class="filter-dropdown d-none">
+                <label><input type="checkbox" value="帳篷"> 帳篷</label>
+                <label><input type="checkbox" value="睡袋"> 睡袋</label>
+                <label><input type="checkbox" value="炊具"> 炊具</label>
+                <label><input type="checkbox" value="燈具"> 燈具</label>
+                <label><input type="checkbox" value="背包"> 背包</label>
+                <label><input type="checkbox" value="配件"> 配件</label>
+                <label><input type="checkbox" value="其他"> 其他</label>
+              </div>
+            </th>
             <th class="sticky-col sticky-col-total-stock">總庫存量</th>
             <!-- 可水平捲動欄位：商店主倉 + 各分店庫存（明確指定欄寬）-->
             <th class="scrollable-stock-col">商店主倉</th>
@@ -72,15 +92,14 @@
             <th class="scrollable-stock-col">分店 B</th>
             <th class="scrollable-stock-col">分店 C</th>
             <!-- 最後一欄：右側 sticky，整列庫存編輯入口（鉛筆 / 勾 / X）-->
-            <th class="sticky-col sticky-col-right sticky-col-stock-edit">修改庫存數量</th>
+            <th class="sticky-col sticky-col-right sticky-col-stock-edit">修改</th>
           </tr>
         </thead>
-        <!-- tbody 由 products.js 的 renderProductsTable() 動態填入 -->
-        <!-- 總庫存量 < 5 的列：JS 會自動加上 table-danger class（淡紅底色） -->
-        <!-- colspan=10：圖片、名稱、分類、操作、總庫存(唯讀)、主倉、分店A、分店B、分店C、修改庫存數量 -->
+        <!-- tbody 由 products.js 的 renderProductsTable() 動態填入；不足格庫存數字顯示紅色 -->
+        <!-- colspan=9：圖片、名稱、分類、總庫存(唯讀)、主倉、分店A、分店B、分店C、修改庫存數量 -->
         <tbody id="productsTableBody">
           <tr>
-            <td colspan="10" class="text-center py-4">
+            <td colspan="9" class="text-center py-4">
               <div class="spinner-border spinner-border-sm me-2"
                    style="color: var(--admin-brand-accent);"></div>
               <span class="text-muted">載入商品中...</span>
@@ -101,7 +120,21 @@
             <!-- 固定欄位（sticky）：圖片、名稱、分類、操作、總租借庫存（唯讀，自動計算）-->
             <th class="sticky-col sticky-col-img">圖片</th>
             <th class="sticky-col sticky-col-name">商品名稱</th>
-            <th class="sticky-col sticky-col-category">分類</th>
+            <!-- 分類：多選篩選（與商店表共用 productFilterState） -->
+            <th class="sticky-col sticky-col-category filter-th" data-filter-key="category">
+              分類
+              <i class="fas fa-filter filter-icon ms-1"></i>
+              <span class="filter-dot d-none"></span>
+              <div class="filter-dropdown d-none">
+                <label><input type="checkbox" value="帳篷"> 帳篷</label>
+                <label><input type="checkbox" value="睡袋"> 睡袋</label>
+                <label><input type="checkbox" value="炊具"> 炊具</label>
+                <label><input type="checkbox" value="燈具"> 燈具</label>
+                <label><input type="checkbox" value="背包"> 背包</label>
+                <label><input type="checkbox" value="配件"> 配件</label>
+                <label><input type="checkbox" value="其他"> 其他</label>
+              </div>
+            </th>
             <th class="sticky-col sticky-col-action">操作</th>
             <th class="sticky-col sticky-col-total-stock">總租借庫存</th>
             <!-- 可水平捲動欄位：租借主倉 + 各營區庫存（明確指定欄寬）/ scrollable camp columns -->
@@ -112,7 +145,7 @@
             <th class="scrollable-stock-col">雲海高原</th>
             <th class="scrollable-stock-col">海岸微風</th>
             <!-- 最後一欄：右側 sticky，整列庫存編輯入口（鉛筆 / 勾 / X）-->
-            <th class="sticky-col sticky-col-right sticky-col-stock-edit">修改庫存數量</th>
+            <th class="sticky-col sticky-col-right sticky-col-stock-edit">修改</th>
           </tr>
         </thead>
         <!-- colspan=12：圖片、名稱、分類、操作、總租借庫存(唯讀)、主倉、五營區、修改庫存數量 -->

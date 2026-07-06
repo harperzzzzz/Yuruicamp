@@ -66,8 +66,22 @@
               訂單金額 <i class="fas fa-sort sort-icon ms-1"></i>
             </th>
 
-            <!-- 營區：不排序 -->
-            <th>營區</th>
+            <!-- 營區：多選篩選欄位（比照地區） -->
+            <th class="filter-th" data-filter-key="campground">
+              營區
+              <i class="fas fa-filter filter-icon ms-1"></i>
+              <span class="filter-dot d-none"></span>
+              <div class="filter-dropdown d-none">
+                <label><input type="checkbox" value="雲海仙境露營區"> 雲海仙境露營區</label>
+                <label><input type="checkbox" value="溪谷秘境野營地"> 溪谷秘境野營地</label>
+                <label><input type="checkbox" value="太平山森林豪華露營"> 太平山森林豪華露營</label>
+                <label><input type="checkbox" value="南台灣星空草原營地"> 南台灣星空草原營地</label>
+                <label><input type="checkbox" value="阿里山雲霧繚繞營地"> 阿里山雲霧繚繞營地</label>
+                <label><input type="checkbox" value="花蓮海岸風露營區"> 花蓮海岸風露營區</label>
+                <label><input type="checkbox" value="宜蘭礁溪湯泉露營"> 宜蘭礁溪湯泉露營</label>
+                <label><input type="checkbox" value="台中武陵溪流野營"> 台中武陵溪流野營</label>
+              </div>
+            </th>
 
             <!-- 含租借：多選篩選欄位
                  .filter-th = 相對定位基準（供 Dropdown 絕對定位）
