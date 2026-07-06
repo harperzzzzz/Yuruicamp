@@ -1197,6 +1197,257 @@ main {
     font-size: 0.7rem;
   }
 }
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--yc-z-modal);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--yc-space-4);
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.modal.isOpen {
+  display: flex;
+}
+
+.modalContent {
+  width: min(440px, 100vw - 32px);
+  max-height: calc(100vh - 32px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  box-shadow: var(--yc-shadow-hover);
+}
+
+.modalHeader {
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--yc-space-3);
+  padding: var(--yc-space-4);
+  border-bottom: 1px solid var(--yc-border);
+}
+
+.modalTitle {
+  margin: 0;
+  color: var(--yc-sage-action);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.modalBody {
+  overflow: auto;
+  padding: var(--yc-space-4);
+}
+
+.modalClose {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  cursor: pointer;
+}
+
+.modalClose:hover {
+  background: var(--yc-sage-soft);
+}
+
+.modalClose:focus-visible {
+  outline: 3px solid rgba(36, 77, 77, 0.35);
+  outline-offset: 2px;
+}
+
+@media (width <= 480px) {
+  .modal {
+    padding: var(--yc-space-3);
+  }
+  .modalContent {
+    width: min(100%, 100vw - 24px);
+    max-height: calc(100vh - 24px);
+  }
+}
+.sharedAuthContent {
+  width: min(440px, 100vw - 32px);
+}
+
+#loginModal {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
+  z-index: var(--yc-z-sticky);
+}
+
+#loginModal .sharedAuthContent {
+  width: min(420px, 100vw);
+  max-height: 100dvh;
+  min-height: 100dvh;
+  border-block: 0;
+  border-inline-end: 0;
+  border-radius: var(--yc-radius-button) 0 0 var(--yc-radius-button);
+  transform: translateX(100%);
+  animation: login-modal-slide-in var(--yc-transition-base) forwards;
+}
+
+.sharedSurveyContent {
+  width: min(640px, 100vw - 32px);
+}
+
+.sharedAuthBody {
+  display: grid;
+  gap: var(--yc-space-4);
+}
+
+#loginModal .modalTabPanel.isOpen {
+  display: grid;
+  gap: var(--yc-space-3);
+}
+
+.authProviderButton {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--yc-space-2);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button);
+  background: var(--yc-surface);
+  color: var(--yc-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.authProviderButton:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.btnFacebookLogin {
+  background: var(--yc-brand-facebook);
+  color: var(--yc-brand-on-color);
+}
+
+.btnLineLogin {
+  background: var(--yc-brand-line);
+  color: var(--yc-brand-on-color);
+}
+
+.oauthPrivacy,
+.surveyHint,
+.modalConfirmMessage {
+  color: var(--yc-text-muted);
+  line-height: 1.7;
+}
+
+.oauthDesc {
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.oauthPrivacy {
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.surveyStep {
+  display: none;
+}
+
+.surveyStep.isOpen {
+  display: grid;
+  gap: var(--yc-space-4);
+}
+
+.surveyTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yc-space-2);
+}
+
+.surveyTag {
+  min-height: 40px;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill);
+  background: var(--yc-surface);
+  color: var(--yc-text);
+  padding: 0 var(--yc-space-4);
+  cursor: pointer;
+}
+
+.surveyTag.isSelected {
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+}
+
+.stepperHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--yc-space-2);
+}
+
+.stepperDot {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-pill);
+  color: var(--yc-text-muted);
+  font-weight: 800;
+}
+
+.stepperDot.isSelected {
+  background: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+}
+
+.stepperLine {
+  width: 48px;
+  height: 1px;
+  background: var(--yc-border);
+}
+
+.sharedConfirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--yc-space-3);
+  padding: 0 var(--yc-space-4) var(--yc-space-4);
+}
+
+@keyframes login-modal-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (width <= 480px) {
+  #loginModal .sharedAuthContent {
+    width: 100vw;
+    border-radius: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loginModal .sharedAuthContent {
+    animation-duration: 0.01ms;
+  }
+}
 .floatingActions {
   position: fixed;
   right: var(--yc-space-6);
@@ -1247,7 +1498,7 @@ main {
 
 .floatingTopBtn:hover,
 .floatingTopBtn:focus-visible {
-  background-color: var(--yc-cta);
+  background-color: var(--yc-cta-hover);
   transform: translateY(-2px) scale(1);
 }
 
@@ -1765,248 +2016,54 @@ main {
   color: var(--yc-text-muted);
 }
 
-/* Booking Auth Modal：booking header 注入的登入與個人化偏好 Modal。 */
-.bookingAuthModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 3100;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
+/* Booking Auth Modal：只保留 booking 登入 Modal 差異；偏好問卷與關閉確認視窗使用主站共用樣式。 */
+.bookingLoginModal {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
 }
 
-.bookingAuthModal.isOpen {
-  display: flex;
-}
-
-.bookingAuthModalContent {
-  display: flex;
-  flex-direction: column;
-  width: min(480px, 100vw - 2rem);
-  max-height: calc(100vh - 2rem);
-  overflow: hidden;
-  background: var(--yc-surface);
-  border-radius: 8px;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
-}
-
+/* Booking 登入面板：維持右側抽屜式登入體驗，不影響 #personalizationModal 與 #surveyCloseConfirmModal。 */
 .bookingLoginModal .bookingAuthModalContent {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 420px;
-  max-width: 92vw;
-  height: 100vh;
-  max-height: 100vh;
-  border-radius: 0;
-  transform: translateX(100%);
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  width: min(420px, 100vw);
+  max-height: 100dvh;
+  min-height: 100dvh;
+  border-block: 0;
+  border-inline-end: 0;
+  border-radius: var(--yc-radius-button) 0 0 var(--yc-radius-button);
 }
 
-.bookingLoginModal.isOpen .bookingAuthModalContent {
-  transform: translateX(0);
-}
-
-.bookingAuthModalHeader {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--yc-border);
-}
-
-.bookingAuthModalTitle {
-  margin: 0;
-  color: var(--yc-sage-action);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.bookingAuthModalClose {
-  padding: 0.35rem 0.5rem;
-  color: var(--yc-text-muted);
-  font-size: 1.15rem;
-  line-height: 1;
-  background: none;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.bookingAuthModalClose:hover {
-  background: rgba(115, 129, 110, 0.1);
-  color: var(--yc-sage-action);
-}
-
-.bookingAuthModalBody {
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-.bookingAuthProviderGoogle,
-.bookingAuthProviderFacebook,
-.bookingAuthProviderLine {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-  margin-bottom: 0.75rem;
-  padding: 0.75rem 1rem;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: opacity 0.2s, transform 0.15s;
-}
-
-.bookingAuthProviderGoogle:hover,
-.bookingAuthProviderFacebook:hover,
-.bookingAuthProviderLine:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-/* OAuth 品牌色：Google、Facebook、LINE 使用外部品牌識別色，不併入 booking 設計 token。 */
-.bookingAuthProviderGoogle {
+/* Booking OAuth 品牌補強：Google、Facebook、LINE 使用外部品牌識別色，不併入設計 token 系統。 */
+.bookingLoginModal .bookingAuthProviderGoogle {
   background: var(--yc-brand-google-surface);
-  border: 1.5px solid var(--yc-brand-google-border);
+  border-color: var(--yc-brand-google-border);
   color: var(--yc-brand-google-text);
 }
 
-.bookingAuthProviderFacebook {
+.bookingLoginModal .bookingAuthProviderFacebook {
   background: var(--yc-brand-facebook);
+  border-color: var(--yc-brand-facebook);
   color: var(--yc-brand-on-color);
 }
 
-.bookingAuthProviderLine {
+.bookingLoginModal .bookingAuthProviderLine {
   background: var(--yc-brand-line);
+  border-color: var(--yc-brand-line);
   color: var(--yc-brand-on-color);
 }
 
-.bookingAuthOauthDesc,
-.bookingAuthOauthPrivacy {
-  color: var(--yc-text-muted);
-  text-align: center;
-}
-
-.bookingAuthOauthDesc {
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.bookingAuthOauthPrivacy {
-  margin-top: 1.25rem;
-  font-size: 0.72rem;
-  line-height: 1.6;
-}
-
-.bookingAuthOauthPrivacy a {
+.bookingLoginModal .bookingAuthOauthPrivacy a {
   color: var(--yc-sage-action);
   text-decoration: underline;
 }
 
-.bookingAuthStepperHeader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+@media (width <= 480px) {
+  /* 手機 booking 登入 Modal：沿用主站滿版登入體驗，避免 375px 產生水平捲動。 */
+  .bookingLoginModal .bookingAuthModalContent {
+    width: 100vw;
+    border-radius: 0;
+  }
 }
-
-.bookingAuthStepperDot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  color: var(--yc-text-muted);
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: var(--yc-surface-soft);
-  border: 1px solid var(--yc-border);
-  border-radius: 50%;
-}
-
-.bookingAuthStepperDot.isSelected {
-  background: var(--yc-sage-action);
-  border-color: var(--yc-sage-action);
-  color: var(--yc-on-dark);
-}
-
-.bookingAuthStepperLine {
-  flex: 1;
-  max-width: 64px;
-  height: 2px;
-  background: var(--yc-border);
-}
-
-.bookingAuthStepperText {
-  color: var(--yc-text-muted);
-  font-size: 0.875rem;
-}
-
-.bookingAuthSurveyStep {
-  display: none;
-}
-
-.bookingAuthSurveyStep.isOpen {
-  display: block;
-}
-
-.bookingAuthSurveyQuestion {
-  margin: 0 0 0.5rem;
-  color: var(--yc-sage-action);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.bookingAuthSurveyHint {
-  margin: 0 0 1.25rem;
-  color: var(--yc-text-muted);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-.bookingAuthSurveyTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.bookingAuthSurveyTag {
-  padding: 0.42rem 0.85rem;
-  color: var(--yc-text);
-  font-size: 0.875rem;
-  border: 1.5px solid var(--yc-border);
-  border-radius: 999px;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.bookingAuthSurveyTag:hover {
-  border-color: var(--yc-sage-action);
-  color: var(--yc-sage-action);
-}
-
-.bookingAuthSurveyTag.isSelected {
-  background: var(--yc-sage-action);
-  border-color: var(--yc-sage-action);
-  color: var(--yc-on-dark);
-}
-
-.bookingSurveyNextButton,
-.bookingSurveyFinishButton {
-  width: 100%;
-}
-
 /* Booking Drawer：載入主站抽屜、導覽與購物面板共用互動骨架。 */
 .siteOffcanvas,
 .siteCartDrawer,

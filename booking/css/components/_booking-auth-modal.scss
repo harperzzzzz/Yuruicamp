@@ -1,246 +1,48 @@
-/* Booking Auth Modal：booking header 注入的登入與個人化偏好 Modal。 */
-.bookingAuthModal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: var(--yc-z-modal);
-  align-items: center;
-  justify-content: center;
-  background: rgb(0 0 0 / 45%);
+/* Booking Auth Modal：只保留 booking 登入 Modal 差異；偏好問卷與關閉確認視窗使用主站共用樣式。 */
+.bookingLoginModal {
+  align-items: stretch;
+  justify-content: flex-end;
+  padding: 0;
 }
 
-.bookingAuthModal.isOpen {
-  display: flex;
-}
-
-.bookingAuthModalContent {
-  display: flex;
-  flex-direction: column;
-  width: min(480px, calc(100vw - 2rem));
-  max-height: calc(100vh - 2rem);
-  overflow: hidden;
-  background: var(--yc-surface);
-  border-radius: 8px;
-  box-shadow: 0 24px 60px rgb(0 0 0 / 22%);
-}
-
+/* Booking 登入面板：維持右側抽屜式登入體驗，不影響 #personalizationModal 與 #surveyCloseConfirmModal。 */
 .bookingLoginModal .bookingAuthModalContent {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 420px;
-  max-width: 92vw;
-  height: 100vh;
-  max-height: 100vh;
-  border-radius: 0;
-  transform: translateX(100%);
-  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  width: min(420px, 100vw);
+  max-height: 100dvh;
+  min-height: 100dvh;
+  border-block: 0;
+  border-inline-end: 0;
+  border-radius: var(--yc-radius-button) 0 0 var(--yc-radius-button);
 }
 
-.bookingLoginModal.isOpen .bookingAuthModalContent {
-  transform: translateX(0);
-}
-
-.bookingAuthModalHeader {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--yc-border);
-}
-
-.bookingAuthModalTitle {
-  margin: 0;
-  color: var(--yc-sage-action);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.bookingAuthModalClose {
-  padding: 0.35rem 0.5rem;
-  color: var(--yc-text-muted);
-  font-size: 1.15rem;
-  line-height: 1;
-  background: none;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.bookingAuthModalClose:hover {
-  background: rgb(115 129 110 / 10%);
-  color: var(--yc-sage-action);
-}
-
-.bookingAuthModalBody {
-  padding: 1.5rem;
-  overflow-y: auto;
-}
-
-.bookingAuthProviderGoogle,
-.bookingAuthProviderFacebook,
-.bookingAuthProviderLine {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  width: 100%;
-  margin-bottom: 0.75rem;
-  padding: 0.75rem 1rem;
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    opacity 0.2s,
-    transform 0.15s;
-}
-
-.bookingAuthProviderGoogle:hover,
-.bookingAuthProviderFacebook:hover,
-.bookingAuthProviderLine:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-/* OAuth 品牌色：Google、Facebook、LINE 使用外部品牌識別色，不併入 booking 設計 token。 */
-.bookingAuthProviderGoogle {
+/* Booking OAuth 品牌補強：Google、Facebook、LINE 使用外部品牌識別色，不併入設計 token 系統。 */
+.bookingLoginModal .bookingAuthProviderGoogle {
   background: var(--yc-brand-google-surface);
-  border: 1.5px solid var(--yc-brand-google-border);
+  border-color: var(--yc-brand-google-border);
   color: var(--yc-brand-google-text);
 }
 
-.bookingAuthProviderFacebook {
+.bookingLoginModal .bookingAuthProviderFacebook {
   background: var(--yc-brand-facebook);
+  border-color: var(--yc-brand-facebook);
   color: var(--yc-brand-on-color);
 }
 
-.bookingAuthProviderLine {
+.bookingLoginModal .bookingAuthProviderLine {
   background: var(--yc-brand-line);
+  border-color: var(--yc-brand-line);
   color: var(--yc-brand-on-color);
 }
 
-.bookingAuthOauthDesc,
-.bookingAuthOauthPrivacy {
-  color: var(--yc-text-muted);
-  text-align: center;
-}
-
-.bookingAuthOauthDesc {
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
-}
-
-.bookingAuthOauthPrivacy {
-  margin-top: 1.25rem;
-  font-size: 0.72rem;
-  line-height: 1.6;
-}
-
-.bookingAuthOauthPrivacy a {
+.bookingLoginModal .bookingAuthOauthPrivacy a {
   color: var(--yc-sage-action);
   text-decoration: underline;
 }
 
-.bookingAuthStepperHeader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.bookingAuthStepperDot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-  color: var(--yc-text-muted);
-  font-size: 0.875rem;
-  font-weight: 700;
-  background: var(--yc-surface-soft);
-  border: 1px solid var(--yc-border);
-  border-radius: 50%;
-}
-
-.bookingAuthStepperDot.isSelected {
-  background: var(--yc-sage-action);
-  border-color: var(--yc-sage-action);
-  color: var(--yc-on-dark);
-}
-
-.bookingAuthStepperLine {
-  flex: 1;
-  max-width: 64px;
-  height: 2px;
-  background: var(--yc-border);
-}
-
-.bookingAuthStepperText {
-  color: var(--yc-text-muted);
-  font-size: 0.875rem;
-}
-
-.bookingAuthSurveyStep {
-  display: none;
-}
-
-.bookingAuthSurveyStep.isOpen {
-  display: block;
-}
-
-.bookingAuthSurveyQuestion {
-  margin: 0 0 0.5rem;
-  color: var(--yc-sage-action);
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.bookingAuthSurveyHint {
-  margin: 0 0 1.25rem;
-  color: var(--yc-text-muted);
-  font-size: 0.82rem;
-  line-height: 1.5;
-}
-
-.bookingAuthSurveyTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.bookingAuthSurveyTag {
-  padding: 0.42rem 0.85rem;
-  color: var(--yc-text);
-  font-size: 0.875rem;
-  border: 1.5px solid var(--yc-border);
-  border-radius: 999px;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
-}
-
-.bookingAuthSurveyTag:hover {
-  border-color: var(--yc-sage-action);
-  color: var(--yc-sage-action);
-}
-
-.bookingAuthSurveyTag.isSelected {
-  background: var(--yc-sage-action);
-  border-color: var(--yc-sage-action);
-  color: var(--yc-on-dark);
-}
-
-.bookingSurveyNextButton,
-.bookingSurveyFinishButton {
-  width: 100%;
+@media (width <= 480px) {
+  /* 手機 booking 登入 Modal：沿用主站滿版登入體驗，避免 375px 產生水平捲動。 */
+  .bookingLoginModal .bookingAuthModalContent {
+    width: 100vw;
+    border-radius: 0;
+  }
 }

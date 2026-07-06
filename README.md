@@ -1,3 +1,9 @@
+## v1.3.76 - 2026/07/06
+
+- 統一主站與 booking 的 `#personalizationModal`、`#surveyCloseConfirmModal` 樣式來源，booking components 入口改載主站 `modal` 與 `auth-modal` 基底。
+- `booking/js/layout.js` 不再替偏好問卷與關閉確認視窗加入 `bookingAuth*` 視覺 class，只保留 `#loginModal` 的 booking 登入差異 class。
+- 精簡 `booking/css/components/_booking-auth-modal.scss`，移除 booking 問卷、stepper、tag 與確認視窗覆寫，讓偏好問卷與確認視窗回到主站共用樣式。
+
 ## v1.3.75 - 2026/07/06
 
 - 調整共用 `floatingLineBtn` hover 動畫：提示膠囊改從 icon 原位向左展開，符合 LINE 聯絡膠囊樣式。
