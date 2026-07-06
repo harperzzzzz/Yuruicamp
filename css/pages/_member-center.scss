@@ -303,14 +303,14 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
 }
 
 .memberTierProgress {
-  background: rgb(255 255 255 / 22%);
+  background: rgb(255 255 255 / 0.7);
   border-radius: var(--yc-radius-pill, 9999px);
   height: 10px;
   overflow: hidden;
 }
 
 .memberTierProgressBar {
-  background: $member-success;
+  background: var(--yc-success-text);
   border-radius: inherit;
   height: 100%;
   inline-size: 0%;
@@ -821,7 +821,7 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   gap: 1rem;
   justify-content: space-between;
   margin-inline: -1rem;
-  padding: 0 1rem 1rem;
+  padding: 1rem;
 }
 
 .memberDetailDate {

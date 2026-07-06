@@ -280,7 +280,7 @@ $product-rating: var(--yc-pending-line);
 .productsGrid {
   display: grid;
   gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 260px));
 }
 
 .productCard {
@@ -294,6 +294,7 @@ $product-rating: var(--yc-pending-line);
   overflow: hidden;
   position: relative;
   transition: box-shadow 250ms ease, transform 250ms ease;
+  cursor: pointer;
 }
 
 .productCard:hover {

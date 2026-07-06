@@ -5539,14 +5539,14 @@ a:focus-visible,
 }
 
 .memberTierProgress {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.7);
   border-radius: var(--yc-radius-pill, 9999px);
   height: 10px;
   overflow: hidden;
 }
 
 .memberTierProgressBar {
-  background: var(--yc-success);
+  background: var(--yc-success-text);
   border-radius: inherit;
   height: 100%;
   inline-size: 0%;
@@ -6452,7 +6452,7 @@ a:focus-visible,
   gap: 1rem;
   justify-content: space-between;
   margin-inline: -1rem;
-  padding: 0 1rem 1rem;
+  padding: 1rem;
 }
 
 .memberDetailDate {
@@ -8139,7 +8139,7 @@ main.productDetailContainer {
 .productsGrid {
   display: grid;
   gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 260px));
 }
 
 .productCard {
@@ -8153,6 +8153,7 @@ main.productDetailContainer {
   overflow: hidden;
   position: relative;
   transition: box-shadow 250ms ease, transform 250ms ease;
+  cursor: pointer;
 }
 
 .productCard:hover {
