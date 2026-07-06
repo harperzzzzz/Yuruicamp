@@ -221,7 +221,7 @@ $product-rating: var(--yc-pending-line);
   transform: translateY(-50%);
   transition: background 200ms ease, transform 200ms ease;
   width: 44px;
-  z-index: 10;
+  z-index: var(--yc-z-raised);
 }
 
 .adCarouselBtn:hover {
@@ -244,7 +244,7 @@ $product-rating: var(--yc-pending-line);
   left: 50%;
   position: absolute;
   transform: translateX(-50%);
-  z-index: 10;
+  z-index: var(--yc-z-raised);
 }
 
 .adCarouselDot {

@@ -1,95 +1,164 @@
-﻿// Floating Actions 元件：由 js/main.js 動態產生的回頂部與 LINE 客服快捷按鈕。
+// Floating Actions 元件：主站與 booking 共用的回頂部與 LINE 聯絡快捷操作。
 
-// 浮動動作容器：固定在視窗右下角，讓兩個快捷按鈕垂直排列。
-.floating-actions {
+// 浮動動作容器：固定於視窗右下角，讓跨頁快捷按鈕維持一致位置與堆疊順序。
+.floatingActions {
   position: fixed;
-  right: var(--yc-space-4);
-  bottom: var(--yc-space-4);
+  right: var(--yc-space-6);
+  bottom: var(--yc-space-8);
   z-index: var(--yc-z-toast);
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   gap: var(--yc-space-3);
-  justify-items: end;
 }
 
-// 浮動按鈕基底：回頂部與 LINE 按鈕共用尺寸、圓角與互動轉場。
-.floating-top-btn,
+// 浮動按鈕基底：回頂部與 LINE 按鈕共用尺寸、圓角、陰影與鍵盤操作狀態。
+.floatingTopBtn,
 .floatingLineBtn {
-  width: 48px;
-  height: 48px;
+  width: 60px;
+  height: 60px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid transparent;
+  border: 0;
   border-radius: var(--yc-radius-pill);
-  color: var(--yc-surface-soft);
   box-shadow: var(--yc-shadow-soft);
+  color: var(--yc-on-dark);
   cursor: pointer;
   text-decoration: none;
   transition:
-    transform var(--yc-transition-fast),
+    background-color var(--yc-transition-fast),
     box-shadow var(--yc-transition-fast),
-    filter var(--yc-transition-fast);
+    opacity var(--yc-transition-fast),
+    transform var(--yc-transition-fast),
+    visibility var(--yc-transition-fast);
 }
 
-.floating-top-btn i,
+.floatingTopBtn i,
 .floatingLineBtn i {
-  font-size: 1.25rem;
+  font-size: 1.45rem;
   line-height: 1;
 }
 
-// 回頂部按鈕：預設隱藏，捲動後由 JS 加上 is-visible 顯示。
-.floating-top-btn {
-  background: var(--yc-warning);
+// Back To Top：預設隱藏，由 JS 加上 isVisible 後淡入並允許點擊。
+.floatingTopBtn {
+  background-color: var(--yc-cta);
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);
+  transform: translateY(10px) scale(0.92);
+  visibility: hidden;
 }
 
-.floating-top-btn.is-visible {
+.floatingTopBtn.isVisible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
+  visibility: visible;
 }
 
-// LINE 客服按鈕：保留品牌成功色，文字使用視覺隱藏方式輔助螢幕閱讀器。
+.floatingTopBtn:hover, 
+.floatingTopBtn:focus-visible {
+  background-color: var(--yc-cta-hover);
+  transform: translateY(-2px) scale(1);
+}
+
+// LINE 聯絡按鈕：按鈕本體固定尺寸，提示膠囊用絕對定位展開，讓 icon 保持原地不位移。
 .floatingLineBtn {
-  background: var(--yc-brand-line);
-  will-change: transform;
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  background-color: var(--yc-brand-line);
 }
 
-.floating-line-label {
+.floatingLineBtn:hover,
+.floatingLineBtn:focus-visible {
+  background-color: var(--yc-brand-line);
+}
+
+.floatingLineLabel {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  width: 230px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 78px 0 var(--yc-space-6);
   overflow: hidden;
-  clip: rect(0 0 0 0);
+  border-radius: var(--yc-radius-pill);
+  background-color: var(--yc-brand-line);
+  color: var(--yc-on-dark);
+  clip-path: inset(0 0 0 calc(100% - 60px));
+  font-size: var(--yc-text-lg);
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(8px);
+  transition:
+    clip-path var(--yc-transition-base),
+    opacity var(--yc-transition-fast),
+    transform var(--yc-transition-fast);
   white-space: nowrap;
 }
 
-// 浮動按鈕互動狀態：hover 加深陰影，focus 顯示鍵盤導覽外框。
-.floating-top-btn:hover,
+.floatingLineBtn:hover .floatingLineLabel,
+.floatingLineBtn:focus-visible .floatingLineLabel {
+  clip-path: inset(0);
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.floatingLineIcon {
+  position: relative;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// 浮動按鈕互動狀態：hover 加深陰影，focus-visible 使用既有 focus ring token。
+.floatingTopBtn:hover,
 .floatingLineBtn:hover {
-  color: var(--yc-surface-soft);
-  filter: brightness(1.06);
   box-shadow: var(--yc-shadow-hover);
 }
 
-.floating-top-btn:focus-visible,
+.floatingTopBtn:focus-visible,
 .floatingLineBtn:focus-visible {
-  outline: 3px solid rgb(36 77 77 / 35%);
-  outline-offset: 3px;
+  outline: 0;
+  box-shadow: var(--yc-shadow-hover), var(--yc-focus-ring-strong);
 }
 
 @media (width <= 480px) {
-  .floating-actions {
+  .floatingActions {
     right: var(--yc-space-3);
     bottom: var(--yc-space-3);
+  }
+
+  .floatingTopBtn,
+  .floatingLineBtn,
+  .floatingLineIcon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .floatingLineLabel {
+    width: 190px;
+    height: 52px;
+    padding-right: 66px;
+    padding-left: var(--yc-space-4);
+    clip-path: inset(0 0 0 calc(100% - 52px));
+    font-size: var(--yc-text-md);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .floating-top-btn,
-  .floatingLineBtn {
+  .floatingTopBtn,
+  .floatingLineBtn,
+  .floatingLineLabel {
     transition-duration: 0.01ms;
   }
 }

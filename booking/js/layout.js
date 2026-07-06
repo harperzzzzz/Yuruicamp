@@ -23,7 +23,7 @@ function initFloatingActions() {
       aria-label="LINE 聯絡"
       title="LINE 聯絡"
     >
-      <span class="floatingLineLabel">LINE 聯絡</span>
+      <span class="floatingLineLabel">LINE 客服</span>
       <span class="floatingLineIcon" aria-hidden="true">
         <i class="bi bi-chat-dots-fill"></i>
       </span>

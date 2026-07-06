@@ -1197,123 +1197,152 @@ main {
     font-size: 0.7rem;
   }
 }
-/* Floating Actions：booking layout.js 注入的跨頁懸浮操作元件。 */
 .floatingActions {
   position: fixed;
-  right: 28px;
-  bottom: 34px;
-  z-index: 1200;
+  right: var(--yc-space-6);
+  bottom: var(--yc-space-8);
+  z-index: var(--yc-z-toast);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 14px;
+  gap: var(--yc-space-3);
 }
 
-/* LINE 聯絡按鈕：使用 contact action token，hover 時展開文字標籤。 */
+.floatingTopBtn,
 .floatingLineBtn {
   width: 60px;
   height: 60px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
-  overflow: hidden;
-  border-radius: var(--yc-radius-pill);
-  background-color: var(--yc-floating-line);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
-  color: var(--yc-on-dark);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: width 0.35s ease, padding 0.35s ease, background-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
-}
-
-.floatingLineBtn:hover,
-.floatingLineBtn:focus-visible {
-  width: 230px;
-  justify-content: flex-start;
-  padding-right: 10px;
-  padding-left: 18px;
-  background-color: var(--yc-floating-line-hover);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
-  color: var(--yc-on-dark);
-  transform: translateY(-2px);
-}
-
-.floatingLineLabel {
-  max-width: 0;
-  margin-right: 0;
-  overflow: hidden;
-  color: var(--yc-on-dark);
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  line-height: 1;
-  opacity: 0;
-  transition: max-width 0.35s ease, opacity 0.25s ease, margin-right 0.35s ease;
-}
-
-.floatingLineBtn:hover .floatingLineLabel,
-.floatingLineBtn:focus-visible .floatingLineLabel {
-  max-width: 150px;
-  margin-right: 10px;
-  opacity: 1;
-}
-
-.floatingLineIcon {
-  flex: 0 0 60px;
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.floatingLineIcon i {
-  width: auto;
-  height: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.55rem;
-  line-height: 1;
-}
-
-/* Back To Top：預設隱藏，由 JS 加上 isVisible 後淡入。 */
-.floatingTopBtn {
-  width: 60px;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: 0;
   border-radius: var(--yc-radius-pill);
-  background-color: var(--yc-sage-action);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--yc-shadow-soft);
   color: var(--yc-on-dark);
   cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--yc-transition-fast), box-shadow var(--yc-transition-fast), opacity var(--yc-transition-fast), transform var(--yc-transition-fast), visibility var(--yc-transition-fast);
+}
+
+.floatingTopBtn i,
+.floatingLineBtn i {
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.floatingTopBtn {
+  background-color: var(--yc-cta);
   opacity: 0;
+  pointer-events: none;
   transform: translateY(10px) scale(0.92);
-  transition: opacity 0.35s ease, visibility 0.35s ease, transform 0.35s ease, background-color 0.35s ease;
   visibility: hidden;
 }
 
 .floatingTopBtn.isVisible {
   opacity: 1;
+  pointer-events: auto;
   transform: translateY(0) scale(1);
   visibility: visible;
 }
 
 .floatingTopBtn:hover,
 .floatingTopBtn:focus-visible {
-  background-color: var(--yc-sage-dark);
+  background-color: var(--yc-cta);
   transform: translateY(-2px) scale(1);
 }
 
-.floatingTopBtn i {
-  font-size: 1.45rem;
-  line-height: 1;
+.floatingLineBtn {
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  background-color: var(--yc-brand-line);
 }
 
+.floatingLineBtn:hover,
+.floatingLineBtn:focus-visible {
+  background-color: var(--yc-brand-line);
+}
+
+.floatingLineLabel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 0;
+  width: 230px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  padding: 0 78px 0 var(--yc-space-6);
+  overflow: hidden;
+  border-radius: var(--yc-radius-pill);
+  background-color: var(--yc-brand-line);
+  color: var(--yc-on-dark);
+  clip-path: inset(0 0 0 calc(100% - 60px));
+  font-size: var(--yc-text-lg);
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(8px);
+  transition: clip-path var(--yc-transition-base), opacity var(--yc-transition-fast), transform var(--yc-transition-fast);
+  white-space: nowrap;
+}
+
+.floatingLineBtn:hover .floatingLineLabel,
+.floatingLineBtn:focus-visible .floatingLineLabel {
+  clip-path: inset(0);
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.floatingLineIcon {
+  position: relative;
+  z-index: 1;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floatingTopBtn:hover,
+.floatingLineBtn:hover {
+  box-shadow: var(--yc-shadow-hover);
+}
+
+.floatingTopBtn:focus-visible,
+.floatingLineBtn:focus-visible {
+  outline: 0;
+  box-shadow: var(--yc-shadow-hover), var(--yc-focus-ring-strong);
+}
+
+@media (width <= 480px) {
+  .floatingActions {
+    right: var(--yc-space-3);
+    bottom: var(--yc-space-3);
+  }
+  .floatingTopBtn,
+  .floatingLineBtn,
+  .floatingLineIcon {
+    width: 52px;
+    height: 52px;
+  }
+  .floatingLineLabel {
+    width: 190px;
+    height: 52px;
+    padding-right: 66px;
+    padding-left: var(--yc-space-4);
+    clip-path: inset(0 0 0 calc(100% - 52px));
+    font-size: var(--yc-text-md);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floatingTopBtn,
+  .floatingLineBtn,
+  .floatingLineLabel {
+    transition-duration: 0.01ms;
+  }
+}
 /* Booking Header：載入主站 header 共用骨架，保留 booking 內容與行為分流。 */
 #header,
 .bookingHeaderMount {

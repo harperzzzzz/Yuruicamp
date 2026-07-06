@@ -1,3 +1,15 @@
+## v1.3.75 - 2026/07/06
+
+- 調整共用 `floatingLineBtn` hover 動畫：提示膠囊改從 icon 原位向左展開，符合 LINE 聯絡膠囊樣式。
+- LINE icon 保持固定在右側原位，不再因 hover 動畫位移；提示文字以 `clip-path`、`opacity`、`transform` 顯示，避免改變 layout 寬度。
+- 主站與 booking floatingActions 的 LINE 文字、title 與 aria-label 統一為「LINE 聯絡」，並同步重新編譯主站與 booking CSS。
+
+## v1.3.74 - 2026/07/06
+
+- 統一主站與 booking 的 floatingActions 元件：主站 `js/main.js` 改輸出 `floatingActions`、`floatingTopBtn`、`floatingLineLabel`、`floatingLineIcon` 等 camelCase selector。
+- `css/components/widgets/_floating-actions.scss` 成為主站與 booking 共用的唯一 floatingActions 樣式來源，booking components 入口改為引用此 widgets partial。
+- 刪除 booking 自有 `booking/css/components/_floating-actions.scss`，並重新編譯主站與 booking CSS 輸出，讓兩邊顯示同一套回頂部與 LINE 聯絡操作。
+
 ## v1.3.73 - 2026/07/06
 
 - 調整主站共用登入 Modal 關閉防跳頂流程：`button.modalClose.sharedAuthClose` 關閉當下會重新記錄 scroll 位置，再關閉 Modal 並還原位置與觸發按鈕焦點。

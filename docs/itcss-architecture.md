@@ -53,7 +53,7 @@ Booking runtime 頁面載入編譯輸出 `booking/css/booking-main.css`。舊的
 - components (「 主站 」共用元件)
   - /widgets 資料夾 (「 全站 」共用元件)
     - `footer.scss` 頁腳樣式，套用至buyer, booking。
-    - `floating-action.scss` 套用至右下角的Line 客服、top up 按鈕。
+    - `floating-actions.scss` 套用至主站與 booking 右下角的 Line 客服、top up 按鈕。
     - `header.scss` 目前只套用buyer
   * `button.scss` 定義共用按鈕「 基本樣式 」。
   * `modal.scss` modal 「 對話窗內容 」樣式。
@@ -75,7 +75,7 @@ Booking runtime 頁面載入編譯輸出 `booking/css/booking-main.css`。舊的
 - 可跨頁重用的 UI 才放進 `components`，避免讓 components 混入單一頁面規則。
 - Booking 單頁流程 selector 需放在 `booking/css/pages/`；例如搜尋頁篩選側欄、營地詳情圖牆、結帳加購提示與裝備租借側欄不放在 `booking/css/components/`。
 - Booking objects 層目前不保留頁面 shell 或 grid；若 selector 帶有 `.searchPage`、`.detailPage`、`.rentalPage`、`.bookingCartPage` 等頁面語意，必須放回 `booking/css/pages/`。
-- Booking 跨頁懸浮操作屬於 component，維護於 `booking/css/components/_floating-actions.scss`。
+- Booking 跨頁懸浮操作屬於 component，與主站共用 `css/components/widgets/_floating-actions.scss` 作為唯一樣式來源。
 - 新增色彩、間距、圓角、陰影時，優先使用 `--yc-*` token；需要新 token 時先補在 `settings`，不再輸出 `--yui-*` 或 `--bk-*` alias。
 - 原生元素基礎樣式需放在 `css/elements/`。
 - 大量重複佈局需放在 `css/objects/`。
@@ -86,7 +86,7 @@ Booking runtime 頁面載入編譯輸出 `booking/css/booking-main.css`。舊的
 
 | 新增 selector 或規則                                      | 放置層級     | 判斷理由                                               |
 | --------------------------------------------------------- | ------------ | ------------------------------------------------------ |
-| `:root`、全站 `--yc-*` token             | `settings`   | 只提供設計設定或 runtime token，不直接描述元件外觀。   |
+| `:root`、全站 `--yc-*` token                              | `settings`   | 只提供設計設定或 runtime token，不直接描述元件外觀。   |
 | `*`、`*::before`、reset、normalize                        | `generic`    | 用來消除瀏覽器預設差異，權重應低於所有專案樣式。       |
 | `body`、`a`、`button`、`img`、`a:hover`                   | `elements`   | 直接套用原生 HTML 元素，沒有綁定 component class。     |
 | `.container`、`.stack`、`.cluster`、`.grid`               | `objects`    | 只管理寬度、排列、節奏與結構，不放品牌顏色或元件狀態。 |

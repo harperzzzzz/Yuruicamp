@@ -8,8 +8,8 @@
 @use 'booking-card';
 @use 'booking-summary';
 @use 'booking-progress';
-@use 'floating-actions';
-@use 'booking-header';
+@use '../../../css/components/widgets/floating-actions';
+@use 'booking-header'; 
 @use 'booking-auth-modal';
 @use 'booking-drawer';
 @use 'booking-footer';
