@@ -1,3 +1,9 @@
+## v1.3.71 - 2026/07/06
+
+- 修復分店頁合作夥伴 Modal 關閉時跳回頁面頂部的問題：`partnerModalClose`、背景遮罩與 Esc 關閉都會保留開啟前的 scroll 位置。
+- `js/pages/branches.js` 新增 partner modal 專用關閉流程，先攔截共用 modal 關閉事件，再呼叫 `closeModal()` 並於下一幀還原 scroll 與觸發按鈕 focus。
+- 保留既有開啟 Modal 時的防跳頂邏輯，讓開啟與關閉流程都不改變使用者原本瀏覽位置。
+
 ## v1.3.70 - 2026/07/06
 
 - 為商品詳情頁免運進度條新增動畫：註冊 `--shipping-progress-value` 為可動畫 percentage，讓深色填滿區在購物車增加、減少或清空時平滑推進 / 回退。

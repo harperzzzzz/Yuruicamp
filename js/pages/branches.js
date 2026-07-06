@@ -1,4 +1,8 @@
 const PARTNER_IMAGE_FALLBACK = 'https://picsum.photos/seed/partner-fallback/500/281';
+const PARTNER_MODAL_ID = 'partnerModal';
+
+let partnerModalScrollPosition = { x: 0, y: 0 };
+let partnerModalTrigger = null;
 
 const PARTNER_DATA = [
   {
@@ -103,7 +107,7 @@ function createBranchCard(branch, isSelected) {
   );
 
   const features = createElement('span', 'branchCardFeatures');
-  (branch.features || []).forEach(feature => {
+  (branch.features || []).forEach((feature) => {
     features.append(createElement('span', 'branchFeatureTag', feature));
   });
 
@@ -144,7 +148,7 @@ function renderBranchEmpty(container) {
 }
 
 function selectBranchCard(container, selectedCard) {
-  container.querySelectorAll('.branchCard').forEach(branchCard => {
+  container.querySelectorAll('.branchCard').forEach((branchCard) => {
     const isSelected = branchCard === selectedCard;
     branchCard.classList.toggle('isSelected', isSelected);
     branchCard.setAttribute('aria-selected', String(isSelected));
@@ -206,15 +210,19 @@ function createPartnerCard(partner, index) {
   image.src = partner.image;
   image.alt = partner.name;
   image.loading = 'lazy';
-  image.addEventListener('error', () => {
-    image.src = PARTNER_IMAGE_FALLBACK;
-  }, { once: true });
+  image.addEventListener(
+    'error',
+    () => {
+      image.src = PARTNER_IMAGE_FALLBACK;
+    },
+    { once: true }
+  );
   imageWrap.append(image);
 
   const content = createElement('span', 'partnerCardContent');
   const title = createElement('span', 'partnerCardTitle', partner.name);
   const tags = createElement('span', 'partnerTags');
-  partner.tags.forEach(tag => tags.append(createTag(tag)));
+  partner.tags.forEach((tag) => tags.append(createTag(tag)));
   const discount = createElement('span', 'partnerDiscountPreview', partner.discount);
 
   content.append(title, tags, discount);
@@ -233,9 +241,13 @@ function renderPartners() {
 function setPartnerModalImage(imageElement, partner) {
   imageElement.src = partner.image;
   imageElement.alt = partner.name;
-  imageElement.addEventListener('error', () => {
-    imageElement.src = PARTNER_IMAGE_FALLBACK;
-  }, { once: true });
+  imageElement.addEventListener(
+    'error',
+    () => {
+      imageElement.src = PARTNER_IMAGE_FALLBACK;
+    },
+    { once: true }
+  );
 }
 
 function openPartnerDetail(index) {
@@ -250,25 +262,51 @@ function openPartnerDetail(index) {
 
   if (titleElement) titleElement.textContent = partner.name;
   if (imageElement) setPartnerModalImage(imageElement, partner);
-  if (tagsElement) tagsElement.replaceChildren(...partner.tags.map(tag => createElement('span', 'partnerTag partnerModalTag', tag)));
+  if (tagsElement)
+    tagsElement.replaceChildren(
+      ...partner.tags.map((tag) => createElement('span', 'partnerTag partnerModalTag', tag))
+    );
   if (descElement) descElement.textContent = partner.desc;
   if (discountElement) discountElement.textContent = partner.discount;
 
-  window.openModal?.('partnerModal');
+  window.openModal?.(PARTNER_MODAL_ID);
 }
 
 /**
  * 開啟合作夥伴詳情並保留目前捲動位置，避免 Modal 聚焦造成頁面跳到最上方。
  * 套用元件：pages/branches.html 的 .partnerCardTrigger。
  */
-function openPartnerDetailWithoutScrollJump(index) {
-  const scrollX = window.scrollX;
-  const scrollY = window.scrollY;
+function openPartnerDetailWithoutScrollJump(index, trigger) {
+  partnerModalTrigger = trigger || document.activeElement;
+  partnerModalScrollPosition = {
+    x: window.scrollX,
+    y: window.scrollY,
+  };
 
   openPartnerDetail(index);
 
   window.requestAnimationFrame(() => {
-    window.scrollTo(scrollX, scrollY);
+    window.scrollTo(partnerModalScrollPosition.x, partnerModalScrollPosition.y);
+  });
+}
+
+/**
+ * 關閉合作夥伴詳情並還原原本捲動位置，避免 close button、背景遮罩或 Esc 把頁面帶到頂部。
+ * 套用元件：pages/branches.html 的 #partnerModal。
+ */
+function closePartnerDetailWithoutScrollJump(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  window.closeModal?.(PARTNER_MODAL_ID);
+
+  window.requestAnimationFrame(() => {
+    window.scrollTo(partnerModalScrollPosition.x, partnerModalScrollPosition.y);
+    if (partnerModalTrigger && document.contains(partnerModalTrigger)) {
+      partnerModalTrigger.focus({ preventScroll: true });
+    }
   });
 }
 
@@ -277,7 +315,7 @@ function bindBranchSelection() {
   if (!container || container.dataset.branchesBound === 'true') return;
   container.dataset.branchesBound = 'true';
 
-  container.addEventListener('click', event => {
+  container.addEventListener('click', (event) => {
     const selectedCard = event.target.closest('.branchCard');
     if (!selectedCard || !container.contains(selectedCard)) return;
     selectBranchCard(container, selectedCard);
@@ -289,12 +327,38 @@ function bindPartnerGrid() {
   if (!partnersGrid || partnersGrid.dataset.partnersBound === 'true') return;
   partnersGrid.dataset.partnersBound = 'true';
 
-  partnersGrid.addEventListener('click', event => {
+  partnersGrid.addEventListener('click', (event) => {
     const trigger = event.target.closest('.partnerCardTrigger');
     if (!trigger || !partnersGrid.contains(trigger)) return;
     event.preventDefault();
-    openPartnerDetailWithoutScrollJump(Number(trigger.dataset.partnerIndex));
+    openPartnerDetailWithoutScrollJump(Number(trigger.dataset.partnerIndex), trigger);
   });
+}
+
+function bindPartnerModalCloseWithoutScrollJump() {
+  const modal = document.getElementById(PARTNER_MODAL_ID);
+  if (!modal || modal.dataset.partnerCloseScrollBound === 'true') return;
+  modal.dataset.partnerCloseScrollBound = 'true';
+
+  modal.addEventListener(
+    'click',
+    (event) => {
+      const closeButton = event.target.closest('.partnerModalClose');
+      const isBackdropClick = event.target === modal;
+      if (!closeButton && !isBackdropClick) return;
+      closePartnerDetailWithoutScrollJump(event);
+    },
+    true
+  );
+
+  document.addEventListener(
+    'keydown',
+    (event) => {
+      if (event.key !== 'Escape' || !modal.classList.contains('isOpen')) return;
+      closePartnerDetailWithoutScrollJump(event);
+    },
+    true
+  );
 }
 
 function bindPartnerModalActions() {
@@ -302,7 +366,7 @@ function bindPartnerModalActions() {
   if (!modal || modal.dataset.partnerActionsBound === 'true') return;
   modal.dataset.partnerActionsBound = 'true';
 
-  modal.addEventListener('click', event => {
+  modal.addEventListener('click', (event) => {
     const action = event.target.closest('[data-action="use-partner-discount"]');
     if (!action || !modal.contains(action)) return;
     window.showToast?.('優惠已記錄，前往合作夥伴時出示即可。', 'success');
@@ -319,6 +383,7 @@ window.initBranchesPage = function initBranchesPage() {
 
   bindBranchSelection();
   bindPartnerGrid();
+  bindPartnerModalCloseWithoutScrollJump();
   bindPartnerModalActions();
   renderPartners();
   loadBranches();
