@@ -24,7 +24,7 @@
 
 - 使用 `--yc-*` 作為主站與 booking 的 source of truth。
 - 不輸出新的 `--bk-*` 或 `--yui-*` 相容 alias；新增或重構 SCSS 都必須直接使用 `--yc-*`。
-- CTA 使用 warm gold，但文字必須使用 `--yc-on-cta`，避免白字金底造成對比不足。
+- CTA 使用 warm gold，但文字必須使用 `--yc-on-cta`，hover 文字必須使用 `--yc-on-cta-hover`，避免白字金底造成對比不足。
 - 互動元件最小觸控高度為 `44px`。
 - Hover 狀態只能使用 color、border、shadow、opacity、transform，不應使用 width / height / padding transition 造成 layout shift。
 - Focus 狀態必須可見；只有在搭配 focus ring 時才允許移除 default outline。
@@ -48,6 +48,7 @@
 | `--yc-cta`            |                `#e2d39a` | Conversion CTA                     |
 | `--yc-cta-hover`      |                `#d4c27e` | CTA hover / active                 |
 | `--yc-on-cta`         |                `#4a4537` | CTA 文字                           |
+| `--yc-on-cta-hover`   |                `#4a4537` | CTA hover 文字                     |
 | `--yc-text`           |                `#3e473d` | 主要文字                           |
 | `--yc-text-secondary` |                `#625e56` | 次要文字                           |
 | `--yc-text-muted`     |                `#7b756d` | 輔助文字、disabled、metadata       |
@@ -179,7 +180,7 @@
 
 ### Button
 
-- Conversion CTA：`--yc-cta` 背景、`--yc-on-cta` 文字、`--yc-shadow-cta` 陰影。
+- Conversion CTA：`--yc-cta` 背景、`--yc-on-cta` 文字、`--yc-shadow-cta` 陰影；hover 使用 `--yc-cta-hover` 與 `--yc-on-cta-hover`。
 - Brand action：`--yc-sage-action` 背景、`--yc-on-dark` 文字。
 - Secondary action：`--yc-surface` 背景、`--yc-sage-action` 文字、`--yc-border` 邊線。
 - Danger action：`--yc-error` 背景、`--yc-on-dark` 文字。

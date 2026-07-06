@@ -1,3 +1,33 @@
+## v1.3.65 - 2026/07/06
+
+- 依需求將商品列表頁廣告輪播改為完整 slides + 首尾 clone 架構，取代三張視窗式重建，避免動畫結束後畫面往前再往後固定。
+- clone 邊界 reset 會在 `transitionend` 同一個渲染週期內關閉 transition、重設 transform、強制 reflow，下一幀才恢復 transition，讓跳回真實 slide 的動作不被畫出。
+- 保留 timer/listener 清理、transition fallback 與圖片預載，避免偏好更新、transitionend 遺失或圖片延遲載入造成輪播卡住。
+
+## v1.3.64 - 2026/07/06
+
+- 強化商品列表頁廣告輪播狀態機：新增 `_cleanupAdCarousel()`，偏好更新後若沒有推薦商品會清除舊 timer、transition fallback 與事件監聽。
+- `adCarouselContainer` 動畫啟動改用 double `requestAnimationFrame`，並補上 transition fallback timer，避免瀏覽器合併 layout 或 transitionend 遺失時讓輪播卡在 `isAnimating`。
+- 三張視窗重建前會預載上一張、目前張與下一張圖片，降低重新渲染 slide 時短暫空白的機率。
+
+## v1.3.63 - 2026/07/06
+
+- 移除商品列表頁廣告輪播在 clone slide 後瞬間跳回第一張的重定位流程，避免無縫接軌後又出現可見回跳。
+- `adCarouselContainer` 改為三張視窗式循環渲染：每次只渲染上一張、目前張、下一張，動畫結束後重建視窗並維持在中間位置。
+- 自動播放、上一張 / 下一張與 dot 切換仍維持循環，但不再使用「跳回真實第一張」的 reset 行為。
+
+## v1.3.62 - 2026/07/06
+
+- 修復商品列表頁 `adCarouselContainer` 廣告輪播循環：改為首尾雙 clone，最後一張往第一張與第一張往最後一張都透過無動畫重定位完成，避免出現倒回式瞬間切換。
+- `js/pages/product-list.js` 的輪播控制新增有界 index 與 `AbortController`，重新初始化偏好推薦輪播時會中止舊事件監聽，避免多次綁定後 index 持續位移到不存在的 slide。
+- 自動輪播、上一張 / 下一張、dot 切換與點擊商品導頁共用同一套循環狀態，降低第十次切換後圖片全部消失的風險。
+
+## v1.3.61 - 2026/07/06
+
+- 依 `.agents/agents.md` 調整首頁 CTA token：`heroPrimaryLink` 改用 `--yc-cta` / `--yc-on-cta`，hover 改用 `--yc-cta-hover` / `--yc-on-cta-hover`。
+- `heroSecondaryLink` 的 border 與文字同步改用 CTA token，hover 狀態改用 CTA hover token，維持透明背景不改動版面。
+- `homeProductAddButton` 改用 CTA token 作為背景、邊線與文字色，並補上 `--yc-on-cta-hover` 至主站、booking 與 AI token 文件。
+
 ## v1.3.60 - 2026/07/06
 
 - 將 `booking/booking-style-tokens.md` 的 booking token、互動規則、z-index、元件規則與 AI 檢查清單整併進 `docs/ai-style-sheet.md`，讓 AI 樣式規範成為單一 source of truth。

@@ -1,14 +1,14 @@
 請先讀取：
+- `docs/ai-style-sheet.md`
 - `pages/home.html`
-- booking/css/ 下的所有檔案
-- css/ 下的所有檔案
+- 
 
 
 ## 任務目標:
-1. `pages/home.html` 
- - button.homeProductAddButton backgtound-color 換成--yc-cta, hover 換成--yc-cta-hover.
+  
 
 ## 問題解決流程:
+
 
 ## 預期結果：
 
@@ -28,4 +28,3 @@
 - 將更新的程式內容簡述到根目錄的README.md。
 
 ## 驗收方式：
-- 實際跑過booking/pages 和pages/ 裡面的網站測試是否每個功能正常運行，且pages/ 的樣式與booking 樣式統一。

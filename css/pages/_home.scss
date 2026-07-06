@@ -94,32 +94,35 @@
   min-block-size: 44px;
   padding-inline: var(--yc-space-6);
   text-decoration: none;
-  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast), box-shadow var(--yc-transition-fast);
+  transition:
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast),
+    box-shadow var(--yc-transition-fast);
 }
 
 .heroPrimaryLink {
-  background-color: var(--yc-surface);
-  border-color: var(--yc-surface);
-  color: var(--yc-sage-dark);
+  background-color: var(--yc-cta);
+  border-color: var(--yc-cta);
+  color: var(--yc-on-cta);
 }
 
 .heroPrimaryLink:hover {
-  background-color: var(--yc-sage-soft);
-  border-color: var(--yc-sage-soft);
-  color: var(--yc-sage-dark);
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta-hover);
   text-decoration: none;
 }
 
 .heroSecondaryLink {
   background-color: transparent;
-  border-color: rgb(255 255 255 / 72%);
-  color: var(--yc-surface);
+  border-color: var(--yc-cta);
+  color: var(--yc-cta);
 }
 
 .heroSecondaryLink:hover {
   background-color: rgb(255 255 255 / 14%);
-  border-color: var(--yc-surface);
-  color: var(--yc-surface);
+  border-color: var(--yc-cta-hover);
   text-decoration: none;
 }
 
@@ -170,14 +173,17 @@
   background-color: var(--yc-surface);
   border: 1px solid var(--yc-border);
   border-radius: var(--yc-radius-pill);
-  color: var(--yc-sage-light);
+  color: var(--yc-on-cta);
   cursor: default;
   display: flex;
   font-size: 0.875rem;
   font-weight: 700;
   min-block-size: 44px;
   padding-inline: var(--yc-space-4);
-  transition: border-color var(--yc-transition-fast), color var(--yc-transition-fast), background-color var(--yc-transition-fast);
+  transition:
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast),
+    background-color var(--yc-transition-fast);
   user-select: none;
   white-space: nowrap;
 }
@@ -238,7 +244,9 @@
   font-weight: 700;
   min-block-size: 44px;
   text-decoration: none;
-  transition: color var(--yc-transition-fast), text-decoration-color var(--yc-transition-fast);
+  transition:
+    color var(--yc-transition-fast),
+    text-decoration-color var(--yc-transition-fast);
 }
 
 .homeSectionLink::after {
@@ -302,7 +310,12 @@
 .homeSkeletonImage,
 .homeSkeletonLine {
   animation: home-skeleton-pulse 1.2s ease-in-out infinite;
-  background: linear-gradient(90deg, var(--yc-surface-soft) 25%, var(--yc-border) 37%, var(--yc-surface-soft) 63%);
+  background: linear-gradient(
+    90deg,
+    var(--yc-surface-soft) 25%,
+    var(--yc-border) 37%,
+    var(--yc-surface-soft) 63%
+  );
   background-size: 400% 100%;
 }
 
@@ -344,7 +357,10 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  transition: border-color var(--yc-transition-base), box-shadow var(--yc-transition-base), transform var(--yc-transition-base);
+  transition:
+    border-color var(--yc-transition-base),
+    box-shadow var(--yc-transition-base),
+    transform var(--yc-transition-base);
 }
 
 .homeProductCard:hover,
@@ -394,11 +410,11 @@
 }
 
 .productBadgeNew {
-  background-color: var(--yc-success);
+  background-color: var(--yc-success-text);
 }
 
 .productBadgeHot {
-  background-color: var(--yc-warning);
+  background-color: var(--yc-error);
 }
 
 .homeProductBody {
@@ -496,9 +512,9 @@
 }
 
 .homeProductDiscount {
-  background-color: var(--yc-surface-soft);
+  background-color: var(--yc-warning);
   border-radius: var(--yc-radius-sm);
-  color: var(--yc-error);
+  color: var(--yc-surface);
   display: block;
   font-size: 0.8125rem;
   font-weight: 700;
@@ -507,23 +523,28 @@
 }
 
 .homeProductAddButton {
-  background-color: var(--yc-sage-action);
-  border: 1px solid var(--yc-sage-action);
+  background-color: var(--yc-cta);
+  border: 1px solid var(--yc-cta);
   border-radius: var(--yc-radius-button);
-  color: var(--yc-surface);
+  color: var(--yc-on-cta);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 700;
   margin-block-start: var(--yc-space-4);
   min-block-size: 44px;
   padding-inline: var(--yc-space-3);
-  transition: background-color var(--yc-transition-fast), border-color var(--yc-transition-fast), color var(--yc-transition-fast), opacity var(--yc-transition-fast);
+  transition:
+    background-color var(--yc-transition-fast),
+    border-color var(--yc-transition-fast),
+    color var(--yc-transition-fast),
+    opacity var(--yc-transition-fast);
   width: 100%;
 }
 
 .homeProductAddButton:hover {
-  background-color: var(--yc-sage-dark);
-  border-color: var(--yc-sage-dark);
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta-hover);
 }
 
 .homeProductAddButton:focus-visible {

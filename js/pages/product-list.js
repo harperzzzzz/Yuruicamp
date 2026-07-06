@@ -16,6 +16,24 @@ const _state = {
 };
 
 let _adCarouselTimer = null;
+let _adCarouselAbortController = null;
+let _adCarouselTransitionFallback = null;
+
+// Stop active ad carousel timers and event listeners before rebuilding or hiding it.
+function _cleanupAdCarousel() {
+  if (_adCarouselTimer) {
+    clearInterval(_adCarouselTimer);
+    _adCarouselTimer = null;
+  }
+  if (_adCarouselTransitionFallback) {
+    clearTimeout(_adCarouselTransitionFallback);
+    _adCarouselTransitionFallback = null;
+  }
+  if (_adCarouselAbortController) {
+    _adCarouselAbortController.abort();
+    _adCarouselAbortController = null;
+  }
+}
 
 // Calculate the discount percentage label for a product.
 function _calcDiscount(original, current) {
@@ -79,11 +97,14 @@ function _shuffleProducts(products) {
 // Select ad carousel products by matching saved surveyTags with products.interest_tags.
 function _selectAdCarouselProducts() {
   const selectedTags = new Set(_getSavedSurveyTags());
-  const matchedProducts = selectedTags.size === 0 ? [] : _state.allProducts.filter(product => {
-    const interestTags = Array.isArray(product.interest_tags) ? product.interest_tags : [];
-    return interestTags.some(tag => selectedTags.has(tag));
-  });
-  const fallbackProducts = _state.allProducts.filter(product => product.isNew);
+  const matchedProducts =
+    selectedTags.size === 0
+      ? []
+      : _state.allProducts.filter((product) => {
+          const interestTags = Array.isArray(product.interest_tags) ? product.interest_tags : [];
+          return interestTags.some((tag) => selectedTags.has(tag));
+        });
+  const fallbackProducts = _state.allProducts.filter((product) => product.isNew);
   return _shuffleProducts(matchedProducts.length > 0 ? matchedProducts : fallbackProducts);
 }
 
@@ -92,7 +113,9 @@ function _buildCard(product) {
   const discount = _calcDiscount(product.originalPrice, product.price);
   const badgeHTML = product.isNew
     ? '<span class="productCardBadge badgeNew">NEW</span>'
-    : product.isBestSeller ? '<span class="productCardBadge badgeHot">\u71b1\u92b7</span>' : '';
+    : product.isBestSeller
+      ? '<span class="productCardBadge badgeHot">\u71b1\u92b7</span>'
+      : '';
   const priceFormatted = product.price.toLocaleString('zh-TW');
   const originalPrice = product.originalPrice ? product.originalPrice.toLocaleString('zh-TW') : null;
 
@@ -144,7 +167,7 @@ function _renderGrid() {
     return;
   }
 
-  grid.innerHTML = paginated.map(product => _buildCard(product)).join('');
+  grid.innerHTML = paginated.map((product) => _buildCard(product)).join('');
   _renderPagination();
   _bindCardEvents();
 }
@@ -183,7 +206,7 @@ function _renderPagination() {
     return;
   }
 
-  const pageItems = _getPaginationItems(totalPages).map(item => {
+  const pageItems = _getPaginationItems(totalPages).map((item) => {
     if (item.type === 'ellipsis') return '<span class="paginationEllipsis">...</span>';
     return _buildPaginationButton(item.page, item.page, {
       isSelected: item.page === _state.currentPage,
@@ -192,12 +215,18 @@ function _renderPagination() {
   });
 
   paginationEl.innerHTML = [
-    _buildPaginationButton(_state.currentPage - 1, '\u2039', { disabled: _state.currentPage === 1, ariaLabel: '\u4e0a\u4e00\u9801' }),
+    _buildPaginationButton(_state.currentPage - 1, '\u2039', {
+      disabled: _state.currentPage === 1,
+      ariaLabel: '\u4e0a\u4e00\u9801',
+    }),
     ...pageItems,
-    _buildPaginationButton(_state.currentPage + 1, '\u203a', { disabled: _state.currentPage === totalPages, ariaLabel: '\u4e0a\u4e00\u9801' }),
+    _buildPaginationButton(_state.currentPage + 1, '\u203a', {
+      disabled: _state.currentPage === totalPages,
+      ariaLabel: '\u4e0a\u4e00\u9801',
+    }),
   ].join('');
 
-  paginationEl.querySelectorAll('.paginationBtn:not([disabled])').forEach(btn => {
+  paginationEl.querySelectorAll('.paginationBtn:not([disabled])').forEach((btn) => {
     btn.addEventListener('click', () => _goToPage(parseInt(btn.dataset.page, 10)));
   });
 }
@@ -215,7 +244,7 @@ function _goToPage(page) {
 function _filterBySelectedOptions(products) {
   const filters = _state.filters;
   const keyword = filters.keyword.trim().toLowerCase();
-  return products.filter(product => {
+  return products.filter((product) => {
     const searchableText = [
       product.name,
       product.brand,
@@ -223,7 +252,9 @@ function _filterBySelectedOptions(products) {
       product.description,
       ...(Array.isArray(product.tags) ? product.tags : []),
       ...(Array.isArray(product.interest_tags) ? product.interest_tags : []),
-    ].join(' ').toLowerCase();
+    ]
+      .join(' ')
+      .toLowerCase();
     const matchKeyword = !keyword || searchableText.includes(keyword);
     const matchCategory = !filters.category || product.category === filters.category;
     const matchBrand = filters.brands.length === 0 || filters.brands.includes(product.brand);
@@ -257,10 +288,16 @@ function _applyFilters() {
 // Reset all filters and synced filter controls.
 window._resetAllFilters = function () {
   _state.filters = { category: '', brands: [], minPrice: null, maxPrice: null, tag: '', keyword: '' };
-  document.querySelectorAll('.filterCategoryBtn').forEach(btn => btn.classList.toggle('isSelected', btn.dataset.category === ''));
-  document.querySelectorAll('.filterBrandList input[type="checkbox"]').forEach(input => { input.checked = false; });
-  document.querySelectorAll('#priceMin, #mobilePriceMin, #priceMax, #mobilePriceMax').forEach(input => { input.value = ''; });
-  document.querySelectorAll('[data-tag]').forEach(btn => btn.classList.remove('isSelected'));
+  document
+    .querySelectorAll('.filterCategoryBtn')
+    .forEach((btn) => btn.classList.toggle('isSelected', btn.dataset.category === ''));
+  document.querySelectorAll('.filterBrandList input[type="checkbox"]').forEach((input) => {
+    input.checked = false;
+  });
+  document.querySelectorAll('#priceMin, #mobilePriceMin, #priceMax, #mobilePriceMax').forEach((input) => {
+    input.value = '';
+  });
+  document.querySelectorAll('[data-tag]').forEach((btn) => btn.classList.remove('isSelected'));
   _applyFilters();
 };
 
@@ -269,12 +306,14 @@ function _bindCategoryFilterList(listId, categories) {
   const list = document.getElementById(listId);
   if (!list) return;
 
-  list.innerHTML = categories.map(category => {
-    const value = category === '\u5168\u90e8' ? '' : category;
-    return `<li><button class="filterCategoryBtn${value === '' ? ' isSelected' : ''}" data-category="${value}">${category}</button></li>`;
-  }).join('');
+  list.innerHTML = categories
+    .map((category) => {
+      const value = category === '\u5168\u90e8' ? '' : category;
+      return `<li><button class="filterCategoryBtn${value === '' ? ' isSelected' : ''}" data-category="${value}">${category}</button></li>`;
+    })
+    .join('');
 
-  list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
+  list.querySelectorAll('.filterCategoryBtn').forEach((btn) => {
     btn.addEventListener('click', () => {
       _state.filters.category = btn.dataset.category;
       _syncCategoryFilters(btn.dataset.category);
@@ -288,17 +327,21 @@ function _bindBrandFilterList(listId, brands) {
   const list = document.getElementById(listId);
   if (!list) return;
 
-  list.innerHTML = brands.map(brand => `
+  list.innerHTML = brands
+    .map(
+      (brand) => `
     <li class="filterBrandItem">
       <input type="checkbox" id="${listId}-${brand}" name="brand" value="${brand}" aria-label="${brand}">
       <label for="${listId}-${brand}">${brand}</label>
     </li>
-  `).join('');
+  `
+    )
+    .join('');
 
   if (listId !== 'brandFilterList') return;
-  list.querySelectorAll('input[type="checkbox"]').forEach(input => {
+  list.querySelectorAll('input[type="checkbox"]').forEach((input) => {
     input.addEventListener('change', () => {
-      _state.filters.brands = Array.from(list.querySelectorAll('input:checked')).map(el => el.value);
+      _state.filters.brands = Array.from(list.querySelectorAll('input:checked')).map((el) => el.value);
       _applyFilters();
     });
   });
@@ -328,7 +371,7 @@ function _bindQuickFilterButtons() {
     el.addEventListener('click', () => {
       const isActive = _state.filters.tag !== tag;
       _state.filters.tag = isActive ? tag : '';
-      buttons.forEach(item => item.el?.classList.toggle('isSelected', item.tag === _state.filters.tag));
+      buttons.forEach((item) => item.el?.classList.toggle('isSelected', item.tag === _state.filters.tag));
       _applyFilters();
     });
   });
@@ -336,20 +379,20 @@ function _bindQuickFilterButtons() {
 
 // Initialize desktop and shared filter controls.
 function _initSidebarFilters() {
-  const categories = ['\u5168\u90e8', ...new Set(_state.allProducts.map(product => product.category))];
-  const brands = [...new Set(_state.allProducts.map(product => product.brand))].sort();
-  ['categoryFilterList', 'mobileCategoryFilterList'].forEach(id => _bindCategoryFilterList(id, categories));
-  ['brandFilterList', 'mobileBrandFilterList'].forEach(id => _bindBrandFilterList(id, brands));
+  const categories = ['\u5168\u90e8', ...new Set(_state.allProducts.map((product) => product.category))];
+  const brands = [...new Set(_state.allProducts.map((product) => product.brand))].sort();
+  ['categoryFilterList', 'mobileCategoryFilterList'].forEach((id) => _bindCategoryFilterList(id, categories));
+  ['brandFilterList', 'mobileBrandFilterList'].forEach((id) => _bindBrandFilterList(id, brands));
   _bindDesktopPriceFilter();
   _bindQuickFilterButtons();
 }
 
 // Sync category selection between desktop and mobile lists.
 function _syncCategoryFilters(category) {
-  ['categoryFilterList', 'mobileCategoryFilterList'].forEach(listId => {
+  ['categoryFilterList', 'mobileCategoryFilterList'].forEach((listId) => {
     const list = document.getElementById(listId);
     if (!list) return;
-    list.querySelectorAll('.filterCategoryBtn').forEach(btn => {
+    list.querySelectorAll('.filterCategoryBtn').forEach((btn) => {
       btn.classList.toggle('isSelected', btn.dataset.category === category);
     });
   });
@@ -366,7 +409,9 @@ function _setFilterSheetOpen(isOpen) {
 
 // Apply mobile-only brand and price inputs before refreshing the grid.
 function _applyMobileFilters() {
-  _state.filters.brands = Array.from(document.querySelectorAll('#mobileBrandFilterList input:checked')).map(el => el.value);
+  _state.filters.brands = Array.from(document.querySelectorAll('#mobileBrandFilterList input:checked')).map(
+    (el) => el.value
+  );
   const mobileMin = parseFloat(document.getElementById('mobilePriceMin')?.value);
   const mobileMax = parseFloat(document.getElementById('mobilePriceMax')?.value);
   _state.filters.minPrice = Number.isNaN(mobileMin) ? null : mobileMin;
@@ -419,7 +464,7 @@ function _bindCardEvents() {
 
   const newGrid = grid.cloneNode(true);
   grid.parentNode.replaceChild(newGrid, grid);
-  newGrid.addEventListener('click', async event => {
+  newGrid.addEventListener('click', async (event) => {
     if (event.target.classList.contains('productCardAddBtn')) {
       event.stopPropagation();
       await _handleAddToCart(event.target.dataset.productId);
@@ -433,16 +478,19 @@ function _bindCardEvents() {
 // Add the selected product to cart and animate the cart badge.
 async function _handleAddToCart(productId) {
   try {
-    const product = _state.allProducts.find(item => item.id === productId);
+    const product = _state.allProducts.find((item) => item.id === productId);
     if (!product) return;
 
-    window.addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      brand: product.brand,
-    }, 1);
+    window.addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        brand: product.brand,
+      },
+      1
+    );
 
     const badge = document.querySelector('.cartBadge');
     if (badge) {
@@ -451,7 +499,10 @@ async function _handleAddToCart(productId) {
     }
   } catch (error) {
     console.error('Failed to add product to cart', error);
-    window.showToast?.('\u52a0\u5165\u8cfc\u7269\u8eca\u5931\u6557\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66', 'error');
+    window.showToast?.(
+      '\u52a0\u5165\u8cfc\u7269\u8eca\u5931\u6557\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66',
+      'error'
+    );
   }
 }
 
@@ -473,51 +524,144 @@ function _buildAdCarouselSlide(product) {
 
 // Render carousel slides and dot controls.
 function _renderAdCarouselMarkup(products) {
-  const loopProducts = products.length > 1 ? [...products, products[0]] : products;
+  const loopProducts =
+    products.length > 1 ? [products[products.length - 1], ...products, products[0]] : products;
   document.getElementById('adCarouselSlides').innerHTML = loopProducts.map(_buildAdCarouselSlide).join('');
-  document.getElementById('adCarouselDots').innerHTML = products.map((_, index) => (
-    `<button class="adCarouselDot${index === 0 ? ' isSelected' : ''}" data-slide="${index}" aria-label="\u7b2c ${index + 1} \u500b\u63a8\u85a6\u5546\u54c1"></button>`
-  )).join('');
+  document.getElementById('adCarouselDots').innerHTML = products
+    .map(
+      (_, index) =>
+        `<button class="adCarouselDot${index === 0 ? ' isSelected' : ''}" data-slide="${index}" aria-label="\u7b2c ${index + 1} \u500b\u63a8\u85a6\u5546\u54c1"></button>`
+    )
+    .join('');
+}
+
+// Preload carousel images so cloned edge slides are ready before the first loop.
+function _preloadAdCarouselImages(products) {
+  products.forEach((product) => {
+    if (!product.image) return;
+    const image = new Image();
+    image.src = product.image;
+  });
 }
 
 // Bind carousel navigation, dots, product links, and auto rotation.
 function _bindAdCarouselControls(products) {
-  let currentSlide = 0;
+  _cleanupAdCarousel();
+  _adCarouselAbortController = new AbortController();
+  const { signal } = _adCarouselAbortController;
+
+  let currentSlide = products.length > 1 ? 1 : 0;
+  let isAnimating = false;
   const slidesContainer = document.getElementById('adCarouselSlides');
   const isLooping = products.length > 1;
-  const goToSlide = nextIndex => {
-    currentSlide = isLooping ? nextIndex : 0;
-    slidesContainer.classList.remove('isResetting');
-    slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
-    const visibleIndex = ((currentSlide % products.length) + products.length) % products.length;
+  const firstRealSlide = 1;
+  const lastRealSlide = products.length;
+  const firstCloneSlide = products.length + 1;
+  const lastCloneSlide = 0;
+
+  const getWrappedIndex = (index) => ((index % products.length) + products.length) % products.length;
+
+  const clearTransitionFallback = () => {
+    if (!_adCarouselTransitionFallback) return;
+    clearTimeout(_adCarouselTransitionFallback);
+    _adCarouselTransitionFallback = null;
+  };
+
+  const updateDots = () => {
+    const visibleIndex = isLooping ? getWrappedIndex(currentSlide - 1) : 0;
     document.querySelectorAll('.adCarouselDot').forEach((dot, index) => {
       dot.classList.toggle('isSelected', index === visibleIndex);
     });
   };
 
-  document.getElementById('adCarouselPrev')?.addEventListener('click', () => {
-    if (!isLooping) return;
-    goToSlide(currentSlide === 0 ? products.length - 1 : currentSlide - 1);
-  });
-  document.getElementById('adCarouselNext')?.addEventListener('click', () => goToSlide(currentSlide + 1));
-  document.querySelectorAll('.adCarouselDot').forEach(dot => {
-    dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.slide, 10)));
-  });
-  slidesContainer.addEventListener('click', event => {
-    const slide = event.target.closest('.adCarouselSlide');
-    if (slide) window.location.href = `product-detail.html?id=${slide.dataset.productId}`;
-  });
-  slidesContainer.addEventListener('transitionend', () => {
-    if (!isLooping || currentSlide !== products.length) return;
+  const setRenderedSlide = (nextIndex, shouldAnimate = true) => {
+    currentSlide = isLooping ? nextIndex : 0;
+    slidesContainer.classList.toggle('isResetting', !shouldAnimate);
+    slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
+    updateDots();
+  };
+
+  const completeLoopReset = (realSlideIndex) => {
+    currentSlide = realSlideIndex;
     slidesContainer.classList.add('isResetting');
-    currentSlide = 0;
-    slidesContainer.style.transform = 'translateX(0)';
+    slidesContainer.style.transform = `translateX(${-currentSlide * 100}%)`;
+    // 強制瀏覽器在下一幀前套用無動畫重定位，避免 reset 被使用者看到。
+    slidesContainer.offsetHeight;
     requestAnimationFrame(() => slidesContainer.classList.remove('isResetting'));
+    updateDots();
+  };
+
+  const finishAnimation = () => {
+    clearTransitionFallback();
+    isAnimating = false;
+    if (!isLooping) return;
+    if (currentSlide === firstCloneSlide) {
+      completeLoopReset(firstRealSlide);
+      return;
+    }
+    if (currentSlide === lastCloneSlide) completeLoopReset(lastRealSlide);
+  };
+
+  const animateToSlide = (nextIndex) => {
+    if (!isLooping || isAnimating) return;
+    clearTransitionFallback();
+    isAnimating = true;
+    setRenderedSlide(nextIndex);
+    _adCarouselTransitionFallback = setTimeout(() => {
+      if (!isAnimating) return;
+      finishAnimation();
+    }, 550);
+  };
+
+  const goToSlide = (realIndex) => {
+    if (!isLooping) {
+      currentSlide = 0;
+      setRenderedSlide(0);
+      return;
+    }
+    const targetSlide = getWrappedIndex(realIndex);
+    if (targetSlide === getWrappedIndex(currentSlide - 1)) return;
+    animateToSlide(targetSlide + 1);
+  };
+
+  const goToNextSlide = () => {
+    animateToSlide(currentSlide + 1);
+  };
+
+  const goToPrevSlide = () => {
+    animateToSlide(currentSlide - 1);
+  };
+
+  const completeSlideTransition = (event) => {
+    if (event.target !== slidesContainer || event.propertyName !== 'transform' || !isLooping) return;
+    finishAnimation();
+  };
+
+  const initializeSlidePosition = () => {
+    isAnimating = false;
+    _preloadAdCarouselImages(products);
+    setRenderedSlide(currentSlide, false);
+    requestAnimationFrame(() => slidesContainer.classList.remove('isResetting'));
+  };
+
+  document.getElementById('adCarouselPrev')?.addEventListener('click', goToPrevSlide, { signal });
+  document.getElementById('adCarouselNext')?.addEventListener('click', goToNextSlide, { signal });
+  document.querySelectorAll('.adCarouselDot').forEach((dot) => {
+    dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.slide, 10)), { signal });
   });
+  slidesContainer.addEventListener(
+    'click',
+    (event) => {
+      const slide = event.target.closest('.adCarouselSlide');
+      if (slide) window.location.href = `product-detail.html?id=${slide.dataset.productId}`;
+    },
+    { signal }
+  );
+  slidesContainer.addEventListener('transitionend', completeSlideTransition, { signal });
 
   if (_adCarouselTimer) clearInterval(_adCarouselTimer);
-  _adCarouselTimer = isLooping ? setInterval(() => goToSlide(currentSlide + 1), 5000) : null;
-  goToSlide(0);
+  _adCarouselTimer = isLooping ? setInterval(goToNextSlide, 5000) : null;
+  initializeSlidePosition();
 }
 
 // Initialize personalized ad carousel by saved preferences.
@@ -529,7 +673,12 @@ function _initAdCarousel() {
 
   const products = _selectAdCarouselProducts();
   container.hidden = products.length === 0;
-  if (products.length === 0) return;
+  if (products.length === 0) {
+    _cleanupAdCarousel();
+    slidesContainer.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    return;
+  }
 
   _renderAdCarouselMarkup(products);
   _bindAdCarouselControls(products);

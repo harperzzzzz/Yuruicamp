@@ -12,6 +12,7 @@ $product-border: var(--yc-border);
 $product-accent: var(--yc-cta);
 $product-danger: var(--yc-error);
 $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
+$product-rating: var(--yc-pending-line);
 
 // 商品頁橫幅：管理列表頁標題與說明區，不影響共用 header。
 .pageBanner {
@@ -127,7 +128,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 .adCarouselSlides {
   display: flex;
   height: 280px;
-  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
@@ -376,7 +377,7 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .starRatingFill {
-  color: $product-accent;
+  color: $product-rating;
   inset: 0 auto 0 0;
   overflow: hidden;
   position: absolute;
@@ -414,9 +415,9 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .priceDiscount {
-  background: var(--yc-error-soft);
+  background: var(--yc-warning);
   border-radius: 4px;
-  color: $product-danger;
+  color: var(--yc-surface);
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
@@ -437,18 +438,18 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .badgeNew {
-  background: $product-primary;
+  background: var(--yc-success-text);
 }
 
 .badgeHot {
-  background: $product-danger;
+  background: var(--yc-error);
 }
 
 .productCardAddBtn {
-  background: $product-primary;
-  border: 2px solid $product-primary;
+  background-color: var(--yc-cta);
+  border: 2px solid var(--yc-cta);;
   border-radius: 8px;
-  color: $product-surface;
+  color: var(--yc-on-cta);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 600;
@@ -460,8 +461,8 @@ $product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
 }
 
 .productCardAddBtn:hover {
-  background: transparent;
-  color: $product-primary;
+  background: var(--yc-cta-hover);
+  border: 2px solid var(--yc-cta-hover);;
 }
 
 .filterSidebar {

@@ -27,6 +27,7 @@
   --yc-cta-soft: #fbf3d1;
   --yc-cta-line: #d9c98f;
   --yc-on-cta: #4a4537;
+  --yc-on-cta-hover: #4a4537;
   /* Text */
   --yc-text: #3e473d;
   --yc-text-secondary: #625e56;
@@ -4366,28 +4367,27 @@ a:focus-visible,
 }
 
 .heroPrimaryLink {
-  background-color: var(--yc-surface);
-  border-color: var(--yc-surface);
-  color: var(--yc-sage-dark);
+  background-color: var(--yc-cta);
+  border-color: var(--yc-cta);
+  color: var(--yc-on-cta);
 }
 
 .heroPrimaryLink:hover {
-  background-color: var(--yc-sage-soft);
-  border-color: var(--yc-sage-soft);
-  color: var(--yc-sage-dark);
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta-hover);
   text-decoration: none;
 }
 
 .heroSecondaryLink {
   background-color: transparent;
-  border-color: rgba(255, 255, 255, 0.72);
-  color: var(--yc-surface);
+  border-color: var(--yc-cta);
+  color: var(--yc-cta);
 }
 
 .heroSecondaryLink:hover {
   background-color: rgba(255, 255, 255, 0.14);
-  border-color: var(--yc-surface);
-  color: var(--yc-surface);
+  border-color: var(--yc-cta-hover);
   text-decoration: none;
 }
 
@@ -4437,7 +4437,7 @@ a:focus-visible,
   background-color: var(--yc-surface);
   border: 1px solid var(--yc-border);
   border-radius: var(--yc-radius-pill);
-  color: var(--yc-sage-light);
+  color: var(--yc-on-cta);
   cursor: default;
   display: flex;
   font-size: 0.875rem;
@@ -4659,11 +4659,11 @@ a:focus-visible,
 }
 
 .productBadgeNew {
-  background-color: var(--yc-success);
+  background-color: var(--yc-success-text);
 }
 
 .productBadgeHot {
-  background-color: var(--yc-warning);
+  background-color: var(--yc-error);
 }
 
 .homeProductBody {
@@ -4959,9 +4959,9 @@ a:focus-visible,
 }
 
 .homeProductDiscount {
-  background-color: var(--yc-surface-soft);
+  background-color: var(--yc-warning);
   border-radius: var(--yc-radius-sm);
-  color: var(--yc-error);
+  color: var(--yc-surface);
   display: block;
   font-size: 0.8125rem;
   font-weight: 700;
@@ -4970,10 +4970,10 @@ a:focus-visible,
 }
 
 .homeProductAddButton {
-  background-color: var(--yc-sage-action);
-  border: 1px solid var(--yc-sage-action);
+  background-color: var(--yc-cta);
+  border: 1px solid var(--yc-cta);
   border-radius: var(--yc-radius-button);
-  color: var(--yc-surface);
+  color: var(--yc-on-cta);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 700;
@@ -4985,8 +4985,9 @@ a:focus-visible,
 }
 
 .homeProductAddButton:hover {
-  background-color: var(--yc-sage-dark);
-  border-color: var(--yc-sage-dark);
+  background-color: var(--yc-cta-hover);
+  border-color: var(--yc-cta-hover);
+  color: var(--yc-on-cta-hover);
 }
 
 .homeProductAddButton:focus-visible {
@@ -6858,7 +6859,7 @@ main.productDetailContainer {
 
 .rating,
 .starStyle {
-  color: var(--yc-cta);
+  color: var(--yc-pending-line);
   letter-spacing: 0.08em;
 }
 
@@ -7461,7 +7462,7 @@ main.productDetailContainer {
 .adCarouselSlides {
   display: flex;
   height: 280px;
-  transition: transform 400ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
@@ -7710,7 +7711,7 @@ main.productDetailContainer {
 }
 
 .starRatingFill {
-  color: var(--yc-cta);
+  color: var(--yc-pending-line);
   inset: 0 auto 0 0;
   overflow: hidden;
   position: absolute;
@@ -7946,9 +7947,9 @@ main.productDetailContainer {
 }
 
 .priceDiscount {
-  background: var(--yc-error-soft);
+  background: var(--yc-warning);
   border-radius: 4px;
-  color: var(--yc-error);
+  color: var(--yc-surface);
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
@@ -7969,7 +7970,7 @@ main.productDetailContainer {
 }
 
 .badgeNew {
-  background: var(--yc-sage-action);
+  background: var(--yc-success-text);
 }
 
 .badgeHot {
@@ -7977,10 +7978,10 @@ main.productDetailContainer {
 }
 
 .productCardAddBtn {
-  background: var(--yc-sage-action);
-  border: 2px solid var(--yc-sage-action);
+  background-color: var(--yc-cta);
+  border: 2px solid var(--yc-cta);
   border-radius: 8px;
-  color: var(--yc-surface);
+  color: var(--yc-on-cta);
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 600;
@@ -7992,8 +7993,8 @@ main.productDetailContainer {
 }
 
 .productCardAddBtn:hover {
-  background: transparent;
-  color: var(--yc-sage-action);
+  background: var(--yc-cta-hover);
+  border: 2px solid var(--yc-cta-hover);
 }
 
 .filterSidebar {
