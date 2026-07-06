@@ -3,6 +3,9 @@
   'use strict';
 
   var lastMainFocus = null;
+  var mainNavScrollPosition = { x: 0, y: 0 };
+  var loginModalScrollPosition = { x: 0, y: 0 };
+  var loginModalTrigger = null;
 
   function getCurrentUser() {
     if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
@@ -14,6 +17,21 @@
 
   function lockHeaderLayer(shouldLock) {
     document.body.classList.toggle('isHeaderLayerOpen', shouldLock);
+  }
+
+  function readScrollPosition() {
+    return { x: window.scrollX, y: window.scrollY };
+  }
+
+  /**
+   * 還原 Header 互動層開關前的頁面位置，避免 offcanvas / modal 聚焦時跳回頁首。
+   * 套用元件：.siteMenuButton、.siteLoginButton、#loginModal。
+   */
+  function restoreHeaderPosition(position, focusTarget) {
+    window.requestAnimationFrame(function () {
+      window.scrollTo(position.x, position.y);
+      if (focusTarget && document.contains(focusTarget)) focusTarget.focus({ preventScroll: true });
+    });
   }
 
   function getFocusable(container) {
@@ -34,7 +52,7 @@
 
   function focusFirst(container) {
     var first = getFocusable(container)[0];
-    if (first) first.focus();
+    if (first) first.focus({ preventScroll: true });
   }
 
   function closeUserMenu() {
@@ -133,6 +151,7 @@
     var panel = document.getElementById('siteNavigationPanel');
     var backdrop = document.querySelector('.siteOffcanvasBackdrop');
     var button = document.querySelector('.siteMenuButton');
+    var wasOpen = panel && panel.classList.contains('isOpen');
     if (panel) {
       panel.classList.remove('isOpen');
       panel.setAttribute('aria-hidden', 'true');
@@ -143,13 +162,14 @@
     }
     if (button) button.setAttribute('aria-expanded', 'false');
     lockHeaderLayer(Boolean(document.querySelector('.siteCartDrawer.isOpen')));
-    if (lastMainFocus) lastMainFocus.focus();
+    if (wasOpen) restoreHeaderPosition(mainNavScrollPosition, lastMainFocus);
   };
 
   function openMainNavOffcanvas(trigger) {
     var panel = document.getElementById('siteNavigationPanel');
     var backdrop = document.querySelector('.siteOffcanvasBackdrop');
     if (!panel) return;
+    mainNavScrollPosition = readScrollPosition();
     lastMainFocus = trigger || document.activeElement;
     window.closeMainHeaderDialogs?.();
     panel.classList.add('isOpen');
@@ -161,6 +181,7 @@
     if (trigger) trigger.setAttribute('aria-expanded', 'true');
     lockHeaderLayer(true);
     focusFirst(panel);
+    restoreHeaderPosition(mainNavScrollPosition);
   }
 
   window.closeMainHeaderDialogs = function () {
@@ -260,8 +281,16 @@
     document.querySelectorAll('[data-modal-target]').forEach(function (button) {
       if (button.dataset.modalTriggerBound === 'true') return;
       button.dataset.modalTriggerBound = 'true';
-      button.addEventListener('click', function () {
+      button.addEventListener('click', function (event) {
         var target = button.dataset.modalTarget;
+        if (target === 'loginModal' && button.classList.contains('siteLoginButton')) {
+          event.preventDefault();
+          loginModalScrollPosition = readScrollPosition();
+          loginModalTrigger = button;
+          window.openModal?.(target);
+          restoreHeaderPosition(loginModalScrollPosition);
+          return;
+        }
         if (target) window.openModal?.(target);
       });
     });
@@ -289,6 +318,48 @@
     });
   }
 
+  function closeLoginModalWithoutScrollJump(event) {
+    loginModalScrollPosition = readScrollPosition();
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    window.closeModal?.('loginModal');
+    restoreHeaderPosition(loginModalScrollPosition, loginModalTrigger);
+  }
+
+  /**
+   * 攔截登入 Modal 的關閉按鈕、背景遮罩與 Esc，關閉當下記錄並保留瀏覽位置。
+   * 套用元件：button.modalClose.sharedAuthClose、#loginModal 背景遮罩。
+   */
+  function bindLoginModalScrollProtection() {
+    if (document.body.dataset.loginModalScrollBound === 'true') return;
+    document.body.dataset.loginModalScrollBound = 'true';
+
+    document.addEventListener(
+      'click',
+      function (event) {
+        var modal = document.getElementById('loginModal');
+        if (!modal || !modal.classList.contains('isOpen')) return;
+        var closeButton = event.target.closest('#loginModal .modalClose');
+        var isBackdropClick = event.target === modal;
+        if (!closeButton && !isBackdropClick) return;
+        closeLoginModalWithoutScrollJump(event);
+      },
+      true
+    );
+
+    document.addEventListener(
+      'keydown',
+      function (event) {
+        var modal = document.getElementById('loginModal');
+        if (event.key !== 'Escape' || !modal || !modal.classList.contains('isOpen')) return;
+        closeLoginModalWithoutScrollJump(event);
+      },
+      true
+    );
+  }
+
   window.initNavbar = function () {
     var menuButton = document.querySelector('.siteMenuButton');
     var closeButton = document.querySelector('.siteOffcanvasClose');
@@ -311,6 +382,7 @@
 
     bindSearch();
     bindAuthButtons();
+    bindLoginModalScrollProtection();
     updateMainMemberCenterLinks();
     window.updateCartBadge();
     window.updateNavbarLoginState();

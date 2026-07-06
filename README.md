@@ -1,3 +1,15 @@
+## v1.3.73 - 2026/07/06
+
+- 調整主站共用登入 Modal 關閉防跳頂流程：`button.modalClose.sharedAuthClose` 關閉當下會重新記錄 scroll 位置，再關閉 Modal 並還原位置與觸發按鈕焦點。
+- `button.siteCartButton` 開啟購物車 Drawer 時會記錄目前頁面位置，Drawer 聚焦關閉按鈕後會還原原本 scroll。
+- `button.siteCartDrawerClose` 關閉購物車 Drawer 時會記錄關閉當下位置，關閉後以 `preventScroll` 回到原觸發按鈕，避免畫面跳至頂部。
+
+## v1.3.72 - 2026/07/06
+
+- 修復主站 Header 的 `siteMenuButton` 開啟 / 關閉 offcanvas 時可能跳回頁首的問題，開啟前會記錄 scroll 位置，關閉後還原位置並以 `preventScroll` 回焦點。
+- 修復主站 Header 的 `siteLoginButton` 開啟 / 關閉登入 Modal 時可能改變瀏覽位置的問題，登入 Modal 的關閉按鈕、背景遮罩與 Esc 關閉都會保留原 scroll。
+- `js/components/header.js` 新增 Header 互動層位置還原工具與中文區塊註解，避免共用 modal 關閉事件造成頁面位移。
+
 ## v1.3.71 - 2026/07/06
 
 - 修復分店頁合作夥伴 Modal 關閉時跳回頁面頂部的問題：`partnerModalClose`、背景遮罩與 Esc 關閉都會保留開啟前的 scroll 位置。

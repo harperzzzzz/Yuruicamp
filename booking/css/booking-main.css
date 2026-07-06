@@ -1566,24 +1566,32 @@ main {
 .siteLoginButton,
 .bookingSwitchLink,
 .bookingLoginButton,
-.siteCartCheckoutLink,
-.bookingPanelCheckoutLink,
 .surveyActionButton,
 .sharedConfirmSubmit {
   background: var(--yc-sage-action);
   color: var(--yc-surface);
 }
 
+.siteCartCheckoutLink,
+.bookingPanelCheckoutLink {
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+}
+
 .siteBookingLink:hover,
 .siteLoginButton:hover,
 .bookingSwitchLink:hover,
 .bookingLoginButton:hover,
-.siteCartCheckoutLink:hover,
-.bookingPanelCheckoutLink:hover,
 .surveyActionButton:hover,
 .sharedConfirmSubmit:hover {
   background: var(--yc-sage-dark);
   color: var(--yc-surface);
+}
+
+.siteCartCheckoutLink:hover,
+.bookingPanelCheckoutLink:hover {
+  background: var(--yc-cta-hover);
+  color: var(--yc-on-cta);
 }
 
 .sharedConfirmCancel,

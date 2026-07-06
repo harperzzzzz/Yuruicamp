@@ -3,6 +3,22 @@
   'use strict';
 
   var lastCartFocus = null;
+  var cartDrawerScrollPosition = { x: 0, y: 0 };
+
+  function readCartScrollPosition() {
+    return { x: window.scrollX, y: window.scrollY };
+  }
+
+  /**
+   * 還原購物車 Drawer 開關前的頁面位置，避免按鈕聚焦或 drawer 關閉時跳回頁首。
+   * 套用元件：button.siteCartButton、button.siteCartDrawerClose。
+   */
+  function restoreCartDrawerPosition(focusTarget) {
+    window.requestAnimationFrame(function () {
+      window.scrollTo(cartDrawerScrollPosition.x, cartDrawerScrollPosition.y);
+      if (focusTarget && document.contains(focusTarget)) focusTarget.focus({ preventScroll: true });
+    });
+  }
 
   function escapeCartHtml(value) {
     return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) {
@@ -135,6 +151,7 @@
     var cartButton = document.querySelector('.siteCartButton');
     if (!elements.drawer) return;
 
+    cartDrawerScrollPosition = readCartScrollPosition();
     lastCartFocus = document.activeElement;
     window.closeMainHeaderDialogs?.();
     window.renderCartDrawer();
@@ -146,12 +163,15 @@
     }
     if (cartButton) cartButton.setAttribute('aria-expanded', 'true');
     document.body.classList.add('isHeaderLayerOpen');
-    elements.drawer.querySelector('.siteCartDrawerClose')?.focus();
+    elements.drawer.querySelector('.siteCartDrawerClose')?.focus({ preventScroll: true });
+    restoreCartDrawerPosition();
   };
 
   window.closeCartDrawer = function () {
     var elements = getCartDrawerElements();
     var cartButton = document.querySelector('.siteCartButton');
+    var wasOpen = elements.drawer && elements.drawer.classList.contains('isOpen');
+    if (wasOpen) cartDrawerScrollPosition = readCartScrollPosition();
     if (elements.drawer) {
       elements.drawer.classList.remove('isOpen');
       elements.drawer.setAttribute('aria-hidden', 'true');
@@ -162,7 +182,7 @@
     }
     if (cartButton) cartButton.setAttribute('aria-expanded', 'false');
     document.body.classList.remove('isHeaderLayerOpen');
-    if (lastCartFocus) lastCartFocus.focus();
+    if (wasOpen) restoreCartDrawerPosition(lastCartFocus);
   };
 
   window.addToCart = function (product, quantity) {
