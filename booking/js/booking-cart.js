@@ -1,30 +1,29 @@
 /**
  * booking-cart.js
  * 功能：預約背包確認頁（步驟 4）
- *   ① 讀取 LocalStorage，渲染住宿 + 裝備項目（含數量調整器）
- *   ② 「修改日期」連結帶入正確 campground_id
+ *   ① 讀取 LocalStorage（camelCase），渲染住宿 + 裝備項目（含數量調整器）
+ *   ② 「修改日期」連結帶入正確 campgroundId
  *   ③ 住宿：調整營位數量，即時重算小計
  *   ④ 裝備：調整數量 / 刪除項目，即時重算小計
  *   ⑤ 右側摘要隨數量變化同步更新
- *   ⑥ 所有變更即時寫回 localStorage
+ *   ⑥ 所有變更即時寫回 localStorage（camelCase）
  */
 
-// 目前操作中的 bookingCart，初始從 localStorage 讀取
+// 目前操作中的 bookingCart（camelCase），初始從 localStorage 讀取
 var bookingCart = null;
 
 $(document).ready(function () {
-  var stored = localStorage.getItem('bookingCart');
+  bookingCart =
+    typeof window.readBookingCart === 'function' ? window.readBookingCart() : null;
 
-  if (!stored) {
+  if (!bookingCart || !bookingCart.bookingInfo) {
     showEmptyState();
     return;
   }
 
-  try {
-    bookingCart = JSON.parse(stored);
-  } catch (e) {
-    showEmptyState();
-    return;
+  // 舊 snake_case 讀進來後立刻寫回 camelCase
+  if (typeof window.writeBookingCart === 'function') {
+    bookingCart = window.writeBookingCart(bookingCart);
   }
 
   renderAll();
@@ -40,12 +39,12 @@ $(document).ready(function () {
     });
   });
 
-  // 住宿數量調整：事件委派使用 quantityButtonBooking，避免互動 hook 與舊式命名耦合。
+  // 住宿數量調整
   $('#bookingCartStayBody').on('click', '.quantityButtonBooking', function () {
     var $btn = $(this);
     var action = $btn.data('action');
-    var idx = parseInt($btn.data('idx'));
-    var zone = bookingCart.selected_zones[idx];
+    var idx = parseInt($btn.data('idx'), 10);
+    var zone = bookingCart.selectedZones[idx];
     if (!zone) return;
 
     var unitPrice = zone.subtotal / zone.quantity;
@@ -61,12 +60,12 @@ $(document).ready(function () {
     renderSummary();
   });
 
-  // 裝備數量調整：共用 quantityButton 語意，booking 變體只表示預約背包流程使用。
+  // 裝備數量調整
   $('#bookingCartRentalBody').on('click', '.quantityButtonBooking', function () {
     var $btn = $(this);
     var action = $btn.data('action');
-    var idx = parseInt($btn.data('idx'));
-    var rental = bookingCart.selected_rentals[idx];
+    var idx = parseInt($btn.data('idx'), 10);
+    var rental = bookingCart.selectedRentals[idx];
     if (!rental) return;
 
     var unitPrice = rental.subtotal / rental.quantity;
@@ -82,17 +81,17 @@ $(document).ready(function () {
     renderSummary();
   });
 
-  // 裝備刪除：改用 cartRemoveButtonBooking 作為互動 hook，讓名稱貼近主站 cart 語意。
+  // 裝備刪除
   $('#bookingCartRentalBody').on('click', '.cartRemoveButtonBooking', function () {
-    var idx = parseInt($(this).data('idx'));
-    bookingCart.selected_rentals.splice(idx, 1);
+    var idx = parseInt($(this).data('idx'), 10);
+    bookingCart.selectedRentals.splice(idx, 1);
 
     recalcSummary();
     saveCart();
     renderRentalBody();
     renderSummary();
 
-    if (bookingCart.selected_rentals.length === 0) {
+    if (bookingCart.selectedRentals.length === 0) {
       showToast('裝備已全部移除', 'info');
     }
   });
@@ -103,15 +102,13 @@ $(document).ready(function () {
 // ============================================================
 
 function renderAll() {
-  var info = bookingCart.booking_info || {};
+  var info = bookingCart.bookingInfo || {};
 
-  // 設定「修改日期」連結：帶入 campground_id
-  var campId = info.campground_id || '';
+  // 設定「修改日期」連結：帶入 campgroundId
+  var campId = info.campgroundId || '';
   $('#bookingCartEditDateLink').attr('href', './camp-detail.html?id=' + encodeURIComponent(campId));
 
-  // 項目總數
   updateItemCount();
-
   renderStayBody();
   renderRentalBody();
   renderSummary();
@@ -120,10 +117,9 @@ function renderAll() {
   $('#bookingCartContent').addClass('isVisible');
 }
 
-// ── 住宿卡內容：輸出共用 cartItem / quantityStepper 語意與 booking 變體 class ──
 function renderStayBody() {
-  var info = bookingCart.booking_info || {};
-  var zones = bookingCart.selected_zones || [];
+  var info = bookingCart.bookingInfo || {};
+  var zones = bookingCart.selectedZones || [];
 
   if (zones.length === 0) {
     $('#bookingCartStayCard').hide();
@@ -137,11 +133,11 @@ function renderStayBody() {
       return `
       <div class="cartItem cartItemBooking">
         <div class="cartItemInfo cartItemInfoBooking">
-          <div class="cartItemTitle cartItemTitleBooking">${esc(info.campground_name || '')} · ${esc(z.zone_type || '')}</div>
+          <div class="cartItemTitle cartItemTitleBooking">${esc(info.campgroundName || '')} · ${esc(z.zoneType || '')}</div>
           <div class="cartItemMeta cartItemMetaBooking">
-            <span><i class="bi bi-calendar3"></i> ${esc(info.check_in || '')} ～ ${esc(info.check_out || '')}</span>
-            <span><i class="bi bi-moon"></i> ${info.total_days || 0} 晚</span>
-            <span><i class="bi bi-people"></i> ${info.guest_count || ''} 人</span>
+            <span><i class="bi bi-calendar3"></i> ${esc(info.checkIn || '')} ～ ${esc(info.checkOut || '')}</span>
+            <span><i class="bi bi-moon"></i> ${info.totalDays || 0} 晚</span>
+            <span><i class="bi bi-people"></i> ${info.guestCount || ''} 人</span>
           </div>
         </div>
         <div class="cartItemActions cartItemActionsBooking">
@@ -162,9 +158,8 @@ function renderStayBody() {
   $('#bookingCartStayCard').show();
 }
 
-// ── 裝備租借卡內容：與住宿項目共用 cartItem 結構，只保留 rental 資料差異 ──
 function renderRentalBody() {
-  var rentals = bookingCart.selected_rentals || [];
+  var rentals = bookingCart.selectedRentals || [];
 
   if (rentals.length === 0) {
     $('#bookingCartRentalBody').html(
@@ -180,6 +175,7 @@ function renderRentalBody() {
       <div class="cartItem cartItemBooking">
         <div class="cartItemInfo cartItemInfoBooking">
           <div class="cartItemTitle cartItemTitleBooking">${esc(r.name || '')}</div>
+          ${r.specLabel ? `<div class="rentalCartItemSpec rentalCartItemSpecBooking">${esc(r.specLabel)}</div>` : ''}
           <div class="cartItemMeta cartItemMetaBooking">
             <span>單價 NT$${Math.round(r.subtotal / r.quantity).toLocaleString()}</span>
           </div>
@@ -204,42 +200,40 @@ function renderRentalBody() {
   $('#bookingCartRentalCard').show();
 }
 
-// ── 右側費用摘要 ──
 function renderSummary() {
   var s = bookingCart.summary || {};
 
   var html = `
     <div class="bookingCostRow">
       <span>住宿費</span>
-      <span>NT$${(s.zone_total || 0).toLocaleString()}</span>
+      <span>NT$${(s.zoneTotal || 0).toLocaleString()}</span>
     </div>
     <div class="bookingCostRow">
       <span>裝備租借費</span>
-      <span>NT$${(s.rental_total || 0).toLocaleString()}</span>
+      <span>NT$${(s.rentalTotal || 0).toLocaleString()}</span>
     </div>
   `;
 
-  if (s.applied_discount > 0) {
+  if (s.appliedDiscount > 0) {
     html += `
       <div class="bookingCostRow bookingCostRowDiscount">
         <span><i class="bi bi-tag"></i> 租借折扣優惠</span>
-        <span>-NT$${s.applied_discount.toLocaleString()}</span>
+        <span>-NT$${s.appliedDiscount.toLocaleString()}</span>
       </div>
     `;
   }
 
   $('#bookingCartCostRows').html(html);
-  $('#bookingCartFinalAmount').text('NT$' + (s.final_amount || 0).toLocaleString());
+  $('#bookingCartFinalAmount').text('NT$' + (s.finalAmount || 0).toLocaleString());
 }
 
 // ============================================================
 // 工具函式
 // ============================================================
 
-// 重新計算 summary（zone_total / rental_total / final_amount）
 function recalcSummary() {
-  var zones = bookingCart.selected_zones || [];
-  var rentals = bookingCart.selected_rentals || [];
+  var zones = bookingCart.selectedZones || [];
+  var rentals = bookingCart.selectedRentals || [];
 
   var zoneTotal = zones.reduce(function (s, z) {
     return s + (z.subtotal || 0);
@@ -248,22 +242,21 @@ function recalcSummary() {
     return s + (r.subtotal || 0);
   }, 0);
 
-  // discount 保持不變（沒有儲存單件折扣，無法精確重算）
-  var discount = bookingCart.summary ? bookingCart.summary.applied_discount || 0 : 0;
+  var discount = bookingCart.summary ? bookingCart.summary.appliedDiscount || 0 : 0;
 
   bookingCart.summary = {
-    zone_total: zoneTotal,
-    rental_total: rentalTotal,
-    applied_discount: discount,
-    final_amount: zoneTotal + rentalTotal - discount,
+    zoneTotal: zoneTotal,
+    rentalTotal: rentalTotal,
+    appliedDiscount: discount,
+    finalAmount: zoneTotal + rentalTotal - discount,
   };
 
   updateItemCount();
 }
 
 function updateItemCount() {
-  var zones = bookingCart.selected_zones || [];
-  var rentals = bookingCart.selected_rentals || [];
+  var zones = bookingCart.selectedZones || [];
+  var rentals = bookingCart.selectedRentals || [];
   var total =
     zones.reduce(function (s, z) {
       return s + (z.quantity || 0);
@@ -275,7 +268,11 @@ function updateItemCount() {
 }
 
 function saveCart() {
-  localStorage.setItem('bookingCart', JSON.stringify(bookingCart));
+  if (typeof window.writeBookingCart === 'function') {
+    bookingCart = window.writeBookingCart(bookingCart);
+  } else {
+    localStorage.setItem('bookingCart', JSON.stringify(bookingCart));
+  }
 }
 
 function showEmptyState() {
@@ -284,7 +281,6 @@ function showEmptyState() {
   $('#bookingCartCount').text('');
 }
 
-// XSS 防護：轉義 HTML 特殊字元
 function esc(str) {
   return String(str)
     .replace(/&/g, '&amp;')
@@ -292,5 +288,3 @@ function esc(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
-
-// showConfirmToast 定義在 bookingHeader.js，此處不重複
