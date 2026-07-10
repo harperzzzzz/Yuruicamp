@@ -1,0 +1,45 @@
+# =============================================================================
+# Yuruicamp — 本機開發用 PostgreSQL（Docker Compose）
+# English: Local Postgres only; Spring Boot still runs on the host IDE.
+#
+# 使用方式 / How to use:
+#   1. Copy-Item .env.example .env   （並改密碼）
+#   2. docker compose up -d
+#   3. 本機連線：localhost:5433 / DB: yuruicamp
+# =============================================================================
+
+services:
+  # 服務名稱（docker compose 指令會用到，例如：docker compose logs yuruicamp-db）
+  yuruicamp-db:
+    image: postgres:16
+    container_name: yuruicamp-db
+    restart: unless-stopped
+
+    environment:
+      # 從 .env 讀取；沒寫時用 :- 後面的預設值
+      # Read from .env; fallback after :- if missing
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?請在 .env 設定 POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-yuruicamp}
+
+    ports:
+      # 本機 5433 → 容器內 5432（避開本機可能已佔用的 5432）
+      # Host 5433 → container 5432 (avoid conflict with local Postgres)
+      - "${POSTGRES_PORT:-5433}:5432"
+
+    volumes:
+      # 獨立資料卷：容器刪了，資料還在（除非 down -v）
+      # Named volume: data survives container removal (unless down -v)
+      - yuruicamp_data:/var/lib/postgresql/data
+
+    healthcheck:
+      # 方便確認 DB 真的就緒 / Check DB is ready
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-yuruicamp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  # 這裡的名字必須跟上面 volumes 掛載名稱完全相同
+  # Name must match the mount name above exactly
+  yuruicamp_data:

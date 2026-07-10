@@ -23,7 +23,7 @@ build/
 *.log
 logs/
 
-# 環境變量
+# 環境變量（保留 .env.example 給組員當範本；真密碼只放 .env）
 .env
 .env.local
 .env.*.local

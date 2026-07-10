@@ -1,3 +1,110 @@
+## 本機資料庫（Docker + PostgreSQL）
+
+後端開發使用 **PostgreSQL 16**。為了讓大家環境一致，資料庫用 Docker 啟動；  
+Spring Boot 仍建議在本機 IDE 執行（除錯比較方便）。
+
+相關檔案：
+
+| 檔案 | 說明 |
+|------|------|
+| [`docker-compose.yml`](./docker-compose.yml) | 只啟動 Postgres（不包前端／後端） |
+| [`.env.example`](./.env.example) | 環境變數範本（可進 Git） |
+| `.env` | 每人本機密碼（**不要** commit；已在 `.gitignore`） |
+
+### 你需要先安裝
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)（啟動後狀態要是 Running）
+
+### 第一次設定（每人做一次）
+
+1. 在專案根目錄複製環境變數檔：
+
+   ```powershell
+   Copy-Item .env.example .env
+   ```
+
+2. 用編輯器打開 `.env`，把 `POSTGRES_PASSWORD` 改成你自己的本機密碼。  
+   **不要把 `.env` commit / push 到 GitHub。**
+
+3. 啟動資料庫：
+
+   ```powershell
+   docker compose up -d
+   ```
+
+4. 確認容器有在跑：
+
+   ```powershell
+   docker ps
+   ```
+
+   應看得到 `yuruicamp-db`，且 PORTS 類似 `0.0.0.0:5433->5432/tcp`。
+
+### 連線資訊（給 Spring Boot / DBeaver / pgAdmin）
+
+| 項目 | 值 |
+|------|-----|
+| Host | `localhost` |
+| Port | `5433`（不是 5432） |
+| Database | `yuruicamp` |
+| Username | `.env` 裡的 `POSTGRES_USER`（預設 `postgres`） |
+| Password | `.env` 裡的 `POSTGRES_PASSWORD` |
+
+Spring Boot 範例（之後放在本機設定，勿把真密碼推進 Git）：
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5433/yuruicamp
+spring.datasource.username=postgres
+spring.datasource.password=你的密碼
+```
+
+### 常用指令
+
+```powershell
+# 啟動
+docker compose up -d
+
+# 看 log（排查連線問題很有用）
+docker compose logs -f yuruicamp-db
+
+# 停止（資料還在）
+docker compose down
+
+# 停止並清空資料卷（會刪光 DB 資料，慎用）
+docker compose down -v
+```
+
+### 建表（schema）
+
+目前 compose **只會建立空的 `yuruicamp` 資料庫**，不會自動建表。  
+表結構請使用專案內的：
+
+- [`docs/schema.sql`](./docs/schema.sql)
+- 說明文件：[`docs/database-er.md`](./docs/database-er.md)
+
+可用 DBeaver / pgAdmin / `psql` 對 `localhost:5433` 執行 `docs/schema.sql`。
+
+### 常見問題
+
+**Q: `port is already allocated` / 5433 被占用？**  
+A: 改 `.env` 的 `POSTGRES_PORT`（例如 `5434`），並同步改 Spring Boot 的連線 port。
+
+**Q: 我改了 `.env` 密碼，但連線還是舊密碼？**  
+A: Postgres 的帳密只在「資料卷第一次建立」時生效。若要重來（會清資料）：
+
+```powershell
+docker compose down -v
+docker compose up -d
+```
+
+**Q: 為什麼不用本機 5432？**  
+A: 很多人電腦已裝過 PostgreSQL，5432 容易衝突，所以預設用 **5433**。
+
+**Q: 可以把密碼寫在 `docker-compose.yml` 再推 GitHub 嗎？**  
+A: 不行。請用 `.env`（已在 `.gitignore`），範本用 `.env.example`。
+
+---
+
 ## Schema / 假資料
 
 | 文件 | 說明 |
