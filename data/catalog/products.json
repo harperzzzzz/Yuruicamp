@@ -536,7 +536,7 @@
       "safety"
     ],
     "price": 880,
-    "status": "disabled",
+    "status": "inactive",
     "image": "/assets/images/products/P010-1.jpg",
     "images": [
       "/assets/images/products/P010-1.jpg",
@@ -1453,7 +1453,7 @@
       "safety"
     ],
     "price": 199,
-    "status": "disabled",
+    "status": "inactive",
     "image": "/assets/images/products/P030-1.jpg",
     "images": [
       "/assets/images/products/P030-1.jpg",

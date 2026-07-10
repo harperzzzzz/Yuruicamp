@@ -336,8 +336,11 @@ window.API = {
         status: orderData.status || 'unshipped',
         shippingMethod: orderData.shippingMethod || 'delivery',
         address: orderData.address || '',
+        // payment = 付款方式；paymentStatus = unpaid|paid|refunded（COD → unpaid）
         payment: orderData.payment || 'credit-card',
-        paymentStatus: orderData.paymentStatus || (orderData.payment === 'cod' ? 'cod' : 'paid'),
+        paymentStatus:
+          orderData.paymentStatus ||
+          (orderData.payment === 'cod' ? 'unpaid' : 'paid'),
         createdAt: orderData.createdAt || _formatLocalDateTime(),
         deliveredAt: '',
         trackingNumber: '',

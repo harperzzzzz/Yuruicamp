@@ -13,6 +13,8 @@
 | 預約窗口 | `bookingWindowDays = 90` |
 | 折價券 | 會員中心僅 `birthday` + `firstPurchase`；結帳可輸入 `promotion` |
 | 訂單 / 預約 | **下單當下寫快照（B）** + 保留 `productId` / `variantId` 等 FK |
+| 訂單付款 | `payment`＝方式（credit-card/line-pay/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status |
+| 商品上下架 | `active` / `inactive`（勿用 `disabled`；`disabled` 僅折價券停用） |
 | 會員登入 | 僅 OAuth，**無 `password`** |
 | 部落格 | `productId` 統一 `P001` 格式、camelCase |
 | 靜態內容（不進 DB） | FAQ、夥伴營地 `PARTNER_DATA`、`rental-guide.html` |

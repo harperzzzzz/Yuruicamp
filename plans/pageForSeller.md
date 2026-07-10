@@ -1,5 +1,10 @@
 # Yuruicamp 露營選物品牌網站 - 賣家後台管理系統前端設計規格書
 
+> **歷史規格（2026-06）**：實作細節與路徑請以現行文件為準。  
+> - Mock 路徑：[`/data/**`](../js/data-paths.js)（**不是** `admin/data/`）  
+> - 枚舉／付款：[`docs/schema-enums.md`](../docs/schema-enums.md)（`payment` ≠ `paymentStatus`；商品下架用 `inactive`）  
+> - 整合規格：[`data-integration-spec.md`](./data-integration-spec.md)
+
 ## 執行摘要 (TL;DR)
 
 **目標**：建立可擴展的賣家後台前端框架，使用 HTML/CSS/JavaScript + Bootstrap 5 + jQuery，後台頁面完整實現，Mock 數據使用靜態 JSON，預留 API 接入點，展示高效率的數據可視化與行內互動體驗。
@@ -111,29 +116,30 @@ Yuruicamp/
 
 ### 步驟 1.2：Mock JSON 資料格式定義
 
-**`admin/data/orders.json`**（涵蓋三種 `orderStatus`，供篩選功能演示）：
+**`data/commerce/orders.json`**（現行路徑；以下為精簡範例）：
 
-> **欄位說明**：
-> - `id`：訂單編號，按 `createdAt` 升序排列，格式 `#0001` 起始
-> - `orderStatus`：訂單出貨狀態（供篩選 Select 使用，已移除 `shippingStatus`）
->   - `"unshipped"` 未出貨（顧客下單後的初始狀態）
->   - `"shipped"` 已出貨（賣家點「出貨」後）
+> **欄位說明**（對齊 2026-07 A 方案）：
+> - `id`：訂單編號（數字；畫面可用 `ORD-0001` 顯示）
+> - `status`：訂單出貨狀態
+>   - `"unshipped"` 未出貨
+>   - `"shipped"` 已出貨
+>   - `"completed"` 已完成
 >   - `"returned"` 已退貨
-> - `paymentStatus`：付款狀態（3 種）
->   - `"paid"` 已付款（線上付款完成）
->   - `"unpaid"` 未付款（線上付款待付）
->   - `"cod"` 貨到付款（取貨付款，永遠顯示此標籤不改變）
-> - `history`：訂單紀錄時間軸，陣列格式 `[{ "time": "...", "action": "..." }]`
+> - `payment`：付款**方式**（`credit-card` / `line-pay` / `cod`）
+> - `paymentStatus`：付款**狀態**（`paid` / `unpaid` / `refunded`）
+>   - 貨到付款＝`payment: "cod"` + `paymentStatus: "unpaid"`（**不要**把 `cod` 寫進 `paymentStatus`）
+> - `history`：訂單紀錄時間軸 `[{ "time": "...", "action": "..." }]`
 
 ```json
 [
   {
-    "id": "#0001",
+    "id": 1,
     "createdAt": "2026-05-27 15:44:18",
     "buyerName": "李建明",
     "total": 4560,
+    "payment": "credit-card",
     "paymentStatus": "paid",
-    "orderStatus": "shipped",
+    "status": "shipped",
     "items": [
       { "name": "折疊桌椅組", "qty": 1, "price": 2800 },
       { "name": "保溫壺 1L",  "qty": 2, "price": 880  }
@@ -148,12 +154,13 @@ Yuruicamp/
     ]
   },
   {
-    "id": "#0006",
+    "id": 6,
     "createdAt": "2026-06-04 14:32:10",
     "buyerName": "王小明",
     "total": 3850,
-    "paymentStatus": "cod",
-    "orderStatus": "unshipped",
+    "payment": "cod",
+    "paymentStatus": "unpaid",
+    "status": "unshipped",
     "items": [
       { "name": "Coleman 六人帳篷", "qty": 1, "price": 3200 },
       { "name": "充氣睡墊",          "qty": 2, "price": 325  }
@@ -168,7 +175,7 @@ Yuruicamp/
 ]
 ```
 
-**`admin/data/products.json`**：
+**`data/catalog/products.json`**（現行路徑；精簡範例）：
 ```json
 [
   {
@@ -184,7 +191,7 @@ Yuruicamp/
 ]
 ```
 
-**`admin/data/customers.json`**：
+**`data/customers/customers.json`**：
 ```json
 [
   {
@@ -203,7 +210,7 @@ Yuruicamp/
 ]
 ```
 
-**`admin/data/coupons.json`**：
+**`data/promotions/coupons.json`**：
 ```json
 [
   {
@@ -233,7 +240,9 @@ Yuruicamp/
 ]
 ```
 
-**`admin/data/reviews.json`**（新增）：
+> 券停用用 `disabled`（`coupon_status`）；商品下架用 `inactive`，勿混用。
+
+**`data/admin/reviews.json`**：
 
 > **欄位說明**：
 > - `rating`：1–5 星評分
@@ -983,7 +992,7 @@ window.initAnalytics = function() {
 ## 第 4 階段：訂單管理 (`partials/orders.html`)
 
 ### 步驟 4.1：訂單表格與狀態篩選
-*相依性：步驟 2.5、admin/data/orders.json*
+*相依性：步驟 2.5、data/commerce/orders.json*
 
 **視覺設計**：
 - 表格容器：`card shadow-sm border-0`
@@ -1192,21 +1201,24 @@ window.initOrders = function () {
 };
 
 function renderOrdersTable(orders) {
-  // 付款狀態 badge（3 種）
+  // 付款：COD 看 payment；其餘看 paymentStatus（A 方案）
   var payBadgeMap = {
-    paid:   '<span class="badge bg-success">已付款</span>',
-    unpaid: '<span class="badge bg-warning text-dark">未付款</span>',
-    cod:    '<span class="badge bg-info text-dark">貨到付款</span>'
+    paid:     '<span class="badge bg-success">已付款</span>',
+    unpaid:   '<span class="badge bg-warning text-dark">未付款</span>',
+    refunded: '<span class="badge bg-secondary">已退款</span>',
+    cod:      '<span class="badge bg-info text-dark">貨到付款</span>'
   };
-  // 訂單狀態 badge（3 種）
+  // 訂單狀態 badge
   var orderStatusMap = {
     unshipped: '<span class="badge bg-warning text-dark order-status-badge">未出貨</span>',
     shipped:   '<span class="badge bg-success order-status-badge">已出貨</span>',
+    completed: '<span class="badge bg-primary order-status-badge">已完成</span>',
     returned:  '<span class="badge bg-danger order-status-badge">已退貨</span>'
   };
 
   var html = orders.map(function (order) {
-    var shipBtn = (order.orderStatus === 'unshipped')
+    var status = order.status || order.orderStatus; // 現行欄位為 status
+    var shipBtn = (status === 'unshipped')
       ? '<button class="btn btn-sm btn-outline-success btn-ship-order">' +
         '<i class="fas fa-truck me-1"></i>出貨</button>'
       : '';
@@ -1214,13 +1226,16 @@ function renderOrdersTable(orders) {
                  ' style="cursor:pointer; text-decoration:underline dotted;" title="點擊查看訂單明細">' +
                  order.id + '</span>';
     var dp = order.createdAt.split(' ');
-    return '<tr data-order-id="' + order.id + '" data-order-status="' + order.orderStatus + '">' +
+    var payBadge = order.payment === 'cod'
+      ? payBadgeMap.cod
+      : (payBadgeMap[order.paymentStatus] || '');
+    return '<tr data-order-id="' + order.id + '" data-order-status="' + status + '">' +
            '<td>' + idLink + '</td>' +
            '<td>' + dp[0] + '<br><small class="text-muted">' + (dp[1]||'') + '</small></td>' +
            '<td class="fw-semibold">' + order.buyerName + '</td>' +
            '<td class="fw-semibold">NT$ ' + order.total.toLocaleString() + '</td>' +
-           '<td>' + (payBadgeMap[order.paymentStatus]||'') + '</td>' +
-           '<td>' + (orderStatusMap[order.orderStatus]||'') + '</td>' +
+           '<td>' + payBadge + '</td>' +
+           '<td>' + (orderStatusMap[status]||'') + '</td>' +
            '<td>' + shipBtn + '</td></tr>';
   }).join('');
   $('#ordersTableBody').html(html);
@@ -1258,7 +1273,7 @@ function showOrderModal(order) {
 ## 第 5 階段：商品與庫存管理 (`partials/products.html`)
 
 ### 步驟 5.0：`initProducts()` 完整入口函式
-*相依性：步驟 2.5、admin/data/products.json*
+*相依性：步驟 2.5、data/catalog/products.json*
 
 這是商品管理模組被 `core.js` 呼叫的初始化函式，負責載入數據、渲染表格、以及綁定所有事件。
 
@@ -1479,7 +1494,7 @@ function handleAddProduct(e) {
 ---
 
 ### 步驟 5.1：商品表格與低庫存預警
-*相依性：步驟 5.0、admin/data/products.json*
+*相依性：步驟 5.0、data/catalog/products.json*
 
 **視覺設計**：
 - 商品圖片：`<img>` 縮圖 (40×40, `rounded`)
@@ -1628,7 +1643,7 @@ $(document).on('change', '.status-toggle', function() {
 ## 第 6 階段：客戶管理 (`partials/customers.html`)
 
 ### 步驟 6.0：`initCustomers()` 完整入口函式
-*相依性：步驟 2.5、admin/data/customers.json*
+*相依性：步驟 2.5、data/customers/customers.json*
 
 ```javascript
 // admin/js/customers.js
@@ -1788,7 +1803,7 @@ function handleInlineEditSave() {
 ---
 
 ### 步驟 6.1：手風琴式會員清單
-*相依性：步驟 6.0、admin/data/customers.json*
+*相依性：步驟 6.0、data/customers/customers.json*
 
 **視覺設計**：
 - 外層用 Bootstrap `accordion`，每位會員為一個 `accordion-item`
@@ -2193,7 +2208,7 @@ function appendCouponRow(coupon) {
 ## 第 8 階段：評論管理 (`partials/reviews.html`)
 
 ### 步驟 8.1：評論卡片列表、篩選 Tab 與未回覆標記
-*相依性：步驟 2.5、admin/data/reviews.json*
+*相依性：步驟 2.5、data/admin/reviews.json*
 
 **視覺設計**：
 - 頁面頂部放置三個篩選 Tab（全部 / 未回覆 / 已回覆），使用 Bootstrap `nav-pills`
@@ -2235,7 +2250,7 @@ function appendCouponRow(coupon) {
 ---
 
 ### 步驟 8.2：`initReviews()` 動態渲染 + 回覆互動邏輯
-*相依性：步驟 8.1、admin/data/reviews.json*
+*相依性：步驟 8.1、data/admin/reviews.json*
 
 ```javascript
 // admin/js/reviews.js
@@ -2533,8 +2548,8 @@ function updateReviewTabCounts(reviews) {
 
 ### 訂單管理
 - [x] 訂單表格由 Mock JSON 動態渲染（6 筆，id 格式 #0001~#0006 按下單時間升序）
-- [x] 付款狀態 3 種：已付款（綠）、未付款（黃）、貨到付款（藍），貨到付款不改變
-- [x] 訂單狀態 3 種：未出貨（黃）、已出貨（綠）、已退貨（紅）
+- [x] 付款：`payment`（方式）與 `paymentStatus`（狀態）分開；COD＝`payment:cod` + `unpaid`，badge 可顯示貨到付款
+- [x] 訂單狀態：未出貨／已出貨／已完成／已退貨
 - [x] 篩選 `<select>` 切換後，對應 `data-order-status` 的列正確顯示/隱藏
 - [x] 點擊「訂單編號」（虛線底線）彈出 Modal，顯示商品清單、地址、訂單紀錄時間軸
 - [x] 「查看」按鈕已移除
@@ -2676,23 +2691,25 @@ function updateReviewTabCounts(reviews) {
 
 ### E-1 訂單管理功能升級
 
-**付款狀態新增「貨到付款」**
+**付款方式與付款狀態分開（2026-07 A 方案）**
 
-| `paymentStatus` 值 | 顯示文字 | Badge 顏色 |
+| 欄位 | 值 | 顯示 |
 |---|---|---|
-| `paid` | 已付款 | `bg-success` |
-| `unpaid` | 未付款 | `bg-warning text-dark` |
-| `cod` | 貨到付款 | `bg-info text-dark` |
+| `payment` | `credit-card` / `line-pay` / `cod` | 信用卡／LINE Pay／貨到付款 |
+| `paymentStatus` | `paid` / `unpaid` / `refunded` | 已付款／未付款／已退款 |
 
-**訂單狀態簡化為三種**
+貨到付款：`payment: "cod"` + `paymentStatus: "unpaid"`（後台可優先顯示「貨到付款」badge）。
 
-| `orderStatus` 值 | 顯示文字 | 說明 |
+**訂單狀態**
+
+| `status` 值 | 顯示文字 | 說明 |
 |---|---|---|
 | `unshipped` | 未出貨 | 初始狀態，顯示「出貨」按鈕 |
-| `shipped` | 已出貨 | 點擊出貨後，按鈕消失 |
+| `shipped` | 已出貨 | 點擊出貨後 |
+| `completed` | 已完成 | 非 COD 可標記完成 |
 | `returned` | 已退貨 | 退貨狀態 |
 
-> 已移除原本的 `shippingStatus` 獨立欄位，統一由 `orderStatus` 管理。
+> 已移除原本的 `shippingStatus` 獨立欄位；現行訂單狀態欄位為 `status`（舊文件曾寫 `orderStatus`）。
 
 **訂單 ID 格式**
 
@@ -2776,6 +2793,6 @@ node -e "const fs = require('fs'); const c = fs.readFileSync('admin/js/customers
 | `discounts.js` | 啟用中、已停用、折抵 NT$、無限期 | ✅ |
 | `reviews.js` | 已回覆、待回覆、賣家回覆、送出回覆 | ✅ |
 | `orders.js` | order-id-link、btn-ship-order、showOrderModal、modalHistory | ✅ |
-| `orders.json` | #0001 格式、paymentStatus、orderStatus、history 陣列 | ✅ |
+| `orders.json` | `payment`＋`paymentStatus`、`status`、history 陣列 | ✅ |
 | `dashboard.html` | orderDetailModal、modalHistory | ✅ |
 | `core.js` | showAdminToast | ✅ |

@@ -1,18 +1,20 @@
 # Mock JSON → SQL Seed 對照表
 
+> **定案日期**：2026-07-09（A 方案對齊：`payment` ≠ `paymentStatus`；商品 `inactive`）  
 > 用途：把目前 `/data/**` 假資料對應到 [`schema.sql`](./schema.sql) 的表，方便 bootcamp 寫 seed script 或手動 INSERT。  
-> 規格：[`../plans/data-integration-spec.md`](../plans/data-integration-spec.md)
+> 規格：[`../plans/data-integration-spec.md`](../plans/data-integration-spec.md)  
+> 枚舉：[`schema-enums.md`](./schema-enums.md) · 快照：[`snapshot-fields.md`](./snapshot-fields.md)
 
 ## 總覽
 
 | JSON 檔案 | SQL 表 | 陣列／巢狀 → 子表 |
 |-----------|--------|-------------------|
-| `data/customers/customers.json` | `customers` | `preferences` → JSONB 或拆表；`shippingAddress` → JSONB；`tags` → JSONB 或 `customer_tags` |
-| `data/catalog/products.json` | `products` | `variants[]` → `product_variants`；`variants[].branch` → `product_variant_branch_stocks`（可選正規化） |
+| `data/customers/customers.json` | `customers` | `preferences` → JSONB；`shippingAddress` → JSONB；`tags` → JSONB |
+| `data/catalog/products.json` | `products` | `variants[]` → `product_variants`；`variants[].branch` → `branch_stock` JSONB（可選再正規化） |
 | `data/catalog/campgrounds.json` | `campgrounds` | `zones[]` → `campground_zones`；tags → JSONB |
 | `data/catalog/camp-equipment.json` | `rental_listings` | **衍生表**；`stock` 來自 rental sku variant camp stock |
 | `data/commerce/orders.json` | `orders` | `items[]` → `order_items`；`history[]` → `order_history`；`coupons[]` → `order_coupons` |
-| `data/commerce/camp-bookings.json` | `bookings` | `selectedZones[]` → `booking_selected_zones`；`selectedRentals[]` → `booking_selected_rentals`；`bookingInfo` 展開到 bookings 欄位；`summary` 展開；`history[]` → `booking_history` |
+| `data/commerce/camp-bookings.json` | `bookings` | `selectedZones[]` → `booking_selected_zones`；`selectedRentals[]` → `booking_selected_rentals`；`bookingInfo`／`summary` 展開；`history[]` → `booking_history` |
 | `data/admin/rental-skus.json` | `rental_skus` | `variants[]` + `camp` map → `rental_sku_variant_stocks`；頂層 `camp[]` 可作加總檢核 |
 | `data/promotions/coupons.json` | `coupons` | （扁平，一列一券） |
 | `data/admin/reviews.json` | `reviews` | `photos[]` → JSONB 或 `review_photos` |
@@ -24,6 +26,20 @@
 | `data/marketing/articles.json` | `articles` | `content[]` → `article_content_blocks`；`relatedProducts[]` → `article_related_products` |
 | `data/marketing/branches.json` | `branches` | `features[]` → `branch_features` |
 | `data/marketing/brands.json` | `brands` | （扁平） |
+
+---
+
+## Seed 前必洗（canonical）
+
+寫入 PostgreSQL ENUM 前，確認 mock 已是下列值（否則 INSERT 會失敗）：
+
+| 欄位 | 允許值 | 常見舊值 → 怎麼改 |
+|------|--------|-------------------|
+| `orders.status` | `unshipped` \| `shipped` \| `completed` \| `returned` | `delivered` → `completed` |
+| `orders.payment` | `credit-card` \| `line-pay` \| `cod` | （新增欄；方式） |
+| `orders.paymentStatus` | `unpaid` \| `paid` \| `refunded` | ~~`cod`~~ → `payment:'cod'` + `paymentStatus:'unpaid'` |
+| `products.status` | `active` \| `inactive` | ~~`disabled`~~ → `inactive` |
+| `coupons.status` | `active` \| `disabled` | （券停用仍用 `disabled`，與商品不同） |
 
 ---
 
@@ -48,8 +64,9 @@
 | JSON | SQL | 備註 |
 |------|-----|------|
 | 頂層一筆 SPU | `products` 一列 | `name` 不含規格 |
+| `status` | `status` | `active` / `inactive`（下架） |
 | `variants[]` | `product_variants` | `id` = `sku`（例 `v-P001-0`） |
-| `variants[].branch` | 可留 JSONB，或拆 `product_variant_branch_stocks(variant_id, branch_key, quantity)` | |
+| `variants[].branch` | `product_variants.branch_stock` JSONB | DDL 預設 JSONB；可選再拆獨立表 |
 | `totalStock` / 頂層 `branch` | **不要當真相寫入** | 由 variants 加總衍生 |
 
 ### 3. `campgrounds.json` → `campgrounds` + `campground_zones`
@@ -92,11 +109,16 @@ Seed 建議：先插 `rental_skus`／stocks，再跑與 `sync-rental-listings.cj
 |------|-----|
 | 頂層 | `orders`（`customerId` → `customer_id`） |
 | `buyerName`, `address` | **快照**欄位 |
+| `payment` | `payment`（`payment_method` ENUM） |
+| `paymentStatus` | `payment_status` |
+| `shippingMethod` | `shipping_method` |
 | `items[]` | `order_items`（含 `productId`/`variantId`/`sku`/`name`/`specLabel`） |
 | `history[]` | `order_history` |
 | `coupons[]`（若有） | `order_coupons` |
 
-`status` 僅：`unshipped` | `shipped` | `completed` | `returned`
+- `status` 僅：`unshipped` | `shipped` | `completed` | `returned`
+- `paymentStatus` 僅：`unpaid` | `paid` | `refunded`
+- 貨到付款範例：`payment: "cod"` + `paymentStatus: "unpaid"`
 
 ### 7. `camp-bookings.json` → `bookings` + 子表
 

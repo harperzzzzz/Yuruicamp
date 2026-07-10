@@ -31,6 +31,14 @@ CREATE TYPE payment_status AS ENUM (
   'refunded'
 );
 
+-- 付款方式（≠ 付款狀態）：貨到付款是 method=cod + status=unpaid
+-- Payment method (≠ payment_status): COD = method cod + status unpaid
+CREATE TYPE payment_method AS ENUM (
+  'credit-card',
+  'line-pay',
+  'cod'
+);
+
 CREATE TYPE shipping_method AS ENUM (
   'delivery',
   'pickup'
@@ -315,6 +323,7 @@ CREATE TABLE orders (
   total             NUMERIC(12, 2) NOT NULL DEFAULT 0,
   points            INTEGER NOT NULL DEFAULT 0,
   points_awarded    BOOLEAN NOT NULL DEFAULT FALSE,
+  payment           payment_method,                   -- 付款方式（JSON: payment）
   payment_status    payment_status NOT NULL DEFAULT 'unpaid',
   status            order_status NOT NULL DEFAULT 'unshipped',
   shipping_method   shipping_method,
@@ -328,6 +337,10 @@ CREATE TABLE orders (
 
 COMMENT ON TABLE orders IS
   '商城訂單。buyer_name/address 為下單快照；用 customer_id 查會員訂單。 / Orders with buyer snapshots.';
+COMMENT ON COLUMN orders.payment IS
+  '付款方式 credit-card|line-pay|cod；≠ payment_status / Payment method (not status)';
+COMMENT ON COLUMN orders.payment_status IS
+  '付款狀態 unpaid|paid|refunded；COD 通常為 unpaid / Payment status';
 
 CREATE INDEX idx_orders_customer ON orders(customer_id);
 CREATE INDEX idx_orders_status ON orders(status);

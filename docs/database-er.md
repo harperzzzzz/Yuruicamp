@@ -190,7 +190,8 @@ erDiagram
 | 地址 | `address` | **快照** |
 | 金額欄 | `subtotal` / `shippingFee` / `discount` / `total` | |
 | 點數 | `points` / `pointsAwarded` | |
-| 付款狀態 | `paymentStatus` | 見 enums |
+| 付款方式 | `payment` | `credit-card` \| `line-pay` \| `cod`（見 enums） |
+| 付款狀態 | `paymentStatus` | `unpaid` \| `paid` \| `refunded`（**不是** `cod`） |
 | 訂單狀態 | `status` | `unshipped` \| `shipped` \| `completed` \| `returned` |
 | 配送 | `shippingMethod` / `trackingNumber` | |
 | 建立時間 | `createdAt` | camelCase |

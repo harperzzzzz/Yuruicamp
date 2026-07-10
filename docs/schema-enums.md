@@ -26,11 +26,27 @@
 
 | 值 | 中文 | 說明 |
 |----|------|------|
-| `unpaid` | 未付款 | |
+| `unpaid` | 未付款 | 含貨到付款尚未收款 |
 | `paid` | 已付款 | |
 | `refunded` | 已退款 | 常見於取消預約 |
 
-**使用處**：`ORDERS.payment_status`、`BOOKINGS.payment_status`
+**使用處**：`ORDERS.payment_status`、`BOOKINGS.payment_status`  
+
+**不要再用**：把 `cod` 寫進 `paymentStatus`（舊錯誤）。貨到付款請用下方 `payment_method`。
+
+---
+
+## 2b. 付款方式 `payment_method`（訂單）
+
+| 值 | 中文 | 對應 `payment_status` 常見組合 |
+|----|------|--------------------------------|
+| `credit-card` | 信用卡 | 通常 `paid` |
+| `line-pay` | LINE Pay | 通常 `paid` |
+| `cod` | 貨到付款 | 通常 `unpaid`（取貨才收款） |
+
+**來源 JSON**：`data/commerce/orders.json` → `payment`  
+**DDL 欄位**：`ORDERS.payment`  
+**口訣**：方式（怎麼付）≠ 狀態（付了沒）
 
 ---
 
@@ -99,7 +115,8 @@
 | `active` | 上架 |
 | `inactive` | 下架 |
 
-**來源**：`data/catalog/products.json` → `status`
+**來源**：`data/catalog/products.json` → `status`  
+**不要再用**：`disabled`（舊別名；券的停用才用 `coupon_status.disabled`）
 
 ---
 
@@ -138,13 +155,13 @@
 
 ---
 
-## 12. 會員登入提供者 `auth_provider`（建議）
+## 12. 會員登入提供者 `auth_provider`
 
 | 值 | 說明 |
 |----|------|
 | `google` | Google OAuth |
 | `facebook` | Facebook OAuth |
-| `line` | LINE Login（若未來支援） |
+| `line` | LINE Login |
 
 **注意**：會員**僅 OAuth**，資料庫**不存 `password`**。  
 **來源**：`data/customers/customers.json` → `authProvider`

@@ -28,7 +28,7 @@
 | `buyer_name` | **快照** | 下單當下姓名（可與會員現名不同） |
 | `address` | **快照** | 下單當下配送地址字串 |
 | `buyer_phone` | **快照**（可選） | 下單當下電話 |
-| `status` / `payment_status` / 金額欄 | 業務欄位 | 非快照、非商品 FK |
+| `status` / `payment` / `payment_status` / 金額欄 | 業務欄位 | `payment`＝方式；`payment_status`＝付了沒（非快照、非商品 FK） |
 
 > 不要再從 `customers.orders[]` 反查；一律用 `orders.customer_id`。
 

@@ -3,7 +3,8 @@
  * 商品 & 庫存管理模組
  * 使用 jQuery Event Namespace (.products) 防止重複導覽時事件堆疊
  *
- * products.json 欄位對應：thumbnail（非 image）、status:"active"/"disabled"（非 active:bool）
+ * products.json 欄位對應：thumbnail（非 image）、status:"active"/"inactive"（非 active:bool）
+ * Product status canonical: active = 上架, inactive = 下架（勿再用 disabled）
  * 分店庫存由 branch.branch-001 / branch-002 / branch-003 保存，總庫存由 total-stock 保存。
  * 低庫存：任一分店／營地實際庫存低於其最低值時，該格數字顯示紅色（text-danger）
  * 低庫存閾值由各商品各分店在 min-stock.json 獨立設定（預設 5）

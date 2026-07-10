@@ -121,8 +121,11 @@ function _getSelectedPaymentCode() {
 }
 
 // Return payment status for the selected payment method.
+// 付款方式（payment）與付款狀態（paymentStatus）分開：
+// COD = payment:'cod' + paymentStatus:'unpaid'；其餘預設已付款。
+// Keep method vs status separate: COD → unpaid; other methods → paid.
 function _getCheckoutPaymentStatus() {
-  return _getSelectedPaymentCode() === 'cod' ? 'cod' : 'paid';
+  return _getSelectedPaymentCode() === 'cod' ? 'unpaid' : 'paid';
 }
 
 // Build coupon snapshots for the order payload.

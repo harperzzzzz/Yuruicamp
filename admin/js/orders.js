@@ -5,8 +5,8 @@
  * 設計重點：
  *   1. 從 orders.json 載入後存入 window.ordersCache，避免重複 fetch
  *   2. 訂單含 customerId；items 含 productId（可從 customers.orders 反查）
- *   2. 付款狀態支援 3 種：已付款 / 未付款 / 貨到付款
- *   3. 訂單狀態支援 3 種：未出貨 / 已出貨 / 已退貨
+ *   2. 付款狀態：已付款 / 未付款 / 已退款；貨到付款看 payment==='cod'（不是 paymentStatus）
+ *   3. 訂單狀態：未出貨 / 已出貨 / 已退貨 / 已完成
  *   4. 點擊訂單編號開啟 modal，modal 內顯示訂單紀錄時間軸
  *   5. 點擊出貨按鈕後更新 status 並 push 新 history 紀錄
  *   6. 欄位排序（可疊加）：訂單日期、總金額
@@ -201,8 +201,9 @@ window.initOrders = function () {
     var order   = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (!order) return;
 
-    // 二次防護：COD 訂單不允許完成（按鈕邏輯已過濾，此處防止異常呼叫）
-    if (order.paymentStatus === 'cod') return;
+    // 二次防護：COD（貨到付款）訂單不允許完成（看 payment，不是 paymentStatus）
+    // Guard: COD orders cannot be marked completed (check payment method, not status)
+    if (order.payment === 'cod') return;
 
     order.status = 'completed';
 
@@ -539,9 +540,14 @@ function applyFiltersAndSort() {
 
   // ── Step 1：篩選 ──────────────────────────────────
   // 付款狀態篩選（OR）：有勾選時才篩；空陣列 = 顯示全部
+  // 篩選：paid/unpaid/refunded 比對 paymentStatus；cod 比對 payment 欄位
+  // Filter: paid/unpaid/refunded → paymentStatus; cod → payment method
   if (filterState.paymentStatus.length > 0) {
     data = data.filter(function (o) {
-      return filterState.paymentStatus.indexOf(o.paymentStatus) !== -1;
+      return filterState.paymentStatus.some(function (v) {
+        if (v === 'cod') return o.payment === 'cod';
+        return o.paymentStatus === v;
+      });
     });
   }
 
@@ -678,12 +684,13 @@ function renderOrdersTable(orders) {
     return;
   }
 
-  // 付款狀態 badge（3 種）
-  // paid = 已付款（綠）/ unpaid = 未付款（黃）/ cod = 貨到付款（藍）
+  // 付款顯示：COD 看 payment 欄（藍）；其餘看 paymentStatus
+  // Display: COD from payment method; otherwise payment_status badge
   var payBadgeMap = {
-    paid:   '<span class="badge bg-success">已付款</span>',
-    unpaid: '<span class="badge bg-warning text-dark">未付款</span>',
-    cod:    '<span class="badge bg-info text-dark">貨到付款</span>'
+    paid:     '<span class="badge bg-success">已付款</span>',
+    unpaid:   '<span class="badge bg-warning text-dark">未付款</span>',
+    refunded: '<span class="badge bg-secondary">已退款</span>',
+    cod:      '<span class="badge bg-info text-dark">貨到付款</span>'
   };
 
   // 訂單狀態 badge（4 種）
@@ -700,18 +707,21 @@ function renderOrdersTable(orders) {
   var orderCustomerMap = buildOrderToCustomerMap();
 
   var html = orders.map(function (order) {
-    var payBadge    = payBadgeMap[order.paymentStatus]  || '';
+    // COD 優先顯示「貨到付款」；否則顯示付款狀態 badge
+    var payBadge = order.payment === 'cod'
+      ? payBadgeMap.cod
+      : (payBadgeMap[order.paymentStatus] || '');
     var statusBadge = statusMap[order.status] || '';
 
     // 操作欄按鈕邏輯：
     //   未出貨               → 顯示「出貨」按鈕
-    //   已出貨 且 非貨到付款 → 顯示「完成」按鈕（COD 訂單送達時無法確認付款，故不允許完成）
+    //   已出貨 且 非貨到付款 → 顯示「完成」按鈕（COD 看 payment，送達時無法確認付款）
     //   其餘狀態             → 不顯示按鈕
     var actionBtn = '';
     if (order.status === 'unshipped') {
       actionBtn = '<button class="btn btn-sm btn-outline-success btn-ship-order" title="確認出貨">' +
                   '<i class="fas fa-truck me-1"></i>出貨</button>';
-    } else if (order.status === 'shipped' && order.paymentStatus !== 'cod') {
+    } else if (order.status === 'shipped' && order.payment !== 'cod') {
       actionBtn = '<button class="btn btn-sm btn-outline-primary btn-complete-order" title="確認送達完成">' +
                   '<i class="fas fa-check-circle me-1"></i>完成</button>';
     }
