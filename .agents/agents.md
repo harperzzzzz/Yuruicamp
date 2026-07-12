@@ -1,33 +1,20 @@
 請先讀取：
-- `docs/ai-style-sheet.md`
-- `js/main.js`
-- `css/components/widgets/_floating-actions.scss`
-- `booking/css/components/_floating-actions.scss`
-
+- `schema.sql`
+- `data/customers/customers.json`
+- `componenets/header.partial`
+- `componenets/member-center.partial`
+- `js/components/auth.js`
+- `js/components/member-center.js`
 
 ## 任務目標:
-統一booking 和主站的floatingActions 元件。
 
 ## 問題解決流程:
-`css/components/widgets/_floating-actions.scss` 刪除，`booking/css/components/_floating-actions.scss`移動到css/components/widgets 並且可以支援主站和booking 的渲染。
-`js/main.js` 移除掉整個div.floating-actions，div.floatingActions 也要渲染到pages/ 中的每個網頁。
 
 ## 預期結果：
-主站的div.floating-actions 要被booking 的div.floatingActions 取代。
 
 ## 技術限制：
-- 保留現有 Vite 專案結構。
-- 使用目前的 HTML、SCSS、JavaScript 架構。
-- 遵守 `docs/itcss-architecture.md` 架構規範的架構。
-- 不可修改與此任務無關的檔案。
-- 不可新增未定義的新色碼、字體、間距系統。
-- 不可自行增加 `docs/frontend-specs/` 中沒有的功能。
-- 不要強制用疊加CSS 的手法去修改樣式。
-- 所有互動需可由鍵盤操作。
-- 手機版寬度 375px 不可水平捲動。
-- 不可使用 inline style。
-- 不可使用 !important。
-- 所有class 和id 命名都要使用駝峰式命名法，且都要語意化。
-- 將更新的程式內容簡述到根目錄的README.md。
+- 要符合資料庫第一正規化、第二正規化、第三正規化
 
 ## 驗收方式：
+
+
