@@ -82,11 +82,14 @@
       .map((src, index) => {
         const safeSrc = escapeHtml(src);
         // No data-title: avoids GLightbox bottom white title bar / 不設標題，避免下方白條
+        // data-type="image" forces image slide (avoids white "external" iframe layout)
+        // 強制當成圖片開啟，避免被誤判成 external 而出現白底留白
         return `
           <div class="swiper-slide">
             <a href="${safeSrc}"
                class="glightbox card-gallery-glightbox"
-               data-gallery="${safeGalleryId}">
+               data-gallery="${safeGalleryId}"
+               data-type="image">
               <img src="${safeSrc}"
                    alt="${safeAlt}${list.length > 1 ? ` ${index + 1}` : ''}"
                    loading="lazy"${onErrorAttr}>
@@ -155,6 +158,10 @@
         nested: true,
         watchOverflow: true,
         resistanceRatio: 0.65,
+        // Allow GLightbox link clicks (do not swallow <a> clicks)
+        // 不要攔截連結點擊，否則燈箱打不開、瀏覽器會直接開圖（白底留白）
+        preventClicks: false,
+        preventClicksPropagation: false,
         pagination: {
           el: el.querySelector('.swiper-pagination'),
           clickable: true,
@@ -178,6 +185,9 @@
       loop: true,
       openEffect: 'fade',
       closeEffect: 'fade',
+      // Allow click-to-zoom after open / 開啟後可再點一下放大
+      zoomable: true,
+      draggable: true,
       // Hide description/title strip under the image / 隱藏圖片下方標題白條
       moreLength: 0,
     });

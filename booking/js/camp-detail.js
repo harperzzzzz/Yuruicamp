@@ -119,18 +119,34 @@ function renderCampDetail(camp) {
     <div class="campHeaderTags">${envTagsHTML}${facTagsHTML}</div>
   `);
 
-  // 渲染圖片區（3 張 picsum 佔位圖）/ Render gallery with picsum placeholders
-  const galleryHTML = [0, 1, 2]
-    .map(
-      (i) => `
-    <img src="https://picsum.photos/seed/${camp.campgroundId}_${i}/600/400"
-         alt="${camp.name} 第 ${i + 1} 張圖"
-         class="galleryImg${i === 0 ? ' galleryImgHero' : ''}"
-         loading="lazy">
-  `
-    )
+  // 渲染圖片區：保留主圖＋網格，點擊用 GLightbox 放大
+  // Gallery: keep hero + grid layout; click opens shared GLightbox preview
+  const campImages =
+    Array.isArray(camp.images) && camp.images.length > 0
+      ? camp.images.filter(Boolean)
+      : [0, 1, 2].map(
+          (i) => `https://picsum.photos/seed/${camp.campgroundId}_${i}/1200/800`
+        );
+
+  const galleryHTML = campImages
+    .map((src, i) => {
+      const isHero = i === 0;
+      return `
+      <a href="${src}"
+         class="glightbox card-gallery-glightbox galleryImgLink${isHero ? ' galleryImgLinkHero' : ''}"
+         data-gallery="camp-detail-${camp.campgroundId}"
+         data-type="image"
+         aria-label="放大檢視 ${camp.name} 第 ${i + 1} 張圖">
+        <img src="${src}"
+             alt="${camp.name} 第 ${i + 1} 張圖"
+             class="galleryImg${isHero ? ' galleryImgHero' : ''}"
+             loading="lazy">
+      </a>`;
+    })
     .join('');
   $('#campGallery').html(galleryHTML);
+  // Init lightbox after DOM insert / 插入 DOM 後初始化燈箱
+  window.initCardGalleries?.(document.getElementById('campGallery'));
 
   // 渲染介紹文字與設施 / Render description and facilities
   const allFacHTML = camp.facilityTags

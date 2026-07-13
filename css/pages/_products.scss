@@ -302,11 +302,15 @@ $product-rating: var(--yc-pending-line);
   transform: translateY(-4px);
 }
 
+// Fixed 4:3 thumbnail — flex-shrink:0 so body content cannot squash the image
+// 縮圖固定 4:3；flex-shrink:0 避免下方規格文字把圖片壓扁
 .productCardImageWrap {
   aspect-ratio: 4 / 3;
   background: $product-background-soft;
+  flex-shrink: 0;
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .productCardImageWrap img {
@@ -358,10 +362,18 @@ $product-rating: var(--yc-pending-line);
   -webkit-line-clamp: 2;
 }
 
+// Fixed specs slot so cards with 0 / 1 / many variants stay the same height.
+// 規格區固定高度：無規格／單規格／多規格卡片同高；過多時可捲動仍可點選。
 .productCardSpecs {
+  align-content: start;
   display: grid;
   gap: 0.35rem;
   margin-bottom: 0.5rem;
+  max-height: 4.75rem;
+  min-height: 4.75rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .productCardSpecGroup {
@@ -393,6 +405,9 @@ $product-rating: var(--yc-pending-line);
   font-size: 0.75rem;
   font-weight: 600;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .productCardRating {

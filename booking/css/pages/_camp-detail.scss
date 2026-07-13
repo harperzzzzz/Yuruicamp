@@ -1,4 +1,4 @@
-﻿.detailPage {
+.detailPage {
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 4rem;
@@ -96,20 +96,39 @@
   margin-bottom: 1.25rem;
 }
 
+// Lightbox link wraps each thumb; hero spans full row / 連結包住縮圖，主圖橫跨整列
+.galleryImgLink {
+  cursor: zoom-in;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.galleryImgLinkHero {
+  grid-column: 1 / -1;
+}
+
 .galleryImg {
   width: 100%;
   aspect-ratio: 4/3;
   object-fit: cover;
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .galleryImgHero {
-  grid-column: 1 / -1;
   aspect-ratio: 16/7;
 }
 
-.galleryImg:hover {
+.galleryImgLink:hover .galleryImg,
+.galleryImgLink:focus-visible .galleryImg {
   transform: scale(1.03);
+}
+
+.galleryImgLink:focus-visible {
+  outline: 3px solid var(--yc-sage-action);
+  outline-offset: 2px;
 }
 
 .campDescription {
@@ -234,7 +253,9 @@
     grid-template-columns: 1fr;
   }
 
-  .galleryImg:not(.galleryImgHero) {
+  // Mobile: show hero only; lightbox still has all images for swipe
+  // 手機只顯示主圖；燈箱內仍可左右切換全部圖片
+  .galleryImgLink:not(.galleryImgLinkHero) {
     display: none;
   }
 

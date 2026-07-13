@@ -121,21 +121,30 @@ const _buildCustomerNotifications = (customer, orders) => {
   (orders || []).filter((o) => o.customerId === cid).forEach((o) => {
     const disp = window.formatOrderDisplayId(o.id);
     if (o.status === 'shipped') {
+      // orderId：點通知可開訂單明細；trackingNumber 對應 schema orders.tracking_number
+      const trackHint = o.trackingNumber
+        ? '運單編號：' + o.trackingNumber + '。'
+        : '';
       list.push({
         id: 'n-ship-' + o.id,
         type: 'order',
+        orderId: o.id,
         title: '訂單 ' + disp + ' 已出貨',
-        message: '您的訂單已由宅配公司取件，請留意配送進度。',
+        message: trackHint + '您的訂單已由宅配公司取件，請留意配送進度。',
         time: o.createdAt,
         read: false,
       });
     }
     if (o.status === 'completed') {
+      const trackHint = o.trackingNumber
+        ? '運單編號：' + o.trackingNumber + '。'
+        : '';
       list.push({
         id: 'n-done-' + o.id,
         type: 'order',
+        orderId: o.id,
         title: '訂單 ' + disp + ' 已送達',
-        message: '已送達，歡迎評價。',
+        message: trackHint + '已送達，歡迎評價。',
         time: o.deliveredAt || o.createdAt,
         read: false,
       });

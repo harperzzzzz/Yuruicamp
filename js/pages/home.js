@@ -50,7 +50,9 @@ function _buildHomeCardSpecChips(product, defaultSel) {
   const preview = hasMultipleSpecs && defaultSel.specLabel
     ? `<p class="homeProductSpecPreview">${defaultSel.specLabel}</p>`
     : '';
-  return parts.length ? `<div class="homeProductSpecs">${parts.join('')}${preview}</div>` : preview;
+  // Always render the specs wrapper (even if empty) so CSS min-height keeps cards equal.
+  // 一律輸出規格容器（即使沒有 chip），CSS 才能用固定高度讓卡片對齊。
+  return `<div class="homeProductSpecs">${parts.join('')}${preview}</div>`;
 }
 
 function _readHomeCardSpecSelection(card) {

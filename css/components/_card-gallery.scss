@@ -1,8 +1,16 @@
 // Card gallery：商品卡／營地卡共用的 Swiper + GLightbox 圖片區樣式。
 // Keep controls compact so they do not dominate the card.
+//
+// Important / 重要：
+// Do NOT set height: 100% on .cardGallery itself.
+// 不要在 .cardGallery 上設 height: 100%。
+// Product/camp cards size the image with aspect-ratio on the wrap class
+// (e.g. .homeProductImage). height: 100% would override aspect-ratio and
+// make thumbnails uneven when card body height differs (multi-spec chips).
+// 商品卡用 wrap class 的 aspect-ratio 決定縮圖高度；若設 height:100%
+// 會蓋掉比例，規格多寡不同時縮圖就會忽大忽小。
 
 .cardGallery {
-  height: 100%;
   position: relative;
   width: 100%;
 }
@@ -38,6 +46,19 @@
   height: 100%;
   justify-content: center;
   min-height: 10rem;
+}
+
+// Pin Swiper inside aspect-ratio wraps so every card thumbnail stays equal.
+// 把輪播絕對定位填滿比例框，確保每張卡縮圖同大。
+.homeProductImage.cardGallery,
+.productCardImageWrap.cardGallery,
+.campCardImageBooking.cardGallery {
+  .swiper,
+  .cardGalleryEmpty {
+    inset: 0;
+    min-height: 0;
+    position: absolute;
+  }
 }
 
 // Compact nav arrows / 縮小箭頭，避免蓋住整張卡
@@ -102,8 +123,57 @@
   transform: none;
 }
 
-// Hide GLightbox title/description white bar under the image
-// 隱藏燈箱圖片下方的標題白條（即使誤帶 data-title 也不顯示）
-.glightbox-container .gslide-description {
+// ── GLightbox：放大預覽盡量塞滿視窗、隱藏白底說明條 ───────────────────
+// Outer box fills the viewport; img uses object-fit:contain so SMALL sources
+// scale UP (and large ones scale DOWN) without cropping.
+// 外層先佔滿可視區；object-fit:contain 會把小圖放大、大圖縮小，且不裁切。
+
+.glightbox-container .gslide-description,
+.glightbox-container .gdesc {
   display: none !important;
+}
+
+.glightbox-container .ginner-container,
+.glightbox-container .gslide-media,
+.glightbox-container .gslide-image {
+  align-items: center;
+  display: flex !important;
+  height: calc(100vh - 48px) !important;
+  justify-content: center;
+  max-height: calc(100vh - 48px);
+  max-width: calc(100vw - 48px);
+  overflow: hidden;
+  width: calc(100vw - 48px) !important;
+}
+
+.glightbox-container .gslide-image img {
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
+}
+
+// If a URL is still mis-detected as "external", kill the white full-page look.
+// 若仍被誤判成 external（白底可捲動），強制收斂，不要整頁留白。
+.glightbox-container .gslide-external {
+  align-items: center;
+  background: transparent !important;
+  display: flex !important;
+  height: calc(100vh - 48px) !important;
+  justify-content: center;
+  max-height: calc(100vh - 48px) !important;
+  overflow: hidden !important;
+  width: calc(100vw - 48px) !important;
+}
+
+.glightbox-container .gslide-external img {
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
 }
