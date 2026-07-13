@@ -71,7 +71,7 @@
 .heroBanner .searchBar .searchBarSelect {
   min-width: 0;
 
-  }
+}
 
 .dateRangeSearchInput {
   flex: 2.5 1 0; }
@@ -199,7 +199,6 @@
 
 .searchBarInput,
 .searchBarSelect {
-  flex: 1 1 160px;
   padding: 0.6rem 1rem;
   border: 2px solid color-mix(in srgb, var(--yc-on-dark) 30%, transparent);
   border-radius: var(--yc-radius-control);
