@@ -4,8 +4,8 @@
 1. preferences 使用 JSONB 儲存多值資料。
 2. tags 使用 JSONB 儲存多值資料。
 違反1NF
-
 * 拆成「偏好主檔」與「會員偏好關聯表」
+3. total_spent 是可由訂單彙總得出的衍生資料
 
 實際資料在 data/customers/customers.json 是：
 ```
@@ -14,6 +14,8 @@
   "equipment": ["tent", "backpack"]
 }
 ```
+4. tier_name 直接重複保存等級代碼與名稱，存在傳遞相依。
+
 
 ### preferences 主要影響 : 
 缺點 : 
@@ -178,3 +180,75 @@ CREATE TABLE customer_shipping_profiles (
 * customer_shipping_addresses 存會員地址，一個會員可以有多筆，並用 is_default 指出預設地址。
 * 查詢時用GET 組回舊格式
 * 訂單仍保留地址快照
+
+
+## 完全移除 customers.total_spent
+從 customers schema
+* 客戶列表、會員中心、會員等級改用 orders 彙總
+* 顯示邏輯優先從 orders 計算，沒有 orders 時才讀 customer.totalSpent
+
+* 定義彙總規則
+---
+有效訂單：status === 'completed'
+累積消費金額：sum(order.total)
+排除：unshipped / shipped / returned / refunded / cancelled
+---
+
+* 建立共用計算函式 (不要讓後台客戶頁、會員中心各自寫一套)
+---
+function computeCustomerTotalSpent(customerId, orders) {
+  return (orders || []).reduce(function (sum, order) {
+    if (order.customerId !== customerId) return sum;
+    if (order.status !== 'completed') return sum;
+    return sum + (Number(order.total) || 0);
+  }, 0);
+}
+---
+如果 DB/API 是 snake_case，對應 SQL 會是：
+---
+SELECT
+  customer_id,
+  COALESCE(SUM(total), 0) AS total_spent
+FROM orders
+WHERE status = 'completed'
+GROUP BY customer_id;
+---
+
+* 前端顯示改用計算值
+後台客戶列表「消費總額」：不要讀 customer.totalSpent
+後台客戶列表排序：用 computeCustomerTotalSpent(customer.id, ordersCache)
+會員中心等級進度：用該會員完成訂單總額
+會員等級計算：computeTier(totalSpent) 的輸入改成彙總結果
+
+* 移除輸入與資料欄位
+- 資料層：
+data/customers/customers.json 移除每筆 totalSpent
+docs/schema.sql 移除 customers.total_spent
+文件中把「累積消費」改寫成「由 orders 彙總，不存 customers」
+- UI/功能層：
+`新增客戶 Modal 不再有「消費總額」欄位`
+新增客戶時不要送出 totalSpent
+客戶更新 API 不接受 totalSpent
+測試或驗證規則要禁止 customers 出現 totalSpent
+
+* 過渡相容處理
+第一階段先改讀取邏輯：
+---
+var spent = computeCustomerTotalSpent(customer.id, orders);
+---
+必要時 fallback：
+---
+var spent = computeCustomerTotalSpent(customer.id, orders);
+if (!spent && customer.totalSpent) {
+  spent = Number(customer.totalSpent) || 0;
+}
+---
+
+
+## tier 改動 :
+連 tier 也不存，完全由 total_spent / 訂單彙總推導
+---
+每次根據累積消費計算：< 12000 → camper
+12000 ~ 27999 → guide
+>= 28000 → master
+---

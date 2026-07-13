@@ -5,17 +5,50 @@
 ## OneToMany 
 * movemet_items (N) > movements (1)
 * movemet_items (N) > products(1)
+* movements (N) > admin_users(1)
 一張異動單可以包含多筆商品異動
 同一商品也可出現在多張異動單中
 
+## problems :
+movements.employee_id 沒有外鍵
+---
 
-1. movements：庫存異動單頭
+## 1. admin_users 改動
+---
+CREATE TABLE admin_users (
+  id          VARCHAR(32) PRIMARY KEY,      -- 對應 movement.json 的 employeeId: "01", "02", "03"
+  name        VARCHAR(100) NOT NULL,
+  email       VARCHAR(255) UNIQUE,
+  role        VARCHAR(64) NOT NULL DEFAULT 'staff',
+  active      BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE movements
+  ALTER COLUMN employee_id SET NOT NULL,
+  ADD CONSTRAINT fk_movements_employee
+  FOREIGN KEY (employee_id)
+  REFERENCES admin_users(id)
+  ON UPDATE CASCADE
+  ON DELETE RESTRICT;
+---
+* 要先補 seed
+---
+INSERT INTO admin_users (id, name, role, active)
+VALUES
+  ('01', '王老闆', 'super_admin', TRUE),
+  ('02', '測試員工', 'staff', TRUE),
+  ('03', '庫存人員', 'staff', TRUE);
+---
+
+
+2. movements：庫存異動單頭
 id
-employee_id 異動單的人員 ID
+employee_id 異動單的人員 ID，FK → admin_users(id)
 created_at
 
 
-2. movement_items：庫存異動明細
+3. movement_items：庫存異動明細
 id
 movement_id 異動單 ID
 product_id
@@ -40,7 +73,7 @@ type 異動類型，由後臺js 判斷產生
 | 盤點減少 | 倉庫／門市 | `NULL` | 來源減少 |
 
 
-3. products：商品主檔
+4. products：商品主檔
 id
 rental_id
 rental_enabled
@@ -69,6 +102,10 @@ updated_at
 
 # 比較有問題需要新增表(from_store, to_store) : 
 調撥的新增太多人工因素會導致資料庫庫存無法判斷造成數量不對齊
+
+admin_users
+   │ 1
+   └──── movements / inventory_movements
 
 branches
    │ 0..1
@@ -161,7 +198,7 @@ movent_no 單號
 status 草稿、已過帳、已取消
 source_location_id  扣除庫存的來源庫位
 destination_location_id 增加庫存的目的庫位
-employee_id
+employee_id FK → admin_users(id)
 reason
 note 備註
 occurred_at 實際發生異動的時間
@@ -192,7 +229,7 @@ CREATE TABLE inventory_movements (
                           REFERENCES inventory_locations(id),
   destination_location_id VARCHAR(32)
                           REFERENCES inventory_locations(id),
-  employee_id             VARCHAR(32),
+  employee_id VARCHAR(32) NOT NULL REFERENCES admin_users(id) ON DELETE RESTRICT,
   reason                  TEXT,
   note                    TEXT,
   occurred_at             TIMESTAMPTZ NOT NULL DEFAULT NOW(),

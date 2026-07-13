@@ -9,13 +9,50 @@
 ## ManyToMany
 * products (N) : article_related_products (N)
 
+## 主要更動 :
+(補強規則可以不用在意1NF)
+* 補上限制 :
+---
+ALTER TABLE articles
+ALTER COLUMN tags SET DEFAULT '[]'::jsonb,
+ALTER COLUMN tags SET NOT NULL;
+
+ALTER TABLE articles
+ADD CONSTRAINT ck_articles_tags_array
+CHECK (jsonb_typeof(tags) = 'array');
+---
+
+* 查詢標籤
+---
+SELECT *
+FROM articles
+WHERE tags @> '["帳篷"]'::jsonb;
+
+CREATE INDEX idx_articles_tags_gin
+ON articles USING GIN (tags);
+---
+
+* category 補強規則
+---
+category VARCHAR(64) NOT NULL
+
+ALTER TABLE articles
+ADD CONSTRAINT ck_articles_category
+CHECK (category IN (
+  '新手教學',
+  '景點推薦',
+  '生活技巧',
+  '裝備評測'
+));
+---
+
 
 1. articles：文章主檔
 id
 title
 category 文章分類搜尋用
-author 作者名稱
-author_avatar 頭像
+`author 作者名稱 沒有發布者的話可以刪除，否則要拆表`
+`author_avatar 頭像`
 published_date 發布日期
 read_time 閱讀分鐘數
 image
