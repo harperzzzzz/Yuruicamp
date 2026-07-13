@@ -670,6 +670,12 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   padding: 1rem;
 }
 
+/* 訂單相關通知：可點開訂單明細 */
+.memberNotification.isClickable:focus-visible {
+  outline: 2px solid $member-primary;
+  outline-offset: 2px;
+}
+
 .memberNotificationIndicator {
   background: $member-danger;
   border-radius: 50%;

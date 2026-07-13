@@ -1433,6 +1433,12 @@ window.initProducts = function () {
     }
   });
 
+  // 規格切換：更新來源分店庫存顯示與各營地「目前庫存」列
+  // Variant change: refresh branch stock display and camp current-qty rows
+  $(document).on('change.products', '#transferVariantSelect', function () {
+    onTransferVariantChange();
+  });
+
   // 來源分店切換：依選取值切換 Mode 1（分店→營地）或 Mode 2（營地互轉）
   // Source branch changed: switch between Mode 1 (branch→camp) and Mode 2 (camp transfer)
   $(document).on('change.products', '#transferSourceBranch', function () {
@@ -4262,17 +4268,12 @@ function populateProductVariantCards(product, mode) {
   if (!variants.length) {
     addProductVariantCard(null, stockMode);
   } else {
-    variants.forEach(function (variant, index) {
+    variants.forEach(function (variant) {
       var $card = addProductVariantCard(variant, stockMode);
+      // 多規格時仍顯示展開/收合按鈕，但預設全部展開
+      // Multi-variant: show collapse toggle, default all expanded
       if (stockMode === 'edit' && variants.length > 1) {
         $card.find('.variant-collapse-toggle').removeClass('d-none');
-        if (index > 0) {
-          $card.addClass('variant-stock-card-collapsed');
-          $card.find('.variant-stock-card__body').addClass('d-none');
-          $card.find('.variant-collapse-toggle i')
-            .removeClass('fa-chevron-up')
-            .addClass('fa-chevron-down');
-        }
       }
     });
   }
@@ -4343,17 +4344,12 @@ function populateRentalVariantCards(rental, storeProduct) {
     return;
   }
 
-  cardsToRender.forEach(function (variant, index) {
+  cardsToRender.forEach(function (variant) {
     var $card = addRentalVariantCard(variant);
+    // 多規格時仍顯示展開/收合按鈕，但預設全部展開
+    // Multi-variant: show collapse toggle, default all expanded
     if (cardsToRender.length > 1) {
       $card.find('.rental-variant-collapse-toggle').removeClass('d-none');
-      if (index > 0) {
-        $card.addClass('rental-variant-stock-card-collapsed');
-        $card.find('.rental-variant-stock-card__body').addClass('d-none');
-        $card.find('.rental-variant-collapse-toggle i')
-          .removeClass('fa-chevron-up')
-          .addClass('fa-chevron-down');
-      }
     }
   });
 }
@@ -5286,7 +5282,165 @@ function buildRentalRow(item) {
 // ════════════════════════════════════════════════════════════
 // 跨類型調撥：商店 → 租借（單向，不可逆）
 // Cross-type transfer: Store → Rental (one-way, irreversible)
+// 庫存真相在 variants[]；Modal 必須先選規格再讀寫
+// Stock truth lives in variants[]; modal must select a variant first
 // ════════════════════════════════════════════════════════════
+
+/**
+ * 取得目前調撥 Modal 選中的規格 ID。
+ * Get selected transfer variant ID from modal.
+ */
+function getSelectedTransferVariantId() {
+  return $('#transferVariantSelect').val()
+    || $('#transferToRentalModal').data('selected-variant-id')
+    || '';
+}
+
+/**
+ * 從商店商品找規格（依 variant.id）。
+ * Find store product variant by id.
+ */
+function findStoreVariant(product, variantId) {
+  if (!product || !variantId) {
+    return null;
+  }
+  var found = null;
+  normalizeProductVariants(product).forEach(function (variant) {
+    if (!found && variant.id === variantId) {
+      found = variant;
+    }
+  });
+  return found;
+}
+
+/**
+ * 從租借商品找規格（依 variant.id；商店／租借通常共用同一 id）。
+ * Find rental variant by id (usually shared with store variant id).
+ */
+function findRentalVariant(rental, variantId) {
+  if (!rental || !variantId) {
+    return null;
+  }
+  var found = null;
+  normalizeRentalVariants(rental).forEach(function (variant) {
+    if (!found && variant.id === variantId) {
+      found = variant;
+    }
+  });
+  return found;
+}
+
+/**
+ * 取得某規格在某分店的庫存（規格層，非商品加總）。
+ * Get stock for one variant at one branch (variant-level, not product aggregate).
+ */
+function getVariantBranchStock(product, variantId, branchId) {
+  var variant = findStoreVariant(product, variantId);
+  if (!variant || !variant.branch) {
+    return 0;
+  }
+  return normalizeStockValue(variant.branch[branchId]);
+}
+
+/**
+ * 列出「商店與租借都能對上的」規格（用 id 對齊）。
+ * List variants that exist on both store product and rental SKU.
+ * @returns {Array<{id:string,label:string}>}
+ */
+function getTransferableVariants(product, rental) {
+  ensureProductVariantStock(product);
+  ensureRentalVariantStock(rental);
+
+  var rentalVariantMap = {};
+  normalizeRentalVariants(rental).forEach(function (variant) {
+    if (variant.id) {
+      rentalVariantMap[variant.id] = variant;
+    }
+  });
+
+  var result = [];
+  normalizeProductVariants(product).forEach(function (variant) {
+    if (!variant.id || !rentalVariantMap[variant.id]) {
+      return;
+    }
+    result.push({
+      id: variant.id,
+      label: variant.label || variant.id
+    });
+  });
+  return result;
+}
+
+/**
+ * 依選中規格重填「來源分店」下拉（顯示該規格各分店庫存）。
+ * Rebuild source-branch dropdown using selected variant's branch stock.
+ */
+function refreshTransferSourceBranchOptions(product, variantId) {
+  var previousBranch = $('#transferSourceBranch').val();
+  var $sourceBranch = $('#transferSourceBranch').empty();
+  var variant = findStoreVariant(product, variantId);
+  var branchKeys = getAllBranchKeysForProduct(product);
+
+  // 若規格有自訂分店 key，一併列入
+  // Also include custom branch keys from the selected variant
+  if (variant && variant.branch) {
+    Object.keys(variant.branch).forEach(function (key) {
+      if (branchKeys.indexOf(key) === -1) {
+        branchKeys.push(key);
+      }
+    });
+  }
+
+  branchKeys.forEach(function (branchId) {
+    var qty = getVariantBranchStock(product, variantId, branchId);
+    var label = getBranchLabel(branchId);
+    $('<option>', { value: branchId })
+      .text(label + '（' + qty + ' 件）')
+      .appendTo($sourceBranch);
+  });
+
+  // 最後加入「營地互轉」選項（Mode 2 入口）
+  $('<option>', { value: 'camp-transfer' }).text('── 營地互轉 ──').appendTo($sourceBranch);
+
+  // 盡量保留先前選取；若已不存在則回到第一個分店
+  if (previousBranch && $sourceBranch.find('option[value="' + previousBranch + '"]').length) {
+    $sourceBranch.val(previousBranch);
+  } else {
+    $sourceBranch.prop('selectedIndex', 0);
+  }
+}
+
+/**
+ * 規格下拉變更時：同步 data、分店庫存、營地列。
+ * When variant select changes: sync data, branch stock, camp rows.
+ */
+function onTransferVariantChange() {
+  var variantId = $('#transferVariantSelect').val() || '';
+  $('#transferToRentalModal').data('selected-variant-id', variantId);
+
+  var productId = $('#transferToRentalModal').data('source-product-id');
+  var rentalId = $('#transferToRentalModal').data('target-rental-id');
+  var product = findAdminProductById(productId);
+  var rental = findAdminRentalById(rentalId);
+
+  if (!product || !rental || !variantId) {
+    return;
+  }
+
+  var currentMode = $('#transferSourceBranch').val();
+  refreshTransferSourceBranchOptions(product, variantId);
+
+  // 若原本在營地互轉，切規格後仍維持 Mode 2
+  if (currentMode === 'camp-transfer') {
+    $('#transferSourceBranch').val('camp-transfer');
+    switchTransferMode('camp');
+  } else {
+    switchTransferMode('branch');
+  }
+
+  resetTransferCampRows(rental, variantId);
+  syncTransferDeltaCounter();
+}
 
 /**
  * 開啟調至租借 Modal，並將商品資料帶入各欄位。
@@ -5316,35 +5470,44 @@ function openTransferToRentalModal(productId) {
     return;
   }
 
-  // 儲存商品 ID 與租借 ID，供確認調撥時使用
-  // Store both IDs for use when confirming transfer
+  // 確保規格庫存結構就緒（舊資料會遷移到 variants）
+  // Ensure variant stock structure is ready (legacy data migrates into variants)
+  ensureProductVariantStock(product);
+  ensureRentalVariantStock(rental);
+
+  var transferable = getTransferableVariants(product, rental);
+  if (!transferable.length) {
+    window.showAdminToast('此商品沒有可對應的租借規格，無法調撥', 'danger');
+    return;
+  }
+
+  // 填入規格下拉（商店／租借 id 對得上的規格）
+  var $variantSelect = $('#transferVariantSelect').empty();
+  transferable.forEach(function (item) {
+    $('<option>', { value: item.id }).text(item.label).appendTo($variantSelect);
+  });
+  var variantId = $variantSelect.val();
+
+  // 儲存商品 ID、租借 ID、規格 ID，供確認調撥時使用
+  // Store product / rental / variant IDs for confirm
   $('#transferToRentalModal')
     .data('source-product-id', productId)
-    .data('target-rental-id', product.rentalId);
+    .data('target-rental-id', product.rentalId)
+    .data('selected-variant-id', variantId);
 
   // 填入商品名稱（唯讀）
   $('#transferProductName').text(product.name);
 
-  // 填入來源分店下拉選單（主倉 + 各實體分店 + 營地互轉）
-  // Populate source branch dropdown (main + physical branches + camp-transfer option)
-  var $sourceBranch = $('#transferSourceBranch').empty();
-  getAllBranchKeysForProduct(product).forEach(function (branchId) {
-    var qty = getProductBranchStock(product, branchId);
-    var label = getBranchLabel(branchId);
-    $('<option>', { value: branchId }).text(label + '（' + qty + ' 件）').appendTo($sourceBranch);
-  });
-  // 最後加入「營地互轉」選項（Mode 2 入口）
-  $('<option>', { value: 'camp-transfer' }).text('── 營地互轉 ──').appendTo($sourceBranch);
+  // 依選中規格填入來源分店下拉（含庫存件數）
+  refreshTransferSourceBranchOptions(product, variantId);
 
-  // 預設選主倉（index 0），同步目前庫存顯示，並設為 Mode 1 狀態
-  $sourceBranch.prop('selectedIndex', 0);
   // 確保目前庫存欄可見、delta 最小值 >= 0（Mode 1 初始狀態）
   $('#transferSourceStockCol').removeClass('d-none');
   syncTransferSourceStock();
 
-  // 重置多行營地分配清單（清空並建立固定營地列）
-  // Reset camp distribution rows (clear and build fixed camp rows)
-  resetTransferCampRows(rental);
+  // 重置多行營地分配清單（顯示「該規格」在各營地的庫存）
+  // Reset camp rows using selected variant's camp stock
+  resetTransferCampRows(rental, variantId);
   syncTransferDeltaCounter();
 
   // 開啟 Modal
@@ -5352,8 +5515,8 @@ function openTransferToRentalModal(productId) {
 }
 
 /**
- * 依目前選取的來源分店，更新「目前庫存」靜態顯示。
- * Updates the current stock display based on the selected source branch.
+ * 依目前選取的「規格 × 來源分店」，更新「目前庫存」靜態顯示。
+ * Updates current stock from selected variant × source branch.
  */
 function syncTransferSourceStock() {
   // Mode 2（營地互轉）時目前庫存欄已隱藏，不需更新
@@ -5363,13 +5526,14 @@ function syncTransferSourceStock() {
   var productId = $('#transferToRentalModal').data('source-product-id');
   var product = findAdminProductById(productId);
   var branchId = $('#transferSourceBranch').val();
+  var variantId = getSelectedTransferVariantId();
 
-  if (!product || !branchId) {
+  if (!product || !branchId || !variantId) {
     $('#transferSourceStock').text('0');
     return;
   }
 
-  var qty = getProductBranchStock(product, branchId);
+  var qty = getVariantBranchStock(product, variantId, branchId);
   $('#transferSourceStock').text(qty + ' 件');
 }
 
@@ -5379,29 +5543,28 @@ function syncTransferSourceStock() {
 // ════════════════════════════════════════════════════════════
 
 /**
- * 取得目前來源分店的庫存（數字）。
- * Returns the current source branch stock as a number.
+ * 取得目前「規格 × 來源分店」的庫存（數字）。
+ * Returns current selected variant × source branch stock as a number.
  */
 function getTransferSourceStockValue() {
   var productId = $('#transferToRentalModal').data('source-product-id');
   var product   = findAdminProductById(productId);
   var branchId  = $('#transferSourceBranch').val();
-  return getProductBranchStock(product, branchId);
+  var variantId = getSelectedTransferVariantId();
+  return getVariantBranchStock(product, variantId, branchId);
 }
 
 /**
- * 清空 #transferCampRows，將目標租借商品「所有已存在的營地（含主倉）」各產生一列，
- * 並預帶每個營地目前的現有庫存數量。
- * 使用者可再點「新增營地」按鈕加入尚未存放此商品的其他營地。
- *
- * Clears the camp rows container and appends one row per existing camp (including main),
- * each pre-filled with the camp's current stock quantity.
- * @param {Object} rental - 目標租借商品物件
+ * 清空 #transferCampRows，將「選中規格」在各固定營地的庫存各產生一列。
+ * Clears camp rows and builds one row per camp using selected variant stock.
+ * @param {Object} rental    - 目標租借商品物件
+ * @param {string} variantId - 選中的規格 ID
  */
-function resetTransferCampRows(rental) {
+function resetTransferCampRows(rental, variantId) {
   $('#transferCampRows').empty();
 
-  var campOptions = buildTransferCampOptions(rental);
+  var resolvedVariantId = variantId || getSelectedTransferVariantId();
+  var campOptions = buildTransferCampOptions(rental, resolvedVariantId);
 
   // 每個固定營地（含主倉）產生靜態列（無 ✕，無下拉）
   // Each fixed camp (incl. main) gets a static preset row (no X, no dropdown)
@@ -5411,13 +5574,20 @@ function resetTransferCampRows(rental) {
 }
 
 /**
- * 產生租借商品所有可選的營地選項清單（主倉優先，再固定營地，再自訂營地）。
- * Builds an ordered array of { value, label, currentQty } for all camps.
- * @param {Object} rental - 目標租借商品物件
- * @returns {Array} 選項陣列
+ * 產生「選中規格」所有可選營地選項（主倉優先，再固定營地，再自訂營地）。
+ * Builds camp options from the selected rental variant's camp map.
+ * @param {Object} rental    - 目標租借商品物件
+ * @param {string} variantId - 規格 ID
+ * @returns {Array} 選項陣列 { value, label, currentQty }
  */
-function buildTransferCampOptions(rental) {
-  var campByKey  = rental.campByKey || {};
+function buildTransferCampOptions(rental, variantId) {
+  var rentalVariant = findRentalVariant(rental, variantId);
+  // 規格層 camp；找不到規格時退回加總 campByKey（相容舊資料）
+  // Prefer variant.camp; fall back to aggregated campByKey for legacy safety
+  var campByKey = (rentalVariant && rentalVariant.camp)
+    ? rentalVariant.camp
+    : (rental.campByKey || {});
+
   var fixedIdSet = {};
   ADMIN_RENTAL_CAMP_IDS.forEach(function (id) { fixedIdSet[id] = true; });
 
@@ -5621,22 +5791,46 @@ function submitTransferToRental() {
 }
 
 /**
- * Mode 1：分店→營地 調撥。
- * 收集各 delta > 0 的列 → 更新商店分店庫存（-totalDelta）→ 更新各租借營地庫存（+delta）→ 產生「調撥」異動記錄。
+ * Mode 1：分店→營地 調撥（作用在「選中規格」）。
+ * 收集各 delta > 0 的列 → 扣商店規格分店庫存 → 加租借規格營地庫存 → 產生「調撥」異動記錄。
  *
- * Mode 1: Branch → Camp transfer.
- * Deducts total delta from source branch, adds each delta to target camps.
+ * Mode 1: Branch → Camp transfer at selected variant level.
  */
 function submitBranchToCampTransfer() {
   var productId = $('#transferToRentalModal').data('source-product-id');
   var rentalId  = $('#transferToRentalModal').data('target-rental-id');
   var branchId  = $('#transferSourceBranch').val();
+  var variantId = getSelectedTransferVariantId();
 
   var product = findAdminProductById(productId);
   var rental  = findAdminRentalById(rentalId);
 
   if (!product) { window.showAdminToast('找不到來源商品資料', 'danger'); return; }
   if (!rental)  { window.showAdminToast('找不到對應租借商品資料', 'danger'); return; }
+  if (!variantId) { window.showAdminToast('請先選擇規格', 'danger'); return; }
+
+  ensureProductVariantStock(product);
+  ensureRentalVariantStock(rental);
+
+  // 直接取快取陣列裡的規格物件（勿用 normalize 副本，否則改了寫不回去）
+  // Use in-cache variant objects (not normalize() copies) so mutations persist
+  var storeVariant = null;
+  (product.variants || []).forEach(function (v) {
+    if (!storeVariant && v.id === variantId) {
+      storeVariant = v;
+    }
+  });
+  var rentalVariant = null;
+  (rental.variants || []).forEach(function (v) {
+    if (!rentalVariant && v.id === variantId) {
+      rentalVariant = v;
+    }
+  });
+
+  if (!storeVariant || !rentalVariant) {
+    window.showAdminToast('找不到對應規格，無法調撥', 'danger');
+    return;
+  }
 
   // ── 收集所有 delta > 0 的列 ────────────────────
   var distributions = [];
@@ -5660,20 +5854,35 @@ function submitBranchToCampTransfer() {
 
   var totalDelta = distributions.reduce(function (sum, d) { return sum + d.delta; }, 0);
 
-  // ── 更新商店快取：來源分店 -totalDelta（允許負數，不驗證）──
-  var sourceQty = getProductBranchStock(product, branchId);
-  product.branch[branchId] = sourceQty - totalDelta;
-  product.totalStock   = getBranchTotal(product.branch);
+  // ── 更新「規格層」商店庫存：來源分店 -totalDelta ──
+  // Update variant-level store stock (not product.branch aggregate)
+  if (!storeVariant.branch || typeof storeVariant.branch !== 'object') {
+    storeVariant.branch = createEmptyBranchStock();
+  }
+  var sourceQty = normalizeStockValue(storeVariant.branch[branchId]);
+  storeVariant.branch[branchId] = sourceQty - totalDelta;
+  storeVariant.total = getBranchTotal(storeVariant.branch);
 
-  // ── 更新租借快取：各目標營地各自 +delta ──────────
+  // ── 更新「規格層」租借庫存：各目標營地 +delta ──
+  if (!rentalVariant.camp || typeof rentalVariant.camp !== 'object') {
+    rentalVariant.camp = createEmptyCampStock();
+  }
   distributions.forEach(function (d) {
-    var prev = normalizeStockValue((rental.campByKey || {})[d.campKey]);
-    rental.campByKey[d.campKey] = prev + d.delta;
+    var prev = normalizeStockValue(rentalVariant.camp[d.campKey]);
+    rentalVariant.camp[d.campKey] = prev + d.delta;
   });
-  rental.camp = buildCampArrayFromKey(rental.campByKey);
+  rentalVariant.total = getBranchTotal(rentalVariant.camp);
+
+  // 重算商品／租借加總快取（列表主列仍用加總）
+  // Re-aggregate product/rental caches for main table rows
+  ensureProductVariantStock(product);
+  ensureRentalVariantStock(rental);
 
   // ── 更新商店表格列畫面 ─────────────────────────
-  var $storeRow = $('#productsTableBody tr[data-product-id="' + escapeSelector(productId) + '"]');
+  var $storeRow = $('#productsTableBody tr[data-product-id="' + escapeSelector(productId) + '"][data-inventory-type="store"]');
+  if (!$storeRow.length) {
+    $storeRow = $('#productsTableBody tr[data-product-id="' + escapeSelector(productId) + '"]');
+  }
   if ($storeRow.length) {
     $storeRow.find('.total-stock-value').text(product.totalStock);
     refreshRowLowStockCells($storeRow, getLowBranchIds(product));
@@ -5683,13 +5892,16 @@ function submitBranchToCampTransfer() {
       .attr('data-original-qty', product.branch[branchId])
       .data('original-qty', product.branch[branchId]);
     syncStockInputFeedback($storeRow);
+    refreshStoreVariantDetailRows(product, $storeRow);
   }
 
   // ── 更新租借表格列畫面（若已載入）──────────────
   _updateRentalTableRow(rentalId, rental, distributions);
 
-  // ── 產生異動記錄（type: '調撥'）────────────────
-  var items = buildMultiCampTransferMovementItems(product, branchId, rental, distributions, totalDelta);
+  // ── 產生異動記錄（type: '調撥'，名稱含規格）────
+  var items = buildMultiCampTransferMovementItems(
+    product, branchId, rental, distributions, totalDelta, storeVariant, rentalVariant
+  );
   pendingMovementItems = pendingMovementItems.concat(items);
   updateMovementGenerateButtonState();
 
@@ -5698,26 +5910,43 @@ function submitBranchToCampTransfer() {
   var campSummary = distributions.map(function (d) {
     return (ADMIN_RENTAL_CAMP_LABELS[d.campKey] || d.campKey) + ' +' + d.delta + ' 件';
   }).join('、');
+  var variantLabel = storeVariant.label ? '（' + storeVariant.label + '）' : '';
   window.showAdminToast(
-    '已將「' + product.name + '」共 ' + totalDelta + ' 件從「' +
+    '已將「' + product.name + variantLabel + '」共 ' + totalDelta + ' 件從「' +
     (ADMIN_PRODUCT_BRANCH_LABELS[branchId] || branchId) +
     '」調至租借（' + campSummary + '）'
   );
 }
 
 /**
- * Mode 2：營地互轉。
- * 收集所有 delta ≠ 0 的列 → 驗證每列最終庫存 >= 0 → 更新各租借營地庫存（+delta）→ 產生「營地互轉」異動記錄。
+ * Mode 2：營地互轉（作用在「選中規格」）。
+ * 收集所有 delta ≠ 0 的列 → 驗證每列最終庫存 >= 0 → 更新該規格各營地庫存 → 產生「營地互轉」異動記錄。
  * 商店分店庫存不受影響。
  *
- * Mode 2: Camp-to-camp transfer.
- * Validates no camp goes negative, then applies each delta to the corresponding camp.
+ * Mode 2: Camp-to-camp transfer at selected variant level.
  */
 function submitCampTransfer() {
-  var rentalId = $('#transferToRentalModal').data('target-rental-id');
-  var rental   = findAdminRentalById(rentalId);
+  var rentalId  = $('#transferToRentalModal').data('target-rental-id');
+  var variantId = getSelectedTransferVariantId();
+  var rental    = findAdminRentalById(rentalId);
 
   if (!rental) { window.showAdminToast('找不到對應租借商品資料', 'danger'); return; }
+  if (!variantId) { window.showAdminToast('請先選擇規格', 'danger'); return; }
+
+  ensureRentalVariantStock(rental);
+
+  // 直接取快取陣列裡的規格物件（勿用 normalize 副本）
+  // Use in-cache rental variant object so mutations persist
+  var rentalVariant = null;
+  (rental.variants || []).forEach(function (v) {
+    if (!rentalVariant && v.id === variantId) {
+      rentalVariant = v;
+    }
+  });
+  if (!rentalVariant) {
+    window.showAdminToast('找不到對應規格，無法調撥', 'danger');
+    return;
+  }
 
   // ── 收集所有 delta ≠ 0 的列 ─────────────────────
   var distributions = [];
@@ -5754,22 +5983,27 @@ function submitCampTransfer() {
     return;
   }
 
-  // ── 更新租借快取：各營地各自 ±delta（商店庫存不動）──
+  // ── 更新「規格層」租借庫存：各營地 ±delta（商店不動）──
+  if (!rentalVariant.camp || typeof rentalVariant.camp !== 'object') {
+    rentalVariant.camp = createEmptyCampStock();
+  }
   distributions.forEach(function (d) {
-    var prev = normalizeStockValue((rental.campByKey || {})[d.campKey]);
-    rental.campByKey[d.campKey] = prev + d.delta;
+    var prev = normalizeStockValue(rentalVariant.camp[d.campKey]);
+    rentalVariant.camp[d.campKey] = prev + d.delta;
   });
-  rental.camp = buildCampArrayFromKey(rental.campByKey);
+  rentalVariant.total = getBranchTotal(rentalVariant.camp);
+
+  ensureRentalVariantStock(rental);
 
   // ── 更新租借表格列畫面 ─────────────────────────
   _updateRentalTableRow(rentalId, rental, distributions);
 
-  // ── 產生異動記錄（type: '營地互轉'）────────────
+  // ── 產生異動記錄（type: '營地互轉'，名稱含規格）──
   var items = [];
   distributions.forEach(function (d) {
     var campLabel = ADMIN_RENTAL_CAMP_LABELS[d.campKey] || d.campKey;
     items.push({
-      productName: rental.name + '（租借）',
+      productName: formatMovementProductName(rental.name + '（租借）', rentalVariant),
       quantity:    Math.abs(d.delta),
       fromStore:   d.delta > 0 ? '（增加）' : campLabel,
       toStore:     d.delta > 0 ? campLabel  : '（減少）',
@@ -5784,7 +6018,8 @@ function submitCampTransfer() {
   var campSummary = distributions.map(function (d) {
     return (ADMIN_RENTAL_CAMP_LABELS[d.campKey] || d.campKey) + ' ' + (d.delta >= 0 ? '+' : '') + d.delta + ' 件';
   }).join('、');
-  window.showAdminToast('營地互轉完成（' + campSummary + '）');
+  var variantLabel = rentalVariant.label ? '（' + rentalVariant.label + '）' : '';
+  window.showAdminToast('營地互轉完成' + variantLabel + '（' + campSummary + '）');
 }
 
 /**
@@ -5798,14 +6033,14 @@ function _updateRentalTableRow(rentalId, rental, distributions) {
   var $rentalRow = $('#rentalProductsTableBody tr[data-product-id="' + escapeSelector(rentalId) + '"]');
   if (!$rentalRow.length) { return; }
 
-  var rentalTotal = Object.keys(rental.campByKey).reduce(function (sum, key) {
+  var rentalTotal = Object.keys(rental.campByKey || {}).reduce(function (sum, key) {
     return sum + normalizeStockValue(rental.campByKey[key]);
   }, 0);
   $rentalRow.find('.total-stock-value').text(rentalTotal);
   refreshRowLowStockCells($rentalRow, getLowCampKeys(rental));
 
   distributions.forEach(function (d) {
-    var newQty = normalizeStockValue(rental.campByKey[d.campKey]);
+    var newQty = normalizeStockValue((rental.campByKey || {})[d.campKey]);
     var $campInput = $rentalRow.find('.stock-input[data-stock-field="' + d.campKey + '"]');
     $campInput
       .val(newQty)
@@ -5813,6 +6048,49 @@ function _updateRentalTableRow(rentalId, rental, distributions) {
       .data('original-qty', newQty);
   });
   syncStockInputFeedback($rentalRow);
+  refreshRentalVariantDetailRows(rental, $rentalRow);
+}
+
+/**
+ * 調撥後重繪商店規格明細子列（保留展開狀態）。
+ * Rebuild store variant detail rows after transfer; keep expand state.
+ */
+function refreshStoreVariantDetailRows(product, $mainRow) {
+  if (!$mainRow || !$mainRow.length || !product) {
+    return;
+  }
+  var productId = product.id;
+  var wasExpanded = $mainRow.hasClass('variant-rows-expanded');
+  $('#productsTableBody tr.variant-detail-row[data-parent-product-id="' + escapeSelector(productId) + '"]').remove();
+  var html = buildProductVariantDetailRows(product);
+  if (html) {
+    $mainRow.after(html);
+    if (wasExpanded) {
+      $('#productsTableBody tr.variant-detail-row[data-parent-product-id="' + escapeSelector(productId) + '"]')
+        .removeClass('d-none');
+    }
+  }
+}
+
+/**
+ * 調撥後重繪租借規格明細子列（保留展開狀態）。
+ * Rebuild rental variant detail rows after transfer; keep expand state.
+ */
+function refreshRentalVariantDetailRows(rental, $mainRow) {
+  if (!$mainRow || !$mainRow.length || !rental) {
+    return;
+  }
+  var rentalId = rental.id;
+  var wasExpanded = $mainRow.hasClass('variant-rows-expanded');
+  $('#rentalProductsTableBody tr.variant-detail-row[data-parent-product-id="' + escapeSelector(rentalId) + '"]').remove();
+  var html = buildRentalVariantDetailRows(rental);
+  if (html) {
+    $mainRow.after(html);
+    if (wasExpanded) {
+      $('#rentalProductsTableBody tr.variant-detail-row[data-parent-product-id="' + escapeSelector(rentalId) + '"]')
+        .removeClass('d-none');
+    }
+  }
 }
 
 /**
@@ -5837,29 +6115,31 @@ function buildLossMovementItem(productName, locationLabel, lossQty) {
 }
 
 /**
- * 產生跨類型調撥的 1+N 筆異動 items。
+ * 產生跨類型調撥的 1+N 筆異動 items（名稱含規格）。
  * 第 1 筆：商店來源分店扣減（合計）。
  * 第 2~N+1 筆：租借各目標營地各自增加。
  *
  * Builds 1+N movement items: one debit from store, one credit per target camp.
- * @param {Object} product       - 商店商品物件
- * @param {string} branchId      - 來源分店 ID
- * @param {Object} rental        - 租借商品物件
- * @param {Array}  distributions - [{ campKey, quantity }, ...] 各目標營地分配
- * @param {number} totalQty      - 本次調撥合計數量
+ * @param {Object} product        - 商店商品物件
+ * @param {string} branchId       - 來源分店 ID
+ * @param {Object} rental         - 租借商品物件
+ * @param {Array}  distributions  - [{ campKey, delta }, ...] 各目標營地分配
+ * @param {number} totalQty       - 本次調撥合計數量
+ * @param {Object} [storeVariant] - 商店規格（用來組名稱）
+ * @param {Object} [rentalVariant]- 租借規格（用來組名稱）
  * @returns {Array} items 陣列（1 + distributions.length 筆）
  */
-function buildMultiCampTransferMovementItems(product, branchId, rental, distributions, totalQty) {
+function buildMultiCampTransferMovementItems(product, branchId, rental, distributions, totalQty, storeVariant, rentalVariant) {
   var branchLabel = ADMIN_PRODUCT_BRANCH_LABELS[branchId] || branchId;
   var items = [];
 
   // 第 1 筆：商店扣減（總量），type = '調撥'（商店→租借單向）
   // Item 1: deduct from store branch (total qty), type = '調撥' (store→rental, one-way)
   items.push({
-    productName: product.name,
+    productName: formatMovementProductName(product.name, storeVariant),
     quantity:    totalQty,
     fromStore:   branchLabel + ' →（調至租借）',
-    toStore:     rental.name,
+    toStore:     formatMovementProductName(rental.name, rentalVariant),
     type:        '調撥'
   });
 
@@ -5868,9 +6148,9 @@ function buildMultiCampTransferMovementItems(product, branchId, rental, distribu
   distributions.forEach(function (d) {
     var campLabel = ADMIN_RENTAL_CAMP_LABELS[d.campKey] || d.campKey;
     items.push({
-      productName: rental.name + '（租借）',
+      productName: formatMovementProductName(rental.name + '（租借）', rentalVariant),
       quantity:    d.delta,
-      fromStore:   '←（來自商店）' + product.name,
+      fromStore:   '←（來自商店）' + formatMovementProductName(product.name, storeVariant),
       toStore:     campLabel,
       type:        '調撥'
     });

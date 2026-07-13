@@ -601,12 +601,21 @@
     c.innerHTML = list
       .map(function (n) {
         var seen = Boolean(n.read);
+        // 訂單通知：掛 data-notification-order-detail，點擊可開訂單明細
+        var orderAttr = n.orderId
+          ? ' data-notification-order-detail="' + html(n.orderId) + '"'
+          : '';
+        var clickable = n.orderId ? ' isClickable' : '';
         return (
           '<article class="memberNotification' +
           (seen ? ' isRead' : '') +
+          clickable +
           '" data-notif-id="' +
           html(n.id) +
-          '">' +
+          '"' +
+          orderAttr +
+          (n.orderId ? ' role="button" tabindex="0"' : '') +
+          '>' +
           '<span class="memberNotificationIndicator" aria-hidden="true"></span>' +
           '<div class="memberNotificationContent">' +
           '<h3 class="memberNotificationTitle">' +
@@ -726,9 +735,10 @@
         html(fulfillmentLabel(order, type)) +
         '</span></p>',
     ];
+    // trackingNumber ↔ schema orders.tracking_number（出貨後才有值）
     if (type === 'purchase' && order.trackingNumber) {
       infoRows.push(
-        '<p class="memberDetailMeta"><i class="bi bi-truck" aria-hidden="true"></i><span>物流追蹤：' +
+        '<p class="memberDetailMeta"><i class="bi bi-truck" aria-hidden="true"></i><span>運單編號：' +
           html(order.trackingNumber) +
           '</span></p>'
       );
@@ -1276,6 +1286,7 @@
     var list = document.getElementById('notificationList');
     if (list && !list.dataset.bound) {
       list.dataset.bound = 'true';
+      // 點通知：標已讀；若有 orderId 則開訂單明細（bindGlobal 會處理 data-notification-order-detail）
       list.addEventListener('click', function (e) {
         var item = e.target.closest('.memberNotification[data-notif-id]');
         if (!item || !state.notifications) return;
@@ -1285,6 +1296,21 @@
         if (n) n.read = true;
         renderNotifications();
         updateStats();
+        // 有訂單關聯時再開明細（避免與 bindGlobal 搶事件：這裡主動開，並 stopPropagation）
+        if (n && n.orderId) {
+          e.stopPropagation();
+          switchPanel('records');
+          switchRecord('purchase');
+          window.openOrderDetail(n.orderId);
+        }
+      });
+      // 鍵盤：Enter / Space 也可開訂單通知
+      list.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var item = e.target.closest('.memberNotification[data-notif-id]');
+        if (!item || !item.dataset.notificationOrderDetail) return;
+        e.preventDefault();
+        item.click();
       });
     }
     var all = document.getElementById('markAllReadBtn');

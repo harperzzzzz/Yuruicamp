@@ -140,7 +140,9 @@ function _buildCardSpecChips(product, defaultSel) {
   const preview = hasMultipleSpecs && defaultSel.specLabel
     ? `<p class="productCardSpecPreview">${defaultSel.specLabel}</p>`
     : '';
-  return parts.length ? `<div class="productCardSpecs">${parts.join('')}${preview}</div>` : preview;
+  // Always render the specs wrapper (even if empty) so CSS min-height keeps cards equal.
+  // 一律輸出規格容器（即使沒有 chip），CSS 才能用固定高度讓卡片對齊。
+  return `<div class="productCardSpecs">${parts.join('')}${preview}</div>`;
 }
 
 // Read selected specs from card dataset.

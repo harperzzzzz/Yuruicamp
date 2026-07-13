@@ -3,15 +3,18 @@
  * 折扣優惠管理模組
  * 使用 jQuery Event Namespace (.discounts) 防止重複導覽時事件堆疊
  *
- * 資料：coupons.json 種子 + window.couponsCache（記憶體）
+ * 資料：data/promotions/coupons.json 種子 + window.couponsCache（記憶體）
  * 持久化：AdminAPI.coupons（後端就緒後啟用 useBackend）
  *
- * 表單為 inline（非 Modal），欄位 ID：
- *   #newCouponCode, #newCouponDiscount, #newCouponQty
- *   #newCouponStart, #newCouponEnd（起始/結束時間，datetime-local）
- *   #discountTypeSwitch（折扣類型切換，checkbox form-switch）
- *   #generateCouponCode（隨機產生按鈕）, #submitAddCoupon（新增按鈕）
- *   #setCouponStartNow（填入現在時間按鈕）
+ * 物件欄位對齊 JSON 假資料與 DB coupons（前端 camelCase ↔ DB snake_case）：
+ *   code, discount, type(fixed|percent), minOrder(min_order),
+ *   quantity, used, startDate(start_date), endDate(end_date),
+ *   status(active|disabled), category(promotion|birthday|firstPurchase)
+ *
+ * 表單欄位 ID：
+ *   #newCouponCode, #newCouponDiscount, #newCouponQty, #newCouponMinOrder
+ *   #newCouponStart, #newCouponEnd, #discountTypeSwitch
+ *   #generateCouponCode, #submitAddCoupon, #setCouponStartNow
  */
 
 window.couponsCache = window.couponsCache || [];
@@ -50,6 +53,41 @@ function formatDateDisplay(val) {
   return datePart + ' ' + (parts[1] || '');       // "2026/08/31 23:59"
 }
 
+/**
+ * 依 coupon.type 顯示折扣（對齊 schema coupon_type 與 js/components/coupons.js）
+ * Format discount cell by type: fixed → NT$; percent → n%
+ *
+ * @param {object} coupon - 須含 discount；type 缺省視為 fixed
+ * @returns {{ html: string, isAmount: boolean }}
+ */
+function formatDiscountDisplay(coupon) {
+  var type = coupon.type || 'fixed';
+  var value = Number(coupon.discount) || 0;
+
+  if (type === 'percent') {
+    return { html: value + '%', isAmount: false };
+  }
+  return {
+    html: 'NT$ ' + value.toLocaleString(),
+    isAmount: true
+  };
+}
+
+/**
+ * 最低消費顯示：0 →「無門檻」；其餘 → NT$ xxx
+ * Format minOrder (JSON) / min_order (DB)
+ *
+ * @param {number|string|undefined} minOrder
+ * @returns {string} HTML 字串
+ */
+function formatMinOrderDisplay(minOrder) {
+  var amount = Number(minOrder) || 0;
+  if (amount > 0) {
+    return 'NT$ ' + amount.toLocaleString();
+  }
+  return '<span class="text-muted">無門檻</span>';
+}
+
 window.initDiscounts = function () {
   $(document).off('.discounts');
 
@@ -64,29 +102,29 @@ window.initDiscounts = function () {
     },
     onError: function () {
       $('#couponsTableBody').html(
-        '<tr><td colspan="9" class="text-center text-danger py-4">' +
+        '<tr><td colspan="10" class="text-center text-danger py-4">' +
         '<i class="fas fa-exclamation-triangle me-2"></i>載入優惠券數據失敗' +
         '</td></tr>'
       );
     }
   });
 
-  // 折扣類型 Switch：切換「折扣金額」和「折數」模式
-  // Switch 勾選 = 折數模式；未勾選 = 折扣金額模式（預設）
+  // 折扣類型 Switch：對齊 schema coupon_type
+  // 未勾選 = fixed（固定金額）；勾選 = percent（百分比）
   $(document).on('change.discounts', '#discountTypeSwitch', function () {
-    var isPercent = $(this).is(':checked'); // true = 折數；false = 金額
+    var isPercent = $(this).is(':checked');
 
     if (isPercent) {
-      // 折數模式：輸入 0.1 ~ 9.9，step 0.1
-      $('#discountLabel').html('折數（幾折）<span class="text-danger">*</span>');
+      // percent：discount 為百分比數字，例如 10 = 10% OFF
+      $('#discountLabel').html('折扣百分比 (%) <span class="text-danger">*</span>');
       $('#newCouponDiscount')
-        .attr('placeholder', '例：8')
-        .attr('min', '0.1')
-        .attr('max', '9.9')
-        .attr('step', '0.1')
+        .attr('placeholder', '例：10')
+        .attr('min', '1')
+        .attr('max', '99')
+        .attr('step', '1')
         .val('');
     } else {
-      // 折扣金額模式：輸入正整數，無上限
+      // fixed：discount 為新台幣金額
       $('#discountLabel').html('折扣金額 (NT$) <span class="text-danger">*</span>');
       $('#newCouponDiscount')
         .attr('placeholder', '例：200')
@@ -119,7 +157,7 @@ window.initDiscounts = function () {
     $('#newCouponCode').val(code);
   });
 
-  // 啟用 / 停用優惠券
+  // 啟用 / 停用優惠券（status: active | disabled）
   $(document).on('click.discounts', '.btn-toggle-coupon', function () {
     var $btn     = $(this);
     var $row     = $btn.closest('tr');
@@ -169,12 +207,17 @@ window.initDiscounts = function () {
 
   // 新增優惠券（inline form，無 Modal）
   $(document).on('click.discounts', '#submitAddCoupon', function () {
-    var code       = $('#newCouponCode').val().trim().toUpperCase();
+    var code        = $('#newCouponCode').val().trim().toUpperCase();
     var discountRaw = parseFloat($('#newCouponDiscount').val()) || 0;
-    var quantity   = parseInt($('#newCouponQty').val(), 10) || 50;
-    var startVal   = $('#newCouponStart').val(); // "YYYY-MM-DDTHH:MM" 或空字串
-    var endVal     = $('#newCouponEnd').val();   // "YYYY-MM-DDTHH:MM" 或空字串
-    var isPercent  = $('#discountTypeSwitch').is(':checked'); // true = 折數
+    var quantity    = parseInt($('#newCouponQty').val(), 10) || 50;
+    // 最低消費：對應假資料 minOrder / DB min_order；空值或非法 → 0（無門檻）
+    var minOrder    = parseInt($('#newCouponMinOrder').val(), 10);
+    if (isNaN(minOrder) || minOrder < 0) {
+      minOrder = 0;
+    }
+    var startVal  = $('#newCouponStart').val(); // "YYYY-MM-DDTHH:MM" 或空字串
+    var endVal    = $('#newCouponEnd').val();
+    var isPercent = $('#discountTypeSwitch').is(':checked'); // true → type: percent
 
     // --- 驗證 ---
     if (!code) {
@@ -182,14 +225,9 @@ window.initDiscounts = function () {
       return;
     }
     if (isPercent) {
-      // 折數須在 0 < x < 10 之間，且最多一位小數
-      if (discountRaw <= 0 || discountRaw >= 10) {
-        window.showAdminToast('折數須介於 0 到 10 之間（不含）', 'danger');
-        return;
-      }
-      // 確保最多一位小數（例如 8.55 不合法）
-      if (Math.round(discountRaw * 10) / 10 !== discountRaw) {
-        window.showAdminToast('折數最多輸入小數後一位，例如 8 或 8.5', 'danger');
+      // percent：1 ~ 99 的整數百分比
+      if (discountRaw < 1 || discountRaw > 99 || discountRaw !== Math.floor(discountRaw)) {
+        window.showAdminToast('百分比須為 1～99 的整數', 'danger');
         return;
       }
     } else {
@@ -197,21 +235,26 @@ window.initDiscounts = function () {
         window.showAdminToast('請填寫有效的折扣金額', 'danger');
         return;
       }
+      // fixed：最低消費不宜低於折扣金額
+      if (minOrder > 0 && minOrder < Math.floor(discountRaw)) {
+        window.showAdminToast('最低消費不宜低於折扣金額', 'danger');
+        return;
+      }
     }
 
-    // --- 折扣欄位顯示文字 ---
-    // 金額：NT$ 200；折數：8 折
-    var discountDisplay = isPercent
-      ? discountRaw + ' 折'
-      : 'NT$ ' + Math.floor(discountRaw).toLocaleString();
+    // 對齊 schema / JSON：只用 type（fixed | percent），不寫舊欄位 discountType
+    var couponType = isPercent ? 'percent' : 'fixed';
+    var discountValue = isPercent ? discountRaw : Math.floor(discountRaw);
+
+    var discountInfo = formatDiscountDisplay({ type: couponType, discount: discountValue });
+    var discountCellClass = discountInfo.isAmount ? ' class="admin-cell-amount"' : '';
 
     // --- 組合新表格列 ---
-    // startVal / endVal 直接傳入 formatDateDisplay()，空值自動顯示 "—"
-    var discountCellClass = isPercent ? '' : ' class="admin-cell-amount"';
     var newRow =
       '<tr data-coupon-code="' + code + '" data-coupon-status="active">' +
       '<td><code class="fw-bold">' + code + '</code></td>' +
-      '<td' + discountCellClass + '>' + discountDisplay + '</td>' +
+      '<td' + discountCellClass + '>' + discountInfo.html + '</td>' +
+      '<td class="admin-cell-amount">' + formatMinOrderDisplay(minOrder) + '</td>' +
       '<td class="text-center">' + quantity + '</td>' +
       '<td class="text-center">0</td>' +
       '<td class="text-center">' + quantity + '</td>' +
@@ -225,15 +268,18 @@ window.initDiscounts = function () {
 
     $('#couponsTableBody').prepend($(newRow).hide().fadeIn(400));
 
+    // 寫入快取／API：欄位與 coupons.json 一致（camelCase）
     var newCoupon = {
       code: code,
-      discount: isPercent ? discountRaw : Math.floor(discountRaw),
-      discountType: isPercent ? 'percent' : 'amount',
+      discount: discountValue,
+      type: couponType,
+      minOrder: minOrder,
       quantity: quantity,
       used: 0,
       startDate: startVal || '',
       endDate: endVal || '',
-      status: 'active'
+      status: 'active',
+      category: 'promotion'
     };
     upsertCouponInCache(newCoupon);
 
@@ -247,9 +293,10 @@ window.initDiscounts = function () {
     $('#newCouponCode').val('');
     $('#newCouponDiscount').val('');
     $('#newCouponQty').val('50');
+    $('#newCouponMinOrder').val('0');
     $('#newCouponStart').val('');
     $('#newCouponEnd').val('');
-    // Switch 重設回「折扣金額」模式
+    // Switch 重設回 fixed（固定金額）
     $('#discountTypeSwitch').prop('checked', false).trigger('change');
 
     window.showAdminToast('優惠券「' + code + '」已新增');
@@ -258,12 +305,14 @@ window.initDiscounts = function () {
 
 /**
  * 將 coupons 陣列渲染成 HTML 表格列，填入 #couponsTableBody
+ * 讀取欄位與 coupons.json 一致：type / minOrder / startDate / endDate …
+ *
  * @param {Array} coupons - coupons.json 的資料陣列
  */
 function renderCouponsTable(coupons) {
   if (!coupons || coupons.length === 0) {
     $('#couponsTableBody').html(
-      '<tr><td colspan="9" class="text-center text-muted py-4">目前沒有優惠券</td></tr>'
+      '<tr><td colspan="10" class="text-center text-muted py-4">目前沒有優惠券</td></tr>'
     );
     return;
   }
@@ -284,9 +333,15 @@ function renderCouponsTable(coupons) {
       ? '<button class="btn btn-sm btn-outline-warning btn-toggle-coupon me-1">停用</button>'
       : '<button class="btn btn-sm btn-outline-success btn-toggle-coupon me-1">啟用</button>';
 
+    var discountInfo = formatDiscountDisplay(coupon);
+    var discountCellClass = discountInfo.isAmount ? ' class="admin-cell-amount"' : '';
+    // minOrder 缺欄時當 0（與 schema 預設、文件說明一致）
+    var minOrderCell = formatMinOrderDisplay(coupon.minOrder);
+
     return '<tr data-coupon-code="' + coupon.code + '" data-coupon-status="' + coupon.status + '">' +
       '<td><code class="fw-bold">' + coupon.code + '</code></td>' +
-      '<td class="admin-cell-amount">NT$ ' + coupon.discount.toLocaleString() + '</td>' +
+      '<td' + discountCellClass + '>' + discountInfo.html + '</td>' +
+      '<td class="admin-cell-amount">' + minOrderCell + '</td>' +
       '<td class="text-center">' + coupon.quantity + '</td>' +
       '<td class="text-center">' + coupon.used + '</td>' +
       '<td class="text-center">' + remainDisplay + '</td>' +

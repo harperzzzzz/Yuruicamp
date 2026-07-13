@@ -205,7 +205,7 @@ erDiagram
 |------|-----|------|
 | 商品／SKU | `productId` / `variantId` / `sku` | **FK + 冗餘 sku** |
 | 名稱／規格 | `name` / `specLabel` | **快照** |
-| 單價／數量／圖 | `price` / `quantity` / `image` | 價與圖為快照 |
+| 單價／數量／圖 | `price` / `quantity` / `image` | 價與主圖為快照 |
 
 另：`history[]` → `ORDER_HISTORY`；`coupons[]` → `ORDER_COUPONS`（券快照）。詳見 [`snapshot-fields.md`](./snapshot-fields.md)。
 

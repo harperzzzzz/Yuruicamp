@@ -1008,7 +1008,6 @@ main {
   }
 }
 .cardGallery {
-  height: 100%;
   position: relative;
   width: 100%;
 }
@@ -1044,6 +1043,17 @@ main {
   height: 100%;
   justify-content: center;
   min-height: 10rem;
+}
+
+.homeProductImage.cardGallery .swiper,
+.homeProductImage.cardGallery .cardGalleryEmpty,
+.productCardImageWrap.cardGallery .swiper,
+.productCardImageWrap.cardGallery .cardGalleryEmpty,
+.campCardImageBooking.cardGallery .swiper,
+.campCardImageBooking.cardGallery .cardGalleryEmpty {
+  inset: 0;
+  min-height: 0;
+  position: absolute;
 }
 
 .cardGallery .swiper-button-prev,
@@ -1104,8 +1114,52 @@ main {
   transform: none;
 }
 
-.glightbox-container .gslide-description {
+.glightbox-container .gslide-description,
+.glightbox-container .gdesc {
   display: none !important;
+}
+
+.glightbox-container .ginner-container,
+.glightbox-container .gslide-media,
+.glightbox-container .gslide-image {
+  align-items: center;
+  display: flex !important;
+  height: calc(100vh - 48px) !important;
+  justify-content: center;
+  max-height: calc(100vh - 48px);
+  max-width: calc(100vw - 48px);
+  overflow: hidden;
+  width: calc(100vw - 48px) !important;
+}
+
+.glightbox-container .gslide-image img {
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
+}
+
+.glightbox-container .gslide-external {
+  align-items: center;
+  background: transparent !important;
+  display: flex !important;
+  height: calc(100vh - 48px) !important;
+  justify-content: center;
+  max-height: calc(100vh - 48px) !important;
+  overflow: hidden !important;
+  width: calc(100vw - 48px) !important;
+}
+
+.glightbox-container .gslide-external img {
+  height: 100% !important;
+  max-height: 100% !important;
+  max-width: 100% !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  width: 100% !important;
 }
 
 /* Booking Summary：日期摘要區塊，供營區詳情側欄顯示已選日期。 */
@@ -3408,20 +3462,38 @@ main {
   margin-bottom: 1.25rem;
 }
 
+.galleryImgLink {
+  cursor: zoom-in;
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.galleryImgLinkHero {
+  grid-column: 1/-1;
+}
+
 .galleryImg {
   width: 100%;
   aspect-ratio: 4/3;
   object-fit: cover;
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .galleryImgHero {
-  grid-column: 1/-1;
   aspect-ratio: 16/7;
 }
 
-.galleryImg:hover {
+.galleryImgLink:hover .galleryImg,
+.galleryImgLink:focus-visible .galleryImg {
   transform: scale(1.03);
+}
+
+.galleryImgLink:focus-visible {
+  outline: 3px solid var(--yc-sage-action);
+  outline-offset: 2px;
 }
 
 .campDescription {
@@ -3545,7 +3617,7 @@ main {
   .campGallery {
     grid-template-columns: 1fr;
   }
-  .galleryImg:not(.galleryImgHero) {
+  .galleryImgLink:not(.galleryImgLinkHero) {
     display: none;
   }
   .zoneTableSection {
@@ -5005,3 +5077,5 @@ main {
     font-size: 1.75rem;
   }
 }
+
+/*# sourceMappingURL=booking-main.css.map */
