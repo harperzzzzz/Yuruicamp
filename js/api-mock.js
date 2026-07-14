@@ -105,13 +105,27 @@ const _loadReviews = async () => {
   if (reviewsCache) return reviewsCache;
   const seed = await _fetchJson(_path('reviews'));
   const mock = _readJsonStorage(MOCK_REVIEWS_KEY, []);
-  reviewsCache = [...seed, ...mock];
+  reviewsCache = [...seed, ...mock].map((review) => ({
+    ...review,
+    verifiedPurchase: review.verifiedPurchase === true || review.id === 'REV031',
+    ...(review.id === 'REV031' && review.orderItemId == null ? { orderItemId: 418 } : {}),
+  }));
   return reviewsCache;
 };
 
 const _loadOrdersSeed = async () => {
   if (ordersCache) return ordersCache;
-  ordersCache = await _fetchJson(_path('orders'));
+  let orderItemId = 0;
+  const source = await _fetchJson(_path('orders'));
+  ordersCache = source.map((order) => ({
+    ...order,
+    items: (order.items || []).map((item) => ({
+      ...item,
+      // Mirrors P4 source-order identity assignment. The review write
+      // contract sends only this authoritative relationship.
+      orderItemId: ++orderItemId,
+    })),
+  }));
   return ordersCache;
 };
 
@@ -414,24 +428,45 @@ window.API = {
 
   reviews: {
     create: async (payload) => {
+      const orderItemId = Number(payload.orderItemId);
+      if (!Number.isInteger(orderItemId) || orderItemId <= 0) {
+        throw new Error('orderItemId is required');
+      }
+      const orders = await _loadOrdersSeed();
+      let purchase = null;
+      for (const order of orders) {
+        const item = (order.items || []).find((candidate) => candidate.orderItemId === orderItemId);
+        if (item) {
+          if (purchase) throw new Error('orderItemId is ambiguous');
+          purchase = { order, item };
+        }
+      }
+      if (!purchase) throw new Error('orderItemId does not identify a purchased item');
+      const existing = await _loadReviews();
+      if (existing.some((review) => Number(review.orderItemId) === orderItemId)) {
+        throw new Error('This order item was already reviewed');
+      }
       const review = {
         id: 'REV-M-' + Date.now(),
-        customerId: payload.customerId,
-        productId: payload.productId,
-        orderId: payload.orderId,
-        buyerName: payload.buyerName,
+        orderItemId,
+        customerId: purchase.order.customerId,
+        productId: purchase.item.productId,
+        variantId: purchase.item.variantId,
+        sku: purchase.item.sku,
+        orderId: purchase.order.id,
+        buyerName: purchase.order.buyerName,
+        productName: purchase.item.name,
         rating: payload.rating,
         comment: payload.comment || '',
         photos: [],
         createdAt: _formatLocalDateTime(),
+        verifiedPurchase: true,
       };
       const mock = _readJsonStorage(MOCK_REVIEWS_KEY, []);
       mock.push(review);
       _writeJsonStorage(MOCK_REVIEWS_KEY, mock);
       reviewsCache = null;
-      if (payload.orderId != null) {
-        await window.API.orders.markReviewed(payload.orderId);
-      }
+      await window.API.orders.markReviewed(purchase.order.id);
       return review;
     },
   },

@@ -1261,10 +1261,7 @@
         if (window.API && window.API.reviews && window.API.reviews.create) {
           try {
             await window.API.reviews.create({
-              customerId: currentMemberId(),
-              productId: firstItem && (firstItem.productId || firstItem.id),
-              orderId: state.review.orderId,
-              buyerName: state.user && state.user.name,
+              orderItemId: firstItem && firstItem.orderItemId,
               rating: state.review.rating,
               comment: document.getElementById('reviewContent').value.trim(),
             });
@@ -1272,7 +1269,7 @@
             renderOrders();
             closeModal('reviewOverlay');
             toast('評價已送出', 'success');
-          } catch (err) {
+          } catch {
             toast('評價送出失敗，請稍後再試', 'error');
           }
           return;

@@ -1,165 +1,87 @@
-﻿# HomePage Spec
+﻿# 首頁 - Yuruicamp 露營選物
 
-**狀態：** 草稿
-**類別：** 頁面
-**設計參考：** 無 - 源自現有原始檔 `pages/home.html`
 
----
+## 1. 頁面目的
+買家首頁，用hero 標題加上短視頻吸引使用者視覺效果，預設立刻探索和露營指南兩個網頁入口，在hero 下方簡單的秀出合作品牌、新品、熱銷品。
 
-## 概述
-買家首頁，包含首頁橫幅、輪播圖、新品展示和暢銷商品展示。用於廣泛發現和商品輸入。首頁橫幅和商品展示應保持視覺豐富性，但並非獨立的行銷落地頁系統。
+這個頁面讓使用者可以：
+- 前往`paegs/products.html`
+- 前往`pages/blog.html`
+- 以跑馬燈的方式秀出合作品牌
+- 簡單的秀出新品和熱銷品
+- 可以通過`homeProductCard` 的`homeProductAddButton` 將商品加入購物車
+- starRating 可以計算review 平均評分和總評論數
 
-## TypeScript Interface
+## 2. 目標使用者
 
-```typescript
-export type PageShellVariant = 'main' | 'booking' | 'admin';
+主要使用者 :
+- 想尋找露營地的一般消費者
+- 對露營裝備有興趣的消費者
+- 使用手機瀏覽的使用者
+- 想了解此平台特色的使用者
 
-export interface NavigationPayload {
-  href: string;
-  label: string;
-  source: 'HomePage';
-}
+使用情境：
+- 可以依目的選擇立刻探索和露營指南兩個網頁入口
+- 品牌合作方一目了然
+- 簡單瀏覽新品和熱銷品
+- 快速加入新品和熱銷品
 
-export interface UserSummary {
-  id: string;
-  displayName: string;
-  email?: string;
-  avatarUrl?: string;
-}
+## 3. 路由
 
-export interface ContentBlock {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl?: string;
-  href?: string;
-}
+頁面路徑 :
 
-export interface HomePageData {
-  title: string;
-  sourcePath: 'pages/home.html';
-  keyAreas: string[];
-  blocks?: ContentBlock[];
-}
+`paegs/products.html`
+`pages/blog.html`
+`pages/product-detail.html`
+`booking/pages/camp-search.html`
+`pages/branches.thml`
+`pages/faq.html`
 
-export interface HomePageProps {
-  // Required props
-  shell: 'main'; // Page shell variant used by this source page.
-  data: HomePageData; // Initial page content, records, or mounted section metadata.
+URL 參數：
 
-  // Optional props
-  currentUser?: UserSummary | null; // Logged-in user context. default: null
-  loading?: boolean; // Shows skeleton or loading state. default: false
-  errorMessage?: string | null; // User-facing error message. default: null
+## 4. 頁面內容
 
-  // Event handlers
-  onNavigate?: (payload: NavigationPayload) => void;
-  onRefresh?: (sourcePath: 'pages/home.html') => void;
+1. 導覽列
+2. 英雄標題
+3. 品牌跑馬燈
+4. 最新商品卡片
+5. 熱銷商品卡片
+6. 商品評分與評論數量
+7. 價格列表
+8. 顯示服務特色
+9. 頁尾
 
-  // Render props / slots
-  headerSlot?: React.ReactNode;
-  footerSlot?: React.ReactNode;
-  actionSlot?: React.ReactNode;
-}
-```
+### 5. 元件規格
 
-## Variants
+### 導覽列
 
-| 變體 | 屬性 | 描述 |
-|---------|-------|-------------|
-| 預設 | `shell="main"` | 符合目前 `pages/home.html` 的版面配置和共用 CSS。 |
-| 載入中 | `loading={true}` | 在資料或部分內容載入時保持頁面框架穩定。 |
-| 空 | `data.blocks=[]` | 顯示一個有用的空狀態，而不會折疊頁面框架。 |
-| 錯誤 | `errorMessage="..."` | 顯示本地化的錯誤訊息和重試路徑。 |
+顯示：
+- 漢堡選單
+- Logo
+- 搜尋按鈕
+- 預約營地按鈕
+- 購物車按鈕
+- 登入／會員選單
 
-## States
+操作：
+- 點擊`button.siteMenuButton`開啟`aside.siteOffcanvas`，顯示商品列表、露營專欄、門市據點、常見問題連結
+- 點擊 `siteBrandLink` 回到`home.html`
+- 點擊`button.siteSearchToggle`開啟`form.siteSearchForm`
+- 點擊`button.siteCartButton`開啟`aside#siteCartDrawer`
+- 點擊`button.siteLoginButton`開啟`div.sharedAuthContent`
+- 點擊`button.authProviderButton`登入並開啟`div#personalizationModal`
+- 點擊`button.sharedAuthClose`開啟`div.modalContent.sharedAuthContent.sharedConfirmContent`
+- 登入後，點擊`siteUserTrigger`開啟`siteUserMenu`
 
-| 狀態 | 觸發 | 視覺變化 |
-|-------|---------|---------------|
-| 預設 | 頁面已載入 | 主要內容區域以 Yuruicamp 綠色標記和現有間距渲染。 |
-| 懸停 | 互動式卡片、行、標籤或按鈕懸停 | 邊框、陰影或背景變化，佈局不變。 |
-| 啟動 | 選取標籤、篩選器、導覽項目或表格行 | 使用 `--yc-sage-action` 或 `--yc-sage-soft` 加上文字標籤。 |
-| 停用 | 操作不可用或表單未填寫 | 降低不透明度，指標被遮擋，元素尺寸不變。 |
-| 載入中 | `loading={true}` | 骨架行、停用的提交按鈕或穩定的佔位符區塊。 |
-| 錯誤 | `errorMessage` 存在 | 在失敗區域附近顯示內聯警告，並在可能的情況下重試操作。 |
+### 英雄標題
 
-## Design Tokens
+- 背景遷入影片 (github 有容量限制不提供)
 
-```typescript
-const spacing = {
-  pagePadding: 'clamp(24px, 5vw, 64px)',
-  sectionGap: '24px',
-  controlGap: '8px',
-};
+### 品牌跑馬燈
 
-const typography = {
-  bodyFontSize: '16px',
-  bodyLineHeight: '1.5',
-  headingWeight: '700',
-};
+- 準備兩份一模一樣的內容，讓它們連續接在一起移動。第一份移出畫面時，第二份剛好補上，然後動畫重頭開始
+- 做出無限播放的效果
 
-const colors = {
-  background: 'var(--yc-bg)',
-  surface: 'var(--yc-surface)',
-  text: 'var(--yc-text)',
-  mutedText: 'var(--yc-text-muted)',
-  border: 'var(--yc-border)',
-  focus: 'var(--yc-sage-action)',
-};
-```
+### 最新商品 and 熱銷商品
 
-## Usage Examples
 
-### Basic
-
-```tsx
-<HomePage
-  shell="main"
-  data={{
-    title: 'HomePage',
-    sourcePath: 'pages/home.html',
-    keyAreas: 'heroBanner, newProductsRow, bestsellerProductsRow'.split(', '),
-  }}
-/>
-```
-
-### With Optional Props
-
-```tsx
-<HomePage
-  shell="main"
-  data={homepageData}
-  currentUser={currentUser}
-  loading={isLoading}
-  errorMessage={errorMessage}
-  onNavigate={(payload) => router.push(payload.href)}
-  onRefresh={(sourcePath) => reloadPageData(sourcePath)}
-/>
-```
-
-## 輔助功能
-
-- **角色：** `main` 用於主要內容區域；嵌套控制項優先使用原生語意元素。
-- **鍵盤：** Tab 鍵順序遵循視覺順序。回車鍵/空白鍵可啟動按鈕、選項卡、手風琴標題和行操作。
-- **ARIA 屬性：** 使用 `aria-current` 表示目前導航，`aria-expanded` 表示可折疊面板，`aria-describedby` 表示錯誤訊息。
-- **焦點管理：** 模態框和側邊欄面板會捕捉焦點，並在關閉後將焦點返回到開啟面板。
-- **螢幕閱讀器：** 以文字形式朗讀頁面標題、載入/錯誤狀態、選定的篩選器和狀態標籤。
-
-## 實作說明
-
-- 原始檔：`pages/home.html`。
-- 分享 CSS 原始檔：`css/main.css`。
-- 共用元件：components/header.partial、components/footer.partial。
-- 主要 UI 區域：heroBanner、newProductsRow、bestsellerProductsRow。
-- 在產生新的 UI 之前，請使用 `docs/ai-style-sheet.md` 和 `docs/ai-style-tokens.css`。
-- 待解決的問題：沒有 Figma 參考，因此現有程式碼是設計的真實來源。
-- 實作此規格時，請勿取代現有的 shell、儲存鍵、模擬資料契約或部分載入器模式。
-
-## 驗收標準
-
-- [ ] 所有變體都能正確渲染
-- [ ] 所有狀態在視覺上清晰可辨
-- [ ] 鍵盤導航功能正常
-- [ ] 螢幕閱讀器播報正確
-- [ ] 設計標記與 Yuruicamp AI 樣式表相符
-- [ ] 單元測試或冒煙測試涵蓋了必需的屬性和主要事件

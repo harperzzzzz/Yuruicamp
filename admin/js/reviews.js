@@ -5,7 +5,7 @@
  *
  * 使用 jQuery Event Namespace (.reviews) 防止重複導覽時事件堆疊
  * Data: /data/admin/reviews.json（種子）
- * 持久化：AdminAPI.reviews（後端就緒後）+ localStorage mockReviews（與前台共用）
+ * 正式評論由 AdminAPI 依 orderItemId 管理；legacy reviews 永遠唯讀。
  */
 
 var REVIEWS_STORAGE_KEY = 'mockReviews';
@@ -54,10 +54,16 @@ function loadReviews(callback) {
   /** 舊版 localStorage 可能仍用 R001 格式，轉為 REV001 */
   function normalizeLegacyReviewIds(reviews) {
     return (reviews || []).map(function (r) {
-      if (r && /^R\d+$/.test(r.id)) {
-        return Object.assign({}, r, { id: 'REV' + r.id.slice(1) });
+      var normalized = r && r.payload ? r.payload : r;
+      if (normalized && /^R\d+$/.test(normalized.id)) {
+        normalized = Object.assign({}, normalized, { id: 'REV' + normalized.id.slice(1) });
       }
-      return r;
+      if (normalized && typeof normalized.verifiedPurchase !== 'boolean') {
+        normalized = Object.assign({}, normalized, {
+          verifiedPurchase: normalized.id === 'REV031'
+        });
+      }
+      return normalized;
     });
   }
 
@@ -87,16 +93,10 @@ function loadReviews(callback) {
 }
 
 /**
- * 持久化評論：先更新 state，再呼叫 AdminAPI；開發期另寫 localStorage 備援
+ * Mock 模式只更新本地正式評論；後端模式使用單筆 formal-review API。
  */
 function saveReviews(reviews) {
   reviewsState.allReviews = reviews;
-
-  if (typeof AdminAPI !== 'undefined' && AdminAPI.reviews) {
-    AdminAPI.reviews.saveAll(reviews).catch(function (err) {
-      AdminAPI.handleError(err, '同步評論失敗');
-    });
-  }
 
   if (!AdminAPI || !AdminAPI.isBackendEnabled || !AdminAPI.isBackendEnabled()) {
     localStorage.setItem(REVIEWS_STORAGE_KEY, JSON.stringify(reviews));
@@ -287,10 +287,11 @@ function renderReviewCards(reviews) {
 
       var avatarSrc = r.buyerAvatar || 'https://placehold.co/44x44/cccccc/555555?text=U';
 
-      var deleteBtn =
-        '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-review"' +
-        ' data-review-id="' + escapeHtml(r.id) + '">' +
-        '<i class="fas fa-trash-alt me-1"></i>刪除評論</button>';
+      var deleteBtn = r.verifiedPurchase === false
+        ? '<span class="badge bg-light text-secondary border">唯讀舊評論</span>'
+        : '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-review"' +
+          ' data-review-id="' + escapeHtml(r.id) + '">' +
+          '<i class="fas fa-trash-alt me-1"></i>刪除評論</button>';
 
       return '<div class="col-12">' +
         '<div class="card shadow-sm review-card' + getReviewCardBorderClass(r) + '"' +
@@ -341,6 +342,11 @@ function renderReviewCards(reviews) {
  * @param {string} reviewId
  */
 function deleteReview(reviewId) {
+  var target = reviewsState.allReviews.find(function (r) { return r.id === reviewId; });
+  if (target && target.verifiedPurchase === false) {
+    window.showAdminToast('舊評論為唯讀稽核資料，不能刪除', 'warning');
+    return;
+  }
   if (!window.confirm('確定要刪除此評論嗎？此操作無法復原。')) return;
 
   var updated = reviewsState.allReviews.filter(function (r) {

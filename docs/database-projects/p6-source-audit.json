@@ -1,0 +1,303 @@
+{
+  "phase": "P6",
+  "generatedAt": "2026-07-14T05:27:21.323Z",
+  "sourceHashes": {
+    "reviews": "abcda1f78b6cda0a3d99d2dd589503b49815ad026002167950720303fb7d0751",
+    "articles": "821d87c5faaedab831ef2b51c859ed21a762cfcb19b9d6310879cc77e55de44f",
+    "orders": "8fbb07ada2e62642d98384c9722c7b4fbc0c71b74c18e613bca5a7b3fa702b41",
+    "products": "330aaa5956f7d87e7553bf2eff25578277c93cc61bf25d5c2e90f240bc9b6dc6"
+  },
+  "decisions": {
+    "formalReview": "Only REV031 has one exact order/customer/product/variant match.",
+    "legacyReview": "Rows without orderId remain read-only evidence; never fabricate order_item_id.",
+    "officialReplies": "D-009 removes every reply field and does not create review_replies.",
+    "articleAuthor": "D-012 keeps author as a public pen name with no admin_users FK.",
+    "articleHeading": "P6 specification and the current renderer treat heading as a text payload block.",
+    "publishedDate": "Legacy publishedDate becomes published_at at 00:00 Asia/Taipei."
+  },
+  "counts": {
+    "sourceReviews": 38,
+    "formalReviews": 1,
+    "legacyReviews": 37,
+    "formalReviewPhotos": 0,
+    "legacyReviewPhotos": 0,
+    "replyPayloadRows": 0,
+    "articles": 6,
+    "articleTags": 18,
+    "articleBlocks": 41,
+    "textBlocks": 18,
+    "headingBlocks": 12,
+    "productBlocks": 11,
+    "relatedProducts": 16,
+    "ambiguousReviewMatches": 0,
+    "unclassifiedReviews": 0
+  },
+  "reviewResolution": [
+    {
+      "reviewId": "REV001",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV002",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV003",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV004",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV005",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV006",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV007",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV008",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV009",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV010",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV011",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV012",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV013",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV014",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV015",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV016",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV017",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV018",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV019",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV020",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV021",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV022",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV023",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV024",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV025",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV026",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV027",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV028",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV029",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV030",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV031",
+      "disposition": "formal",
+      "orderItemId": 418,
+      "resolutionMethod": "EXACT_ORDER_CUSTOMER_PRODUCT_VARIANT",
+      "legacyReason": null
+    },
+    {
+      "reviewId": "REV032",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV033",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV034",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV035",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV036",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV037",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    },
+    {
+      "reviewId": "REV038",
+      "disposition": "legacy",
+      "orderItemId": null,
+      "resolutionMethod": "NO_ORDER_ID",
+      "legacyReason": "NO_ORDER_ID: source review cannot be tied to an authoritative purchase"
+    }
+  ]
+}

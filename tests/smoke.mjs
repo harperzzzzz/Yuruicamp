@@ -93,6 +93,9 @@ assert(!mainJs.includes('DOMContentLoaded", initLayout'), 'main.js should not bi
 
 const apiMock = readProjectFile('js/api-mock.js');
 assert(apiMock.includes('productsCache'), 'api-mock.js should cache products.json');
-assert(apiMock.includes('const _getProducts'), 'api-mock.js should expose the shared product loader');
+assert(
+  apiMock.includes('const _loadProductsRaw'),
+  'api-mock.js should expose the shared product loader',
+);
 
 console.log('Smoke checks passed');

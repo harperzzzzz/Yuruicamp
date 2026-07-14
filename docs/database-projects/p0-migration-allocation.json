@@ -1,0 +1,115 @@
+{
+  "version": 1,
+  "rule": "x00 expand, x10 backfill, x20 constraints; V700 contracts legacy objects only after observation gates",
+  "phases": {
+    "P1": {
+      "versions": ["V100", "V110", "V120"],
+      "objects": [
+        "admin_users",
+        "customers",
+        "customer_shipping_addresses",
+        "preference_options",
+        "customer_preferences",
+        "customer_tags",
+        "customer_tag_assignments",
+        "brands",
+        "product_categories",
+        "campgrounds",
+        "campground_zones",
+        "branches",
+        "branch_features",
+        "inventory_locations"
+      ]
+    },
+    "P2": {
+      "versions": ["V200", "V210", "V220"],
+      "objects": [
+        "equipment_items",
+        "equipment_images",
+        "equipment_tags",
+        "equipment_interest_tags",
+        "equipment_specifications",
+        "products",
+        "product_variants",
+        "environment_tags",
+        "facility_tags",
+        "campground_environment_tags",
+        "campground_facility_tags",
+        "inventory_stocks",
+        "product_stock_summary"
+      ]
+    },
+    "P3": {
+      "versions": ["V300", "V310", "V320"],
+      "objects": [
+        "rental_skus",
+        "rental_sku_variants",
+        "campground_rental_locations",
+        "rental_sku_variant_stocks",
+        "rental_listings",
+        "rental_listing_view"
+      ]
+    },
+    "P4": {
+      "versions": ["V400", "V410", "V420"],
+      "objects": [
+        "orders",
+        "order_items",
+        "order_status_history",
+        "coupons",
+        "order_coupons",
+        "coupon_usage_adjustments",
+        "coupon_usage_stats",
+        "calendar_dates",
+        "bookings",
+        "booking_selected_zones",
+        "booking_selected_rentals",
+        "booking_status_history",
+        "product_stock_reservations",
+        "rental_stock_reservations",
+        "customer_spending_summary",
+        "customer_tier_summary"
+      ]
+    },
+    "P5": {
+      "versions": ["V500", "V510", "V520"],
+      "objects": [
+        "booking_policies",
+        "booking_policy_occupying_statuses",
+        "booking_policy_availability_statuses",
+        "zone_blocks",
+        "campground_closures",
+        "zone_availability",
+        "product_variant_min_stocks",
+        "rental_sku_variant_min_stocks",
+        "inventory_movements",
+        "store_inventory_movement_items",
+        "rental_inventory_movement_items",
+        "inventory_movement_items_view",
+        "inventory_conversions",
+        "movement_migration_map"
+      ]
+    },
+    "P6": {
+      "versions": ["V600", "V610", "V620"],
+      "objects": [
+        "reviews",
+        "review_photos",
+        "legacy_reviews",
+        "legacy_review_photos",
+        "articles",
+        "article_tags",
+        "article_content_blocks",
+        "article_related_products"
+      ]
+    },
+    "P7": {
+      "versions": ["V700"],
+      "objects": [
+        "legacy tables and columns",
+        "temporary compatibility views and triggers",
+        "archive movement_migration_map to migration schema"
+      ]
+    }
+  }
+}

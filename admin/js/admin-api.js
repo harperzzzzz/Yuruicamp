@@ -188,10 +188,6 @@
       list: function () {
         return request('GET', '/reviews');
       },
-      /** PUT /api/admin/reviews — 整批或單筆由後端決定 */
-      saveAll: function (reviews) {
-        return request('PUT', '/reviews', { reviews: reviews });
-      },
       /** DELETE /api/admin/reviews/:id — 刪除整則評論 */
       remove: function (reviewId) {
         return request('DELETE', '/reviews/' + encodeURIComponent(reviewId));
@@ -217,10 +213,10 @@
     // ── 庫存異動 / Movement ──
     movement: {
       list: function () {
-        return request('GET', '/movement');
+        return request('GET', '/inventory-movements');
       },
       create: function (record) {
-        return request('POST', '/movement', record);
+        return request('POST', '/inventory-movements', record);
       }
     },
 

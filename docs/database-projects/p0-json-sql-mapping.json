@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "sourceOfTruth": "docs/database/databaseProjects.md section 5",
+  "mappings": [
+    {
+      "json": "data/customers/customers.json",
+      "targets": [
+        "customers",
+        "customer_preferences",
+        "customer_shipping_addresses",
+        "customer_tags",
+        "customer_tier_summary"
+      ]
+    },
+    {
+      "json": "data/catalog/products.json",
+      "targets": [
+        "equipment_items",
+        "equipment_item_images",
+        "equipment_item_tags",
+        "equipment_item_specifications",
+        "products",
+        "product_variants",
+        "inventory_stocks",
+        "product_stock_summary"
+      ]
+    },
+    {
+      "json": "data/catalog/campgrounds.json",
+      "targets": [
+        "campgrounds",
+        "campground_environment_tags",
+        "campground_facility_tags",
+        "campground_zones"
+      ]
+    },
+    {
+      "json": "data/admin/rental-skus.json",
+      "targets": ["rental_skus", "rental_sku_variants", "rental_sku_variant_stocks"]
+    },
+    {
+      "json": "data/catalog/camp-equipment.json",
+      "targets": ["rental_listings", "rental_listing_view"],
+      "derivedFields": { "stock": "rental_sku_variant_stocks.on_hand_quantity" }
+    },
+    {
+      "json": "data/promotions/coupons.json",
+      "targets": ["coupons", "coupon_usage_adjustments", "coupon_usage_stats"]
+    },
+    {
+      "json": "versioned Taiwan calendar configuration",
+      "targets": ["calendar_dates"],
+      "decision": "D-004"
+    },
+    {
+      "json": "data/commerce/orders.json",
+      "targets": ["orders", "order_items", "order_history", "order_coupons", "product_stock_reservations"]
+    },
+    {
+      "json": "data/commerce/camp-bookings.json",
+      "targets": [
+        "bookings",
+        "booking_selected_zones",
+        "booking_selected_rentals",
+        "booking_history",
+        "rental_stock_reservations"
+      ]
+    },
+    {
+      "json": "data/admin/booking-policy.json",
+      "targets": [
+        "booking_policies",
+        "booking_policy_occupying_statuses",
+        "booking_policy_availability_statuses"
+      ]
+    },
+    { "json": "data/admin/zone-blocks.json", "targets": ["zone_blocks"] },
+    { "json": "data/admin/campground-closures.json", "targets": ["campground_closures"] },
+    {
+      "json": "data/admin/min-stock.json",
+      "targets": ["min_stocks"],
+      "transform": "flatten domain/target/location map"
+    },
+    {
+      "json": "data/admin/reviews.json",
+      "targets": ["reviews", "review_photos", "legacy_reviews"],
+      "decision": "D-002"
+    },
+    {
+      "json": "data/admin/movement.json",
+      "targets": [
+        "inventory_movements",
+        "store_inventory_movement_items",
+        "rental_inventory_movement_items",
+        "inventory_conversions",
+        "movement_migration_map"
+      ],
+      "decision": "D-005"
+    },
+    {
+      "json": "data/marketing/articles.json",
+      "targets": ["articles", "article_tags", "article_content_blocks", "article_related_products"]
+    },
+    { "json": "data/marketing/brands.json", "targets": ["brands"] },
+    { "json": "data/marketing/branches.json", "targets": ["branches", "branch_features"] }
+  ],
+  "excluded": [
+    { "source": "FAQ", "reason": "static content" },
+    { "source": "js/pages/branches.js PARTNER_DATA", "reason": "static content" },
+    { "source": "booking/pages/rental-guide.html", "reason": "static content" }
+  ]
+}

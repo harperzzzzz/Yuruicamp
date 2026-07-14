@@ -4,13 +4,23 @@
  * Requires: npm install (puppeteer) + dev server on baseUrl (default http://127.0.0.1:5173)
  */
 import { spawn } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const baseUrl = process.argv[2] || 'http://127.0.0.1:5173';
+
+const browserCandidates = [
+  process.env.PUPPETEER_EXECUTABLE_PATH,
+  process.env.CHROME_PATH,
+  process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : null,
+  process.platform === 'win32' ? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe' : null,
+  process.platform === 'win32' ? 'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe' : null,
+  process.platform === 'win32' ? 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe' : null,
+].filter(Boolean);
+const systemBrowserPath = browserCandidates.find((candidate) => existsSync(candidate));
 
 /** 常見 UTF-8 被誤讀後的亂碼特徵 / Common mojibake markers */
 const MOJIBAKE_RE = [
@@ -117,6 +127,11 @@ async function checkPage(browser, path, options = {}) {
   const { mustInclude = [], setup, waitFor } = options;
   const page = await browser.newPage();
   page.setDefaultTimeout(20000);
+  const runtimeErrors = [];
+  page.on('pageerror', (error) => runtimeErrors.push(`pageerror: ${error.message}`));
+  page.on('console', (message) => {
+    if (message.type() === 'error') runtimeErrors.push(`console: ${message.text()}`);
+  });
 
   if (setup) await setup(page);
 
@@ -127,7 +142,14 @@ async function checkPage(browser, path, options = {}) {
     try {
       await waitForText(page, waitFor);
     } catch (err) {
-      fail(`${path} 載入逾時`, `等待「${waitFor}」`);
+      const diagnostic = await page.evaluate(() => ({
+        title: document.title,
+        body: document.body?.innerText?.replace(/\s+/g, ' ').slice(0, 240) || '',
+      }));
+      fail(
+        `${path} 載入逾時`,
+        `等待「${waitFor}」 title=${JSON.stringify(diagnostic.title)} body=${JSON.stringify(diagnostic.body)} errors=${JSON.stringify(runtimeErrors.slice(0, 5))}`,
+      );
       await page.close();
       return;
     }
@@ -212,6 +234,7 @@ console.log(`\n=== 瀏覽器 smoke test (${baseUrl}) ===`);
 
 const browser = await puppeteer.launch({
   headless: true,
+  ...(systemBrowserPath ? { executablePath: systemBrowserPath } : {}),
   args: ['--no-sandbox', '--disable-setuid-sandbox'],
 });
 
@@ -300,7 +323,13 @@ try {
         await waitForText(page, '剩', 15000);
         pass('/admin/dashboard 預約排程面板', 'section 已載入');
       } catch (err) {
-        fail('/admin/dashboard 預約排程面板', '切換後未出現日曆內容');
+        const diagnostic = await page.evaluate(() =>
+          document.body?.innerText?.replace(/\s+/g, ' ').slice(0, 240) || ''
+        );
+        fail(
+          '/admin/dashboard 預約排程面板',
+          `切換後未出現日曆內容 body=${JSON.stringify(diagnostic)}`,
+        );
         return;
       }
       const bodyText = await page.evaluate(() => document.body.innerText);
@@ -337,7 +366,7 @@ try {
 
       const hasDelta = await page.evaluate(() => {
         const el = document.querySelector('#shopLineTotalDelta');
-        return el && /[+\-]/.test(el.textContent || '');
+        return el && /[+-]/.test(el.textContent || '');
       });
       if (hasDelta) pass('/admin/dashboard 分析報表上期比較', 'shopLineTotalDelta 含 +/-');
       else fail('/admin/dashboard 分析報表上期比較', '找不到上期差額顯示');

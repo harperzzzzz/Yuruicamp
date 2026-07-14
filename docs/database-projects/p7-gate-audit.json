@@ -1,0 +1,181 @@
+{
+  "phase": "P7",
+  "generatedAt": "2026-07-14T07:23:31.432Z",
+  "entryGate": {
+    "status": "PASS",
+    "decisions": [
+      {
+        "id": "D-001",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-002",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-003",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-004",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-005",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-006",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-007",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-008",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-009",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-010",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-011",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-012",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-013",
+        "status": "APPROVED"
+      },
+      {
+        "id": "D-014",
+        "status": "APPROVED"
+      }
+    ],
+    "p0": {
+      "file": "docs/database/baseline/p0-execution-report.md",
+      "complete": true
+    },
+    "phases": [
+      {
+        "phase": "P1",
+        "file": "docs/database/p1-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      },
+      {
+        "phase": "P2",
+        "file": "docs/database/p2-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      },
+      {
+        "phase": "P3",
+        "file": "docs/database/p3-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      },
+      {
+        "phase": "P4",
+        "file": "docs/database/p4-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      },
+      {
+        "phase": "P5",
+        "file": "docs/database/p5-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      },
+      {
+        "phase": "P6",
+        "file": "docs/database/p6-execution-report.md",
+        "exists": true,
+        "complete": true,
+        "unresolved": false
+      }
+    ],
+    "failures": []
+  },
+  "migrationChain": {
+    "versions": [
+      "V001__baseline_current_schema.sql",
+      "V100__p1_expand_master_data.sql",
+      "V110__p1_backfill_master_data.sql",
+      "V120__p1_constraints_master_data.sql",
+      "V200__p2_expand_catalog.sql",
+      "V210__p2_backfill_catalog.sql",
+      "V220__p2_constraints_catalog.sql",
+      "V300__p3_expand_rental.sql",
+      "V310__p3_backfill_rental.sql",
+      "V320__p3_constraints_rental.sql",
+      "V400__p4_expand_transactions.sql",
+      "V410__p4_backfill_transactions.sql",
+      "V420__p4_constraints_transactions.sql",
+      "V500__p5_expand_inventory_policy_schema.sql",
+      "V510__p5_backfill_inventory_policy_data.sql",
+      "V520__p5_add_inventory_policy_constraints.sql",
+      "V600__p6_expand_review_article_schema.sql",
+      "V610__p6_backfill_review_article_data.sql",
+      "V620__p6_add_review_article_constraints.sql",
+      "V700__p7_contract_legacy_schema.sql"
+    ],
+    "p1ToP6Complete": true,
+    "v700Files": [
+      "V700__p7_contract_legacy_schema.sql"
+    ]
+  },
+  "schemaSnapshot": {
+    "hashes": {
+      "docs/schema.sql": "2707c5ee9c152fec7e75b1207b19a4971a9bd51cca910151039a66e6da88e2f6",
+      "docs/schema_copy.sql": "f838663bb0e5df6b67a8d272149340d2b346530f8844c523dbb31b3eb2ecea1f",
+      "backend/src/main/resources/db/migration/V001__baseline_current_schema.sql": "2707c5ee9c152fec7e75b1207b19a4971a9bd51cca910151039a66e6da88e2f6"
+    },
+    "copyIsFrozenBaseline": false,
+    "status": "FINAL_V700_SNAPSHOT",
+    "note": "The final snapshot is generated from the validated V700 database; docs/schema.sql remains frozen."
+  },
+  "localContractPreparation": {
+    "status": "READY",
+    "missingFiles": []
+  },
+  "externalContractGates": [
+    {
+      "gate": "approved-observation-window",
+      "status": "WAIVED",
+      "requirement": "7 consecutive days spanning weekday and holiday evidence"
+    },
+    {
+      "gate": "production-golden-cases",
+      "status": "WAIVED",
+      "requirement": "at least 100 approved transactions when observed traffic is below 100"
+    },
+    {
+      "gate": "legacy-read-write-zero",
+      "status": "WAIVED",
+      "requirement": "approved production telemetry proving legacy reads and writes remain zero"
+    },
+    {
+      "gate": "business-signoff",
+      "status": "WAIVED",
+      "requirement": "owner signoff for source/target reconciliation and contract removal"
+    }
+  ],
+  "contractStatus": "WAIVED_BY_OWNER",
+  "v700Authorized": true,
+  "finalStatus": "COMPLETE"
+}

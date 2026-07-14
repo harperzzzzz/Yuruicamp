@@ -1,7 +1,7 @@
 /**
  * admin/js/movement.js
  * 庫存異動紀錄模組
- * 從 /data/admin/movement.json 載入主檔，點擊異動 ID 後顯示明細清單。
+ * 後端讀取 P5 inventory_movement_items_view 組成的 DTO；JSON 僅為唯讀 fallback。
  *
  * 功能：
  *   - 期間篩選：近 7/30 天、本月、近 3 個月、自定義（flatpickr）
@@ -69,7 +69,9 @@ window.initMovement = function () {
       onSuccess: function (records) {
         window.movementCache = mergeMovementRecords(
           window.generatedMovementRecords,
-          (records || []).map(normalizeMovementRecord)
+          (records || []).map(function (record) {
+            return normalizeMovementRecord(adaptLegacyMovementRecord(record && (record.payload || record)));
+          })
         );
         window.movementBaseLoaded = true;
         populateEmployeeFilterOptions(window.movementCache);
@@ -245,12 +247,43 @@ function normalizeMovementRecord(record) {
     employeeId: (record && (record.employeeId || record.adminId || record.staffId)) || '—',
     items: items.map(function (item) {
       return {
-        productId: (item && item.productId) || null,
+        inventoryDomain: (item && item.inventoryDomain) || (record && record.inventoryDomain) || 'legacy',
+        variantId: (item && item.variantId) || null,
+        sku: (item && item.sku) || null,
         productName: (item && item.productName) || '未命名商品',
         quantity: parseInt(item && item.quantity, 10) || 0,
-        fromStore: (item && item.fromStore) || '—',
-        toStore:   (item && item.toStore)   || '—',
-        type:      (item && item.type)      || '—'
+        fromStore: (item && (item.fromStore || item.sourceLocationId)) ||
+          (record && record.sourceLocationId) || '—',
+        toStore: (item && (item.toStore || item.destinationLocationId)) ||
+          (record && record.destinationLocationId) || '—',
+        type: (item && item.type) || (record && record.movementType) || '—'
+      };
+    })
+  };
+}
+
+/**
+ * Isolate the pre-P5 JSON shape behind a read-only adapter. It deliberately
+ * does not invent a variant identity from legacy productId.
+ */
+function adaptLegacyMovementRecord(record) {
+  if (!record || record.inventoryDomain || record.movementNo) return record;
+  return {
+    id: record.id,
+    legacyMovementId: String(record.id || ''),
+    inventoryDomain: 'legacy',
+    createdAt: getMovementCreatedAt(record),
+    employeeId: record.employeeId || record.adminId || record.staffId,
+    items: (record.items || []).map(function (item) {
+      return {
+        inventoryDomain: 'legacy',
+        variantId: null,
+        sku: null,
+        productName: item.productName,
+        quantity: item.quantity,
+        fromStore: item.fromStore,
+        toStore: item.toStore,
+        type: item.type
       };
     })
   };
