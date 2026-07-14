@@ -1607,7 +1607,7 @@ main {
   position: fixed;
   right: var(--yc-space-6);
   bottom: var(--yc-space-8);
-  z-index: var(--yc-z-toast);
+  z-index: var(--yc-z-raised);
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -3108,7 +3108,6 @@ main {
 
 .searchBarInput,
 .searchBarSelect {
-  flex: 1 1 160px;
   padding: 0.6rem 1rem;
   border: 2px solid color-mix(in srgb, var(--yc-on-dark) 30%, transparent);
   border-radius: var(--yc-radius-control);
