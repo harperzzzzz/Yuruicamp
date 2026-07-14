@@ -64,6 +64,40 @@ V100-V700), and C (snapshot only) have the same canonical catalog. The waiver
 is not production observation evidence. Final results are in
 `docs/database/p7-execution-report.md`.
 
+V710 removes the unused `branches.description` column.
+
+V711 consolidates the legacy `branches.hours` value into
+`branches.business_hours` and removes the legacy column. Application and
+fixture reads use `business_hours` exclusively after this migration.
+
+V712 consolidates the legacy `branches.image` value into `branches.image_url`
+and removes the legacy column. The frontend branch fixture exposes that value
+as `imageUrl`.
+
+V713 removes the unused `branches.code` and `branches.active` columns together
+with `uq_branches_code` and `idx_branches_active_code`. No replacement active
+index is created because branch reads use the small table directly.
+
+V714 promotes `branch_features.id` to the primary key and preserves the
+business rule against duplicate features per branch with
+`uq_branch_features_branch_id_feature`.
+
+V715 backfills `customers.avatar_url`, updates `review_dto_view` to use the
+canonical avatar URL, verifies that no database object still depends on the
+legacy column and removes `customers.avatar` without `CASCADE`.
+
+V716 removes the stale `customers.total_spent` cache. Recognized customer
+spending is derived exclusively from `customer_spending_summary`, whose source
+is completed, paid and non-refunded orders.
+
+V717-V719 backfill and validate normalized customer preferences, shipping
+addresses and tags, then remove the three legacy JSONB columns without
+`CASCADE`. The normalized master and relationship tables are authoritative.
+
+V720 gives `customers.id` a database-generated 32-character UUID default,
+adds `deleted_at`, exposes active members through `active_customers`, and
+provides guarded soft deletion that preserves every customer relationship.
+
 Applied migration files are immutable; corrections use a higher, previously
 unused version. Do not regenerate or edit any applied backfill or migration
 after application.

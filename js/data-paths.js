@@ -17,6 +17,11 @@
     campBookings: BASE + '/commerce/camp-bookings.json',
 
     customers: BASE + '/customers/customers.json',
+    preferenceOptions: BASE + '/customers/preference-options.json',
+    customerPreferences: BASE + '/customers/customer-preferences.json',
+    customerShippingAddresses: BASE + '/customers/customer-shipping-addresses.json',
+    customerTags: BASE + '/customers/customer-tags.json',
+    customerTagAssignments: BASE + '/customers/customer-tag-assignments.json',
 
     articles: BASE + '/marketing/articles.json',
     branches: BASE + '/marketing/branches.json',

@@ -71,6 +71,12 @@
     localStorage.setItem('yurui_profile', JSON.stringify(profile));
     localStorage.setItem('preferences', JSON.stringify(preferences));
     window.syncMemberPreferenceTags && window.syncMemberPreferenceTags(preferences);
+    var user = window.AppState && window.AppState.currentUser;
+    if (user && user.id && window.API && window.API.customers && window.API.customers.update) {
+      window.API.customers.update(user.id, { preferences: preferences }).catch(function (error) {
+        console.warn('Sync normalized customer preferences failed', error);
+      });
+    }
     window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: preferences }));
   }
 
@@ -89,7 +95,7 @@
       id: 'U001',
       name: provider + ' 使用者',
       email: 'user@' + provider.toLowerCase() + '.example',
-      avatar: provider.charAt(0),
+      avatarUrl: provider.charAt(0),
       provider: provider.toLowerCase(),
     };
     if (window.AppState) {

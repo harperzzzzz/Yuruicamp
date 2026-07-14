@@ -31,9 +31,11 @@ BEGIN
   SELECT id INTO preference FROM preference_options ORDER BY id LIMIT 1;
   INSERT INTO customer_preferences(customer_id, preference_id)
   VALUES ('P1-TEST-CUSTOMER', preference);
-  DELETE FROM customers WHERE id = 'P1-TEST-CUSTOMER';
-  IF EXISTS (SELECT 1 FROM customer_preferences WHERE customer_id = 'P1-TEST-CUSTOMER') THEN
-    RAISE EXCEPTION 'customer preference did not cascade';
+  IF NOT soft_delete_customer('P1-TEST-CUSTOMER') THEN
+    RAISE EXCEPTION 'customer soft delete failed';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM customer_preferences WHERE customer_id = 'P1-TEST-CUSTOMER') THEN
+    RAISE EXCEPTION 'customer preference was removed by soft delete';
   END IF;
 
   BEGIN

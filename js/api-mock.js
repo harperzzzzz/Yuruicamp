@@ -5,6 +5,7 @@
 const MOCK_ORDERS_KEY = 'mockOrders';
 const MOCK_REVIEWS_KEY = 'mockReviews';
 const MOCK_CUSTOMER_OVERLAY_KEY = 'mockCustomerOverlay';
+const MOCK_CUSTOMER_RELATIONS_KEY = 'mockCustomerRelations';
 
 let productsCache = null;
 let productsCacheExpiresAt = 0;
@@ -91,6 +92,64 @@ const _setCustomerOverlay = (customerId, patch) => {
 const _applyCustomerOverlay = (customer) => {
   const overlay = _getCustomerOverlay()[customer.id] || {};
   return { ...customer, ...overlay };
+};
+
+const _getCustomerRelationOverlay = () => _readJsonStorage(MOCK_CUSTOMER_RELATIONS_KEY, {});
+
+const _setCustomerRelationOverlay = (customerId, patch) => {
+  const all = _getCustomerRelationOverlay();
+  all[customerId] = { ...(all[customerId] || {}), ...patch };
+  _writeJsonStorage(MOCK_CUSTOMER_RELATIONS_KEY, all);
+};
+
+const _loadNormalizedCustomers = async () => {
+  const [customers, options, preferences, addresses, tags, assignments] = await Promise.all([
+    _fetchJson(_path('customers')),
+    _fetchJson(_path('preferenceOptions')),
+    _fetchJson(_path('customerPreferences')),
+    _fetchJson(_path('customerShippingAddresses')),
+    _fetchJson(_path('customerTags')),
+    _fetchJson(_path('customerTagAssignments')),
+  ]);
+  const optionById = new Map(options.map((option) => [option.id, option]));
+  const tagById = new Map(tags.map((tag) => [tag.id, tag]));
+  return customers.map((customer) => {
+    const preferenceObject = { styles: [], equipment: [] };
+    preferences
+      .filter((item) => item.customerId === customer.id)
+      .map((item) => optionById.get(item.preferenceId))
+      .filter(Boolean)
+      .forEach((option) => {
+        const key = option.type === 'style' ? 'styles' : 'equipment';
+        preferenceObject[key].push(option.code);
+      });
+    const defaultAddress = addresses.find((address) => address.customerId === customer.id && address.isDefault);
+    const shippingAddress = defaultAddress ? {
+      lastName: '',
+      firstName: defaultAddress.recipientName,
+      postalCode: defaultAddress.postalCode,
+      city: defaultAddress.city,
+      district: defaultAddress.district,
+      township: '',
+      addressLine1: defaultAddress.addressLine,
+      addressLine2: '',
+      email: defaultAddress.email || customer.email,
+      phone: defaultAddress.phone,
+    } : null;
+    const customerTagNames = assignments
+      .filter((item) => item.customerId === customer.id)
+      .map((item) => tagById.get(item.tagId)?.name)
+      .filter(Boolean);
+    return {
+      ...customer,
+      active: customer.active !== false,
+      deletedAt: customer.deletedAt || null,
+      preferences: preferenceObject,
+      shippingAddress,
+      tags: customerTagNames,
+      ...(_getCustomerRelationOverlay()[customer.id] || {}),
+    };
+  });
 };
 
 const _loadProductsRaw = async () => {
@@ -193,15 +252,29 @@ const _buildCustomerNotifications = (customer, orders) => {
 
 const customersApi = {
   getAll: async () => {
-    const customers = await _fetchJson(_path('customers'));
-    return customers.map(_applyCustomerOverlay);
+    const customers = await _loadNormalizedCustomers();
+    return customers
+      .map(_applyCustomerOverlay)
+      .filter((customer) => customer.active === true && customer.deletedAt === null);
   },
 
   getById: async (customerId) => {
     const customers = await customersApi.getAll();
-    const user = customers.find((c) => c.id === customerId) || customers[0];
+    const user = customers.find((c) => c.id === customerId);
     if (!user) throw new Error('Customer not found');
     return user;
+  },
+
+  softDelete: async (customerId) => {
+    const customer = await customersApi.getById(customerId);
+    const timestamp = new Date().toISOString();
+    _setCustomerOverlay(customerId, {
+      active: false,
+      deletedAt: timestamp,
+      updatedAt: timestamp,
+    });
+    if (window.AppState?.currentUser?.id === customer.id) await customersApi.logout();
+    return { ...customer, active: false, deletedAt: timestamp, updatedAt: timestamp };
   },
 
   getNotifications: async (customerId) => {
@@ -236,7 +309,16 @@ const customersApi = {
     const updated = { ...current, ...updates };
     window.AppState.currentUser = updated;
     window.saveAppState && window.saveAppState();
-    _setCustomerOverlay(customerId, updates);
+    const relationUpdates = {};
+    const customerUpdates = { ...updates };
+    ['preferences', 'shippingAddress', 'tags'].forEach((key) => {
+      if (Object.prototype.hasOwnProperty.call(customerUpdates, key)) {
+        relationUpdates[key] = customerUpdates[key];
+        delete customerUpdates[key];
+      }
+    });
+    if (Object.keys(relationUpdates).length) _setCustomerRelationOverlay(customerId, relationUpdates);
+    if (Object.keys(customerUpdates).length) _setCustomerOverlay(customerId, customerUpdates);
     return customersApi.getById(customerId);
   },
 

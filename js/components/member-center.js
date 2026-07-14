@@ -149,7 +149,7 @@
 
   function renderAvatarElement(el, user, fallbackName) {
     if (!el || !user) return;
-    var avatar = user.avatar;
+    var avatar = user.avatarUrl;
     var isUrl = typeof avatar === 'string' && (/^\//.test(avatar) || /^https?:/.test(avatar));
     if (isUrl) {
       el.innerHTML = '<img src="' + html(avatar) + '" alt="" loading="lazy" />';
@@ -269,6 +269,11 @@
     if (window.AppState) {
       window.AppState.preferences = obj;
       if (typeof window.saveAppState === 'function') window.saveAppState();
+    }
+    if (state.user && state.user.id && window.API && window.API.customers && window.API.customers.update) {
+      window.API.customers.update(state.user.id, { preferences: obj }).catch(function (error) {
+        console.warn('Sync normalized customer preferences failed', error);
+      });
     }
   }
   // 用途：初始化會員資料頁的配送地址顯示與編輯 Modal。

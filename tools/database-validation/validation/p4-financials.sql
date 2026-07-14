@@ -7,6 +7,14 @@ CREATE TEMP TABLE p4_financial_issues (
 );
 
 INSERT INTO p4_financial_issues
+SELECT 'customer_spending_source', 'customers.total_spent',
+       'cached customer spending column must not exist'
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'customers'
+  AND column_name = 'total_spent';
+
+INSERT INTO p4_financial_issues
 SELECT 'order_header', source.id, 'source and normalized order amounts differ'
 FROM migration.p4_order_source source
 LEFT JOIN orders target ON target.id = source.id

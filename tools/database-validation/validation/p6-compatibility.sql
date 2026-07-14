@@ -7,6 +7,15 @@ CREATE TEMP TABLE p6_compatibility_issues (
 );
 
 INSERT INTO p6_compatibility_issues
+SELECT 'review_dto_buyer_avatar', 'review_dto_view',
+       'review DTO must remain queryable and expose buyerAvatar'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM review_dto_view
+  WHERE payload ? 'buyerAvatar'
+);
+
+INSERT INTO p6_compatibility_issues
 SELECT 'review_dto', source.id, 'review DTO scalar/photo fields differ from source'
 FROM migration.p6_review_source source
 LEFT JOIN review_dto_view target ON target.id = source.id

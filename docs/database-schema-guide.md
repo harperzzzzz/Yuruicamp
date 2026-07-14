@@ -1,11 +1,11 @@
 # Yuruicamp 資料庫結構導覽
 
-> 來源：`docs/schema_copy.sql`（P7 驗證後快照）。本文件由 `tools/database-validation/generate-schema-guide.ps1` 產生；欄位描述以名稱與 DDL 約束解讀，業務規則以 SQL 為最終準則。
+> 來源：`docs/schema_copy.sql`（V714 驗證後快照）。本文件由 `tools/database-validation/generate-schema-guide.ps1` 產生；欄位描述以名稱與 DDL 約束解讀，業務規則以 SQL 為最終準則。
 
 ## 先說結論
 
 - **資料庫**：PostgreSQL。證據包含 `pg_catalog`、`plpgsql`、`jsonb`、`timestamp with time zone`、`generate_series` 與 PostgreSQL dump 格式。
-- **Schema 定義方式**：資料庫優先（database-first）。`docs/schema_copy.sql` 是可重建新資料庫的最終快照；既有資料庫只能依 `backend/src/main/resources/db/migration/V001…V700` 的 Flyway migration 升級。
+- **Schema 定義方式**：資料庫優先（database-first）。`docs/schema_copy.sql` 是可重建新資料庫的最終快照；既有資料庫只能依 `backend/src/main/resources/db/migration/V001…V714` 的 Flyway migration 升級。
 - **ORM**：後端 `pom.xml` 有 Spring Data JPA，但目前 `backend/src/main` 沒有 Java `@Entity`；`spring.jpa.hibernate.ddl-auto=validate` 只驗證結構、不讓 Hibernate 建表。因此實際 schema 來源是 Flyway SQL，不是 ORM 類別。
 - **規模**：共 113 張表：public 63 張日常業務表、migration 50 張歷史遷移／稽核表。
 - **關鍵觀念**：`public` 是應用程式的現行資料；`migration` 是轉換證據，P7 已設為唯讀，正常功能不可寫入。
@@ -249,7 +249,7 @@ erDiagram
 
 ### `public.branch_features`
 **用途：** 門市特色文字。
-**鍵：** PRIMARY KEY: branch_id, feature
+**鍵：** PRIMARY KEY: id；UNIQUE: branch_id, feature
 **關聯：** branch_id → public.branches(id)
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
@@ -260,7 +260,7 @@ erDiagram
 
 ### `public.branches`
 **用途：** 門市主檔。
-**鍵：** PRIMARY KEY: id；UNIQUE: code
+**鍵：** PRIMARY KEY: id
 **關聯：** 無外鍵。
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
@@ -269,16 +269,11 @@ erDiagram
 | `name` | `character varying(120)` | 是 | — | 顯示名稱。 |
 | `address` | `character varying(300)` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `phone` | `character varying(32)` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `hours` | `character varying(128)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `image` | `text` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `latitude` | `numeric(10,6)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `longitude` | `numeric(10,6)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `map_query` | `text` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `description` | `text` | 否 | — | 文字說明。 |
-| `code` | `character varying(32)` | 是 | — | 人可讀、通常唯一的代碼。 |
 | `business_hours` | `character varying(200)` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `image_url` | `text` | 否 | — | 外部或靜態資源的網址。 |
-| `active` | `boolean` | 是 | true | 是否啟用／可使用。 |
 | `created_at` | `timestamp with time zone` | 是 | now() | 建立此筆資料的時間。 |
 | `updated_at` | `timestamp with time zone` | 是 | now() | 最後更新時間。 |
 
@@ -536,20 +531,15 @@ erDiagram
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
 | --- | --- | --- | --- | --- |
 | `id` | `character varying(32)` | 是 | — | 本列的唯一識別碼。 |
-| `avatar` | `text` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `name` | `character varying(100)` | 是 | — | 顯示名稱。 |
 | `phone` | `character varying(32)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `email` | `character varying(255)` | 是 | — | 電子郵件；帳號或聯絡資訊。 |
 | `birthday` | `date` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `registered_at` | `timestamp with time zone` | 是 | — | 時間戳記。 |
-| `total_spent` | `numeric(12,2)` | 是 | 0 | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `tier` | `character varying(32)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `tier_name` | `character varying(64)` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `points` | `integer` | 是 | 0 | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `first_purchase_used` | `boolean` | 是 | false | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `preferences` | `jsonb` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `shipping_address` | `jsonb` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `tags` | `jsonb` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `auth_provider` | `character varying(32)` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `created_at` | `timestamp with time zone` | 是 | now() | 建立此筆資料的時間。 |
 | `updated_at` | `timestamp with time zone` | 是 | now() | 最後更新時間。 |

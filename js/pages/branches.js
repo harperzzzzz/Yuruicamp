@@ -54,6 +54,7 @@ function createBranchCard(branch, isSelected) {
   button.dataset.branchId = branch.id || '';
   button.dataset.mapQuery = getBranchMapQuery(branch);
   button.dataset.address = branch.address || '';
+  button.dataset.imageUrl = branch.imageUrl || '';
 
   const title = createElement('span', 'branchCardTitle', branch.name || 'Yuruicamp 門市');
   const content = createElement('span', 'branchCardContent');
@@ -61,7 +62,7 @@ function createBranchCard(branch, isSelected) {
   infoList.append(
     createBranchInfo('地址', branch.address),
     createBranchInfo('電話', branch.phone),
-    createBranchInfo('營業', branch.hours)
+    createBranchInfo('營業', branch.business_hours)
   );
 
   const features = createElement('span', 'branchCardFeatures');

@@ -1,0 +1,802 @@
+[
+  {
+    "customerId": "U001",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U001",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U001",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U001",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U002",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U002",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U002",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U002",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U003",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U003",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U003",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U003",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U004",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U004",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U004",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U004",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U005",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U005",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U005",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U005",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U006",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U006",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U006",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U006",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U007",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U007",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U007",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U007",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U008",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U008",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U008",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U008",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U009",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U009",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U009",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U009",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U010",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U010",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U010",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U010",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U011",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U011",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U011",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U011",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U012",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U012",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U012",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U012",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U013",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U013",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U013",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U013",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U014",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U014",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U014",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U014",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U015",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U015",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U015",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U015",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U016",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U016",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U016",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U016",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U017",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U017",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U017",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U017",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U018",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U018",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U018",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U018",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U019",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U019",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U019",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U019",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U020",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U020",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U020",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U020",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U021",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U021",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U021",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U021",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U022",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U022",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U022",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U022",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U023",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U023",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U023",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U023",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U024",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U024",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U024",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U024",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U025",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U025",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U025",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U025",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U026",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U026",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U026",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U026",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U027",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U027",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U027",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U027",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U028",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U028",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U028",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U028",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U029",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U029",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U029",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U029",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U030",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U030",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U030",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U030",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U031",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U031",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U031",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U031",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U032",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U032",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U032",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U032",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U033",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U033",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U033",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U033",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U034",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U034",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U034",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U034",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U035",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U035",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U035",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U035",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U036",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U036",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U036",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U036",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U037",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U037",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U037",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U037",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U038",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U038",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U038",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U038",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U039",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U039",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U039",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U039",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U040",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U040",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U040",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U040",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U041",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U041",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U041",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U041",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U042",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U042",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U042",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U042",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U043",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U043",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U043",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U043",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U044",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U044",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U044",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U044",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U045",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U045",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U045",
+    "preferenceId": 13
+  },
+  {
+    "customerId": "U045",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U046",
+    "preferenceId": 6
+  },
+  {
+    "customerId": "U046",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U046",
+    "preferenceId": 18
+  },
+  {
+    "customerId": "U046",
+    "preferenceId": 9
+  },
+  {
+    "customerId": "U047",
+    "preferenceId": 7
+  },
+  {
+    "customerId": "U047",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U047",
+    "preferenceId": 14
+  },
+  {
+    "customerId": "U047",
+    "preferenceId": 10
+  },
+  {
+    "customerId": "U048",
+    "preferenceId": 8
+  },
+  {
+    "customerId": "U048",
+    "preferenceId": 3
+  },
+  {
+    "customerId": "U048",
+    "preferenceId": 15
+  },
+  {
+    "customerId": "U048",
+    "preferenceId": 11
+  },
+  {
+    "customerId": "U049",
+    "preferenceId": 1
+  },
+  {
+    "customerId": "U049",
+    "preferenceId": 4
+  },
+  {
+    "customerId": "U049",
+    "preferenceId": 16
+  },
+  {
+    "customerId": "U049",
+    "preferenceId": 12
+  },
+  {
+    "customerId": "U050",
+    "preferenceId": 2
+  },
+  {
+    "customerId": "U050",
+    "preferenceId": 5
+  },
+  {
+    "customerId": "U050",
+    "preferenceId": 17
+  },
+  {
+    "customerId": "U050",
+    "preferenceId": 13
+  }
+]

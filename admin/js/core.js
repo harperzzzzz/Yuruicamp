@@ -35,7 +35,16 @@ window.loadAdminJsonResource = function (options) {
     return;
   }
 
-  $.getJSON(jsonPath, onSuccess).fail(function () {
+  $.getJSON(jsonPath, function (data) {
+    if (jsonPath === DataPaths.customers && typeof window.hydrateNormalizedCustomerRelations === 'function') {
+      window.hydrateNormalizedCustomerRelations(data).then(onSuccess).catch(function (error) {
+        if (onError) onError(error);
+        else onSuccess(emptyValue);
+      });
+      return;
+    }
+    onSuccess(data);
+  }).fail(function () {
     if (onError) onError();
     else onSuccess(emptyValue);
   });

@@ -33,7 +33,7 @@
       id: 'U001',
       name: 'Amy Chen',
       email: 'amy@example.com',
-      avatar: getProviderLabel(provider).charAt(0),
+      avatarUrl: getProviderLabel(provider).charAt(0),
       provider: String(provider || 'google').toLowerCase()
     };
   }
@@ -105,7 +105,7 @@
           provider: String(provider || 'google').toLowerCase()
         }));
       }).catch(function () {
-        return finishLogin(createMockUser(provider));
+        throw new Error('Active customer not found');
       });
     }
 

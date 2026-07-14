@@ -53,61 +53,25 @@ LEFT JOIN admin_users admin_user ON admin_user.id = ref.id
 WHERE admin_user.id IS NULL;
 
 INSERT INTO p1_data_issues
-SELECT 'unmapped_preference', customer.id || ':' || value.type || ':' || value.code,
-       'legacy preference has no preference_options row'
-FROM customers customer
-CROSS JOIN LATERAL (
-  SELECT 'style'::text AS type, code
-  FROM jsonb_array_elements_text(COALESCE(customer.preferences->'styles', '[]'::jsonb)) code
-  UNION ALL
-  SELECT 'equipment', code
-  FROM jsonb_array_elements_text(COALESCE(customer.preferences->'equipment', '[]'::jsonb)) code
-) value
-LEFT JOIN preference_options option
-  ON option.type = value.type AND option.code = value.code
-WHERE option.id IS NULL;
+SELECT 'invalid_shipping_address', address.id::text,
+       'required normalized address field is blank'
+FROM customer_shipping_addresses address
+WHERE BTRIM(address.recipient_name) = ''
+   OR BTRIM(address.postal_code) = ''
+   OR BTRIM(address.city) = ''
+   OR BTRIM(address.district) = ''
+   OR BTRIM(address.address_line) = ''
+   OR BTRIM(address.phone) = '';
 
 INSERT INTO p1_data_issues
-SELECT 'missing_preference_assignment', customer.id || ':' || value.type || ':' || value.code,
-       'normalized assignment is missing'
-FROM customers customer
-CROSS JOIN LATERAL (
-  SELECT 'style'::text AS type, code
-  FROM jsonb_array_elements_text(COALESCE(customer.preferences->'styles', '[]'::jsonb)) code
-  UNION ALL
-  SELECT 'equipment', code
-  FROM jsonb_array_elements_text(COALESCE(customer.preferences->'equipment', '[]'::jsonb)) code
-) value
-JOIN preference_options option ON option.type = value.type AND option.code = value.code
-LEFT JOIN customer_preferences assignment
-  ON assignment.customer_id = customer.id AND assignment.preference_id = option.id
-WHERE assignment.customer_id IS NULL;
+SELECT 'blank_preference_code', option.id::text, 'preference option code is blank'
+FROM preference_options option
+WHERE BTRIM(option.code) = '';
 
 INSERT INTO p1_data_issues
-SELECT 'unmapped_customer_tag', customer.id || ':' || value.name,
-       'legacy tag has no customer_tags row'
-FROM customers customer
-CROSS JOIN LATERAL jsonb_array_elements_text(COALESCE(customer.tags, '[]'::jsonb)) value(name)
-LEFT JOIN customer_tags tag ON tag.name = value.name
-WHERE tag.id IS NULL;
-
-INSERT INTO p1_data_issues
-SELECT 'missing_tag_assignment', customer.id || ':' || value.name,
-       'normalized tag assignment is missing'
-FROM customers customer
-CROSS JOIN LATERAL jsonb_array_elements_text(COALESCE(customer.tags, '[]'::jsonb)) value(name)
-JOIN customer_tags tag ON tag.name = value.name
-LEFT JOIN customer_tag_assignments assignment
-  ON assignment.customer_id = customer.id AND assignment.tag_id = tag.id
-WHERE assignment.customer_id IS NULL;
-
-INSERT INTO p1_data_issues
-SELECT 'default_address_count', customer.id, format('expected=1 actual=%s', count(address.id))
-FROM customers customer
-LEFT JOIN customer_shipping_addresses address
-  ON address.customer_id = customer.id AND address.is_default
-WHERE customer.shipping_address IS NOT NULL AND customer.shipping_address <> '{}'::jsonb
-GROUP BY customer.id HAVING count(address.id) <> 1;
+SELECT 'blank_customer_tag', tag.id::text, 'customer tag name is blank'
+FROM customer_tags tag
+WHERE BTRIM(tag.name) = '';
 
 INSERT INTO p1_data_issues
 SELECT 'unmapped_min_stock_location', stock.id::text,

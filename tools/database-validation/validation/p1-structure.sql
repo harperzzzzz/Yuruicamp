@@ -7,6 +7,75 @@ CREATE TEMP TABLE p1_structure_issues (
 );
 
 INSERT INTO p1_structure_issues
+SELECT 'forbidden_column', 'customers.avatar', 'legacy customer avatar column must not exist'
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'customers'
+  AND column_name = 'avatar';
+
+INSERT INTO p1_structure_issues
+SELECT 'forbidden_column', 'customers.total_spent',
+       'customer spending must be derived from customer_spending_summary'
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'customers'
+  AND column_name = 'total_spent';
+
+INSERT INTO p1_structure_issues
+SELECT 'forbidden_column', 'customers.' || column_name,
+       'normalized customer relations are the only authoritative source'
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'customers'
+  AND column_name IN ('preferences', 'shipping_address', 'tags');
+
+INSERT INTO p1_structure_issues
+SELECT 'required_column', 'customers.deleted_at', 'soft-delete timestamp column is missing'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public'
+    AND table_name = 'customers'
+    AND column_name = 'deleted_at'
+    AND data_type = 'timestamp with time zone'
+    AND is_nullable = 'YES'
+);
+
+INSERT INTO p1_structure_issues
+SELECT 'required_default', 'customers.id', 'customer id must default to a 32-character UUID'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public'
+    AND table_name = 'customers'
+    AND column_name = 'id'
+    AND column_default = 'replace((gen_random_uuid())::text, ''-''::text, ''''::text)'
+);
+
+INSERT INTO p1_structure_issues
+SELECT 'required_object', expected.name, 'missing customer soft-delete database object'
+FROM (VALUES
+  ('active_customers', 'v'),
+  ('soft_delete_customer', 'f'),
+  ('reject_customer_hard_delete', 'f'),
+  ('trg_customers_prevent_hard_delete', 't')
+) expected(name, kind)
+WHERE CASE expected.kind
+  WHEN 'v' THEN NOT EXISTS (
+    SELECT 1 FROM information_schema.views
+    WHERE table_schema = 'public' AND table_name = expected.name
+  )
+  WHEN 'f' THEN NOT EXISTS (
+    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public' AND p.proname = expected.name
+  )
+  WHEN 't' THEN NOT EXISTS (
+    SELECT 1 FROM pg_trigger
+    WHERE tgname = expected.name AND NOT tgisinternal
+  )
+END;
+
+INSERT INTO p1_structure_issues
 SELECT 'required_table', expected.name, 'missing P1 table'
 FROM (VALUES
   ('admin_users'), ('customers'), ('customer_shipping_addresses'),
@@ -52,7 +121,7 @@ WHERE actual.oid IS NULL;
 INSERT INTO p1_structure_issues
 SELECT 'required_index', expected.name, 'missing or invalid P1 index'
 FROM (VALUES
-  ('idx_admin_users_role_active'), ('idx_customers_auth_provider'),
+  ('idx_admin_users_role_active'), ('idx_customers_auth_provider'), ('idx_customers_active_email'),
   ('idx_customer_shipping_addresses_customer'), ('idx_customer_shipping_addresses_one_default'),
   ('idx_preference_options_type_active_sort'), ('idx_customer_preferences_preference'),
   ('idx_customer_tags_active_sort'), ('idx_customer_tag_assignments_tag'),

@@ -110,7 +110,7 @@
   /** 將 header 頭像顯示為圖片或首字 */
   function renderSiteUserAvatar(el, user) {
     if (!el || !user) return;
-    var avatar = user.avatar;
+    var avatar = user.avatarUrl;
     var isUrl = typeof avatar === 'string' && (/^\//.test(avatar) || /^https?:/.test(avatar));
     if (isUrl) {
       el.innerHTML = '<img src="' + String(avatar).replace(/"/g, '&quot;') + '" alt="" loading="lazy" />';

@@ -29,6 +29,46 @@ var customerFilterState = {
   tags: []
 };
 
+/** 從正規化 Mock 關聯檔組裝後台會員 DTO。 */
+window.hydrateNormalizedCustomerRelations = function (customers) {
+  return Promise.all([
+    $.getJSON(DataPaths.preferenceOptions),
+    $.getJSON(DataPaths.customerPreferences),
+    $.getJSON(DataPaths.customerShippingAddresses),
+    $.getJSON(DataPaths.customerTags),
+    $.getJSON(DataPaths.customerTagAssignments)
+  ]).then(function (relations) {
+    var options = relations[0], preferences = relations[1], addresses = relations[2];
+    var tags = relations[3], assignments = relations[4], optionById = {}, tagById = {};
+    options.forEach(function (option) { optionById[option.id] = option; });
+    tags.forEach(function (tag) { tagById[tag.id] = tag; });
+    return customers.filter(function (customer) {
+      return customer.active !== false && !customer.deletedAt;
+    }).map(function (customer) {
+      var preferenceObject = { styles: [], equipment: [] };
+      preferences.filter(function (item) { return item.customerId === customer.id; }).forEach(function (item) {
+        var option = optionById[item.preferenceId];
+        if (option) preferenceObject[option.type === 'style' ? 'styles' : 'equipment'].push(option.code);
+      });
+      var address = addresses.find(function (item) { return item.customerId === customer.id && item.isDefault; });
+      var customerTags = assignments.filter(function (item) { return item.customerId === customer.id; })
+        .map(function (item) { return tagById[item.tagId] && tagById[item.tagId].name; }).filter(Boolean);
+      return Object.assign({}, customer, {
+        active: true,
+        deletedAt: null,
+        preferences: preferenceObject,
+        shippingAddress: address ? {
+          lastName: '', firstName: address.recipientName, postalCode: address.postalCode,
+          city: address.city, district: address.district, township: '',
+          addressLine1: address.addressLine, addressLine2: '',
+          email: address.email || customer.email, phone: address.phone
+        } : emptyShippingAddress(),
+        tags: customerTags
+      });
+    });
+  });
+};
+
 /** 取得會員等級顯示名稱（優先 tierName）/ Get tier display label */
 function getCustomerTierDisplay(customer) {
   if (!customer) { return '探險家'; }
@@ -797,7 +837,7 @@ function saveCustomerFromModal() {
 
   var newCustomer = {
     id: data.id,
-    avatar: '../assets/images/avatar-01.jpg',
+    avatarUrl: '../assets/images/avatar-01.jpg',
     name: data.name,
     phone: data.phone,
     email: data.email,

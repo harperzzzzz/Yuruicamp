@@ -1717,7 +1717,7 @@ function renderCustomersAccordion(customers) {
         <button class="accordion-button collapsed py-3" type="button"
                 data-bs-toggle="collapse" data-bs-target="#${accordionId}">
 
-          <img src="${customer.avatar || '../assets/images/placeholder.jpg'}"
+          <img src="${customer.avatarUrl || '../assets/images/placeholder.jpg'}"
                class="rounded-circle me-3 flex-shrink-0"
                width="40" height="40"
                style="object-fit: cover;"

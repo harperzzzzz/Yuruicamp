@@ -1,16 +1,19 @@
--- Yuruicamp final P7 schema snapshot.
--- Generated from a validated V001-V700 database; never use this file to upgrade an existing database.
+-- Yuruicamp schema snapshot through V720.
+-- Generated from a validated V001-V720 database; never use this file to upgrade an existing database.
 -- Flyway migration files remain the only upgrade source of truth.
 
 --
 -- PostgreSQL database dump
 --
 
+\restrict 7AbWotlZqgLjboNPhE21SDcBNmxtPQQqxkQzs2SEMfV0WyhiXnXTDJPV9bZv9xy
+
+-- Dumped from database version 16.14 (Debian 16.14-1.pgdg13+1)
+-- Dumped by pg_dump version 16.14 (Debian 16.14-1.pgdg13+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -24,18 +27,6 @@ SET row_security = off;
 --
 
 CREATE SCHEMA migration;
-
-
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
 
 
 --
@@ -194,6 +185,36 @@ END $$;
 --
 
 COMMENT ON FUNCTION migration.reject_p7_archive_write() IS 'Rejects every owner/application DML attempt against P7 archive relations.';
+
+
+CREATE FUNCTION public.reject_customer_hard_delete() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  RAISE EXCEPTION 'customers must be soft deleted with soft_delete_customer(%)', OLD.id
+    USING ERRCODE = '23000';
+END;
+$$;
+
+
+CREATE FUNCTION public.soft_delete_customer(p_customer_id character varying) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  affected_rows INTEGER;
+BEGIN
+  UPDATE customers
+  SET active = FALSE,
+      deleted_at = now(),
+      updated_at = now()
+  WHERE id = p_customer_id
+    AND active = TRUE
+    AND deleted_at IS NULL;
+
+  GET DIAGNOSTICS affected_rows = ROW_COUNT;
+  RETURN affected_rows = 1;
+END;
+$$;
 
 
 --
@@ -598,23 +619,23 @@ CREATE TABLE migration.p2_product_source (
 --
 
 CREATE TABLE migration.p3_legacy_rental_listings (
-    id character varying(32) CONSTRAINT rental_listings_id_not_null NOT NULL,
-    rental_sku_id character varying(32) CONSTRAINT rental_listings_rental_sku_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT rental_listings_product_id_not_null NOT NULL,
-    variant_id character varying(64) CONSTRAINT rental_listings_variant_id_not_null NOT NULL,
-    sku character varying(64) CONSTRAINT rental_listings_sku_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT rental_listings_campground_id_not_null NOT NULL,
-    name character varying(200) CONSTRAINT rental_listings_name_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    rental_sku_id character varying(32) NOT NULL,
+    product_id character varying(32) NOT NULL,
+    variant_id character varying(64) NOT NULL,
+    sku character varying(64) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    name character varying(200) NOT NULL,
     color character varying(64),
     size character varying(64),
     spec_label character varying(128),
     image_url text,
     terrain_tag character varying(128),
     description text,
-    price_per_day_weekday numeric(12,2) DEFAULT 0 CONSTRAINT rental_listings_price_per_day_weekday_not_null NOT NULL,
-    price_per_day_holiday numeric(12,2) DEFAULT 0 CONSTRAINT rental_listings_price_per_day_holiday_not_null NOT NULL,
-    discount numeric(12,2) DEFAULT 0 CONSTRAINT rental_listings_discount_not_null NOT NULL,
-    stock integer DEFAULT 0 CONSTRAINT rental_listings_stock_not_null NOT NULL
+    price_per_day_weekday numeric(12,2) DEFAULT 0 NOT NULL,
+    price_per_day_holiday numeric(12,2) DEFAULT 0 NOT NULL,
+    discount numeric(12,2) DEFAULT 0 NOT NULL,
+    stock integer DEFAULT 0 NOT NULL
 );
 
 
@@ -637,11 +658,11 @@ COMMENT ON COLUMN migration.p3_legacy_rental_listings.stock IS 'DERIVED from ren
 --
 
 CREATE TABLE migration.p3_legacy_rental_sku_variant_stocks (
-    id bigint CONSTRAINT rental_sku_variant_stocks_id_not_null NOT NULL,
-    rental_sku_id character varying(32) CONSTRAINT rental_sku_variant_stocks_rental_sku_id_not_null NOT NULL,
-    variant_id character varying(64) CONSTRAINT rental_sku_variant_stocks_variant_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT rental_sku_variant_stocks_campground_id_not_null NOT NULL,
-    quantity integer DEFAULT 0 CONSTRAINT rental_sku_variant_stocks_quantity_not_null NOT NULL
+    id bigint NOT NULL,
+    rental_sku_id character varying(32) NOT NULL,
+    variant_id character varying(64) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    quantity integer DEFAULT 0 NOT NULL
 );
 
 
@@ -773,10 +794,10 @@ CREATE TABLE migration.p4_coupon_source (
 --
 
 CREATE TABLE migration.p4_legacy_booking_history (
-    id bigint CONSTRAINT booking_history_id_not_null NOT NULL,
-    booking_id bigint CONSTRAINT booking_history_booking_id_not_null NOT NULL,
-    "time" timestamp with time zone CONSTRAINT booking_history_time_not_null NOT NULL,
-    action text CONSTRAINT booking_history_action_not_null NOT NULL
+    id bigint NOT NULL,
+    booking_id bigint NOT NULL,
+    "time" timestamp with time zone NOT NULL,
+    action text NOT NULL
 );
 
 
@@ -804,8 +825,8 @@ ALTER SEQUENCE migration.p4_legacy_booking_history_id_seq OWNED BY migration.p4_
 --
 
 CREATE TABLE migration.p4_legacy_booking_selected_rentals (
-    id bigint CONSTRAINT booking_selected_rentals_id_not_null NOT NULL,
-    booking_id bigint CONSTRAINT booking_selected_rentals_booking_id_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_id bigint NOT NULL,
     equipment_id character varying(32),
     rental_sku_id character varying(32),
     product_id character varying(32),
@@ -813,8 +834,8 @@ CREATE TABLE migration.p4_legacy_booking_selected_rentals (
     sku character varying(64),
     name character varying(200),
     spec_label character varying(128),
-    quantity integer CONSTRAINT booking_selected_rentals_quantity_not_null NOT NULL,
-    subtotal numeric(12,2) DEFAULT 0 CONSTRAINT booking_selected_rentals_subtotal_not_null NOT NULL,
+    quantity integer NOT NULL,
+    subtotal numeric(12,2) DEFAULT 0 NOT NULL,
     CONSTRAINT booking_selected_rentals_quantity_check CHECK ((quantity > 0))
 );
 
@@ -843,12 +864,12 @@ ALTER SEQUENCE migration.p4_legacy_booking_selected_rentals_id_seq OWNED BY migr
 --
 
 CREATE TABLE migration.p4_legacy_booking_selected_zones (
-    id bigint CONSTRAINT booking_selected_zones_id_not_null NOT NULL,
-    booking_id bigint CONSTRAINT booking_selected_zones_booking_id_not_null NOT NULL,
-    zone_id character varying(32) CONSTRAINT booking_selected_zones_zone_id_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_id bigint NOT NULL,
+    zone_id character varying(32) NOT NULL,
     zone_type character varying(64),
-    quantity integer CONSTRAINT booking_selected_zones_quantity_not_null NOT NULL,
-    subtotal numeric(12,2) DEFAULT 0 CONSTRAINT booking_selected_zones_subtotal_not_null NOT NULL,
+    quantity integer NOT NULL,
+    subtotal numeric(12,2) DEFAULT 0 NOT NULL,
     CONSTRAINT booking_selected_zones_quantity_check CHECK ((quantity > 0))
 );
 
@@ -877,25 +898,25 @@ ALTER SEQUENCE migration.p4_legacy_booking_selected_zones_id_seq OWNED BY migrat
 --
 
 CREATE TABLE migration.p4_legacy_bookings (
-    id bigint CONSTRAINT bookings_id_not_null NOT NULL,
-    customer_id character varying(32) CONSTRAINT bookings_customer_id_not_null NOT NULL,
-    submitted_at timestamp with time zone DEFAULT now() CONSTRAINT bookings_submitted_at_not_null NOT NULL,
-    payment_status public.payment_status DEFAULT 'unpaid'::public.payment_status CONSTRAINT bookings_payment_status_not_null NOT NULL,
-    status public.booking_status DEFAULT 'pending'::public.booking_status CONSTRAINT bookings_status_not_null NOT NULL,
-    equipment_returned boolean DEFAULT false CONSTRAINT bookings_equipment_returned_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT bookings_campground_id_not_null NOT NULL,
-    campground_name character varying(200) CONSTRAINT bookings_campground_name_not_null NOT NULL,
+    id bigint NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    submitted_at timestamp with time zone DEFAULT now() NOT NULL,
+    payment_status public.payment_status DEFAULT 'unpaid'::public.payment_status NOT NULL,
+    status public.booking_status DEFAULT 'pending'::public.booking_status NOT NULL,
+    equipment_returned boolean DEFAULT false NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    campground_name character varying(200) NOT NULL,
     region character varying(32),
-    check_in date CONSTRAINT bookings_check_in_not_null NOT NULL,
-    check_out date CONSTRAINT bookings_check_out_not_null NOT NULL,
-    total_days integer CONSTRAINT bookings_total_days_not_null NOT NULL,
-    weekday_count integer DEFAULT 0 CONSTRAINT bookings_weekday_count_not_null NOT NULL,
-    holiday_count integer DEFAULT 0 CONSTRAINT bookings_holiday_count_not_null NOT NULL,
-    guest_count integer DEFAULT 1 CONSTRAINT bookings_guest_count_not_null NOT NULL,
-    zone_total numeric(12,2) DEFAULT 0 CONSTRAINT bookings_zone_total_not_null NOT NULL,
-    rental_total numeric(12,2) DEFAULT 0 CONSTRAINT bookings_rental_total_not_null NOT NULL,
-    applied_discount numeric(12,2) DEFAULT 0 CONSTRAINT bookings_applied_discount_not_null NOT NULL,
-    final_amount numeric(12,2) DEFAULT 0 CONSTRAINT bookings_final_amount_not_null NOT NULL,
+    check_in date NOT NULL,
+    check_out date NOT NULL,
+    total_days integer NOT NULL,
+    weekday_count integer DEFAULT 0 NOT NULL,
+    holiday_count integer DEFAULT 0 NOT NULL,
+    guest_count integer DEFAULT 1 NOT NULL,
+    zone_total numeric(12,2) DEFAULT 0 NOT NULL,
+    rental_total numeric(12,2) DEFAULT 0 NOT NULL,
+    applied_discount numeric(12,2) DEFAULT 0 NOT NULL,
+    final_amount numeric(12,2) DEFAULT 0 NOT NULL,
     customer_note text,
     seller_note text,
     CONSTRAINT bookings_check CHECK ((check_out > check_in))
@@ -933,16 +954,16 @@ ALTER SEQUENCE migration.p4_legacy_bookings_id_seq OWNED BY migration.p4_legacy_
 --
 
 CREATE TABLE migration.p4_legacy_coupons (
-    code character varying(64) CONSTRAINT coupons_code_not_null NOT NULL,
-    discount numeric(12,2) CONSTRAINT coupons_discount_not_null NOT NULL,
-    type public.coupon_type DEFAULT 'fixed'::public.coupon_type CONSTRAINT coupons_type_not_null NOT NULL,
-    min_order numeric(12,2) DEFAULT 0 CONSTRAINT coupons_min_order_not_null NOT NULL,
-    quantity integer DEFAULT 0 CONSTRAINT coupons_quantity_not_null NOT NULL,
-    used integer DEFAULT 0 CONSTRAINT coupons_used_not_null NOT NULL,
+    code character varying(64) NOT NULL,
+    discount numeric(12,2) NOT NULL,
+    type public.coupon_type DEFAULT 'fixed'::public.coupon_type NOT NULL,
+    min_order numeric(12,2) DEFAULT 0 NOT NULL,
+    quantity integer DEFAULT 0 NOT NULL,
+    used integer DEFAULT 0 NOT NULL,
     start_date timestamp with time zone,
     end_date timestamp with time zone,
-    status public.coupon_status DEFAULT 'active'::public.coupon_status CONSTRAINT coupons_status_not_null NOT NULL,
-    category public.coupon_category CONSTRAINT coupons_category_not_null NOT NULL
+    status public.coupon_status DEFAULT 'active'::public.coupon_status NOT NULL,
+    category public.coupon_category NOT NULL
 );
 
 
@@ -958,9 +979,9 @@ COMMENT ON TABLE migration.p4_legacy_coupons IS '折價券主檔。promotion 不
 --
 
 CREATE TABLE migration.p4_legacy_order_coupons (
-    id bigint CONSTRAINT order_coupons_id_not_null NOT NULL,
-    order_id bigint CONSTRAINT order_coupons_order_id_not_null NOT NULL,
-    code character varying(64) CONSTRAINT order_coupons_code_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_id bigint NOT NULL,
+    code character varying(64) NOT NULL,
     type public.coupon_type,
     discount numeric(12,2),
     amount numeric(12,2),
@@ -999,10 +1020,10 @@ ALTER SEQUENCE migration.p4_legacy_order_coupons_id_seq OWNED BY migration.p4_le
 --
 
 CREATE TABLE migration.p4_legacy_order_history (
-    id bigint CONSTRAINT order_history_id_not_null NOT NULL,
-    order_id bigint CONSTRAINT order_history_order_id_not_null NOT NULL,
-    "time" timestamp with time zone CONSTRAINT order_history_time_not_null NOT NULL,
-    action text CONSTRAINT order_history_action_not_null NOT NULL
+    id bigint NOT NULL,
+    order_id bigint NOT NULL,
+    "time" timestamp with time zone NOT NULL,
+    action text NOT NULL
 );
 
 
@@ -1030,19 +1051,19 @@ ALTER SEQUENCE migration.p4_legacy_order_history_id_seq OWNED BY migration.p4_le
 --
 
 CREATE TABLE migration.p4_legacy_order_items (
-    id bigint CONSTRAINT order_items_id_not_null NOT NULL,
-    order_id bigint CONSTRAINT order_items_order_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT order_items_product_id_not_null NOT NULL,
-    variant_id character varying(64) CONSTRAINT order_items_variant_id_not_null NOT NULL,
-    sku character varying(64) CONSTRAINT order_items_sku_not_null NOT NULL,
-    name character varying(200) CONSTRAINT order_items_name_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_id bigint NOT NULL,
+    product_id character varying(32) NOT NULL,
+    variant_id character varying(64) NOT NULL,
+    sku character varying(64) NOT NULL,
+    name character varying(200) NOT NULL,
     spec_label character varying(128),
     color character varying(64),
     size character varying(64),
     brand character varying(64),
     image text,
-    price numeric(12,2) CONSTRAINT order_items_price_not_null NOT NULL,
-    quantity integer CONSTRAINT order_items_quantity_not_null NOT NULL,
+    price numeric(12,2) NOT NULL,
+    quantity integer NOT NULL,
     CONSTRAINT order_items_quantity_check CHECK ((quantity > 0))
 );
 
@@ -1078,27 +1099,27 @@ ALTER SEQUENCE migration.p4_legacy_order_items_id_seq OWNED BY migration.p4_lega
 --
 
 CREATE TABLE migration.p4_legacy_orders (
-    id bigint CONSTRAINT orders_id_not_null NOT NULL,
-    customer_id character varying(32) CONSTRAINT orders_customer_id_not_null NOT NULL,
-    buyer_name character varying(100) CONSTRAINT orders_buyer_name_not_null NOT NULL,
+    id bigint NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    buyer_name character varying(100) NOT NULL,
     address text,
     buyer_phone character varying(32),
-    subtotal numeric(12,2) DEFAULT 0 CONSTRAINT orders_subtotal_not_null NOT NULL,
-    shipping_fee numeric(12,2) DEFAULT 0 CONSTRAINT orders_shipping_fee_not_null NOT NULL,
-    discount numeric(12,2) DEFAULT 0 CONSTRAINT orders_discount_not_null NOT NULL,
-    total numeric(12,2) DEFAULT 0 CONSTRAINT orders_total_not_null NOT NULL,
-    points integer DEFAULT 0 CONSTRAINT orders_points_not_null NOT NULL,
-    points_awarded boolean DEFAULT false CONSTRAINT orders_points_awarded_not_null NOT NULL,
+    subtotal numeric(12,2) DEFAULT 0 NOT NULL,
+    shipping_fee numeric(12,2) DEFAULT 0 NOT NULL,
+    discount numeric(12,2) DEFAULT 0 NOT NULL,
+    total numeric(12,2) DEFAULT 0 NOT NULL,
+    points integer DEFAULT 0 NOT NULL,
+    points_awarded boolean DEFAULT false NOT NULL,
     payment public.payment_method,
-    payment_status public.payment_status DEFAULT 'unpaid'::public.payment_status CONSTRAINT orders_payment_status_not_null NOT NULL,
-    status public.order_status DEFAULT 'unshipped'::public.order_status CONSTRAINT orders_status_not_null NOT NULL,
+    payment_status public.payment_status DEFAULT 'unpaid'::public.payment_status NOT NULL,
+    status public.order_status DEFAULT 'unshipped'::public.order_status NOT NULL,
     shipping_method public.shipping_method,
     tracking_number character varying(64),
     delivered_at timestamp with time zone,
-    reviewed boolean DEFAULT false CONSTRAINT orders_reviewed_not_null NOT NULL,
+    reviewed boolean DEFAULT false NOT NULL,
     customer_note text,
     seller_note text,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT orders_created_at_not_null NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1243,13 +1264,13 @@ CREATE TABLE migration.p5_closure_source (
 --
 
 CREATE TABLE migration.p5_legacy_booking_policies (
-    id smallint CONSTRAINT booking_policies_id_not_null NOT NULL,
-    booking_window_days integer DEFAULT 90 CONSTRAINT booking_policies_booking_window_days_not_null NOT NULL,
-    min_lead_days integer DEFAULT 0 CONSTRAINT booking_policies_min_lead_days_not_null NOT NULL,
-    max_stay_nights integer DEFAULT 7 CONSTRAINT booking_policies_max_stay_nights_not_null NOT NULL,
-    timezone character varying(64) DEFAULT 'Asia/Taipei'::character varying CONSTRAINT booking_policies_timezone_not_null NOT NULL,
-    occupying_statuses jsonb DEFAULT '["pending", "confirmed", "completed"]'::jsonb CONSTRAINT booking_policies_occupying_statuses_not_null NOT NULL,
-    date_rule jsonb DEFAULT '{"checkInInclusive": true, "checkOutExclusive": true}'::jsonb CONSTRAINT booking_policies_date_rule_not_null NOT NULL,
+    id smallint NOT NULL,
+    booking_window_days integer DEFAULT 90 NOT NULL,
+    min_lead_days integer DEFAULT 0 NOT NULL,
+    max_stay_nights integer DEFAULT 7 NOT NULL,
+    timezone character varying(64) DEFAULT 'Asia/Taipei'::character varying NOT NULL,
+    occupying_statuses jsonb DEFAULT '["pending", "confirmed", "completed"]'::jsonb NOT NULL,
+    date_rule jsonb DEFAULT '{"checkInInclusive": true, "checkOutExclusive": true}'::jsonb NOT NULL,
     availability_status jsonb
 );
 
@@ -1286,9 +1307,9 @@ ALTER SEQUENCE migration.p5_legacy_booking_policies_id_seq OWNED BY migration.p5
 --
 
 CREATE TABLE migration.p5_legacy_campground_closures (
-    id character varying(32) CONSTRAINT campground_closures_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT campground_closures_campground_id_not_null NOT NULL,
-    type public.closure_type CONSTRAINT campground_closures_type_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    type public.closure_type NOT NULL,
     start_date date,
     end_date date,
     day_of_week smallint,
@@ -1296,7 +1317,7 @@ CREATE TABLE migration.p5_legacy_campground_closures (
     effective_to date,
     reason text,
     created_by character varying(64),
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT campground_closures_created_at_not_null NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1312,11 +1333,11 @@ COMMENT ON TABLE migration.p5_legacy_campground_closures IS '營區公休；命�
 --
 
 CREATE TABLE migration.p5_legacy_min_stocks (
-    id bigint CONSTRAINT min_stocks_id_not_null NOT NULL,
-    target_type public.min_stock_target_type CONSTRAINT min_stocks_target_type_not_null NOT NULL,
-    target_id character varying(32) CONSTRAINT min_stocks_target_id_not_null NOT NULL,
-    location_key character varying(64) CONSTRAINT min_stocks_location_key_not_null NOT NULL,
-    min_quantity integer DEFAULT 0 CONSTRAINT min_stocks_min_quantity_not_null NOT NULL
+    id bigint NOT NULL,
+    target_type public.min_stock_target_type NOT NULL,
+    target_id character varying(32) NOT NULL,
+    location_key character varying(64) NOT NULL,
+    min_quantity integer DEFAULT 0 NOT NULL
 );
 
 
@@ -1351,11 +1372,11 @@ ALTER SEQUENCE migration.p5_legacy_min_stocks_id_seq OWNED BY migration.p5_legac
 --
 
 CREATE TABLE migration.p5_legacy_movement_items (
-    id bigint CONSTRAINT movement_items_id_not_null NOT NULL,
-    movement_id bigint CONSTRAINT movement_items_movement_id_not_null NOT NULL,
+    id bigint NOT NULL,
+    movement_id bigint NOT NULL,
     product_id character varying(32),
-    product_name character varying(200) CONSTRAINT movement_items_product_name_not_null NOT NULL,
-    quantity integer CONSTRAINT movement_items_quantity_not_null NOT NULL,
+    product_name character varying(200) NOT NULL,
+    quantity integer NOT NULL,
     from_store character varying(128),
     to_store character varying(128),
     type character varying(32)
@@ -1393,9 +1414,9 @@ ALTER SEQUENCE migration.p5_legacy_movement_items_id_seq OWNED BY migration.p5_l
 --
 
 CREATE TABLE migration.p5_legacy_movements (
-    id bigint CONSTRAINT movements_id_not_null NOT NULL,
+    id bigint NOT NULL,
     employee_id character varying(32),
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT movements_created_at_not_null NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1430,15 +1451,15 @@ ALTER SEQUENCE migration.p5_legacy_movements_id_seq OWNED BY migration.p5_legacy
 --
 
 CREATE TABLE migration.p5_legacy_zone_blocks (
-    id character varying(32) CONSTRAINT zone_blocks_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT zone_blocks_campground_id_not_null NOT NULL,
-    zone_id character varying(32) CONSTRAINT zone_blocks_zone_id_not_null NOT NULL,
-    start_date date CONSTRAINT zone_blocks_start_date_not_null NOT NULL,
-    end_date date CONSTRAINT zone_blocks_end_date_not_null NOT NULL,
-    blocked_sites integer DEFAULT 0 CONSTRAINT zone_blocks_blocked_sites_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    zone_id character varying(32) NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    blocked_sites integer DEFAULT 0 NOT NULL,
     reason text,
     created_by character varying(64),
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT zone_blocks_created_at_not_null NOT NULL
+    created_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -1551,10 +1572,10 @@ CREATE TABLE migration.p6_article_source (
 --
 
 CREATE TABLE migration.p6_legacy_article_content_blocks (
-    id bigint CONSTRAINT article_content_blocks_id_not_null NOT NULL,
-    article_id character varying(32) CONSTRAINT article_content_blocks_article_id_not_null NOT NULL,
-    sort_order integer DEFAULT 0 CONSTRAINT article_content_blocks_sort_order_not_null NOT NULL,
-    type public.article_block_type CONSTRAINT article_content_blocks_type_not_null NOT NULL,
+    id bigint NOT NULL,
+    article_id character varying(32) NOT NULL,
+    sort_order integer DEFAULT 0 NOT NULL,
+    type public.article_block_type NOT NULL,
     value text,
     product_id character varying(32)
 );
@@ -1584,8 +1605,8 @@ ALTER SEQUENCE migration.p6_legacy_article_content_blocks_id_seq OWNED BY migrat
 --
 
 CREATE TABLE migration.p6_legacy_article_related_products (
-    article_id character varying(32) CONSTRAINT article_related_products_article_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT article_related_products_product_id_not_null NOT NULL
+    article_id character varying(32) NOT NULL,
+    product_id character varying(32) NOT NULL
 );
 
 
@@ -1594,8 +1615,8 @@ CREATE TABLE migration.p6_legacy_article_related_products (
 --
 
 CREATE TABLE migration.p6_legacy_articles (
-    id character varying(32) CONSTRAINT articles_id_not_null NOT NULL,
-    title character varying(300) CONSTRAINT articles_title_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    title character varying(300) NOT NULL,
     category character varying(64),
     author character varying(100),
     author_avatar text,
@@ -1604,7 +1625,7 @@ CREATE TABLE migration.p6_legacy_articles (
     image text,
     excerpt text,
     tags jsonb,
-    is_featured boolean DEFAULT false CONSTRAINT articles_is_featured_not_null NOT NULL
+    is_featured boolean DEFAULT false NOT NULL
 );
 
 
@@ -1613,25 +1634,25 @@ CREATE TABLE migration.p6_legacy_articles (
 --
 
 CREATE TABLE migration.p6_legacy_reviews (
-    id character varying(32) CONSTRAINT reviews_id_not_null NOT NULL,
-    customer_id character varying(32) CONSTRAINT reviews_customer_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT reviews_product_id_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    product_id character varying(32) NOT NULL,
     variant_id character varying(64),
     sku character varying(64),
     order_id bigint,
     buyer_name character varying(100),
     buyer_avatar text,
     product_name character varying(200),
-    rating smallint CONSTRAINT reviews_rating_not_null NOT NULL,
+    rating smallint NOT NULL,
     comment text,
     photos jsonb,
-    replied boolean DEFAULT false CONSTRAINT reviews_replied_not_null NOT NULL,
+    replied boolean DEFAULT false NOT NULL,
     reply_text text,
     reply_at timestamp with time zone,
     replied_by character varying(64),
     replied_by_name character varying(100),
     reply_updated_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT reviews_created_at_not_null NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
 );
 
@@ -1721,10 +1742,10 @@ CREATE TABLE public.admin_users (
 --
 
 CREATE TABLE public.article_content_blocks (
-    id bigint CONSTRAINT article_content_blocks_p6_id_not_null NOT NULL,
-    article_id character varying(32) CONSTRAINT article_content_blocks_p6_article_id_not_null NOT NULL,
-    sort_order integer CONSTRAINT article_content_blocks_p6_sort_order_not_null NOT NULL,
-    block_type character varying(16) CONSTRAINT article_content_blocks_p6_block_type_not_null NOT NULL,
+    id bigint NOT NULL,
+    article_id character varying(32) NOT NULL,
+    sort_order integer NOT NULL,
+    block_type character varying(16) NOT NULL,
     text_content text,
     product_id character varying(32),
     CONSTRAINT ck_article_content_blocks_payload CHECK (((((block_type)::text = ANY ((ARRAY['text'::character varying, 'heading'::character varying])::text[])) AND (text_content IS NOT NULL) AND (product_id IS NULL)) OR (((block_type)::text = 'product'::text) AND (text_content IS NULL) AND (product_id IS NOT NULL)))),
@@ -1751,9 +1772,9 @@ ALTER TABLE public.article_content_blocks ALTER COLUMN id ADD GENERATED BY DEFAU
 --
 
 CREATE TABLE public.article_related_products (
-    article_id character varying(32) CONSTRAINT article_related_products_p6_article_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT article_related_products_p6_product_id_not_null NOT NULL,
-    sort_order integer CONSTRAINT article_related_products_p6_sort_order_not_null NOT NULL,
+    article_id character varying(32) NOT NULL,
+    product_id character varying(32) NOT NULL,
+    sort_order integer NOT NULL,
     CONSTRAINT ck_article_related_products_sort_order CHECK ((sort_order >= 0))
 );
 
@@ -1774,19 +1795,19 @@ CREATE TABLE public.article_tags (
 --
 
 CREATE TABLE public.articles (
-    id character varying(32) CONSTRAINT articles_p6_id_not_null NOT NULL,
-    title character varying(250) CONSTRAINT articles_p6_title_not_null NOT NULL,
-    category character varying(64) CONSTRAINT articles_p6_category_not_null NOT NULL,
-    author character varying(120) CONSTRAINT articles_p6_author_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    title character varying(250) NOT NULL,
+    category character varying(64) NOT NULL,
+    author character varying(120) NOT NULL,
     author_avatar_url text,
     published_at timestamp with time zone,
-    summary text CONSTRAINT articles_p6_summary_not_null NOT NULL,
+    summary text NOT NULL,
     cover_image_url text,
-    reading_minutes integer CONSTRAINT articles_p6_reading_minutes_not_null NOT NULL,
-    featured boolean DEFAULT false CONSTRAINT articles_p6_featured_not_null NOT NULL,
-    status character varying(16) DEFAULT 'draft'::character varying CONSTRAINT articles_p6_status_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT articles_p6_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT articles_p6_updated_at_not_null NOT NULL,
+    reading_minutes integer NOT NULL,
+    featured boolean DEFAULT false NOT NULL,
+    status character varying(16) DEFAULT 'draft'::character varying NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_articles_published CHECK ((((status)::text <> 'published'::text) OR (published_at IS NOT NULL))),
     CONSTRAINT ck_articles_reading CHECK ((reading_minutes >= 0)),
     CONSTRAINT ck_articles_status CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'published'::character varying, 'archived'::character varying])::text[])))
@@ -1821,15 +1842,15 @@ CREATE VIEW public.article_dto_view AS
 --
 
 CREATE TABLE public.booking_policies (
-    id smallint CONSTRAINT booking_policies_p5_id_not_null NOT NULL,
-    booking_window_days integer CONSTRAINT booking_policies_p5_booking_window_days_not_null NOT NULL,
-    advance_days integer CONSTRAINT booking_policies_p5_advance_days_not_null NOT NULL,
-    max_nights integer CONSTRAINT booking_policies_p5_max_nights_not_null NOT NULL,
-    timezone character varying(64) DEFAULT 'Asia/Taipei'::character varying CONSTRAINT booking_policies_p5_timezone_not_null NOT NULL,
-    date_boundary_hour smallint DEFAULT 0 CONSTRAINT booking_policies_p5_date_boundary_hour_not_null NOT NULL,
-    low_availability_threshold integer CONSTRAINT booking_policies_p5_low_availability_threshold_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT booking_policies_p5_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT booking_policies_p5_updated_at_not_null NOT NULL,
+    id smallint NOT NULL,
+    booking_window_days integer NOT NULL,
+    advance_days integer NOT NULL,
+    max_nights integer NOT NULL,
+    timezone character varying(64) DEFAULT 'Asia/Taipei'::character varying NOT NULL,
+    date_boundary_hour smallint DEFAULT 0 NOT NULL,
+    low_availability_threshold integer NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_booking_policies_ranges CHECK (((booking_window_days > 0) AND (advance_days >= 0) AND (max_nights > 0) AND ((date_boundary_hour >= 0) AND (date_boundary_hour <= 23)) AND ((low_availability_threshold >= 0) AND (low_availability_threshold <= 100)))),
     CONSTRAINT ck_booking_policies_singleton CHECK ((id = 1)),
     CONSTRAINT ck_booking_policies_timezone CHECK (((timezone)::text = 'Asia/Taipei'::text))
@@ -1870,17 +1891,17 @@ CREATE TABLE public.booking_policy_occupying_statuses (
 --
 
 CREATE TABLE public.booking_selected_rentals (
-    id bigint CONSTRAINT booking_selected_rentals_p4_id_not_null NOT NULL,
-    booking_id character varying(32) CONSTRAINT booking_selected_rentals_p4_booking_id_not_null NOT NULL,
-    rental_listing_id character varying(64) CONSTRAINT booking_selected_rentals_p4_rental_listing_id_not_null NOT NULL,
-    rental_sku_variant_id character varying(64) CONSTRAINT booking_selected_rentals_p4_rental_sku_variant_id_not_null NOT NULL,
-    sku_snapshot character varying(64) CONSTRAINT booking_selected_rentals_p4_sku_snapshot_not_null NOT NULL,
-    name_snapshot character varying(200) CONSTRAINT booking_selected_rentals_p4_name_snapshot_not_null NOT NULL,
-    specification_snapshot character varying(200) CONSTRAINT booking_selected_rentals_p4_specification_snapshot_not_null NOT NULL,
-    price_weekday_snapshot numeric(12,2) CONSTRAINT booking_selected_rentals_p4_price_weekday_snapshot_not_null NOT NULL,
-    price_holiday_snapshot numeric(12,2) CONSTRAINT booking_selected_rentals_p4_price_holiday_snapshot_not_null NOT NULL,
-    discount_snapshot numeric(12,2) CONSTRAINT booking_selected_rentals_p4_discount_snapshot_not_null NOT NULL,
-    quantity integer CONSTRAINT booking_selected_rentals_p4_quantity_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_id character varying(32) NOT NULL,
+    rental_listing_id character varying(64) NOT NULL,
+    rental_sku_variant_id character varying(64) NOT NULL,
+    sku_snapshot character varying(64) NOT NULL,
+    name_snapshot character varying(200) NOT NULL,
+    specification_snapshot character varying(200) NOT NULL,
+    price_weekday_snapshot numeric(12,2) NOT NULL,
+    price_holiday_snapshot numeric(12,2) NOT NULL,
+    discount_snapshot numeric(12,2) NOT NULL,
+    quantity integer NOT NULL,
     CONSTRAINT ck_booking_selected_rentals_money CHECK (((price_weekday_snapshot >= (0)::numeric) AND (price_holiday_snapshot >= (0)::numeric) AND (discount_snapshot >= (0)::numeric))),
     CONSTRAINT ck_booking_selected_rentals_quantity CHECK ((quantity > 0))
 );
@@ -1905,13 +1926,13 @@ ALTER TABLE public.booking_selected_rentals ALTER COLUMN id ADD GENERATED BY DEF
 --
 
 CREATE TABLE public.booking_selected_zones (
-    id bigint CONSTRAINT booking_selected_zones_p4_id_not_null NOT NULL,
-    booking_id character varying(32) CONSTRAINT booking_selected_zones_p4_booking_id_not_null NOT NULL,
-    zone_id character varying(32) CONSTRAINT booking_selected_zones_p4_zone_id_not_null NOT NULL,
-    zone_type_snapshot character varying(64) CONSTRAINT booking_selected_zones_p4_zone_type_snapshot_not_null NOT NULL,
-    price_weekday_snapshot numeric(12,2) CONSTRAINT booking_selected_zones_p4_price_weekday_snapshot_not_null NOT NULL,
-    price_holiday_snapshot numeric(12,2) CONSTRAINT booking_selected_zones_p4_price_holiday_snapshot_not_null NOT NULL,
-    quantity integer CONSTRAINT booking_selected_zones_p4_quantity_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_id character varying(32) NOT NULL,
+    zone_id character varying(32) NOT NULL,
+    zone_type_snapshot character varying(64) NOT NULL,
+    price_weekday_snapshot numeric(12,2) NOT NULL,
+    price_holiday_snapshot numeric(12,2) NOT NULL,
+    quantity integer NOT NULL,
     CONSTRAINT ck_booking_selected_zones_prices CHECK (((price_weekday_snapshot >= (0)::numeric) AND (price_holiday_snapshot >= (0)::numeric))),
     CONSTRAINT ck_booking_selected_zones_quantity CHECK ((quantity > 0))
 );
@@ -1936,10 +1957,10 @@ ALTER TABLE public.booking_selected_zones ALTER COLUMN id ADD GENERATED BY DEFAU
 --
 
 CREATE TABLE public.booking_status_history (
-    id bigint CONSTRAINT booking_status_history_p4_id_not_null NOT NULL,
-    booking_id character varying(32) CONSTRAINT booking_status_history_p4_booking_id_not_null NOT NULL,
-    status character varying(24) CONSTRAINT booking_status_history_p4_status_not_null NOT NULL,
-    occurred_at timestamp with time zone CONSTRAINT booking_status_history_p4_occurred_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_id character varying(32) NOT NULL,
+    status character varying(24) NOT NULL,
+    occurred_at timestamp with time zone NOT NULL,
     actor_id character varying(32),
     note text
 );
@@ -1964,23 +1985,23 @@ ALTER TABLE public.booking_status_history ALTER COLUMN id ADD GENERATED BY DEFAU
 --
 
 CREATE TABLE public.bookings (
-    id character varying(32) CONSTRAINT bookings_p4_id_not_null NOT NULL,
-    customer_id character varying(32) CONSTRAINT bookings_p4_customer_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT bookings_p4_campground_id_not_null NOT NULL,
-    campground_name_snapshot character varying(150) CONSTRAINT bookings_p4_campground_name_snapshot_not_null NOT NULL,
-    region_snapshot character varying(100) CONSTRAINT bookings_p4_region_snapshot_not_null NOT NULL,
-    check_in date CONSTRAINT bookings_p4_check_in_not_null NOT NULL,
-    check_out date CONSTRAINT bookings_p4_check_out_not_null NOT NULL,
-    guest_count integer CONSTRAINT bookings_p4_guest_count_not_null NOT NULL,
-    weekday_count integer CONSTRAINT bookings_p4_weekday_count_not_null NOT NULL,
-    holiday_count integer CONSTRAINT bookings_p4_holiday_count_not_null NOT NULL,
-    zone_total numeric(14,2) CONSTRAINT bookings_p4_zone_total_not_null NOT NULL,
-    rental_total numeric(14,2) CONSTRAINT bookings_p4_rental_total_not_null NOT NULL,
-    applied_discount numeric(14,2) CONSTRAINT bookings_p4_applied_discount_not_null NOT NULL,
-    final_amount numeric(14,2) CONSTRAINT bookings_p4_final_amount_not_null NOT NULL,
-    status character varying(24) CONSTRAINT bookings_p4_status_not_null NOT NULL,
-    created_at timestamp with time zone CONSTRAINT bookings_p4_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT bookings_p4_updated_at_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    campground_name_snapshot character varying(150) NOT NULL,
+    region_snapshot character varying(100) NOT NULL,
+    check_in date NOT NULL,
+    check_out date NOT NULL,
+    guest_count integer NOT NULL,
+    weekday_count integer NOT NULL,
+    holiday_count integer NOT NULL,
+    zone_total numeric(14,2) NOT NULL,
+    rental_total numeric(14,2) NOT NULL,
+    applied_discount numeric(14,2) NOT NULL,
+    final_amount numeric(14,2) NOT NULL,
+    status character varying(24) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_bookings_dates CHECK ((check_out > check_in)),
     CONSTRAINT ck_bookings_day_counts CHECK (((weekday_count >= 0) AND (holiday_count >= 0) AND ((weekday_count + holiday_count) = (check_out - check_in)))),
     CONSTRAINT ck_bookings_guests CHECK ((guest_count > 0)),
@@ -2027,16 +2048,11 @@ CREATE TABLE public.branches (
     name character varying(120) NOT NULL,
     address character varying(300) NOT NULL,
     phone character varying(32) NOT NULL,
-    hours character varying(128),
-    image text,
     latitude numeric(10,6),
     longitude numeric(10,6),
     map_query text,
-    description text,
-    code character varying(32) NOT NULL,
     business_hours character varying(200) NOT NULL,
     image_url text,
-    active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_branches_latitude CHECK (((latitude IS NULL) OR ((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric)))),
@@ -2065,12 +2081,12 @@ CREATE TABLE public.brands (
 --
 
 CREATE TABLE public.calendar_dates (
-    calendar_date date CONSTRAINT calendar_dates_p4_calendar_date_not_null NOT NULL,
-    is_holiday boolean CONSTRAINT calendar_dates_p4_is_holiday_not_null NOT NULL,
+    calendar_date date NOT NULL,
+    is_holiday boolean NOT NULL,
     holiday_name character varying(120),
-    source_version character varying(64) CONSTRAINT calendar_dates_p4_source_version_not_null NOT NULL,
-    effective_at timestamp with time zone CONSTRAINT calendar_dates_p4_effective_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT calendar_dates_p4_updated_at_not_null NOT NULL,
+    source_version character varying(64) NOT NULL,
+    effective_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_calendar_dates_holiday_name CHECK ((is_holiday OR (holiday_name IS NULL))),
     CONSTRAINT ck_calendar_dates_source CHECK ((btrim((source_version)::text) <> ''::text))
 );
@@ -2081,19 +2097,19 @@ CREATE TABLE public.calendar_dates (
 --
 
 CREATE TABLE public.campground_closures (
-    id bigint CONSTRAINT campground_closures_p5_id_not_null NOT NULL,
-    legacy_closure_id character varying(32) CONSTRAINT campground_closures_p5_legacy_closure_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT campground_closures_p5_campground_id_not_null NOT NULL,
-    closure_type character varying(16) CONSTRAINT campground_closures_p5_closure_type_not_null NOT NULL,
+    id bigint NOT NULL,
+    legacy_closure_id character varying(32) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    closure_type character varying(16) NOT NULL,
     start_date date,
     end_date date,
     weekday smallint,
     effective_from date,
     effective_to date,
-    reason text CONSTRAINT campground_closures_p5_reason_not_null NOT NULL,
-    created_by character varying(32) CONSTRAINT campground_closures_p5_created_by_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT campground_closures_p5_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT campground_closures_p5_updated_at_not_null NOT NULL,
+    reason text NOT NULL,
+    created_by character varying(32) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_campground_closures_payload CHECK (((((closure_type)::text = 'date_range'::text) AND (start_date IS NOT NULL) AND (end_date IS NOT NULL) AND (end_date >= start_date) AND (weekday IS NULL) AND (effective_from IS NULL) AND (effective_to IS NULL)) OR (((closure_type)::text = 'weekly'::text) AND (start_date IS NULL) AND (end_date IS NULL) AND ((weekday >= 0) AND (weekday <= 6)) AND (effective_from IS NOT NULL) AND (effective_to IS NOT NULL) AND (effective_to >= effective_from)))),
     CONSTRAINT ck_campground_closures_reason CHECK ((btrim(reason) <> ''::text)),
     CONSTRAINT ck_campground_closures_type CHECK (((closure_type)::text = ANY ((ARRAY['date_range'::character varying, 'weekly'::character varying])::text[])))
@@ -2213,13 +2229,13 @@ COMMENT ON TABLE public.campgrounds IS '可預約營區 C002–C009（不含 C00
 --
 
 CREATE TABLE public.coupon_usage_adjustments (
-    id bigint CONSTRAINT coupon_usage_adjustments_p4_id_not_null NOT NULL,
-    order_coupon_id bigint CONSTRAINT coupon_usage_adjustments_p4_order_coupon_id_not_null NOT NULL,
-    adjustment_type character varying(16) CONSTRAINT coupon_usage_adjustments_p4_adjustment_type_not_null NOT NULL,
-    quantity_delta smallint CONSTRAINT coupon_usage_adjustments_p4_quantity_delta_not_null NOT NULL,
-    idempotency_key character varying(128) CONSTRAINT coupon_usage_adjustments_p4_idempotency_key_not_null NOT NULL,
-    reason text CONSTRAINT coupon_usage_adjustments_p4_reason_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT coupon_usage_adjustments_p4_created_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_coupon_id bigint NOT NULL,
+    adjustment_type character varying(16) NOT NULL,
+    quantity_delta smallint NOT NULL,
+    idempotency_key character varying(128) NOT NULL,
+    reason text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_coupon_usage_adjustments_delta CHECK (((((adjustment_type)::text = 'restore'::text) AND (quantity_delta = '-1'::integer)) OR (((adjustment_type)::text = 'reconsume'::text) AND (quantity_delta = 1)))),
     CONSTRAINT ck_coupon_usage_adjustments_reason CHECK ((btrim(reason) <> ''::text)),
     CONSTRAINT ck_coupon_usage_adjustments_type CHECK (((adjustment_type)::text = ANY ((ARRAY['restore'::character varying, 'reconsume'::character varying])::text[])))
@@ -2245,19 +2261,19 @@ ALTER TABLE public.coupon_usage_adjustments ALTER COLUMN id ADD GENERATED BY DEF
 --
 
 CREATE TABLE public.coupons (
-    id bigint CONSTRAINT coupons_p4_id_not_null NOT NULL,
-    code character varying(64) CONSTRAINT coupons_p4_code_not_null NOT NULL,
-    name character varying(120) CONSTRAINT coupons_p4_name_not_null NOT NULL,
-    discount_type character varying(16) CONSTRAINT coupons_p4_discount_type_not_null NOT NULL,
-    discount_value numeric(12,2) CONSTRAINT coupons_p4_discount_value_not_null NOT NULL,
-    minimum_amount numeric(12,2) DEFAULT 0 CONSTRAINT coupons_p4_minimum_amount_not_null NOT NULL,
-    issue_quantity integer CONSTRAINT coupons_p4_issue_quantity_not_null NOT NULL,
-    valid_from timestamp with time zone CONSTRAINT coupons_p4_valid_from_not_null NOT NULL,
-    valid_until timestamp with time zone CONSTRAINT coupons_p4_valid_until_not_null NOT NULL,
-    status character varying(16) CONSTRAINT coupons_p4_status_not_null NOT NULL,
+    id bigint NOT NULL,
+    code character varying(64) NOT NULL,
+    name character varying(120) NOT NULL,
+    discount_type character varying(16) NOT NULL,
+    discount_value numeric(12,2) NOT NULL,
+    minimum_amount numeric(12,2) DEFAULT 0 NOT NULL,
+    issue_quantity integer NOT NULL,
+    valid_from timestamp with time zone NOT NULL,
+    valid_until timestamp with time zone NOT NULL,
+    status character varying(16) NOT NULL,
     category character varying(64),
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT coupons_p4_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT coupons_p4_updated_at_not_null NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_coupons_dates CHECK ((valid_until > valid_from)),
     CONSTRAINT ck_coupons_percentage CHECK ((((discount_type)::text <> 'percent'::text) OR (discount_value <= (100)::numeric))),
     CONSTRAINT ck_coupons_type CHECK (((discount_type)::text = ANY ((ARRAY['fixed'::character varying, 'percent'::character varying])::text[]))),
@@ -2270,14 +2286,14 @@ CREATE TABLE public.coupons (
 --
 
 CREATE TABLE public.order_coupons (
-    id bigint CONSTRAINT order_coupons_p4_id_not_null NOT NULL,
-    order_id character varying(32) CONSTRAINT order_coupons_p4_order_id_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_id character varying(32) NOT NULL,
     coupon_id bigint,
-    code_snapshot character varying(64) CONSTRAINT order_coupons_p4_code_snapshot_not_null NOT NULL,
-    discount_type_snapshot character varying(16) CONSTRAINT order_coupons_p4_discount_type_snapshot_not_null NOT NULL,
-    discount_value_snapshot numeric(12,2) CONSTRAINT order_coupons_p4_discount_value_snapshot_not_null NOT NULL,
-    amount numeric(12,2) CONSTRAINT order_coupons_p4_amount_not_null NOT NULL,
-    applied_at timestamp with time zone CONSTRAINT order_coupons_p4_applied_at_not_null NOT NULL,
+    code_snapshot character varying(64) NOT NULL,
+    discount_type_snapshot character varying(16) NOT NULL,
+    discount_value_snapshot numeric(12,2) NOT NULL,
+    amount numeric(12,2) NOT NULL,
+    applied_at timestamp with time zone NOT NULL,
     CONSTRAINT ck_order_coupons_amounts CHECK (((discount_value_snapshot >= (0)::numeric) AND (amount >= (0)::numeric)))
 );
 
@@ -2287,25 +2303,25 @@ CREATE TABLE public.order_coupons (
 --
 
 CREATE TABLE public.orders (
-    id character varying(32) CONSTRAINT orders_p4_id_not_null NOT NULL,
-    customer_id character varying(32) CONSTRAINT orders_p4_customer_id_not_null NOT NULL,
-    buyer_name_snapshot character varying(100) CONSTRAINT orders_p4_buyer_name_snapshot_not_null NOT NULL,
-    buyer_email_snapshot character varying(254) CONSTRAINT orders_p4_buyer_email_snapshot_not_null NOT NULL,
-    recipient_name_snapshot character varying(100) CONSTRAINT orders_p4_recipient_name_snapshot_not_null NOT NULL,
-    shipping_address_snapshot text CONSTRAINT orders_p4_shipping_address_snapshot_not_null NOT NULL,
-    shipping_phone_snapshot character varying(32) CONSTRAINT orders_p4_shipping_phone_snapshot_not_null NOT NULL,
-    subtotal numeric(14,2) CONSTRAINT orders_p4_subtotal_not_null NOT NULL,
-    shipping_fee numeric(12,2) CONSTRAINT orders_p4_shipping_fee_not_null NOT NULL,
-    discount numeric(14,2) CONSTRAINT orders_p4_discount_not_null NOT NULL,
-    total numeric(14,2) CONSTRAINT orders_p4_total_not_null NOT NULL,
-    payment_method character varying(24) CONSTRAINT orders_p4_payment_method_not_null NOT NULL,
-    payment_status character varying(24) CONSTRAINT orders_p4_payment_status_not_null NOT NULL,
-    refund_status character varying(24) DEFAULT 'none'::character varying CONSTRAINT orders_p4_refund_status_not_null NOT NULL,
-    status character varying(24) CONSTRAINT orders_p4_status_not_null NOT NULL,
-    placed_at timestamp with time zone CONSTRAINT orders_p4_placed_at_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    buyer_name_snapshot character varying(100) NOT NULL,
+    buyer_email_snapshot character varying(254) NOT NULL,
+    recipient_name_snapshot character varying(100) NOT NULL,
+    shipping_address_snapshot text NOT NULL,
+    shipping_phone_snapshot character varying(32) NOT NULL,
+    subtotal numeric(14,2) NOT NULL,
+    shipping_fee numeric(12,2) NOT NULL,
+    discount numeric(14,2) NOT NULL,
+    total numeric(14,2) NOT NULL,
+    payment_method character varying(24) NOT NULL,
+    payment_status character varying(24) NOT NULL,
+    refund_status character varying(24) DEFAULT 'none'::character varying NOT NULL,
+    status character varying(24) NOT NULL,
+    placed_at timestamp with time zone NOT NULL,
     paid_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT orders_p4_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT orders_p4_updated_at_not_null NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_orders_money CHECK (((subtotal >= (0)::numeric) AND (shipping_fee >= (0)::numeric) AND (discount >= (0)::numeric) AND (total = GREATEST(((subtotal + shipping_fee) - discount), (0)::numeric)))),
     CONSTRAINT ck_orders_payment_method CHECK (((payment_method)::text = ANY ((ARRAY['online'::character varying, 'cod'::character varying])::text[]))),
     CONSTRAINT ck_orders_status CHECK (((status)::text = ANY ((ARRAY['unshipped'::character varying, 'shipped'::character varying, 'completed'::character varying, 'cancelled'::character varying, 'returned'::character varying])::text[])))
@@ -2497,29 +2513,46 @@ COMMENT ON VIEW public.customer_tier_summary IS 'P4 D-001 derived explorer/guide
 --
 
 CREATE TABLE public.customers (
-    id character varying(32) NOT NULL,
-    avatar text,
+    id character varying(32) DEFAULT replace((gen_random_uuid())::text, '-'::text, ''::text) NOT NULL,
     name character varying(100) NOT NULL,
     phone character varying(32),
     email character varying(255) NOT NULL,
     birthday date,
     registered_at timestamp with time zone NOT NULL,
-    total_spent numeric(12,2) DEFAULT 0 NOT NULL,
     tier character varying(32),
     tier_name character varying(64),
     points integer DEFAULT 0 NOT NULL,
     first_purchase_used boolean DEFAULT false NOT NULL,
-    preferences jsonb,
-    shipping_address jsonb,
-    tags jsonb,
     auth_provider character varying(32) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     avatar_url text,
     active boolean DEFAULT true NOT NULL,
+    deleted_at timestamp with time zone,
     CONSTRAINT ck_customers_auth_provider CHECK (((auth_provider)::text = ANY ((ARRAY['google'::character varying, 'facebook'::character varying, 'line'::character varying])::text[]))),
     CONSTRAINT ck_customers_points CHECK ((points >= 0))
 );
+
+
+CREATE VIEW public.active_customers AS
+ SELECT id,
+    name,
+    phone,
+    email,
+    birthday,
+    registered_at,
+    tier,
+    tier_name,
+    points,
+    first_purchase_used,
+    auth_provider,
+    created_at,
+    updated_at,
+    avatar_url,
+    active,
+    deleted_at
+   FROM public.customers
+  WHERE ((active = true) AND (deleted_at IS NULL));
 
 
 --
@@ -2534,13 +2567,6 @@ COMMENT ON TABLE public.customers IS '會員主檔 / Customers (OAuth only, no p
 --
 
 COMMENT ON COLUMN public.customers.first_purchase_used IS '是否已用過首購券資格 / firstPurchase coupon eligibility flag';
-
-
---
--- Name: COLUMN customers.shipping_address; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.customers.shipping_address IS '預設配送地址快照結構（JSONB）/ Default shipping address object';
 
 
 --
@@ -2920,17 +2946,17 @@ ALTER TABLE public.order_coupons ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDE
 --
 
 CREATE TABLE public.order_items (
-    id bigint CONSTRAINT order_items_p4_id_not_null NOT NULL,
-    order_id character varying(32) CONSTRAINT order_items_p4_order_id_not_null NOT NULL,
-    product_id character varying(32) CONSTRAINT order_items_p4_product_id_not_null NOT NULL,
-    variant_id character varying(64) CONSTRAINT order_items_p4_variant_id_not_null NOT NULL,
-    sku_snapshot character varying(64) CONSTRAINT order_items_p4_sku_snapshot_not_null NOT NULL,
-    product_name_snapshot character varying(200) CONSTRAINT order_items_p4_product_name_snapshot_not_null NOT NULL,
-    specification_snapshot character varying(200) CONSTRAINT order_items_p4_specification_snapshot_not_null NOT NULL,
-    brand_name_snapshot character varying(120) CONSTRAINT order_items_p4_brand_name_snapshot_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_id character varying(32) NOT NULL,
+    product_id character varying(32) NOT NULL,
+    variant_id character varying(64) NOT NULL,
+    sku_snapshot character varying(64) NOT NULL,
+    product_name_snapshot character varying(200) NOT NULL,
+    specification_snapshot character varying(200) NOT NULL,
+    brand_name_snapshot character varying(120) NOT NULL,
     image_url_snapshot text,
-    unit_price_snapshot numeric(12,2) CONSTRAINT order_items_p4_unit_price_snapshot_not_null NOT NULL,
-    quantity integer CONSTRAINT order_items_p4_quantity_not_null NOT NULL,
+    unit_price_snapshot numeric(12,2) NOT NULL,
+    quantity integer NOT NULL,
     CONSTRAINT ck_order_items_price CHECK ((unit_price_snapshot >= (0)::numeric)),
     CONSTRAINT ck_order_items_quantity CHECK ((quantity > 0))
 );
@@ -2955,10 +2981,10 @@ ALTER TABLE public.order_items ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENT
 --
 
 CREATE TABLE public.order_status_history (
-    id bigint CONSTRAINT order_status_history_p4_id_not_null NOT NULL,
-    order_id character varying(32) CONSTRAINT order_status_history_p4_order_id_not_null NOT NULL,
-    status character varying(24) CONSTRAINT order_status_history_p4_status_not_null NOT NULL,
-    occurred_at timestamp with time zone CONSTRAINT order_status_history_p4_occurred_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_id character varying(32) NOT NULL,
+    status character varying(24) NOT NULL,
+    occurred_at timestamp with time zone NOT NULL,
     actor_id character varying(32),
     note text
 );
@@ -3045,14 +3071,14 @@ ALTER TABLE public.product_categories ALTER COLUMN id ADD GENERATED BY DEFAULT A
 --
 
 CREATE TABLE public.product_stock_reservations (
-    id bigint CONSTRAINT product_stock_reservations_p4_id_not_null NOT NULL,
-    order_item_id bigint CONSTRAINT product_stock_reservations_p4_order_item_id_not_null NOT NULL,
-    variant_id character varying(64) CONSTRAINT product_stock_reservations_p4_variant_id_not_null NOT NULL,
-    location_id character varying(32) CONSTRAINT product_stock_reservations_p4_location_id_not_null NOT NULL,
-    quantity integer CONSTRAINT product_stock_reservations_p4_quantity_not_null NOT NULL,
-    status character varying(16) DEFAULT 'active'::character varying CONSTRAINT product_stock_reservations_p4_status_not_null NOT NULL,
-    idempotency_key character varying(128) CONSTRAINT product_stock_reservations_p4_idempotency_key_not_null NOT NULL,
-    reserved_at timestamp with time zone DEFAULT now() CONSTRAINT product_stock_reservations_p4_reserved_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    order_item_id bigint NOT NULL,
+    variant_id character varying(64) NOT NULL,
+    location_id character varying(32) NOT NULL,
+    quantity integer NOT NULL,
+    status character varying(16) DEFAULT 'active'::character varying NOT NULL,
+    idempotency_key character varying(128) NOT NULL,
+    reserved_at timestamp with time zone DEFAULT now() NOT NULL,
     expires_at timestamp with time zone,
     released_at timestamp with time zone,
     fulfilled_at timestamp with time zone,
@@ -3196,17 +3222,17 @@ ALTER TABLE public.rental_inventory_movement_items ALTER COLUMN id ADD GENERATED
 --
 
 CREATE TABLE public.rental_listings (
-    id character varying(64) CONSTRAINT rental_listings_p3_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT rental_listings_p3_campground_id_not_null NOT NULL,
-    rental_sku_variant_id character varying(64) CONSTRAINT rental_listings_p3_rental_sku_variant_id_not_null NOT NULL,
-    price_per_day_weekday numeric(12,2) CONSTRAINT rental_listings_p3_price_per_day_weekday_not_null NOT NULL,
-    price_per_day_holiday numeric(12,2) CONSTRAINT rental_listings_p3_price_per_day_holiday_not_null NOT NULL,
-    discount numeric(12,2) DEFAULT 0 CONSTRAINT rental_listings_p3_discount_not_null NOT NULL,
+    id character varying(64) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    rental_sku_variant_id character varying(64) NOT NULL,
+    price_per_day_weekday numeric(12,2) NOT NULL,
+    price_per_day_holiday numeric(12,2) NOT NULL,
+    discount numeric(12,2) DEFAULT 0 NOT NULL,
     terrain character varying(100),
     description text,
-    active boolean DEFAULT true CONSTRAINT rental_listings_p3_active_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT rental_listings_p3_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT rental_listings_p3_updated_at_not_null NOT NULL,
+    active boolean DEFAULT true NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_rental_listings_prices CHECK (((price_per_day_weekday >= (0)::numeric) AND (price_per_day_holiday >= (0)::numeric) AND (discount >= (0)::numeric)))
 );
 
@@ -3216,10 +3242,10 @@ CREATE TABLE public.rental_listings (
 --
 
 CREATE TABLE public.rental_sku_variant_stocks (
-    location_id character varying(32) CONSTRAINT rental_sku_variant_stocks_p3_location_id_not_null NOT NULL,
-    rental_sku_variant_id character varying(64) CONSTRAINT rental_sku_variant_stocks_p3_rental_sku_variant_id_not_null NOT NULL,
-    on_hand_quantity integer DEFAULT 0 CONSTRAINT rental_sku_variant_stocks_p3_on_hand_quantity_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT rental_sku_variant_stocks_p3_updated_at_not_null NOT NULL,
+    location_id character varying(32) NOT NULL,
+    rental_sku_variant_id character varying(64) NOT NULL,
+    on_hand_quantity integer DEFAULT 0 NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_rental_sku_variant_stocks_on_hand CHECK ((on_hand_quantity >= 0))
 );
 
@@ -3306,16 +3332,16 @@ COMMENT ON TABLE public.rental_skus IS '租借 SKU 群組＝庫存唯一寫入�
 --
 
 CREATE TABLE public.rental_stock_reservations (
-    id bigint CONSTRAINT rental_stock_reservations_p4_id_not_null NOT NULL,
-    booking_selected_rental_id bigint CONSTRAINT rental_stock_reservations_p_booking_selected_rental_id_not_null NOT NULL,
-    rental_sku_variant_id character varying(64) CONSTRAINT rental_stock_reservations_p4_rental_sku_variant_id_not_null NOT NULL,
-    location_id character varying(32) CONSTRAINT rental_stock_reservations_p4_location_id_not_null NOT NULL,
-    check_in date CONSTRAINT rental_stock_reservations_p4_check_in_not_null NOT NULL,
-    check_out date CONSTRAINT rental_stock_reservations_p4_check_out_not_null NOT NULL,
-    quantity integer CONSTRAINT rental_stock_reservations_p4_quantity_not_null NOT NULL,
-    status character varying(16) DEFAULT 'active'::character varying CONSTRAINT rental_stock_reservations_p4_status_not_null NOT NULL,
-    idempotency_key character varying(128) CONSTRAINT rental_stock_reservations_p4_idempotency_key_not_null NOT NULL,
-    reserved_at timestamp with time zone DEFAULT now() CONSTRAINT rental_stock_reservations_p4_reserved_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    booking_selected_rental_id bigint NOT NULL,
+    rental_sku_variant_id character varying(64) NOT NULL,
+    location_id character varying(32) NOT NULL,
+    check_in date NOT NULL,
+    check_out date NOT NULL,
+    quantity integer NOT NULL,
+    status character varying(16) DEFAULT 'active'::character varying NOT NULL,
+    idempotency_key character varying(128) NOT NULL,
+    reserved_at timestamp with time zone DEFAULT now() NOT NULL,
     released_at timestamp with time zone,
     fulfilled_at timestamp with time zone,
     inventory_domain character varying(16) DEFAULT 'rental'::character varying NOT NULL,
@@ -3359,11 +3385,11 @@ CREATE TABLE public.review_photos (
 --
 
 CREATE TABLE public.reviews (
-    id character varying(32) CONSTRAINT reviews_p6_id_not_null NOT NULL,
-    order_item_id bigint CONSTRAINT reviews_p6_order_item_id_not_null NOT NULL,
-    rating smallint CONSTRAINT reviews_p6_rating_not_null NOT NULL,
+    id character varying(32) NOT NULL,
+    order_item_id bigint NOT NULL,
+    rating smallint NOT NULL,
     comment text,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT reviews_p6_created_at_not_null NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_reviews_rating CHECK (((rating >= 1) AND (rating <= 5)))
 );
 
@@ -3382,7 +3408,7 @@ COMMENT ON TABLE public.reviews IS 'Formal verified-purchase reviews; order_item
 CREATE VIEW public.review_dto_view AS
  SELECT review.id,
     true AS verified_purchase,
-    jsonb_build_object('id', review.id, 'customerId', order_header.customer_id, 'productId', item.product_id, 'variantId', item.variant_id, 'sku', item.sku_snapshot, 'orderId', item.order_id, 'orderItemId', review.order_item_id, 'buyerName', order_header.buyer_name_snapshot, 'buyerAvatar', COALESCE(customer.avatar_url, customer.avatar), 'productName', item.product_name_snapshot, 'rating', review.rating, 'comment', review.comment, 'photos', COALESCE(( SELECT jsonb_agg(photo.url ORDER BY photo.sort_order) AS jsonb_agg
+    jsonb_build_object('id', review.id, 'customerId', order_header.customer_id, 'productId', item.product_id, 'variantId', item.variant_id, 'sku', item.sku_snapshot, 'orderId', item.order_id, 'orderItemId', review.order_item_id, 'buyerName', order_header.buyer_name_snapshot, 'buyerAvatar', customer.avatar_url, 'productName', item.product_name_snapshot, 'rating', review.rating, 'comment', review.comment, 'photos', COALESCE(( SELECT jsonb_agg(photo.url ORDER BY photo.sort_order) AS jsonb_agg
            FROM public.review_photos photo
           WHERE ((photo.review_id)::text = (review.id)::text)), '[]'::jsonb), 'createdAt', to_char((review.created_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD HH24:MI:SS'::text), 'verifiedPurchase', true) AS payload
    FROM (((public.reviews review
@@ -3417,17 +3443,17 @@ ALTER TABLE public.store_inventory_movement_items ALTER COLUMN id ADD GENERATED 
 --
 
 CREATE TABLE public.zone_blocks (
-    id bigint CONSTRAINT zone_blocks_p5_id_not_null NOT NULL,
-    legacy_block_id character varying(32) CONSTRAINT zone_blocks_p5_legacy_block_id_not_null NOT NULL,
-    campground_id character varying(32) CONSTRAINT zone_blocks_p5_campground_id_not_null NOT NULL,
-    zone_id character varying(32) CONSTRAINT zone_blocks_p5_zone_id_not_null NOT NULL,
-    start_date date CONSTRAINT zone_blocks_p5_start_date_not_null NOT NULL,
-    end_date date CONSTRAINT zone_blocks_p5_end_date_not_null NOT NULL,
-    blocked_quantity integer CONSTRAINT zone_blocks_p5_blocked_quantity_not_null NOT NULL,
-    reason text CONSTRAINT zone_blocks_p5_reason_not_null NOT NULL,
-    created_by character varying(32) CONSTRAINT zone_blocks_p5_created_by_not_null NOT NULL,
-    created_at timestamp with time zone DEFAULT now() CONSTRAINT zone_blocks_p5_created_at_not_null NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() CONSTRAINT zone_blocks_p5_updated_at_not_null NOT NULL,
+    id bigint NOT NULL,
+    legacy_block_id character varying(32) NOT NULL,
+    campground_id character varying(32) NOT NULL,
+    zone_id character varying(32) NOT NULL,
+    start_date date NOT NULL,
+    end_date date NOT NULL,
+    blocked_quantity integer NOT NULL,
+    reason text NOT NULL,
+    created_by character varying(32) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_zone_blocks_dates CHECK ((end_date >= start_date)),
     CONSTRAINT ck_zone_blocks_quantity CHECK ((blocked_quantity > 0)),
     CONSTRAINT ck_zone_blocks_reason CHECK ((btrim(reason) <> ''::text))
@@ -4086,7 +4112,7 @@ ALTER TABLE ONLY public.bookings
 --
 
 ALTER TABLE ONLY public.branch_features
-    ADD CONSTRAINT pk_branch_features PRIMARY KEY (branch_id, feature);
+    ADD CONSTRAINT pk_branch_features PRIMARY KEY (id);
 
 
 --
@@ -4522,11 +4548,11 @@ ALTER TABLE ONLY public.booking_selected_rentals
 
 
 --
--- Name: branches uq_branches_code; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: branch_features uq_branch_features_branch_id_feature; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.branches
-    ADD CONSTRAINT uq_branches_code UNIQUE (code);
+ALTER TABLE ONLY public.branch_features
+    ADD CONSTRAINT uq_branch_features_branch_id_feature UNIQUE (branch_id, feature);
 
 
 --
@@ -5055,13 +5081,6 @@ CREATE INDEX idx_branch_features_feature ON public.branch_features USING btree (
 
 
 --
--- Name: idx_branches_active_code; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_branches_active_code ON public.branches USING btree (active, code);
-
-
---
 -- Name: idx_brands_active_sort; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5178,6 +5197,9 @@ CREATE INDEX idx_customer_tags_active_sort ON public.customer_tags USING btree (
 --
 
 CREATE INDEX idx_customers_auth_provider ON public.customers USING btree (auth_provider);
+
+
+CREATE INDEX idx_customers_active_email ON public.customers USING btree (email) WHERE ((active = true) AND (deleted_at IS NULL));
 
 
 --
@@ -5612,6 +5634,9 @@ CREATE TRIGGER trg_p7_contract_evidence_read_only BEFORE INSERT OR DELETE OR UPD
 --
 
 CREATE CONSTRAINT TRIGGER trg_campground_rental_locations_type AFTER INSERT OR UPDATE OF location_id ON public.campground_rental_locations DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_campground_rental_location_type();
+
+
+CREATE TRIGGER trg_customers_prevent_hard_delete BEFORE DELETE ON public.customers FOR EACH ROW EXECUTE FUNCTION public.reject_customer_hard_delete();
 
 
 --
@@ -6756,3 +6781,5 @@ ALTER TABLE ONLY public.zone_blocks
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict 7AbWotlZqgLjboNPhE21SDcBNmxtPQQqxkQzs2SEMfV0WyhiXnXTDJPV9bZv9xy

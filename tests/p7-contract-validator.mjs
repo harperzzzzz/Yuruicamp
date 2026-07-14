@@ -22,8 +22,14 @@ assert(
 const migrations = readdirSync(join(root, 'backend/src/main/resources/db/migration'));
 const v7Migrations = migrations.filter((name) => /^V7\d\d__.*\.sql$/.test(name));
 assert(
-  v7Migrations.length === 1 && v7Migrations[0] === 'V700__p7_contract_legacy_schema.sql',
-  `expected only V700 contract migration, found ${v7Migrations.join(', ')}`,
+  v7Migrations.includes('V700__p7_contract_legacy_schema.sql')
+    && v7Migrations.includes('V710__remove_branch_description.sql')
+    && v7Migrations.includes('V711__remove_legacy_branch_hours.sql')
+    && v7Migrations.includes('V712__remove_legacy_branch_image.sql')
+    && v7Migrations.includes('V713__remove_branch_code_and_active.sql')
+    && v7Migrations.includes('V714__use_branch_feature_id_primary_key.sql')
+    && v7Migrations.length === 6,
+  `expected V700 contract plus V710-V714 branch migrations, found ${v7Migrations.join(', ')}`,
 );
 
 const schemaHash = hash('docs/schema.sql');
@@ -33,8 +39,8 @@ assert(
 );
 assert(hash('docs/schema_copy.sql') !== schemaHash, 'final schema_copy.sql is still the frozen placeholder');
 assert(
-  read('docs/schema_copy.sql').startsWith('-- Yuruicamp final P7 schema snapshot.'),
-  'schema_copy.sql lacks the final generated snapshot header',
+  read('docs/schema_copy.sql').startsWith('-- Yuruicamp schema snapshot through V714.'),
+  'schema_copy.sql lacks the V714 snapshot header',
 );
 
 const evidence = JSON.parse(read('docs/database/p7-observation-evidence.json'));
