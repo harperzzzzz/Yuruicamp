@@ -43,7 +43,8 @@ window.hydrateNormalizedCustomerRelations = function (customers) {
     options.forEach(function (option) { optionById[option.id] = option; });
     tags.forEach(function (tag) { tagById[tag.id] = tag; });
     return customers.filter(function (customer) {
-      return customer.active !== false && !customer.deletedAt;
+      var status = customer.status || 'active';
+      return status === 'active' && !customer.deletedAt;
     }).map(function (customer) {
       var preferenceObject = { styles: [], equipment: [] };
       preferences.filter(function (item) { return item.customerId === customer.id; }).forEach(function (item) {
@@ -54,7 +55,7 @@ window.hydrateNormalizedCustomerRelations = function (customers) {
       var customerTags = assignments.filter(function (item) { return item.customerId === customer.id; })
         .map(function (item) { return tagById[item.tagId] && tagById[item.tagId].name; }).filter(Boolean);
       return Object.assign({}, customer, {
-        active: true,
+        status: 'active',
         deletedAt: null,
         preferences: preferenceObject,
         shippingAddress: address ? {

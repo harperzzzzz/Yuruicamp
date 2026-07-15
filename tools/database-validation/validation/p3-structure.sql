@@ -104,14 +104,14 @@ WHERE table_schema = 'public'
   );
 
 INSERT INTO p3_structure_issues
-SELECT 'required_trigger', expected.name, 'missing or disabled P3 location-type trigger'
+SELECT 'backend_owned_trigger', expected.name,
+       'P3 location-type validation must be implemented in Spring Boot'
 FROM (VALUES
   ('trg_campground_rental_locations_type'),
   ('trg_inventory_locations_protect_rental_mapping')
 ) expected(name)
-LEFT JOIN pg_trigger trigger_data
-  ON trigger_data.tgname = expected.name AND NOT trigger_data.tgisinternal
-WHERE trigger_data.oid IS NULL OR trigger_data.tgenabled = 'D';
+JOIN pg_trigger trigger_data
+  ON trigger_data.tgname = expected.name AND NOT trigger_data.tgisinternal;
 
 INSERT INTO p3_structure_issues
 SELECT 'view_column', expected.name, 'missing or wrong rental_listing_view type'

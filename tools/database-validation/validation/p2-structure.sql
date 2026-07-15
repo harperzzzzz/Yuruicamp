@@ -13,7 +13,8 @@ FROM (VALUES
   ('equipment_interest_tags'), ('equipment_specifications'), ('products'),
   ('product_variants'), ('environment_tags'), ('facility_tags'),
   ('campground_environment_tags'), ('campground_facility_tags'),
-  ('inventory_stocks'), ('product_stock_summary')
+  ('inventory_stocks'), ('product_stock_summary'),
+  ('sellable_product_variants')
 ) expected(name)
 LEFT JOIN information_schema.tables actual
   ON actual.table_schema = 'public' AND actual.table_name = expected.name
@@ -34,9 +35,10 @@ FROM (VALUES
   ('pk_equipment_specifications', 'p'), ('fk_equipment_specifications_item_id', 'f'),
   ('ck_equipment_specifications_spec_key', 'c'), ('ck_equipment_specifications_value', 'c'),
   ('pk_products', 'p'), ('fk_products_item_id', 'f'), ('uq_products_item_id', 'u'),
-  ('ck_products_price', 'c'), ('ck_products_status', 'c'),
+  ('ck_products_status', 'c'),
   ('pk_product_variants', 'p'), ('fk_product_variants_product_id', 'f'),
   ('uq_product_variants_sku', 'u'), ('uq_product_variants_product_id_id', 'u'),
+  ('uq_product_variants_product_color_size_specification', 'u'),
   ('ck_product_variants_price', 'c'), ('ck_product_variants_status', 'c'),
   ('pk_environment_tags', 'p'), ('uq_environment_tags_code', 'u'),
   ('uq_environment_tags_label', 'u'), ('ck_environment_tags_sort_order', 'c'),
@@ -96,6 +98,8 @@ FROM (VALUES
   ('touch_equipment_item_from_child', 'f'),
   ('trg_brands_set_updated_at', 't'),
   ('trg_product_categories_set_updated_at', 't'),
+  ('trg_products_set_updated_at', 't'),
+  ('trg_product_variants_set_updated_at', 't'),
   ('trg_equipment_items_set_updated_at', 't'),
   ('trg_equipment_images_set_updated_at', 't'),
   ('trg_equipment_specifications_set_updated_at', 't'),
@@ -156,7 +160,7 @@ WHERE table_schema = 'public'
     ('products', 'name'), ('products', 'category'), ('products', 'brand'),
     ('products', 'interest_tags'), ('products', 'image'), ('products', 'images'),
     ('products', 'description'), ('products', 'specifications'), ('products', 'tags'),
-    ('products', 'total_stock'), ('product_variants', 'label'),
+    ('products', 'total_stock'), ('products', 'price'), ('product_variants', 'label'),
     ('product_variants', 'branch_stock'), ('campgrounds', 'environment_tags'),
     ('campgrounds', 'facility_tags'), ('inventory_stocks', 'reserved_quantity')
   );
@@ -172,6 +176,25 @@ FROM (VALUES
 LEFT JOIN information_schema.columns actual
   ON actual.table_schema = 'public'
  AND actual.table_name = 'product_stock_summary'
+ AND actual.column_name = expected.name
+WHERE actual.column_name IS NULL OR actual.data_type <> expected.type;
+
+INSERT INTO p2_structure_issues
+SELECT 'sellable_view_column', expected.name,
+       'missing or wrong sellable_product_variants column type'
+FROM (VALUES
+  ('product_id', 'character varying'),
+  ('item_id', 'character varying'),
+  ('variant_id', 'character varying'),
+  ('sku', 'character varying'),
+  ('color', 'character varying'),
+  ('size', 'character varying'),
+  ('specification', 'character varying'),
+  ('price', 'numeric')
+) expected(name, type)
+LEFT JOIN information_schema.columns actual
+  ON actual.table_schema = 'public'
+ AND actual.table_name = 'sellable_product_variants'
  AND actual.column_name = expected.name
 WHERE actual.column_name IS NULL OR actual.data_type <> expected.type;
 

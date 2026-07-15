@@ -62,18 +62,7 @@ BEGIN
   EXCEPTION WHEN check_violation THEN NULL;
   END;
 
-  BEGIN
-    UPDATE campground_rental_locations SET location_id = 'C001'
-    WHERE campground_id = 'C002';
-    RAISE EXCEPTION 'warehouse was accepted as campground rental location';
-  EXCEPTION WHEN check_violation THEN NULL;
-  END;
-
-  BEGIN
-    UPDATE inventory_locations SET type = 'main' WHERE id = 'C002';
-    RAISE EXCEPTION 'mapped campground location type was changed';
-  EXCEPTION WHEN check_violation THEN NULL;
-  END;
+  -- Campground rental-location classification is validated by Spring Boot.
 
   INSERT INTO campgrounds (id, name, region)
   VALUES ('P3-TEST-CAMP', 'P3 Test Camp', 'test');

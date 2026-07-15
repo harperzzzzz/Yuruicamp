@@ -1,12 +1,12 @@
--- Yuruicamp schema snapshot through V720.
--- Generated from a validated V001-V720 database; never use this file to upgrade an existing database.
+-- Yuruicamp schema snapshot through V747.
+-- Generated from a validated V001-V747 database; never use this file to upgrade an existing database.
 -- Flyway migration files remain the only upgrade source of truth.
 
 --
 -- PostgreSQL database dump
 --
 
-\restrict 7AbWotlZqgLjboNPhE21SDcBNmxtPQQqxkQzs2SEMfV0WyhiXnXTDJPV9bZv9xy
+\restrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K
 
 -- Dumped from database version 16.14 (Debian 16.14-1.pgdg13+1)
 -- Dumped by pg_dump version 16.14 (Debian 16.14-1.pgdg13+1)
@@ -85,6 +85,18 @@ CREATE TYPE public.coupon_category AS ENUM (
 
 
 --
+-- Name: coupon_claim_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.coupon_claim_status AS ENUM (
+    'claimed',
+    'consumed',
+    'revoked',
+    'expired'
+);
+
+
+--
 -- Name: coupon_status; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -122,7 +134,8 @@ CREATE TYPE public.order_status AS ENUM (
     'unshipped',
     'shipped',
     'completed',
-    'returned'
+    'returned',
+    'cancelled'
 );
 
 
@@ -159,6 +172,32 @@ CREATE TYPE public.product_status AS ENUM (
 
 
 --
+-- Name: customer_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.customer_status AS ENUM (
+    'active',
+    'suspended',
+    'deleted'
+);
+
+
+--
+-- Name: refund_status; Type: TYPE; Schema: public; Owner: -
+--
+
+CREATE TYPE public.refund_status AS ENUM (
+    'none',
+    'requested',
+    'approved',
+    'processing',
+    'refunded',
+    'rejected',
+    'failed'
+);
+
+
+--
 -- Name: shipping_method; Type: TYPE; Schema: public; Owner: -
 --
 
@@ -187,138 +226,31 @@ END $$;
 COMMENT ON FUNCTION migration.reject_p7_archive_write() IS 'Rejects every owner/application DML attempt against P7 archive relations.';
 
 
-CREATE FUNCTION public.reject_customer_hard_delete() RETURNS trigger
+--
+-- Name: allocate_coupon_claim_capacity(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.allocate_coupon_claim_capacity() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  RAISE EXCEPTION 'customers must be soft deleted with soft_delete_customer(%)', OLD.id
-    USING ERRCODE = '23000';
-END;
-$$;
+  IF NEW.status IN ('claimed', 'consumed') THEN
+    UPDATE public.coupons
+    SET claimed_quantity = claimed_quantity + 1,
+        updated_at = now()
+    WHERE id = NEW.coupon_id
+      AND status = 'active'::public.coupon_status
+      AND now() >= valid_from
+      AND now() < valid_until
+      AND claimed_quantity < issue_quantity;
 
-
-CREATE FUNCTION public.soft_delete_customer(p_customer_id character varying) RETURNS boolean
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  affected_rows INTEGER;
-BEGIN
-  UPDATE customers
-  SET active = FALSE,
-      deleted_at = now(),
-      updated_at = now()
-  WHERE id = p_customer_id
-    AND active = TRUE
-    AND deleted_at IS NULL;
-
-  GET DIAGNOSTICS affected_rows = ROW_COUNT;
-  RETURN affected_rows = 1;
-END;
-$$;
-
-
-CREATE FUNCTION public.set_updated_at() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  NEW.updated_at := NOW();
-  RETURN NEW;
-END;
-$$;
-
-
-CREATE FUNCTION public.touch_equipment_item_from_child() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF TG_OP = 'DELETE' THEN
-    UPDATE public.equipment_items SET updated_at = NOW() WHERE id = OLD.item_id;
-    RETURN OLD;
-  ELSIF TG_OP = 'INSERT' THEN
-    UPDATE public.equipment_items SET updated_at = NOW() WHERE id = NEW.item_id;
-    RETURN NEW;
+    IF NOT FOUND THEN
+      RAISE EXCEPTION
+        'Coupon % is unavailable, expired, or fully claimed', NEW.coupon_id
+        USING ERRCODE = 'check_violation';
+    END IF;
   END IF;
 
-  UPDATE public.equipment_items
-  SET updated_at = NOW()
-  WHERE id = OLD.item_id OR id = NEW.item_id;
-  RETURN NEW;
-END;
-$$;
-
-
---
--- Name: enforce_campground_rental_location_type(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.enforce_campground_rental_location_type() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  location_domain VARCHAR(16);
-  location_type VARCHAR(32);
-BEGIN
-  SELECT inventory_domain, type
-  INTO location_domain, location_type
-  FROM inventory_locations
-  WHERE id = NEW.location_id;
-
-  IF location_domain IS DISTINCT FROM 'rental'
-     OR location_type IS DISTINCT FROM 'campground' THEN
-    RAISE EXCEPTION 'location % must be an active rental campground location', NEW.location_id
-      USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
-$$;
-
-
---
--- Name: enforce_inventory_conversion_domains(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.enforce_inventory_conversion_domains() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  source_domain VARCHAR(16);
-  destination_domain VARCHAR(16);
-  source_location_domain VARCHAR(16);
-  destination_location_domain VARCHAR(16);
-BEGIN
-  SELECT inventory_domain INTO source_domain
-  FROM inventory_movements WHERE id = NEW.source_movement_id;
-  SELECT inventory_domain INTO destination_domain
-  FROM inventory_movements WHERE id = NEW.destination_movement_id;
-  SELECT inventory_domain INTO source_location_domain
-  FROM inventory_locations WHERE id = NEW.source_location_id;
-  SELECT inventory_domain INTO destination_location_domain
-  FROM inventory_locations WHERE id = NEW.destination_location_id;
-  IF source_domain <> 'store' OR destination_domain <> 'rental'
-     OR source_location_domain <> 'store' OR destination_location_domain <> 'rental' THEN
-    RAISE EXCEPTION 'inventory conversion must be store -> rental'
-      USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
-$$;
-
-
---
--- Name: enforce_minimum_stock_location_domain(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.enforce_minimum_stock_location_domain() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE actual_domain VARCHAR(16);
-BEGIN
-  SELECT inventory_domain INTO actual_domain
-  FROM inventory_locations WHERE id = NEW.location_id;
-  IF (TG_TABLE_NAME = 'product_variant_min_stocks' AND actual_domain <> 'store')
-     OR (TG_TABLE_NAME = 'rental_sku_variant_min_stocks' AND actual_domain <> 'rental') THEN
-    RAISE EXCEPTION 'minimum stock location domain mismatch' USING ERRCODE = '23514';
-  END IF;
   RETURN NEW;
 END
 $$;
@@ -401,159 +333,16 @@ COMMENT ON FUNCTION public.get_zone_availability(p_from date, p_to date, p_campg
 
 
 --
--- Name: protect_inventory_conversion_draft(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: reject_customer_hard_delete(); Type: FUNCTION; Schema: public; Owner: -
 --
 
-CREATE FUNCTION public.protect_inventory_conversion_draft() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  source_id BIGINT;
-  destination_id BIGINT;
-BEGIN
-  source_id := CASE WHEN TG_OP = 'DELETE' THEN OLD.source_movement_id ELSE NEW.source_movement_id END;
-  destination_id := CASE WHEN TG_OP = 'DELETE' THEN OLD.destination_movement_id ELSE NEW.destination_movement_id END;
-  IF EXISTS (
-    SELECT 1 FROM inventory_movements
-    WHERE id IN (source_id, destination_id) AND status <> 'draft'
-  ) THEN
-    RAISE EXCEPTION 'inventory conversion is editable only while both movements are draft'
-      USING ERRCODE = '55000';
-  END IF;
-  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
-END
-$$;
-
-
---
--- Name: protect_inventory_movement_detail(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.protect_inventory_movement_detail() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-DECLARE
-  target_movement_id BIGINT;
-  movement_status VARCHAR(16);
-BEGIN
-  target_movement_id := CASE WHEN TG_OP = 'DELETE' THEN OLD.movement_id ELSE NEW.movement_id END;
-  SELECT status INTO movement_status FROM inventory_movements WHERE id = target_movement_id;
-  IF movement_status IS DISTINCT FROM 'draft' THEN
-    RAISE EXCEPTION 'inventory movement details are editable only while draft'
-      USING ERRCODE = '55000';
-  END IF;
-  RETURN CASE WHEN TG_OP = 'DELETE' THEN OLD ELSE NEW END;
-END
-$$;
-
-
---
--- Name: protect_inventory_movement_header(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.protect_inventory_movement_header() RETURNS trigger
+CREATE FUNCTION public.reject_customer_hard_delete() RETURNS trigger
     LANGUAGE plpgsql
     AS $$
 BEGIN
-  IF TG_OP = 'DELETE' THEN
-    IF OLD.status <> 'draft' THEN
-      RAISE EXCEPTION 'posted or cancelled inventory movement is immutable'
-        USING ERRCODE = '55000';
-    END IF;
-    RETURN OLD;
-  END IF;
-  IF OLD.status IN ('posted', 'cancelled') THEN
-    RAISE EXCEPTION 'posted or cancelled inventory movement is immutable'
-      USING ERRCODE = '55000';
-  END IF;
-  IF NEW.status NOT IN ('draft', 'posted', 'cancelled') THEN
-    RAISE EXCEPTION 'invalid inventory movement transition'
-      USING ERRCODE = '23514';
-  END IF;
-  IF NEW.status = 'posted' AND NOT EXISTS (
-    SELECT 1 FROM store_inventory_movement_items item WHERE item.movement_id = NEW.id
-    UNION ALL
-    SELECT 1 FROM rental_inventory_movement_items item WHERE item.movement_id = NEW.id
-    UNION ALL
-    SELECT 1 FROM inventory_conversions conversion
-    WHERE conversion.source_movement_id = NEW.id OR conversion.destination_movement_id = NEW.id
-  ) THEN
-    RAISE EXCEPTION 'inventory movement cannot be posted without a detail or conversion'
-      USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
-$$;
-
-
---
--- Name: protect_mapped_rental_location_type(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.protect_mapped_rental_location_type() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF EXISTS (
-    SELECT 1 FROM campground_rental_locations mapping
-    WHERE mapping.location_id = NEW.id
-  ) AND (NEW.inventory_domain <> 'rental' OR NEW.type <> 'campground') THEN
-    RAISE EXCEPTION 'mapped rental location % must remain rental/campground', NEW.id
-      USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
-$$;
-
-
---
--- Name: protect_minimum_stock_location_domain(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.protect_minimum_stock_location_domain() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF NEW.inventory_domain <> OLD.inventory_domain AND (
-    (EXISTS (SELECT 1 FROM product_variant_min_stocks WHERE location_id = OLD.id)
-      AND NEW.inventory_domain <> 'store')
-    OR
-    (EXISTS (SELECT 1 FROM rental_sku_variant_min_stocks WHERE location_id = OLD.id)
-      AND NEW.inventory_domain <> 'rental')
-  ) THEN
-    RAISE EXCEPTION 'inventory location domain is fixed by minimum-stock references'
-      USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
-$$;
-
-
---
--- Name: protect_stock_reservation_lifecycle(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.protect_stock_reservation_lifecycle() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  IF TG_OP = 'INSERT' THEN
-    IF NEW.status <> 'active' THEN
-      RAISE EXCEPTION 'new stock reservation must be active' USING ERRCODE = '23514';
-    END IF;
-    RETURN NEW;
-  END IF;
-  IF TG_OP = 'DELETE' THEN
-    RAISE EXCEPTION 'stock reservation audit rows cannot be deleted' USING ERRCODE = '55000';
-  END IF;
-  IF OLD.status <> 'active' THEN
-    RAISE EXCEPTION 'terminal stock reservation is immutable' USING ERRCODE = '55000';
-  END IF;
-  IF NEW.status NOT IN ('active', 'released', 'expired', 'fulfilled') THEN
-    RAISE EXCEPTION 'invalid stock reservation transition' USING ERRCODE = '23514';
-  END IF;
-  RETURN NEW;
-END
+  RAISE EXCEPTION 'customers must be soft deleted with soft_delete_customer(%)', OLD.id
+    USING ERRCODE = '23000';
+END;
 $$;
 
 
@@ -567,6 +356,139 @@ CREATE FUNCTION public.reject_legacy_review_write() RETURNS trigger
 BEGIN
   RAISE EXCEPTION 'legacy reviews are read-only migration evidence';
 END $$;
+
+
+--
+-- Name: set_updated_at(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at := NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+--
+-- Name: soft_delete_customer(character varying); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.soft_delete_customer(p_customer_id character varying) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  affected_rows INTEGER;
+BEGIN
+  UPDATE customers
+  SET status = 'deleted'::public.customer_status,
+      deleted_at = now(),
+      updated_at = now()
+  WHERE id = p_customer_id
+    AND status <> 'deleted'::public.customer_status;
+
+  GET DIAGNOSTICS affected_rows = ROW_COUNT;
+  RETURN affected_rows = 1;
+END;
+$$;
+
+
+--
+-- Name: sync_coupon_claim_capacity(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.sync_coupon_claim_capacity() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF OLD.status IN ('claimed', 'consumed') THEN
+    UPDATE public.coupons
+    SET claimed_quantity = claimed_quantity - 1,
+        updated_at = now()
+    WHERE id = OLD.coupon_id
+      AND claimed_quantity > 0;
+
+    IF NOT FOUND THEN
+      RAISE EXCEPTION
+        'Coupon % claim counter cannot be released', OLD.coupon_id
+        USING ERRCODE = 'check_violation';
+    END IF;
+  END IF;
+
+  RETURN OLD;
+END
+$$;
+
+
+CREATE FUNCTION public.suspend_customer(p_customer_id character varying) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  affected_rows INTEGER;
+BEGIN
+  UPDATE customers
+  SET status = 'suspended'::public.customer_status,
+      deleted_at = NULL,
+      updated_at = now()
+  WHERE id = p_customer_id
+    AND status = 'active'::public.customer_status;
+
+  GET DIAGNOSTICS affected_rows = ROW_COUNT;
+  RETURN affected_rows = 1;
+END;
+$$;
+
+
+CREATE FUNCTION public.reactivate_customer(p_customer_id character varying) RETURNS boolean
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  affected_rows INTEGER;
+BEGIN
+  UPDATE customers
+  SET status = 'active'::public.customer_status,
+      deleted_at = NULL,
+      updated_at = now()
+  WHERE id = p_customer_id
+    AND status IN ('suspended'::public.customer_status, 'deleted'::public.customer_status);
+
+  GET DIAGNOSTICS affected_rows = ROW_COUNT;
+  RETURN affected_rows = 1;
+END;
+$$;
+
+
+--
+-- Name: FUNCTION sync_coupon_claim_capacity(); Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON FUNCTION public.sync_coupon_claim_capacity() IS 'Synchronizes coupons.claimed_quantity when an allocated claim is deleted.';
+
+
+--
+-- Name: touch_equipment_item_from_child(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.touch_equipment_item_from_child() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    UPDATE equipment_items SET updated_at = NOW() WHERE id = OLD.item_id;
+    RETURN OLD;
+  ELSIF TG_OP = 'INSERT' THEN
+    UPDATE equipment_items SET updated_at = NOW() WHERE id = NEW.item_id;
+    RETURN NEW;
+  END IF;
+
+  UPDATE equipment_items
+  SET updated_at = NOW()
+  WHERE id = OLD.item_id OR id = NEW.item_id;
+  RETURN NEW;
+END;
+$$;
 
 
 SET default_tablespace = '';
@@ -1752,6 +1674,72 @@ COMMENT ON TABLE migration.p7_contract_evidence IS 'P7 contract authorization an
 
 
 --
+-- Name: customers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.customers (
+    id character varying(32) DEFAULT replace((gen_random_uuid())::text, '-'::text, ''::text) NOT NULL,
+    name character varying(100) NOT NULL,
+    phone character varying(32),
+    email character varying(255) NOT NULL,
+    birthday date,
+    registered_at timestamp with time zone NOT NULL,
+    tier character varying(32),
+    tier_name character varying(64),
+    points integer DEFAULT 0 NOT NULL,
+    first_purchase_used boolean DEFAULT false NOT NULL,
+    auth_provider character varying(32) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    avatar_url text,
+    deleted_at timestamp with time zone,
+    status public.customer_status DEFAULT 'active'::public.customer_status NOT NULL,
+    CONSTRAINT ck_customers_auth_provider CHECK (((auth_provider)::text = ANY ((ARRAY['google'::character varying, 'facebook'::character varying, 'line'::character varying])::text[]))),
+    CONSTRAINT ck_customers_points CHECK ((points >= 0)),
+    CONSTRAINT ck_customers_status_deleted_at CHECK ((((status = 'deleted'::public.customer_status) AND (deleted_at IS NOT NULL)) OR ((status = ANY (ARRAY['active'::public.customer_status, 'suspended'::public.customer_status])) AND (deleted_at IS NULL))))
+);
+
+
+--
+-- Name: TABLE customers; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.customers IS '會員主檔 / Customers (OAuth only, no password). JSON: data/customers/customers.json';
+
+
+--
+-- Name: COLUMN customers.first_purchase_used; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.customers.first_purchase_used IS '是否已用過首購券資格 / firstPurchase coupon eligibility flag';
+
+
+--
+-- Name: active_customers; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.active_customers AS
+ SELECT id,
+    name,
+    phone,
+    email,
+    birthday,
+    registered_at,
+    tier,
+    tier_name,
+    points,
+    first_purchase_used,
+    auth_provider,
+    created_at,
+    updated_at,
+    avatar_url,
+    deleted_at,
+    status
+   FROM public.customers
+  WHERE ((status = 'active'::public.customer_status) AND (deleted_at IS NULL));
+
+
+--
 -- Name: admin_users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2243,7 +2231,13 @@ CREATE TABLE public.campgrounds (
     description text,
     active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_customer_shipping_addresses_address_line_not_blank CHECK ((btrim((address_line)::text) <> ''::text)),
+    CONSTRAINT ck_customer_shipping_addresses_city_not_blank CHECK ((btrim((city)::text) <> ''::text)),
+    CONSTRAINT ck_customer_shipping_addresses_district_not_blank CHECK ((btrim((district)::text) <> ''::text)),
+    CONSTRAINT ck_customer_shipping_addresses_phone_not_blank CHECK ((btrim((phone)::text) <> ''::text)),
+    CONSTRAINT ck_customer_shipping_addresses_postal_code_not_blank CHECK ((btrim((postal_code)::text) <> ''::text)),
+    CONSTRAINT ck_customer_shipping_addresses_recipient_name_not_blank CHECK ((btrim((recipient_name)::text) <> ''::text))
 );
 
 
@@ -2255,35 +2249,27 @@ COMMENT ON TABLE public.campgrounds IS '可預約營區 C002–C009（不含 C00
 
 
 --
--- Name: coupon_usage_adjustments; Type: TABLE; Schema: public; Owner: -
+-- Name: coupon_claims; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.coupon_usage_adjustments (
+CREATE TABLE public.coupon_claims (
     id bigint NOT NULL,
-    order_coupon_id bigint NOT NULL,
-    adjustment_type character varying(16) NOT NULL,
-    quantity_delta smallint NOT NULL,
-    idempotency_key character varying(128) NOT NULL,
-    reason text NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_coupon_usage_adjustments_delta CHECK (((((adjustment_type)::text = 'restore'::text) AND (quantity_delta = '-1'::integer)) OR (((adjustment_type)::text = 'reconsume'::text) AND (quantity_delta = 1)))),
-    CONSTRAINT ck_coupon_usage_adjustments_reason CHECK ((btrim(reason) <> ''::text)),
-    CONSTRAINT ck_coupon_usage_adjustments_type CHECK (((adjustment_type)::text = ANY ((ARRAY['restore'::character varying, 'reconsume'::character varying])::text[])))
+    coupon_id bigint NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    status public.coupon_claim_status DEFAULT 'claimed'::public.coupon_claim_status NOT NULL,
+    claimed_at timestamp with time zone DEFAULT now() NOT NULL,
+    consumed_at timestamp with time zone,
+    revoked_at timestamp with time zone,
+    CONSTRAINT ck_coupon_claims_time_order CHECK ((((consumed_at IS NULL) OR (consumed_at >= claimed_at)) AND ((revoked_at IS NULL) OR (revoked_at >= claimed_at)))),
+    CONSTRAINT ck_coupon_claims_timestamps CHECK ((((status = 'claimed'::public.coupon_claim_status) AND (consumed_at IS NULL) AND (revoked_at IS NULL)) OR ((status = 'consumed'::public.coupon_claim_status) AND (consumed_at IS NOT NULL) AND (revoked_at IS NULL)) OR ((status = ANY (ARRAY['revoked'::public.coupon_claim_status, 'expired'::public.coupon_claim_status])) AND (revoked_at IS NOT NULL))))
 );
 
 
 --
--- Name: coupon_usage_adjustments_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: TABLE coupon_claims; Type: COMMENT; Schema: public; Owner: -
 --
 
-ALTER TABLE public.coupon_usage_adjustments ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
-    SEQUENCE NAME public.coupon_usage_adjustments_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1
-);
+COMMENT ON TABLE public.coupon_claims IS 'Current coupon ownership state; consumed claims are never returned after cancellation, return, or refund.';
 
 
 --
@@ -2300,10 +2286,13 @@ CREATE TABLE public.coupons (
     issue_quantity integer NOT NULL,
     valid_from timestamp with time zone NOT NULL,
     valid_until timestamp with time zone NOT NULL,
-    status character varying(16) NOT NULL,
-    category character varying(64),
+    status public.coupon_status NOT NULL,
+    category public.coupon_category NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    claimed_quantity integer DEFAULT 0 NOT NULL,
+    CONSTRAINT ck_coupons_claimed_quantity CHECK (((claimed_quantity >= 0) AND (claimed_quantity <= issue_quantity))),
+    CONSTRAINT ck_coupons_code_canonical CHECK (((btrim((code)::text) <> ''::text) AND ((code)::text = btrim((code)::text)) AND ((code)::text = upper((code)::text)))),
     CONSTRAINT ck_coupons_dates CHECK ((valid_until > valid_from)),
     CONSTRAINT ck_coupons_percentage CHECK ((((discount_type)::text <> 'percent'::text) OR (discount_value <= (100)::numeric))),
     CONSTRAINT ck_coupons_type CHECK (((discount_type)::text = ANY ((ARRAY['fixed'::character varying, 'percent'::character varying])::text[]))),
@@ -2312,85 +2301,46 @@ CREATE TABLE public.coupons (
 
 
 --
--- Name: order_coupons; Type: TABLE; Schema: public; Owner: -
+-- Name: COLUMN coupons.claimed_quantity; Type: COMMENT; Schema: public; Owner: -
 --
 
-CREATE TABLE public.order_coupons (
-    id bigint NOT NULL,
-    order_id character varying(32) NOT NULL,
-    coupon_id bigint,
-    code_snapshot character varying(64) NOT NULL,
-    discount_type_snapshot character varying(16) NOT NULL,
-    discount_value_snapshot numeric(12,2) NOT NULL,
-    amount numeric(12,2) NOT NULL,
-    applied_at timestamp with time zone NOT NULL,
-    CONSTRAINT ck_order_coupons_amounts CHECK (((discount_value_snapshot >= (0)::numeric) AND (amount >= (0)::numeric)))
-);
+COMMENT ON COLUMN public.coupons.claimed_quantity IS 'Atomic claim allocation counter; cannot exceed issue_quantity.';
 
 
 --
--- Name: orders; Type: TABLE; Schema: public; Owner: -
+-- Name: coupon_claim_stats; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE TABLE public.orders (
-    id character varying(32) NOT NULL,
-    customer_id character varying(32) NOT NULL,
-    buyer_name_snapshot character varying(100) NOT NULL,
-    buyer_email_snapshot character varying(254) NOT NULL,
-    recipient_name_snapshot character varying(100) NOT NULL,
-    shipping_address_snapshot text NOT NULL,
-    shipping_phone_snapshot character varying(32) NOT NULL,
-    subtotal numeric(14,2) NOT NULL,
-    shipping_fee numeric(12,2) NOT NULL,
-    discount numeric(14,2) NOT NULL,
-    total numeric(14,2) NOT NULL,
-    payment_method character varying(24) NOT NULL,
-    payment_status character varying(24) NOT NULL,
-    refund_status character varying(24) DEFAULT 'none'::character varying NOT NULL,
-    status character varying(24) NOT NULL,
-    placed_at timestamp with time zone NOT NULL,
-    paid_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_orders_money CHECK (((subtotal >= (0)::numeric) AND (shipping_fee >= (0)::numeric) AND (discount >= (0)::numeric) AND (total = GREATEST(((subtotal + shipping_fee) - discount), (0)::numeric)))),
-    CONSTRAINT ck_orders_payment_method CHECK (((payment_method)::text = ANY ((ARRAY['online'::character varying, 'cod'::character varying])::text[]))),
-    CONSTRAINT ck_orders_status CHECK (((status)::text = ANY ((ARRAY['unshipped'::character varying, 'shipped'::character varying, 'completed'::character varying, 'cancelled'::character varying, 'returned'::character varying])::text[])))
-);
-
-
---
--- Name: coupon_usage_stats; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.coupon_usage_stats AS
- WITH recognized AS (
-         SELECT usage.coupon_id,
-            count(*) AS quantity
-           FROM (public.order_coupons usage
-             JOIN public.orders orders ON (((orders.id)::text = (usage.order_id)::text)))
-          WHERE ((usage.coupon_id IS NOT NULL) AND ((orders.payment_status)::text = 'paid'::text) AND ((orders.status)::text = ANY ((ARRAY['unshipped'::character varying, 'shipped'::character varying, 'completed'::character varying])::text[])))
-          GROUP BY usage.coupon_id
-        ), adjustments AS (
-         SELECT usage.coupon_id,
-            COALESCE(sum(adjustment.quantity_delta), (0)::bigint) AS quantity
-           FROM (public.coupon_usage_adjustments adjustment
-             JOIN public.order_coupons usage ON ((usage.id = adjustment.order_coupon_id)))
-          WHERE (usage.coupon_id IS NOT NULL)
-          GROUP BY usage.coupon_id
-        )
+CREATE VIEW public.coupon_claim_stats AS
  SELECT coupon.id AS coupon_id,
-    (COALESCE(recognized.quantity, (0)::bigint) + COALESCE(adjustments.quantity, (0)::bigint)) AS used_quantity,
-    ((coupon.issue_quantity - COALESCE(recognized.quantity, (0)::bigint)) - COALESCE(adjustments.quantity, (0)::bigint)) AS remaining_quantity
-   FROM ((public.coupons coupon
-     LEFT JOIN recognized ON ((recognized.coupon_id = coupon.id)))
-     LEFT JOIN adjustments ON ((adjustments.coupon_id = coupon.id)));
+    coupon.issue_quantity,
+    count(claim.id) FILTER (WHERE (claim.status = ANY (ARRAY['claimed'::public.coupon_claim_status, 'consumed'::public.coupon_claim_status]))) AS claimed_quantity,
+    count(claim.id) FILTER (WHERE (claim.status = 'consumed'::public.coupon_claim_status)) AS consumed_quantity,
+    (coupon.issue_quantity - count(claim.id) FILTER (WHERE (claim.status = ANY (ARRAY['claimed'::public.coupon_claim_status, 'consumed'::public.coupon_claim_status])))) AS remaining_claimable_quantity
+   FROM (public.coupons coupon
+     LEFT JOIN public.coupon_claims claim ON ((claim.coupon_id = coupon.id)))
+  GROUP BY coupon.id, coupon.issue_quantity;
 
 
 --
--- Name: VIEW coupon_usage_stats; Type: COMMENT; Schema: public; Owner: -
+-- Name: VIEW coupon_claim_stats; Type: COMMENT; Schema: public; Owner: -
 --
 
-COMMENT ON VIEW public.coupon_usage_stats IS 'P4 authoritative paid-order coupon use plus idempotent adjustment ledger; values are never silently clamped.';
+COMMENT ON VIEW public.coupon_claim_stats IS 'Coupon issue capacity allocated at claim time; the 51st claim of a 50-quantity coupon must fail.';
+
+
+--
+-- Name: coupon_claims_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.coupon_claims ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.coupon_claims_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 
 --
@@ -2448,6 +2398,41 @@ ALTER TABLE public.customer_shipping_addresses ALTER COLUMN id ADD GENERATED BY 
     NO MAXVALUE
     CACHE 1
 );
+
+
+--
+-- Name: orders; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.orders (
+    id character varying(32) NOT NULL,
+    customer_id character varying(32) NOT NULL,
+    buyer_name_snapshot character varying(100) NOT NULL,
+    buyer_email_snapshot character varying(254) NOT NULL,
+    recipient_name_snapshot character varying(100) NOT NULL,
+    shipping_address_snapshot text NOT NULL,
+    shipping_phone_snapshot character varying(32) NOT NULL,
+    subtotal numeric(14,2) NOT NULL,
+    shipping_fee numeric(12,2) NOT NULL,
+    discount numeric(14,2) NOT NULL,
+    total numeric(14,2) NOT NULL,
+    payment_method public.payment_method NOT NULL,
+    payment_status public.payment_status NOT NULL,
+    refund_status public.refund_status DEFAULT 'none'::public.refund_status NOT NULL,
+    status public.order_status NOT NULL,
+    placed_at timestamp with time zone NOT NULL,
+    paid_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_orders_money CHECK (((subtotal >= (0)::numeric) AND (shipping_fee >= (0)::numeric) AND (discount >= (0)::numeric) AND (total = GREATEST(((subtotal + shipping_fee) - discount), (0)::numeric))))
+);
+
+
+--
+-- Name: COLUMN orders.payment_method; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.orders.payment_method IS 'Frontend payment method: credit-card, line-pay, or cod.';
 
 
 --
@@ -2536,67 +2521,6 @@ CREATE VIEW public.customer_tier_summary AS
 --
 
 COMMENT ON VIEW public.customer_tier_summary IS 'P4 D-001 derived explorer/guide/master tier; never persisted to customer rows.';
-
-
---
--- Name: customers; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.customers (
-    id character varying(32) DEFAULT replace((gen_random_uuid())::text, '-'::text, ''::text) NOT NULL,
-    name character varying(100) NOT NULL,
-    phone character varying(32),
-    email character varying(255) NOT NULL,
-    birthday date,
-    registered_at timestamp with time zone NOT NULL,
-    tier character varying(32),
-    tier_name character varying(64),
-    points integer DEFAULT 0 NOT NULL,
-    first_purchase_used boolean DEFAULT false NOT NULL,
-    auth_provider character varying(32) NOT NULL,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    avatar_url text,
-    active boolean DEFAULT true NOT NULL,
-    deleted_at timestamp with time zone,
-    CONSTRAINT ck_customers_auth_provider CHECK (((auth_provider)::text = ANY ((ARRAY['google'::character varying, 'facebook'::character varying, 'line'::character varying])::text[]))),
-    CONSTRAINT ck_customers_points CHECK ((points >= 0))
-);
-
-
-CREATE VIEW public.active_customers AS
- SELECT id,
-    name,
-    phone,
-    email,
-    birthday,
-    registered_at,
-    tier,
-    tier_name,
-    points,
-    first_purchase_used,
-    auth_provider,
-    created_at,
-    updated_at,
-    avatar_url,
-    active,
-    deleted_at
-   FROM public.customers
-  WHERE ((active = true) AND (deleted_at IS NULL));
-
-
---
--- Name: TABLE customers; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.customers IS '會員主檔 / Customers (OAuth only, no password). JSON: data/customers/customers.json';
-
-
---
--- Name: COLUMN customers.first_purchase_used; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.customers.first_purchase_used IS '是否已用過首購券資格 / firstPurchase coupon eligibility flag';
 
 
 --
@@ -2974,11 +2898,66 @@ COMMENT ON TABLE public.legacy_reviews IS 'Read-only reviews without a uniquely 
 
 
 --
+-- Name: order_coupons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.order_coupons (
+    id bigint NOT NULL,
+    order_id character varying(32) NOT NULL,
+    coupon_id bigint NOT NULL,
+    code_snapshot character varying(64) NOT NULL,
+    discount_type_snapshot character varying(16) NOT NULL,
+    discount_value_snapshot numeric(12,2) NOT NULL,
+    amount numeric(12,2) NOT NULL,
+    applied_at timestamp with time zone NOT NULL,
+    coupon_claim_id bigint NOT NULL,
+    CONSTRAINT ck_order_coupons_amounts CHECK (((discount_value_snapshot >= (0)::numeric) AND (amount >= (0)::numeric)))
+);
+
+
+--
 -- Name: order_coupons_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 ALTER TABLE public.order_coupons ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
     SEQUENCE NAME public.order_coupons_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: order_event_history; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.order_event_history (
+    id bigint NOT NULL,
+    source_history_id bigint NOT NULL,
+    order_id character varying(32) NOT NULL,
+    event_type character varying(24) NOT NULL,
+    occurred_at timestamp with time zone NOT NULL,
+    actor_id character varying(32),
+    note text,
+    CONSTRAINT ck_order_event_history_type CHECK ((btrim((event_type)::text) <> ''::text))
+);
+
+
+--
+-- Name: TABLE order_event_history; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON TABLE public.order_event_history IS 'Non-lifecycle order events moved out of order_status_history before enum enforcement.';
+
+
+--
+-- Name: order_event_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+ALTER TABLE public.order_event_history ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.order_event_history_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -3029,7 +3008,7 @@ ALTER TABLE public.order_items ALTER COLUMN id ADD GENERATED BY DEFAULT AS IDENT
 CREATE TABLE public.order_status_history (
     id bigint NOT NULL,
     order_id character varying(32) NOT NULL,
-    status character varying(24) NOT NULL,
+    status public.order_status NOT NULL,
     occurred_at timestamp with time zone NOT NULL,
     actor_id character varying(32),
     note text
@@ -3185,12 +3164,10 @@ COMMENT ON TABLE public.product_variants IS '商品 SKU / Product variants. JSON
 
 CREATE TABLE public.products (
     id character varying(32) NOT NULL,
-    price numeric(12,2) DEFAULT 0 NOT NULL,
     status character varying(16) DEFAULT 'active'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     item_id character varying(32) NOT NULL,
-    CONSTRAINT ck_products_price CHECK ((price >= (0)::numeric)),
     CONSTRAINT ck_products_status CHECK (((status)::text = ANY ((ARRAY['active'::character varying, 'inactive'::character varying])::text[])))
 );
 
@@ -3469,6 +3446,32 @@ UNION ALL
            FROM public.legacy_review_photos photo
           WHERE ((photo.legacy_review_id)::text = (review.id)::text)), '[]'::jsonb), 'createdAt', to_char((review.created_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD HH24:MI:SS'::text), 'verifiedPurchase', false) AS payload
    FROM public.legacy_reviews review;
+
+
+--
+-- Name: sellable_product_variants; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.sellable_product_variants AS
+ SELECT product.id AS product_id,
+    product.item_id,
+    variant.id AS variant_id,
+    variant.sku,
+    variant.color,
+    variant.size,
+    variant.specification,
+    variant.price
+   FROM ((public.equipment_items item
+     JOIN public.products product ON (((product.item_id)::text = (item.id)::text)))
+     JOIN public.product_variants variant ON (((variant.product_id)::text = (product.id)::text)))
+  WHERE ((item.active = true) AND ((product.status)::text = 'active'::text) AND ((variant.status)::text = 'active'::text));
+
+
+--
+-- Name: VIEW sellable_product_variants; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.sellable_product_variants IS 'Canonical read model for product listing, detail, cart validation, and checkout repricing.';
 
 
 --
@@ -4235,11 +4238,11 @@ ALTER TABLE ONLY public.campgrounds
 
 
 --
--- Name: coupon_usage_adjustments pk_coupon_usage_adjustments; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: coupon_claims pk_coupon_claims; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.coupon_usage_adjustments
-    ADD CONSTRAINT pk_coupon_usage_adjustments PRIMARY KEY (id);
+ALTER TABLE ONLY public.coupon_claims
+    ADD CONSTRAINT pk_coupon_claims PRIMARY KEY (id);
 
 
 --
@@ -4400,6 +4403,14 @@ ALTER TABLE ONLY public.legacy_reviews
 
 ALTER TABLE ONLY public.order_coupons
     ADD CONSTRAINT pk_order_coupons PRIMARY KEY (id);
+
+
+--
+-- Name: order_event_history pk_order_event_history; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.order_event_history
+    ADD CONSTRAINT pk_order_event_history PRIMARY KEY (id);
 
 
 --
@@ -4603,13 +4614,6 @@ ALTER TABLE ONLY public.branch_features
 
 
 --
--- Name: uq_brands_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX uq_brands_name ON public.brands USING btree (lower(btrim((name)::text)));
-
-
---
 -- Name: campground_closures uq_campground_closures_legacy_closure_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4634,19 +4638,19 @@ ALTER TABLE ONLY public.campground_zones
 
 
 --
--- Name: coupon_usage_adjustments uq_coupon_usage_adjustments_idempotency_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: coupon_claims uq_coupon_claims_coupon_customer; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.coupon_usage_adjustments
-    ADD CONSTRAINT uq_coupon_usage_adjustments_idempotency_key UNIQUE (idempotency_key);
+ALTER TABLE ONLY public.coupon_claims
+    ADD CONSTRAINT uq_coupon_claims_coupon_customer UNIQUE (coupon_id, customer_id);
 
 
 --
--- Name: coupons uq_coupons_code; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: coupon_claims uq_coupon_claims_id_coupon_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.coupons
-    ADD CONSTRAINT uq_coupons_code UNIQUE (code);
+ALTER TABLE ONLY public.coupon_claims
+    ADD CONSTRAINT uq_coupon_claims_id_coupon_id UNIQUE (id, coupon_id);
 
 
 --
@@ -4754,6 +4758,14 @@ ALTER TABLE ONLY public.order_coupons
 
 
 --
+-- Name: order_event_history uq_order_event_history_source_history_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.order_event_history
+    ADD CONSTRAINT uq_order_event_history_source_history_id UNIQUE (source_history_id);
+
+
+--
 -- Name: order_items uq_order_items_id_variant_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4778,25 +4790,19 @@ ALTER TABLE ONLY public.preference_options
 
 
 --
--- Name: uq_product_categories_code; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX uq_product_categories_code ON public.product_categories USING btree (lower(btrim((code)::text)));
-
-
---
--- Name: uq_product_categories_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX uq_product_categories_name ON public.product_categories USING btree (lower(btrim((name)::text)));
-
-
---
 -- Name: product_stock_reservations uq_product_stock_reservations_idempotency_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.product_stock_reservations
     ADD CONSTRAINT uq_product_stock_reservations_idempotency_key UNIQUE (idempotency_key);
+
+
+--
+-- Name: product_variants uq_product_variants_product_color_size_specification; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.product_variants
+    ADD CONSTRAINT uq_product_variants_product_color_size_specification UNIQUE NULLS NOT DISTINCT (product_id, color, size, specification);
 
 
 --
@@ -5181,10 +5187,17 @@ CREATE INDEX idx_campgrounds_region_active ON public.campgrounds USING btree (re
 
 
 --
--- Name: idx_coupon_usage_adjustments_order_coupon_time; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_coupon_claims_coupon_status; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_coupon_usage_adjustments_order_coupon_time ON public.coupon_usage_adjustments USING btree (order_coupon_id, created_at);
+CREATE INDEX idx_coupon_claims_coupon_status ON public.coupon_claims USING btree (coupon_id, status);
+
+
+--
+-- Name: idx_coupon_claims_customer_status; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_coupon_claims_customer_status ON public.coupon_claims USING btree (customer_id, status);
 
 
 --
@@ -5230,13 +5243,17 @@ CREATE INDEX idx_customer_tags_active_sort ON public.customer_tags USING btree (
 
 
 --
+-- Name: idx_customers_active_email; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_customers_active_email ON public.customers USING btree (email) WHERE ((status = 'active'::public.customer_status) AND (deleted_at IS NULL));
+
+
+--
 -- Name: idx_customers_auth_provider; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX idx_customers_auth_provider ON public.customers USING btree (auth_provider);
-
-
-CREATE INDEX idx_customers_active_email ON public.customers USING btree (email) WHERE ((active = true) AND (deleted_at IS NULL));
 
 
 --
@@ -5258,8 +5275,6 @@ CREATE INDEX idx_equipment_images_sort_order ON public.equipment_images USING bt
 --
 
 CREATE INDEX idx_equipment_interest_tags_tag ON public.equipment_interest_tags USING btree (tag);
-
-CREATE UNIQUE INDEX uq_equipment_interest_tags_item_tag_normalized ON public.equipment_interest_tags USING btree (item_id, lower(btrim((tag)::text)));
 
 
 --
@@ -5288,8 +5303,6 @@ CREATE INDEX idx_equipment_specifications_spec_key ON public.equipment_specifica
 --
 
 CREATE INDEX idx_equipment_tags_tag ON public.equipment_tags USING btree (tag);
-
-CREATE UNIQUE INDEX uq_equipment_tags_item_tag_normalized ON public.equipment_tags USING btree (item_id, lower(btrim((tag)::text)));
 
 
 --
@@ -5412,6 +5425,20 @@ CREATE INDEX idx_order_coupons_coupon ON public.order_coupons USING btree (coupo
 
 
 --
+-- Name: idx_order_event_history_actor; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_order_event_history_actor ON public.order_event_history USING btree (actor_id);
+
+
+--
+-- Name: idx_order_event_history_order_time; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_order_event_history_order_time ON public.order_event_history USING btree (order_id, occurred_at);
+
+
+--
 -- Name: idx_order_items_order; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5419,10 +5446,10 @@ CREATE INDEX idx_order_items_order ON public.order_items USING btree (order_id);
 
 
 --
--- Name: idx_order_items_product; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_order_items_product_variant; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_order_items_product ON public.order_items USING btree (product_id);
+CREATE INDEX idx_order_items_product_variant ON public.order_items USING btree (product_id, variant_id);
 
 
 --
@@ -5650,6 +5677,55 @@ CREATE INDEX idx_zone_blocks_zone_dates ON public.zone_blocks USING btree (campg
 
 
 --
+-- Name: uq_brands_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_brands_name ON public.brands USING btree (lower(btrim((name)::text)));
+
+
+--
+-- Name: uq_coupons_code_upper; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_coupons_code_upper ON public.coupons USING btree (upper((code)::text));
+
+
+--
+-- Name: uq_equipment_interest_tags_item_tag_normalized; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_equipment_interest_tags_item_tag_normalized ON public.equipment_interest_tags USING btree (item_id, lower(btrim((tag)::text)));
+
+
+--
+-- Name: uq_equipment_tags_item_tag_normalized; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_equipment_tags_item_tag_normalized ON public.equipment_tags USING btree (item_id, lower(btrim((tag)::text)));
+
+
+--
+-- Name: uq_order_coupons_coupon_claim; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_order_coupons_coupon_claim ON public.order_coupons USING btree (coupon_claim_id) WHERE (coupon_claim_id IS NOT NULL);
+
+
+--
+-- Name: uq_product_categories_code; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_product_categories_code ON public.product_categories USING btree (lower(btrim((code)::text)));
+
+
+--
+-- Name: uq_product_categories_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_product_categories_name ON public.product_categories USING btree (lower(btrim((name)::text)));
+
+
+--
 -- Name: movement_migration_map trg_movement_migration_map_read_only; Type: TRIGGER; Schema: migration; Owner: -
 --
 
@@ -5664,70 +5740,94 @@ CREATE TRIGGER trg_p7_contract_evidence_read_only BEFORE INSERT OR DELETE OR UPD
 
 
 --
--- Name: campground_rental_locations trg_campground_rental_locations_type; Type: TRIGGER; Schema: public; Owner: -
+-- Name: brands trg_brands_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
 CREATE TRIGGER trg_brands_set_updated_at BEFORE UPDATE ON public.brands FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-CREATE TRIGGER trg_product_categories_set_updated_at BEFORE UPDATE ON public.product_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-CREATE TRIGGER trg_equipment_items_set_updated_at BEFORE UPDATE ON public.equipment_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+--
+-- Name: coupon_claims trg_coupon_claims_allocate_capacity; Type: TRIGGER; Schema: public; Owner: -
+--
 
-CREATE TRIGGER trg_equipment_images_set_updated_at BEFORE UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_coupon_claims_allocate_capacity BEFORE INSERT ON public.coupon_claims FOR EACH ROW EXECUTE FUNCTION public.allocate_coupon_claim_capacity();
 
-CREATE TRIGGER trg_equipment_specifications_set_updated_at BEFORE UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
-CREATE TRIGGER trg_equipment_tags_set_updated_at BEFORE UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+--
+-- Name: coupon_claims trg_coupon_claims_sync_capacity_on_delete; Type: TRIGGER; Schema: public; Owner: -
+--
 
-CREATE TRIGGER trg_equipment_interest_tags_set_updated_at BEFORE UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+CREATE TRIGGER trg_coupon_claims_sync_capacity_on_delete BEFORE DELETE ON public.coupon_claims FOR EACH ROW EXECUTE FUNCTION public.sync_coupon_claim_capacity();
 
-CREATE TRIGGER trg_equipment_images_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
 
-CREATE TRIGGER trg_equipment_specifications_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
-
-CREATE TRIGGER trg_equipment_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
-
-CREATE TRIGGER trg_equipment_interest_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
-
-CREATE CONSTRAINT TRIGGER trg_campground_rental_locations_type AFTER INSERT OR UPDATE OF location_id ON public.campground_rental_locations DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_campground_rental_location_type();
-
+--
+-- Name: customers trg_customers_prevent_hard_delete; Type: TRIGGER; Schema: public; Owner: -
+--
 
 CREATE TRIGGER trg_customers_prevent_hard_delete BEFORE DELETE ON public.customers FOR EACH ROW EXECUTE FUNCTION public.reject_customer_hard_delete();
 
 
 --
--- Name: inventory_conversions trg_inventory_conversions_domains; Type: TRIGGER; Schema: public; Owner: -
+-- Name: equipment_images trg_equipment_images_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE CONSTRAINT TRIGGER trg_inventory_conversions_domains AFTER INSERT OR UPDATE ON public.inventory_conversions DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_inventory_conversion_domains();
-
-
---
--- Name: inventory_conversions trg_inventory_conversions_draft_only; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER trg_inventory_conversions_draft_only BEFORE INSERT OR DELETE OR UPDATE ON public.inventory_conversions FOR EACH ROW EXECUTE FUNCTION public.protect_inventory_conversion_draft();
+CREATE TRIGGER trg_equipment_images_set_updated_at BEFORE UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
--- Name: inventory_locations trg_inventory_locations_protect_minimum_stock_domain; Type: TRIGGER; Schema: public; Owner: -
+-- Name: equipment_images trg_equipment_images_touch_item; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_inventory_locations_protect_minimum_stock_domain BEFORE UPDATE OF inventory_domain ON public.inventory_locations FOR EACH ROW EXECUTE FUNCTION public.protect_minimum_stock_location_domain();
-
-
---
--- Name: inventory_locations trg_inventory_locations_protect_rental_mapping; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER trg_inventory_locations_protect_rental_mapping BEFORE UPDATE OF inventory_domain, type ON public.inventory_locations FOR EACH ROW EXECUTE FUNCTION public.protect_mapped_rental_location_type();
+CREATE TRIGGER trg_equipment_images_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
 
 
 --
--- Name: inventory_movements trg_inventory_movements_immutable; Type: TRIGGER; Schema: public; Owner: -
+-- Name: equipment_interest_tags trg_equipment_interest_tags_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_inventory_movements_immutable BEFORE DELETE OR UPDATE ON public.inventory_movements FOR EACH ROW EXECUTE FUNCTION public.protect_inventory_movement_header();
+CREATE TRIGGER trg_equipment_interest_tags_set_updated_at BEFORE UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: equipment_interest_tags trg_equipment_interest_tags_touch_item; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_interest_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
+
+
+--
+-- Name: equipment_items trg_equipment_items_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_items_set_updated_at BEFORE UPDATE ON public.equipment_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: equipment_specifications trg_equipment_specifications_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_specifications_set_updated_at BEFORE UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: equipment_specifications trg_equipment_specifications_touch_item; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_specifications_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
+
+
+--
+-- Name: equipment_tags trg_equipment_tags_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_tags_set_updated_at BEFORE UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: equipment_tags trg_equipment_tags_touch_item; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_equipment_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
 
 
 --
@@ -5745,45 +5845,24 @@ CREATE TRIGGER trg_legacy_reviews_read_only BEFORE INSERT OR DELETE OR UPDATE ON
 
 
 --
--- Name: product_stock_reservations trg_product_stock_reservations_lifecycle; Type: TRIGGER; Schema: public; Owner: -
+-- Name: product_categories trg_product_categories_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_product_stock_reservations_lifecycle BEFORE INSERT OR DELETE OR UPDATE ON public.product_stock_reservations FOR EACH ROW EXECUTE FUNCTION public.protect_stock_reservation_lifecycle();
-
-
---
--- Name: product_variant_min_stocks trg_product_variant_min_stocks_domain; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE CONSTRAINT TRIGGER trg_product_variant_min_stocks_domain AFTER INSERT OR UPDATE ON public.product_variant_min_stocks DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_minimum_stock_location_domain();
+CREATE TRIGGER trg_product_categories_set_updated_at BEFORE UPDATE ON public.product_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
--- Name: rental_inventory_movement_items trg_rental_inventory_movement_items_draft_only; Type: TRIGGER; Schema: public; Owner: -
+-- Name: product_variants trg_product_variants_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_rental_inventory_movement_items_draft_only BEFORE INSERT OR DELETE OR UPDATE ON public.rental_inventory_movement_items FOR EACH ROW EXECUTE FUNCTION public.protect_inventory_movement_detail();
-
-
---
--- Name: rental_sku_variant_min_stocks trg_rental_sku_variant_min_stocks_domain; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE CONSTRAINT TRIGGER trg_rental_sku_variant_min_stocks_domain AFTER INSERT OR UPDATE ON public.rental_sku_variant_min_stocks DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_minimum_stock_location_domain();
+CREATE TRIGGER trg_product_variants_set_updated_at BEFORE UPDATE ON public.product_variants FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
--- Name: rental_stock_reservations trg_rental_stock_reservations_lifecycle; Type: TRIGGER; Schema: public; Owner: -
+-- Name: products trg_products_set_updated_at; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER trg_rental_stock_reservations_lifecycle BEFORE INSERT OR DELETE OR UPDATE ON public.rental_stock_reservations FOR EACH ROW EXECUTE FUNCTION public.protect_stock_reservation_lifecycle();
-
-
---
--- Name: store_inventory_movement_items trg_store_inventory_movement_items_draft_only; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER trg_store_inventory_movement_items_draft_only BEFORE INSERT OR DELETE OR UPDATE ON public.store_inventory_movement_items FOR EACH ROW EXECUTE FUNCTION public.protect_inventory_movement_detail();
+CREATE TRIGGER trg_products_set_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 
 --
@@ -6355,11 +6434,19 @@ ALTER TABLE ONLY public.campground_zones
 
 
 --
--- Name: coupon_usage_adjustments fk_coupon_usage_adjustments_order_coupon_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: coupon_claims fk_coupon_claims_coupon_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.coupon_usage_adjustments
-    ADD CONSTRAINT fk_coupon_usage_adjustments_order_coupon_id FOREIGN KEY (order_coupon_id) REFERENCES public.order_coupons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+ALTER TABLE ONLY public.coupon_claims
+    ADD CONSTRAINT fk_coupon_claims_coupon_id FOREIGN KEY (coupon_id) REFERENCES public.coupons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: coupon_claims fk_coupon_claims_customer_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.coupon_claims
+    ADD CONSTRAINT fk_coupon_claims_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6367,7 +6454,7 @@ ALTER TABLE ONLY public.coupon_usage_adjustments
 --
 
 ALTER TABLE ONLY public.customer_preferences
-    ADD CONSTRAINT fk_customer_preferences_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_customer_preferences_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6383,7 +6470,7 @@ ALTER TABLE ONLY public.customer_preferences
 --
 
 ALTER TABLE ONLY public.customer_shipping_addresses
-    ADD CONSTRAINT fk_customer_shipping_addresses_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_customer_shipping_addresses_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6391,7 +6478,7 @@ ALTER TABLE ONLY public.customer_shipping_addresses
 --
 
 ALTER TABLE ONLY public.customer_tag_assignments
-    ADD CONSTRAINT fk_customer_tag_assignments_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_customer_tag_assignments_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6571,11 +6658,19 @@ ALTER TABLE ONLY public.legacy_reviews
 
 
 --
+-- Name: order_coupons fk_order_coupons_claim_coupon_pair; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.order_coupons
+    ADD CONSTRAINT fk_order_coupons_claim_coupon_pair FOREIGN KEY (coupon_claim_id, coupon_id) REFERENCES public.coupon_claims(id, coupon_id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
 -- Name: order_coupons fk_order_coupons_coupon_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.order_coupons
-    ADD CONSTRAINT fk_order_coupons_coupon_id FOREIGN KEY (coupon_id) REFERENCES public.coupons(id) ON UPDATE CASCADE ON DELETE SET NULL;
+    ADD CONSTRAINT fk_order_coupons_coupon_id FOREIGN KEY (coupon_id) REFERENCES public.coupons(id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6587,6 +6682,22 @@ ALTER TABLE ONLY public.order_coupons
 
 
 --
+-- Name: order_event_history fk_order_event_history_actor_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.order_event_history
+    ADD CONSTRAINT fk_order_event_history_actor_id FOREIGN KEY (actor_id) REFERENCES public.admin_users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+
+
+--
+-- Name: order_event_history fk_order_event_history_order_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.order_event_history
+    ADD CONSTRAINT fk_order_event_history_order_id FOREIGN KEY (order_id) REFERENCES public.orders(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: order_items fk_order_items_order_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6595,19 +6706,11 @@ ALTER TABLE ONLY public.order_items
 
 
 --
--- Name: order_items fk_order_items_product_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: order_items fk_order_items_product_id_variant_id; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.order_items
-    ADD CONSTRAINT fk_order_items_product_id FOREIGN KEY (product_id) REFERENCES public.products(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: order_items fk_order_items_variant_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.order_items
-    ADD CONSTRAINT fk_order_items_variant_id FOREIGN KEY (variant_id) REFERENCES public.product_variants(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_order_items_product_id_variant_id FOREIGN KEY (product_id, variant_id) REFERENCES public.product_variants(product_id, id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6838,4 +6941,4 @@ ALTER TABLE ONLY public.zone_blocks
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 7AbWotlZqgLjboNPhE21SDcBNmxtPQQqxkQzs2SEMfV0WyhiXnXTDJPV9bZv9xy
+\unrestrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K

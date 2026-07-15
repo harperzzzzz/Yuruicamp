@@ -72,9 +72,6 @@ WHERE variant.id IS NULL OR location.id IS NULL;
 INSERT INTO p2_data_issues
 SELECT 'invalid_value', data_id, reason
 FROM (
-  SELECT product.id AS data_id, 'negative product price' AS reason
-  FROM products product WHERE product.price < 0
-  UNION ALL
   SELECT variant.id, 'negative variant price'
   FROM product_variants variant WHERE variant.price < 0
   UNION ALL

@@ -33,7 +33,7 @@ FROM (VALUES
   ('ck_orders_money', 'c'), ('ck_orders_payment_method', 'c'),
   ('ck_orders_status', 'c'),
   ('pk_order_items', 'p'), ('fk_order_items_order_id', 'f'),
-  ('fk_order_items_product_id', 'f'), ('fk_order_items_variant_id', 'f'),
+  ('fk_order_items_product_id_variant_id', 'f'),
   ('uq_order_items_id_variant_id', 'u'),
   ('ck_order_items_quantity', 'c'), ('ck_order_items_price', 'c'),
   ('pk_order_status_history', 'p'),
@@ -99,7 +99,7 @@ INSERT INTO p4_structure_issues
 SELECT 'required_index', expected.name, 'missing or invalid P4 index'
 FROM (VALUES
   ('idx_orders_customer_placed'), ('idx_orders_status_payment'),
-  ('idx_order_items_order'), ('idx_order_items_product'),
+  ('idx_order_items_order'), ('idx_order_items_product_variant'),
   ('idx_order_items_variant'), ('idx_order_status_history_order_time'),
   ('idx_order_status_history_actor'), ('idx_coupons_status_validity'),
   ('idx_order_coupons_coupon'),

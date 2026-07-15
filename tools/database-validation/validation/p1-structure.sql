@@ -42,6 +42,26 @@ WHERE NOT EXISTS (
 );
 
 INSERT INTO p1_structure_issues
+SELECT 'forbidden_column', 'customers.active', 'customer state must use customers.status'
+FROM information_schema.columns
+WHERE table_schema = 'public'
+  AND table_name = 'customers'
+  AND column_name = 'active';
+
+INSERT INTO p1_structure_issues
+SELECT 'required_column', 'customers.status', 'customer account status column is missing or has the wrong type'
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public'
+    AND table_name = 'customers'
+    AND column_name = 'status'
+    AND udt_schema = 'public'
+    AND udt_name = 'customer_status'
+    AND is_nullable = 'NO'
+);
+
+INSERT INTO p1_structure_issues
 SELECT 'required_default', 'customers.id', 'customer id must default to a 32-character UUID'
 WHERE NOT EXISTS (
   SELECT 1
@@ -57,6 +77,8 @@ SELECT 'required_object', expected.name, 'missing customer soft-delete database 
 FROM (VALUES
   ('active_customers', 'v'),
   ('soft_delete_customer', 'f'),
+  ('suspend_customer', 'f'),
+  ('reactivate_customer', 'f'),
   ('reject_customer_hard_delete', 'f'),
   ('trg_customers_prevent_hard_delete', 't')
 ) expected(name, kind)
@@ -94,6 +116,12 @@ FROM (VALUES
   ('pk_admin_users', 'p'), ('uq_admin_users_email', 'u'), ('ck_admin_users_role', 'c'),
   ('pk_customers', 'p'), ('uq_customers_email', 'u'), ('ck_customers_points', 'c'),
   ('pk_customer_shipping_addresses', 'p'), ('fk_customer_shipping_addresses_customer_id', 'f'),
+  ('ck_customer_shipping_addresses_recipient_name_not_blank', 'c'),
+  ('ck_customer_shipping_addresses_postal_code_not_blank', 'c'),
+  ('ck_customer_shipping_addresses_city_not_blank', 'c'),
+  ('ck_customer_shipping_addresses_district_not_blank', 'c'),
+  ('ck_customer_shipping_addresses_address_line_not_blank', 'c'),
+  ('ck_customer_shipping_addresses_phone_not_blank', 'c'),
   ('pk_preference_options', 'p'), ('uq_preference_options_type_code', 'u'),
   ('uq_preference_options_type_label', 'u'), ('ck_preference_options_type', 'c'),
   ('pk_customer_preferences', 'p'), ('fk_customer_preferences_customer_id', 'f'),

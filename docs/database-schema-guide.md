@@ -38,17 +38,22 @@ erDiagram
 ## 資料庫會主動做什麼？（函式與 Trigger）
 
 - `public.get_zone_availability(...)`：按日期展開營位，扣掉會占位的預約與人工 block；遇到公休直接回傳可用量 0，且不會回傳負數。
-- `trg_inventory_movements_immutable`：已過帳或取消的庫存異動不可改；過帳前必須有明細或轉換資料。
-- `trg_store_inventory_movement_items_draft_only`、`trg_rental_inventory_movement_items_draft_only`、`trg_inventory_conversions_draft_only`：明細與轉換只允許在異動單仍是 `draft` 時編輯。
-- `trg_product_stock_reservations_lifecycle`、`trg_rental_stock_reservations_lifecycle`：強制保留帳由 `active` 走向終態，終態不可改／不可刪，避免庫存稽核斷鏈。
-- `trg_inventory_locations_protect_minimum_stock_domain`、`trg_inventory_locations_protect_rental_mapping`：已被最低庫存或營區租借對應使用的地點，不能改成不相容領域／類型。
+- 優惠券領取新增／刪除時，由資料庫同步 `coupons.claimed_quantity`；優惠券狀態流程與 `coupon_id` 不可變更規則改由 `Spring Boot Service` 負責。
 - `trg_legacy_reviews_read_only`、`trg_legacy_review_photos_read_only`、`trg_movement_migration_map_read_only`、`trg_p7_contract_evidence_read_only`：保護遷移證據不被應用程式改寫。
+
+## Spring Boot 後端待完成的規則
+
+- 驗證營地租借庫位必須是 `rental/campground`，以及最低庫存設定與庫位領域是否相容。
+- 管理優惠券領取狀態轉換，並確認訂單使用的優惠券領取紀錄屬於該訂單會員。
+- 管理庫存異動的 `draft/posted/cancelled` 狀態流程、過帳前置條件，以及異動明細與轉換資料的可編輯性。
+- 驗證庫存轉換只能從商城 `store` 轉到租借 `rental`。
+- 管理商城與租借庫存保留紀錄的建立、釋放、到期、完成與不可變更規則。
 
 ## 資料如何流動
 
 1. **商品下單**：`equipment_items`（裝備主檔）→ `products` → `product_variants`；結帳建立 `orders`、`order_items`（價格與名稱快照），再以 `product_stock_reservations` 暫保庫存。狀態改變寫入 `order_status_history`；用券寫入 `order_coupons`，回補／重扣留在 `coupon_usage_adjustments`。
 2. **營區預約**：讀取 `campgrounds`、`campground_zones`、`calendar_dates`、`campground_closures`、`zone_blocks`，並呼叫 `get_zone_availability()` 算出可訂量。成立後寫 `bookings`、選取明細與 `rental_stock_reservations`；取消／完成走狀態歷程與保留帳生命週期。入住日含、退房日不含：`[check_in, check_out)`。
-3. **庫存異動**：先建 `inventory_movements` 草稿與商城或租借明細；只有 `posted` 才是正式異動，資料庫 trigger 禁止事後修改。`inventory_conversions` 將商城規格以成對異動轉入租借規格。
+3. **庫存異動**：先建 `inventory_movements` 草稿與商城或租借明細；只有 `posted` 才是正式異動，`Spring Boot Service` 必須禁止事後修改。`inventory_conversions` 將商城規格以成對異動轉入租借規格。
 4. **內容與評價**：文章由 `articles`、區塊、標籤、關聯商品組成。正式評論只能對 `order_items` 建立一筆 `reviews`；舊格式無法完全對應的資料保留在 `legacy_reviews`。
 
 ## 設計上值得注意的地方

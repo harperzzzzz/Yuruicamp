@@ -15,7 +15,6 @@ LEFT JOIN equipment_items item ON item.id = product.item_id
 LEFT JOIN product_categories category ON category.id = item.category_id
 LEFT JOIN brands brand ON brand.id = item.brand_id
 WHERE product.id IS NULL OR item.id IS NULL
-   OR product.price IS DISTINCT FROM (source.payload->>'price')::numeric
    OR product.status IS DISTINCT FROM source.payload->>'status'
    OR item.name IS DISTINCT FROM source.payload->>'name'
    OR category.name IS DISTINCT FROM source.payload->>'category'

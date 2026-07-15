@@ -98,6 +98,18 @@ V720 gives `customers.id` a database-generated 32-character UUID default,
 adds `deleted_at`, exposes active members through `active_customers`, and
 provides guarded soft deletion that preserves every customer relationship.
 
+V745 replaces the ambiguous customer `active` flag with the explicit
+`customer_status` states `active`, `suspended`, and `deleted`. A consistency
+constraint permits `deleted_at` only for deleted customers, while dedicated
+suspend, soft-delete, and reactivate functions enforce valid transitions.
+
+V746 changes customer preference, shipping-address, and tag-assignment foreign
+keys from `ON DELETE CASCADE` to `ON DELETE RESTRICT`. Customer relationships
+remain intact under the permanent soft-delete policy.
+
+V747 validates existing customer shipping addresses and adds non-blank checks
+for recipient name, postal code, city, district, address line, and phone.
+
 Applied migration files are immutable; corrections use a higher, previously
 unused version. Do not regenerate or edit any applied backfill or migration
 after application.

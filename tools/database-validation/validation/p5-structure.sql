@@ -137,7 +137,8 @@ WHERE to_regprocedure(
 ) IS NULL;
 
 INSERT INTO p5_structure_issues
-SELECT 'required_trigger', expected.name, 'P5 lifecycle/domain trigger is missing'
+SELECT 'backend_owned_trigger', expected.name,
+       'P5 lifecycle/domain validation must be implemented in Spring Boot'
 FROM (VALUES
   ('trg_inventory_movements_immutable'),
   ('trg_store_inventory_movement_items_draft_only'),
@@ -147,8 +148,7 @@ FROM (VALUES
   ('trg_product_stock_reservations_lifecycle'),
   ('trg_rental_stock_reservations_lifecycle')
 ) expected(name)
-LEFT JOIN pg_trigger actual ON actual.tgname = expected.name AND NOT actual.tgisinternal
-WHERE actual.oid IS NULL;
+JOIN pg_trigger actual ON actual.tgname = expected.name AND NOT actual.tgisinternal;
 
 INSERT INTO p5_structure_issues
 SELECT 'legacy_evidence', expected.name, 'P5 migration evidence table is missing'

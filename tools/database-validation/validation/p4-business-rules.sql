@@ -75,6 +75,19 @@ BEGIN
   END;
 
   BEGIN
+    INSERT INTO order_items (
+      order_id, product_id, variant_id, sku_snapshot,
+      product_name_snapshot, specification_snapshot, brand_name_snapshot,
+      unit_price_snapshot, quantity
+    ) VALUES (
+      'P4-TIER-11999', 'P001', 'v-P002-0', 'P4-MISMATCH',
+      'mismatched product', 'mismatched variant', 'P4', 1, 1
+    );
+    RAISE EXCEPTION 'mismatched product and variant were accepted';
+  EXCEPTION WHEN foreign_key_violation THEN NULL;
+  END;
+
+  BEGIN
     UPDATE coupons SET discount_type = 'percent', discount_value = 101
     WHERE id = (SELECT min(id) FROM coupons);
     RAISE EXCEPTION 'percentage coupon over 100 was accepted';

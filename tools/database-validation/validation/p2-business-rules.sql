@@ -15,8 +15,8 @@ BEGIN
   VALUES (item_id_value, category_id_value, brand_id_value, 'P2 Test Item');
   INSERT INTO equipment_images (item_id, sort_order, url)
   VALUES (item_id_value, 0, '/p2-test.jpg');
-  INSERT INTO products (id, item_id, price, status)
-  VALUES ('P2-TEST-PRODUCT', item_id_value, 1, 'active');
+  INSERT INTO products (id, item_id, status)
+  VALUES ('P2-TEST-PRODUCT', item_id_value, 'active');
   INSERT INTO product_variants (
     id, product_id, sku, specification, price, status
   ) VALUES (
@@ -25,9 +25,60 @@ BEGIN
   INSERT INTO inventory_stocks (location_id, variant_id, on_hand_quantity)
   VALUES ('main', 'P2-TEST-VARIANT', 1);
 
+  UPDATE products
+  SET updated_at = TIMESTAMPTZ '2000-01-01 00:00:00+00'
+  WHERE id = 'P2-TEST-PRODUCT';
+  IF (SELECT updated_at FROM products WHERE id = 'P2-TEST-PRODUCT')
+       = TIMESTAMPTZ '2000-01-01 00:00:00+00' THEN
+    RAISE EXCEPTION 'products.updated_at was not refreshed by its trigger';
+  END IF;
+
+  UPDATE product_variants
+  SET updated_at = TIMESTAMPTZ '2000-01-01 00:00:00+00'
+  WHERE id = 'P2-TEST-VARIANT';
+  IF (SELECT updated_at FROM product_variants WHERE id = 'P2-TEST-VARIANT')
+       = TIMESTAMPTZ '2000-01-01 00:00:00+00' THEN
+    RAISE EXCEPTION 'product_variants.updated_at was not refreshed by its trigger';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM sellable_product_variants
+    WHERE product_id = 'P2-TEST-PRODUCT'
+      AND variant_id = 'P2-TEST-VARIANT'
+  ) THEN
+    RAISE EXCEPTION 'active product variant was excluded from sellable view';
+  END IF;
+
+  UPDATE equipment_items SET active = FALSE WHERE id = item_id_value;
+  IF EXISTS (
+    SELECT 1 FROM sellable_product_variants
+    WHERE variant_id = 'P2-TEST-VARIANT'
+  ) THEN
+    RAISE EXCEPTION 'inactive equipment item remained sellable';
+  END IF;
+  UPDATE equipment_items SET active = TRUE WHERE id = item_id_value;
+
+  UPDATE products SET status = 'inactive' WHERE id = 'P2-TEST-PRODUCT';
+  IF EXISTS (
+    SELECT 1 FROM sellable_product_variants
+    WHERE variant_id = 'P2-TEST-VARIANT'
+  ) THEN
+    RAISE EXCEPTION 'inactive product remained sellable';
+  END IF;
+  UPDATE products SET status = 'active' WHERE id = 'P2-TEST-PRODUCT';
+
+  UPDATE product_variants SET status = 'inactive' WHERE id = 'P2-TEST-VARIANT';
+  IF EXISTS (
+    SELECT 1 FROM sellable_product_variants
+    WHERE variant_id = 'P2-TEST-VARIANT'
+  ) THEN
+    RAISE EXCEPTION 'inactive product variant remained sellable';
+  END IF;
+  UPDATE product_variants SET status = 'active' WHERE id = 'P2-TEST-VARIANT';
+
   BEGIN
-    INSERT INTO products (id, item_id, price, status)
-    VALUES ('P2-TEST-DUPLICATE-ITEM', item_id_value, 1, 'active');
+    INSERT INTO products (id, item_id, status)
+    VALUES ('P2-TEST-DUPLICATE-ITEM', item_id_value, 'active');
     RAISE EXCEPTION 'one equipment item was accepted by two products';
   EXCEPTION WHEN unique_violation THEN NULL;
   END;
@@ -43,9 +94,14 @@ BEGIN
   END;
 
   BEGIN
-    UPDATE products SET price = -1 WHERE id = 'P2-TEST-PRODUCT';
-    RAISE EXCEPTION 'negative product price was accepted';
-  EXCEPTION WHEN check_violation THEN NULL;
+    INSERT INTO product_variants (
+      id, product_id, sku, specification, price, status
+    ) VALUES (
+      'P2-TEST-DUPLICATE-SPEC', 'P2-TEST-PRODUCT',
+      'P2-TEST-UNIQUE-SKU', 'standard', 1, 'active'
+    );
+    RAISE EXCEPTION 'duplicate product color/size/specification was accepted';
+  EXCEPTION WHEN unique_violation THEN NULL;
   END;
 
   BEGIN

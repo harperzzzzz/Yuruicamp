@@ -142,7 +142,7 @@ const _loadNormalizedCustomers = async () => {
       .filter(Boolean);
     return {
       ...customer,
-      active: customer.active !== false,
+      status: customer.status || 'active',
       deletedAt: customer.deletedAt || null,
       preferences: preferenceObject,
       shippingAddress,
@@ -255,7 +255,7 @@ const customersApi = {
     const customers = await _loadNormalizedCustomers();
     return customers
       .map(_applyCustomerOverlay)
-      .filter((customer) => customer.active === true && customer.deletedAt === null);
+      .filter((customer) => customer.status === 'active' && customer.deletedAt === null);
   },
 
   getById: async (customerId) => {
@@ -269,12 +269,24 @@ const customersApi = {
     const customer = await customersApi.getById(customerId);
     const timestamp = new Date().toISOString();
     _setCustomerOverlay(customerId, {
-      active: false,
+      status: 'deleted',
       deletedAt: timestamp,
       updatedAt: timestamp,
     });
     if (window.AppState?.currentUser?.id === customer.id) await customersApi.logout();
-    return { ...customer, active: false, deletedAt: timestamp, updatedAt: timestamp };
+    return { ...customer, status: 'deleted', deletedAt: timestamp, updatedAt: timestamp };
+  },
+
+  suspend: async (customerId) => {
+    const customer = await customersApi.getById(customerId);
+    const timestamp = new Date().toISOString();
+    _setCustomerOverlay(customerId, {
+      status: 'suspended',
+      deletedAt: null,
+      updatedAt: timestamp,
+    });
+    if (window.AppState?.currentUser?.id === customer.id) await customersApi.logout();
+    return { ...customer, status: 'suspended', deletedAt: null, updatedAt: timestamp };
   },
 
   getNotifications: async (customerId) => {

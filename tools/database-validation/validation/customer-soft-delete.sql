@@ -38,7 +38,7 @@ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM customers
     WHERE id = customer_id_value
-      AND active = false
+      AND status = 'deleted'::public.customer_status
       AND deleted_at IS NOT NULL
   ) THEN
     RAISE EXCEPTION 'soft-delete state was not persisted';

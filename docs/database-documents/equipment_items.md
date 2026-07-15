@@ -80,7 +80,7 @@ logo_url        品牌標誌網址
                     ON UPDATE CASCADE
                     ON DELETE RESTRICT
 
-brand_id          所屬品牌；
+brand_id            所屬品牌；
                     ON UPDATE CASCADE
                     ON DELETE RESTRICT
 
