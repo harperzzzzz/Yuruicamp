@@ -20,7 +20,10 @@ WHERE product.id IS NULL OR item.id IS NULL
    OR item.name IS DISTINCT FROM source.payload->>'name'
    OR category.name IS DISTINCT FROM source.payload->>'category'
    OR brand.name IS DISTINCT FROM source.payload->>'brand'
-   OR item.main_image_url IS DISTINCT FROM source.payload->>'image'
+   OR (SELECT image.url
+       FROM equipment_images image
+       WHERE image.item_id = item.id
+         AND image.sort_order = 0) IS DISTINCT FROM source.payload->>'image'
    OR item.description IS DISTINCT FROM source.payload->>'description'
    OR item.active IS DISTINCT FROM ((source.payload->>'status') = 'active');
 

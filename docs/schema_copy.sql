@@ -217,6 +217,36 @@ END;
 $$;
 
 
+CREATE FUNCTION public.set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  NEW.updated_at := NOW();
+  RETURN NEW;
+END;
+$$;
+
+
+CREATE FUNCTION public.touch_equipment_item_from_child() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    UPDATE public.equipment_items SET updated_at = NOW() WHERE id = OLD.item_id;
+    RETURN OLD;
+  ELSIF TG_OP = 'INSERT' THEN
+    UPDATE public.equipment_items SET updated_at = NOW() WHERE id = NEW.item_id;
+    RETURN NEW;
+  END IF;
+
+  UPDATE public.equipment_items
+  SET updated_at = NOW()
+  WHERE id = OLD.item_id OR id = NEW.item_id;
+  RETURN NEW;
+END;
+$$;
+
+
 --
 -- Name: enforce_campground_rental_location_type(); Type: FUNCTION; Schema: public; Owner: -
 --
@@ -2069,9 +2099,9 @@ CREATE TABLE public.brands (
     name character varying(120) NOT NULL,
     logo_url text,
     sort_order integer DEFAULT 0 NOT NULL,
-    active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_brands_name CHECK ((btrim((name)::text) <> ''::text)),
     CONSTRAINT ck_brands_sort_order CHECK ((sort_order >= 0))
 );
 
@@ -2606,9 +2636,18 @@ CREATE TABLE public.equipment_images (
     sort_order integer NOT NULL,
     url text NOT NULL,
     alt_text character varying(200),
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_equipment_images_sort_order CHECK ((sort_order >= 0)),
     CONSTRAINT ck_equipment_images_value CHECK ((btrim(url) <> ''::text))
 );
+
+
+--
+-- Name: COLUMN equipment_images.sort_order; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.equipment_images.sort_order IS 'Zero-based image order; sort_order = 0 is the main image.';
 
 
 --
@@ -2618,6 +2657,8 @@ CREATE TABLE public.equipment_images (
 CREATE TABLE public.equipment_interest_tags (
     item_id character varying(32) NOT NULL,
     tag character varying(100) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_equipment_interest_tags_value CHECK ((btrim((tag)::text) <> ''::text))
 );
 
@@ -2629,13 +2670,13 @@ CREATE TABLE public.equipment_interest_tags (
 CREATE TABLE public.equipment_items (
     id character varying(32) NOT NULL,
     category_id bigint NOT NULL,
-    brand_id character varying(32) NOT NULL,
+    brand_id character varying(32),
     name character varying(200) NOT NULL,
-    main_image_url text,
     description text,
     active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_equipment_items_name CHECK ((btrim((name)::text) <> ''::text))
 );
 
 
@@ -2647,6 +2688,9 @@ CREATE TABLE public.equipment_specifications (
     item_id character varying(32) NOT NULL,
     spec_key character varying(100) NOT NULL,
     value text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_equipment_specifications_spec_key CHECK ((btrim((spec_key)::text) <> ''::text)),
     CONSTRAINT ck_equipment_specifications_value CHECK ((btrim(value) <> ''::text))
 );
 
@@ -2658,6 +2702,8 @@ CREATE TABLE public.equipment_specifications (
 CREATE TABLE public.equipment_tags (
     item_id character varying(32) NOT NULL,
     tag character varying(100) NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_equipment_tags_value CHECK ((btrim((tag)::text) <> ''::text))
 );
 
@@ -3045,9 +3091,10 @@ CREATE TABLE public.product_categories (
     code character varying(64) NOT NULL,
     name character varying(100) NOT NULL,
     sort_order integer DEFAULT 0 NOT NULL,
-    active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_product_categories_code CHECK ((btrim((code)::text) <> ''::text)),
+    CONSTRAINT ck_product_categories_name CHECK ((btrim((name)::text) <> ''::text)),
     CONSTRAINT ck_product_categories_sort_order CHECK ((sort_order >= 0))
 );
 
@@ -4556,11 +4603,10 @@ ALTER TABLE ONLY public.branch_features
 
 
 --
--- Name: brands uq_brands_name; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: uq_brands_name; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.brands
-    ADD CONSTRAINT uq_brands_name UNIQUE (name);
+CREATE UNIQUE INDEX uq_brands_name ON public.brands USING btree (lower(btrim((name)::text)));
 
 
 --
@@ -4732,19 +4778,17 @@ ALTER TABLE ONLY public.preference_options
 
 
 --
--- Name: product_categories uq_product_categories_code; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: uq_product_categories_code; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.product_categories
-    ADD CONSTRAINT uq_product_categories_code UNIQUE (code);
+CREATE UNIQUE INDEX uq_product_categories_code ON public.product_categories USING btree (lower(btrim((code)::text)));
 
 
 --
--- Name: product_categories uq_product_categories_name; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: uq_product_categories_name; Type: INDEX; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.product_categories
-    ADD CONSTRAINT uq_product_categories_name UNIQUE (name);
+CREATE UNIQUE INDEX uq_product_categories_name ON public.product_categories USING btree (lower(btrim((name)::text)));
 
 
 --
@@ -5081,13 +5125,6 @@ CREATE INDEX idx_branch_features_feature ON public.branch_features USING btree (
 
 
 --
--- Name: idx_brands_active_sort; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_brands_active_sort ON public.brands USING btree (active, sort_order);
-
-
---
 -- Name: idx_calendar_dates_holiday_date; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5222,6 +5259,8 @@ CREATE INDEX idx_equipment_images_sort_order ON public.equipment_images USING bt
 
 CREATE INDEX idx_equipment_interest_tags_tag ON public.equipment_interest_tags USING btree (tag);
 
+CREATE UNIQUE INDEX uq_equipment_interest_tags_item_tag_normalized ON public.equipment_interest_tags USING btree (item_id, lower(btrim((tag)::text)));
+
 
 --
 -- Name: idx_equipment_items_brand; Type: INDEX; Schema: public; Owner: -
@@ -5249,6 +5288,8 @@ CREATE INDEX idx_equipment_specifications_spec_key ON public.equipment_specifica
 --
 
 CREATE INDEX idx_equipment_tags_tag ON public.equipment_tags USING btree (tag);
+
+CREATE UNIQUE INDEX uq_equipment_tags_item_tag_normalized ON public.equipment_tags USING btree (item_id, lower(btrim((tag)::text)));
 
 
 --
@@ -5424,13 +5465,6 @@ CREATE INDEX idx_orders_status_payment ON public.orders USING btree (status, pay
 --
 
 CREATE INDEX idx_preference_options_type_active_sort ON public.preference_options USING btree (type, active, sort_order);
-
-
---
--- Name: idx_product_categories_active_sort; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_product_categories_active_sort ON public.product_categories USING btree (active, sort_order);
 
 
 --
@@ -5632,6 +5666,28 @@ CREATE TRIGGER trg_p7_contract_evidence_read_only BEFORE INSERT OR DELETE OR UPD
 --
 -- Name: campground_rental_locations trg_campground_rental_locations_type; Type: TRIGGER; Schema: public; Owner: -
 --
+
+CREATE TRIGGER trg_brands_set_updated_at BEFORE UPDATE ON public.brands FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_product_categories_set_updated_at BEFORE UPDATE ON public.product_categories FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_items_set_updated_at BEFORE UPDATE ON public.equipment_items FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_images_set_updated_at BEFORE UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_specifications_set_updated_at BEFORE UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_tags_set_updated_at BEFORE UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_interest_tags_set_updated_at BEFORE UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+CREATE TRIGGER trg_equipment_images_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_images FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
+
+CREATE TRIGGER trg_equipment_specifications_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_specifications FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
+
+CREATE TRIGGER trg_equipment_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
+
+CREATE TRIGGER trg_equipment_interest_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_interest_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
 
 CREATE CONSTRAINT TRIGGER trg_campground_rental_locations_type AFTER INSERT OR UPDATE OF location_id ON public.campground_rental_locations DEFERRABLE INITIALLY IMMEDIATE FOR EACH ROW EXECUTE FUNCTION public.enforce_campground_rental_location_type();
 

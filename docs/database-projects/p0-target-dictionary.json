@@ -919,7 +919,7 @@
         "product brand text"
       ],
       "writeAuthority": "Catalog service",
-      "deletePolicy": "Referenced rows are retained; deactivate through the owning service.",
+      "deletePolicy": "Referenced rows are retained while equipment items reference them.",
       "updatePolicy": "Identifiers are immutable; business fields change only through the owning service.",
       "columns": [
         {
@@ -955,14 +955,6 @@
           "source": "sortOrder"
         },
         {
-          "name": "active",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "default": "TRUE",
-          "purpose": "軟刪除／啟用狀態",
-          "source": "owning service"
-        },
-        {
           "name": "created_at",
           "type": "TIMESTAMPTZ",
           "nullable": false,
@@ -987,15 +979,12 @@
       },
       "noPrimaryKeyReason": null,
       "foreignKeys": [],
-      "uniques": [
-        {
-          "name": "uq_brands_name",
-          "columns": [
-            "name"
-          ]
-        }
-      ],
+      "uniques": [],
       "checks": [
+        {
+          "name": "ck_brands_name",
+          "expression": "BTRIM(name) <> ''"
+        },
         {
           "name": "ck_brands_sort_order",
           "expression": "sort_order >= 0"
@@ -1003,11 +992,9 @@
       ],
       "indexes": [
         {
-          "name": "idx_brands_active_sort",
-          "columns": [
-            "active",
-            "sort_order"
-          ]
+          "name": "uq_brands_name",
+          "expression": "LOWER(BTRIM(name))",
+          "unique": true
         }
       ],
       "snapshots": [],
@@ -1026,7 +1013,7 @@
         "product/rental category text"
       ],
       "writeAuthority": "Catalog configuration service",
-      "deletePolicy": "Referenced rows are retained; deactivate through the owning service.",
+      "deletePolicy": "Referenced rows are retained while equipment items reference them.",
       "updatePolicy": "Identifiers are immutable; business fields change only through the owning service.",
       "columns": [
         {
@@ -1062,14 +1049,6 @@
           "source": "migration order"
         },
         {
-          "name": "active",
-          "type": "BOOLEAN",
-          "nullable": false,
-          "default": "TRUE",
-          "purpose": "軟刪除／啟用狀態",
-          "source": "owning service"
-        },
-        {
           "name": "created_at",
           "type": "TIMESTAMPTZ",
           "nullable": false,
@@ -1094,21 +1073,16 @@
       },
       "noPrimaryKeyReason": null,
       "foreignKeys": [],
-      "uniques": [
+      "uniques": [],
+      "checks": [
         {
-          "name": "uq_product_categories_code",
-          "columns": [
-            "code"
-          ]
+          "name": "ck_product_categories_code",
+          "expression": "BTRIM(code) <> ''"
         },
         {
-          "name": "uq_product_categories_name",
-          "columns": [
-            "name"
-          ]
-        }
-      ],
-      "checks": [
+          "name": "ck_product_categories_name",
+          "expression": "BTRIM(name) <> ''"
+        },
         {
           "name": "ck_product_categories_sort_order",
           "expression": "sort_order >= 0"
@@ -1116,11 +1090,14 @@
       ],
       "indexes": [
         {
-          "name": "idx_product_categories_active_sort",
-          "columns": [
-            "active",
-            "sort_order"
-          ]
+          "name": "uq_product_categories_code",
+          "expression": "LOWER(BTRIM(code))",
+          "unique": true
+        },
+        {
+          "name": "uq_product_categories_name",
+          "expression": "LOWER(BTRIM(name))",
+          "unique": true
         }
       ],
       "snapshots": [],
@@ -1162,7 +1139,7 @@
         {
           "name": "brand_id",
           "type": "VARCHAR(32)",
-          "nullable": false,
+          "nullable": true,
           "default": null,
           "purpose": "品牌",
           "source": "normalized brand"
@@ -1174,14 +1151,6 @@
           "default": null,
           "purpose": "裝備名稱",
           "source": "name"
-        },
-        {
-          "name": "main_image_url",
-          "type": "TEXT",
-          "nullable": true,
-          "default": null,
-          "purpose": "主圖",
-          "source": "image"
         },
         {
           "name": "description",
@@ -1250,7 +1219,12 @@
         }
       ],
       "uniques": [],
-      "checks": [],
+      "checks": [
+        {
+          "name": "ck_equipment_items_name",
+          "expression": "BTRIM(name) <> ''"
+        }
+      ],
       "indexes": [
         {
           "name": "idx_equipment_items_category_active",
@@ -1316,6 +1290,22 @@
           "default": null,
           "purpose": "圖片替代文字",
           "source": "images[].alt"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "建立時間",
+          "source": "database clock"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "最後更新時間",
+          "source": "database trigger"
         }
       ],
       "primaryKey": {
@@ -1393,6 +1383,22 @@
           "default": null,
           "purpose": "關聯鍵",
           "source": "legacy key/value"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "建立時間",
+          "source": "database clock"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "最後更新時間",
+          "source": "database trigger"
         }
       ],
       "primaryKey": {
@@ -1430,6 +1436,11 @@
           "columns": [
             "tag"
           ]
+        },
+        {
+          "name": "uq_equipment_tags_item_tag_normalized",
+          "expression": "item_id, LOWER(BTRIM(tag))",
+          "unique": true
         }
       ],
       "snapshots": [],
@@ -1466,6 +1477,22 @@
           "default": null,
           "purpose": "關聯鍵",
           "source": "legacy key/value"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "建立時間",
+          "source": "database clock"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "最後更新時間",
+          "source": "database trigger"
         }
       ],
       "primaryKey": {
@@ -1503,6 +1530,11 @@
           "columns": [
             "tag"
           ]
+        },
+        {
+          "name": "uq_equipment_interest_tags_item_tag_normalized",
+          "expression": "item_id, LOWER(BTRIM(tag))",
+          "unique": true
         }
       ],
       "snapshots": [],
@@ -1547,6 +1579,22 @@
           "default": null,
           "purpose": "規格值",
           "source": "specifications value"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "建立時間",
+          "source": "database clock"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ",
+          "nullable": false,
+          "default": "NOW()",
+          "purpose": "最後更新時間",
+          "source": "database trigger"
         }
       ],
       "primaryKey": {
@@ -1573,6 +1621,10 @@
       ],
       "uniques": [],
       "checks": [
+        {
+          "name": "ck_equipment_specifications_spec_key",
+          "expression": "BTRIM(spec_key) <> ''"
+        },
         {
           "name": "ck_equipment_specifications_value",
           "expression": "BTRIM(value) <> ''"

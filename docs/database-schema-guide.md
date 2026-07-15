@@ -279,7 +279,7 @@ erDiagram
 
 ### `public.brands`
 **用途：** 品牌主檔。
-**鍵：** PRIMARY KEY: id；UNIQUE: name
+**鍵：** PRIMARY KEY: id；UNIQUE INDEX: LOWER(BTRIM(name))
 **關聯：** 無外鍵。
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
@@ -288,7 +288,6 @@ erDiagram
 | `name` | `character varying(120)` | 是 | — | 顯示名稱。 |
 | `logo_url` | `text` | 否 | — | 外部或靜態資源的網址。 |
 | `sort_order` | `integer` | 是 | 0 | 排序序號（較小者通常較前）。 |
-| `active` | `boolean` | 是 | true | 是否啟用／可使用。 |
 | `created_at` | `timestamp with time zone` | 是 | now() | 建立此筆資料的時間。 |
 | `updated_at` | `timestamp with time zone` | 是 | now() | 最後更新時間。 |
 
@@ -590,9 +589,8 @@ erDiagram
 | --- | --- | --- | --- | --- |
 | `id` | `character varying(32)` | 是 | — | 本列的唯一識別碼。 |
 | `category_id` | `bigint` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
-| `brand_id` | `character varying(32)` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
+| `brand_id` | `character varying(32)` | 否 | — | 選填品牌；有值時必須對應 public.brands(id)。 |
 | `name` | `character varying(200)` | 是 | — | 顯示名稱。 |
-| `main_image_url` | `text` | 否 | — | 外部或靜態資源的網址。 |
 | `description` | `text` | 否 | — | 文字說明。 |
 | `active` | `boolean` | 是 | true | 是否啟用／可使用。 |
 | `created_at` | `timestamp with time zone` | 是 | now() | 建立此筆資料的時間。 |
@@ -813,7 +811,7 @@ erDiagram
 
 ### `public.product_categories`
 **用途：** 商品分類主檔。
-**鍵：** PRIMARY KEY: id；UNIQUE: code；UNIQUE: name
+**鍵：** PRIMARY KEY: id；UNIQUE INDEX: LOWER(BTRIM(code))；UNIQUE INDEX: LOWER(BTRIM(name))
 **關聯：** 無外鍵。
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
@@ -822,7 +820,6 @@ erDiagram
 | `code` | `character varying(64)` | 是 | — | 人可讀、通常唯一的代碼。 |
 | `name` | `character varying(100)` | 是 | — | 顯示名稱。 |
 | `sort_order` | `integer` | 是 | 0 | 排序序號（較小者通常較前）。 |
-| `active` | `boolean` | 是 | true | 是否啟用／可使用。 |
 | `created_at` | `timestamp with time zone` | 是 | now() | 建立此筆資料的時間。 |
 | `updated_at` | `timestamp with time zone` | 是 | now() | 最後更新時間。 |
 

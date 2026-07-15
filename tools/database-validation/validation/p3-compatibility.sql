@@ -17,7 +17,10 @@ LEFT JOIN brands brand ON brand.id = item.brand_id
 WHERE rental.id IS NULL OR item.id IS NULL
    OR rental.item_id IS DISTINCT FROM source.payload->>'productId'
    OR item.name IS DISTINCT FROM source.payload->>'name'
-   OR item.main_image_url IS DISTINCT FROM source.payload->>'image'
+   OR (SELECT image.url
+       FROM equipment_images image
+       WHERE image.item_id = item.id
+         AND image.sort_order = 0) IS DISTINCT FROM source.payload->>'image'
    OR category.name IS DISTINCT FROM source.payload->>'category'
    OR brand.name IS DISTINCT FROM source.payload->>'brand';
 
@@ -83,7 +86,10 @@ WHERE listing.id IS NULL
    OR COALESCE(variant.color, '') IS DISTINCT FROM COALESCE(source.payload->>'color', '')
    OR COALESCE(variant.size, '') IS DISTINCT FROM COALESCE(source.payload->>'size', '')
    OR variant.specification IS DISTINCT FROM source.payload->>'specLabel'
-   OR item.main_image_url IS DISTINCT FROM source.payload->>'imageUrl'
+   OR (SELECT image.url
+       FROM equipment_images image
+       WHERE image.item_id = item.id
+         AND image.sort_order = 0) IS DISTINCT FROM source.payload->>'imageUrl'
    OR listing.campground_id IS DISTINCT FROM source.payload->>'campgroundId'
    OR listing.terrain IS DISTINCT FROM source.payload->>'terrainTag'
    OR listing.description IS DISTINCT FROM source.payload->>'description'
