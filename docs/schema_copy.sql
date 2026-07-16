@@ -1804,27 +1804,16 @@ CREATE TABLE public.articles (
     id character varying(32) NOT NULL,
     title character varying(250) NOT NULL,
     category character varying(64) NOT NULL,
-    author character varying(120) NOT NULL,
-    author_avatar_url text,
     published_at timestamp with time zone,
     summary text NOT NULL,
     cover_image_url text,
-    reading_minutes integer NOT NULL,
     featured boolean DEFAULT false NOT NULL,
     status character varying(16) DEFAULT 'draft'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_articles_published CHECK ((((status)::text <> 'published'::text) OR (published_at IS NOT NULL))),
-    CONSTRAINT ck_articles_reading CHECK ((reading_minutes >= 0)),
     CONSTRAINT ck_articles_status CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'published'::character varying, 'archived'::character varying])::text[])))
 );
-
-
---
--- Name: COLUMN articles.author; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON COLUMN public.articles.author IS 'Public author pen name. D-012 forbids an admin_users relationship.';
 
 
 --
@@ -1833,7 +1822,7 @@ COMMENT ON COLUMN public.articles.author IS 'Public author pen name. D-012 forbi
 
 CREATE VIEW public.article_dto_view AS
  SELECT id,
-    jsonb_build_object('id', id, 'title', title, 'category', category, 'author', author, 'authorAvatar', author_avatar_url, 'publishedDate', to_char((published_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD'::text), 'readTime', reading_minutes, 'image', cover_image_url, 'excerpt', summary, 'tags', COALESCE(( SELECT jsonb_agg(tag.tag ORDER BY tag.tag) AS jsonb_agg
+    jsonb_build_object('id', id, 'title', title, 'category', category, 'publishedDate', to_char((published_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD'::text), 'image', cover_image_url, 'excerpt', summary, 'tags', COALESCE(( SELECT jsonb_agg(tag.tag ORDER BY tag.tag) AS jsonb_agg
            FROM public.article_tags tag
           WHERE ((tag.article_id)::text = (article.id)::text)), '[]'::jsonb), 'isFeatured', featured, 'relatedProducts', COALESCE(( SELECT jsonb_agg(related.product_id ORDER BY related.sort_order) AS jsonb_agg
            FROM public.article_related_products related
