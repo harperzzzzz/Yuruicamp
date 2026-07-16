@@ -341,6 +341,64 @@ $$;
 
 
 --
+-- Name: validate_zone_block_capacity(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.validate_zone_block_capacity() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+  zone_capacity integer;
+BEGIN
+  SELECT zone.total_sites
+  INTO zone_capacity
+  FROM public.campground_zones zone
+  WHERE zone.id = NEW.zone_id
+    AND zone.campground_id = NEW.campground_id
+  FOR UPDATE;
+
+  IF NOT FOUND THEN
+    RAISE EXCEPTION
+      'Campground zone %/% does not exist', NEW.campground_id, NEW.zone_id
+      USING ERRCODE = 'foreign_key_violation';
+  END IF;
+
+  IF NEW.blocked_quantity > zone_capacity THEN
+    RAISE EXCEPTION
+      'Blocked quantity % exceeds total sites % for campground zone %/%',
+      NEW.blocked_quantity, zone_capacity, NEW.campground_id, NEW.zone_id
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM generate_series(
+      NEW.start_date,
+      NEW.end_date - 1,
+      interval '1 day'
+    ) AS blocked_day(stay_date)
+    WHERE NEW.blocked_quantity + COALESCE((
+      SELECT sum(existing.blocked_quantity)
+      FROM public.zone_blocks existing
+      WHERE existing.campground_id = NEW.campground_id
+        AND existing.zone_id = NEW.zone_id
+        AND blocked_day.stay_date::date >= existing.start_date
+        AND blocked_day.stay_date::date < existing.end_date
+        AND (TG_OP = 'INSERT' OR existing.id <> NEW.id)
+    ), 0) > zone_capacity
+  ) THEN
+    RAISE EXCEPTION
+      'Overlapping zone blocks exceed total sites % for campground zone %/%',
+      zone_capacity, NEW.campground_id, NEW.zone_id
+      USING ERRCODE = 'check_violation';
+  END IF;
+
+  RETURN NEW;
+END
+$$;
+
+
+--
 -- Name: soft_delete_customer(character varying); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -547,8 +605,51 @@ CREATE TABLE public.admin_users (
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_admin_users_role CHECK (((role)::text = ANY ((ARRAY['admin'::character varying, 'operator'::character varying, 'warehouse'::character varying])::text[]))),
 
-    CONSTRAINT pk_admin_users PRIMARY KEY (id),
-    CONSTRAINT uq_admin_users_email UNIQUE (email)
+    CONSTRAINT pk_admin_users PRIMARY KEY (id)
+);
+
+
+--
+-- Name: admin_permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.admin_permissions (
+    code character varying(64) NOT NULL,
+    section character varying(32) NOT NULL,
+    action character varying(16) NOT NULL,
+    CONSTRAINT ck_admin_permissions_action CHECK (((action)::text = ANY ((ARRAY['view'::character varying, 'edit'::character varying])::text[]))),
+
+    CONSTRAINT pk_admin_permissions PRIMARY KEY (code),
+    CONSTRAINT uq_admin_permissions_section_action UNIQUE (section, action)
+);
+
+
+--
+-- Name: admin_role_permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.admin_role_permissions (
+    role character varying(32) NOT NULL,
+    permission_code character varying(64) NOT NULL,
+    CONSTRAINT ck_admin_role_permissions_role CHECK (((role)::text = ANY ((ARRAY['admin'::character varying, 'operator'::character varying, 'warehouse'::character varying])::text[]))),
+
+    CONSTRAINT pk_admin_role_permissions PRIMARY KEY (role, permission_code),
+    CONSTRAINT fk_admin_role_permissions_permission_code FOREIGN KEY (permission_code) REFERENCES public.admin_permissions(code) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
+
+--
+-- Name: admin_user_permissions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.admin_user_permissions (
+    admin_user_id character varying(32) NOT NULL,
+    permission_code character varying(64) NOT NULL,
+    allowed boolean NOT NULL,
+
+    CONSTRAINT pk_admin_user_permissions PRIMARY KEY (admin_user_id, permission_code),
+    CONSTRAINT fk_admin_user_permissions_admin_user_id FOREIGN KEY (admin_user_id) REFERENCES public.admin_users(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_admin_user_permissions_permission_code FOREIGN KEY (permission_code) REFERENCES public.admin_permissions(code) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 
@@ -686,8 +787,7 @@ COMMENT ON COLUMN public.booking_policies.low_availability_threshold IS 'Integer
 
 CREATE TABLE public.booking_policy_availability_statuses (
     policy_id smallint NOT NULL,
-    status character varying(24) NOT NULL,
-    CONSTRAINT ck_booking_policy_availability_statuses_status CHECK ((btrim((status)::text) <> ''::text)),
+    status public.booking_status NOT NULL,
 
     CONSTRAINT pk_booking_policy_availability_statuses PRIMARY KEY (policy_id, status),
 
@@ -701,8 +801,8 @@ CREATE TABLE public.booking_policy_availability_statuses (
 
 CREATE TABLE public.booking_policy_occupying_statuses (
     policy_id smallint NOT NULL,
-    status character varying(24) NOT NULL,
-    CONSTRAINT ck_booking_policy_occupying_statuses_status CHECK ((btrim((status)::text) <> ''::text)),
+    status public.booking_status NOT NULL,
+    CONSTRAINT ck_booking_policy_occupying_statuses_status CHECK ((status = ANY (ARRAY['pending'::public.booking_status, 'confirmed'::public.booking_status]))),
 
     CONSTRAINT pk_booking_policy_occupying_statuses PRIMARY KEY (policy_id, status),
 
@@ -788,7 +888,7 @@ ALTER TABLE public.booking_selected_zones ALTER COLUMN id ADD GENERATED BY DEFAU
 CREATE TABLE public.booking_status_history (
     id bigint NOT NULL,
     booking_id character varying(32) NOT NULL,
-    status character varying(24) NOT NULL,
+    status public.booking_status NOT NULL,
     occurred_at timestamp with time zone NOT NULL,
     actor_id character varying(32),
     note text,
@@ -832,7 +932,7 @@ CREATE TABLE public.bookings (
     rental_total numeric(14,2) NOT NULL,
     applied_discount numeric(14,2) NOT NULL,
     final_amount numeric(14,2) NOT NULL,
-    status character varying(24) NOT NULL,
+    status public.booking_status NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_bookings_dates CHECK ((check_out > check_in)),
@@ -1073,13 +1173,6 @@ CREATE TABLE public.campgrounds (
     active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_customer_shipping_addresses_address_line_not_blank CHECK ((btrim((address_line)::text) <> ''::text)),
-    CONSTRAINT ck_customer_shipping_addresses_city_not_blank CHECK ((btrim((city)::text) <> ''::text)),
-    CONSTRAINT ck_customer_shipping_addresses_district_not_blank CHECK ((btrim((district)::text) <> ''::text)),
-    CONSTRAINT ck_customer_shipping_addresses_phone_not_blank CHECK ((btrim((phone)::text) <> ''::text)),
-    CONSTRAINT ck_customer_shipping_addresses_postal_code_not_blank CHECK ((btrim((postal_code)::text) <> ''::text)),
-    CONSTRAINT ck_customer_shipping_addresses_recipient_name_not_blank CHECK ((btrim((recipient_name)::text) <> ''::text)),
-
     CONSTRAINT pk_campgrounds PRIMARY KEY (id)
 );
 
@@ -2725,6 +2818,27 @@ CREATE INDEX idx_admin_users_role_active ON public.admin_users USING btree (role
 
 
 --
+-- Name: uq_admin_users_email_lower; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX uq_admin_users_email_lower ON public.admin_users USING btree (lower((email)::text));
+
+
+--
+-- Name: idx_admin_role_permissions_permission; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_admin_role_permissions_permission ON public.admin_role_permissions USING btree (permission_code);
+
+
+--
+-- Name: idx_admin_user_permissions_permission; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_admin_user_permissions_permission ON public.admin_user_permissions USING btree (permission_code);
+
+
+--
 -- Name: idx_article_content_blocks_product; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3527,6 +3641,13 @@ CREATE TRIGGER trg_product_variants_set_updated_at BEFORE UPDATE ON public.produ
 --
 
 CREATE TRIGGER trg_products_set_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: zone_blocks trg_zone_blocks_validate_capacity; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER trg_zone_blocks_validate_capacity BEFORE INSERT OR UPDATE OF campground_id, zone_id, start_date, end_date, blocked_quantity ON public.zone_blocks FOR EACH ROW EXECUTE FUNCTION public.validate_zone_block_capacity();
 
 
 --

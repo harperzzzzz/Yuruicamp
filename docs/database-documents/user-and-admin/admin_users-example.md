@@ -25,7 +25,7 @@
     ADM001 是王小明的後台帳號。
     帳號啟用中，角色為 admin。
     permissions 是前端目前需要的細部權限格式。
-    但要注意：permissions 目前不在 admin_users 資料表內；必須由後端依 role 推導，或未來新增權限資料表後組合。
+    permissions 不直接存在 admin_users；應由後端組合 admin_role_permissions 的角色預設權限與 admin_user_permissions 的個別覆寫。
     不應傳送密碼或 password_hash 給前端。
 
 * 對應規則:
@@ -34,9 +34,9 @@
     admin_users.role=admin  → isSuperAdmin=true（暫定映射，不是資料庫既有欄位）
     admin_users.created_at  → createdAt
     admin_users.updated_at  → updatedAt
-    權限規則／權限表         → permissions
+    admin_role_permissions、admin_user_permissions → permissions
 
-## dmin_users 與訂單、庫存、預約歷程的關聯資料
+## admin_users 與訂單、庫存、預約歷程的關聯資料
 {
   "id": 501,
   "movementNo": "MOV-20260716-001",

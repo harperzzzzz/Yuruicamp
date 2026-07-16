@@ -88,4 +88,3 @@ campgrounds
 * 高風險：前端目前讀取 JSON，與正式資料庫的 campgrounds、campground_zones 為兩套資料來源；資料更新後可能不一致。
 * 中風險：updated_at 僅有預設值，更新資料時不會由資料庫自動改寫；應由後端服務統一處理。
 * 中風險：campgrounds 沒有名稱或區域不可空白的 CHECK，僅限制 NOT NULL；空字串仍可能寫入。
-* 中風險：schema 中 `campgrounds` 夾帶 6 個名稱為 `ck_customer_shipping_addresses_*`、且引用地址欄位的 CHECK。這些欄位不屬於 campgrounds，應確認匯出的 schema 是否正確，避免正式建表或 migration 失敗。

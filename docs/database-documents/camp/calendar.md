@@ -31,9 +31,10 @@ calendar_dates
 預約可用性與價格計算時：
 1. 依入住日期讀取 calendar_dates，判斷是否為假日並選擇平日或假日價格。
 2. 取得指定營區與營位區的基礎可售數量 `campground_zones.total_sites`。
-3. 匯總命中日期區間的 zone_blocks.blocked_quantity，從可售數量扣除。
-4. 檢查 campground_closures：若日期命中日期區間或每週規則，該營區全部營位區當晚皆不可預約。
-5. 後台建立停售或公休規則時，必須記錄建立者與原因。
+3. 新增或修改 zone_blocks 時，`trg_zone_blocks_validate_capacity` 會驗證單筆及同日重疊封鎖總量不得超過 `campground_zones.total_sites`。
+4. 匯總命中日期區間的 zone_blocks.blocked_quantity，從可售數量扣除；`get_zone_availability()` 以 `greatest(..., 0)` 保證可用量不為負數。
+5. 檢查 campground_closures：若日期命中日期區間或每週規則，該營區全部營位區當晚皆不可預約。
+6. 後台建立停售或公休規則時，必須記錄建立者與原因。
 
 
 
@@ -69,6 +70,7 @@ calendar_dates
 * start_date            停售開始日期
 * end_date              停售結束日期必須大於等於 start_date。
 * blocked_quantity      封鎖的可售營位數，必須大於 0。
+                        `trg_zone_blocks_validate_capacity` 會鎖定對應營位區，阻止單筆或同日重疊封鎖總量超過 total_sites。
 * reason                停售原因，不得為空白
 
 * created_by            建立者管理員識別碼
@@ -119,6 +121,7 @@ calendar_dates
 * 指定營位區維修／停售 > zone_blocks
 * 指定營區整體公休 > campground_closures
 * zone_blocks 只扣減指定營位區的可售數；campground_closures 則關閉該營區的所有營位區。
+* `validate_zone_block_capacity()` 與 `trg_zone_blocks_validate_capacity` 負責封鎖容量驗證；`get_zone_availability()` 負責逐日彙總預約、封鎖與公休結果。
 
 
 
@@ -144,7 +147,6 @@ calendar_dates
 ## 可能的問題
 * 高風險：前台假日判定固定為週五、週六，未使用 calendar_dates；國定假日與日曆資料庫的價格可能不一致。
 * 高風險：停售與公休在前台使用 JSON／localStorage，但正式資料庫有三張對應表，兩套資料來源可能造成可用性不一致。
-* 中風險：zone_blocks 僅要求 blocked_quantity 大於 0，未限制不得超過該營位區的 total_sites；可用性查詢必須避免扣成負數。
 * 中風險：updated_at 僅有預設值，後續更新不會由資料庫自動更新；應由後端服務統一處理。
 
 ### 舊資料位置

@@ -57,7 +57,8 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 * rental_total                  加租裝備金額小計；不可為負。
 * applied_discount              已套用折扣；不可為負。
 * final_amount                  最終應付金額；必須等於 `max(zone_total + rental_total - applied_discount, 0)`。
-* status                        目前預約狀態；但 schema 未限制可用的狀態代碼。
+* status                        目前預約狀態，型別為 `booking_status`。
+                                只允許 pending、confirmed、completed、cancelled。
 * created_at                    建立時間；呼叫端必須提供。
 
 * updated_at                    更新時間；預設 `now()`；
@@ -109,7 +110,8 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 * booking_id                    所屬預約；
                                 *idx_booking_status_history_booking_time* `(booking_id, occurred_at)`
 
-* status                        異動後的預約狀態；schema 未限制狀態代碼。
+* status                        異動後的預約狀態，型別為 `booking_status`。
+                                與 bookings.status 共用 pending、confirmed、completed、cancelled 四種代碼。
 * occurred_at                   狀態發生時間
 
 * actor_id                      操作的後臺使用者；可為 NULL
@@ -163,7 +165,7 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 
 ## 可能的問題
 * 高風險：前端目前寫入巢狀 Mock DTO，與正式四張正規化資料表並行；正式 API 必須負責拆寫與交易一致性。
-* 高風險：bookings.status 與 booking_status_history.status 都沒有資料庫層級的狀態枚舉或轉換規則，可能產生不一致或任意值。
+* 中風險：bookings.status 與 booking_status_history.status 已統一使用 booking_status，但資料庫仍未限制 pending、confirmed、completed、cancelled 之間的合法轉換順序。
 * 中風險：資料庫未強制「每次 status 更新都要新增歷程」；應由 Service 在同一交易內處理，或設計受控的資料庫函式。
 * 中風險：bookings.created_at 沒有預設值，所有新增流程都必須明確提供時間。
 * 中風險：bookings.updated_at 預設只在 INSERT 生效，UPDATE 不會自動刷新；應由 Spring Boot Service 統一更新。

@@ -190,7 +190,7 @@ conversion_in	無	        租借庫位       租借轉入
 
 * `admin/js/products.js` 現行調撥流程會產生前端異動紀錄，但未建立 `inventory_conversions`、兩張正式異動表頭或兩種正式明細列。
 * `admin/js/admin-api.js` 第 214–220 行僅預留 `/api/admin/inventory-movements`；沒有轉換專用 API。
-* `backend/src/main/java` 尚未有轉換流程的 Controller、Service、Repository 或 Entity；Flyway migration 是目前唯一的資料庫結構寫入來源。
+* 目前專案尚未有轉換流程的 Controller、Service、Repository 或 Entity；正式資料表結構以 `docs/latest_schema.sql` 為準。
 
 
 ## 可能的問題

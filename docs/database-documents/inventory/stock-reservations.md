@@ -139,7 +139,7 @@ fulfilled	可為 NULL	必填	         租借已完成，保留帳結案
 ### 保留帳終態
 * 終態保留帳不可重回 `active`，以避免庫存稽核鏈被覆寫。
 * `released`、`expired` 代表數量已歸還可用池；`fulfilled` 代表該保留已完成業務履約。
-* `schema_copy.sql` 中曾以 Trigger 實作保留帳生命週期；`V744__move_business_triggers_to_backend.sql` 已移除 Trigger，正式後端必須維持同等驗證。
+* `latest_schema.sql` 沒有以 Trigger 實作保留帳生命週期；正式後端必須負責狀態轉換、期限與庫存一致性驗證。
 
 
 ## 程式碼追蹤

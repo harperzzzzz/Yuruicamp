@@ -172,7 +172,7 @@ ON DELETE RESTRICT 阻止刪除
 
 ## 可能的問題
 * 高風險：正式資料庫與前端存在兩套文章資料來源；前端目前讀取單一 `articles.json`，未讀取 article_dto_view。
-* 高風險：目前前端與 Mock DTO 仍使用 author、authorAvatar、readTime；必須在前端移除這些功能後，才能部署 V754 migration，否則前端改為讀取 article_dto_view 時會缺少欄位。
+* 高風險：目前前端與 Mock DTO 仍使用 author、authorAvatar、readTime，但 `latest_schema.sql` 的 article_dto_view 不提供這些欄位；前端改讀正式 View 前必須先移除或另行提供這些欄位。
 * 高風險：前端 Mock 資料不受資料庫的狀態、發布時間與外鍵限制保護；正式 API 應只對外提供可見的 published 文章，並驗證商品仍有效。
 * 中風險：articles.updated_at 沒有自動更新 Trigger；更新文章時必須由後端 Service 明確寫入。
 * 中風險：`featured` 未限制只能套用於 published 文章；若有此業務規則，需由後端或新增約束保證。

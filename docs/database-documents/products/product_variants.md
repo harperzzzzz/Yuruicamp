@@ -133,7 +133,7 @@ equipment_items
         - 前端 `products.json` 把商品、規格及庫存資料包在同一筆物件內。
         - 前端商品層級直接有 name、category、brand、price、totalStock 及 branch。
         - 前端 variants[] 有 color、size、label 與分店庫存，但目前沒有完整對應資料庫要求的 sku、price、specification、status。
-        - 因此前端現在的資料結構，並不是 schema_copy.sql 中三張表正規化後的直接輸出。
+        - 因此前端現在的資料結構，並不是 `latest_schema.sql` 中三張表正規化後的直接輸出。
 
 
 

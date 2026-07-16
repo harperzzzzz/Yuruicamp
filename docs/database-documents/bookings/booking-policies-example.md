@@ -29,15 +29,15 @@ updated_at                  = 2026-07-16 09:00:00+08
 * booking_policy_availability_statuses
 
 policy_id  status
-1          available
-1          low
-1          full
-1          closed
-1          out_of_window
+1          pending
+1          confirmed
+1          completed
+1          cancelled
 
 ---
 代表：
-政策 1 的可用性結果可使用 `available`、`low`、`full`、`closed`、`out_of_window` 表示。
+政策 1 的可用性相關畫面可呈現 `pending`、`confirmed`、`completed`、`cancelled` 四種預約狀態。
+`available`、`low`、`sold_out`、`closed`、`out_of_window` 是可用量計算結果，不屬於 `booking_status`，不寫入此表。
 每個狀態只會在同一政策中出現一次。
 ---
 
@@ -47,12 +47,11 @@ policy_id  status
 policy_id  status
 1          pending
 1          confirmed
-1          completed
 
 ---
 代表：
-狀態為待處理、已確認或已完成的預約，都會計入營位占用量。
-取消的預約不在此表中，因此不會占用可訂數量。
+狀態為待處理或已確認的預約會計入營位占用量。
+已完成與已取消的預約不在此表中，因此不會占用未來可訂數量。
 ---
 
 ## 三張表組合後的完整資料
@@ -66,8 +65,8 @@ policy_id  status
   "maxStayNights": 7,
   "timezone": "Asia/Taipei",
   "dateBoundaryHour": 0,
-  "occupyingStatuses": ["pending", "confirmed", "completed"],
-  "availabilityStatuses": ["available", "low", "full", "closed", "out_of_window"],
+  "occupyingStatuses": ["pending", "confirmed"],
+  "availabilityStatuses": ["pending", "confirmed", "completed", "cancelled"],
   "dateRule": {
     "checkInInclusive": true,
     "checkOutExclusive": true
@@ -111,5 +110,7 @@ policy_id  status
 ```
 
 `BookingAPI.getPolicy()` 讀取 JSON 後交給 `BookingAvailability.normalizePolicy()`；該函式會補齊預設值。`occupyingStatuses` 用於判斷預約是否扣減營位數量，`lowThresholdRatio` 用於回傳 `available`、`low` 或 `sold_out`。
+
+目前 JSON 的 `occupyingStatuses` 仍包含 `completed`，與 `latest_schema.sql` 只允許 `pending`、`confirmed` 的規則不同；正式 API 串接前必須修正資料契約。
 
 目前 JSON 未輸出 `dateBoundaryHour` 與 `availabilityStatuses`，所以正式 API 接上資料庫時應先確認是否擴充前端契約。

@@ -153,7 +153,7 @@ inventory_movements
 * 高風險：未完成後端規則前，資料庫層無法阻止事後修改。
 
 * 高風險: inventory_movements.status 的 `posted` 與 `cancelled` 異動的不可變性，以及明細僅能在草稿階段編輯
-        目前 `schema_copy.sql` 中沒有這些 Trigger。移交後端執行
+        目前 `latest_schema.sql` 中沒有這些 Trigger，需由後端執行。
 
 * 中風險：前端異動資料格式使用顯示用欄位（例如 `fromStore`、`toStore`、`productName`）
         正式表的 location ID、領域、規格 ID、快照欄位不同，串接前需建立 DTO 轉換與驗證。

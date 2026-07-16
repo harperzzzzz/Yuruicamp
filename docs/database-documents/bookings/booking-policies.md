@@ -1,7 +1,7 @@
 # booking-policies
     預約政策主檔；保存可預約窗口、提前天數、最長住宿、時區、日期邊界與低可用量門檻。
 * booking_policy_availability_statuses
-    預約政策與「可用性結果可呈現」狀態的關聯表。
+    預約政策與「可在可用性相關畫面呈現」的預約狀態關聯表。
 * booking_policy_occupying_statuses
     預約政策與「會占用營位庫存」狀態的關聯表。
 
@@ -17,8 +17,8 @@ booking_policies（固定單例 id = 1）
 
 ### 關聯
 * booking_policies：全站預約規則的中心；資料庫限制只能有 `id = 1` 的單一政策。
-* booking_policy_availability_statuses：定義哪些預約狀態會被納入可用性相關呈現；以 `(policy_id, status)` 作為複合主鍵，同一狀態不得重複設定。
-* booking_policy_occupying_statuses：定義哪些預約狀態會扣除營位可用量；以 `(policy_id, status)` 作為複合主鍵。
+* booking_policy_availability_statuses：定義哪些預約狀態會被納入可用性相關呈現；status 使用 `booking_status` 枚舉，以 `(policy_id, status)` 作為複合主鍵。
+* booking_policy_occupying_statuses：定義哪些預約狀態會扣除營位可用量；status 使用 `booking_status` 枚舉，並只允許 `pending`、`confirmed`。
 * 兩張狀態表均以 `policy_id` 參照 booking_policies.id。政策刪除時，狀態設定會以 `CASCADE` 一併刪除。
 
 ### 資料流程
@@ -53,7 +53,8 @@ booking_policies（固定單例 id = 1）
 ### booking_policy_availability_statuses
 * policy_id                   所屬預約政策
 
-* status                      可用性相關呈現使用的預約狀態；不得為空白字串。
+* status                      可用性相關呈現使用的預約狀態，型別為 `booking_status`。
+                              只允許 pending、confirmed、completed、cancelled。
                               *idx_booking_policy_availability_statuses_status*
 
 *(policy_id, status) 是複合主鍵；同一政策不能重複設定同一狀態。*
@@ -61,7 +62,8 @@ booking_policies（固定單例 id = 1）
 ### booking_policy_occupying_statuses
 * policy_id                   所屬預約政策
 
-* status                      會占用營位庫存的預約狀態；不得為空白字串。
+* status                      會占用營位庫存的預約狀態，型別為 `booking_status`。
+                              `ck_booking_policy_occupying_statuses_status` 只允許 pending、confirmed。
                               *idx_booking_policy_occupying_statuses_status*
 
 *(policy_id, status) 是複合主鍵；同一政策不能重複設定同一狀態。*
@@ -110,7 +112,7 @@ booking_policies（固定單例 id = 1）
 ## 可能的問題
 * 高風險：目前前端只讀 JSON 政策，正式資料庫的三張政策表尚未成為實際資料來源。
 * 高風險：前端 JSON 目前未提供 `availabilityStatuses[]`，因此 booking_policy_availability_statuses 無法由現行前端契約直接完整回填或驗證。
-* 中風險：兩張狀態表僅限制狀態不可空白，未限制為 bookings.status 的正式枚舉；應在 Service 或資料庫型別／參照表中統一狀態字典。
+* 高風險：前端 JSON 的 `occupyingStatuses[]` 仍包含 `completed`，但資料庫只允許 `pending`、`confirmed`；正式串接前必須統一占用規則。
 * 中風險：`date_boundary_hour` 已在資料庫保存，但目前前端日期計算未使用它；需明確定義跨日切換是否應影響預約窗口與可用量。
 * 中風險：updated_at 不會在 UPDATE 時自動刷新，應由 Spring Boot Service 統一更新。
-* 低風險：單例限制只保證 `id = 1`，不保證一定存在一筆政策；正式部署應以 seed migration 建立初始資料。
+* 低風險：單例限制只保證 `id = 1`，不保證一定存在一筆政策；正式初始化資料庫時仍須建立政策主檔與必要狀態設定。
