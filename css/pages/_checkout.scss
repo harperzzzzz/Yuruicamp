@@ -134,8 +134,13 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 }
 
 .checkoutPanelArrow {
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  border-top: 8px solid currentcolor;
   color: $checkout-muted;
-  font-size: 1.1rem;
   transition: transform 200ms ease;
 }
 
@@ -221,6 +226,16 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 .couponInput:focus {
   border-color: $checkout-primary;
   box-shadow: var(--yc-focus-ring);
+}
+
+.checkoutInput.isInvalid {
+  background: color-mix(in srgb, $checkout-danger 6%, $checkout-surface);
+  border-color: $checkout-danger;
+}
+
+.checkoutInput.isInvalid:focus {
+  border-color: $checkout-danger;
+  box-shadow: 0 0 0 3px color-mix(in srgb, $checkout-danger 24%, transparent);
 }
 
 .checkoutSecondaryAction {

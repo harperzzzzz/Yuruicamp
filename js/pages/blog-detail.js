@@ -77,10 +77,6 @@ function blogDetailFormatDate(dateStr) {
   return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
 }
 
-function blogDetailReadTime(value) {
-  return `${Number(value) || 1} 分鐘閱讀`;
-}
-
 function blogDetailMoney(value) {
   return `NT$ ${Number(value || 0).toLocaleString('zh-TW')}`;
 }
@@ -228,15 +224,7 @@ function blogDetailRenderArticle(article, allArticles, allProducts) {
 
   blogDetailSetText('breadcrumbTitle', article.title.length > 24 ? `${article.title.slice(0, 24)}...` : article.title);
   blogDetailSetText('articleCategory', article.category || '露營生活');
-  blogDetailSetText('articleAuthorName', article.author || 'Yurui 編輯部');
-  blogDetailSetText('articleReadTime', blogDetailReadTime(article.readTime));
   blogDetailSetText('articleTitle', article.title);
-
-  const avatarEl = document.getElementById('articleAuthorAvatar');
-  if (avatarEl) {
-    avatarEl.src = article.authorAvatar || 'https://picsum.photos/seed/yurui-author-default/80/80';
-    avatarEl.alt = article.author || '作者頭像';
-  }
 
   const dateEl = document.getElementById('articleDate');
   if (dateEl) {

@@ -1,4 +1,4 @@
-﻿// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yc-* 設計 token。
+// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yc-* 設計 token。
 $product-text: var(--yc-text);
 $product-muted: var(--yc-text-muted);
 $product-subtle: var(--yc-text-muted);
@@ -371,8 +371,7 @@ $product-rating: var(--yc-pending-line);
   margin-bottom: 0.5rem;
   max-height: 4.75rem;
   min-height: 4.75rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
   scrollbar-width: thin;
 }
 

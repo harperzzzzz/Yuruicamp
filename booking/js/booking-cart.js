@@ -1,9 +1,9 @@
 /**
  * booking-cart.js
  * 功能：預約背包確認頁（步驟 4）
- *   ① 讀取 LocalStorage（camelCase），渲染住宿 + 裝備項目（含數量調整器）
+ *   ① 讀取 LocalStorage（camelCase），渲染住宿 + 裝備項目
  *   ② 「修改日期」連結帶入正確 campgroundId
- *   ③ 住宿：調整營位數量，即時重算小計
+ *   ③ 住宿：每個已選營位固定為單次預約，不提供數量調整
  *   ④ 裝備：調整數量 / 刪除項目，即時重算小計
  *   ⑤ 右側摘要隨數量變化同步更新
  *   ⑥ 所有變更即時寫回 localStorage（camelCase）
@@ -26,6 +26,8 @@ $(document).ready(function () {
     bookingCart = window.writeBookingCart(bookingCart);
   }
 
+  normalizeStayQuantity();
+
   renderAll();
 
   // 清除背包
@@ -37,27 +39,6 @@ $(document).ready(function () {
       $('#bookingCartContent').removeClass('isVisible');
       showEmptyState();
     });
-  });
-
-  // 住宿數量調整
-  $('#bookingCartStayBody').on('click', '.quantityButtonBooking', function () {
-    var $btn = $(this);
-    var action = $btn.data('action');
-    var idx = parseInt($btn.data('idx'), 10);
-    var zone = bookingCart.selectedZones[idx];
-    if (!zone) return;
-
-    var unitPrice = zone.subtotal / zone.quantity;
-    var newQty = zone.quantity + (action === 'inc' ? 1 : -1);
-    if (newQty < 1 || newQty > 10) return;
-
-    zone.quantity = newQty;
-    zone.subtotal = Math.round(unitPrice * newQty);
-
-    recalcSummary();
-    saveCart();
-    renderStayBody();
-    renderSummary();
   });
 
   // 裝備數量調整
@@ -117,6 +98,21 @@ function renderAll() {
   $('#bookingCartContent').addClass('isVisible');
 }
 
+function normalizeStayQuantity() {
+  var changed = false;
+  (bookingCart.selectedZones || []).forEach(function (zone) {
+    var quantity = Math.max(Number(zone.quantity) || 1, 1);
+    if (quantity !== 1) {
+      zone.subtotal = Math.round((Number(zone.subtotal) || 0) / quantity);
+      changed = true;
+    }
+    zone.quantity = 1;
+  });
+  if (!changed) return;
+  recalcSummary();
+  saveCart();
+}
+
 function renderStayBody() {
   var info = bookingCart.bookingInfo || {};
   var zones = bookingCart.selectedZones || [];
@@ -128,8 +124,6 @@ function renderStayBody() {
 
   var html = zones
     .map(function (z, idx) {
-      var atMin = z.quantity <= 1;
-      var atMax = z.quantity >= 10;
       return `
       <div class="cartItem cartItemBooking">
         <div class="cartItemInfo cartItemInfoBooking">
@@ -141,13 +135,7 @@ function renderStayBody() {
           </div>
         </div>
         <div class="cartItemActions cartItemActionsBooking">
-          <div class="quantityStepper quantityStepperBooking">
-            <button class="quantityButton quantityButtonBooking" data-action="dec" data-idx="${idx}"${atMin ? ' disabled' : ''}>−</button>
-            <span class="quantityValue quantityValueBooking">${z.quantity}</span>
-            <button class="quantityButton quantityButtonBooking" data-action="inc" data-idx="${idx}"${atMax ? ' disabled' : ''}>+</button>
-          </div>
           <div class="cartItemPrice cartItemPriceBooking" id="zonePrice${idx}">NT$${z.subtotal.toLocaleString()}</div>
-          <div class="cartItemQtyLabel cartItemQtyLabelBooking">營位數量</div>
         </div>
       </div>
     `;

@@ -44,7 +44,7 @@
                 <span class="checkoutStepNumber">1</span>
                 <span class="checkoutPanelTitle" id="panelBuyerTitle">買家資訊</span>
               </span>
-              <span class="checkoutPanelArrow" aria-hidden="true">⌄</span>
+              <span class="checkoutPanelArrow" aria-hidden="true"></span>
             </button>
 
             <div class="checkoutPanelBody" id="panelBuyerBody">
@@ -118,7 +118,7 @@
                 <span class="checkoutStepNumber">2</span>
                 <span class="checkoutPanelTitle" id="panelShippingTitle">物流選擇</span>
               </span>
-              <span class="checkoutPanelArrow" aria-hidden="true">⌄</span>
+              <span class="checkoutPanelArrow" aria-hidden="true"></span>
             </button>
 
             <div class="checkoutPanelBody" id="panelShippingBody" hidden>
@@ -189,7 +189,7 @@
                 <span class="checkoutStepNumber">3</span>
                 <span class="checkoutPanelTitle" id="panelPaymentTitle">付款方式</span>
               </span>
-              <span class="checkoutPanelArrow" aria-hidden="true">⌄</span>
+              <span class="checkoutPanelArrow" aria-hidden="true"></span>
             </button>
 
             <div class="checkoutPanelBody" id="panelPaymentBody" hidden>
@@ -236,6 +236,8 @@
                     name="cardNumber"
                     placeholder="1234 5678 9012 3456"
                     maxlength="19"
+                    inputmode="numeric"
+                    required
                   />
                 </div>
                 <div class="checkoutFormGrid">
@@ -248,11 +250,23 @@
                       name="cardExpiry"
                       placeholder="MM / YY"
                       maxlength="7"
+                      inputmode="numeric"
+                      required
                     />
                   </div>
                   <div class="checkoutField">
                     <label class="checkoutLabel" for="cardCvv">CVV</label>
-                    <input class="checkoutInput" type="text" id="cardCvv" name="cardCvv" placeholder="123" maxlength="4" />
+                    <input
+                      class="checkoutInput"
+                      type="text"
+                      id="cardCvv"
+                      name="cardCvv"
+                      placeholder="123"
+                      minlength="3"
+                      maxlength="4"
+                      inputmode="numeric"
+                      required
+                    />
                   </div>
                 </div>
               </fieldset>

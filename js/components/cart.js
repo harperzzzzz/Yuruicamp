@@ -118,11 +118,9 @@
     var shipping = window.calculateShippingFee(subtotal);
     var total = subtotal + shipping;
     var subtotalEl = document.getElementById('summarySubtotal');
-    var shippingEl = document.getElementById('summaryShipping');
     var totalEl = document.getElementById('summaryTotal');
 
     if (subtotalEl) subtotalEl.textContent = window.formatCurrency(subtotal);
-    if (shippingEl) shippingEl.textContent = shipping === 0 ? '免運' : window.formatCurrency(shipping);
     if (totalEl) totalEl.textContent = window.formatCurrency(total);
     if (elements.footer) elements.footer.hidden = window.AppState.cart.length === 0;
   }

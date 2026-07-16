@@ -1,4 +1,4 @@
-﻿// 用途：pages/home.html 首頁專屬樣式；保留既有首頁與 home.js 動態產生的 class。
+// 用途：pages/home.html 首頁專屬樣式；保留既有首頁與 home.js 動態產生的 class。
 
 .homeProductLoadError {
   color: var(--yc-error);
@@ -466,8 +466,7 @@
   margin-bottom: var(--yc-space-2);
   max-height: 4.75rem;
   min-height: 4.75rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
   scrollbar-width: thin;
 }
 

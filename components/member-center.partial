@@ -16,21 +16,11 @@
 
   <div class="memberCenterShell" id="memberCenterShell" hidden>
     <nav class="memberMobileNavigation" aria-label="會員中心行動導覽">
-      <button class="memberMobileNavItem isActive" type="button" data-tab="overview" aria-controls="memberPanelOverview" aria-selected="true">
-        <i class="bi bi-house" aria-hidden="true"></i>總覽
-      </button>
-      <button class="memberMobileNavItem" type="button" data-tab="profile" aria-controls="memberPanelProfile" aria-selected="false">
-        <i class="bi bi-person" aria-hidden="true"></i>資料
-      </button>
-      <button class="memberMobileNavItem" type="button" data-tab="records" aria-controls="memberPanelRecords" aria-selected="false">
-        <i class="bi bi-receipt" aria-hidden="true"></i>紀錄
-      </button>
-      <button class="memberMobileNavItem" type="button" data-tab="coupons" aria-controls="memberPanelCoupons" aria-selected="false">
-        <i class="bi bi-ticket-perforated" aria-hidden="true"></i>折價券
-      </button>
-      <button class="memberMobileNavItem" type="button" data-tab="notifications" aria-controls="memberPanelNotifications" aria-selected="false">
-        <i class="bi bi-bell" aria-hidden="true"></i>通知
-      </button>
+      <button class="memberMobileNavItem isActive" type="button" data-tab="overview" aria-controls="memberPanelOverview" aria-selected="true"><i class="bi bi-house" aria-hidden="true"></i>總覽</button>
+      <button class="memberMobileNavItem" type="button" data-tab="profile" aria-controls="memberPanelProfile" aria-selected="false"><i class="bi bi-person" aria-hidden="true"></i>資料</button>
+      <button class="memberMobileNavItem" type="button" data-tab="records" aria-controls="memberPanelRecords" aria-selected="false"><i class="bi bi-receipt" aria-hidden="true"></i>紀錄</button>
+      <button class="memberMobileNavItem" type="button" data-tab="coupons" aria-controls="memberPanelCoupons" aria-selected="false"><i class="bi bi-ticket-perforated" aria-hidden="true"></i>折價券</button>
+      <button class="memberMobileNavItem" type="button" data-tab="notifications" aria-controls="memberPanelNotifications" aria-selected="false"><i class="bi bi-bell" aria-hidden="true"></i>通知</button>
     </nav>
 
     <div class="memberCenterLayout">
@@ -43,14 +33,7 @@
           </div>
         </div>
         <nav class="memberNavigation" aria-label="會員中心導覽">
-          <button
-            class="memberNavItem isActive"
-            type="button"
-            data-tab="overview"
-            aria-current="page"
-            aria-controls="memberPanelOverview"
-            aria-selected="true"
-          >
+          <button class="memberNavItem isActive" type="button" data-tab="overview" aria-current="page" aria-controls="memberPanelOverview" aria-selected="true">
             <i class="bi bi-house" aria-hidden="true"></i>
             <span class="memberNavLabel">總覽</span>
           </button>
@@ -77,7 +60,6 @@
         <section class="memberPanel isActive" id="memberPanelOverview" data-panel="overview" aria-labelledby="memberPanelOverviewTitle">
           <div class="memberPanelHeader">
             <h2 class="memberPanelTitle" id="memberPanelOverviewTitle">會員總覽</h2>
-            <p class="memberPanelDescription">快速查看點數、待處理事項與最近活動。</p>
           </div>
           <section class="memberTierCard" aria-labelledby="memberTierTitle">
             <div class="memberTierHeader">
@@ -127,44 +109,16 @@
         <section class="memberPanel" id="memberPanelProfile" data-panel="profile" aria-labelledby="memberPanelProfileTitle" hidden>
           <div class="memberPanelHeader">
             <h2 class="memberPanelTitle" id="memberPanelProfileTitle">會員資料</h2>
-            <p class="memberPanelDescription">更新聯絡資訊與個人露營偏好。</p>
           </div>
           <section class="memberPanelSection">
             <form class="memberProfileForm" id="profileForm" novalidate>
-              <div class="memberFormGroup">
-                <label class="memberFormLabel" for="profileName">姓名</label
-                ><input class="memberFormInput" type="text" id="profileName" name="name" placeholder="請輸入姓名" />
-              </div>
+              <div class="memberFormGroup"><label class="memberFormLabel" for="profileName">姓名</label><input class="memberFormInput" type="text" id="profileName" name="name" placeholder="請輸入姓名" /></div>
               <div class="memberFormGroup">
                 <label class="memberFormLabel" for="profilePhone">手機 <span class="requiredMark">*</span></label
-                ><input
-                  class="memberFormInput"
-                  type="tel"
-                  id="profilePhone"
-                  name="phone"
-                  maxlength="10"
-                  inputmode="numeric"
-                  pattern="09\d{8}"
-                  placeholder="0988744144"
-                  required
-                />
+                ><input class="memberFormInput" type="tel" id="profilePhone" name="phone" minlength="10" maxlength="10" inputmode="numeric" pattern="09\d{8}" autocomplete="tel" title="手機須為 09 開頭的 10 碼數字" placeholder="0988744144" required />
               </div>
-              <div class="memberFormGroup">
-                <label class="memberFormLabel" for="profileEmail">電子郵件</label
-                ><input
-                  class="memberFormInput"
-                  type="email"
-                  id="profileEmail"
-                  name="email"
-                  placeholder="your@email.com"
-                  readonly
-                  aria-readonly="true"
-                />
-              </div>
-              <div class="memberFormGroup">
-                <label class="memberFormLabel" for="profileBirthday">生日</label
-                ><input class="memberFormInput" type="date" id="profileBirthday" name="birthday" readonly aria-readonly="true" />
-              </div>
+              <div class="memberFormGroup"><label class="memberFormLabel" for="profileEmail">電子郵件</label><input class="memberFormInput" type="email" id="profileEmail" name="email" placeholder="your@email.com" readonly aria-readonly="true" /></div>
+              <div class="memberFormGroup"><label class="memberFormLabel" for="profileBirthday">生日</label><input class="memberFormInput" type="date" id="profileBirthday" name="birthday" readonly aria-readonly="true" /></div>
               <div class="memberFormGroup memberFormGroupFull shippingAddressFieldGroup">
                 <div class="shippingAddressBlock">
                   <span class="shippingAddressLabel">配送地址</span>
@@ -172,13 +126,7 @@
                     <div id="shippingAddressDisplay" class="shippingAddressDisplay" aria-live="polite">
                       <span class="shippingAddressEmpty">尚未設定</span>
                     </div>
-                    <button
-                      type="button"
-                      class="shippingAddressEditBtn"
-                      id="shippingAddressEditBtn"
-                      aria-label="編輯配送地址"
-                      title="編輯配送地址"
-                    >
+                    <button type="button" class="shippingAddressEditBtn" id="shippingAddressEditBtn" aria-label="編輯配送地址" title="編輯配送地址">
                       <i class="bi bi-pencil" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -187,24 +135,8 @@
               <fieldset class="memberFormGroup memberFormGroupFull">
                 <legend class="memberFormLabel">露營偏好</legend>
                 <div class="memberPreferenceList" id="prefTags">
-                  <button class="memberPreferenceTag" type="button" data-value="glamping">Glamping</button
-                  ><button class="memberPreferenceTag" type="button" data-value="backpacking">背包旅行</button
-                  ><button class="memberPreferenceTag" type="button" data-value="family">家庭露營</button
-                  ><button class="memberPreferenceTag" type="button" data-value="solo">獨旅</button
-                  ><button class="memberPreferenceTag" type="button" data-value="hiking">登山健行</button
-                  ><button class="memberPreferenceTag" type="button" data-value="car-camping">車宿</button
-                  ><button class="memberPreferenceTag" type="button" data-value="ultralight">輕量化</button
-                  ><button class="memberPreferenceTag" type="button" data-value="base-camp">基地營</button
-                  ><button class="memberPreferenceTag" type="button" data-value="tent">帳篷</button
-                  ><button class="memberPreferenceTag" type="button" data-value="sleeping-bag">睡袋</button
-                  ><button class="memberPreferenceTag" type="button" data-value="backpack">背包</button
-                  ><button class="memberPreferenceTag" type="button" data-value="cooking">炊具</button
-                  ><button class="memberPreferenceTag" type="button" data-value="lighting">照明</button
-                  ><button class="memberPreferenceTag" type="button" data-value="clothing">服飾</button
-                  ><button class="memberPreferenceTag" type="button" data-value="chair">椅凳</button
-                  ><button class="memberPreferenceTag" type="button" data-value="navigation">導航</button
-                  ><button class="memberPreferenceTag" type="button" data-value="safety">安全用品</button
-                  ><button class="memberPreferenceTag" type="button" data-value="photography">攝影</button>
+                  <button class="memberPreferenceTag" type="button" data-value="glamping">Glamping</button><button class="memberPreferenceTag" type="button" data-value="backpacking">背包旅行</button><button class="memberPreferenceTag" type="button" data-value="family">家庭露營</button><button class="memberPreferenceTag" type="button" data-value="solo">獨旅</button><button class="memberPreferenceTag" type="button" data-value="hiking">登山健行</button><button class="memberPreferenceTag" type="button" data-value="car-camping">車宿</button><button class="memberPreferenceTag" type="button" data-value="ultralight">輕量化</button><button class="memberPreferenceTag" type="button" data-value="base-camp">基地營</button><button class="memberPreferenceTag" type="button" data-value="tent">帳篷</button><button class="memberPreferenceTag" type="button" data-value="sleeping-bag">睡袋</button><button class="memberPreferenceTag" type="button" data-value="backpack">背包</button
+                  ><button class="memberPreferenceTag" type="button" data-value="cooking">炊具</button><button class="memberPreferenceTag" type="button" data-value="lighting">照明</button><button class="memberPreferenceTag" type="button" data-value="clothing">服飾</button><button class="memberPreferenceTag" type="button" data-value="chair">椅凳</button><button class="memberPreferenceTag" type="button" data-value="navigation">導航</button><button class="memberPreferenceTag" type="button" data-value="safety">安全用品</button><button class="memberPreferenceTag" type="button" data-value="photography">攝影</button>
                 </div>
               </fieldset>
               <div class="memberFormActions">
@@ -220,16 +152,9 @@
         <section class="memberPanel" id="memberPanelRecords" data-panel="records" aria-labelledby="memberPanelRecordsTitle" hidden>
           <div class="memberPanelHeader">
             <h2 class="memberPanelTitle" id="memberPanelRecordsTitle">訂單紀錄</h2>
-            <p class="memberPanelDescription">查看購買訂單與露營預約狀態。</p>
           </div>
           <section class="memberPanelSection">
-            <div class="memberRecordTabs" role="tablist" aria-label="紀錄類型">
-              <button class="memberRecordTab isActive" type="button" data-rec="purchase" aria-selected="true" aria-controls="purchaseOrdersPanel">
-                購買紀錄</button
-              ><button class="memberRecordTab" type="button" data-rec="rental" aria-selected="false" aria-controls="rentalOrdersPanel">
-                露營預約
-              </button>
-            </div>
+            <div class="memberRecordTabs" role="tablist" aria-label="紀錄類型"><button class="memberRecordTab isActive" type="button" data-rec="purchase" aria-selected="true" aria-controls="purchaseOrdersPanel">購買紀錄</button><button class="memberRecordTab" type="button" data-rec="rental" aria-selected="false" aria-controls="rentalOrdersPanel">露營預約</button></div>
             <div class="memberRecordPanel isActive" id="purchaseOrdersPanel" data-rec-panel="purchase" data-order-panel="purchase">
               <div class="memberOrderFilters" id="purchaseOrderStatusTabs" data-order-status-tabs="purchase"></div>
               <div class="memberOrderList" id="ordersList">
@@ -248,16 +173,9 @@
         <section class="memberPanel" id="memberPanelCoupons" data-panel="coupons" aria-labelledby="memberPanelCouponsTitle" hidden>
           <div class="memberPanelHeader">
             <h2 class="memberPanelTitle" id="memberPanelCouponsTitle">折價券</h2>
-            <p class="memberPanelDescription">管理可使用與已失效的會員折價券。</p>
           </div>
           <section class="memberPanelSection">
-            <div class="memberRecordTabs" role="tablist" aria-label="折價券狀態">
-              <button class="memberRecordTab isActive" type="button" data-coupon-tab="available" aria-selected="true" aria-controls="activeCoupons">
-                可使用</button
-              ><button class="memberRecordTab" type="button" data-coupon-tab="unavailable" aria-selected="false" aria-controls="expiredCoupons">
-                已失效
-              </button>
-            </div>
+            <div class="memberRecordTabs" role="tablist" aria-label="折價券狀態"><button class="memberRecordTab isActive" type="button" data-coupon-tab="available" aria-selected="true" aria-controls="activeCoupons">可使用</button><button class="memberRecordTab" type="button" data-coupon-tab="unavailable" aria-selected="false" aria-controls="expiredCoupons">已失效</button></div>
             <div class="memberCouponList" id="activeCoupons"></div>
             <div class="memberCouponList" id="expiredCoupons" hidden></div>
           </section>
@@ -301,17 +219,9 @@
           <p class="memberReviewProduct" id="reviewProductName">商品名稱</p>
           <fieldset class="memberReviewFieldset">
             <legend class="memberReviewLabel">評分</legend>
-            <div class="memberRatingControl" id="reviewRatingGroup" role="radiogroup" aria-label="評分">
-              <button type="button" class="memberRatingStar" data-review-rating="1" aria-label="1 分">★</button
-              ><button type="button" class="memberRatingStar" data-review-rating="2" aria-label="2 分">★</button
-              ><button type="button" class="memberRatingStar" data-review-rating="3" aria-label="3 分">★</button
-              ><button type="button" class="memberRatingStar" data-review-rating="4" aria-label="4 分">★</button
-              ><button type="button" class="memberRatingStar" data-review-rating="5" aria-label="5 分">★</button>
-            </div>
+            <div class="memberRatingControl" id="reviewRatingGroup" role="radiogroup" aria-label="評分"><button type="button" class="memberRatingStar" data-review-rating="1" aria-label="1 分">★</button><button type="button" class="memberRatingStar" data-review-rating="2" aria-label="2 分">★</button><button type="button" class="memberRatingStar" data-review-rating="3" aria-label="3 分">★</button><button type="button" class="memberRatingStar" data-review-rating="4" aria-label="4 分">★</button><button type="button" class="memberRatingStar" data-review-rating="5" aria-label="5 分">★</button></div>
           </fieldset>
-          <label class="memberReviewLabel" for="reviewContent">評論內容</label
-          ><textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4" placeholder="分享這次使用心得"></textarea
-          ><button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn" type="submit">送出評價</button>
+          <label class="memberReviewLabel" for="reviewContent">評論內容</label><textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4" placeholder="分享這次使用心得"></textarea><button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn" type="submit">送出評價</button>
         </form>
       </div>
     </section>

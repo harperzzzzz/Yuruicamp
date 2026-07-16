@@ -104,23 +104,7 @@
   padding: 0.25rem 0.75rem;
 }
 
-.blogDetailAuthor {
-  align-items: center;
-  color: var(--yc-text);
-  display: inline-flex;
-  gap: var(--yc-space-2, 8px);
-  font-weight: 700;
-}
-
-.blogDetailAuthorAvatar {
-  border-radius: 50%;
-  height: 36px;
-  object-fit: cover;
-  width: 36px;
-}
-
-.blogDetailPublishedDate,
-.blogDetailReadTime {
+.blogDetailPublishedDate {
   color: var(--yc-text-muted);
   font-size: 0.875rem;
 }

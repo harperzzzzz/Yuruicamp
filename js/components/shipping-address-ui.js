@@ -312,6 +312,9 @@
     if (form && !form.dataset.fieldErrorsBound) {
       form.dataset.fieldErrorsBound = 'true';
       form.addEventListener('input', function (e) {
+        if (e.target && e.target.id === FIELD_IDS.phone) {
+          e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+        }
         if (e.target && e.target.classList.contains('isInvalid')) {
           clearSingleFieldError(e.target);
         }

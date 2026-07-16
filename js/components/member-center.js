@@ -63,6 +63,9 @@
     review: { orderId: '', itemName: '', rating: 0 },
     lastFocus: null,
     initialized: false,
+    dataLoading: false,
+    dataReloadQueued: false,
+    refreshEventsBound: false,
   };
 
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -214,8 +217,7 @@
       var info = (order && order.bookingInfo) || {};
       return '營地：' + (info.campgroundName || '--') + '（' + (info.region || '--') + '）';
     }
-    if (order.shippingMethod === 'store')
-      return '取貨門市：' + (order.storeAddress || order.address || '--');
+    if (order.shippingMethod === 'store') return '取貨門市：' + (order.storeAddress || order.address || '--');
     return '配送地址：' + (order.address || order.storeAddress || '--');
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -323,12 +325,18 @@
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function renderProgress() {
-    var spent = Number(state.user && state.user.totalSpent) || state.orders.reduce(function (t, o) {
-      return norm('purchase', o.status) === 'completed' ? t + (Number(o.subtotal) || 0) : t;
-    }, 0);
+    var spent =
+      Number(state.user && state.user.totalSpent) ||
+      state.orders.reduce(function (t, o) {
+        return norm('purchase', o.status) === 'completed' ? t + (Number(o.subtotal) || 0) : t;
+      }, 0);
     var nextThreshold = window.getNextTierThreshold
       ? window.getNextTierThreshold(spent)
-      : (spent >= 28000 ? null : spent >= 12000 ? 28000 : 12000);
+      : spent >= 28000
+        ? null
+        : spent >= 12000
+          ? 28000
+          : 12000;
     var progress = nextThreshold ? Math.min(Math.round((spent / nextThreshold) * 100), 100) : 100;
     text('nextTierSpend', money(Math.max((nextThreshold || spent) - spent, 0)));
     var bar = document.getElementById('tierProgressBar');
@@ -607,9 +615,7 @@
       .map(function (n) {
         var seen = Boolean(n.read);
         // 訂單通知：掛 data-notification-order-detail，點擊可開訂單明細
-        var orderAttr = n.orderId
-          ? ' data-notification-order-detail="' + html(n.orderId) + '"'
-          : '';
+        var orderAttr = n.orderId ? ' data-notification-order-detail="' + html(n.orderId) + '"' : '';
         var clickable = n.orderId ? ' isClickable' : '';
         return (
           '<article class="memberNotification' +
@@ -659,7 +665,7 @@
         id: o.id,
       });
     });
-    ((state.notifications) || []).slice(0, 2).forEach(function (n) {
+    (state.notifications || []).slice(0, 2).forEach(function (n) {
       list.push({ date: n.time, title: n.title });
     });
     list.sort(function (a, b) {
@@ -719,17 +725,18 @@
     text('statUnread', unread);
   }
   function detailRows(order, st, type) {
-    var items = type === 'rental' ? bookingDetailItems(order) : (Array.isArray(order.items) ? order.items : []);
+    var items = type === 'rental' ? bookingDetailItems(order) : Array.isArray(order.items) ? order.items : [];
     var itemTitleLabel = type === 'rental' ? '預約明細' : '商品明細';
     var subtotalLabel = type === 'rental' ? '預約費用' : '商品小計';
     var shippingFee = Number(order.shippingFee || 0);
-    var orderDate = type === 'rental' ? (order.submittedAt || '--') : (order.createdAt || '--');
+    var orderDate = type === 'rental' ? order.submittedAt || '--' : order.createdAt || '--';
     var orderTotal = type === 'rental' ? bookingAmount(order) : order.total;
-    var orderSubtotal = type === 'rental'
-      ? (order.summary
+    var orderSubtotal =
+      type === 'rental'
+        ? order.summary
           ? (Number(order.summary.zoneTotal) || 0) + (Number(order.summary.rentalTotal) || 0)
-          : bookingAmount(order))
-      : order.subtotal;
+          : bookingAmount(order)
+        : order.subtotal;
     var infoRows = [
       '<p class="memberDetailMeta"><i class="bi bi-credit-card" aria-hidden="true"></i><span>付款方式：' +
         html(paymentLabel(order.payment)) +
@@ -790,9 +797,7 @@
             '<h4 class="memberDetailItemName">' +
             html(i.name || '商品') +
             '</h4>' +
-            (i.specLabel
-              ? '<p class="memberDetailItemSpec">' + html(i.specLabel) + '</p>'
-              : '') +
+            (i.specLabel ? '<p class="memberDetailItemSpec">' + html(i.specLabel) + '</p>' : '') +
             '<p class="memberDetailItemMeta">x ' +
             quantity +
             '，' +
@@ -823,7 +828,9 @@
           '</span></div>'
         : '') +
       (order.deposit
-        ? '<div class="memberDetailRow"><span class="memberDetailRowLabel">押金</span><span class="memberDetailRowValue">' + money(order.deposit) + '</span></div>'
+        ? '<div class="memberDetailRow"><span class="memberDetailRowLabel">押金</span><span class="memberDetailRowValue">' +
+          money(order.deposit) +
+          '</span></div>'
         : '') +
       '<div class="memberDetailRow memberDetailRowTotal"><span class="memberDetailRowLabel">訂單總計</span><span class="memberDetailRowValue">' +
       money(orderTotal) +
@@ -964,6 +971,11 @@
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   async function loadData() {
+    if (state.dataLoading) {
+      state.dataReloadQueued = true;
+      return;
+    }
+    state.dataLoading = true;
     var uid = currentMemberId();
     if (!window.API) {
       state.user = null;
@@ -972,6 +984,7 @@
       state.availableCoupons = [];
       state.notifications = [];
       applyLogin();
+      state.dataLoading = false;
       return;
     }
     try {
@@ -1023,6 +1036,64 @@
     renderActivity();
     updateStats();
     applyLogin();
+    state.dataLoading = false;
+    if (state.dataReloadQueued) {
+      state.dataReloadQueued = false;
+      loadData();
+    }
+  }
+
+  // 會員中心改採事件驅動更新，避免固定間隔重讀全部 Mock 資料。
+  function bindRefreshEvents() {
+    if (state.refreshEventsBound) return;
+    state.refreshEventsBound = true;
+
+    window.addEventListener('yurui:auth-changed', function (event) {
+      applyLogin();
+      if (event.detail && event.detail.type === 'logout') {
+        state.user = null;
+        state.orders = [];
+        state.rentalOrders = [];
+        state.availableCoupons = [];
+        state.notifications = [];
+        return;
+      }
+      if (loggedIn()) loadData();
+    });
+
+    window.addEventListener('storage', function (event) {
+      var refreshKeys = [
+        cfg.authStorageKey,
+        cfg.fallbackAuthStorageKey,
+        'currentUser',
+        'yuruiUser',
+        'mockOrders',
+        'mockBookings',
+        'mockReviews',
+        'mockCustomerOverlay',
+        'mockCustomerRelations',
+      ];
+      if (refreshKeys.indexOf(event.key) !== -1) {
+        applyLogin();
+        if (loggedIn()) loadData();
+      }
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && loggedIn()) loadData();
+    });
+
+    window.addEventListener('yurui:shipping-address-updated', function (event) {
+      if (!state.user || !event.detail || event.detail.userId !== state.user.id) return;
+      state.user.shippingAddress = event.detail.address;
+      applyProfile();
+    });
+
+    window.addEventListener('yurui:preferences-updated', function (event) {
+      if (!state.user) return;
+      state.user.preferences = event.detail || state.user.preferences;
+      applyProfile();
+    });
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function bind() {
@@ -1111,6 +1182,7 @@
       if (profilePhoneInput && !profilePhoneInput.dataset.errorBound) {
         profilePhoneInput.dataset.errorBound = 'true';
         profilePhoneInput.addEventListener('input', function () {
+          profilePhoneInput.value = profilePhoneInput.value.replace(/\D/g, '').slice(0, 10);
           if (profilePhoneInput.classList.contains('isInvalid')) {
             clearMemberFieldError('profilePhone');
           }
@@ -1130,7 +1202,9 @@
         }
         var s = savedProfile();
         s.name = document.getElementById('profileName').value.trim();
-        s.phone = window.normalizeMobile ? window.normalizeMobile(phoneRaw) : phoneRaw.replace(/[\s\-()]/g, '');
+        s.phone = window.normalizeMobile
+          ? window.normalizeMobile(phoneRaw)
+          : phoneRaw.replace(/[\s\-()]/g, '');
         s.birthday = document.getElementById('profileBirthday').value;
         s.preferences = prefObject(
           Array.from(document.querySelectorAll('#prefTags .memberPreferenceTag.isSelected')).map(
@@ -1145,7 +1219,13 @@
           window.AppState.currentUser.phone = s.phone;
           window.saveAppState && window.saveAppState();
         }
-        if (window.API && window.API.customers && window.API.customers.update && state.user && state.user.id) {
+        if (
+          window.API &&
+          window.API.customers &&
+          window.API.customers.update &&
+          state.user &&
+          state.user.id
+        ) {
           window.API.customers.update(state.user.id, { phone: s.phone }).catch(function (err) {
             console.warn('Sync profile phone failed', err);
           });
@@ -1352,15 +1432,7 @@
     switchCoupon('available');
     applyLogin();
     loadData();
-    window.clearInterval(state.loginTimer);
-    state.loginTimer = window.setInterval(applyLogin, 1500);
-    window.clearInterval(state.pointsTimer);
-    state.pointsTimer = window.setInterval(
-      function () {
-        if (loggedIn()) loadData();
-      },
-      Number(cfg.pointsRefreshMs) || 5000
-    );
+    bindRefreshEvents();
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   window.initMemberCenterComponent = function () {

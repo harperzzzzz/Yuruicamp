@@ -1,4 +1,4 @@
-﻿// 會員中心頁 token alias：把會員中心局部變數對應到全站 --yc-* 設計 token。
+// 會員中心頁 token alias：把會員中心局部變數對應到全站 --yc-* 設計 token。
 $member-text: var(--yc-text);
 $member-muted: var(--yc-text-muted);
 $member-subtle: var(--yc-text-muted);
@@ -303,7 +303,7 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
 }
 
 .memberTierProgress {
-  background: rgb(255 255 255 / 0.7);
+  background: rgb(255 255 255 / 70%);
   border-radius: var(--yc-radius-pill, 9999px);
   height: 10px;
   overflow: hidden;

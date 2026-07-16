@@ -1,4 +1,4 @@
-﻿.searchPage {
+.searchPage {
   min-height: 100vh;
   padding-top: 2rem;
   padding-bottom: 4rem;
@@ -364,19 +364,13 @@
 }
 
 .campCardBadgeFull {
-  top: auto;
-  bottom: 0.75rem;
-  left: auto;
-  right: 0.75rem;
+  inset: auto 0.75rem 0.75rem auto;
   background: #f8d7da;
   color: #842029;
 }
 
 .campCardBadgeClosed {
-  top: auto;
-  bottom: 0.75rem;
-  left: auto;
-  right: 0.75rem;
+  inset: auto 0.75rem 0.75rem auto;
   background: #e2d9f3;
   color: #5a3d8a;
 }

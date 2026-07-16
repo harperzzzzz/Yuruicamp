@@ -75,10 +75,7 @@ function blogNormalizeArticle(article) {
     image: article.image,
     category: article.category,
     excerpt: article.excerpt,
-    author: article.author,
-    authorAvatar: article.authorAvatar,
     publishedDate: article.publishedDate,
-    readTime: article.readTime,
     isFeatured: article.isFeatured === true,
   };
 }
@@ -91,16 +88,9 @@ function blogIsValidArticle(article) {
       article.image &&
       article.category &&
       article.excerpt &&
-      article.author &&
-      article.authorAvatar &&
       article.publishedDate &&
-      article.readTime !== undefined &&
       Object.prototype.hasOwnProperty.call(article, 'isFeatured'),
   );
-}
-
-function blogReadTime(value) {
-  return `${Number(value) || 1} 分鐘閱讀`;
 }
 
 function blogArticleHref(article) {
@@ -118,13 +108,6 @@ function blogBuildArticleCard(article) {
           <span class="blogArticleTag">${blogEscape(article.category)}</span>
           <span class="blogArticleTitle">${blogEscape(article.title)}</span>
           <span class="blogArticleExcerpt">${blogEscape(article.excerpt)}</span>
-          <span class="blogArticleMeta">
-            <span class="blogArticleAuthor">
-              <img class="blogArticleAuthorAvatar" src="${blogEscape(article.authorAvatar)}" alt="${blogEscape(article.author)}" loading="lazy">
-              <span>${blogEscape(article.author)}</span>
-            </span>
-            <span class="blogArticleReadTime">${blogEscape(blogReadTime(article.readTime))}</span>
-          </span>
         </span>
       </a>
     </article>
@@ -145,12 +128,7 @@ function blogRenderFeaturedArticle(article) {
           <span class="blogFeaturedTag">${blogEscape(article.category)}</span>
           <span class="blogFeaturedTitle" id="blogFeaturedTitle">${blogEscape(article.title)}</span>
           <span class="blogFeaturedMeta">
-            <span class="blogFeaturedAuthor">
-              <img class="blogFeaturedAuthorAvatar" src="${blogEscape(article.authorAvatar)}" alt="${blogEscape(article.author)}" loading="lazy">
-              <span>${blogEscape(article.author)}</span>
-            </span>
             <span>${blogEscape(blogFormatDate(article.publishedDate))}</span>
-            <span class="blogFeaturedReadTime">${blogEscape(blogReadTime(article.readTime))}</span>
           </span>
         </span>
       </a>

@@ -1088,7 +1088,7 @@ body.shippingAddressModalOpen {
   flex-basis: 5.5rem;
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .shippingAddressFormRowSplit,
   .shippingAddressFormRowPostal {
     grid-template-columns: 1fr;
@@ -1256,6 +1256,50 @@ body.shippingAddressModalOpen {
   width: 100% !important;
 }
 
+.toast {
+  position: fixed;
+  right: var(--yc-space-6, 24px);
+  bottom: var(--yc-space-6, 24px);
+  z-index: var(--yc-z-toast, 60);
+  width: min(360px, 100vw - 32px);
+  min-height: var(--yc-target-min, 44px);
+  padding: var(--yc-space-3, 12px) var(--yc-space-4, 16px);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 12px);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-hover);
+  color: var(--yc-text);
+  font-weight: 700;
+  animation: toast-slide-in var(--yc-transition-base);
+}
+
+.toast.error {
+  border-color: var(--yc-error);
+  background: var(--yc-error-soft);
+  color: var(--yc-error-text);
+}
+
+@keyframes toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@media (width <= 480px) {
+  .toast {
+    right: var(--yc-space-4, 16px);
+    bottom: var(--yc-space-4, 16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation-duration: 0.01ms;
+  }
+}
 .siteFooter,
 .bookingFooter {
   color: var(--yc-surface);
@@ -2125,23 +2169,7 @@ body.shippingAddressModalOpen {
   padding: 0.25rem 0.75rem;
 }
 
-.blogDetailAuthor {
-  align-items: center;
-  color: var(--yc-text);
-  display: inline-flex;
-  gap: var(--yc-space-2, 8px);
-  font-weight: 700;
-}
-
-.blogDetailAuthorAvatar {
-  border-radius: 50%;
-  height: 36px;
-  object-fit: cover;
-  width: 36px;
-}
-
-.blogDetailPublishedDate,
-.blogDetailReadTime {
+.blogDetailPublishedDate {
   color: var(--yc-text-muted);
   font-size: 0.875rem;
 }
@@ -2536,10 +2564,7 @@ body.shippingAddressModalOpen {
   max-width: 760px;
 }
 
-.blogFeaturedMeta,
-.blogArticleMeta,
-.blogFeaturedAuthor,
-.blogArticleAuthor {
+.blogFeaturedMeta {
   align-items: center;
   display: flex;
 }
@@ -2549,40 +2574,6 @@ body.shippingAddressModalOpen {
   flex-wrap: wrap;
   font-size: 0.875rem;
   gap: var(--yc-space-3, 12px);
-}
-
-.blogArticleMeta {
-  border-top: 1px solid var(--yc-border);
-  color: var(--yc-text-muted);
-  font-size: 0.8125rem;
-  gap: var(--yc-space-3, 12px);
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: var(--yc-space-4, 16px);
-}
-
-.blogFeaturedAuthor,
-.blogArticleAuthor {
-  gap: var(--yc-space-2, 8px);
-  min-width: 0;
-}
-
-.blogFeaturedAuthorAvatar,
-.blogArticleAuthorAvatar {
-  border-radius: 50%;
-  flex: 0 0 auto;
-  object-fit: cover;
-}
-
-.blogFeaturedAuthorAvatar {
-  border: 2px solid rgba(255, 255, 255, 0.52);
-  height: 32px;
-  width: 32px;
-}
-
-.blogArticleAuthorAvatar {
-  height: 28px;
-  width: 28px;
 }
 
 .blogCategoryTabs {
@@ -2648,7 +2639,7 @@ body.shippingAddressModalOpen {
 .blogArticlesGrid {
   display: grid;
   gap: var(--yc-space-5, 20px);
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .blogArticleCard {
@@ -2707,10 +2698,6 @@ body.shippingAddressModalOpen {
   -webkit-line-clamp: 3;
 }
 
-.blogArticleReadTime {
-  white-space: nowrap;
-}
-
 .blogLoadingState,
 .blogEmptyState,
 .blogErrorState {
@@ -2761,6 +2748,9 @@ body.shippingAddressModalOpen {
   .blogFeaturedLink {
     min-height: 380px;
   }
+  .blogArticlesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (width <= 768px) {
   .blogHeroContent,
@@ -2789,8 +2779,7 @@ body.shippingAddressModalOpen {
   .blogArticleContent {
     padding: var(--yc-space-4, 16px);
   }
-  .blogFeaturedMeta,
-  .blogArticleMeta {
+  .blogFeaturedMeta {
     align-items: flex-start;
     display: grid;
   }
@@ -3829,8 +3818,13 @@ body.shippingAddressModalOpen {
 }
 
 .checkoutPanelArrow {
+  width: 0;
+  height: 0;
+  flex: 0 0 auto;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  border-top: 8px solid currentcolor;
   color: var(--yc-text-muted);
-  font-size: 1.1rem;
   transition: transform 200ms ease;
 }
 
@@ -3916,6 +3910,16 @@ body.shippingAddressModalOpen {
 .couponInput:focus {
   border-color: var(--yc-sage-action);
   box-shadow: var(--yc-focus-ring);
+}
+
+.checkoutInput.isInvalid {
+  background: color-mix(in srgb, var(--yc-error) 6%, var(--yc-surface));
+  border-color: var(--yc-error);
+}
+
+.checkoutInput.isInvalid:focus {
+  border-color: var(--yc-error);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-error) 24%, transparent);
 }
 
 .checkoutSecondaryAction {
@@ -5251,8 +5255,7 @@ body.shippingAddressModalOpen {
   margin-bottom: var(--yc-space-2);
   max-height: 4.75rem;
   min-height: 4.75rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
   scrollbar-width: thin;
 }
 
@@ -8765,8 +8768,7 @@ main.productDetailContainer {
   margin-bottom: 0.5rem;
   max-height: 4.75rem;
   min-height: 4.75rem;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
   scrollbar-width: thin;
 }
 

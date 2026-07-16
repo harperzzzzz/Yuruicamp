@@ -81,6 +81,7 @@ window.initCheckoutPage = async () => {
   _initAccordionPanels();
   _initShippingMethodChange();
   _initPaymentMethodChange();
+  _initCheckoutInputValidation();
   _initFillProfileBtn();
   _initConfirmOrderBtn();
   _initCheckoutCoupon();
@@ -496,6 +497,9 @@ function _readCheckoutFormData() {
     buyerName: document.getElementById('buyerName')?.value.trim() || '',
     buyerPhone: document.getElementById('buyerPhone')?.value.trim() || '',
     buyerEmail: document.getElementById('buyerEmail')?.value.trim() || '',
+    cardNumber: document.getElementById('cardNumber')?.value.replace(/\D/g, '') || '',
+    cardExpiry: document.getElementById('cardExpiry')?.value.trim() || '',
+    cardCvv: document.getElementById('cardCvv')?.value.trim() || '',
     shippingAddress,
     deliveryAddress: window.formatShippingAddressLine
       ? window.formatShippingAddressLine(shippingAddress)
@@ -504,9 +508,23 @@ function _readCheckoutFormData() {
   };
 }
 
+function _initCheckoutInputValidation() {
+  document.querySelectorAll('input.checkoutInput').forEach(input => {
+    input.addEventListener('input', () => {
+      input.classList.remove('isInvalid');
+      input.removeAttribute('aria-invalid');
+    });
+  });
+}
+
 // Validate checkout form and focus the first invalid field.
 function _validateCheckoutForm(data) {
-  const rules = [
+  document.querySelectorAll('input.checkoutInput.isInvalid').forEach(input => {
+    input.classList.remove('isInvalid');
+    input.removeAttribute('aria-invalid');
+  });
+
+  const buyerRules = [
     { valid: data.buyerName, field: 'buyerName', message: '請輸入姓名' },
     { valid: data.buyerPhone, field: 'buyerPhone', message: '請輸入手機' },
     {
@@ -518,20 +536,54 @@ function _validateCheckoutForm(data) {
     { valid: window.isValidEmail(data.buyerEmail), field: 'buyerEmail', message: 'Email 格式不正確' },
   ];
 
+  const paymentRules = [];
+  if (_getSelectedPaymentCode() === 'credit-card') {
+    paymentRules.push(
+      { valid: /^\d{16}$/.test(data.cardNumber), field: 'cardNumber', message: '信用卡卡號須為 16 碼數字' },
+      { valid: /^(0[1-9]|1[0-2])\s*\/\s*\d{2}$/.test(data.cardExpiry), field: 'cardExpiry', message: '到期日格式須為 MM / YY' },
+      { valid: /^\d{3,4}$/.test(data.cardCvv), field: 'cardCvv', message: 'CVV 須為 3 或 4 碼數字' },
+    );
+  }
+
+  const failedBuyerRules = buyerRules.filter(rule => !rule.valid);
+  const failedPaymentRules = paymentRules.filter(rule => !rule.valid);
+  [...failedBuyerRules, ...failedPaymentRules].forEach(rule => {
+      const input = document.getElementById(rule.field);
+      input?.classList.add('isInvalid');
+      input?.setAttribute('aria-invalid', 'true');
+  });
+
+  if (failedBuyerRules.length > 0) {
+    _openCheckoutPanel('panelBuyer');
+    window.showToast('會員資料格式不符', 'error');
+    document.getElementById(failedBuyerRules[0].field)?.focus();
+    return false;
+  }
+
   if (selectedShippingMethod === 'delivery') {
     const addrResult = window.YuruiShippingAddress?.validate(data.shippingAddress);
     if (!addrResult?.ok) {
-      window.showToast(addrResult?.errors?.[0] || '請設定送達地址', 'warning');
+      _openCheckoutPanel('panelShipping');
+      window.showToast('運送地址格式不符', 'error');
       document.getElementById('checkoutShippingAddressEditBtn')?.focus();
       return false;
     }
   }
 
-  const failed = rules.find(rule => !rule.valid);
-  if (!failed) return true;
-  window.showToast(failed.message, 'warning');
-  document.getElementById(failed.field)?.focus();
-  return false;
+  if (failedPaymentRules.length > 0) {
+    _openCheckoutPanel('panelPayment');
+    window.showToast('付款方式格式不符', 'error');
+    document.getElementById(failedPaymentRules[0].field)?.focus();
+    return false;
+  }
+
+  return true;
+}
+
+function _openCheckoutPanel(panelId) {
+  const panel = document.getElementById(panelId);
+  const trigger = panel?.querySelector('[data-panel-trigger]');
+  if (trigger) _setPanelOpen(trigger, true);
 }
 
 // Toggle confirm button loading state.

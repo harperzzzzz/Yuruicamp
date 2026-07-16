@@ -251,7 +251,7 @@ body.shippingAddressModalOpen {
   flex-basis: 5.5rem;
 }
 
-@media (max-width: 560px) {
+@media (width <= 560px) {
   .shippingAddressFormRowSplit,
   .shippingAddressFormRowPostal {
     grid-template-columns: 1fr;
