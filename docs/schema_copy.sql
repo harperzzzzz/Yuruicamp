@@ -1,5 +1,5 @@
--- Yuruicamp schema snapshot through V747.
--- Generated from a validated V001-V747 database; never use this file to upgrade an existing database.
+-- Yuruicamp schema snapshot through V753.
+-- Generated from the V001-V753 Flyway schema; never use this file to upgrade an existing database.
 -- Flyway migration files remain the only upgrade source of truth.
 
 --
@@ -344,18 +344,6 @@ BEGIN
     USING ERRCODE = '23000';
 END;
 $$;
-
-
---
--- Name: reject_legacy_review_write(); Type: FUNCTION; Schema: public; Owner: -
---
-
-CREATE FUNCTION public.reject_legacy_review_write() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-  RAISE EXCEPTION 'legacy reviews are read-only migration evidence';
-END $$;
 
 
 --
@@ -2116,7 +2104,6 @@ CREATE TABLE public.calendar_dates (
 
 CREATE TABLE public.campground_closures (
     id bigint NOT NULL,
-    legacy_closure_id character varying(32) NOT NULL,
     campground_id character varying(32) NOT NULL,
     closure_type character varying(16) NOT NULL,
     start_date date,
@@ -2787,7 +2774,6 @@ COMMENT ON VIEW public.inventory_movement_items_view IS 'P5 read-only UNION ALL 
 CREATE TABLE public.inventory_movements (
     id bigint NOT NULL,
     movement_no character varying(64) NOT NULL,
-    legacy_movement_id character varying(64),
     inventory_domain character varying(16) NOT NULL,
     movement_type character varying(32) NOT NULL,
     status character varying(16) NOT NULL,
@@ -2804,8 +2790,8 @@ CREATE TABLE public.inventory_movements (
     CONSTRAINT ck_inventory_movements_posting CHECK (((((status)::text = 'posted'::text) AND (posted_at IS NOT NULL)) OR (((status)::text = ANY ((ARRAY['draft'::character varying, 'cancelled'::character varying])::text[])) AND (posted_at IS NULL)))),
     CONSTRAINT ck_inventory_movements_reason CHECK ((btrim(reason) <> ''::text)),
     CONSTRAINT ck_inventory_movements_status CHECK (((status)::text = ANY ((ARRAY['draft'::character varying, 'posted'::character varying, 'cancelled'::character varying])::text[]))),
-    CONSTRAINT ck_inventory_movements_type CHECK ((btrim((movement_type)::text) <> ''::text)),
-    CONSTRAINT ck_inventory_movements_type_payload CHECK (((((movement_type)::text = ANY ((ARRAY['進貨'::character varying, 'receipt'::character varying, 'adjustment_in'::character varying])::text[])) AND (source_location_id IS NULL) AND (destination_location_id IS NOT NULL)) OR (((movement_type)::text = ANY ((ARRAY['損耗'::character varying, 'write_off'::character varying, 'adjustment_out'::character varying])::text[])) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NULL)) OR (((movement_type)::text = ANY ((ARRAY['移轉'::character varying, '營地互轉'::character varying, 'transfer'::character varying])::text[])) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NOT NULL) AND ((source_location_id)::text <> (destination_location_id)::text)) OR (((movement_type)::text = 'conversion_out'::text) AND ((inventory_domain)::text = 'store'::text) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NULL)) OR (((movement_type)::text = 'conversion_in'::text) AND ((inventory_domain)::text = 'rental'::text) AND (source_location_id IS NULL) AND (destination_location_id IS NOT NULL))))
+    CONSTRAINT ck_inventory_movements_type CHECK (((movement_type)::text = ANY ((ARRAY['receipt'::character varying, 'write_off'::character varying, 'transfer'::character varying, 'conversion_out'::character varying, 'conversion_in'::character varying])::text[]))),
+    CONSTRAINT ck_inventory_movements_type_payload CHECK (((((movement_type)::text = 'receipt'::text) AND (source_location_id IS NULL) AND (destination_location_id IS NOT NULL)) OR (((movement_type)::text = 'write_off'::text) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NULL)) OR (((movement_type)::text = 'transfer'::text) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NOT NULL) AND ((source_location_id)::text <> (destination_location_id)::text)) OR (((movement_type)::text = 'conversion_out'::text) AND ((inventory_domain)::text = 'store'::text) AND (source_location_id IS NOT NULL) AND (destination_location_id IS NULL)) OR (((movement_type)::text = 'conversion_in'::text) AND ((inventory_domain)::text = 'rental'::text) AND (source_location_id IS NULL) AND (destination_location_id IS NOT NULL))))
 );
 
 
@@ -2815,7 +2801,7 @@ CREATE TABLE public.inventory_movements (
 
 CREATE VIEW public.inventory_movement_dto_view AS
  SELECT id,
-    jsonb_build_object('id', id, 'movementNo', movement_no, 'legacyMovementId', legacy_movement_id, 'inventoryDomain', inventory_domain, 'movementType', movement_type, 'status', status, 'sourceLocationId', source_location_id, 'destinationLocationId', destination_location_id, 'employeeId', employee_id, 'occurredAt', to_char((occurred_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD HH24:MI:SS'::text), 'items', COALESCE(( SELECT jsonb_agg(jsonb_build_object('inventoryDomain', item.inventory_domain, 'variantId', item.variant_id, 'sku', item.sku_snapshot, 'productName', item.item_name_snapshot, 'quantity', item.quantity, 'sourceLocationId', movement.source_location_id, 'destinationLocationId', movement.destination_location_id, 'type', movement.movement_type) ORDER BY item.id) AS jsonb_agg
+    jsonb_build_object('id', id, 'movementNo', movement_no, 'inventoryDomain', inventory_domain, 'movementType', movement_type, 'status', status, 'sourceLocationId', source_location_id, 'destinationLocationId', destination_location_id, 'employeeId', employee_id, 'occurredAt', to_char((occurred_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD HH24:MI:SS'::text), 'items', COALESCE(( SELECT jsonb_agg(jsonb_build_object('inventoryDomain', item.inventory_domain, 'variantId', item.variant_id, 'sku', item.sku_snapshot, 'productName', item.item_name_snapshot, 'quantity', item.quantity, 'sourceLocationId', movement.source_location_id, 'destinationLocationId', movement.destination_location_id, 'type', movement.movement_type) ORDER BY item.id) AS jsonb_agg
            FROM public.inventory_movement_items_view item
           WHERE (item.movement_id = movement.id)), '[]'::jsonb)) AS payload
    FROM public.inventory_movements movement;
@@ -2850,51 +2836,11 @@ CREATE TABLE public.inventory_stocks (
     location_id character varying(32) NOT NULL,
     variant_id character varying(64) NOT NULL,
     on_hand_quantity integer DEFAULT 0 NOT NULL,
+    inventory_domain character varying(16) DEFAULT 'store'::character varying NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_inventory_stocks_domain CHECK (((inventory_domain)::text = 'store'::text)),
     CONSTRAINT ck_inventory_stocks_on_hand CHECK ((on_hand_quantity >= 0))
 );
-
-
---
--- Name: legacy_review_photos; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.legacy_review_photos (
-    legacy_review_id character varying(32) NOT NULL,
-    sort_order integer NOT NULL,
-    url text NOT NULL,
-    CONSTRAINT ck_legacy_review_photos_sort_order CHECK ((sort_order >= 0)),
-    CONSTRAINT ck_legacy_review_photos_url CHECK ((btrim(url) <> ''::text))
-);
-
-
---
--- Name: legacy_reviews; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.legacy_reviews (
-    id character varying(32) NOT NULL,
-    customer_id character varying(32) NOT NULL,
-    product_id character varying(32) NOT NULL,
-    variant_id character varying(64) NOT NULL,
-    sku_snapshot character varying(64),
-    buyer_name_snapshot character varying(100),
-    buyer_avatar_snapshot text,
-    product_name_snapshot character varying(200),
-    rating smallint NOT NULL,
-    comment text,
-    created_at timestamp with time zone NOT NULL,
-    legacy_reason text NOT NULL,
-    CONSTRAINT ck_legacy_reviews_rating CHECK (((rating >= 1) AND (rating <= 5))),
-    CONSTRAINT ck_legacy_reviews_reason CHECK ((btrim(legacy_reason) <> ''::text))
-);
-
-
---
--- Name: TABLE legacy_reviews; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON TABLE public.legacy_reviews IS 'Read-only reviews without a uniquely provable order item; never writable through the formal review API.';
 
 
 --
@@ -3222,7 +3168,9 @@ CREATE TABLE public.product_variant_min_stocks (
     variant_id character varying(64) NOT NULL,
     location_id character varying(32) NOT NULL,
     minimum_quantity integer NOT NULL,
+    inventory_domain character varying(16) DEFAULT 'store'::character varying NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT ck_product_variant_min_stocks_domain CHECK (((inventory_domain)::text = 'store'::text)),
     CONSTRAINT ck_product_variant_min_stocks_quantity CHECK ((minimum_quantity >= 0))
 );
 
@@ -3257,7 +3205,7 @@ CREATE TABLE public.rental_listings (
     active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    CONSTRAINT ck_rental_listings_prices CHECK (((price_per_day_weekday >= (0)::numeric) AND (price_per_day_holiday >= (0)::numeric) AND (discount >= (0)::numeric)))
+    CONSTRAINT ck_rental_listings_prices CHECK (((price_per_day_weekday >= (0)::numeric) AND (price_per_day_holiday >= (0)::numeric) AND (discount >= (0)::numeric) AND (discount <= 0.30)))
 );
 
 
@@ -3297,6 +3245,34 @@ CREATE VIEW public.rental_listing_view AS
 --
 
 COMMENT ON VIEW public.rental_listing_view IS 'P3 read-only listing/location/physical-stock projection; reservation availability belongs to P4.';
+
+
+--
+-- Name: active_rental_listing_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.active_rental_listing_view AS
+ SELECT listing.id,
+    listing.campground_id,
+    listing.rental_sku_variant_id,
+    mapping.location_id,
+    listing.price_per_day_weekday,
+    listing.price_per_day_holiday,
+    listing.discount,
+    COALESCE(stock.on_hand_quantity, 0) AS stock
+   FROM public.rental_listings listing
+     JOIN public.campground_rental_locations mapping ON (((mapping.campground_id)::text = (listing.campground_id)::text))
+     JOIN public.rental_sku_variants variant ON (((variant.id)::text = (listing.rental_sku_variant_id)::text))
+     JOIN public.rental_skus sku ON (((sku.id)::text = (variant.rental_sku_id)::text))
+     LEFT JOIN public.rental_sku_variant_stocks stock ON ((((stock.location_id)::text = (mapping.location_id)::text) AND ((stock.rental_sku_variant_id)::text = (listing.rental_sku_variant_id)::text)))
+  WHERE ((listing.active = true) AND ((sku.status)::text = 'active'::text) AND ((variant.status)::text = 'active'::text));
+
+
+--
+-- Name: VIEW active_rental_listing_view; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.active_rental_listing_view IS 'Canonical read-only projection of rentable active listings; filters listing, rental SKU, and variant status.';
 
 
 --
@@ -3438,14 +3414,7 @@ CREATE VIEW public.review_dto_view AS
    FROM (((public.reviews review
      JOIN public.order_items item ON ((item.id = review.order_item_id)))
      JOIN public.orders order_header ON (((order_header.id)::text = (item.order_id)::text)))
-     JOIN public.customers customer ON (((customer.id)::text = (order_header.customer_id)::text)))
-UNION ALL
- SELECT review.id,
-    false AS verified_purchase,
-    jsonb_build_object('id', review.id, 'customerId', review.customer_id, 'productId', review.product_id, 'variantId', review.variant_id, 'sku', review.sku_snapshot, 'buyerName', review.buyer_name_snapshot, 'buyerAvatar', review.buyer_avatar_snapshot, 'productName', review.product_name_snapshot, 'rating', review.rating, 'comment', review.comment, 'photos', COALESCE(( SELECT jsonb_agg(photo.url ORDER BY photo.sort_order) AS jsonb_agg
-           FROM public.legacy_review_photos photo
-          WHERE ((photo.legacy_review_id)::text = (review.id)::text)), '[]'::jsonb), 'createdAt', to_char((review.created_at AT TIME ZONE 'Asia/Taipei'::text), 'YYYY-MM-DD HH24:MI:SS'::text), 'verifiedPurchase', false) AS payload
-   FROM public.legacy_reviews review;
+     JOIN public.customers customer ON (((customer.id)::text = (order_header.customer_id)::text)));
 
 
 --
@@ -3494,7 +3463,6 @@ ALTER TABLE public.store_inventory_movement_items ALTER COLUMN id ADD GENERATED 
 
 CREATE TABLE public.zone_blocks (
     id bigint NOT NULL,
-    legacy_block_id character varying(32) NOT NULL,
     campground_id character varying(32) NOT NULL,
     zone_id character varying(32) NOT NULL,
     start_date date NOT NULL,
@@ -4382,22 +4350,6 @@ ALTER TABLE ONLY public.inventory_stocks
 
 
 --
--- Name: legacy_review_photos pk_legacy_review_photos; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_review_photos
-    ADD CONSTRAINT pk_legacy_review_photos PRIMARY KEY (legacy_review_id, sort_order);
-
-
---
--- Name: legacy_reviews pk_legacy_reviews; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_reviews
-    ADD CONSTRAINT pk_legacy_reviews PRIMARY KEY (id);
-
-
---
 -- Name: order_coupons pk_order_coupons; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4614,13 +4566,6 @@ ALTER TABLE ONLY public.branch_features
 
 
 --
--- Name: campground_closures uq_campground_closures_legacy_closure_id; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campground_closures
-    ADD CONSTRAINT uq_campground_closures_legacy_closure_id UNIQUE (legacy_closure_id);
-
-
 --
 -- Name: campground_rental_locations uq_campground_rental_locations_location_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
@@ -4878,13 +4823,6 @@ ALTER TABLE ONLY public.reviews
 
 
 --
--- Name: zone_blocks uq_zone_blocks_legacy_block_id; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.zone_blocks
-    ADD CONSTRAINT uq_zone_blocks_legacy_block_id UNIQUE (legacy_block_id);
-
-
 --
 -- Name: idx_bookings_camp_dates; Type: INDEX; Schema: migration; Owner: -
 --
@@ -5383,13 +5321,6 @@ CREATE INDEX idx_inventory_movements_employee ON public.inventory_movements USIN
 
 
 --
--- Name: idx_inventory_movements_legacy; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_inventory_movements_legacy ON public.inventory_movements USING btree (legacy_movement_id);
-
-
---
 -- Name: idx_inventory_movements_source_domain; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5401,20 +5332,6 @@ CREATE INDEX idx_inventory_movements_source_domain ON public.inventory_movements
 --
 
 CREATE INDEX idx_inventory_stocks_variant ON public.inventory_stocks USING btree (variant_id);
-
-
---
--- Name: idx_legacy_reviews_customer; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_legacy_reviews_customer ON public.legacy_reviews USING btree (customer_id);
-
-
---
--- Name: idx_legacy_reviews_product_variant; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX idx_legacy_reviews_product_variant ON public.legacy_reviews USING btree (product_id, variant_id);
 
 
 --
@@ -5828,20 +5745,6 @@ CREATE TRIGGER trg_equipment_tags_set_updated_at BEFORE UPDATE ON public.equipme
 --
 
 CREATE TRIGGER trg_equipment_tags_touch_item AFTER INSERT OR DELETE OR UPDATE ON public.equipment_tags FOR EACH ROW EXECUTE FUNCTION public.touch_equipment_item_from_child();
-
-
---
--- Name: legacy_review_photos trg_legacy_review_photos_read_only; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER trg_legacy_review_photos_read_only BEFORE INSERT OR DELETE OR UPDATE ON public.legacy_review_photos FOR EACH STATEMENT EXECUTE FUNCTION public.reject_legacy_review_write();
-
-
---
--- Name: legacy_reviews trg_legacy_reviews_read_only; Type: TRIGGER; Schema: public; Owner: -
---
-
-CREATE TRIGGER trg_legacy_reviews_read_only BEFORE INSERT OR DELETE OR UPDATE ON public.legacy_reviews FOR EACH STATEMENT EXECUTE FUNCTION public.reject_legacy_review_write();
 
 
 --
@@ -6618,11 +6521,11 @@ ALTER TABLE ONLY public.inventory_movements
 
 
 --
--- Name: inventory_stocks fk_inventory_stocks_location_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: inventory_stocks fk_inventory_stocks_location_domain; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.inventory_stocks
-    ADD CONSTRAINT fk_inventory_stocks_location_id FOREIGN KEY (location_id) REFERENCES public.inventory_locations(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_inventory_stocks_location_domain FOREIGN KEY (location_id, inventory_domain) REFERENCES public.inventory_locations(id, inventory_domain) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6631,30 +6534,6 @@ ALTER TABLE ONLY public.inventory_stocks
 
 ALTER TABLE ONLY public.inventory_stocks
     ADD CONSTRAINT fk_inventory_stocks_variant_id FOREIGN KEY (variant_id) REFERENCES public.product_variants(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: legacy_review_photos fk_legacy_review_photos_legacy_review_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_review_photos
-    ADD CONSTRAINT fk_legacy_review_photos_legacy_review_id FOREIGN KEY (legacy_review_id) REFERENCES public.legacy_reviews(id) ON UPDATE CASCADE ON DELETE CASCADE;
-
-
---
--- Name: legacy_reviews fk_legacy_reviews_customer_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_reviews
-    ADD CONSTRAINT fk_legacy_reviews_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: legacy_reviews fk_legacy_reviews_product_id_variant_id; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.legacy_reviews
-    ADD CONSTRAINT fk_legacy_reviews_product_id_variant_id FOREIGN KEY (product_id, variant_id) REFERENCES public.product_variants(product_id, id) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --
@@ -6754,11 +6633,11 @@ ALTER TABLE ONLY public.product_stock_reservations
 
 
 --
--- Name: product_variant_min_stocks fk_product_variant_min_stocks_location_id; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: product_variant_min_stocks fk_product_variant_min_stocks_location_domain; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.product_variant_min_stocks
-    ADD CONSTRAINT fk_product_variant_min_stocks_location_id FOREIGN KEY (location_id) REFERENCES public.inventory_locations(id) ON UPDATE CASCADE ON DELETE RESTRICT;
+    ADD CONSTRAINT fk_product_variant_min_stocks_location_domain FOREIGN KEY (location_id, inventory_domain) REFERENCES public.inventory_locations(id, inventory_domain) ON UPDATE CASCADE ON DELETE RESTRICT;
 
 
 --

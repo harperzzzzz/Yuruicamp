@@ -39,7 +39,7 @@ erDiagram
 
 - `public.get_zone_availability(...)`：按日期展開營位，扣掉會占位的預約與人工 block；遇到公休直接回傳可用量 0，且不會回傳負數。
 - 優惠券領取新增／刪除時，由資料庫同步 `coupons.claimed_quantity`；優惠券狀態流程與 `coupon_id` 不可變更規則改由 `Spring Boot Service` 負責。
-- `trg_legacy_reviews_read_only`、`trg_legacy_review_photos_read_only`、`trg_movement_migration_map_read_only`、`trg_p7_contract_evidence_read_only`：保護遷移證據不被應用程式改寫。
+- `trg_movement_migration_map_read_only`、`trg_p7_contract_evidence_read_only`：保護遷移證據不被應用程式改寫。
 
 ## Spring Boot 後端待完成的規則
 
@@ -54,7 +54,7 @@ erDiagram
 1. **商品下單**：`equipment_items`（裝備主檔）→ `products` → `product_variants`；結帳建立 `orders`、`order_items`（價格與名稱快照），再以 `product_stock_reservations` 暫保庫存。狀態改變寫入 `order_status_history`；用券寫入 `order_coupons`，回補／重扣留在 `coupon_usage_adjustments`。
 2. **營區預約**：讀取 `campgrounds`、`campground_zones`、`calendar_dates`、`campground_closures`、`zone_blocks`，並呼叫 `get_zone_availability()` 算出可訂量。成立後寫 `bookings`、選取明細與 `rental_stock_reservations`；取消／完成走狀態歷程與保留帳生命週期。入住日含、退房日不含：`[check_in, check_out)`。
 3. **庫存異動**：先建 `inventory_movements` 草稿與商城或租借明細；只有 `posted` 才是正式異動，`Spring Boot Service` 必須禁止事後修改。`inventory_conversions` 將商城規格以成對異動轉入租借規格。
-4. **內容與評價**：文章由 `articles`、區塊、標籤、關聯商品組成。正式評論只能對 `order_items` 建立一筆 `reviews`；舊格式無法完全對應的資料保留在 `legacy_reviews`。
+4. **內容與評價**：文章由 `articles`、區塊、標籤、關聯商品組成。正式評論只能對 `order_items` 建立一筆 `reviews`；評價圖片存於 `review_photos`。
 
 ## 設計上值得注意的地方
 
@@ -312,13 +312,12 @@ erDiagram
 
 ### `public.campground_closures`
 **用途：** 營區關閉日期或每週公休。
-**鍵：** PRIMARY KEY: id；UNIQUE: legacy_closure_id
+**鍵：** PRIMARY KEY: id
 **關聯：** campground_id → public.campgrounds(id)；created_by → public.admin_users(id)
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
 | --- | --- | --- | --- | --- |
 | `id` | `bigint` | 是 | — | 本列的唯一識別碼。 |
-| `legacy_closure_id` | `character varying(32)` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
 | `campground_id` | `character varying(32)` | 是 | — | 指向 campgrounds 的營區。 |
 | `closure_type` | `character varying(16)` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
 | `start_date` | `date` | 否 | — | 日期（不含時間）。 |
@@ -734,37 +733,6 @@ erDiagram
 | `on_hand_quantity` | `integer` | 是 | 0 | 實際現有庫存。 |
 | `updated_at` | `timestamp with time zone` | 是 | now() | 最後更新時間。 |
 
-### `public.legacy_review_photos`
-**用途：** 舊評論圖片。
-**鍵：** PRIMARY KEY: legacy_review_id, sort_order
-**關聯：** legacy_review_id → public.legacy_reviews(id)
-
-| 欄位 | 型別 | 必填 | 預設值 | 意義 |
-| --- | --- | --- | --- | --- |
-| `legacy_review_id` | `character varying(32)` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
-| `sort_order` | `integer` | 是 | — | 排序序號（較小者通常較前）。 |
-| `url` | `text` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-
-### `public.legacy_reviews`
-**用途：** 無法完全轉正的舊評論，只讀遷移證據。
-**鍵：** PRIMARY KEY: id
-**關聯：** customer_id → public.customers(id)；product_id, variant_id → public.product_variants(product_id, id)
-
-| 欄位 | 型別 | 必填 | 預設值 | 意義 |
-| --- | --- | --- | --- | --- |
-| `id` | `character varying(32)` | 是 | — | 本列的唯一識別碼。 |
-| `customer_id` | `character varying(32)` | 是 | — | 指向 customers 的會員。 |
-| `product_id` | `character varying(32)` | 是 | — | 指向 products 的商城商品。 |
-| `variant_id` | `character varying(64)` | 是 | — | 指向商品規格（product_variants）。 |
-| `sku_snapshot` | `character varying(64)` | 否 | — | 交易當下複製的快照；保留歷史，不隨主檔改動。 |
-| `buyer_name_snapshot` | `character varying(100)` | 否 | — | 交易當下複製的快照；保留歷史，不隨主檔改動。 |
-| `buyer_avatar_snapshot` | `text` | 否 | — | 交易當下複製的快照；保留歷史，不隨主檔改動。 |
-| `product_name_snapshot` | `character varying(200)` | 否 | — | 交易當下複製的快照；保留歷史，不隨主檔改動。 |
-| `rating` | `smallint` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `comment` | `text` | 否 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-| `created_at` | `timestamp with time zone` | 是 | — | 建立此筆資料的時間。 |
-| `legacy_reason` | `text` | 是 | — | 請依表格用途與 SQL 的 CHECK／FK 約束一起解讀。 |
-
 ### `public.order_items`
 **用途：** 商城訂單品項與交易快照。
 **鍵：** PRIMARY KEY: id；UNIQUE: id, variant_id
@@ -1012,13 +980,12 @@ erDiagram
 
 ### `public.zone_blocks`
 **用途：** 特定營位、日期區間的人工保留量。
-**鍵：** PRIMARY KEY: id；UNIQUE: legacy_block_id
+**鍵：** PRIMARY KEY: id
 **關聯：** campground_id, zone_id → public.campground_zones(campground_id, id)；created_by → public.admin_users(id)
 
 | 欄位 | 型別 | 必填 | 預設值 | 意義 |
 | --- | --- | --- | --- | --- |
 | `id` | `bigint` | 是 | — | 本列的唯一識別碼。 |
-| `legacy_block_id` | `character varying(32)` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
 | `campground_id` | `character varying(32)` | 是 | — | 指向 campgrounds 的營區。 |
 | `zone_id` | `character varying(32)` | 是 | — | 識別碼；是否為外鍵請看「關聯」欄。 |
 | `start_date` | `date` | 是 | — | 日期（不含時間）。 |

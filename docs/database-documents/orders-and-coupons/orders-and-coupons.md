@@ -3,6 +3,8 @@
     訂單內的商品明細。
 * order_status_history
     保存訂單狀態變更紀錄。
+* order_event_history
+    保存付款、退款等非訂單生命週期事件紀錄。
 * coupons
     優惠券主檔。
 * order_coupons
@@ -19,6 +21,8 @@ customers
       │     └─ N:1 product_variants
       ├─ 1:N order_status_history
       │     └─ N:1 admin_users（actor_id 可空）
+      ├─ 1:N order_event_history
+      │     └─ N:1 admin_users（actor_id 可空）
       └─ 1:N order_coupons
             ├─ N:1 coupons（coupon_id 可空）
             └─ 1:1 coupon_claims
@@ -30,6 +34,7 @@ coupons
 ### 關聯
 * order_items：訂單明細。一張訂單多個商品項目。
 * order_status_history：訂單狀態歷程。一張訂單多次狀態變更。
+* order_event_history：訂單非生命週期事件歷程。一張訂單可有多筆付款、退款或其他操作事件；與 order_status_history 的履約狀態分開保存。
 * coupons：優惠券主檔，保存券碼、折扣方式、發行量及有效期間。
 * order_coupons：訂單實際使用的優惠券紀錄，也是交易快照表。
 * coupon_claims：會員領券及優惠券額度的現行權威來源。
@@ -53,6 +58,11 @@ coupons
     - 更新 orders.status。
     - 同時新增 order_status_history，不能只改主檔而不留下歷程。
     - 若由後台人員操作，可在 actor_id 保存 admin_users.id。
+
+* 發生非訂單生命週期事件後：
+    - 在 order_event_history 新增事件類型、發生時間與備註。
+    - 若由後台人員操作，可在 actor_id 保存 admin_users.id；系統自動事件可為空。
+    - 付款、退款等事件不應寫入 order_status_history。
 
 * 取消、退款或重新認列優惠券後：
     - 可以更新 orders.status、payment_status、refund_status。
@@ -122,6 +132,23 @@ coupons
   note          狀態變更備註，可空
 *刪除訂單主檔時，自動刪除對應的訂單歷程*
 *idx_order_status_history_order_time：(order_id, occurred_at)*
+
+### order_event_history
+* id                        自動流水號，IDENTITY
+* source_history_id         原 order_status_history.id；UNIQUE，
+
+* order_id                  所屬訂單 ID；
+                            ON UPDATE CASCADE、ON DELETE CASCADE。
+                            *idx_order_event_history_order_time：(order_id, occurred_at)*
+
+* event_type                事件類型；不可為空白字串。
+* occurred_at               事件發生時間；
+
+* actor_id                  操作者 ID，可空；
+                            ON UPDATE CASCADE、ON DELETE RESTRICT。
+                            *idx_order_event_history_actor：(actor_id)*
+
+* note                      事件備註，可空。
 
 ### coupons
 * id               自動流水號，IDENTITY
@@ -196,7 +223,14 @@ coupons
 
 * 訂單主檔與歷程分離
     - orders.status 是目前訂單狀態
-    - order_status_history 紀錄歷程
+    - order_status_history 僅紀錄履約生命週期狀態：
+      unshipped、shipped、completed、cancelled、returned。
+    - order_event_history 紀錄付款、退款及其他非生命週期事件。
+
+* 非生命週期事件自狀態歷程分離
+    - 舊 order_status_history 中不屬於履約生命週期狀態的資料，
+      會搬移至 order_event_history。
+    - source_history_id 保留原歷程 ID，並以 UNIQUE 防止同一來源重複遷移。
 
 * 優惠券容量目前在領取時分配
     - 券未啟用、已過期或額滿時，claimed 拒絕新增。
@@ -371,3 +405,14 @@ coupons
     - 前端／後端整合問題
 
 * 中風險：orders.status 與狀態歷程沒有同步保護
+
+* 中風險：order_event_history.event_type 是自由文字
+    - 目前僅限制不得為空白，可能出現同義、大小寫或拼字不一致的事件名稱。
+    - 建議以 enum、CHECK 白名單或後端常數統一管理。
+
+* 中風險：source_history_id 目前必填
+    - 欄位設計用於保留由 order_status_history 搬移的來源資料。
+    - 若日後需直接建立原生事件，必須先明確定義來源 ID 的產生方式，或調整欄位為可空。
+
+* 低風險：actor_id 可空會降低人工操作的稽核完整性
+    - 系統自動事件可為空；人工操作應由後端統一寫入 actor_id。
