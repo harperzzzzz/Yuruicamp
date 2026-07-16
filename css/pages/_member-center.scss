@@ -472,6 +472,14 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   color: $member-surface;
 }
 
+.memberModalDialog .memberActionPrimary {
+  background: var(--yc-pending-line);
+}
+
+.memberModalDialog .memberActionPrimary:hover {
+  background: var(--yc-cta-hover);
+}
+
 .memberActionOutline {
   background: $member-surface;
   border-color: $member-border-strong;
@@ -880,8 +888,41 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   align-items: center;
   display: grid;
   gap: 0.875rem;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: 56px minmax(0, 1fr) auto;
   padding: 0.875rem 0;
+}
+
+.memberItemReviewButton {
+  min-height: var(--yc-target-min, 44px);
+  padding: 0.625rem 0.875rem;
+  border: 1px solid color-mix(in srgb, $member-primary 38%, $member-border);
+  border-radius: var(--yc-radius-button, 12px);
+  background: $member-surface;
+  color: $member-primary;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  transition: border-color $member-transition, background-color $member-transition, color $member-transition;
+}
+
+.memberItemReviewButton:hover {
+  border-color: $member-primary;
+  background: color-mix(in srgb, $member-primary 8%, $member-surface);
+}
+
+.memberItemReviewButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, $member-primary 32%, transparent);
+  outline-offset: 2px;
+}
+
+.memberItemReviewStatus {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--yc-space-2, 8px);
+  color: $member-success;
+  font-size: 0.875rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .memberDetailItem + .memberDetailItem {
@@ -1007,6 +1048,22 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   gap: 0.875rem;
 }
 
+.memberReviewEyebrow {
+  /* stylelint-disable-next-line shorthand-property-no-redundant-values -- 保留設計規格的四值寫法 */
+  margin: 10px 0 0 0;
+  color: $member-primary;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.memberReviewHint {
+  margin: -0.375rem 0 0;
+  color: $member-muted;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .memberReviewFieldset {
   border: 0;
   margin: 0;
@@ -1029,15 +1086,16 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
 .memberRatingStar {
   background: transparent;
   border: 0;
-  color: $member-border-strong;
+  color: var(--yc-sage-light);
   font-size: 1.5rem;
   min-height: 44px;
   padding: 0 0.25rem;
 }
 
 .memberRatingStar:hover,
+.memberRatingStar.isPreview,
 .memberRatingStar.isSelected {
-  color: $member-warning;
+  color: var(--yc-pending-line);
 }
 
 .memberReviewTextarea {
@@ -1101,6 +1159,20 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   .memberCouponDivider {
     display: none;
   }
+
+  .memberDetailItem {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .memberDetailItemImage {
+    width: 48px;
+  }
+
+  .memberItemReviewButton,
+  .memberItemReviewStatus {
+    grid-column: 2;
+    justify-self: start;
+  }
 }
 
 @media (width <= 375px) {
@@ -1131,7 +1203,8 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   .memberOrderDetailButton,
   .memberCopyButton,
   .memberModalClose,
-  .memberRatingStar {
+  .memberRatingStar,
+  .memberItemReviewButton {
     transition: none;
   }
 }

@@ -282,6 +282,16 @@
   line-height: 1.4;
 }
 
+.blogRelatedExcerpt {
+  color: var(--yc-text-muted);
+  display: -webkit-box;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .blogDetailLoadingState,
 .blogDetailEmptyState,
 .blogDetailErrorState {

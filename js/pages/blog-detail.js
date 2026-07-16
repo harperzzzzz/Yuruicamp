@@ -187,6 +187,7 @@ function blogDetailBuildRelatedArticleCard(article) {
         <span class="blogRelatedContent">
           <span class="blogRelatedCategory">${blogDetailEscape(article.category || '露營生活')}</span>
           <span class="blogRelatedArticleTitle">${blogDetailEscape(article.title)}</span>
+          <span class="blogRelatedExcerpt">${blogDetailEscape(article.excerpt || '')}</span>
         </span>
       </a>
     </article>

@@ -21,6 +21,8 @@
 
     <main class="checkoutSuccessPage">
       <section class="checkoutSuccess" aria-labelledby="successTitle">
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationTop" aria-hidden="true"></div>
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationBottom" aria-hidden="true"></div>
         <div class="successIconWrap" aria-hidden="true"><span class="successIcon">✓</span></div>
         <div class="successContent">
           <h1 class="successTitle" id="successTitle">預約成功</h1>
@@ -58,6 +60,7 @@
       });
     </script>
     <script src="../../js/formatters.js"></script>
+    <script src="../../js/components/success-effects.js" defer></script>
     <script>
       (function initBookingSuccessPage() {
         const bookingNumberDisplay = document.getElementById('bookingNumberDisplay');

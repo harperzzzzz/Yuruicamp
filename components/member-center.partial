@@ -216,12 +216,14 @@
       </header>
       <div class="memberModalBody">
         <form class="memberReviewForm" id="reviewForm" novalidate>
+          <p class="memberReviewEyebrow">單一商品評價</p>
           <p class="memberReviewProduct" id="reviewProductName">商品名稱</p>
+          <p class="memberReviewHint">本次評分與評論只會套用到這項商品。</p>
           <fieldset class="memberReviewFieldset">
             <legend class="memberReviewLabel">評分</legend>
             <div class="memberRatingControl" id="reviewRatingGroup" role="radiogroup" aria-label="評分"><button type="button" class="memberRatingStar" data-review-rating="1" aria-label="1 分">★</button><button type="button" class="memberRatingStar" data-review-rating="2" aria-label="2 分">★</button><button type="button" class="memberRatingStar" data-review-rating="3" aria-label="3 分">★</button><button type="button" class="memberRatingStar" data-review-rating="4" aria-label="4 分">★</button><button type="button" class="memberRatingStar" data-review-rating="5" aria-label="5 分">★</button></div>
           </fieldset>
-          <label class="memberReviewLabel" for="reviewContent">評論內容</label><textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4" placeholder="分享這次使用心得"></textarea><button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn" type="submit">送出評價</button>
+          <label class="memberReviewLabel" for="reviewContent">評論內容</label><textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4" maxlength="1000" placeholder="分享這項商品的使用心得"></textarea><button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn" type="submit">送出此商品評價</button>
         </form>
       </div>
     </section>

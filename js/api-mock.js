@@ -521,6 +521,8 @@ window.API = {
   },
 
   reviews: {
+    getAll: async () => _loadReviews(),
+
     create: async (payload) => {
       const orderItemId = Number(payload.orderItemId);
       if (!Number.isInteger(orderItemId) || orderItemId <= 0) {

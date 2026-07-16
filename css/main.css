@@ -2347,6 +2347,16 @@ body.shippingAddressModalOpen {
   line-height: 1.4;
 }
 
+.blogRelatedExcerpt {
+  color: var(--yc-text-muted);
+  display: -webkit-box;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 .blogDetailLoadingState,
 .blogDetailEmptyState,
 .blogDetailErrorState {
@@ -6610,6 +6620,14 @@ body.shippingAddressModalOpen {
   color: var(--yc-surface);
 }
 
+.memberModalDialog .memberActionPrimary {
+  background: var(--yc-pending-line);
+}
+
+.memberModalDialog .memberActionPrimary:hover {
+  background: var(--yc-cta-hover);
+}
+
 .memberActionOutline {
   background: var(--yc-surface);
   border-color: var(--yc-sage-action);
@@ -7014,8 +7032,41 @@ body.shippingAddressModalOpen {
   align-items: center;
   display: grid;
   gap: 0.875rem;
-  grid-template-columns: 56px minmax(0, 1fr);
+  grid-template-columns: 56px minmax(0, 1fr) auto;
   padding: 0.875rem 0;
+}
+
+.memberItemReviewButton {
+  min-height: var(--yc-target-min, 44px);
+  padding: 0.625rem 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--yc-sage-action) 38%, var(--yc-border));
+  border-radius: var(--yc-radius-button, 12px);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  transition: border-color var(--yc-transition-fast, 150ms ease), background-color var(--yc-transition-fast, 150ms ease), color var(--yc-transition-fast, 150ms ease);
+}
+
+.memberItemReviewButton:hover {
+  border-color: var(--yc-sage-action);
+  background: color-mix(in srgb, var(--yc-sage-action) 8%, var(--yc-surface));
+}
+
+.memberItemReviewButton:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--yc-sage-action) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.memberItemReviewStatus {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--yc-space-2, 8px);
+  color: var(--yc-success);
+  font-size: 0.875rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .memberDetailItem + .memberDetailItem {
@@ -7135,6 +7186,22 @@ body.shippingAddressModalOpen {
   gap: 0.875rem;
 }
 
+.memberReviewEyebrow {
+  /* stylelint-disable-next-line shorthand-property-no-redundant-values -- 保留設計規格的四值寫法 */
+  margin: 10px 0 0 0;
+  color: var(--yc-sage-action);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.memberReviewHint {
+  margin: -0.375rem 0 0;
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .memberReviewFieldset {
   border: 0;
   margin: 0;
@@ -7157,15 +7224,16 @@ body.shippingAddressModalOpen {
 .memberRatingStar {
   background: transparent;
   border: 0;
-  color: var(--yc-sage-action);
+  color: var(--yc-sage-light);
   font-size: 1.5rem;
   min-height: 44px;
   padding: 0 0.25rem;
 }
 
 .memberRatingStar:hover,
+.memberRatingStar.isPreview,
 .memberRatingStar.isSelected {
-  color: var(--yc-warning);
+  color: var(--yc-pending-line);
 }
 
 .memberReviewTextarea {
@@ -7219,6 +7287,17 @@ body.shippingAddressModalOpen {
   .memberCouponDivider {
     display: none;
   }
+  .memberDetailItem {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+  .memberDetailItemImage {
+    width: 48px;
+  }
+  .memberItemReviewButton,
+  .memberItemReviewStatus {
+    grid-column: 2;
+    justify-self: start;
+  }
 }
 @media (width <= 375px) {
   .memberMobileNavigation {
@@ -7245,7 +7324,8 @@ body.shippingAddressModalOpen {
   .memberOrderDetailButton,
   .memberCopyButton,
   .memberModalClose,
-  .memberRatingStar {
+  .memberRatingStar,
+  .memberItemReviewButton {
     transition: none;
   }
 }

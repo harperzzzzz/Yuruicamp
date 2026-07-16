@@ -59,6 +59,7 @@
     rentalOrders: [],
     availableCoupons: [],
     notifications: [],
+    reviews: [],
     filters: { purchase: 'all', rental: 'all' },
     review: { orderId: '', itemName: '', rating: 0 },
     lastFocus: null,
@@ -416,8 +417,14 @@
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function canReview(o) {
-    if (!o || o.reviewed || norm('purchase', o.status) !== 'completed') return false;
-    return true;
+    return Boolean(o && norm('purchase', o.status) === 'completed');
+  }
+
+  function itemIsReviewed(item) {
+    var orderItemId = Number(item && item.orderItemId);
+    return Number.isInteger(orderItemId) && state.reviews.some(function (review) {
+      return Number(review.orderItemId) === orderItemId;
+    });
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function renderOrders() {
@@ -438,13 +445,6 @@
       .map(function (o) {
         var st = meta('purchase', o.status),
           title = itemTitle(o.items);
-        var review = canReview(o)
-          ? '<button class="memberOrderDetailButton" type="button" data-review-order="' +
-            html(o.id) +
-            '" data-review-item="' +
-            html(title) +
-            '">寫評價</button>'
-          : '';
         return (
           '<article class="memberOrderCard" data-order-id="' +
           html(o.id) +
@@ -474,7 +474,6 @@
           '<button class="memberOrderDetailButton" type="button" data-order-detail="' +
           html(o.id) +
           '">查看明細</button>' +
-          review +
           '</div>' +
           '</article>'
         );
@@ -788,6 +787,20 @@
       items
         .map(function (i) {
           var quantity = Number(i.quantity || 1);
+          var reviewAction = '';
+          var orderItemId = Number(i.orderItemId);
+          var hasValidOrderItemId = Number.isInteger(orderItemId) && orderItemId > 0;
+          if (type === 'purchase' && canReview(order) && hasValidOrderItemId) {
+            reviewAction = itemIsReviewed(i)
+              ? '<span class="memberItemReviewStatus"><i class="bi bi-check-circle" aria-hidden="true"></i> 已評價</span>'
+              : '<button class="memberItemReviewButton" type="button" data-review-order="' +
+                html(order.id) +
+                '" data-review-order-item="' +
+                html(i.orderItemId) +
+                '" data-review-item="' +
+                html(i.name || '商品') +
+                '">評價此商品</button>';
+          }
           return (
             '<article class="memberDetailItem">' +
             '<img class="memberDetailItemImage" src="' +
@@ -804,6 +817,7 @@
             money((i.price || 0) * quantity) +
             '</p>' +
             '</div>' +
+            reviewAction +
             '</article>'
           );
         })
@@ -896,8 +910,18 @@
     openModal('orderDetailOverlay');
   };
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
-  window.openReviewModal = function (id, name) {
-    state.review = { orderId: id, itemName: name || '', rating: 0 };
+  window.openReviewModal = function (id, orderItemId, name) {
+    var order = state.orders.find(function (candidate) {
+      return String(candidate.id) === String(id);
+    });
+    var item = order && (order.items || []).find(function (candidate) {
+      return Number(candidate.orderItemId) === Number(orderItemId);
+    });
+    if (!order || !item || !canReview(order) || itemIsReviewed(item)) {
+      toast('此商品目前無法評價', 'warning');
+      return;
+    }
+    state.review = { orderId: id, orderItemId: Number(orderItemId), itemName: name || '', rating: 0 };
     text('reviewProductName', name || '商品評價');
     input('reviewContent', '');
     stars(0);
@@ -910,6 +934,13 @@
       var on = Number(b.dataset.reviewRating) <= state.review.rating;
       b.classList.toggle('isSelected', on);
       b.setAttribute('aria-checked', String(on));
+    });
+  }
+  function previewStars(rating) {
+    var previewRating = Number(rating) || 0;
+    document.querySelectorAll('.memberRatingStar').forEach(function (b) {
+      var on = previewRating > 0 && Number(b.dataset.reviewRating) <= previewRating;
+      b.classList.toggle('isPreview', on);
     });
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -983,6 +1014,7 @@
       state.rentalOrders = [];
       state.availableCoupons = [];
       state.notifications = [];
+      state.reviews = [];
       applyLogin();
       state.dataLoading = false;
       return;
@@ -1006,6 +1038,9 @@
       }
       state.notifications = await window.API.customers.getNotifications(uid);
       state.availableCoupons = await window.API.coupons.getAvailable(uid);
+      state.reviews = window.API.reviews && window.API.reviews.getAll
+        ? await window.API.reviews.getAll()
+        : [];
       if (window.BookingAPI && window.BookingAPI.getBookings) {
         // getBookings(uid) 內部已依 customerId 篩選
         state.rentalOrders = await window.BookingAPI.getBookings(uid);
@@ -1025,6 +1060,7 @@
       state.rentalOrders = [];
       state.availableCoupons = [];
       state.notifications = [];
+      state.reviews = [];
     }
     applyProfile();
     renderFilters('purchase', state.orders);
@@ -1056,6 +1092,7 @@
         state.rentalOrders = [];
         state.availableCoupons = [];
         state.notifications = [];
+        state.reviews = [];
         return;
       }
       if (loggedIn()) loadData();
@@ -1245,7 +1282,12 @@
       var r = e.target.closest('[data-rental-detail]');
       if (r) return window.openRentalOrderDetail(r.dataset.rentalDetail);
       var rv = e.target.closest('[data-review-order]');
-      if (rv) return window.openReviewModal(rv.dataset.reviewOrder, rv.dataset.reviewItem);
+      if (rv)
+        return window.openReviewModal(
+          rv.dataset.reviewOrder,
+          rv.dataset.reviewOrderItem,
+          rv.dataset.reviewItem
+        );
       var cp = e.target.closest('[data-copy-coupon]');
       if (cp) return copy(cp.dataset.copyCoupon);
       var no = e.target.closest('[data-notification-order-detail]');
@@ -1329,31 +1371,44 @@
       b.addEventListener('click', function () {
         stars(b.dataset.reviewRating);
       });
+      b.addEventListener('mouseenter', function () {
+        previewStars(b.dataset.reviewRating);
+      });
+      b.addEventListener('mouseleave', function () {
+        previewStars(0);
+      });
     });
     var form = document.getElementById('reviewForm');
     if (form && !form.dataset.bound) {
       form.dataset.bound = 'true';
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        if (!state.review.orderId || !state.review.rating) {
+        if (!state.review.orderId || !state.review.orderItemId || !state.review.rating) {
           toast('請先選擇評分', 'warning');
           return;
         }
-        var order = state.orders.find(function (x) {
-          return x.id === state.review.orderId;
-        });
-        var firstItem = order && order.items && order.items[0];
         if (window.API && window.API.reviews && window.API.reviews.create) {
           try {
-            await window.API.reviews.create({
-              orderItemId: firstItem && firstItem.orderItemId,
+            var review = await window.API.reviews.create({
+              orderItemId: state.review.orderItemId,
               rating: state.review.rating,
               comment: document.getElementById('reviewContent').value.trim(),
             });
-            if (order) order.reviewed = true;
+            state.reviews.push(review);
             renderOrders();
+            var reviewedOrder = state.orders.find(function (candidate) {
+              return String(candidate.id) === String(state.review.orderId);
+            });
+            var detailBody = document.getElementById('orderDetailBody');
+            if (reviewedOrder && detailBody) {
+              detailBody.innerHTML = detailRows(
+                reviewedOrder,
+                meta('purchase', reviewedOrder.status),
+                'purchase'
+              );
+            }
             closeModal('reviewOverlay');
-            toast('評價已送出', 'success');
+            toast('商品評價已送出', 'success');
           } catch {
             toast('評價送出失敗，請稍後再試', 'error');
           }
