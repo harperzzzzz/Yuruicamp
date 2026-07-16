@@ -1,6 +1,6 @@
--- Yuruicamp schema snapshot through V753.
--- Generated from the V001-V753 Flyway schema; never use this file to upgrade an existing database.
--- Flyway migration files remain the only upgrade source of truth.
+-- Yuruicamp current schema snapshot (through the latest application change).
+-- Current complete schema for initializing an empty database.
+-- This project does not run schema migrations; apply this file before starting the backend.
 
 --
 -- PostgreSQL database dump

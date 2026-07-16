@@ -89,8 +89,8 @@ docker compose down -v
 **Q: `port is already allocated` / 5433 被占用？**  
 A: 改 `.env` 的 `POSTGRES_PORT`（例如 `5434`），並同步改 Spring Boot 的連線 port。
 
-**Q: 我改了 `.env` 密碼，但連線還是舊密碼？**  
-A: Postgres 的帳密只在「資料卷第一次建立」時生效。若要重來（會清資料）：
+**Q: 我改了 `.env` 密碼或需要重建最新資料庫結構，連線還是舊資料？**
+A: Postgres 的帳密與 `docs/latest_schema.sql` 都只在「資料卷第一次建立」時套用。若要重建（會清資料）：
 
 ```powershell
 docker compose down -v
