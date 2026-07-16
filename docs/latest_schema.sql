@@ -25,8 +25,6 @@ SET row_security = off;
 
 -- Rebuild application-owned schemas. PostgreSQL cannot drop the currently
 -- connected database, but this removes all application tables and data within it.
-DROP SCHEMA IF EXISTS migration CASCADE;
-DROP SCHEMA IF EXISTS public CASCADE;
 CREATE SCHEMA public;
 
 
