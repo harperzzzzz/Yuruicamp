@@ -5,11 +5,14 @@
  *
  * 使用 jQuery Event Namespace (.reviews) 防止重複導覽時事件堆疊
  * Data: /data/admin/reviews.json（種子）
- * 正式評論由 AdminAPI 依 orderItemId 管理；legacy reviews 永遠唯讀。
+ * 正式評論由 AdminAPI 依 orderItemId 管理；後台可瀏覽、篩選、刪除。
  */
 
 var REVIEWS_STORAGE_KEY = 'mockReviews';
 var LEGACY_REVIEWS_STORAGE_KEY = 'adminReviews';
+
+/** 刪除確認 Modal 暫存的目標評論 id（避免用 window.confirm） */
+var pendingDeleteReviewId = null;
 
 /** @type {{ allReviews: Array, searchQuery: string, ratingFilter: string, sortBy: string }} */
 var reviewsState = {
@@ -58,10 +61,10 @@ function loadReviews(callback) {
       if (normalized && /^R\d+$/.test(normalized.id)) {
         normalized = Object.assign({}, normalized, { id: 'REV' + normalized.id.slice(1) });
       }
+      // 種子資料沒有此欄位時，預設視為可管理的正式評論
+      // When seed lacks this field, treat as a manageable formal review
       if (normalized && typeof normalized.verifiedPurchase !== 'boolean') {
-        normalized = Object.assign({}, normalized, {
-          verifiedPurchase: normalized.id === 'REV031'
-        });
+        normalized = Object.assign({}, normalized, { verifiedPurchase: true });
       }
       return normalized;
     });
@@ -144,10 +147,21 @@ function bindReviewEvents() {
     applyFiltersAndRender();
   });
 
-  // 刪除整則評論
+  // 刪除整則評論 → 開啟確認 Modal（不用 window.confirm / alert）
   $(document).on('click.reviews', '.btn-delete-review', function () {
     var reviewId = $(this).data('review-id');
-    deleteReview(reviewId);
+    openReviewDeleteModal(reviewId);
+  });
+
+  // Modal 內「確定刪除」才真正執行刪除
+  $(document).on('click.reviews', '#confirmDeleteReviewBtn', function () {
+    if (!pendingDeleteReviewId) return;
+    deleteReview(pendingDeleteReviewId);
+  });
+
+  // 關閉 Modal（取消、X、點背景）時清空暫存，避免之後誤刪
+  $(document).on('hidden.bs.modal.reviews', '#reviewDeleteModal', function () {
+    pendingDeleteReviewId = null;
   });
 }
 
@@ -287,11 +301,10 @@ function renderReviewCards(reviews) {
 
       var avatarSrc = r.buyerAvatar || 'https://placehold.co/44x44/cccccc/555555?text=U';
 
-      var deleteBtn = r.verifiedPurchase === false
-        ? '<span class="badge bg-light text-secondary border">唯讀舊評論</span>'
-        : '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-review"' +
-          ' data-review-id="' + escapeHtml(r.id) + '">' +
-          '<i class="fas fa-trash-alt me-1"></i>刪除評論</button>';
+      var deleteBtn =
+        '<button type="button" class="btn btn-sm btn-outline-danger btn-delete-review"' +
+        ' data-review-id="' + escapeHtml(r.id) + '">' +
+        '<i class="fas fa-trash-alt me-1"></i>刪除評論</button>';
 
       return '<div class="col-12">' +
         '<div class="card shadow-sm review-card' + getReviewCardBorderClass(r) + '"' +
@@ -334,21 +347,48 @@ function renderReviewCards(reviews) {
 }
 
 // ==========================================================
-// === 刪除評論 ===
+// === 刪除評論（Bootstrap Modal 確認，不用 alert / confirm）===
 // ==========================================================
 
 /**
+ * 開啟刪除確認 Modal，暫存目標 reviewId
+ * @param {string} reviewId
+ */
+function openReviewDeleteModal(reviewId) {
+  if (!reviewId) return;
+
+  pendingDeleteReviewId = reviewId;
+  $('#reviewDeleteTargetId').text(reviewId);
+
+  var modalEl = document.getElementById('reviewDeleteModal');
+  if (!modalEl) {
+    // Modal 應靜態放在 dashboard.html；若找不到則直接略過，避免誤刪
+    window.showAdminToast('找不到刪除確認視窗，請重新整理頁面', 'error');
+    pendingDeleteReviewId = null;
+    return;
+  }
+
+  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+/**
+ * 關閉刪除確認 Modal，並清空暫存 id
+ */
+function closeReviewDeleteModal() {
+  var modalEl = document.getElementById('reviewDeleteModal');
+  if (modalEl) {
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
+  }
+  pendingDeleteReviewId = null;
+}
+
+/**
  * 刪除整則評論（不可復原）
+ * 由 Modal「確定刪除」按鈕呼叫；不要再用 window.confirm
  * @param {string} reviewId
  */
 function deleteReview(reviewId) {
-  var target = reviewsState.allReviews.find(function (r) { return r.id === reviewId; });
-  if (target && target.verifiedPurchase === false) {
-    window.showAdminToast('舊評論為唯讀稽核資料，不能刪除', 'warning');
-    return;
-  }
-  if (!window.confirm('確定要刪除此評論嗎？此操作無法復原。')) return;
-
   var updated = reviewsState.allReviews.filter(function (r) {
     return r.id !== reviewId;
   });
@@ -361,6 +401,7 @@ function deleteReview(reviewId) {
     });
   }
 
+  closeReviewDeleteModal();
   updateReviewCount();
   applyFiltersAndRender();
   window.showAdminToast('評論 ' + reviewId + ' 已刪除', 'warning');

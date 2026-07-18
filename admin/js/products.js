@@ -5,7 +5,10 @@
  *
  * products.json 欄位對應：thumbnail（非 image）、status:"active"/"inactive"（非 active:bool）
  * Product status canonical: active = 上架, inactive = 下架（勿再用 disabled）
- * 分店庫存由 branch.branch-001 / branch-002 / branch-003 保存，總庫存由 total-stock 保存。
+ * 分店庫存僅固定據點：main + branch-001~003；租借僅 C001–C009（含租借主倉）。
+ * Store stock: preset branches only (main + branch-001~003); rental: C001–C009 only.
+ * 後台不再支援自訂分店／自訂營地；讀寫會忽略非固定 key。
+ * Custom branch/camp locations are not supported; non-preset keys are ignored on read/write.
  * 低庫存：任一分店／營地實際庫存低於其最低值時，該格數字顯示紅色（text-danger）
  * 低庫存閾值由各商品各分店在 min-stock.json 獨立設定（預設 5）
  * 篩選：分類 / 品牌多選（商店 / 租借共用 productFilterState，欄內 OR、欄間 AND）
@@ -39,79 +42,11 @@ function isFixedBranchId(branchId) {
 }
 
 /**
- * 取得 branch 物件中的自訂分店 key（非固定 ID 的 key 即為店名）。
- * Returns custom branch keys stored by branch name.
+ * 比對前後庫存時，只使用固定分店 ID。
+ * Branch keys for stock-change diff: preset IDs only.
  */
-function getCustomBranchKeys(branchStock) {
-  if (!branchStock || typeof branchStock !== 'object') {
-    return [];
-  }
-
-  return Object.keys(branchStock).filter(function (key) {
-    return !isFixedBranchId(key);
-  });
-}
-
-/**
- * 合併固定 + 自訂分店 key，供表格 / 異動比對使用。
- * Union of preset and custom branch keys for a product.
- */
-function getAllBranchKeysForProduct(product) {
-  var keyMap = {};
-
-  ADMIN_PRODUCT_BRANCH_IDS.forEach(function (branchId) {
-    keyMap[branchId] = true;
-  });
-
-  getCustomBranchKeys(product && product.branch).forEach(function (key) {
-    keyMap[key] = true;
-  });
-
-  return Object.keys(keyMap);
-}
-
-/**
- * 比對前後庫存時，合併舊資料與新資料的所有分店 key。
- * Union branch keys from old product state and next stock object.
- */
-function getBranchKeysUnionForChange(product, nextBranchStock) {
-  var keyMap = {};
-
-  getAllBranchKeysForProduct(product).forEach(function (key) {
-    keyMap[key] = true;
-  });
-
-  getCustomBranchKeys(nextBranchStock).forEach(function (key) {
-    keyMap[key] = true;
-  });
-
-  ADMIN_PRODUCT_BRANCH_IDS.forEach(function (key) {
-    keyMap[key] = true;
-  });
-
-  return Object.keys(keyMap);
-}
-
-/**
- * 依分店顯示名稱反查固定分店 ID；找不到代表自訂分店。
- * Resolve preset branch ID from display name, or null if custom.
- */
-function getBranchIdByName(name) {
-  var trimmed = String(name || '').trim();
-
-  if (trimmed === ADMIN_STORE_WAREHOUSE_LABEL) {
-    return ADMIN_STORE_WAREHOUSE_ID;
-  }
-
-  var found = null;
-
-  Object.keys(ADMIN_PRODUCT_BRANCH_LABELS).forEach(function (branchId) {
-    if (ADMIN_PRODUCT_BRANCH_LABELS[branchId] === trimmed) {
-      found = branchId;
-    }
-  });
-
-  return found;
+function getBranchKeysUnionForChange() {
+  return ADMIN_PRODUCT_BRANCH_IDS.slice();
 }
 
 // 租借庫存地點：C001=租借主倉，C002–C009=可預約營區（與 rental-skus.json / campgrounds 一致）
@@ -173,45 +108,52 @@ function createEmptyCampStock() {
   return result;
 }
 
-/** 複製分店庫存物件 / Clone branch stock object */
+/**
+ * 複製分店庫存物件（只保留固定分店 ID，忽略舊自訂 key）。
+ * Clone branch stock; keep preset IDs only (drop legacy custom keys).
+ */
 function cloneBranchStock(branchStock) {
   var cloned = createEmptyBranchStock();
   if (!branchStock || typeof branchStock !== 'object') {
     return cloned;
   }
 
-  Object.keys(branchStock).forEach(function (key) {
-    cloned[key] = normalizeStockValue(branchStock[key]);
+  ADMIN_PRODUCT_BRANCH_IDS.forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(branchStock, key)) {
+      cloned[key] = normalizeStockValue(branchStock[key]);
+    }
   });
   return cloned;
 }
 
-/** 複製營地庫存物件 / Clone camp stock object */
+/**
+ * 複製營地庫存物件（只保留固定營地 ID，忽略舊自訂 key）。
+ * Clone camp stock; keep preset camp IDs only (drop legacy custom keys).
+ */
 function cloneCampStock(campStock) {
   var cloned = createEmptyCampStock();
   if (!campStock || typeof campStock !== 'object') {
     return cloned;
   }
 
-  Object.keys(campStock).forEach(function (key) {
-    cloned[key] = normalizeStockValue(campStock[key]);
+  ADMIN_RENTAL_CAMP_IDS.forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(campStock, key)) {
+      cloned[key] = normalizeStockValue(campStock[key]);
+    }
   });
   return cloned;
 }
 
 /**
- * 加總所有規格的分店庫存，產生商品層 branch 快取。
- * Aggregate variant branch stocks into product-level branch cache.
+ * 加總所有規格的分店庫存，產生商品層 branch 快取（僅固定分店）。
+ * Aggregate variant branch stocks into product-level branch cache (preset only).
  */
 function aggregateBranchFromVariants(variants) {
   var aggregated = createEmptyBranchStock();
 
   (variants || []).forEach(function (variant) {
     var branchStock = variant && variant.branch ? variant.branch : {};
-    Object.keys(branchStock).forEach(function (branchKey) {
-      if (aggregated[branchKey] === undefined) {
-        aggregated[branchKey] = 0;
-      }
+    ADMIN_PRODUCT_BRANCH_IDS.forEach(function (branchKey) {
       aggregated[branchKey] += normalizeStockValue(branchStock[branchKey]);
     });
   });
@@ -230,18 +172,15 @@ function aggregateTotalFromVariants(variants) {
 }
 
 /**
- * 加總所有規格的營地庫存，產生 camp[] 陣列（給列表頁沿用）。
- * Aggregate variant camp stocks into rental camp[] array.
+ * 加總所有規格的營地庫存，產生 camp[] 陣列（僅固定營地，給列表頁沿用）。
+ * Aggregate variant camp stocks into rental camp[] array (preset camps only).
  */
 function aggregateRentalCampFromVariants(variants) {
   var campByKey = createEmptyCampStock();
 
   (variants || []).forEach(function (variant) {
     var campStock = variant && variant.camp ? variant.camp : {};
-    Object.keys(campStock).forEach(function (campKey) {
-      if (campByKey[campKey] === undefined) {
-        campByKey[campKey] = 0;
-      }
+    ADMIN_RENTAL_CAMP_IDS.forEach(function (campKey) {
       campByKey[campKey] += normalizeStockValue(campStock[campKey]);
     });
   });
@@ -276,8 +215,8 @@ function isFixedCampId(campId) {
 var adminProductsCache = [];
 var adminRentalsCache = [];
 var adminRentalsLoaded = false;
-// 租借表目前營區欄位 ID 順序（C001–C009 + 自訂 key）；表頭與 tbody 共用
-// Current rental table camp column order — shared by thead and tbody
+// 租借表目前營區欄位 ID 順序（僅固定 C001–C009）；表頭與 tbody 共用
+// Rental table camp column IDs: preset C001–C009 only; shared by thead/tbody
 var rentalTableCampColumnIds = ADMIN_RENTAL_CAMP_IDS.slice();
 var pendingMovementItems = [];
 
@@ -816,39 +755,14 @@ function getRentalTableColspan() {
 }
 
 /**
- * 從租借商品資料收集表頭營區欄位 ID（固定 C001–C009 + 資料中的自訂 key）。
- * Collect camp column IDs: preset C001–C009 plus custom keys from rental data.
+ * 租借表頭營區欄位 ID：僅固定 C001–C009（含租借主倉）。
+ * Rental table camp column IDs: preset C001–C009 only (includes rental warehouse).
  *
- * @param {Array} rentals
+ * @param {Array} [_rentals] - 保留參數以相容既有呼叫 / kept for call-site compatibility
  * @returns {string[]}
  */
-function collectRentalCampColumnIds(rentals) {
-  var ids = ADMIN_RENTAL_CAMP_IDS.slice();
-  var idSet = {};
-
-  ids.forEach(function (id) {
-    idSet[id] = true;
-  });
-
-  function addCustomKey(key) {
-    if (!key || idSet[key]) {
-      return;
-    }
-    idSet[key] = true;
-    ids.push(key);
-  }
-
-  (rentals || []).forEach(function (item) {
-    var rental = normalizeRentalItem(item);
-
-    Object.keys(rental.campByKey || {}).forEach(addCustomKey);
-
-    normalizeRentalVariants(rental).forEach(function (variant) {
-      Object.keys(variant.camp || {}).forEach(addCustomKey);
-    });
-  });
-
-  return ids;
+function collectRentalCampColumnIds(_rentals) {
+  return ADMIN_RENTAL_CAMP_IDS.slice();
 }
 
 /** 營區欄短標籤（表頭 / 步進器）/ Short camp column label for table header */
@@ -977,15 +891,7 @@ function getLowBranchIds(product) {
     });
   }
 
-  var lowIds = ADMIN_PRODUCT_BRANCH_IDS.filter(isBranchLow);
-
-  getCustomBranchKeys(product.branch).forEach(function (branchKey) {
-    if (isBranchLow(branchKey)) {
-      lowIds.push(branchKey);
-    }
-  });
-
-  return lowIds;
+  return ADMIN_PRODUCT_BRANCH_IDS.filter(isBranchLow);
 }
 
 /**
@@ -1002,7 +908,7 @@ function getLowCampKeys(rental) {
   var variants = normalizeRentalVariants(normalizedRental);
   var campByKey = normalizedRental.campByKey || {};
 
-  return Object.keys(campByKey).filter(function (key) {
+  return ADMIN_RENTAL_CAMP_IDS.filter(function (key) {
     return variants.some(function (variant) {
       var qty = normalizeStockValue((variant.camp || {})[key]);
       return qty < getMinStockValue('rental', normalizedRental.id, key, variant.id);
@@ -1306,34 +1212,8 @@ window.initProducts = function () {
     updateVariantCardTotal($(this).closest('.variant-stock-card'));
   });
 
-  // 規格卡片：新增自訂分店
-  $(document).on('click.products', '.add-variant-custom-branch-btn', function () {
-    var $card = $(this).closest('.variant-stock-card');
-    appendVariantCustomBranchField($card, '', 0);
-    $card.find('.variant-custom-branch-row:last .variant-custom-branch-name-input').trigger('focus');
-  });
-
-  // 規格卡片：移除自訂分店
-  $(document).on('click.products', '.remove-variant-custom-branch-btn', function () {
-    $(this).closest('.variant-custom-branch-row').remove();
-    updateVariantCardTotal($(this).closest('.variant-stock-card'));
-  });
-
   // 租借規格卡片：庫存輸入即時加總
   $(document).on('input.products', '.variant-camp-qty-input', function () {
-    updateRentalVariantCardTotal($(this).closest('.rental-variant-stock-card'));
-  });
-
-  // 租借規格卡片：新增自訂營地
-  $(document).on('click.products', '.add-variant-custom-camp-btn', function () {
-    var $card = $(this).closest('.rental-variant-stock-card');
-    appendVariantCustomCampField($card, '', 0);
-    $card.find('.variant-custom-camp-row:last .variant-custom-camp-name-input').trigger('focus');
-  });
-
-  // 租借規格卡片：移除自訂營地
-  $(document).on('click.products', '.remove-variant-custom-camp-btn', function () {
-    $(this).closest('.variant-custom-camp-row').remove();
     updateRentalVariantCardTotal($(this).closest('.rental-variant-stock-card'));
   });
 
@@ -1450,21 +1330,6 @@ window.initProducts = function () {
     }
   });
 
-  // 「新增營地」按鈕：依目前模式附加一列自訂營地
-  // Add camp row button: append a custom row based on current mode
-  $(document).on('click.products', '#addTransferCampRow', function () {
-    var isCampMode = ($('#transferSourceBranch').val() === 'camp-transfer');
-    appendCustomTransferCampRow(isCampMode);
-    syncTransferDeltaCounter();
-  });
-
-  // 刪除自訂營地列：移除該列並重新計算計數器
-  // Remove custom camp row: remove row and update counter
-  $(document).on('click.products', '.remove-transfer-camp-row', function () {
-    $(this).closest('.transfer-camp-row').remove();
-    syncTransferDeltaCounter();
-  });
-
   // 更動數量（delta）輸入：即時更新計數器
   // Delta input: update counter on every keystroke
   $(document).on('input.products', '.transfer-camp-delta', function () {
@@ -1545,10 +1410,6 @@ window.initProducts = function () {
       if (rentalEditId) {
         if (hasNegativeRawStockValues(rentalVariantState.rawValues)) {
           window.showAdminToast('庫存數量不可為負數', 'danger');
-          return;
-        }
-        if (rentalVariantState.hasInvalidCustomCamp) {
-          window.showAdminToast('請填寫自訂營地名稱', 'danger');
           return;
         }
         rentalCamps = aggregateRentalCampFromVariants(rentalVariants);
@@ -1633,11 +1494,6 @@ window.initProducts = function () {
       return;
     }
 
-    if (variantState.hasInvalidCustomBranch) {
-      window.showAdminToast('請填寫自訂分店名稱', 'danger');
-      return;
-    }
-
     var newBranchStock = aggregateBranchFromVariants(variants);
     var newTotalStock = aggregateTotalFromVariants(variants);
     var resolvedImages = resolveProductImagesForSave($form);
@@ -1689,11 +1545,6 @@ window.initProducts = function () {
           window.showAdminToast('庫存數量不可為負數', 'danger');
           return;
         }
-        if (rentalVariantStateForStore.hasInvalidCustomCamp) {
-          window.showAdminToast('請填寫自訂營地名稱', 'danger');
-          return;
-        }
-
         var storeLinkedRentalItem = {
           id: newRentalId,
           image: resolvedImages.image,
@@ -2042,21 +1893,9 @@ function confirmRentalStockChange($row, rentalId, $button) {
     nextCampByKey[campId] = getRowStockValue($row, campId);
   });
 
-  // 自訂營地（非固定 ID 的 stock-input）也收集進來
-  // Also collect custom camp fields (non-fixed IDs)
-  var fixedIdSet = {};
-  ADMIN_RENTAL_CAMP_IDS.forEach(function (id) { fixedIdSet[id] = true; });
-
-  $row.find('.stock-input').each(function () {
-    var fieldName = String($(this).data('stock-field') || '');
-    if (fieldName && !fixedIdSet[fieldName]) {
-      nextCampByKey[fieldName] = getStockInputValue($(this));
-    }
-  });
-
-  // total 由各營地加總自動計算（不再驗證手動輸入的 rental-total）
-  // total is always auto-computed from camp sum — validation check removed
-  var totalStock = Object.keys(nextCampByKey).reduce(function (sum, key) {
+  // total 由固定營地加總自動計算（不再驗證手動輸入的 rental-total）
+  // total is always auto-computed from preset camp sum — validation check removed
+  var totalStock = ADMIN_RENTAL_CAMP_IDS.reduce(function (sum, key) {
     return sum + normalizeStockValue(nextCampByKey[key]);
   }, 0);
 
@@ -2104,32 +1943,18 @@ function confirmRentalStockChangeWithReason($row, rental, rentalId, nextCampByKe
   exitStockEditMode($row, false);
 }
 
-// 依 campByKey 物件重建 camp 陣列（寫回 rental-skus.json；含 campgroundId）。
-// Rebuilds camp[] from campByKey for persistence (includes campgroundId).
+// 依 campByKey 物件重建 camp 陣列（僅固定 C001–C009；寫回 rental-skus.json）。
+// Rebuilds camp[] from campByKey for persistence (preset camps only).
 function buildCampArrayFromKey(campByKey) {
-  var fixedIdSet = {};
-  ADMIN_RENTAL_CAMP_IDS.forEach(function (id) { fixedIdSet[id] = true; });
-
+  var source = campByKey || {};
   var result = [];
 
   ADMIN_RENTAL_CAMP_IDS.forEach(function (id) {
-    if (campByKey[id] !== undefined) {
-      result.push({
-        campgroundId: id,
-        name: ADMIN_RENTAL_CAMP_FULL_NAMES[id],
-        quantity: normalizeStockValue(campByKey[id])
-      });
-    }
-  });
-
-  Object.keys(campByKey).forEach(function (key) {
-    if (!fixedIdSet[key]) {
-      result.push({
-        campgroundId: null,
-        name: key,
-        quantity: normalizeStockValue(campByKey[key])
-      });
-    }
+    result.push({
+      campgroundId: id,
+      name: ADMIN_RENTAL_CAMP_FULL_NAMES[id],
+      quantity: normalizeStockValue(source[id])
+    });
   });
 
   return result;
@@ -2172,247 +1997,6 @@ function syncRentalFormState(isRental, isEditMode, isStoreEdit) {
   }
 }
 
-// 產生一列「自訂營地」輸入列，附加到 #rentalCampList。
-// Appends a custom camp input row (name + quantity + remove button) to #rentalCampList.
-function appendRentalCampField(campName, quantity) {
-  var $row = $('<div>', { class: 'input-group input-group-sm rental-camp-row' });
-  var $label = $('<span>', { class: 'input-group-text' }).text('自訂');
-  var $nameInput = $('<input>', {
-    type: 'text',
-    class: 'form-control rental-camp-name-input',
-    placeholder: '例：山頂日出營地'
-  }).val(campName || '');
-  var $quantityInput = $('<input>', {
-    type: 'number',
-    class: 'form-control rental-camp-quantity-input',
-    min: '0',
-    value: normalizeStockValue(quantity),
-    'aria-label': '自訂營地存放數量'
-  });
-  var $removeButton = $('<button>', {
-    type: 'button',
-    class: 'btn btn-outline-danger remove-rental-camp-btn',
-    title: '移除自訂營地'
-  }).html('<i class="fas fa-times"></i>');
-
-  $row.append($label, $nameInput, $quantityInput, $removeButton);
-  $('#rentalCampList').append($row);
-  return $row;
-}
-
-// 將既有 camp 陣列回填到 Modal：所有固定營地直接填入數量，主倉填入固定列，自訂營地動態新增列。
-// Populates the modal from camp[]: fills all preset camp inputs directly; main warehouse fills fixed row; custom camps get dynamic rows.
-function populateRentalCampFields(camps) {
-  var normalizedCamps = normalizeRentalCamps(camps);
-
-  // 重置固定營地（camp-001~005）：全部數量清零（已無 checkbox，input 始終可編輯）
-  // Reset preset camps: zero all quantities (no checkboxes; inputs always enabled)
-  $('#rentalCampPresetList .rental-camp-preset-row').each(function () {
-    $(this).find('.rental-camp-quantity-input').val(0);
-  });
-
-  // 清空自訂營地列
-  $('#rentalCampList').empty();
-
-  // 主倉固定列：先歸零
-  $('#rentalEditMainQty').val(0);
-
-  normalizedCamps.forEach(function (camp) {
-    var campId = getCampIdByName(camp.name);
-
-    if (campId === ADMIN_RENTAL_WAREHOUSE_ID) {
-      // 租借主倉：填入固定列 #rentalEditMainQty
-      // Rental main warehouse: fill into the fixed row
-      $('#rentalEditMainQty').val(normalizeStockValue(camp.quantity));
-    } else if (campId) {
-      // 固定營地（camp-001~005）：直接填入數量
-      // Fixed camp (camp-001~005): fill quantity directly
-      var $presetRow = $('#rentalCampPresetList .rental-camp-preset-row[data-camp-id="' + campId + '"]');
-      $presetRow.find('.rental-camp-quantity-input').val(normalizeStockValue(camp.quantity));
-    } else {
-      // 自訂營地：動態新增列
-      // Custom camp: append a dynamic row
-      appendRentalCampField(camp.name, camp.quantity);
-    }
-  });
-
-  updateRentalStockFromCampFields();
-}
-
-/**
- * 動態新增一列自訂分店（店名 + 數量）。
- * Append one custom branch row to the product edit modal.
- */
-function appendCustomBranchField(branchName, quantity) {
-  var $row = $('<div>', { class: 'input-group input-group-sm custom-branch-row' });
-  var $label = $('<span>', { class: 'input-group-text' }).text('自訂');
-  var $nameInput = $('<input>', {
-    type: 'text',
-    class: 'form-control custom-branch-name-input',
-    placeholder: '例：台南東區店'
-  }).val(branchName || '');
-  var $quantityInput = $('<input>', {
-    type: 'number',
-    class: 'form-control custom-branch-quantity-input edit-branch-quantity-input',
-    min: '0',
-    value: normalizeStockValue(quantity),
-    'aria-label': '自訂分店存放數量'
-  });
-  var $removeButton = $('<button>', {
-    type: 'button',
-    class: 'btn btn-outline-danger remove-custom-branch-btn',
-    title: '移除自訂分店'
-  }).html('<i class="fas fa-times"></i>');
-
-  $row.append($label, $nameInput, $quantityInput, $removeButton);
-  $('#editBranchList').append($row);
-  return $row;
-}
-
-/**
- * 驗證自訂分店名稱不可為空。
- * Validate custom branch rows have non-empty names.
- */
-function validateEditBranchStockFields() {
-  var isValid = true;
-
-  $('#editBranchList .custom-branch-row').each(function () {
-    var $nameInput = $(this).find('.custom-branch-name-input');
-    var name = $nameInput.val().trim();
-    $nameInput.toggleClass('is-invalid', !name);
-
-    if (!name) {
-      isValid = false;
-    }
-  });
-
-  return isValid;
-}
-
-/**
- * 從 #editBranchPresetList 與 #editBranchList 收集各分店庫存值。
- * Reads preset and custom branch rows and builds a branch stock object.
- * @returns {Object}
- */
-function collectEditBranchStockFields() {
-  var branchStock = {};
-
-  ADMIN_PRODUCT_BRANCH_IDS.forEach(function (branchId) {
-    branchStock[branchId] = 0;
-  });
-
-  $('#editBranchPresetList .edit-branch-row').each(function () {
-    var $row = $(this);
-    var branchId = $row.data('branch-id');
-    branchStock[branchId] = normalizeStockValue($row.find('.edit-branch-quantity-input').val());
-  });
-
-  $('#editBranchList .custom-branch-row').each(function () {
-    var $row = $(this);
-    var customName = $row.find('.custom-branch-name-input').val().trim();
-    var presetBranchId = getBranchIdByName(customName);
-
-    if (!customName) {
-      return;
-    }
-
-    if (presetBranchId) {
-      branchStock[presetBranchId] = normalizeStockValue($row.find('.custom-branch-quantity-input').val());
-      return;
-    }
-
-    branchStock[customName] = normalizeStockValue($row.find('.custom-branch-quantity-input').val());
-  });
-
-  return branchStock;
-}
-
-// 收集 Modal 內的所有營地資料（主倉固定列 + 固定勾選 + 自訂列）。
-// Collects all camp data: main warehouse fixed row + checked presets + custom rows.
-function collectRentalCampFields() {
-  var camps = [];
-  var hasInvalidCamp = false;
-
-  // 租借主倉固定列（編輯模式才會顯示）：永遠加入
-  // Rental main warehouse fixed row (visible in edit mode only): always include
-  var $mainRow = $('#rentalEditMainRow');
-  if ($mainRow.length && !$mainRow.closest('.d-none').length) {
-    var mainQty = normalizeStockValue($('#rentalEditMainQty').val());
-    camps.push({
-      campgroundId: ADMIN_RENTAL_WAREHOUSE_ID,
-      name: ADMIN_RENTAL_CAMP_FULL_NAMES[ADMIN_RENTAL_WAREHOUSE_ID] || '租借主倉',
-      quantity: mainQty
-    });
-  }
-
-  // 收集固定營地（無 checkbox，全部收集，數量為 0 代表庫存 0 件）
-  // Collect all preset camps (no checkbox; quantity 0 means 0 stock at that camp)
-  $('#rentalCampPresetList .rental-camp-preset-row').each(function () {
-    var $row = $(this);
-    var campId = $row.data('camp-id');
-    var name = ADMIN_RENTAL_CAMP_FULL_NAMES[campId] || campId;
-    var quantity = normalizeStockValue($row.find('.rental-camp-quantity-input').val());
-
-    camps.push({
-      campgroundId: campId,
-      name: name,
-      quantity: quantity
-    });
-  });
-
-  // 收集自訂營地（名稱不能為空）
-  // Collect custom camp rows (name must not be empty)
-  $('#rentalCampList .rental-camp-row').each(function () {
-    var $row = $(this);
-    var $nameInput = $row.find('.rental-camp-name-input');
-    var name = $nameInput.val().trim();
-    var quantity = normalizeStockValue($row.find('.rental-camp-quantity-input').val());
-
-    $nameInput.toggleClass('is-invalid', !name);
-
-    if (!name) {
-      hasInvalidCamp = true;
-      return;
-    }
-
-    camps.push({ campgroundId: null, name: name, quantity: quantity });
-  });
-
-  // 移除「至少勾選 1 個營地」的限制：只要沒有無效自訂營地即視為有效
-  // Removed the "at least 1 checked camp" requirement; valid as long as no invalid custom camps
-  return {
-    valid: !hasInvalidCamp,
-    camps: camps
-  };
-}
-
-// 加總所有「主倉固定列」+「已勾選固定營地」+「自訂營地」數量，回填唯讀庫存欄位。
-// Sums main warehouse fixed row + checked preset camps + custom camps and updates the readonly stock field.
-function updateRentalStockFromCampFields() {
-  var total = 0;
-
-  // 主倉固定列（編輯模式才存在）
-  // Main warehouse fixed row (edit mode only)
-  var $mainRow = $('#rentalEditMainRow');
-  if ($mainRow.length && !$mainRow.closest('.d-none').length) {
-    total += normalizeStockValue($('#rentalEditMainQty').val());
-  }
-
-  // 固定營地：全部加總（無 checkbox，所有列都計入）
-  // Preset camps: sum all rows (no checkbox; all rows included)
-  $('#rentalCampPresetList .rental-camp-preset-row').each(function () {
-    total += normalizeStockValue($(this).find('.rental-camp-quantity-input').val());
-  });
-
-  // 自訂營地：全部加總
-  // Custom camps: always sum
-  $('#rentalCampList .rental-camp-row .rental-camp-quantity-input').each(function () {
-    total += normalizeStockValue($(this).val());
-  });
-
-  $('#newProductStock').val(total);
-}
-
 // 統一設定新增 / 編輯商品 Modal 的標題與送出按鈕文字。
 function setProductModalMode(mode) {
   var isEdit = mode === 'edit';
@@ -2433,20 +2017,8 @@ function normalizeProductBranch(product) {
 
   ensureProductVariantStock(product);
 
-  if (!product.branch || typeof product.branch !== 'object') {
-    product.branch = aggregateBranchFromVariants(product.variants);
-  } else {
-    ADMIN_PRODUCT_BRANCH_IDS.forEach(function (branchId) {
-      product.branch[branchId] = normalizeStockValue(product.branch[branchId]);
-    });
-
-    Object.keys(product.branch).forEach(function (branchKey) {
-      if (!isFixedBranchId(branchKey)) {
-        product.branch[branchKey] = normalizeStockValue(product.branch[branchKey]);
-      }
-    });
-  }
-
+  // 僅保留固定分店 key（忽略舊資料中的自訂分店）
+  // Keep preset branch keys only (drop legacy custom branch keys)
   product.branch = aggregateBranchFromVariants(product.variants);
   product.totalStock = aggregateTotalFromVariants(product.variants);
   delete product.stock;
@@ -2594,8 +2166,8 @@ function hasNegativeRawStockValues(rawValues) {
 }
 
 /**
- * 收集 Modal 內租借庫存欄位的原始輸入值（主倉 + 固定營地 + 自訂營地）。
- * Collects raw rental stock input values from the product modal.
+ * 收集 Modal 內租借庫存欄位的原始輸入值（固定營地 C001–C009）。
+ * Collects raw rental stock input values from the product modal (preset camps only).
  *
  * @returns {Array<string|number>}
  */
@@ -2945,17 +2517,13 @@ function buildMovementItemsForRentalChange(rental, nextCampByKey) {
   var receivers = [];
   var items = [];
 
-  // 收集所有需比對的 key（舊的聯集新的，確保自訂營地也被涵蓋）
-  var allKeys = {};
-  Object.keys(rental.campByKey || {}).forEach(function (k) { allKeys[k] = true; });
-  Object.keys(nextCampByKey || {}).forEach(function (k) { allKeys[k] = true; });
-
-  Object.keys(allKeys).forEach(function (key) {
+  // 只比對固定營地 ID（C001–C009）
+  // Diff preset camp IDs only (C001–C009)
+  ADMIN_RENTAL_CAMP_IDS.forEach(function (key) {
     var previousQty = normalizeStockValue((rental.campByKey || {})[key]);
     var nextQty = normalizeStockValue((nextCampByKey || {})[key]);
     var delta = nextQty - previousQty;
 
-    // 將 camp ID 轉換為顯示名稱（固定 ID 用 LABELS，自訂用 key 本身）
     var campLabel = ADMIN_RENTAL_CAMP_LABELS[key] || key;
 
     if (delta < 0) {
@@ -3543,14 +3111,9 @@ function ensureProductVariantStock(product) {
     if (!variant.branch || typeof variant.branch !== 'object') {
       variant.branch = createEmptyBranchStock();
     }
-    ADMIN_PRODUCT_BRANCH_IDS.forEach(function (branchId) {
-      variant.branch[branchId] = normalizeStockValue(variant.branch[branchId]);
-    });
-    Object.keys(variant.branch).forEach(function (branchKey) {
-      if (!isFixedBranchId(branchKey)) {
-        variant.branch[branchKey] = normalizeStockValue(variant.branch[branchKey]);
-      }
-    });
+    // 只保留固定分店 ID，丟棄舊自訂 key
+    // Keep preset branch IDs only; drop legacy custom keys
+    variant.branch = cloneBranchStock(variant.branch);
     variant.total = getBranchTotal(variant.branch);
   });
 
@@ -3590,10 +3153,10 @@ function normalizeRentalVariants(rental) {
       campByKey = createEmptyCampStock();
       normalizeRentalCamps(rental.camp).forEach(function (camp) {
         var campId = camp.campgroundId || getCampIdByName(camp.name);
-        if (campId) {
+        // 只接受固定營地 ID，忽略舊自訂名稱
+        // Accept preset camp IDs only; ignore legacy custom names
+        if (campId && isFixedCampId(campId)) {
           campByKey[campId] = camp.quantity;
-        } else {
-          campByKey[camp.name] = camp.quantity;
         }
       });
     }
@@ -3611,24 +3174,16 @@ function normalizeRentalVariants(rental) {
     if (!variant.id) {
       variant.id = rental.id ? ('v-' + rental.id + '-' + index) : generateVariantId();
     }
-    if (!variant.camp || typeof variant.camp !== 'object') {
-      variant.camp = createEmptyCampStock();
-    }
-    ADMIN_RENTAL_CAMP_IDS.forEach(function (campId) {
-      variant.camp[campId] = normalizeStockValue(variant.camp[campId]);
-    });
-    Object.keys(variant.camp).forEach(function (campKey) {
-      if (!isFixedCampId(campKey)) {
-        variant.camp[campKey] = normalizeStockValue(variant.camp[campKey]);
-      }
-    });
+    // 只保留固定營地 ID，丟棄舊自訂 key
+    // Keep preset camp IDs only; drop legacy custom keys
+    variant.camp = cloneCampStock(variant.camp);
     variant.total = getBranchTotal(variant.camp);
   });
 
   return variants;
 }
 
-/** 確保租借商品含 variants 並同步 camp / campByKey 快取 */
+/** 確保租借商品含 variants 並同步 camp / campByKey 快取（僅固定營地） */
 function ensureRentalVariantStock(rental) {
   if (!rental) {
     return rental;
@@ -3638,11 +3193,8 @@ function ensureRentalVariantStock(rental) {
   var campByKey = createEmptyCampStock();
 
   rental.variants.forEach(function (variant) {
-    Object.keys(variant.camp || {}).forEach(function (campKey) {
-      if (campByKey[campKey] === undefined) {
-        campByKey[campKey] = 0;
-      }
-      campByKey[campKey] += normalizeStockValue(variant.camp[campKey]);
+    ADMIN_RENTAL_CAMP_IDS.forEach(function (campKey) {
+      campByKey[campKey] += normalizeStockValue((variant.camp || {})[campKey]);
     });
   });
 
@@ -3708,33 +3260,6 @@ function buildVariantBranchListHtml(branchStock) {
   return html;
 }
 
-/** 在規格卡片內新增自訂分店列 / Append custom branch row inside variant card */
-function appendVariantCustomBranchField($card, branchName, quantity) {
-  var $row = $('<div>', { class: 'input-group input-group-sm variant-custom-branch-row mt-1' });
-  var $label = $('<span>', { class: 'input-group-text' }).text('自訂');
-  var $nameInput = $('<input>', {
-    type: 'text',
-    class: 'form-control variant-custom-branch-name-input',
-    placeholder: '例：台南東區店'
-  }).val(branchName || '');
-  var $quantityInput = $('<input>', {
-    type: 'number',
-    class: 'form-control variant-branch-qty-input variant-custom-branch-qty-input',
-    min: '0',
-    value: normalizeStockValue(quantity),
-    'aria-label': '自訂分店存放數量'
-  });
-  var $removeButton = $('<button>', {
-    type: 'button',
-    class: 'btn btn-outline-danger remove-variant-custom-branch-btn',
-    title: '移除自訂分店'
-  }).html('<i class="fas fa-times"></i>');
-
-  $row.append($label, $nameInput, $quantityInput, $removeButton);
-  $card.find('.variant-custom-branch-list').append($row);
-  return $row;
-}
-
 /**
  * 建立租借規格卡片內的營地列表 HTML（左 label、右 input）。
  * Build preset camp quantity inputs as horizontal input-group rows.
@@ -3754,33 +3279,6 @@ function buildVariantCampListHtml(campStock) {
   });
   html += '</div>';
   return html;
-}
-
-/** 在租借規格卡片內新增自訂營地列 / Append custom camp row inside rental variant card */
-function appendVariantCustomCampField($card, campName, quantity) {
-  var $row = $('<div>', { class: 'input-group input-group-sm variant-custom-camp-row mt-1' });
-  var $label = $('<span>', { class: 'input-group-text' }).text('自訂');
-  var $nameInput = $('<input>', {
-    type: 'text',
-    class: 'form-control variant-custom-camp-name-input',
-    placeholder: '例：山頂日出營地'
-  }).val(campName || '');
-  var $quantityInput = $('<input>', {
-    type: 'number',
-    class: 'form-control variant-camp-qty-input variant-custom-camp-qty-input',
-    min: '0',
-    value: normalizeStockValue(quantity),
-    'aria-label': '自訂營地存放數量'
-  });
-  var $removeButton = $('<button>', {
-    type: 'button',
-    class: 'btn btn-outline-danger remove-variant-custom-camp-btn',
-    title: '移除自訂營地'
-  }).html('<i class="fas fa-times"></i>');
-
-  $row.append($label, $nameInput, $quantityInput, $removeButton);
-  $card.find('.variant-custom-camp-list').append($row);
-  return $row;
 }
 
 /** 取得規格卡片標題文字 / Get variant card display title from color + size */
@@ -3883,12 +3381,7 @@ function addProductVariantCard(variant, mode) {
   if (isEdit) {
     $body.append(
       $('<div>', { class: 'mt-2 variant-branch-section' }).append(
-        $(buildVariantBranchListHtml(branchStock)),
-        $('<div>', { class: 'variant-custom-branch-list mt-1' }),
-        $('<button>', {
-          type: 'button',
-          class: 'btn btn-outline-secondary btn-sm mt-1 add-variant-custom-branch-btn'
-        }).html('<i class="fas fa-plus me-1"></i>新增分店')
+        $(buildVariantBranchListHtml(branchStock))
       )
     );
   } else {
@@ -3907,10 +3400,6 @@ function addProductVariantCard(variant, mode) {
   $card.append($toolbar, $body);
   $wrapper.append($card);
   $('#productVariantCardList').append($wrapper);
-
-  getCustomBranchKeys(branchStock).forEach(function (branchName) {
-    appendVariantCustomBranchField($card, branchName, branchStock[branchName]);
-  });
 
   updateVariantCardTitle($card);
   updateVariantCardTotal($card);
@@ -3956,23 +3445,12 @@ function addRentalVariantCard(variant) {
   var $body = $('<div>', { class: 'rental-variant-stock-card__body' });
   $body.append(
     $('<div>', { class: 'form-label form-label-sm text-muted mb-1' }).text('各營地庫存'),
-    $(buildVariantCampListHtml(campStock)),
-    $('<div>', { class: 'variant-custom-camp-list mt-1' }),
-    $('<button>', {
-      type: 'button',
-      class: 'btn btn-outline-secondary btn-sm mt-1 add-variant-custom-camp-btn'
-    }).html('<i class="fas fa-plus me-1"></i>新增自訂營地')
+    $(buildVariantCampListHtml(campStock))
   );
 
   $card.append($toolbar, $body);
   $wrapper.append($card);
   $('#rentalVariantStockList').append($wrapper);
-
-  Object.keys(campStock).forEach(function (campKey) {
-    if (!isFixedCampId(campKey)) {
-      appendVariantCustomCampField($card, campKey, campStock[campKey]);
-    }
-  });
 
   updateRentalVariantCardTotal($card);
   return $card;
@@ -3997,55 +3475,35 @@ function getVariantDisplayTotal(variant, inventoryType) {
   return getBranchTotal(variant.branch || {});
 }
 
-/** 從規格卡片收集分店庫存 / Collect branch stock from one variant card */
+/**
+ * 從規格卡片收集分店庫存（僅固定分店）。
+ * Collect branch stock from one variant card (preset branches only).
+ */
 function collectVariantBranchStockFromCard($card) {
   var branchStock = createEmptyBranchStock();
 
   $card.find('.variant-branch-list .variant-branch-qty-input').each(function () {
     var branchId = $(this).data('branch-id');
-    if (branchId) {
+    if (branchId && isFixedBranchId(branchId)) {
       branchStock[branchId] = normalizeStockValue($(this).val());
     }
-  });
-
-  $card.find('.variant-custom-branch-row').each(function () {
-    var customName = $(this).find('.variant-custom-branch-name-input').val().trim();
-    var presetBranchId = getBranchIdByName(customName);
-    if (!customName) {
-      return;
-    }
-    if (presetBranchId) {
-      branchStock[presetBranchId] = normalizeStockValue($(this).find('.variant-custom-branch-qty-input').val());
-      return;
-    }
-    branchStock[customName] = normalizeStockValue($(this).find('.variant-custom-branch-qty-input').val());
   });
 
   return branchStock;
 }
 
-/** 從租借規格卡片收集營地庫存 / Collect camp stock from one rental variant card */
+/**
+ * 從租借規格卡片收集營地庫存（僅固定營地）。
+ * Collect camp stock from one rental variant card (preset camps only).
+ */
 function collectVariantCampStockFromCard($card) {
   var campStock = createEmptyCampStock();
 
   $card.find('.variant-camp-list .variant-camp-qty-input').each(function () {
     var campId = $(this).data('camp-id');
-    if (campId) {
+    if (campId && isFixedCampId(campId)) {
       campStock[campId] = normalizeStockValue($(this).val());
     }
-  });
-
-  $card.find('.variant-custom-camp-row').each(function () {
-    var customName = $(this).find('.variant-custom-camp-name-input').val().trim();
-    if (!customName) {
-      return;
-    }
-    var campId = getCampIdByName(customName);
-    if (campId) {
-      campStock[campId] = normalizeStockValue($(this).find('.variant-custom-camp-qty-input').val());
-      return;
-    }
-    campStock[customName] = normalizeStockValue($(this).find('.variant-custom-camp-qty-input').val());
   });
 
   return campStock;
@@ -4141,7 +3599,6 @@ function getProductVariantsWithStock(mode) {
   var stockMode = mode || getProductModalStockMode();
   var variants = [];
   var labels = {};
-  var hasInvalidCustomBranch = false;
   var rawValues = [];
 
   $('#productVariantCardList .variant-stock-card').each(function () {
@@ -4169,14 +3626,6 @@ function getProductVariantsWithStock(mode) {
       rawValues = rawValues.concat(
         $card.find('.variant-branch-qty-input').map(function () { return $(this).val(); }).get()
       );
-      $card.find('.variant-custom-branch-row').each(function () {
-        var $nameInput = $(this).find('.variant-custom-branch-name-input');
-        var name = $nameInput.val().trim();
-        $nameInput.toggleClass('is-invalid', !name);
-        if (!name) {
-          hasInvalidCustomBranch = true;
-        }
-      });
       branchStock = collectVariantBranchStockFromCard($card);
     }
 
@@ -4197,7 +3646,6 @@ function getProductVariantsWithStock(mode) {
   return {
     variants: variants,
     duplicateLabel: duplicateLabel || null,
-    hasInvalidCustomBranch: hasInvalidCustomBranch,
     rawValues: rawValues
   };
 }
@@ -4208,7 +3656,6 @@ function getProductVariantsWithStock(mode) {
  */
 function collectRentalVariantsWithStock() {
   var variants = [];
-  var hasInvalidCustomCamp = false;
   var rawValues = [];
 
   $('#rentalVariantStockList .rental-variant-stock-card').each(function () {
@@ -4229,15 +3676,6 @@ function collectRentalVariantsWithStock() {
       $card.find('.variant-camp-qty-input').map(function () { return $(this).val(); }).get()
     );
 
-    $card.find('.variant-custom-camp-row').each(function () {
-      var $nameInput = $(this).find('.variant-custom-camp-name-input');
-      var name = $nameInput.val().trim();
-      $nameInput.toggleClass('is-invalid', !name);
-      if (!name) {
-        hasInvalidCustomCamp = true;
-      }
-    });
-
     var campStock = collectVariantCampStockFromCard($card);
     variants.push({
       id: variantId || generateVariantId(),
@@ -4251,7 +3689,6 @@ function collectRentalVariantsWithStock() {
 
   return {
     variants: variants,
-    hasInvalidCustomCamp: hasInvalidCustomCamp,
     rawValues: rawValues
   };
 }
@@ -4812,49 +4249,6 @@ function fillProductModal(product) {
   renderProductImagePreviews(product.image || '', product.images || []);
 }
 
-/**
- * 將商品各分店庫存帶入 #editBranchPresetList 的輸入欄，
- * 並更新總庫存顯示。
- * Fills #editBranchPresetList inputs with product.branch values and updates total.
- * @param {Object} product - 商店商品物件（含 branch 欄位）
- */
-function fillEditBranchStockFields(product) {
-  $('#editBranchPresetList .edit-branch-row').each(function () {
-    var $row = $(this);
-    var branchId = $row.data('branch-id');
-    var qty = getProductBranchStock(product, branchId);
-
-    $row.find('.edit-branch-quantity-input').val(qty);
-  });
-
-  $('#editBranchList').empty();
-  getCustomBranchKeys(product && product.branch).forEach(function (branchName) {
-    appendCustomBranchField(branchName, getProductBranchStock(product, branchName));
-  });
-
-  updateEditBranchTotal();
-}
-
-/**
- * 加總所有分店的數量，更新 #editBranchTotalStock 的顯示。
- * 數量為 0 代表該分店庫存 0 件（仍計入加總）。
- * Sums all branch quantities and updates the read-only total display.
- * Zero means that branch has 0 stock (still included in total).
- */
-function updateEditBranchTotal() {
-  var total = 0;
-
-  $('#editBranchPresetList .edit-branch-row').each(function () {
-    total += normalizeStockValue($(this).find('.edit-branch-quantity-input').val());
-  });
-
-  $('#editBranchList .custom-branch-row').each(function () {
-    total += normalizeStockValue($(this).find('.custom-branch-quantity-input').val());
-  });
-
-  $('#editBranchTotalStock').text(total);
-}
-
 // 將租借商品資料回填到新增商品 Modal，並帶入各營地庫存明細。
 // Populates the modal with rental product data and switches to edit mode.
 function fillRentalModal(rental) {
@@ -4918,18 +4312,6 @@ function resetProductModalForm() {
   // Loss reason fields have been removed; nothing to reset here.
 
   clearProductImagePreviews();
-}
-
-/**
- * 將分店庫存區塊的所有欄位歸零、全部勾選並啟用，準備下一次編輯使用。
- * Resets all branch stock inputs to 0, checks all checkboxes, and enables all inputs.
- */
-function resetEditBranchStockFields() {
-  $('#editBranchPresetList .edit-branch-row').each(function () {
-    $(this).find('.edit-branch-quantity-input').val(0);
-  });
-  $('#editBranchList').empty();
-  $('#editBranchTotalStock').text(0);
 }
 
 function upsertAdminProductCache(product) {
@@ -5032,11 +4414,7 @@ function buildProductVariantDetailRows(product) {
     return '';
   }
 
-  var customBranchKeys = getCustomBranchKeys(product.branch);
   var branchColumnIds = ADMIN_PRODUCT_BRANCH_IDS.slice();
-  customBranchKeys.forEach(function (key) {
-    branchColumnIds.push(key);
-  });
 
   return variants.map(function (variant) {
     var branchStock = variant.branch || {};
@@ -5200,15 +4578,12 @@ function buildProductRow(p) {
     // ── 固定欄 5：總庫存量（唯讀；可展開規格明細）──
     buildStoreTotalStockCell(p, stock) +
 
-    // ── 可捲動欄：商店主倉 + 固定三家分店 + 自訂分店 ──
+    // ── 可捲動欄：商店主倉 + 固定三家分店（僅固定據點）──
     buildStoreStockCell(p, ADMIN_STORE_WAREHOUSE_ID, ADMIN_STORE_WAREHOUSE_LABEL, lowBranchIds) +
     ADMIN_PRODUCT_BRANCH_IDS.filter(function (branchId) {
       return branchId !== ADMIN_STORE_WAREHOUSE_ID;
     }).map(function (branchId) {
       return buildStoreStockCell(p, branchId, getBranchLabel(branchId), lowBranchIds);
-    }).join('') +
-    getCustomBranchKeys(p.branch).map(function (customBranchKey) {
-      return buildStoreStockCell(p, customBranchKey, customBranchKey, lowBranchIds);
     }).join('') +
     (isMinStockMode ? buildStockEditColumnCell() : '') +
 
@@ -5378,18 +4753,9 @@ function getTransferableVariants(product, rental) {
 function refreshTransferSourceBranchOptions(product, variantId) {
   var previousBranch = $('#transferSourceBranch').val();
   var $sourceBranch = $('#transferSourceBranch').empty();
-  var variant = findStoreVariant(product, variantId);
-  var branchKeys = getAllBranchKeysForProduct(product);
-
-  // 若規格有自訂分店 key，一併列入
-  // Also include custom branch keys from the selected variant
-  if (variant && variant.branch) {
-    Object.keys(variant.branch).forEach(function (key) {
-      if (branchKeys.indexOf(key) === -1) {
-        branchKeys.push(key);
-      }
-    });
-  }
+  // 來源分店：僅固定分店（含商店主倉）
+  // Source branches: preset store locations only (includes main warehouse)
+  var branchKeys = ADMIN_PRODUCT_BRANCH_IDS.slice();
 
   branchKeys.forEach(function (branchId) {
     var qty = getVariantBranchStock(product, variantId, branchId);
@@ -5574,8 +4940,8 @@ function resetTransferCampRows(rental, variantId) {
 }
 
 /**
- * 產生「選中規格」所有可選營地選項（主倉優先，再固定營地，再自訂營地）。
- * Builds camp options from the selected rental variant's camp map.
+ * 產生「選中規格」固定營地選項（C001–C009，含租借主倉）。
+ * Builds preset camp options from the selected rental variant's camp map.
  * @param {Object} rental    - 目標租借商品物件
  * @param {string} variantId - 規格 ID
  * @returns {Array} 選項陣列 { value, label, currentQty }
@@ -5588,23 +4954,12 @@ function buildTransferCampOptions(rental, variantId) {
     ? rentalVariant.camp
     : (rental.campByKey || {});
 
-  var fixedIdSet = {};
-  ADMIN_RENTAL_CAMP_IDS.forEach(function (id) { fixedIdSet[id] = true; });
-
   var options = [];
 
-  // 固定營地（含主倉）依預設順序排列
   ADMIN_RENTAL_CAMP_IDS.forEach(function (campId) {
     var label = ADMIN_RENTAL_CAMP_LABELS[campId] || campId;
     var qty   = normalizeStockValue(campByKey[campId]);
     options.push({ value: campId, label: label, currentQty: qty });
-  });
-
-  // 自訂營地排在最後
-  Object.keys(campByKey).forEach(function (key) {
-    if (!fixedIdSet[key]) {
-      options.push({ value: key, label: key, currentQty: normalizeStockValue(campByKey[key]) });
-    }
   });
 
   return options;
@@ -5644,55 +4999,6 @@ function appendTransferCampRow(campKey, campLabel, currentQty) {
     class:           'd-flex gap-2 align-items-center transfer-camp-row',
     'data-camp-key': campKey
   }).append($name).append($curQty).append($delta);
-
-  $('#transferCampRows').append($row);
-}
-
-/**
- * 在 #transferCampRows 新增一列「自訂營地列」（可填名稱，含 ✕ 刪除按鈕）。
- * 格式：[名稱輸入框] [0 件（唯讀）] [更動數量（delta input）] [✕ 刪除]
- *
- * Appends a custom camp row with name input and delete button.
- * @param {boolean} isCampMode - 是否為 Mode 2（影響 delta 的 min 屬性）
- */
-function appendCustomTransferCampRow(isCampMode) {
-  // 名稱輸入框
-  var $nameInput = $('<input>', {
-    type:        'text',
-    class:       'form-control form-control-sm transfer-camp-custom-name flex-grow-1',
-    placeholder: '自訂營地名稱'
-  });
-
-  // 當前庫存（固定 0 件，唯讀）
-  var $curQty = $('<span>', {
-    class:             'input-group-text transfer-camp-current-qty text-muted',
-    style:             'min-width: 56px;',
-    'data-current-qty': 0
-  }).text('0 件');
-
-  // 更動數量（delta）輸入框
-  var deltaAttrs = {
-    type:  'number',
-    class: 'form-control form-control-sm transfer-camp-delta',
-    value: 0,
-    style: 'width: 60px;'
-  };
-  // Mode 2 允許負數，Mode 1 最小為 0
-  if (!isCampMode) { deltaAttrs.min = 0; }
-  var $delta = $('<input>', deltaAttrs);
-
-  // 刪除按鈕
-  var $removeBtn = $('<button>', {
-    type:  'button',
-    class: 'btn btn-outline-danger btn-sm remove-transfer-camp-row',
-    title: '移除此行'
-  }).html('<i class="fas fa-times"></i>');
-
-  // 組合成一列（data-camp-key 空白，提交時以名稱輸入框的值為準）
-  var $row = $('<div>', {
-    class:           'd-flex gap-2 align-items-center transfer-camp-row transfer-camp-row-custom',
-    'data-camp-key': ''
-  }).append($nameInput).append($curQty).append($delta).append($removeBtn);
 
   $('#transferCampRows').append($row);
 }
@@ -5832,17 +5138,13 @@ function submitBranchToCampTransfer() {
     return;
   }
 
-  // ── 收集所有 delta > 0 的列 ────────────────────
+  // ── 收集所有 delta > 0 的固定營地列 ────────────────────
   var distributions = [];
   $('#transferCampRows .transfer-camp-row').each(function () {
     var $row    = $(this);
     var campKey = $row.data('camp-key');
-    // 自訂列以名稱輸入框的值作為 campKey
-    if (!campKey) {
-      campKey = $.trim($row.find('.transfer-camp-custom-name').val());
-    }
     var delta = parseInt($row.find('.transfer-camp-delta').val()) || 0;
-    if (campKey && delta > 0) {
+    if (campKey && isFixedCampId(campKey) && delta > 0) {
       distributions.push({ campKey: campKey, delta: delta });
     }
   });
@@ -5948,17 +5250,14 @@ function submitCampTransfer() {
     return;
   }
 
-  // ── 收集所有 delta ≠ 0 的列 ─────────────────────
+  // ── 收集所有 delta ≠ 0 的固定營地列 ─────────────────────
   var distributions = [];
   $('#transferCampRows .transfer-camp-row').each(function () {
     var $row    = $(this);
     var campKey = $row.data('camp-key');
-    if (!campKey) {
-      campKey = $.trim($row.find('.transfer-camp-custom-name').val());
-    }
     var delta      = parseInt($row.find('.transfer-camp-delta').val()) || 0;
     var curQty     = parseInt($row.find('.transfer-camp-current-qty').attr('data-current-qty')) || 0;
-    if (campKey && delta !== 0) {
+    if (campKey && isFixedCampId(campKey) && delta !== 0) {
       distributions.push({ campKey: campKey, delta: delta, currentQty: curQty });
     }
   });

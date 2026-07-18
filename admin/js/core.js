@@ -58,7 +58,7 @@ var EDIT_PERMISSION_SELECTORS = {
   products: '[data-bs-target="#addProductModal"], .edit-product-name, .stock-edit-btn, .stock-confirm-btn, .stock-cancel-btn, #submitAddProduct',
   customers: '#addCustomerBtn, #saveCustomerBtn, #addCustomerModal input:not([readonly]), #addCustomerModal select, #addCustomerModal button:not(.btn-close):not([data-bs-dismiss="modal"]), .shipping-address-edit-btn, #saveCustomerShippingAddressBtn, #customerShippingAddressModal input, #customerShippingAddressModal select, #customerShippingAddressModal button:not(.btn-close):not([data-bs-dismiss="modal"]), .phone-edit-btn, .email-edit-btn, .birthday-edit-btn, .tier-edit-btn, .points-edit-btn, .tags-edit-btn, .tags-done-btn, .tags-cancel-btn, .tag-add-btn, .tag-delete-btn, .customer-edit-confirm-btn, .customer-edit-cancel-all-btn, #customerEditConfirmBtn',
   discounts: '#submitAddCoupon, .btn-toggle-coupon, .btn-delete-coupon, #generateCouponCode, #addCouponForm input, #addCouponForm select, #addCouponForm textarea, #addCouponForm button:not(.btn-close)',
-  reviews: '.btn-delete-review',
+  reviews: '.btn-delete-review, #confirmDeleteReviewBtn',
   bookings: '.btn-confirm-booking, .btn-cancel-booking, #btnSaveBookingSellerNote, #bkModalSellerNote',
   'booking-calendar': '#bcBtnClosureSettings, #bcBtnSaveClosure, #bcBtnCloseSingleDay, .bc-btn-delete-closure',
   permissions: '#addEmployeeBtn, .btn-edit-employee, .btn-toggle-employee, #employeeModal input:not([readonly]), #employeeModal button:not(.btn-close):not([data-bs-dismiss]), #saveEmployeeBtn, .perm-view-cb, .perm-edit-cb, #empIsSuperAdmin',

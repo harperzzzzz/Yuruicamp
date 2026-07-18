@@ -220,12 +220,8 @@
           </div>
           <!-- 說明文字：依模式由 JS 切換內容 -->
           <small class="text-muted d-block mb-2" id="transferModeHint">以下為本次從來源分店調入各營地的數量（0 = 不異動）</small>
-          <!-- 動態列容器：每列包含 [營地下拉] [數量輸入] [刪除按鈕] -->
+          <!-- 動態列容器：固定營地列（C001–C009），由 JS 產生 -->
           <div id="transferCampRows" class="d-flex flex-column gap-2"></div>
-          <!-- 新增一列目標營地 -->
-          <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="addTransferCampRow">
-            <i class="fas fa-plus me-1"></i>新增營地
-          </button>
         </div>
 
       </div><!-- end modal-body -->

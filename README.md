@@ -440,7 +440,7 @@ Yuruicamp/
 │   │   ├── analytics.js          # 數據總覽：KPI 計算、Chart.js 折線圖 + 甜甜圈圖
 │   │   ├── orders.js             # 訂單管理：表格、篩選、出貨操作、詳情 Modal
 │   │   ├── movement.js           # 庫存異動紀錄：配送店 / 接收店 / 負責員工 ID 異動表格
-│   │   ├── products.js           # 商品管理：商店 / 租借頁籤、庫存編輯、多營地租借庫存、新增 Modal
+│   │   ├── products.js           # 商品管理：商店 / 租借頁籤、固定據點庫存（main/branch、C001–C009）、調撥、新增 Modal
 │   │   ├── customers.js          # 會員管理：Accordion、等級/點數/優惠券編輯
 │   │   ├── discounts.js          # 折扣管理：優惠券 CRUD、隨機碼產生
 │   │   ├── reviews.js            # 評論管理：評論卡片、星等篩選、回覆功能

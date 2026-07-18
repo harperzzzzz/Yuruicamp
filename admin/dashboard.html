@@ -653,6 +653,36 @@
   </div>
 
   <!-- ============================================================
+       全域 Modal：刪除評論確認（靜態放在 dashboard，由 reviews.js 控制）
+       ============================================================ -->
+  <div class="modal fade" id="reviewDeleteModal" tabindex="-1"
+       aria-labelledby="reviewDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="reviewDeleteModalLabel">
+            <i class="fas fa-exclamation-triangle me-2 text-danger"></i>刪除評論確認
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1">確定要刪除此評論嗎？</p>
+          <p class="text-muted small mb-0">
+            評論編號：<strong id="reviewDeleteTargetId">—</strong><br>
+            此操作無法復原。
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+          <button type="button" id="confirmDeleteReviewBtn" class="btn btn-danger">
+            <i class="fas fa-trash-alt me-1"></i>確定刪除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        全域 Modal：公休設定（booking-calendar.js）
        ============================================================ -->
   <div class="modal fade" id="bcClosureModal" tabindex="-1"
