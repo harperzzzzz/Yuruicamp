@@ -53,7 +53,7 @@ public class ProductController {
 	@Operation(
 			summary = "List sellable products",
 			description = """
-					B-1: Returns active products with active variants.
+					B-1/B-3: Returns a page of active products with active variants.
 					Response shape is locked by docs/api/product-api-contract.md (v0.2).
 					No auth required.
 					""")

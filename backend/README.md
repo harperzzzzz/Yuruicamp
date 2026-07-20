@@ -81,7 +81,9 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 .\mvnw.cmd test
 ```
 
-## 線 A／B 進度
+## 後端進度
+
+後端流程文件放在 `docs/backend-specs/`，使用「用途、流程、規則、驗證結果」的簡短格式。
 
 | 項目 | 狀態 |
 |------|------|
@@ -90,21 +92,32 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | Firebase ID Token Security | ✅ |
 | Customer／Admin session | ✅ |
 | MapStruct | ✅ |
-| **B-1／B-2 商品公開讀** | ✅ `GET /api/products`、`GET /api/products/{id}` |
+| **B-1～B-3 商品公開讀** | ✅ 列表、詳情、PostgreSQL 分頁／排序與錯誤 Envelope；見 [`B-3 驗收文件`](../docs/backend-specs/catalog/b3-product-pagination-validation.md) |
+| **B-5a 基本商品規格** | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格 |
+| **B-5b 規格可售庫存** | ⬜ 尚未建立 variant 層級庫存讀模型與 API 欄位；見 [`B-5 狀態文件`](../docs/backend-specs/catalog/b5-product-variants-stock-status.md) |
+| **C-1 訂單／明細／庫存保留 Entity** | ✅ Hibernate `ddl-auto=validate` 已通過；見 [`C-1 驗收文件`](../docs/backend-specs/order/c1-entity-schema-validation.md) |
+| **C-2 建立 Checkout** | ✅ 會員層冪等、Payload 衝突偵測、空值保障；見 [`C-2 驗收文件`](../docs/backend-specs/checkout/c2-create-checkout-idempotency.md) |
+| **C-3／C-5／C-7 庫存與金額** | ✅ PostgreSQL 防超賣、取消釋放與後端價格重算已通過；見 [`整合驗收文件`](../docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md) |
 | API 契約索引（P0+P1） | [`docs/api/README.md`](../docs/api/README.md) |
 | 商品契約（已實作） | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md) |
 | 代辦清單 A～J | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md) |
-| 結帳／ECPay／細 RBAC | ❌ 線 C 起 |
+| 結帳／ECPay／細 RBAC | 🔄 C-3 以後待實作／驗收 |
+
+### Schema 整合驗證
+
+`RUN_BACKEND_IT=true` 時，`BackendApplicationTests` 會連線 Docker PostgreSQL 並載入完整 Spring Context；因 `ddl-auto=validate`，Context 成功即代表目前所有 JPA Entity 已通過 Schema 驗證。
+
+`DB_PASSWORD` 必須與 Docker `.env` 的 `POSTGRES_PASSWORD` 相同。若出現 `password authentication failed`，先修正連線密碼；不要修改 Entity，也不要將 `ddl-auto` 改成 `update`。
 
 ### 開發用商品種子
 
-全新 Docker volume 會自動跑 `docs/seed/002-dev-catalog-min.sql`。  
+全新 Docker volume 會自動跑 `docs/seed/002-dev-catalog.sql`，並建立 `V001` 的 `10` 件 Checkout 開發庫存。
 既有資料庫請手動灌一次：
 
 ```powershell
 # PowerShell 管線可能弄壞 UTF-8 中文，請用 docker cp
-docker cp ..\docs\seed\002-dev-catalog-min.sql yuruicamp-db:/tmp/002-dev-catalog-min.sql
-docker exec yuruicamp-db psql -U postgres -d yuruicamp -v ON_ERROR_STOP=1 -f /tmp/002-dev-catalog-min.sql
+docker cp ..\docs\seed\002-dev-catalog.sql yuruicamp-db:/tmp/002-dev-catalog.sql
+docker exec yuruicamp-db psql -U postgres -d yuruicamp -v ON_ERROR_STOP=1 -f /tmp/002-dev-catalog.sql
 ```
 
 驗收：

@@ -321,4 +321,44 @@ INSERT INTO public.equipment_interest_tags (item_id, tag) VALUES ('E030', 'safet
 INSERT INTO public.equipment_tags (item_id, tag) VALUES ('E030', '其他') ON CONFLICT (item_id, tag) DO NOTHING;
 INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V030-01', 'P030', 'P030-01', '50入', NULL, 199.00, '50入', 'inactive') ON CONFLICT (id) DO NOTHING;
 
+-- 建立 Swagger Checkout 可使用的門市庫位與 V001 庫存。
+INSERT INTO public.inventory_locations (
+    id,
+    code,
+    inventory_domain,
+    type,
+    branch_id,
+    name,
+    active
+)
+VALUES (
+    'DEV-STORE-MAIN',
+    'DEV-STORE-MAIN',
+    'store',
+    'main',
+    NULL,
+    '開發測試主倉',
+    true
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    active = EXCLUDED.active,
+    updated_at = now();
+
+INSERT INTO public.inventory_stocks (
+    location_id,
+    variant_id,
+    on_hand_quantity,
+    inventory_domain
+)
+VALUES (
+    'DEV-STORE-MAIN',
+    'V001',
+    10,
+    'store'
+)
+ON CONFLICT (location_id, variant_id) DO UPDATE SET
+    on_hand_quantity = EXCLUDED.on_hand_quantity,
+    updated_at = now();
+
 COMMIT;

@@ -10,6 +10,22 @@
 | [`plans/`](./plans/) | 規劃與遷移規格 | 例如 [`plans/frontend-folder-migration-spec.md`](./plans/frontend-folder-migration-spec.md) |
 | [`docker-compose.yml`](./docker-compose.yml) + [`.env.example`](./.env.example) | 本機 PostgreSQL | 資料庫基礎設施 |
 
+### 後端實作狀態
+
+後端程式使用簡短中文註解；流程文件集中在 `docs/backend-specs/`，只保留用途、主要流程與驗證結果。
+
+- Catalog `GET /api/products` 與 `GET /api/products/{id}` 已完成；B-3 PostgreSQL 分頁、`id`／`name` 排序、參數錯誤 Envelope 與實際 Controller 驗收已通過。
+- B-3 驗收範圍與執行方式見 [`docs/backend-specs/catalog/b3-product-pagination-validation.md`](./docs/backend-specs/catalog/b3-product-pagination-validation.md)。
+- B-5 基本商品規格已隨商品 API 落地：`variants[]` 只回 active variant；規格層級可售庫存尚未實作，需先升版契約並建立 variant 庫存讀模型。
+- B-5 範圍與資料來源見 [`docs/backend-specs/catalog/b5-product-variants-stock-status.md`](./docs/backend-specs/catalog/b5-product-variants-stock-status.md)。
+- Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
+- C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
+- Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
+- C-2 流程與驗收見 [`docs/backend-specs/checkout/c2-create-checkout-idempotency.md`](./docs/backend-specs/checkout/c2-create-checkout-idempotency.md)。
+- Checkout 線 C 的 C-3、C-5、C-7 已完成：PostgreSQL 併發防超賣、取消釋放保留帳及後端價格重算均已通過整合測試。
+- C-3、C-5、C-7 流程與結果見 [`docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md`](./docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md)；C-6 逾時排程仍待實作。
+- 開發 Seed 已提供 `DEV-STORE-MAIN` 與 `V001` 的 `10` 件庫存，可直接從 Swagger 驗證 Checkout。
+
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
 
 前端的 npm／Vite **根目錄是 `frontend/`**，必須先進入該資料夾再啟動。  

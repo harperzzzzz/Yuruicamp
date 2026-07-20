@@ -201,14 +201,25 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ---
 
-## 5. v0.1 **明確不做**（之後版本再談）
+## 5. B-5 範圍與目前狀態
+
+| 子項 | 狀態 | v0.2 行為 |
+|------|------|-----------|
+| B-5a 基本商品規格 | 已完成 | `variants[]` 只回 active variant，包含 `id`、`sku`、`color`、`size`、`specification`、`price` |
+| B-5b 規格層級可售庫存 | 未實作 | v0.2 不回傳 `availableQuantity`／`inStock`；實作前必須先升版契約 |
+
+`sellable_product_variants` 只代表商品、器材與 variant 狀態可販售，不包含實際庫存。規格可售量應以 `variant_id` 為粒度，計算 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity`；現有以 `product_id` 聚合的 `product_stock_summary` 不足以判斷單一顏色／尺寸是否缺貨。
+
+---
+
+## 6. v0.2 **明確不做**（之後版本再談）
 
 以下舊 Mock／頁面欄位**不得**出現在本契約回應裡（避免前後端各寫各的）：
 
 | 欄位／概念 | 原因 |
 |------------|------|
 | `rentalId`／`rentalEnabled` | 租借領域，另 API |
-| `interestTags`／`tags`／`specifications` 物件 | 附屬表；B-5 以後可擴充契約版本 |
+| `interestTags`／`tags`／`specifications` 物件 | 附屬表；不屬於 B-5a 基本 variant 契約，之後可升版擴充 |
 | `images[]`（多圖） | v0.2 只主圖 `image` |
 | `totalStock`／`branch`／`variants[].branch` | 庫存讀模型；進結帳再嚴謹查 |
 | `rating`／`reviewCount`／`salesCount` | 評價／訂單衍生；前端可另算 |
@@ -220,7 +231,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ---
 
-## 6. 前端 Mock 對齊規則
+## 7. 前端 Mock 對齊規則
 
 | 模式 | 行為 |
 |------|------|
@@ -236,7 +247,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ---
 
-## 7. OpenAPI
+## 8. OpenAPI
 
 - Controller 使用 `@Operation`／`@Schema` 描述與本文件相同的欄位、分頁參數與 `meta`
 - Swagger UI：`http://localhost:8080/swagger-ui.html` → **Catalog**
@@ -244,7 +255,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ---
 
-## 8. 變更流程（強制）
+## 9. 變更流程（強制）
 
 1. 改本文件（升版號、寫 changelog）
 2. 改後端 DTO／組裝
@@ -256,5 +267,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.2 | 2026-07-20 | 文件釐清 B-5：基本 `variants[]` 已隨 B-1／B-2 完成；規格層級可售庫存尚未實作，需升版後才能加入 |
+| 0.2 | 2026-07-20 | B-3 驗收：非空跨頁、PostgreSQL `id`／`name` 雙向排序、非法參數 Envelope、超頁 meta 與 Controller HTTP 整合測試通過 |
 | 0.2 | 2026-07-20 | B-3：列表支援 page／size／id、name 白名單排序，並回傳分頁 meta |
 | 0.1 | 2026-07-20 | 初版：B-1／B-2 精簡欄位（甲）鎖定 |

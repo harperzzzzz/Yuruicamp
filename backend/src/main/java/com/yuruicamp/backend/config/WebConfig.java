@@ -14,12 +14,14 @@ public class WebConfig {
 
 	@Bean
 	CorsConfigurationSource corsConfigurationSource(YuruicampProperties properties) {
+		// 用途：建立整個後端共用的 CORS 規則，讓允許的前端來源可以呼叫 API。
+		// 核心重點：支援設定檔清單及逗號分隔環境變數；未設定時只開放本機 Vite 開發來源。
 		List<String> origins = properties.getCors().getAllowedOrigins();
 		if (origins == null || origins.isEmpty()) {
 			origins = List.of("http://127.0.0.1:5173", "http://localhost:5173");
 		}
 		else if (origins.size() == 1 && origins.getFirst().contains(",")) {
-			// Support single env var: "http://a,http://b"
+			// 支援單一環境變數形式，例如 "http://a,http://b"。
 			origins = Arrays.stream(origins.getFirst().split(","))
 					.map(String::trim)
 					.filter(s -> !s.isEmpty())

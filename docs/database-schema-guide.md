@@ -102,7 +102,7 @@ erDiagram
 
 ## 資料如何流動
 
-1. **商品下單**：`equipment_items` → `products` → `product_variants`；進結帳寫待付款 `orders`、`order_items`（快照）、`product_stock_reservations` 與 `checkout_expires_at`。狀態寫 `order_status_history`；ECPay 通知寫 `payment_notifications`／`order_event_history`。用券：`coupon_claims`（consumed）+ `order_coupons`。
+1. **商品下單**：`equipment_items` → `products` → `product_variants`；進結帳寫待付款 `orders`、`order_items`（快照）、`product_stock_reservations` 與 `checkout_expires_at`。`orders.checkout_idempotency_key` 以會員為範圍唯一，搭配 `checkout_request_hash` 防止重送建單與同鍵異內容。狀態寫 `order_status_history`；ECPay 通知寫 `payment_notifications`／`order_event_history`。用券：`coupon_claims`（consumed）+ `order_coupons`。
 2. **營區預約**：讀 `campgrounds`／zones／closures／`zone_blocks`，呼叫 `get_zone_availability()`。成立後寫 `bookings`（含付款欄位、禁止 COD）、選取明細與 `rental_stock_reservations`。入住區間 `[check_in, check_out)`。占用狀態僅政策允許的 `pending`／`confirmed`。
 3. **庫存異動**：`inventory_movements` 草稿 + store／rental 明細；`posted` 才正式生效。`inventory_conversions` 將商城規格轉入租借規格。
 4. **內容與評價**：`articles` + 區塊／標籤／關聯商品。正式評論僅能對 `order_items` 一筆 `reviews`；圖在 `review_photos`。
@@ -820,13 +820,15 @@ erDiagram
 
 ### `public.orders`
 **用途：** （見 DDL／database-documents）
-**鍵：** PRIMARY KEY: id
+**鍵：** PRIMARY KEY: id；UNIQUE: customer_id, checkout_idempotency_key
 **關聯：** customer_id → customers(id)
 
 | 欄位 | 型別 | 必填 | 預設值 |
 | --- | --- | --- | --- |
 | `id` | `character varying(32)` | 是 | `—` |
 | `customer_id` | `character varying(32)` | 是 | `—` |
+| `checkout_idempotency_key` | `character varying(128)` | 否 | `—` |
+| `checkout_request_hash` | `character varying(64)` | 否 | `—` |
 | `buyer_name_snapshot` | `character varying(100)` | 是 | `—` |
 | `buyer_email_snapshot` | `character varying(254)` | 是 | `—` |
 | `recipient_name_snapshot` | `character varying(100)` | 是 | `—` |

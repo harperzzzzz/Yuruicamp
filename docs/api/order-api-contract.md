@@ -26,6 +26,8 @@
 
 > 不提供公開 `GET /api/orders?customerId=`（避免越權）。舊前端若用 `customerId=me`，接線時改 `/api/me/orders`。
 
+> C-2 內部持久化：`orders.checkout_idempotency_key` 與 `checkout_request_hash` 僅用於建立 Checkout 的重送回放及衝突偵測，不屬於會員 Order 回應欄位。
+
 後台列表／出貨見 [`admin-api-contract.md`](./admin-api-contract.md)。
 
 ---

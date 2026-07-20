@@ -19,8 +19,8 @@
 | Schema | DB 欄位／ENUM／保留逾時 | ✅ |
 | **契約** | P0+P1 API Contracts（甲） | ✅ 見 [`docs/api/README.md`](../docs/api/README.md) |
 | **A** | 骨架（Security／Session／Envelope／OpenAPI） | ✅ |
-| **B** | Catalog 公開讀（商品） | 🔄 B-1／B-2 落地；B-3～B-7 待做 |
-| **C** | Checkout + 庫存保留 + 15 分排程 | 🔄 基礎實作中；待編譯與整合驗收 |
+| **B** | Catalog 公開讀（商品） | 🔄 B-1～B-3、B-5a 已完成；B-4、B-5b～B-7 待做 |
+| **C** | Checkout + 庫存保留 + 15 分排程 | 🔄 C-1／C-2／C-3／C-5／C-7 已驗收；C-4／C-6／C-8 待完成 |
 | **D** | Payment（ECPay + COD） | ⬜（契約已鎖） |
 | **E** | Booking（營位 + 租借） | ⬜（契約已鎖） |
 | **F** | Coupon 三種規則 | ⬜（契約已鎖） |
@@ -66,9 +66,10 @@
 |------|------|------|
 | B-1 | `GET /api/products` 列表（active） | ✅ |
 | B-2 | `GET /api/products/{id}` 詳情 | ✅ |
-| B-3 | 分頁 `page`／`size`／`sort` | 🔄 實作中（Product API Contract v0.2） |
+| B-3 | 分頁 `page`／`size`／`sort` | ✅ PostgreSQL／Controller 整合驗收通過（Product API Contract v0.2） |
 | B-4 | 篩選 category／brand／價格 | ⬜（見 Service 教學註解） |
-| B-5 | 加深 variants／可賣庫存（View） | ⬜（見 Service 教學註解） |
+| B-5a | 基本商品規格 `variants[]` | ✅ 已隨 B-1／B-2 落地；只回 active variant，包含 SKU／顏色／尺寸／規格／價格 |
+| B-5b | 規格層級可售庫存（View／Read Model） | ⬜ 尚未實作；需先升版 Product API Contract，再加入 `availableQuantity`／`inStock` |
 | B-6 | Security：`GET /api/products/**` 公開 | ✅ |
 | B-7 | （作業）`GET /api/branches` 同套路 | ⬜ |
 
@@ -78,21 +79,26 @@
 - [x] Postman／curl：`GET /api/products/{id}` → 單筆；不存在 → `NOT_FOUND`（404）
 - [x] Swagger Tag：`Catalog`
 - [x] Mock／後端皆對齊 [`product-api-contract.md`](../docs/api/product-api-contract.md)（Mock 以 `_toProductContract` 正規化）
+- [x] 基本 `variants[]` 隨列表／詳情回傳，只包含 active variant，價格為兩位小數字串
+- [ ] 規格層級可售庫存：`inventory_stocks - active product_stock_reservations`，尚未建立 Catalog 讀模型與 API 欄位
+- [x] B-3：非空分頁、跨頁無重複／遺漏、`id`／`name` 雙向 PostgreSQL 排序、參數錯誤 Envelope、超頁 meta 與實際 Controller 驗收
+
+> B-3 驗收細節與執行指令見 [`b3-product-pagination-validation.md`](../docs/backend-specs/catalog/b3-product-pagination-validation.md)。
 
 ---
 
 ## 線 C — Checkout + 庫存保留（P0）
 
-- [ ] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`（🔄 已建立，待驗證）
-- [ ] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳；🔄 已建立，待驗證）
-- [ ] C-3 交易內悲觀鎖／防超賣（🔄 已實作庫存列 pessimistic lock，待併發驗證）
+- [x] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`（Hibernate `ddl-auto=validate` + Docker PostgreSQL 整合測試通過）
+- [x] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳；會員層冪等、Payload 指紋與空值保障已驗收）
+- [x] C-3 交易內悲觀鎖／防超賣（PostgreSQL 雙執行緒競爭最後一件庫存，只有一筆成功）
 - [ ] C-4 `PATCH .../sessions/{orderId}`
-- [ ] C-5 `POST .../cancel`（🔄 已建立，待驗證保留帳釋放）
+- [x] C-5 `POST .../cancel`（PostgreSQL 驗證保留帳由 `active` 改為 `released`）
 - [ ] C-6 `@Scheduled` 15 分鐘逾時釋放
-- [ ] C-7 金額後端重算（🔄 已實作，待驗證）
-- [ ] C-8 整合測試：鎖庫、超賣、逾時
+- [x] C-7 金額後端重算（偽造 `unitPrice`／`total` 不會覆蓋資料庫價格）
+- [ ] C-8 整合測試：鎖庫與超賣已完成；逾時排程仍待 C-6
 
-> 勾選規則：C-1／C-2／C-3／C-5／C-7 雖已有程式碼，因 Maven 編譯／整合測試尚未通過，維持未勾選；完成驗收後才可標記 ✅。
+> C-1／C-2／C-3／C-5／C-7 已於 2026-07-20 通過 PostgreSQL 驗收。C-1 見 [`c1-entity-schema-validation.md`](../docs/backend-specs/order/c1-entity-schema-validation.md)，C-2 見 [`c2-create-checkout-idempotency.md`](../docs/backend-specs/checkout/c2-create-checkout-idempotency.md)，庫存與金額見 [`c3-c5-c7-postgresql-validation.md`](../docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md)。
 
 ---
 

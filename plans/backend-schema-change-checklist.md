@@ -95,3 +95,4 @@
 - `DROP SCHEMA IF EXISTS public CASCADE` 再 `CREATE SCHEMA public`（否則空庫上 `CREATE SCHEMA public` 會失敗）
 - `branch_features.id` 改為 IDENTITY（避免 sequence 在表之後建立）
 - `active_rental_listing_view` 移到 `rental_skus`／`rental_sku_variants` 之後
+- C-2 Checkout 冪等：`orders.checkout_idempotency_key`、`checkout_request_hash` 與 `UNIQUE (customer_id, checkout_idempotency_key)`。

@@ -312,7 +312,7 @@ POST /api/booking/checkout/sessions
 | 格式 | JSON；`Content-Type: application/json` |
 | 認證 | `Authorization: Bearer <Firebase ID Token>` |
 | 文件 | `/swagger-ui` + `/v3/api-docs`（springdoc） |
-| 幂等 | 建單／Webhook 支援 `Idempotency-Key` header 或 body key |
+| 冪等 | 建立 Checkout 必填 body `idempotencyKey`；以會員為範圍唯一並保存請求 SHA-256 指紋。Webhook 另依 Payment 契約處理。 |
 | 命名 | URL 用 kebab-case 資源；JSON 欄位建議 **camelCase** 對齊前端；DB 維持 snake_case |
 
 ### 6.2 統一回應 Envelope

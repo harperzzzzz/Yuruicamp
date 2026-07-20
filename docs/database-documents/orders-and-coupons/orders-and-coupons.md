@@ -75,6 +75,9 @@ coupons
 ### orders
 * id                         訂單識別碼
 * customer_id                下單會員 ID
+  checkout_idempotency_key   建立結帳的客戶端冪等鍵，可空；同一會員不可重複。
+                             *UNIQUE (customer_id, checkout_idempotency_key)*
+  checkout_request_hash      正規化建立請求的 SHA-256 指紋，可空；用來拒絕同鍵異內容。
 * buyer_name_snapshot        下單當時的購買人姓名快照
 * buyer_email_snapshot       下單當時的購買人 Email 快照
 * recipient_name_snapshot    收件人姓名快照

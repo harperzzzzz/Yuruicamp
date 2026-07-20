@@ -1,10 +1,10 @@
-# Checkout API Contract（v0.1）
+# Checkout API Contract（v0.2）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（線 C 待實作） |
+| **狀態** | Locked（C-2 已實作） |
 | **日期** | 2026-07-20 |
-| **版本** | 0.1 |
+| **版本** | 0.2 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **相關** | [`order-api-contract.md`](./order-api-contract.md)、[`payment-api-contract.md`](./payment-api-contract.md)、[`coupon-api-contract.md`](./coupon-api-contract.md) |
 | **策略** | **D1.A**：待付款 `orders` + `product_stock_reservations`；**不**另建 `checkout_sessions` 表 |
@@ -48,7 +48,7 @@
 | `shipping.recipientName` | string | 條件 | |
 | `shipping.phone` | string | 條件 | |
 | `shipping.address` | string | 條件 | |
-| `idempotencyKey` | string | 建議 | 防重複建單 |
+| `idempotencyKey` | string | 是 | 1～128 字元；防重複建單 |
 
 **忽略（不可當真相）：** 前端傳的 `unitPrice`／`total`／`discount`（可選帶入僅供對照；不符 → `CONFLICT`）。
 
@@ -61,6 +61,15 @@
 5. 建立 `product_stock_reservations`（`status=active`，`expires_at=now+15m`）  
 6. 若有券：驗證資格後寫入關聯（見 Coupon 契約）；金額重算  
 7. 回傳 `CheckoutSession`
+
+### 2.2.1 冪等與空值規則
+
+- `idempotencyKey` 以會員為範圍唯一，保存於 `orders.checkout_idempotency_key`。
+- 相同會員使用相同鍵與相同正規化 Payload 重送時，回傳原本的 `CheckoutSession`，不得建立第二張訂單或第二組庫存保留。
+- 相同會員重用相同鍵但 Payload 不同時，回傳 `409 CONFLICT`。
+- 正規化 Payload 的 SHA-256 指紋保存於 `orders.checkout_request_hash`。
+- `items`、`items[]`、`variantId`、正整數 `quantity` 與 `idempotencyKey` 不得為空；空 Body 或無效 JSON 回傳 `400 VALIDATION_ERROR`。
+- `shipping` 可空；收件人、電話或地址不足時以 `PENDING_CHECKOUT` 建立草稿，避免違反訂單快照的 `NOT NULL`，並回傳 `checkoutStep=draft`。
 
 ### 2.3 Response — `CheckoutSession`
 
@@ -139,6 +148,8 @@
 | 結帳逾時 | 409 | `CHECKOUT_EXPIRED` |
 | 非本人訂單 | 403 | `FORBIDDEN` |
 | 券不可用 | 409 | `COUPON_NOT_APPLICABLE` |
+| 缺少 Body／商品／冪等鍵 | 400 | `VALIDATION_ERROR` |
+| 相同冪等鍵搭配不同 Payload | 409 | `CONFLICT` |
 
 （實作時把新 code 加進 `ErrorCode` 與本表。）
 
@@ -165,4 +176,5 @@
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.2 | 2026-07-20 | C-2：冪等鍵必填、重送回放、Payload 衝突與空值保障 |
 | 0.1 | 2026-07-20 | D1.A + 15 分 + pricing 字串金額 |

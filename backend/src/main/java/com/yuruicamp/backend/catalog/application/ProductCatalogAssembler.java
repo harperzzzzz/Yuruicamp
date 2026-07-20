@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 public class ProductCatalogAssembler {
 
 	public ProductResponse toResponse(Product product, String imageUrl) {
+		// 用途：把商品實體及指定圖片網址組裝成對外的商品回應 DTO。
+		// 核心重點：只公開 active 規格、固定規格排序，並集中處理最低價與關聯資料的 null 值。
 		List<ProductVariantResponse> variants = product.getVariants().stream()
 				.filter(v -> "active".equals(v.getStatus()))
 				.sorted(Comparator.comparing(ProductVariant::getId))
@@ -48,11 +50,15 @@ public class ProductCatalogAssembler {
 	}
 
 	public ProductResponse toResponse(Product product, Map<String, String> imageByItemId) {
+		// 用途：從「器材 ID → 圖片網址」對照表取得商品主圖，再沿用主要組裝流程。
+		// 核心重點：以 EquipmentItem ID 查圖，避免清單中的每項商品各自再查一次資料庫。
 		String image = imageByItemId.get(product.getItem().getId());
 		return toResponse(product, image);
 	}
 
 	private ProductVariantResponse toVariant(ProductVariant variant) {
+		// 用途：把商品規格實體轉成 API 使用的規格 DTO。
+		// 核心重點：價格必須透過 money 統一輸出為兩位小數字串。
 		return new ProductVariantResponse(
 				variant.getId(),
 				variant.getSku(),
@@ -62,12 +68,17 @@ public class ProductCatalogAssembler {
 				money(variant.getPrice()));
 	}
 
-	/** Contract: always two decimal places as string. */
+	/**
+	 * 用途：依 API 契約把金額轉成固定兩位小數的字串。
+	 * 核心重點：使用 HALF_UP 四捨五入，並以 toPlainString 避免科學記號。
+	 */
 	static String money(BigDecimal value) {
 		return value.setScale(2, RoundingMode.HALF_UP).toPlainString();
 	}
 
 	private static String minPrice(List<ProductVariantResponse> variants) {
+		// 用途：計算所有有效規格中的最低售價。
+		// 核心重點：以 BigDecimal 比較避免浮點誤差；沒有規格時依契約回傳 0.00。
 		return variants.stream()
 				.map(ProductVariantResponse::price)
 				.map(BigDecimal::new)
