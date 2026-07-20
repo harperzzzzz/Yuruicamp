@@ -46,7 +46,14 @@ admin_user_permissions 對 admin_users 採 `ON UPDATE CASCADE ON DELETE CASCADE`
 * role                系統角色；
                       只允許 admin、operator、warehouse
 
-* active              帳號是否啟用；預設 true
+* active              帳號是否啟用；預設 true。
+                      `active=true` 且 `firebase_uid` 為 NULL：已建立、待首次 Google 綁定。
+                      `active=false`：停用（勿與「待綁定」混淆）。
+
+  firebase_uid        Firebase Google UID，可空。
+                      首次 Google 登入成功時綁定。
+                      *uq_admin_users_firebase_uid*（NULLS DISTINCT）
+
 * created_at          建立時間；預設 now()。
 * updated_at          最後更新時間；預設 now()，
                       但 schema 沒有自動更新 Trigger。
