@@ -947,6 +947,15 @@ CREATE TABLE public.bookings (
     CONSTRAINT fk_bookings_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
+-- Name: branch_features_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.branch_features_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 
 --
 -- Name: branch_features; Type: TABLE; Schema: public; Owner: -
@@ -963,15 +972,6 @@ CREATE TABLE public.branch_features (
 
 
 --
--- Name: branch_features_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.branch_features_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
 
 
 --
@@ -2335,32 +2335,6 @@ CREATE VIEW public.rental_listing_view AS
 COMMENT ON VIEW public.rental_listing_view IS 'P3 read-only listing/location/physical-stock projection; reservation availability belongs to P4.';
 
 
---
--- Name: active_rental_listing_view; Type: VIEW; Schema: public; Owner: -
---
-
-CREATE VIEW public.active_rental_listing_view AS
- SELECT listing.id,
-    listing.campground_id,
-    listing.rental_sku_variant_id,
-    mapping.location_id,
-    listing.price_per_day_weekday,
-    listing.price_per_day_holiday,
-    listing.discount,
-    COALESCE(stock.on_hand_quantity, 0) AS stock
-   FROM public.rental_listings listing
-     JOIN public.campground_rental_locations mapping ON (((mapping.campground_id)::text = (listing.campground_id)::text))
-     JOIN public.rental_sku_variants variant ON (((variant.id)::text = (listing.rental_sku_variant_id)::text))
-     JOIN public.rental_skus sku ON (((sku.id)::text = (variant.rental_sku_id)::text))
-     LEFT JOIN public.rental_sku_variant_stocks stock ON ((((stock.location_id)::text = (mapping.location_id)::text) AND ((stock.rental_sku_variant_id)::text = (listing.rental_sku_variant_id)::text)))
-  WHERE ((listing.active = true) AND ((sku.status)::text = 'active'::text) AND ((variant.status)::text = 'active'::text));
-
-
---
--- Name: VIEW active_rental_listing_view; Type: COMMENT; Schema: public; Owner: -
---
-
-COMMENT ON VIEW public.active_rental_listing_view IS 'Canonical read-only projection of rentable active listings; filters listing, rental SKU, and variant status.';
 
 
 --
@@ -2378,6 +2352,9 @@ CREATE TABLE public.rental_sku_variant_min_stocks (
 
     CONSTRAINT fk_rental_sku_variant_min_stocks_location_id FOREIGN KEY (location_id) REFERENCES public.inventory_locations(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+--
+
 
 
 --
@@ -2426,6 +2403,32 @@ CREATE TABLE public.rental_skus (
 --
 
 COMMENT ON TABLE public.rental_skus IS '租借 SKU 群組＝庫存唯一寫入來源 / Rental stock authority. JSON: data/admin/rental-skus.json';
+
+-- Name: active_rental_listing_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.active_rental_listing_view AS
+ SELECT listing.id,
+    listing.campground_id,
+    listing.rental_sku_variant_id,
+    mapping.location_id,
+    listing.price_per_day_weekday,
+    listing.price_per_day_holiday,
+    listing.discount,
+    COALESCE(stock.on_hand_quantity, 0) AS stock
+   FROM public.rental_listings listing
+     JOIN public.campground_rental_locations mapping ON (((mapping.campground_id)::text = (listing.campground_id)::text))
+     JOIN public.rental_sku_variants variant ON (((variant.id)::text = (listing.rental_sku_variant_id)::text))
+     JOIN public.rental_skus sku ON (((sku.id)::text = (variant.rental_sku_id)::text))
+     LEFT JOIN public.rental_sku_variant_stocks stock ON ((((stock.location_id)::text = (mapping.location_id)::text) AND ((stock.rental_sku_variant_id)::text = (listing.rental_sku_variant_id)::text)))
+  WHERE ((listing.active = true) AND ((sku.status)::text = 'active'::text) AND ((variant.status)::text = 'active'::text));
+
+
+--
+-- Name: VIEW active_rental_listing_view; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON VIEW public.active_rental_listing_view IS 'Canonical read-only projection of rentable active listings; filters listing, rental SKU, and variant status.';
 
 
 --
