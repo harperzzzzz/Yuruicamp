@@ -137,4 +137,10 @@ public class Order {
     public String getPaymentStatus() {
         return paymentStatus;
     }
+
+    public void markPaid(OffsetDateTime paidAt) {
+        this.paymentStatus = "paid";
+        this.paidAt = paidAt;
+        this.updatedAt = paidAt;
+    }
 }

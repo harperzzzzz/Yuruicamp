@@ -29,6 +29,7 @@ public class PaymentService {
     private static final DateTimeFormatter ECPAY_DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(TAIPEI_ZONE);
     private static final int MERCHANT_TRADE_NO_MAX_ATTEMPTS = 5;
+    private static final String ECPAY_OK_RESPONSE = "1|OK";
 
     private final OrderRepository orderRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
@@ -76,6 +77,61 @@ public class PaymentService {
         );
     }
 
+    @Transactional
+    public String handleEcpayReturn(Map<String, String> callbackFields) {
+        requireEcpayConfig();
+
+        if (callbackFields == null || callbackFields.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ECPay callback payload is empty.");
+        }
+        if (!isValidCheckMacValue(callbackFields)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ECPay CheckMacValue.");
+        }
+        if (!ecpayProperties.getMerchantId().equals(callbackFields.get("MerchantID"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid ECPay MerchantID.");
+        }
+
+        String merchantTradeNo = callbackFields.get("MerchantTradeNo");
+        if (isBlank(merchantTradeNo)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MerchantTradeNo is required.");
+        }
+
+        PaymentTransaction transaction = paymentTransactionRepository.findByMerchantTradeNo(merchantTradeNo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Payment transaction not found: " + merchantTradeNo));
+        Order order = transaction.getOrder();
+        validateCallbackAmount(callbackFields, transaction, order);
+        validateGatewayTradeNo(callbackFields, transaction);
+
+        if (transaction.isPaid()) {
+            return ECPAY_OK_RESPONSE;
+        }
+        if (!"1".equals(callbackFields.get("RtnCode"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ECPay payment was not successful.");
+        }
+        if ("1".equals(callbackFields.get("SimulatePaid"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Simulated ECPay payment cannot mark an order as paid.");
+        }
+        if (isBlank(callbackFields.get("TradeNo"))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TradeNo is required for paid ECPay callbacks.");
+        }
+        if (!"pending".equalsIgnoreCase(transaction.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Payment transaction is not pending: " + transaction.getStatus());
+        }
+        if (!"unpaid".equalsIgnoreCase(order.getPaymentStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Order payment status is not unpaid: " + order.getPaymentStatus());
+        }
+
+        OffsetDateTime callbackReceivedAt = OffsetDateTime.now(TAIPEI_ZONE);
+        OffsetDateTime paidAt = parsePaymentDate(callbackFields.get("PaymentDate"), callbackReceivedAt);
+        transaction.markPaid(callbackFields.get("TradeNo"), callbackReceivedAt, paidAt);
+        order.markPaid(paidAt);
+        return ECPAY_OK_RESPONSE;
+    }
+
     private void requireEcpayConfig() {
         if (isBlank(ecpayProperties.getMerchantId())
                 || isBlank(ecpayProperties.getHashKey())
@@ -89,6 +145,53 @@ public class PaymentService {
 
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private boolean isValidCheckMacValue(Map<String, String> callbackFields) {
+        return ecpayCheckMacValue.verify(callbackFields, ecpayProperties.getHashKey(), ecpayProperties.getHashIv());
+    }
+
+    private void validateCallbackAmount(Map<String, String> callbackFields,
+            PaymentTransaction transaction, Order order) {
+        BigDecimal callbackAmount = parseIntegerAmount(callbackFields.get("TotalAmount"));
+        BigDecimal transactionAmount = normalizeIntegerTwdAmount(transaction.getAmount());
+        BigDecimal orderAmount = normalizeIntegerTwdAmount(order.getTotal());
+        if (callbackAmount.compareTo(transactionAmount) != 0 || callbackAmount.compareTo(orderAmount) != 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ECPay callback amount does not match.");
+        }
+    }
+
+    private BigDecimal parseIntegerAmount(String rawAmount) {
+        if (isBlank(rawAmount)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TotalAmount is required.");
+        }
+        try {
+            return normalizeIntegerTwdAmount(new BigDecimal(rawAmount));
+        } catch (ArithmeticException | NumberFormatException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "TotalAmount is invalid.", ex);
+        }
+    }
+
+    private void validateGatewayTradeNo(Map<String, String> callbackFields, PaymentTransaction transaction) {
+        String callbackTradeNo = callbackFields.get("TradeNo");
+        if (!isBlank(transaction.getGatewayTradeNo())
+                && (isBlank(callbackTradeNo) || !transaction.getGatewayTradeNo().equals(callbackTradeNo))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Payment transaction already has a different gateway trade number.");
+        }
+    }
+
+    private OffsetDateTime parsePaymentDate(String rawPaymentDate, OffsetDateTime fallback) {
+        if (isBlank(rawPaymentDate)) {
+            return fallback;
+        }
+        try {
+            return java.time.LocalDateTime.parse(rawPaymentDate, DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss"))
+                    .atZone(TAIPEI_ZONE)
+                    .toOffsetDateTime();
+        } catch (java.time.DateTimeException ex) {
+            return fallback;
+        }
     }
 
     private BigDecimal normalizeIntegerTwdAmount(BigDecimal total) {

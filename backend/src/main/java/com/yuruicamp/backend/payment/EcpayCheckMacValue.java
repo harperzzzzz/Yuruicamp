@@ -25,6 +25,17 @@ public class EcpayCheckMacValue {
         return sha256(encoded).toUpperCase(Locale.ROOT);
     }
 
+    public boolean verify(Map<String, String> fields, String hashKey, String hashIv) {
+        String received = fields.get("CheckMacValue");
+        if (received == null || received.isBlank()) {
+            return false;
+        }
+        String expected = generate(fields, hashKey, hashIv);
+        return MessageDigest.isEqual(
+                received.toUpperCase(Locale.ROOT).getBytes(StandardCharsets.UTF_8),
+                expected.getBytes(StandardCharsets.UTF_8));
+    }
+
     private String ecpayUrlEncode(String value) {
         return URLEncoder.encode(value, StandardCharsets.UTF_8)
                 .replace("%2D", "-")
@@ -33,7 +44,8 @@ public class EcpayCheckMacValue {
                 .replace("%21", "!")
                 .replace("%2A", "*")
                 .replace("%28", "(")
-                .replace("%29", ")");
+                .replace("%29", ")")
+                .replace("~", "%7e");
     }
 
     private String sha256(String value) {

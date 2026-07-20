@@ -54,6 +54,12 @@ public class PaymentTransaction {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @Column(name = "callback_received_at")
+    private OffsetDateTime callbackReceivedAt;
+
+    @Column(name = "paid_at")
+    private OffsetDateTime paidAt;
+
     protected PaymentTransaction() {
     }
 
@@ -63,7 +69,7 @@ public class PaymentTransaction {
         this.merchantTradeNo = merchantTradeNo;
         this.amount = amount;
         this.currency = "TWD";
-        this.paymentMethod = "credit-card";
+        this.paymentMethod = "ecpay-credit";
         this.status = "pending";
         this.createdAt = now;
         this.updatedAt = now;
@@ -91,5 +97,29 @@ public class PaymentTransaction {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getGatewayTradeNo() {
+        return gatewayTradeNo;
+    }
+
+    public OffsetDateTime getCallbackReceivedAt() {
+        return callbackReceivedAt;
+    }
+
+    public OffsetDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public boolean isPaid() {
+        return "paid".equalsIgnoreCase(status);
+    }
+
+    public void markPaid(String gatewayTradeNo, OffsetDateTime callbackReceivedAt, OffsetDateTime paidAt) {
+        this.status = "paid";
+        this.gatewayTradeNo = gatewayTradeNo;
+        this.callbackReceivedAt = callbackReceivedAt;
+        this.paidAt = paidAt;
+        this.updatedAt = callbackReceivedAt;
     }
 }

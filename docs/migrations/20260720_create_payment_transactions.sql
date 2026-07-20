@@ -6,18 +6,21 @@ CREATE TABLE public.payment_transactions (
     gateway_trade_no character varying(64),
     amount numeric(14,2) NOT NULL,
     currency character varying(3) DEFAULT 'TWD'::character varying NOT NULL,
-    payment_method public.payment_method DEFAULT 'credit-card'::public.payment_method NOT NULL,
+    payment_method public.payment_method DEFAULT 'ecpay-credit'::public.payment_method NOT NULL,
     status character varying(24) DEFAULT 'pending'::character varying NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    callback_received_at timestamp with time zone,
+    paid_at timestamp with time zone,
 
     CONSTRAINT ck_payment_transactions_amount CHECK ((amount >= (0)::numeric AND amount = trunc(amount))),
     CONSTRAINT ck_payment_transactions_currency CHECK (((currency)::text = 'TWD'::text)),
     CONSTRAINT ck_payment_transactions_gateway CHECK (((gateway)::text = 'ECPAY'::text)),
-    CONSTRAINT ck_payment_transactions_status CHECK (((status)::text = 'pending'::text)),
+    CONSTRAINT ck_payment_transactions_status CHECK (((status)::text = ANY ((ARRAY['pending'::character varying, 'paid'::character varying])::text[]))),
     CONSTRAINT pk_payment_transactions PRIMARY KEY (id),
     CONSTRAINT uq_payment_transactions_merchant_trade_no UNIQUE (merchant_trade_no),
     CONSTRAINT fk_payment_transactions_order_id FOREIGN KEY (order_id) REFERENCES public.orders(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 CREATE INDEX idx_payment_transactions_order_id ON public.payment_transactions USING btree (order_id);
+CREATE UNIQUE INDEX uq_payment_transactions_gateway_trade_no ON public.payment_transactions USING btree (gateway_trade_no) WHERE (gateway_trade_no IS NOT NULL);
