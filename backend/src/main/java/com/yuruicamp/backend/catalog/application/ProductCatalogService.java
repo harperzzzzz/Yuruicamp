@@ -12,9 +12,13 @@ import com.yuruicamp.backend.catalog.domain.EquipmentImage;
 import com.yuruicamp.backend.catalog.domain.Product;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.catalog.infrastructure.ProductRepository;
+import com.yuruicamp.backend.common.api.PageMeta;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +76,58 @@ public class ProductCatalogService {
 				.filter(dto -> !dto.variants().isEmpty())
 				.sorted(Comparator.comparing(ProductResponse::id))
 				.toList();
+	}
+
+	/** B-3: GET /api/products?page=&size=&sort= (Contract v0.2). */
+	@Transactional(readOnly = true)
+	public PagedProducts listProducts(int page, int size, String sort) {
+		Page<String> idPage = productRepository.findActiveIdsForCatalog(PageRequest.of(page, size, toSort(sort)));
+		if (idPage.isEmpty()) {
+			return new PagedProducts(List.of(), toMeta(idPage));
+		}
+
+		Map<String, Product> productById = productRepository.findAllByIdInForCatalog(idPage.getContent()).stream()
+				.collect(Collectors.toMap(Product::getId, product -> product));
+		List<Product> productsInPageOrder = idPage.getContent().stream()
+				.map(productById::get)
+				.filter(Objects::nonNull)
+				.toList();
+		Map<String, String> images = loadMainImages(productsInPageOrder);
+		List<ProductResponse> data = productsInPageOrder.stream()
+				.map(product -> assembler.toResponse(product, images))
+				.filter(dto -> !dto.variants().isEmpty())
+				.toList();
+		return new PagedProducts(data, toMeta(idPage));
+	}
+
+	private Sort toSort(String sort) {
+		String[] parts = sort.split(",", -1);
+		if (parts.length != 2) {
+			throw invalidSort(sort);
+		}
+		String property = switch (parts[0]) {
+			case "id" -> "id";
+			case "name" -> "item.name";
+			default -> throw invalidSort(sort);
+		};
+		try {
+			return Sort.by(Sort.Direction.fromString(parts[1]), property);
+		} catch (IllegalArgumentException ex) {
+			throw invalidSort(sort);
+		}
+	}
+
+	private BusinessException invalidSort(String sort) {
+		return new BusinessException(
+				ErrorCode.VALIDATION_ERROR,
+				"Invalid sort: " + sort + ". Allowed values: id,asc|desc; name,asc|desc");
+	}
+
+	private PageMeta toMeta(Page<?> page) {
+		return new PageMeta(page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
+	}
+
+	public record PagedProducts(List<ProductResponse> data, PageMeta meta) {
 	}
 
 	/**

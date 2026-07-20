@@ -11,6 +11,8 @@
  */
 const MOCK_DATA_PATHS = {
   products: '/data/catalog/products.json',
+  productDisplay: '/data/catalog/product-display.json',
+  adminProducts: '/data/admin/products.legacy.json',
   campgrounds: '/data/catalog/campgrounds.json',
   campEquipment: '/data/catalog/camp-equipment.json',
   orders: '/data/commerce/orders.json',
@@ -43,6 +45,7 @@ const MOCK_CUSTOMER_RELATIONS_KEY = 'mockCustomerRelations';
 
 let productsCache = null;
 let productsCacheExpiresAt = 0;
+let productDisplayCache = null;
 let reviewsCache = null;
 let ordersCache = null;
 
@@ -75,63 +78,60 @@ const _unwrapApiData = (json) => {
   return json;
 };
 
-/**
- * 金額字串化（契約：price 一律 string，兩位小數）
- * Contract money: always string with 2 decimal places.
- */
-const _moneyString = (value) => {
-  const n = Number(value);
-  if (!Number.isFinite(n)) return '0.00';
-  return n.toFixed(2);
+const PRODUCT_CONTRACT_FIELDS = [
+  'id', 'itemId', 'status', 'name', 'category', 'brand', 'description', 'image', 'price', 'variants',
+];
+const PRODUCT_VARIANT_CONTRACT_FIELDS = ['id', 'sku', 'color', 'size', 'specification', 'price'];
+const CONTRACT_MONEY = /^\d+\.\d{2}$/;
+
+const _contractError = (message) => {
+  throw new Error(`PRODUCT_CONTRACT_ERROR: ${message}`);
+};
+
+const _assertExactKeys = (value, expected, label) => {
+  const actual = Object.keys(value).sort();
+  const required = expected.slice().sort();
+  if (actual.length !== required.length || actual.some((key, index) => key !== required[index])) {
+    _contractError(`${label} fields must be exactly: ${expected.join(', ')}`);
+  }
 };
 
 /**
- * 把舊胖 Mock／REST 原始物件正規化成 Product API Contract v0.1
- * Normalize legacy products.json OR REST payload → locked contract shape.
- * 真相來源：docs/api/product-api-contract.md（不要再把 rentalId／branch 當 API 欄位）
+ * Public catalog input must already be Product API Contract v0.2.
+ * Do not silently create item IDs, SKUs, prices, or variants from old fixtures.
  */
-const _toProductContract = (raw) => {
-  if (!raw || raw.id == null) return null;
-  const variantsIn = Array.isArray(raw.variants) ? raw.variants : [];
-  const variants = variantsIn.map((v, index) => {
-    const color = v.color != null && String(v.color).trim() !== '' ? String(v.color) : null;
-    const size = v.size != null && String(v.size).trim() !== '' ? String(v.size) : null;
-    const specification = (v.specification != null && String(v.specification).trim() !== '')
-      ? String(v.specification)
-      : (v.label != null && String(v.label).trim() !== ''
-        ? String(v.label)
-        : [color, size].filter(Boolean).join('／') || 'default');
-    const unitPrice = v.price != null ? v.price : raw.price;
-    return {
-      id: v.id != null ? String(v.id) : `v-${raw.id}-${index}`,
-      sku: v.sku != null ? String(v.sku) : String(v.id != null ? v.id : `SKU-${raw.id}-${index}`),
-      color,
-      size,
-      specification,
-      price: _moneyString(unitPrice),
-    };
-  }).filter(Boolean);
-
-  // 沒有規格就不當可販售（對齊後端列表規則）
-  if (!variants.length) return null;
-
-  const minPrice = variants.reduce((min, v) => {
-    const p = Number(v.price);
-    return p < min ? p : min;
-  }, Number(variants[0].price));
-
-  return {
-    id: String(raw.id),
-    itemId: raw.itemId != null ? String(raw.itemId) : null,
-    status: raw.status || 'active',
-    name: raw.name != null ? String(raw.name) : String(raw.id),
-    category: raw.category != null ? String(raw.category) : null,
-    brand: raw.brand != null ? String(raw.brand) : null,
-    description: raw.description != null ? String(raw.description) : null,
-    image: raw.image || (Array.isArray(raw.images) && raw.images[0]) || null,
-    price: _moneyString(raw.price != null ? raw.price : minPrice),
-    variants,
-  };
+const _readProductContract = (product) => {
+  if (!product || typeof product !== 'object' || Array.isArray(product)) {
+    _contractError('product must be an object');
+  }
+  _assertExactKeys(product, PRODUCT_CONTRACT_FIELDS, 'product');
+  if (typeof product.id !== 'string' || typeof product.itemId !== 'string' || product.status !== 'active'
+      || typeof product.name !== 'string' || typeof product.price !== 'string'
+      || !CONTRACT_MONEY.test(product.price) || !Array.isArray(product.variants) || product.variants.length === 0) {
+    _contractError(`invalid product: ${product.id || '(missing id)'}`);
+  }
+  ['category', 'brand', 'description', 'image'].forEach((field) => {
+    if (product[field] !== null && typeof product[field] !== 'string') {
+      _contractError(`${product.id}.${field} must be string or null`);
+    }
+  });
+  product.variants.forEach((variant) => {
+    if (!variant || typeof variant !== 'object' || Array.isArray(variant)) {
+      _contractError(`${product.id}: variant must be an object`);
+    }
+    _assertExactKeys(variant, PRODUCT_VARIANT_CONTRACT_FIELDS, `${product.id} variant`);
+    if (typeof variant.id !== 'string' || typeof variant.sku !== 'string'
+        || typeof variant.specification !== 'string' || typeof variant.price !== 'string'
+        || !CONTRACT_MONEY.test(variant.price)) {
+      _contractError(`${product.id}: invalid variant ${variant.id || '(missing id)'}`);
+    }
+    ['color', 'size'].forEach((field) => {
+      if (variant[field] !== null && typeof variant[field] !== 'string') {
+        _contractError(`${product.id}/${variant.id}.${field} must be string or null`);
+      }
+    });
+  });
+  return product;
 };
 
 /**
@@ -145,6 +145,21 @@ const _loadMockOrRest = async (mockKey, restPath) => {
   }
   // REST：先解 Envelope，頁面／快取只看到 data
   return _unwrapApiData(await _fetchJson(_restUrl(restPath)));
+};
+
+/**
+ * Transitional read for storefront-only display enrichments.
+ * Catalog is already backed by Spring, but reviews and orders are scheduled
+ * for later backend phases. Their missing endpoints must not hide products.
+ */
+const _loadDisplaySeed = async (mockKey, restPath) => {
+  if (_useMockApi()) return _fetchJson(_path(mockKey));
+  try {
+    return await _unwrapApiData(await _fetchJson(_restUrl(restPath)));
+  } catch (error) {
+    console.info(`Backend ${restPath} is not available yet; using local ${mockKey} display seed.`, error);
+    return _fetchJson(_path(mockKey));
+  }
 };
 
 const _readJsonStorage = (key, fallback) => {
@@ -206,7 +221,13 @@ const _normalizeOrder = (order) => {
  * totalStock / branch 亦為衍生（由 variants[].branch 加總，見 normalize-phase1-data.cjs）
  */
 const _enrichProduct = async (product, reviews, orders) => {
-  const enriched = window.enrichProductForDisplay(product);
+  const display = await _loadProductDisplay();
+  const enriched = window.enrichProductForDisplay({
+    ...product,
+    ...(display[product.id] || {}),
+    // Display metadata must never replace public variant identity or pricing.
+    variants: product.variants,
+  });
   // 契約線上是字串金額；頁面仍多用 number（toLocaleString）→ 只在 UI enrich 轉型
   // Wire contract uses string money; convert only for display helpers below.
   enriched.price = Number(enriched.price);
@@ -296,17 +317,61 @@ const _loadProductsRaw = async () => {
   const now = Date.now();
   if (productsCache && now < productsCacheExpiresAt) return productsCache;
   // Mock: /data/catalog/products.json ；REST: GET /api/products
-  // 兩邊都正規化成 Product API Contract v0.1（docs/api/product-api-contract.md）
-  const raw = await _loadMockOrRest('products', '/products');
+  // getAll is a legacy convenience method; B-3's explicit getPage below is
+  // the contract-aware entry point. Request the largest permitted page here.
+  const raw = await _loadMockOrRest('products', '/products?page=0&size=100&sort=id,asc');
   const list = Array.isArray(raw) ? raw : [];
-  productsCache = list.map(_toProductContract).filter(Boolean);
+  productsCache = list.map(_readProductContract);
   productsCacheExpiresAt = now + (window.AppConfig?.CACHE_DURATION || 3600000);
   return productsCache;
 };
 
+/** Presentation-only fields live outside the public Product API contract. */
+const _loadProductDisplay = async () => {
+  if (productDisplayCache) return productDisplayCache;
+  const source = await _fetchJson(_path('productDisplay'));
+  productDisplayCache = source && typeof source === 'object' ? source : {};
+  return productDisplayCache;
+};
+
+/**
+ * B-3 product page adapter. It preserves the API envelope's meta while the
+ * older getAll API intentionally continues returning an array for old pages.
+ */
+const _loadProductPage = async ({ page = 0, size = 20, sort = 'id,asc' } = {}) => {
+  const [field, direction] = String(sort).split(',');
+  if (!['id', 'name'].includes(field) || !['asc', 'desc'].includes(direction)) {
+    throw new Error('VALIDATION_ERROR: sort must be id,asc|desc or name,asc|desc');
+  }
+
+  if (!_useMockApi()) {
+    const query = new URLSearchParams({ page: String(page), size: String(size), sort }).toString();
+    const envelope = await _fetchJson(_restUrl(`/products?${query}`));
+    if (!envelope?.success) {
+      const code = envelope?.error?.code || 'ERROR';
+      throw new Error(`${code}: ${envelope?.error?.message || 'API request failed'}`);
+    }
+    return { data: Array.isArray(envelope.data) ? envelope.data.map(_readProductContract) : [], meta: envelope.meta };
+  }
+
+  const all = await _loadProductsRaw();
+  const multiplier = direction === 'asc' ? 1 : -1;
+  const ordered = all.slice().sort((a, b) => String(a[field]).localeCompare(String(b[field]), 'zh-Hant') * multiplier);
+  const start = Number(page) * Number(size);
+  return {
+    data: ordered.slice(start, start + Number(size)),
+    meta: {
+      page: Number(page),
+      size: Number(size),
+      totalElements: ordered.length,
+      totalPages: Math.ceil(ordered.length / Number(size)),
+    },
+  };
+};
+
 const _loadReviews = async () => {
   if (reviewsCache) return reviewsCache;
-  const seed = await _loadMockOrRest('reviews', '/reviews');
+  const seed = await _loadDisplaySeed('reviews', '/reviews');
   const mock = _useMockApi() ? _readJsonStorage(MOCK_REVIEWS_KEY, []) : [];
   reviewsCache = [...seed, ...mock].map((review) => ({
     ...review,
@@ -319,7 +384,7 @@ const _loadReviews = async () => {
 const _loadOrdersSeed = async () => {
   if (ordersCache) return ordersCache;
   let orderItemId = 0;
-  const source = await _loadMockOrRest('orders', '/orders');
+  const source = await _loadDisplaySeed('orders', '/orders');
   ordersCache = source.map((order) => ({
     ...order,
     items: (order.items || []).map((item) => ({
@@ -501,7 +566,23 @@ window.API = {
 
   products: {
     /**
-     * 列表：契約 v0.1 欄位 + UI enrich（rating 等，不屬於契約）
+     * B-3 contract-aware list API. Returns { data, meta }; callers that need
+     * the old all-products array should continue using getAll during migration.
+     */
+    getPage: async (options = {}) => {
+      const [result, reviews, orders] = await Promise.all([
+        _loadProductPage(options),
+        _loadReviews(),
+        _loadOrdersSeed(),
+      ]);
+      return {
+        data: await Promise.all(result.data.map((product) => _enrichProduct(product, reviews, orders))),
+        meta: result.meta,
+      };
+    },
+
+    /**
+     * 列表：契約 v0.2 欄位 + UI enrich（rating 等，不屬於契約）
      * Contract fields from mock/REST; enrich adds display-only extras.
      */
     getAll: async (filters = {}) => {
@@ -531,7 +612,7 @@ window.API = {
       let product;
       if (!_useMockApi()) {
         product = await _loadMockOrRest('products', `/products/${encodeURIComponent(productId)}`);
-        product = _toProductContract(product);
+        product = _readProductContract(product);
       } else {
         const raw = await _loadProductsRaw();
         product = raw.find((p) => p.id === productId) || null;

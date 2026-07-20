@@ -1,10 +1,10 @@
-# Product API Contract（v0.1）
+# Product API Contract（v0.2）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（B-1／B-2 真相來源） |
+| **狀態** | Locked（B-1～B-3 真相來源） |
 | **日期** | 2026-07-20 |
-| **版本** | 0.1 |
+| **版本** | 0.2 |
 | **誰要遵守** | Spring 後端、前端 Mock、OpenAPI／Swagger |
 | **相關清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) 線 B |
 | **共用慣例** | [`common-api-conventions.md`](./common-api-conventions.md) |
@@ -32,7 +32,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | DB `equipment_items` + brand／category／images | 名稱、說明、品牌、分類、圖 | 契約的展示欄位 |
 | DB `product_variants` | SKU、規格、**真正售價** | 契約的 `variants[]` |
 | View `sellable_product_variants` | 可賣 variant 扁平列 | 結帳重算時可用；列表先組 SPU |
-| 前端舊 Mock `products.json` | 另有 `rentalId`、`branch`、`totalStock`、`interestTags`… | **不在 v0.1**；UI 衍生欄位另算 |
+| 前端舊 Mock `products.json` | 另有 `rentalId`、`branch`、`totalStock`、`interestTags`… | **不在 v0.2**；UI 衍生欄位另算 |
 
 **結論：** 舊 Mock ≠ DB ≠ 本契約。接線時以**本文件**為準，不要再以 `products.json` 的胖欄位當 API 真相。
 
@@ -42,7 +42,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 方法 | 路徑 | 認證 | 說明 |
 |------|------|------|------|
-| `GET` | `/api/products` | **公開**（不必 Token） | 可販售商品列表 |
+| `GET` | `/api/products?page=0&size=20&sort=id,asc` | **公開**（不必 Token） | 可販售商品分頁列表 |
 | `GET` | `/api/products/{id}` | **公開** | 單筆詳情；`id` = `products.id`（如 `P001`） |
 
 ### 列表規則
@@ -57,12 +57,35 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 - 同上過濾；找不到或不符資格 → HTTP **404**，錯誤碼 `NOT_FOUND`
 - 成功時 `data` 為**單一物件**（不是陣列）
 
+### B-3 分頁與排序規則
+
+列表端點支援下列 query parameters；詳情端點不支援。
+
+| 參數 | 預設 | 規則 |
+|------|------|------|
+| `page` | `0` | 從 0 起算，必須大於等於 0 |
+| `size` | `20` | 必須介於 1 至 100 |
+| `sort` | `id,asc` | 格式 `field,asc\|desc`；僅允許 `id` 或 `name` |
+
+- 非法 `page`、`size` 或 `sort` → HTTP `400`，錯誤碼 `VALIDATION_ERROR`。
+- `name` 排序依 `equipment_items.name`；`price` 是 active variants 最低價的衍生欄位，**v0.2 不支援**排序。
+- 列表回應一定帶 `meta`：
+
+```json
+{
+  "page": 0,
+  "size": 20,
+  "totalElements": 100,
+  "totalPages": 5
+}
+```
+
 ---
 
 ## 3. Envelope
 
 成功／錯誤格式見 [`common-api-conventions.md`](./common-api-conventions.md)。  
-本資源：`data` 列表＝`Product[]`；詳情＝`Product`；v0.1 **不使用** `meta`（分頁進 B-3）。
+本資源：`data` 列表＝`Product[]` 且 v0.2 必帶分頁 `meta`；詳情＝`Product` 且不帶 `meta`。
 
 錯誤範例：`NOT_FOUND` — `"Product not found: P999"`。
 
@@ -186,11 +209,11 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 |------------|------|
 | `rentalId`／`rentalEnabled` | 租借領域，另 API |
 | `interestTags`／`tags`／`specifications` 物件 | 附屬表；B-5 以後可擴充契約版本 |
-| `images[]`（多圖） | v0.1 只主圖 `image` |
+| `images[]`（多圖） | v0.2 只主圖 `image` |
 | `totalStock`／`branch`／`variants[].branch` | 庫存讀模型；進結帳再嚴謹查 |
 | `rating`／`reviewCount`／`salesCount` | 評價／訂單衍生；前端可另算 |
 | `variants[].label` | 用 `specification` 或前端組合 color／size |
-| 分頁 `meta` | B-3 |
+| `price` 排序 | 需以 active variants 最低價做聚合，之後版本再談 |
 | 篩選 query | B-4 |
 
 若要加欄位：**先改本文件版本號（v0.2…）→ 再改後端 → 再改 Mock**，禁止只改一邊。
@@ -201,13 +224,13 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 模式 | 行為 |
 |------|------|
-| `USE_MOCK_API = true` | 讀本地 JSON 後，**正規化成 v0.1 契約形狀**再給頁面 |
+| `USE_MOCK_API = true` | 讀取已是 **v0.2 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
 | `USE_MOCK_API = false` | `GET /api/products`；必須先 **解開 Envelope**（取 `data`） |
 
 參考實作：
 
 - 契約樣本：[`frontend/data/catalog/products.contract.sample.json`](../../frontend/data/catalog/products.contract.sample.json)
-- 正規化：`frontend/storefront/js/api-mock.js` 的 `_toProductContract`
+- 驗證：`frontend/storefront/js/api-mock.js` 的 `_readProductContract`
 
 頁面若仍需要 `number` 價錢做 `toLocaleString`，只允許在 **enrich／UI 層** `Number(price)`，不得把 number 寫回「契約真相」。
 
@@ -215,7 +238,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ## 7. OpenAPI
 
-- Controller 使用 `@Operation`／`@Schema` 描述與本文件相同的欄位
+- Controller 使用 `@Operation`／`@Schema` 描述與本文件相同的欄位、分頁參數與 `meta`
 - Swagger UI：`http://localhost:8080/swagger-ui.html` → **Catalog**
 - 若 Swagger 與本文件衝突：**以本文件為準**，並修正程式註解
 
@@ -233,4 +256,5 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.2 | 2026-07-20 | B-3：列表支援 page／size／id、name 白名單排序，並回傳分頁 meta |
 | 0.1 | 2026-07-20 | 初版：B-1／B-2 精簡欄位（甲）鎖定 |

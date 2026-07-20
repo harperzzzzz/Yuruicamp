@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.yuruicamp.backend.common.api.ApiErrorBody;
 import com.yuruicamp.backend.common.api.ApiErrorBody.ErrorDetail;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,15 @@ public class GlobalExceptionHandler {
 	ResponseEntity<ApiErrorBody> handleValidation(MethodArgumentNotValidException ex) {
 		List<ErrorDetail> details = ex.getBindingResult().getFieldErrors().stream()
 				.map(this::toDetail)
+				.toList();
+		return ResponseEntity.badRequest()
+				.body(ApiErrorBody.of(ErrorCode.VALIDATION_ERROR.code(), "Request validation failed", details));
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	ResponseEntity<ApiErrorBody> handleConstraintViolation(ConstraintViolationException ex) {
+		List<ErrorDetail> details = ex.getConstraintViolations().stream()
+				.map(violation -> new ErrorDetail(violation.getPropertyPath().toString(), violation.getMessage()))
 				.toList();
 		return ResponseEntity.badRequest()
 				.body(ApiErrorBody.of(ErrorCode.VALIDATION_ERROR.code(), "Request validation failed", details));

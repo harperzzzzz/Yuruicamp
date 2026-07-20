@@ -946,7 +946,8 @@ window.initProducts = function () {
   var productsDeferred = $.Deferred();
   loadAdminJsonResource({
     adminList: AdminAPI && AdminAPI.products && AdminAPI.products.list,
-    jsonPath: MockDataPaths.products,
+    // Admin keeps its inventory/rental fixture separate from the public API product contract.
+    jsonPath: MockDataPaths.adminProducts || MockDataPaths.products,
     emptyValue: [],
     errorMessage: '載入商品失敗',
     onSuccess: function (data) { productsDeferred.resolve(data); },

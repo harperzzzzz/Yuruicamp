@@ -1,0 +1,36 @@
+# Development Catalog Seed Manifest
+
+> Generated from the legacy storefront fixture. It establishes repeatable development IDs and prices; API verification is still required before promoting the fixture to the public contract.
+
+| Product | Item | Variants (ID / SKU / price) | Status |
+|---|---|---|---|
+| P001 | E001 | V001 / TENT-OLIVE / 3200.00<br>V002 / TENT-SAND / 3300.00 | active |
+| P002 | E002 | V002-01 / P002-01 / 9800.00 | active |
+| P003 | E003 | V003-01 / P003-01 / 1200.00<br>V003-02 / P003-02 / 1200.00<br>V003-03 / P003-03 / 1200.00 | active |
+| P004 | E004 | V004-01 / P004-01 / 2800.00<br>V004-02 / P004-02 / 2800.00<br>V004-03 / P004-03 / 2800.00 | active |
+| P005 | E005 | V005-01 / P005-01 / 5000.00 | active |
+| P006 | E006 | V006-01 / P006-01 / 1800.00 | active |
+| P007 | E007 | V007-01 / P007-01 / 800.00<br>V007-02 / P007-02 / 800.00 | active |
+| P008 | E008 | V008-01 / P008-01 / 1600.00<br>V008-02 / P008-02 / 1600.00 | active |
+| P009 | E009 | V009-01 / P009-01 / 2800.00 | active |
+| P010 | E010 | V010-01 / P010-01 / 880.00 | inactive |
+| P011 | E011 | V011-01 / P011-01 / 8500.00 | active |
+| P012 | E012 | V012-01 / P012-01 / 2200.00<br>V012-02 / P012-02 / 2200.00 | active |
+| P013 | E013 | V013-01 / P013-01 / 1500.00 | active |
+| P014 | E014 | V014-01 / P014-01 / 980.00 | active |
+| P015 | E015 | V015-01 / P015-01 / 650.00 | active |
+| P016 | E016 | V016-01 / P016-01 / 4200.00 | active |
+| P017 | E017 | V017-01 / P017-01 / 3600.00 | active |
+| P018 | E018 | V018-01 / P018-01 / 2400.00 | active |
+| P019 | E019 | V019-01 / P019-01 / 450.00 | active |
+| P020 | E020 | V020-01 / P020-01 / 12800.00 | active |
+| P021 | E021 | V021-01 / P021-01 / 1900.00 | active |
+| P022 | E022 | V022-01 / P022-01 / 3200.00 | active |
+| P023 | E023 | V023-01 / P023-01 / 1100.00 | active |
+| P024 | E024 | V024-01 / P024-01 / 1400.00 | active |
+| P025 | E025 | V025-01 / P025-01 / 5600.00 | active |
+| P026 | E026 | V026-01 / P026-01 / 890.00 | active |
+| P027 | E027 | V027-01 / P027-01 / 680.00 | active |
+| P028 | E028 | V028-01 / P028-01 / 2100.00 | active |
+| P029 | E029 | V029-01 / P029-01 / 750.00 | active |
+| P030 | E030 | V030-01 / P030-01 / 199.00 | inactive |

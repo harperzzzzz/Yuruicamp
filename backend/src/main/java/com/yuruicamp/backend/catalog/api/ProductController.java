@@ -3,20 +3,26 @@ package com.yuruicamp.backend.catalog.api;
 import java.util.List;
 
 import com.yuruicamp.backend.catalog.application.ProductCatalogService;
+import com.yuruicamp.backend.catalog.application.ProductCatalogService.PagedProducts;
 import com.yuruicamp.backend.common.api.ApiResponse;
+import com.yuruicamp.backend.common.api.PageMeta;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * Public product read APIs (線 B：Catalog).
  *
- * <p><b>契約真相</b>：{@code docs/api/product-api-contract.md}（v0.1）</p>
+ * <p><b>契約真相</b>：{@code docs/api/product-api-contract.md}（v0.2）</p>
  *
  * <h2>給新手：新增一支「公開讀」API 的固定步驟</h2>
  * <ol>
@@ -32,8 +38,9 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>B-3 分頁、B-4 篩選、B-7 branches：註解寫在 {@link ProductCatalogService}。</p>
  */
 @RestController
+@Validated
 @RequestMapping("/api/products")
-@Tag(name = "Catalog", description = "Public product catalog (Contract v0.1)")
+@Tag(name = "Catalog", description = "Public product catalog (Contract v0.2)")
 public class ProductController {
 
 	private final ProductCatalogService productCatalogService;
@@ -47,11 +54,19 @@ public class ProductController {
 			summary = "List sellable products",
 			description = """
 					B-1: Returns active products with active variants.
-					Response shape is locked by docs/api/product-api-contract.md (v0.1).
+					Response shape is locked by docs/api/product-api-contract.md (v0.2).
 					No auth required.
 					""")
-	public ApiResponse<List<ProductResponse>> list() {
-		return ApiResponse.ok(productCatalogService.listProducts());
+	public ApiResponse<List<ProductResponse>> list(
+			@Parameter(description = "Zero-based page number", example = "0")
+			@RequestParam(defaultValue = "0") @Min(value = 0, message = "must be greater than or equal to 0") int page,
+			@Parameter(description = "Page size (1-100)", example = "20")
+			@RequestParam(defaultValue = "20") @Min(value = 1, message = "must be at least 1") @Max(value = 100, message = "must be at most 100") int size,
+			@Parameter(description = "Allowed: id,asc|desc; name,asc|desc", example = "id,asc")
+			@RequestParam(defaultValue = "id,asc") String sort) {
+		PagedProducts result = productCatalogService.listProducts(page, size, sort);
+		PageMeta meta = result.meta();
+		return ApiResponse.ok(result.data(), meta);
 	}
 
 	@GetMapping("/{id}")

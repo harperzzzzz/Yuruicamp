@@ -20,7 +20,7 @@
 | **契約** | P0+P1 API Contracts（甲） | ✅ 見 [`docs/api/README.md`](../docs/api/README.md) |
 | **A** | 骨架（Security／Session／Envelope／OpenAPI） | ✅ |
 | **B** | Catalog 公開讀（商品） | 🔄 B-1／B-2 落地；B-3～B-7 待做 |
-| **C** | Checkout + 庫存保留 + 15 分排程 | ⬜（契約已鎖） |
+| **C** | Checkout + 庫存保留 + 15 分排程 | 🔄 基礎實作中；待編譯與整合驗收 |
 | **D** | Payment（ECPay + COD） | ⬜（契約已鎖） |
 | **E** | Booking（營位 + 租借） | ⬜（契約已鎖） |
 | **F** | Coupon 三種規則 | ⬜（契約已鎖） |
@@ -66,7 +66,7 @@
 |------|------|------|
 | B-1 | `GET /api/products` 列表（active） | ✅ |
 | B-2 | `GET /api/products/{id}` 詳情 | ✅ |
-| B-3 | 分頁 `page`／`size`／`sort` | ⬜（見 `ProductCatalogService` 教學註解） |
+| B-3 | 分頁 `page`／`size`／`sort` | 🔄 實作中（Product API Contract v0.2） |
 | B-4 | 篩選 category／brand／價格 | ⬜（見 Service 教學註解） |
 | B-5 | 加深 variants／可賣庫存（View） | ⬜（見 Service 教學註解） |
 | B-6 | Security：`GET /api/products/**` 公開 | ✅ |
@@ -83,14 +83,16 @@
 
 ## 線 C — Checkout + 庫存保留（P0）
 
-- [ ] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`
-- [ ] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳）
-- [ ] C-3 交易內悲觀鎖／防超賣
+- [ ] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`（🔄 已建立，待驗證）
+- [ ] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳；🔄 已建立，待驗證）
+- [ ] C-3 交易內悲觀鎖／防超賣（🔄 已實作庫存列 pessimistic lock，待併發驗證）
 - [ ] C-4 `PATCH .../sessions/{orderId}`
-- [ ] C-5 `POST .../cancel`
+- [ ] C-5 `POST .../cancel`（🔄 已建立，待驗證保留帳釋放）
 - [ ] C-6 `@Scheduled` 15 分鐘逾時釋放
-- [ ] C-7 金額後端重算
+- [ ] C-7 金額後端重算（🔄 已實作，待驗證）
 - [ ] C-8 整合測試：鎖庫、超賣、逾時
+
+> 勾選規則：C-1／C-2／C-3／C-5／C-7 雖已有程式碼，因 Maven 編譯／整合測試尚未通過，維持未勾選；完成驗收後才可標記 ✅。
 
 ---
 

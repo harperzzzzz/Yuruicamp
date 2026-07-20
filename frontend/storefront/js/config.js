@@ -10,7 +10,7 @@ window.AppConfig = {
    * true = 讀 /data/**.json（Mock）；false = 打 Spring REST
    * English: Toggle mock JSON vs real backend. Flip only this when wiring Spring Boot.
    */
-  USE_MOCK_API: true,
+  USE_MOCK_API: false,
 
   // Spring Boot 預設埠；接後端時改這裡即可 / Default Spring port
   API_BASE_URL: 'http://localhost:8080/api',

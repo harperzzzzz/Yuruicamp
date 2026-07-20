@@ -20,7 +20,7 @@
 |------|------|------|------|
 | 共用 | [`common-api-conventions.md`](./common-api-conventions.md) | 全部 | Locked v0.1 |
 | P0 | [`auth-api-contract.md`](./auth-api-contract.md) | A | Locked v0.1（已實作） |
-| P0 | [`product-api-contract.md`](./product-api-contract.md) | B | Locked v0.1（已實作） |
+| P0 | [`product-api-contract.md`](./product-api-contract.md) | B | Locked v0.2（B-1～B-3 已實作） |
 | P0 | [`checkout-api-contract.md`](./checkout-api-contract.md) | C | Locked v0.1（待實作） |
 | P0 | [`order-api-contract.md`](./order-api-contract.md) | C | Locked v0.1（待實作） |
 | P0 | [`payment-api-contract.md`](./payment-api-contract.md) | D | Locked v0.1（待實作） |
