@@ -57,6 +57,15 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 * rental_total                  加租裝備金額小計；不可為負。
 * applied_discount              已套用折扣；不可為負。
 * final_amount                  最終應付金額；必須等於 `max(zone_total + rental_total - applied_discount, 0)`。
+
+* payment_method                付款方式（`payment_method` ENUM）。
+                                **禁止 COD**（`ck_bookings_no_cod`）；必須線上 ECPay。
+* payment_status                付款狀態（unpaid、paid、refunded）。
+  paid_at                       實際付款時間，可空。
+  checkout_expires_at           待付款結帳逾時（通常 now+15 分鐘），可空。
+                                應與租借保留帳釋放排程對齊。
+                                *idx_bookings_checkout_expiry*（pending 且 expires 非空）
+
 * status                        目前預約狀態，型別為 `booking_status`。
                                 只允許 pending、confirmed、completed、cancelled。
 * created_at                    建立時間；呼叫端必須提供。

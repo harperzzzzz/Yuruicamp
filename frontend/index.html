@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuruicamp - 導向首頁</title>
+  <!-- 沒有 JS 時也能跳（備援） / Fallback when JavaScript is disabled -->
+  <meta http-equiv="refresh" content="0; url=/storefront/pages/home.html">
+  <script>
+    // 立刻導向真正首頁，且不留下這層歷史紀錄 / Immediately go to home without keeping this page in history
+    location.replace('/storefront/pages/home.html');
+  </script>
+</head>
+<body>
+  <p>正在前往首頁…若沒有自動跳轉，請<a href="/storefront/pages/home.html">點這裡</a>。</p>
+</body>
+</html>

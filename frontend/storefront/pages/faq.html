@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yuruicamp 常見問題 - 訂單、配送、退換貨、會員服務等問題一次解答。" />
+    <meta name="theme-color" content="#244d4d" />
+    <title>常見問題 - Yuruicamp 露營選物</title>
+    <link rel="preconnect" href="https://picsum.photos" />
+    <link rel="dns-prefetch" href="https://picsum.photos" />
+    <link rel="stylesheet" href="/storefront/css/main.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>"
+    />
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <main class="faqPage">
+      <!-- FAQ Hero：頁面標題與搜尋欄。 -->
+      <section class="faqHero" aria-labelledby="faqPageTitle">
+        <div class="faqHeroContent">
+          <span class="faqHeroMark" aria-hidden="true">?</span>
+          <h1 class="faqHeroTitle" id="faqPageTitle">常見問題</h1>
+          <p class="faqHeroDescription">有任何疑問，我們隨時為您解答</p>
+
+          <!-- FAQ 搜尋：依關鍵字篩選下方問題。 -->
+          <form class="faqSearchForm" role="search" action="faq.html">
+            <label class="faqSearchLabel" for="faqSearchInput">搜尋常見問題</label>
+            <div class="faqSearchField">
+              <input
+                class="faqSearchInput"
+                id="faqSearchInput"
+                name="keyword"
+                type="search"
+                placeholder="搜尋問題關鍵字，例如：退貨、運費..."
+                autocomplete="off"
+                aria-describedby="faqSearchStatus"
+              />
+              <span class="faqSearchIcon" aria-hidden="true"></span>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- FAQ 內容：分類與手風琴問題清單。 -->
+      <div class="faqContent" aria-live="polite">
+        <p class="faqSearchStatus" id="faqSearchStatus">輸入關鍵字可篩選下方常見問題。</p>
+        <div class="faqSearchEmptyState" role="status" hidden>找不到符合條件的問題，請換個關鍵字或聯繫客服。</div>
+
+        <!-- FAQ 分類：訂單與付款。 -->
+        <section class="faqCategory" id="catOrder" aria-labelledby="faqOrderTitle">
+          <h2 class="faqCategoryTitle" id="faqOrderTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">訂單與付款</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：修改或取消訂單。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOrder1"
+                >
+                  <span class="faqAccordionQuestion">我可以修改或取消訂單嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOrder1" hidden>
+                <p class="faqAccordionAnswer">
+                  訂單成立後 2 小時內可免費取消或修改，超過後需聯繫客服處理。處理中狀態的訂單可在「會員中心 &gt;
+                  我的訂單」中申請取消，已出貨訂單無法取消，請以退貨方式處理。
+                </p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：付款方式。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOrder2"
+                >
+                  <span class="faqAccordionQuestion">支援哪些付款方式？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOrder2" hidden>
+                <p class="faqAccordionAnswer">
+                  目前支援綠界 ECPay 線上付款（信用卡等），以及貨到付款（限台灣本島）。
+                </p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：發票寄送。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOrder3"
+                >
+                  <span class="faqAccordionQuestion">購買後多久會收到發票？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOrder3" hidden>
+                <p class="faqAccordionAnswer">電子發票會在訂單成立後 24 小時內寄送至您的 email，紙本發票會隨商品寄出。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- FAQ 分類：配送服務。 -->
+        <section class="faqCategory" id="catShipping" aria-labelledby="faqShippingTitle">
+          <h2 class="faqCategoryTitle" id="faqShippingTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">配送服務</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：運費計算。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerShipping1"
+                >
+                  <span class="faqAccordionQuestion">運費如何計算？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerShipping1" hidden>
+                <p class="faqAccordionAnswer">
+                  訂單滿 NT$3,000 免運費，未達門檻收取 NT$60 宅配費。選擇門市取貨（台北 / 台中 /
+                  高雄）則全額免運。
+                </p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：配送天數。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerShipping2"
+                >
+                  <span class="faqAccordionQuestion">大概幾天可以收到？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerShipping2" hidden>
+                <p class="faqAccordionAnswer">
+                  宅配：訂單成立後 3-5 個工作天（假日不含）。門市取貨：2-3 個工作天，取件前會以 LINE 通知。離島地區另計。
+                </p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：指定配送時間。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerShipping3"
+                >
+                  <span class="faqAccordionQuestion">可以指定配送時間嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerShipping3" hidden>
+                <p class="faqAccordionAnswer">目前宅配無法指定配送時間，但可選擇「門市取貨」於方便時間到門市領取。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- FAQ 分類：退換貨政策。 -->
+        <section class="faqCategory" id="catReturn" aria-labelledby="faqReturnTitle">
+          <h2 class="faqCategoryTitle" id="faqReturnTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">退換貨政策</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：退貨條件。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerReturn1"
+                >
+                  <span class="faqAccordionQuestion">商品到貨不滿意可以退貨嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerReturn1" hidden>
+                <p class="faqAccordionAnswer">購買後 7 天內（以收貨日計算）可辦理無條件退換貨，商品需保持全新未使用狀態，附原包裝及附件。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：退款時間。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerReturn2"
+                >
+                  <span class="faqAccordionQuestion">退款需要多久？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerReturn2" hidden>
+                <p class="faqAccordionAnswer">確認收到退貨後 3-5 個工作天內退款至原付款帳戶。信用卡退款視各家銀行作業時間，約 1-2 個帳單周期。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：商品損壞換貨。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerReturn3"
+                >
+                  <span class="faqAccordionQuestion">商品損壞可以換貨嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerReturn3" hidden>
+                <p class="faqAccordionAnswer">商品若有製造瑕疵或運送損壞，請於收貨後 3 天內拍照並聯繫客服，我們將免費安排換貨或退款。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- FAQ 分類：會員服務。 -->
+        <section class="faqCategory" id="catMember" aria-labelledby="faqMemberTitle">
+          <h2 class="faqCategoryTitle" id="faqMemberTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">會員服務</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：會員註冊。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerMember1"
+                >
+                  <span class="faqAccordionQuestion">如何成為 Yuruicamp 會員？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerMember1" hidden>
+                <p class="faqAccordionAnswer">點擊網站右上角「登入」按鈕，選擇「免費註冊」即可立即成為會員，同時獲得 NT$100 新會員優惠券。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：會員等級。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerMember2"
+                >
+                  <span class="faqAccordionQuestion">會員等級有什麼差別？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerMember2" hidden>
+                <p class="faqAccordionAnswer">
+                  共分三個等級：探險家（新會員）、嚮導（累積消費 NT$ 12,000）、大師（累積消費
+                  NT$ 28,000），等級越高享有越多專屬折扣和優先購買資格。
+                </p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：折價券。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerMember3"
+                >
+                  <span class="faqAccordionQuestion">我的折價券在哪裡使用？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerMember3" hidden>
+                <p class="faqAccordionAnswer">登入後前往「會員中心 &gt; 折價券」查看可用的折扣碼，結帳時在折扣碼欄位輸入即可折抵。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- FAQ 分類：商品資訊。 -->
+        <section class="faqCategory" id="catProduct" aria-labelledby="faqProductTitle">
+          <h2 class="faqCategoryTitle" id="faqProductTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">商品資訊</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：商品保固。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerProduct1"
+                >
+                  <span class="faqAccordionQuestion">商品都有保固嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerProduct1" hidden>
+                <p class="faqAccordionAnswer">大品牌商品（Snow Peak、Black Diamond 等）享有原廠保固，一般商品提供 6 個月的基本保固，使用說明書內有詳細說明。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：尺寸需求。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerProduct2"
+                >
+                  <span class="faqAccordionQuestion">如何確認商品是否適合自己的尺寸 / 需求？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerProduct2" hidden>
+                <p class="faqAccordionAnswer">每個商品頁面都有詳細的規格說明，您也可以透過右下角的 LINE 客服詢問專業建議，或到門市現場試用。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：預購商品。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerProduct3"
+                >
+                  <span class="faqAccordionQuestion">可以預購缺貨商品嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerProduct3" hidden>
+                <p class="faqAccordionAnswer">部分熱門商品提供預購功能，請注意商品頁面上的「預購」標籤，預購商品通常需要 2-4 週出貨。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- FAQ 分類：其他。 -->
+        <section class="faqCategory" id="catOther" aria-labelledby="faqOtherTitle">
+          <h2 class="faqCategoryTitle" id="faqOtherTitle">
+            <span class="faqCategoryIcon" aria-hidden="true"></span>
+            <span class="faqCategoryText">其他</span>
+          </h2>
+          <div class="faqAccordion">
+            <!-- FAQ 手風琴項目：統一編號。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOther1"
+                >
+                  <span class="faqAccordionQuestion">可以開立統一編號的發票嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOther1" hidden>
+                <p class="faqAccordionAnswer">可以。在結帳時於發票資訊欄位填入公司名稱和統一編號即可。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：包裹追蹤。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOther2"
+                >
+                  <span class="faqAccordionQuestion">如何追蹤我的包裹？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOther2" hidden>
+                <p class="faqAccordionAnswer">訂單出貨後我們會以 LINE 或 Email 通知您物流追蹤連結，也可在「會員中心 &gt; 我的訂單」查看最新狀態。</p>
+              </div>
+            </article>
+
+            <!-- FAQ 手風琴項目：海外配送。 -->
+            <article class="faqAccordionItem">
+              <h3 class="faqQuestionHeading">
+                <button
+                  class="faqAccordionTrigger"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="faqAnswerOther3"
+                >
+                  <span class="faqAccordionQuestion">商品可以寄送到海外嗎？</span>
+                  <span class="faqAccordionIcon" aria-hidden="true"></span>
+                </button>
+              </h3>
+              <div class="faqAccordionPanel" id="faqAnswerOther3" hidden>
+                <p class="faqAccordionAnswer">目前僅提供台灣本島、外島（離島需加收運費）配送服務，海外配送正在規劃中。</p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- LINE 支援：外部客服聯繫入口。 -->
+      <section class="faqSupportBanner" aria-labelledby="faqSupportTitle">
+        <div class="faqSupportContent">
+          <span class="faqSupportIcon" aria-hidden="true"></span>
+          <h2 class="faqSupportTitle" id="faqSupportTitle">還有其他問題嗎？</h2>
+          <p class="faqSupportDescription">加入我們的 LINE 官方帳號，專業客服為您解答</p>
+          <a
+            class="faqSupportLink"
+            href="https://line.me/R/ti/p/@yuruicamp"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            加入 LINE 官方帳號
+          </a>
+        </div>
+      </section>
+
+      <!-- 滿意度問卷：NPS 評分與文字回饋。 -->
+      <section class="faqFeedbackSection" aria-labelledby="faqFeedbackTitle">
+        <h2 class="faqFeedbackTitle" id="faqFeedbackTitle">您對本次解答滿意嗎？</h2>
+
+        <!-- NPS 評分：由 JS 動態建立 0 至 10 按鈕。 -->
+        <div class="faqNpsGroup" id="npsGroup" role="radiogroup" aria-label="滿意度評分"></div>
+
+        <!-- NPS 標籤：說明分數範圍。 -->
+        <div class="faqNpsLabels" aria-hidden="true">
+          <span>非常不滿意</span>
+          <span>非常滿意</span>
+        </div>
+
+        <!-- 回饋文字：補充建議內容。 -->
+        <label class="faqFeedbackLabel" for="feedbackTextarea">補充建議</label>
+        <textarea
+          class="faqFeedbackTextarea"
+          id="feedbackTextarea"
+          placeholder="有什麼建議或問題，直接告訴我們。"
+          rows="3"
+        ></textarea>
+
+        <!-- 回饋送出：驗證 NPS 後送出並重置。 -->
+        <div class="faqFeedbackActions">
+          <button class="faqSubmitButton" id="submitFeedbackBtn" type="button">送出意見</button>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer"></div>
+    <!-- Script 載入：保留主站共用初始化流程。 -->
+    <script src="/storefront/js/config.js" defer></script>
+    <script src="/storefront/js/storage.js" defer></script>
+    <script src="/storefront/js/state.js" defer></script>
+    <script src="/storefront/js/formatters.js" defer></script>
+    <script src="/storefront/js/validators.js" defer></script>
+    <script src="/storefront/js/cart-service.js" defer></script>
+    <script src="/storefront/js/api-mock.js" defer></script>
+    <script src="/storefront/js/components/toast.js" defer></script>
+    <script src="/storefront/js/components/modal.js" defer></script>
+    <script src="/storefront/js/components/header.js" defer></script>
+    <script src="/storefront/js/components/cart.js" defer></script>
+    <script src="/storefront/js/pages/faq.js" defer></script>
+    <script src="/storefront/js/main.js" defer></script>
+  </body>
+</html>

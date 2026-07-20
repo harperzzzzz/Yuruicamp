@@ -75,6 +75,9 @@ coupons
 ### orders
 * id                         訂單識別碼
 * customer_id                下單會員 ID
+  checkout_idempotency_key   建立結帳的客戶端冪等鍵，可空；同一會員不可重複。
+                             *UNIQUE (customer_id, checkout_idempotency_key)*
+  checkout_request_hash      正規化建立請求的 SHA-256 指紋，可空；用來拒絕同鍵異內容。
 * buyer_name_snapshot        下單當時的購買人姓名快照
 * buyer_email_snapshot       下單當時的購買人 Email 快照
 * recipient_name_snapshot    收件人姓名快照
@@ -86,7 +89,10 @@ coupons
 * total                      訂單實付總額
                              GREATEST(subtotal + shipping_fee - discount, 0)
 
-* payment_method             付款方式，(online, cod)
+* payment_method             付款方式 ENUM：
+                             ecpay-credit、ecpay-atm、ecpay-cvs、ecpay-other、cod。
+                             線上付走綠界 ECPay；COD 不呼叫 ECPay，建立時 unpaid，
+                             履約完成後再標 paid。
 * payment_status             付款狀態，(unpaid、paid、refunded)
 * refund_status              退款狀態，預設 'none'，
                              (requested、approved、processing、refunded、rejected、failed。)
@@ -96,6 +102,9 @@ coupons
 
 * placed_at                  正式下單時間
   paid_at                    實際付款時間，可空
+  checkout_expires_at        待付款結帳逾時（通常 now+15 分鐘），可空。
+                             應與同交易內 `product_stock_reservations.expires_at` 對齊。
+                             *idx_orders_checkout_expiry*（unpaid 且 expires 非空）
 * created_at                 建立時間，預設 now()
 * updated_at                 更新時間，預設 now()
 *idx_orders_customer_placed：(customer_id, placed_at)*

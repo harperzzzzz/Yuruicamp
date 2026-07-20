@@ -31,6 +31,8 @@ services:
       # Applies the current complete schema only when this named volume is first created.
       # For a fresh local database: docker compose down -v; docker compose up -d
       - ./docs/latest_schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+      # Complete development catalog fixture (only on first volume create).
+      - ./docs/seed/002-dev-catalog.sql:/docker-entrypoint-initdb.d/002-dev-catalog.sql:ro
       # 獨立資料卷：容器刪了，資料還在（除非 down -v）
       # Named volume: data survives container removal (unless down -v)
       - yuruicamp_data:/var/lib/postgresql/data

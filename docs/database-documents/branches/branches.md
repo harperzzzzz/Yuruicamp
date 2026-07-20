@@ -8,7 +8,7 @@
 ## 尚未應用
 * 目前讀取 data/marketing/branches.json，沒有查詢資料庫
 * 後台登入目前讀取瀏覽器 localStorage.adminEmployees，沒有查詢 admin_users
-* backend 目前只有啟動類別與 Flyway 遷移檔，沒有分店或登入的 Controller、Service、Repository。
+* backend 目前主要是啟動類別；schema 以 `docs/latest_schema.sql` 建庫，沒有分店或登入的 Controller、Service、Repository。
 
 
 ## 關聯與資料流

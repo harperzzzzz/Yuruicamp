@@ -1,0 +1,55 @@
+# Yuruicamp API Contracts（索引）
+
+| 欄位 | 內容 |
+|------|------|
+| **狀態** | Active |
+| **日期** | 2026-07-20 |
+| **欄位策略** | **甲**：對齊 DB／架構決策的精簡契約；舊 Mock 胖欄位不當真相 |
+| **實作清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) |
+| **ENUM** | [`docs/schema-enums.md`](../schema-enums.md) |
+
+> **改約流程（強制）**  
+> 1) 改契約文件並升版 → 2) 改後端 DTO／OpenAPI → 3) 改前端 Mock 正規化 → 4) 打 API 驗收。  
+> **禁止**只改一邊。
+
+---
+
+## 契約一覽
+
+| 優先 | 文件 | 階段 | 狀態 |
+|------|------|------|------|
+| 共用 | [`common-api-conventions.md`](./common-api-conventions.md) | 全部 | Locked v0.1 |
+| P0 | [`auth-api-contract.md`](./auth-api-contract.md) | A | Locked v0.1（已實作） |
+| P0 | [`product-api-contract.md`](./product-api-contract.md) | B | Locked v0.2（B-1～B-3、B-5a 基本規格已完成；B-5b 可售庫存待升版） |
+| P0 | [`checkout-api-contract.md`](./checkout-api-contract.md) | C | Locked v0.2（C-2 已實作） |
+| P0 | [`order-api-contract.md`](./order-api-contract.md) | C | Locked v0.1（待實作） |
+| P0 | [`payment-api-contract.md`](./payment-api-contract.md) | D | Locked v0.1（待實作） |
+| P1 | [`booking-api-contract.md`](./booking-api-contract.md) | E | Locked v0.1（待實作） |
+| P1 | [`coupon-api-contract.md`](./coupon-api-contract.md) | F | Locked v0.1（待實作） |
+| P1 | [`admin-api-contract.md`](./admin-api-contract.md) | G | Locked v0.1（待實作） |
+
+### 刻意延後（P2，本輪不寫死）
+
+| 領域 | 原因 |
+|------|------|
+| Articles／Reviews | MVP 可延後 |
+| Branches 公開讀 | 可當 B-7 作業；需要時再補 `branch-api-contract.md` |
+| calendar_dates 維護 | P2 |
+
+---
+
+## 給新手的閱讀順序
+
+1. `common-api-conventions.md`（Envelope、金額、認證）  
+2. `auth-api-contract.md` + `product-api-contract.md`（已能打通的範例）  
+3. `checkout` → `order` → `payment`（商城能買）  
+4. `booking` → `coupon` → `admin`  
+
+---
+
+## 與前端開關
+
+| 前端 | 開關 |
+|------|------|
+| 商城／預約 | `USE_MOCK_API = false`，`API_BASE_URL = http://localhost:8080/api` |
+| 後台 | `AdminAPI.configure({ useBackend: true, baseUrl: 'http://localhost:8080/api/admin' })` |

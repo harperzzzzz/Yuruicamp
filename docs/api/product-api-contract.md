@@ -1,0 +1,273 @@
+# Product API Contract（v0.2）
+
+| 欄位 | 內容 |
+|------|------|
+| **狀態** | Locked（B-1～B-3 真相來源） |
+| **日期** | 2026-07-20 |
+| **版本** | 0.2 |
+| **誰要遵守** | Spring 後端、前端 Mock、OpenAPI／Swagger |
+| **相關清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) 線 B |
+| **共用慣例** | [`common-api-conventions.md`](./common-api-conventions.md) |
+| **索引** | [`README.md`](./README.md) |
+
+> **為什麼要這份文件？**  
+> 目前前端 `products.json` 是「頁面好用的胖物件」，資料庫則把名稱／圖／品牌拆在 `equipment_*`，販售身分在 `products`／`product_variants`。  
+> **兩邊本來就不一致。** 這份契約是中間的寫死規格：Mock 與後端都改成輸出同一形狀，前端再慢慢接。
+
+---
+
+## 0. 一句話
+
+公開商品 API 回傳 **Envelope + 精簡 Product（含 active variants）**；金額一律 **字串**；來源對齊 DB（`products` + `equipment_items` + `product_variants` + 主圖）。
+
+Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
+
+---
+
+## 1. 現況對齊說明（讀完再寫程式）
+
+| 來源 | 現況 | 與契約關係 |
+|------|------|------------|
+| DB `products` | 只有 `id`／`status`／`item_id`／時間 | 契約的販售身分 |
+| DB `equipment_items` + brand／category／images | 名稱、說明、品牌、分類、圖 | 契約的展示欄位 |
+| DB `product_variants` | SKU、規格、**真正售價** | 契約的 `variants[]` |
+| View `sellable_product_variants` | 可賣 variant 扁平列 | 結帳重算時可用；列表先組 SPU |
+| 前端舊 Mock `products.json` | 另有 `rentalId`、`branch`、`totalStock`、`interestTags`… | **不在 v0.2**；UI 衍生欄位另算 |
+
+**結論：** 舊 Mock ≠ DB ≠ 本契約。接線時以**本文件**為準，不要再以 `products.json` 的胖欄位當 API 真相。
+
+---
+
+## 2. HTTP 端點（寫死）
+
+| 方法 | 路徑 | 認證 | 說明 |
+|------|------|------|------|
+| `GET` | `/api/products?page=0&size=20&sort=id,asc` | **公開**（不必 Token） | 可販售商品分頁列表 |
+| `GET` | `/api/products/{id}` | **公開** | 單筆詳情；`id` = `products.id`（如 `P001`） |
+
+### 列表規則
+
+- 只回 `products.status = 'active'`
+- 且對應 `equipment_items.active = true`
+- `variants` 只含 `product_variants.status = 'active'`
+- 若某商品沒有任何 active variant → **整筆不出現在列表**（詳情則 404）
+
+### 詳情規則
+
+- 同上過濾；找不到或不符資格 → HTTP **404**，錯誤碼 `NOT_FOUND`
+- 成功時 `data` 為**單一物件**（不是陣列）
+
+### B-3 分頁與排序規則
+
+列表端點支援下列 query parameters；詳情端點不支援。
+
+| 參數 | 預設 | 規則 |
+|------|------|------|
+| `page` | `0` | 從 0 起算，必須大於等於 0 |
+| `size` | `20` | 必須介於 1 至 100 |
+| `sort` | `id,asc` | 格式 `field,asc\|desc`；僅允許 `id` 或 `name` |
+
+- 非法 `page`、`size` 或 `sort` → HTTP `400`，錯誤碼 `VALIDATION_ERROR`。
+- `name` 排序依 `equipment_items.name`；`price` 是 active variants 最低價的衍生欄位，**v0.2 不支援**排序。
+- 列表回應一定帶 `meta`：
+
+```json
+{
+  "page": 0,
+  "size": 20,
+  "totalElements": 100,
+  "totalPages": 5
+}
+```
+
+---
+
+## 3. Envelope
+
+成功／錯誤格式見 [`common-api-conventions.md`](./common-api-conventions.md)。  
+本資源：`data` 列表＝`Product[]` 且 v0.2 必帶分頁 `meta`；詳情＝`Product` 且不帶 `meta`。
+
+錯誤範例：`NOT_FOUND` — `"Product not found: P999"`。
+
+---
+
+## 4. Product 物件（寫死欄位）
+
+> JSON 使用 **camelCase**。  
+> 下表「DB 來源」方便對照；**回應裡不要出現 snake_case。**
+
+### 4.1 商品層（SPU）
+
+| JSON 欄位 | 型別 | 必填 | DB／規則 | 說明 |
+|-----------|------|------|----------|------|
+| `id` | string | 是 | `products.id` | 商品 ID，如 `"P001"` |
+| `itemId` | string | 是 | `products.item_id` | 裝備主檔 ID |
+| `status` | string | 是 | `products.status` | 公開 API 實際只會看到 `"active"` |
+| `name` | string | 是 | `equipment_items.name` | 顯示名稱 |
+| `category` | string \| null | 是* | `product_categories.name` | 分類顯示名；無則 `null` |
+| `brand` | string \| null | 是* | `brands.name` | 品牌顯示名；無則 `null` |
+| `description` | string \| null | 是* | `equipment_items.description` | 可含 HTML；無則 `null` |
+| `image` | string \| null | 是* | `equipment_images.url`（`sort_order = 0`） | 主圖；路徑如 `/assets/...`；無則 `null` |
+| `price` | string | 是 | **衍生**：active variants 的 **最低** `price` | 列表卡片用；**不是**獨立 DB 欄位 |
+| `variants` | array | 是 | 見下節 | 至少 1 筆（否則不應出現） |
+
+\*「必填」指鍵一定要出現；值可以是 `null`。
+
+### 4.2 規格層（SKU）— `variants[]`
+
+| JSON 欄位 | 型別 | 必填 | DB 來源 | 說明 |
+|-----------|------|------|---------|------|
+| `id` | string | 是 | `product_variants.id` | 規格 ID |
+| `sku` | string | 是 | `product_variants.sku` | 業務 SKU |
+| `color` | string \| null | 是* | `product_variants.color` | 可空 |
+| `size` | string \| null | 是* | `product_variants.size` | 可空 |
+| `specification` | string | 是 | `product_variants.specification` | 規格文字（DB NOT NULL） |
+| `price` | string | 是 | `product_variants.price` | **字串金額**，兩位小數，如 `"3200.00"` |
+
+### 4.3 金額規則（寫死）
+
+- 線上傳輸：**字串**（避免 JS `number` 浮點與竄改）
+- 後端內部：`BigDecimal`
+- 格式：十進位、固定兩位小數（例 `"0.00"`、`"1299.50"`）
+- **禁止**在契約層用 JSON number 當價錢真相
+
+### 4.4 完整成功範例（列表一筆）
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "P001",
+      "itemId": "E001",
+      "status": "active",
+      "name": "Coleman 六人帳篷",
+      "category": "帳篷",
+      "brand": "Coleman",
+      "description": "<p>適合露營使用。</p>",
+      "image": "/assets/images/products/P001-1.jpg",
+      "price": "3200.00",
+      "variants": [
+        {
+          "id": "V001",
+          "sku": "TENT-OLIVE",
+          "color": "深橄欖綠",
+          "size": null,
+          "specification": "深橄欖綠",
+          "price": "3200.00"
+        },
+        {
+          "id": "V002",
+          "sku": "TENT-SAND",
+          "color": "沙漠棕",
+          "size": null,
+          "specification": "沙漠棕",
+          "price": "3300.00"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 4.5 詳情成功範例
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "P001",
+    "itemId": "E001",
+    "status": "active",
+    "name": "Coleman 六人帳篷",
+    "category": "帳篷",
+    "brand": "Coleman",
+    "description": "<p>適合露營使用。</p>",
+    "image": "/assets/images/products/P001-1.jpg",
+    "price": "3200.00",
+    "variants": [
+      {
+        "id": "V001",
+        "sku": "TENT-OLIVE",
+        "color": "深橄欖綠",
+        "size": null,
+        "specification": "深橄欖綠",
+        "price": "3200.00"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## 5. B-5 範圍與目前狀態
+
+| 子項 | 狀態 | v0.2 行為 |
+|------|------|-----------|
+| B-5a 基本商品規格 | 已完成 | `variants[]` 只回 active variant，包含 `id`、`sku`、`color`、`size`、`specification`、`price` |
+| B-5b 規格層級可售庫存 | 未實作 | v0.2 不回傳 `availableQuantity`／`inStock`；實作前必須先升版契約 |
+
+`sellable_product_variants` 只代表商品、器材與 variant 狀態可販售，不包含實際庫存。規格可售量應以 `variant_id` 為粒度，計算 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity`；現有以 `product_id` 聚合的 `product_stock_summary` 不足以判斷單一顏色／尺寸是否缺貨。
+
+---
+
+## 6. v0.2 **明確不做**（之後版本再談）
+
+以下舊 Mock／頁面欄位**不得**出現在本契約回應裡（避免前後端各寫各的）：
+
+| 欄位／概念 | 原因 |
+|------------|------|
+| `rentalId`／`rentalEnabled` | 租借領域，另 API |
+| `interestTags`／`tags`／`specifications` 物件 | 附屬表；不屬於 B-5a 基本 variant 契約，之後可升版擴充 |
+| `images[]`（多圖） | v0.2 只主圖 `image` |
+| `totalStock`／`branch`／`variants[].branch` | 庫存讀模型；進結帳再嚴謹查 |
+| `rating`／`reviewCount`／`salesCount` | 評價／訂單衍生；前端可另算 |
+| `variants[].label` | 用 `specification` 或前端組合 color／size |
+| `price` 排序 | 需以 active variants 最低價做聚合，之後版本再談 |
+| 篩選 query | B-4 |
+
+若要加欄位：**先改本文件版本號（v0.2…）→ 再改後端 → 再改 Mock**，禁止只改一邊。
+
+---
+
+## 7. 前端 Mock 對齊規則
+
+| 模式 | 行為 |
+|------|------|
+| `USE_MOCK_API = true` | 讀取已是 **v0.2 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
+| `USE_MOCK_API = false` | `GET /api/products`；必須先 **解開 Envelope**（取 `data`） |
+
+參考實作：
+
+- 契約樣本：[`frontend/data/catalog/products.contract.sample.json`](../../frontend/data/catalog/products.contract.sample.json)
+- 驗證：`frontend/storefront/js/api-mock.js` 的 `_readProductContract`
+
+頁面若仍需要 `number` 價錢做 `toLocaleString`，只允許在 **enrich／UI 層** `Number(price)`，不得把 number 寫回「契約真相」。
+
+---
+
+## 8. OpenAPI
+
+- Controller 使用 `@Operation`／`@Schema` 描述與本文件相同的欄位、分頁參數與 `meta`
+- Swagger UI：`http://localhost:8080/swagger-ui.html` → **Catalog**
+- 若 Swagger 與本文件衝突：**以本文件為準**，並修正程式註解
+
+---
+
+## 9. 變更流程（強制）
+
+1. 改本文件（升版號、寫 changelog）
+2. 改後端 DTO／組裝
+3. 改 Mock 正規化／樣本 JSON
+4. 更新 checklist 線 B 勾選
+5. 用 Postman 打列表＋詳情＋404 各一次
+
+### Changelog
+
+| 版本 | 日期 | 說明 |
+|------|------|------|
+| 0.2 | 2026-07-20 | 文件釐清 B-5：基本 `variants[]` 已隨 B-1／B-2 完成；規格層級可售庫存尚未實作，需升版後才能加入 |
+| 0.2 | 2026-07-20 | B-3 驗收：非空跨頁、PostgreSQL `id`／`name` 雙向排序、非法參數 Envelope、超頁 meta 與 Controller HTTP 整合測試通過 |
+| 0.2 | 2026-07-20 | B-3：列表支援 page／size／id、name 白名單排序，並回傳分頁 meta |
+| 0.1 | 2026-07-20 | 初版：B-1／B-2 精簡欄位（甲）鎖定 |
