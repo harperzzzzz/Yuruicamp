@@ -64,7 +64,12 @@ customers.updated_at = now()
 
 * auth_provider         OAuth 登入來源
                         只允許 google、facebook、line。
-                        *idx_customers_auth_provider* 
+                        *idx_customers_auth_provider*
+
+  firebase_uid          Firebase Auth UID，可空。
+                        首次成功 OAuth 綁定後由後端寫入。
+                        *uq_customers_firebase_uid*（NULLS DISTINCT）
+                        不出現在 `active_customers` View。
 
 * created_at            建立時間，預設 now()。
 

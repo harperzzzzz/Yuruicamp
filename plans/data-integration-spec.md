@@ -1,8 +1,9 @@
 # Yuruicamp 假資料整合規格
 
 > **Schema 整合任務清單**（可勾選進度）：[`schema-migration-checklist.md`](./schema-migration-checklist.md)  
-> **ER / 欄位說明**：[`../docs/database-er.md`](../docs/database-er.md)  
-> **DDL 草案**：[`../docs/schema.sql`](../docs/schema.sql) · [`../docs/schema-enums.md`](../docs/schema-enums.md) · [`../docs/snapshot-fields.md`](../docs/snapshot-fields.md)
+> **DDL（真相來源）**：[`../docs/latest_schema.sql`](../docs/latest_schema.sql)  
+> **導覽／枚舉**：[`../docs/database-schema-guide.md`](../docs/database-schema-guide.md) · [`../docs/schema-enums.md`](../docs/schema-enums.md)  
+> **領域說明（含快照語意）**：[`../docs/database-documents/`](../docs/database-documents/)
 
 ## 定案摘要（2026-07-09）
 
@@ -13,7 +14,7 @@
 | 預約窗口 | `bookingWindowDays = 90` |
 | 折價券 | 會員中心僅 `birthday` + `firstPurchase`；結帳可輸入 `promotion` |
 | 訂單 / 預約 | **下單當下寫快照（B）** + 保留 `productId` / `variantId` 等 FK |
-| 訂單付款 | `payment`＝方式（credit-card/line-pay/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status |
+| 訂單付款 | `payment`＝方式（ecpay-credit/ecpay-atm/ecpay-cvs/ecpay-other/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status；預約禁止 COD |
 | 商品上下架 | `active` / `inactive`（勿用 `disabled`；`disabled` 僅折價券停用） |
 | 會員登入 | 僅 OAuth，**無 `password`** |
 | 部落格 | `productId` 統一 `P001` 格式、camelCase |

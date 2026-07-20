@@ -2,7 +2,9 @@
 
 > **範圍**：假資料結構、前端 Mock 層、文件、腳本、清理；**不含** Java Entity / REST Controller。  
 > **進度**：完成後將 `- [ ]` 改為 `- [x]`。  
-> **相關規格**：[`data-integration-spec.md`](./data-integration-spec.md) · **DDL**：[`../docs/schema.sql`](../docs/schema.sql) · **ER**：[`../docs/database-er.md`](../docs/database-er.md)
+> **相關規格**：[`data-integration-spec.md`](./data-integration-spec.md)  
+> **現行 DDL**：[`../docs/latest_schema.sql`](../docs/latest_schema.sql) · **導覽**：[`../docs/database-schema-guide.md`](../docs/database-schema-guide.md) · **ENUM**：[`../docs/schema-enums.md`](../docs/schema-enums.md)  
+> **備註**：本清單為歷史整合勾選；建庫請以 `latest_schema.sql` 為準（不再使用已移除的 `schema.sql`／`database-er.md`）。
 
 ---
 
@@ -213,11 +215,13 @@ node admin/scripts/sync-rental-listings.cjs   # 待建立
 
 ## Phase 7 — DDL 文件（仍不做 Java）
 
-- [x] **7-1** 產出 `docs/schema.sql`（完整 DDL）
-- [x] **7-2** 產出 `docs/schema-enums.md`（status / category 枚舉）
-- [x] **7-3** 產出 `docs/snapshot-fields.md`（快照 vs FK-only 欄位）
-- [x] **7-4** 產出 mock JSON → SQL seed 對照表（`docs/mock-json-to-sql-seed.md`）
-- [x] **7-5** 決定 DB 產品：**PostgreSQL**（JSONB、ENUM、Spring Boot 常見；見 `docs/database-er.md` / `schema.sql` 註解）
+> **現行取代**：完整 DDL 已收斂為 [`docs/latest_schema.sql`](../docs/latest_schema.sql)；導覽為 [`database-schema-guide.md`](../docs/database-schema-guide.md)。舊檔名 `schema.sql`／`database-er.md`／`snapshot-fields.md` 已不再維護。
+
+- [x] **7-1** 產出完整 DDL → 現行：`docs/latest_schema.sql`
+- [x] **7-2** 產出 `docs/schema-enums.md`（status / category 枚舉；對齊 latest_schema）
+- [x] **7-3** 快照 vs FK 語意 → 見 `docs/database-documents/`（訂單／預約等章節）
+- [x] **7-4** mock JSON → SQL seed 對照（歷史產出；必要時再補）
+- [x] **7-5** 決定 DB 產品：**PostgreSQL**（JSONB、ENUM、Spring Boot；見 `latest_schema.sql`／`database-schema-guide.md`）
 
 ---
 

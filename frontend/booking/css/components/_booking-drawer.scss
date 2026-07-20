@@ -1,0 +1,34 @@
+/* Booking Drawer：載入主站抽屜、導覽與購物面板共用互動骨架。 */
+@use '../../../storefront/css/components/drawer';
+@use '../../../storefront/css/components/offcanvas';
+@use '../../../storefront/css/components/cart-drawer';
+
+/* Booking Drawer 差異：預約選單與預約背包使用 booking token 呈現內容層級。 */
+.bookingOffcanvas,
+.bookingSlidePanel {
+  background: var(--yc-surface);
+}
+
+.bookingOffcanvasTitle,
+.bookingSlidePanelTitle,
+.bookingCartPanelLabel {
+  color: var(--yc-sage-action);
+}
+
+.bookingOffcanvasLinks a {
+  color: var(--yc-text);
+}
+
+.bookingOffcanvasLinks a:hover,
+.bookingOffcanvasLinks a.isSelected {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-action);
+}
+
+.bookingCartPanelMeta {
+  color: var(--yc-text-muted);
+}
+
+.bookingCartPanelTotal {
+  color: var(--yc-sage-action);
+}

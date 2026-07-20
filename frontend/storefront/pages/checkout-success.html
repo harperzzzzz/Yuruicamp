@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yuruicamp 訂單成立成功，查看訂單編號與後續出貨流程。" />
+    <meta name="theme-color" content="#244d4d" />
+    <title>訂單成立 - Yuruicamp 露營選物</title>
+    <link rel="preconnect" href="https://picsum.photos" />
+    <link rel="dns-prefetch" href="https://picsum.photos" />
+    <link rel="stylesheet" href="/storefront/css/main.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏕️</text></svg>" />
+  </head>
+  <body>
+    <div id="header"></div>
+    <main class="checkoutSuccessPage">
+      <section class="checkoutSuccess" aria-labelledby="successTitle">
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationTop" aria-hidden="true"></div>
+        <div class="checkoutSuccessDecoration checkoutSuccessDecorationBottom" aria-hidden="true"></div>
+        <div class="successIconWrap" aria-hidden="true"><span class="successIcon">✓</span></div>
+        <div class="successContent">
+          <h1 class="successTitle" id="successTitle">訂單成立</h1>
+          <p class="successDescription">感謝您在 Yuruicamp 選購露營用品。我們已收到訂單，將盡快安排備貨與出貨。</p>
+          <dl class="orderNumberPanel">
+            <dt class="orderNumberLabel">訂單編號</dt>
+            <dd class="orderNumberValue isLoading" id="orderNumberDisplay" aria-live="polite">載入中...</dd>
+          </dl>
+          <div class="successActions">
+            <a class="successAction successActionPrimary" href="member-center.html">查看訂單明細</a>
+            <a class="successAction successActionSecondary" href="products.html">繼續購物</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="footer"></div>
+    <script src="/storefront/js/config.js" defer></script>
+    <script src="/storefront/js/storage.js" defer></script>
+    <script src="/storefront/js/state.js" defer></script>
+    <script src="/storefront/js/formatters.js" defer></script>
+    <script src="/storefront/js/validators.js" defer></script>
+    <script src="/storefront/js/cart-service.js" defer></script>
+    <script src="/storefront/js/api-mock.js" defer></script>
+    <script src="/storefront/js/components/toast.js" defer></script>
+    <script src="/storefront/js/components/modal.js" defer></script>
+    <script src="/storefront/js/components/header.js" defer></script>
+    <script src="/storefront/js/components/cart.js" defer></script>
+    <script src="/storefront/js/components/success-effects.js" defer></script>
+    <script src="/storefront/js/main.js" defer></script>
+    <script>
+      (function initSuccessPage() {
+        const orderNumberDisplay = document.getElementById('orderNumberDisplay');
+        const orderNum = readOrderNumber();
+        if (orderNumberDisplay) {
+          const normalizedOrderNum = String(orderNum || '--').replace(/^#/, '');
+          orderNumberDisplay.textContent = normalizedOrderNum === '--' ? '#--' : '#' + normalizedOrderNum;
+          orderNumberDisplay.classList.remove('isLoading');
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function () {
+            window.initNavbar?.();
+            window.initModalListeners?.();
+            window.initCartListeners?.();
+          }, { once: true });
+        } else {
+          window.initNavbar?.();
+        }
+      })();
+      function readOrderNumber() {
+        const params = new URLSearchParams(window.location.search);
+        const queryOrderNum = params.get('orderNum');
+        if (queryOrderNum) return queryOrderNum;
+        try {
+          const lastOrder = JSON.parse(localStorage.getItem('lastCheckoutOrder') || 'null');
+          if (!lastOrder) return '';
+          return window.formatOrderDisplayId ? window.formatOrderDisplayId(lastOrder.id) : String(lastOrder.id || '');
+        } catch (error) { return ''; }
+      }
+    </script>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 請先讀取：
-- `docs/schema_copy.sql`
+- `docs/latest_schema.sql`（現行 DDL 真相來源）
+- 需要導覽時可輔以 `docs/database-schema-guide.md`、`docs/schema-enums.md`
 
 ## 任務目標:
 要使用Trigger 和View 的地方如果不符合技術限制，留著給後端Sprint boot 擴充，不要直接寫在資料庫。
