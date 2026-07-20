@@ -130,6 +130,10 @@ public class Order {
         return total;
     }
 
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
     public String getPaymentStatus() {
         return paymentStatus;
     }
