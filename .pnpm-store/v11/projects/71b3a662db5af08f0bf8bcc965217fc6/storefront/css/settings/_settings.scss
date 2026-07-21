@@ -1,3 +1,0 @@
-// Settings 層：集中輸出全站設計 token，讓後續 generic、base、components 與 pages 都能使用同一份變數合約。
-// 規則：此層只放 CSS custom properties、Sass 設定值與不產生選擇器的設定，不放具體元件樣式。
-@use 'tokens';

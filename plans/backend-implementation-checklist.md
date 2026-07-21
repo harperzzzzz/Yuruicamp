@@ -19,7 +19,7 @@
 | Schema   | DB 欄位／ENUM／保留逾時                      | ✅                                                  |
 | **契約** | P0+P1 API Contracts（甲）                    | ✅ 見 [`docs/api/README.md`](../docs/api/README.md) |
 | **A**    | 骨架（Security／Session／Envelope／OpenAPI） | ✅                                                  |
-| **B**    | Catalog 公開讀（商品）                       | 🔄 B-1～B-3、B-5a 已完成；B-4、B-5b～B-7 待做       |
+| **B**    | Catalog 公開讀（商品）                       | 🔄 B-4 已驗收；B-5b、B-7 已實作，待完整驗收           |
 | **C**    | Checkout + 庫存保留 + 15 分排程              | ✅ C-1～C-8 已驗收；C-4 優惠券套用另待 F-2          |
 | **D**    | Payment（ECPay + COD）                       | ⬜（契約已鎖）                                      |
 | **E**    | Booking（營位 + 租借）                       | ✅ E-0～E-7 已完成；Payment Confirmation 延後至線 D |
@@ -68,11 +68,11 @@
 | B-1  | `GET /api/products` 列表（active）    | ✅                                                                                |
 | B-2  | `GET /api/products/{id}` 詳情         | ✅                                                                                |
 | B-3  | 分頁 `page`／`size`／`sort`           | ✅ PostgreSQL／Controller 整合驗收通過（Product API Contract v0.2）               |
-| B-4  | 篩選 category／brand／價格            | ⬜（見 Service 教學註解）                                                         |
+| B-4  | 篩選 category／brand／價格            | ✅ PostgreSQL 實際端點驗收通過；無篩選、品牌、價格與錯誤區間皆符合契約            |
 | B-5a | 基本商品規格 `variants[]`             | ✅ 已隨 B-1／B-2 落地；只回 active variant，包含 SKU／顏色／尺寸／規格／價格      |
-| B-5b | 規格層級可售庫存（View／Read Model）  | ⬜ 尚未實作；需先升版 Product API Contract，再加入 `availableQuantity`／`inStock` |
+| B-5b | 規格層級可售庫存（View／Read Model）  | 🔄 Product API Contract v0.3 與程式已完成；待 PostgreSQL 驗收                     |
 | B-6  | Security：`GET /api/products/**` 公開 | ✅                                                                                |
-| B-7  | （作業）`GET /api/branches` 同套路    | ⬜                                                                                |
+| B-7  | （作業）`GET /api/branches` 同套路    | 🔄 已實作公開 Envelope、固定排序與 Swagger；待實際端點驗收                        |
 
 **驗收**
 
@@ -81,10 +81,11 @@
 - [x] Swagger Tag：`Catalog`
 - [x] Mock／後端皆對齊 [`product-api-contract.md`](../docs/api/product-api-contract.md)（Mock 以 `_toProductContract` 正規化）
 - [x] 基本 `variants[]` 隨列表／詳情回傳，只包含 active variant，價格為兩位小數字串
-- [ ] 規格層級可售庫存：`inventory_stocks - active product_stock_reservations`，尚未建立 Catalog 讀模型與 API 欄位
+- [ ] 規格層級可售庫存：讀模型與 API 欄位已完成，待 PostgreSQL 驗證後勾選
 - [x] B-3：非空分頁、跨頁無重複／遺漏、`id`／`name` 雙向 PostgreSQL 排序、參數錯誤 Envelope、超頁 meta 與實際 Controller 驗收
 
 > B-3 驗收細節與執行指令見 [`b3-product-pagination-validation.md`](../docs/backend-specs/catalog/b3-product-pagination-validation.md)。
+> B-4／B-5b／B-7 流程見 [`b4-b5b-b7-catalog-public-read.md`](../docs/backend-specs/catalog/b4-b5b-b7-catalog-public-read.md)，Swagger 見 [`b-catalog-public-swagger.md`](../docs/backend-specs/test/b-catalog-public-swagger.md)。
 
 ---
 
@@ -131,10 +132,12 @@
 
 ## 線 F — Coupon（P1）
 
-- [ ] F-1 可領列表／我的券
-- [ ] F-2 結帳三種券規則（後端重算；包含補齊 C-4 `couponClaimId` 套用／清除功能）
-- [ ] F-3 與 DB Trigger 不打架
-- [ ] F-4 測試：灌水／重複用券
+- [x] F-1 可領列表／我的券
+- [ ] F-2 結帳三種券規則（商城 C-4 套用／切換／清除已完成；Booking 缺少 Coupon 關聯 Schema，仍維持拒絕非 null）
+- [x] F-3 與 DB Trigger 不打架（Service 管資格與折扣；Trigger 僅原子配置名額）
+- [x] F-4 測試：名額、重複領券、售罄、資格、後端折扣快照與取消規則通過 PostgreSQL 驗證
+
+> 線 F 的領券與商城套券已完成；F-2 要完整勾選前，需先決定 Booking Coupon 關聯 Schema。付款成功或 COD 成立後將 claim 改為 `consumed`，由線 D 在同一付款交易呼叫。流程見 [`coupon/README.md`](../docs/backend-specs/coupon/README.md)，Swagger 見 [`f-coupon-swagger.md`](../docs/backend-specs/test/f-coupon-swagger.md)。
 
 ---
 

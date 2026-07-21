@@ -14,15 +14,17 @@
 
 後端程式使用簡短中文註解；流程文件集中在 `docs/backend-specs/`，只保留用途、主要流程與驗證結果。
 
-- Catalog `GET /api/products` 與 `GET /api/products/{id}` 已完成；B-3 PostgreSQL 分頁、`id`／`name` 排序、參數錯誤 Envelope 與實際 Controller 驗收已通過。
+- Catalog 線 B 已完成：商品列表／詳情支援分頁、排序、分類／品牌／價格篩選，variant 回傳可售數量，並提供公開門市 `GET /api/branches`。
+- B-4 未指定篩選條件時會使用明確的文字與價格預設值，避免 PostgreSQL 將 `null` 文字參數推斷成 `bytea` 而中斷商品載入。
 - B-3 驗收範圍與執行方式見 [`docs/backend-specs/catalog/b3-product-pagination-validation.md`](./docs/backend-specs/catalog/b3-product-pagination-validation.md)。
-- B-5 基本商品規格已隨商品 API 落地：`variants[]` 只回 active variant；規格層級可售庫存尚未實作，需先升版契約並建立 variant 庫存讀模型。
+- B-5 商品規格已隨 Product API v0.3 落地：`variants[]` 只回 active variant，並以商城庫存扣除 active 保留帳後回傳 `availableQuantity` 與 `inStock`。
 - B-5 範圍與資料來源見 [`docs/backend-specs/catalog/b5-product-variants-stock-status.md`](./docs/backend-specs/catalog/b5-product-variants-stock-status.md)。
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
 - Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
 - Checkout C-2～C-8 的完整流程、規則與驗收入口見 [`docs/backend-specs/checkout/README.md`](./docs/backend-specs/checkout/README.md)。
-- Checkout 線 C 的 C-4 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料與付款方式，並以悲觀鎖避免和逾時排程互相覆蓋；優惠券套用尚未完成，等待 F-2。
+- Checkout 線 C 的 C-4 與 Coupon 線 F 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料、付款方式及 `couponClaimId`，折扣由後端重算並保存 `order_coupons` 快照。
+- Coupon 線 F 的 F-1、F-3、F-4 與商城 F-2 已完成：公開券、我的券、領券、三種資格、名額 Trigger、重複領券與取消規則已通過 PostgreSQL 驗證；Booking 因缺少 Coupon 關聯 Schema 尚未開放，付款後 `consumed` 由線 D 接續。
 - Checkout 線 C 的 C-3、C-5、C-7 已完成：PostgreSQL 併發防超賣、取消釋放保留帳及後端價格重算均已通過整合測試。
 - Checkout 線 C 的 C-6、C-8 已完成：每分鐘掃描滿 15 分鐘的未付款訂單，交易內取消訂單、將保留帳改為 `expired` 並釋放庫存；PostgreSQL 逾時與冪等驗收已通過。
 - Booking 線 E 的 E-0 已完成：`bookings` 加入 Checkout 冪等 key、request hash 與會員範圍唯一約束。

@@ -2,6 +2,7 @@ package com.yuruicamp.backend.catalog.infrastructure;
 
 import java.util.List;
 import java.util.Optional;
+import java.math.BigDecimal;
 
 import com.yuruicamp.backend.catalog.domain.Product;
 
@@ -24,17 +25,44 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 	@Query(value = """
 			select p.id from Product p
 			join p.item i
+			left join i.category category
+			left join i.brand brand
 			where p.status = 'active'
 			  and i.active = true
+			  and (:category = '' or lower(category.name) = lower(:category))
+			  and (:brand = '' or lower(brand.name) = lower(:brand))
 			  and exists (select v.id from ProductVariant v where v.product = p and v.status = 'active')
+			  and exists (
+			      select priced.id from ProductVariant priced
+			      where priced.product = p
+			        and priced.status = 'active'
+			        and priced.price >= :minPrice
+			        and priced.price <= :maxPrice
+			  )
 			""", countQuery = """
 			select count(p) from Product p
 			join p.item i
+			left join i.category category
+			left join i.brand brand
 			where p.status = 'active'
 			  and i.active = true
+			  and (:category = '' or lower(category.name) = lower(:category))
+			  and (:brand = '' or lower(brand.name) = lower(:brand))
 			  and exists (select v.id from ProductVariant v where v.product = p and v.status = 'active')
+			  and exists (
+			      select priced.id from ProductVariant priced
+			      where priced.product = p
+			        and priced.status = 'active'
+			        and priced.price >= :minPrice
+			        and priced.price <= :maxPrice
+			  )
 			""")
-	Page<String> findActiveIdsForCatalog(Pageable pageable);
+	Page<String> findActiveIdsForCatalog(
+			@Param("category") String category,
+			@Param("brand") String brand,
+			@Param("minPrice") BigDecimal minPrice,
+			@Param("maxPrice") BigDecimal maxPrice,
+			Pageable pageable);
 
 	/** Pagination phase 2: load complete relations for the IDs in one page. */
 	@Query("""

@@ -1,10 +1,10 @@
-# Coupon API Contract（v0.1）
+# Coupon API Contract（v0.2）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（線 F 待實作） |
-| **日期** | 2026-07-20 |
-| **版本** | 0.1 |
+| **狀態** | Partially Implemented（商城完成；Booking 關聯 Schema 待決定） |
+| **日期** | 2026-07-21 |
+| **版本** | 0.2 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **DB** | `coupons`、`coupon_claims`、`order_coupons`（及預約側對應若有） |
 | **ENUM** | `coupon_category`、`coupon_status`、`coupon_claim_status`；折扣型別 `fixed`\|`percent` |
@@ -96,7 +96,7 @@
 | `birthday` | 會員生日月／日規則（實作時鎖死並寫進 Changelog） |
 | `firstPurchase` | `customers.first_purchase_used = false`；用掉後標記 |
 
-細節數字（生日窗口天數等）實作前可在本契約升 v0.2 寫死。
+生日券固定依 `Asia/Taipei` 判斷，會員生日月份等於目前月份時可領取與套用。
 
 ---
 
@@ -125,4 +125,5 @@
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.2 | 2026-07-21 | F-1、F-3、F-4 與商城 F-2 完成；Booking 套券待關聯 Schema，付款後消耗保留給線 D |
 | 0.1 | 2026-07-20 | 三種 category；claim／consume 分離 |

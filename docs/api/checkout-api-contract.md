@@ -1,10 +1,10 @@
-# Checkout API Contract（v0.4）
+# Checkout API Contract（v0.5）
 
 | 欄位 | 內容 |
 |------|------|
 | **狀態** | Locked（C-2、C-4、C-6 已實作） |
 | **日期** | 2026-07-21 |
-| **版本** | 0.4 |
+| **版本** | 0.5 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **相關** | [`order-api-contract.md`](./order-api-contract.md)、[`payment-api-contract.md`](./payment-api-contract.md)、[`coupon-api-contract.md`](./coupon-api-contract.md) |
 | **實作說明** | [`../backend-specs/checkout/README.md`](../backend-specs/checkout/README.md) |
@@ -124,7 +124,7 @@
 |------|------|
 | `shipping.*` | 更新收件快照 |
 | `paymentMethod` | `ecpay-credit` \| `ecpay-atm` \| `ecpay-cvs` \| `ecpay-other` \| `cod` |
-| `couponClaimId` | **尚未完成**；C-4 僅接受 `null`，非空值回 `400 VALIDATION_ERROR`，等待 F-2 實作 |
+| `couponClaimId` | 已完成；非空值套用或切換會員 claim，空 JSON `{}` 清除目前套券 |
 
 Request 範例：
 
@@ -144,7 +144,7 @@ Request 範例：
 - Request 至少要提供一個收件欄位或 `paymentMethod`。
 - 收件欄位若有提供，不可為空白；長度上限分別為姓名 `100`、電話 `32`、地址 `500`。
 - 更新交易使用訂單悲觀鎖，避免與付款、取消或 C-6 逾時排程互相覆蓋。
-- 回應中的 `couponClaimId` 在優惠券功能完成前固定為 `null`。
+- 回應中的 `couponClaimId` 為目前訂單已套用的 claim；未套券時為 `null`。
 - 不可修改 `items` 數量；要改商品請先 cancel 再重新建立 Checkout。
 
 ---
@@ -205,6 +205,7 @@ Request 範例：
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.5 | 2026-07-21 | F-2：建立／更新 Checkout 可套用會員 claim，後端重算折扣並保存 `order_coupons` 快照 |
 | 0.4 | 2026-07-21 | C-4：完成收件資料與付款方式 PATCH；優惠券套用明確延後至 F-2 |
 | 0.3 | 2026-07-21 | C-6：鎖定自動逾時條件、`expired` 保留帳、狀態歷程與冪等規則 |
 | 0.2 | 2026-07-20 | C-2：冪等鍵必填、重送回放、Payload 衝突與空值保障 |

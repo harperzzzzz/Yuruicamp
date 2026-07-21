@@ -193,6 +193,24 @@ http://127.0.0.1:5173/booking/pages/camp-search.html
 ```http
 GET /api/booking/campgrounds
 GET /api/booking/policy
+```
+
+營區搜尋頁在 Backend 模式下不會主動下載 `closures`。選擇入住與退房日期後，
+前端會改呼叫下列 API，由後端統一套用公休、停售與剩餘數量規則：
+
+```http
+POST /api/booking/check-availability
+```
+
+若要單獨驗證公休公開讀取 API，可在 Console 執行：
+
+```javascript
+await ApiClient._restRequest("/booking/closures", { auth: "none" });
+```
+
+此時 Network 才應看到：
+
+```http
 GET /api/booking/closures
 ```
 
@@ -470,24 +488,33 @@ region
 pending + unpaid
 ```
 
-若成功頁重新查詢 Checkout Session 時因換頁後 Token 遺失而出現 401，可在 Console 重新執行：
+成功頁未載入 `api-client.js` 與 `booking-api.js`，因此不能直接使用
+`AppAuth`、`ApiClient` 或 `BookingAPI`。若要在成功頁重新查詢 Checkout Session，
+可在 Console 直接執行：
 
 ```javascript
-window.bookingDevToken =
+const bookingDevToken =
   "dev:booking-front:booking-front@example.com:google:BookingFront";
-
-AppAuth.configure({ devToken: window.bookingDevToken });
 
 const bookingId = JSON.parse(
   sessionStorage.getItem("lastCheckoutBooking")
 ).bookingId;
 
-const session = await BookingAPI.getCheckoutSession(bookingId);
+const response = await fetch(
+  `http://localhost:8080/api/booking/checkout/sessions/${encodeURIComponent(bookingId)}`,
+  {
+    headers: {
+      Authorization: `Bearer ${bookingDevToken}`,
+    },
+  }
+);
 
-console.log(session);
+const session = await response.json();
+
+console.log(response.status, session);
 ```
 
-應能取得剛才建立的 Checkout Session。
+應回傳 `2xx`，並取得剛才建立的 Checkout Session。
 
 ---
 

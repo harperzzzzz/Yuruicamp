@@ -5,10 +5,10 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Contract v0.1 product (SPU) — see docs/api/product-api-contract.md
+ * Contract v0.3 product (SPU) — see docs/api/product-api-contract.md
  * Locked fields only; do not add rentalId / stock / ratings here without bumping the contract.
  */
-@Schema(description = "Storefront product (SPU) per Product API Contract v0.1")
+@Schema(description = "Storefront product (SPU) per Product API Contract v0.3")
 public record ProductResponse(
 		@Schema(example = "P001") String id,
 		@Schema(example = "E001") String itemId,

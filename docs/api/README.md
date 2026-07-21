@@ -21,12 +21,13 @@
 | ---- | ---------------------------------------------------------- | ---- | ----------------------------------------------------------------------------------------------- |
 | 共用 | [`common-api-conventions.md`](./common-api-conventions.md) | 全部 | Locked v0.1                                                                                     |
 | P0   | [`auth-api-contract.md`](./auth-api-contract.md)           | A    | Locked v0.1（已實作）                                                                           |
-| P0   | [`product-api-contract.md`](./product-api-contract.md)     | B    | Locked v0.2（B-1～B-3、B-5a 基本規格已完成；B-5b 可售庫存待升版）                               |
-| P0   | [`checkout-api-contract.md`](./checkout-api-contract.md)   | C    | Locked v0.4（C-2、C-4、C-6 已實作；優惠券套用待 F-2）                                           |
+| P0   | [`product-api-contract.md`](./product-api-contract.md)     | B    | Locked v0.3（B-1～B-5b 已完成）                                                                 |
+| P0   | [`branch-api-contract.md`](./branch-api-contract.md)       | B    | Locked v0.1（B-7 已完成）                                                                       |
+| P0   | [`checkout-api-contract.md`](./checkout-api-contract.md)   | C/F  | Locked v0.5（Checkout 與優惠券套用已實作；付款後消耗待線 D）                                     |
 | P0   | [`order-api-contract.md`](./order-api-contract.md)         | C    | Locked v0.1（待實作）                                                                           |
 | P0   | [`payment-api-contract.md`](./payment-api-contract.md)     | D    | Locked v0.1（待實作）                                                                           |
 | P1   | [`booking-api-contract.md`](./booking-api-contract.md)     | E    | Locked v0.9（E-1～E-7 已實作；Booking Prepare／Reservation 完成，ECPay、優惠券分別延後至 D、F） |
-| P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)       | F    | Locked v0.1（待實作）                                                                           |
+| P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)       | F    | Partially Implemented v0.2（商城完成；Booking 關聯 Schema 待決定）                                |
 | P1   | [`admin-api-contract.md`](./admin-api-contract.md)         | G    | Locked v0.1（待實作）                                                                           |
 
 ### 刻意延後（P2，本輪不寫死）
@@ -34,7 +35,6 @@
 | 領域                | 原因                                               |
 | ------------------- | -------------------------------------------------- |
 | Articles／Reviews   | MVP 可延後                                         |
-| Branches 公開讀     | 可當 B-7 作業；需要時再補 `branch-api-contract.md` |
 | calendar_dates 維護 | P2                                                 |
 
 ---

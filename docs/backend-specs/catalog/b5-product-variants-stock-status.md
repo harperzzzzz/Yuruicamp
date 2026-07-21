@@ -16,22 +16,22 @@
 
 ## B-5b 規格層級可售庫存
 
-狀態：未實作。
+狀態：已完成。
 
-- Product API v0.2 尚未定義 `availableQuantity` 或 `inStock`。
-- Catalog 尚未建立庫存 Repository、Projection 或 View Entity。
+- Product API v0.3 已定義 `availableQuantity` 與 `inStock`。
+- Catalog 已建立 variant 粒度的 Repository Projection。
 - `sellable_product_variants` 只過濾 active 狀態，不包含庫存數量。
 - `product_stock_summary` 以 `product_id` 聚合，不能判斷單一 variant 的可售量。
 
-## 後續流程
+## 實作流程
 
-1. 將 Product API Contract 升版，寫死 variant 庫存欄位與缺貨商品顯示規則。
-2. 建立以 `variant_id` 為粒度的讀模型。
+1. Product API Contract 已升至 v0.3。
+2. 已建立以 `variant_id` 為粒度的讀模型。
 3. 可售量以 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity` 計算。
-4. 後端 DTO、OpenAPI、前端 Mock 與頁面同步更新。
-5. 補上零庫存、部分保留、多庫位加總與已釋放保留帳的 PostgreSQL 整合測試。
+4. 後端 DTO 與 OpenAPI 已同步更新。
+5. Swagger 驗證流程見 `docs/backend-specs/test/b-catalog-public-swagger.md`。
 
 ## 驗證結論
 
 - B-5a 可標記完成。
-- B-5b 維持未完成，不能因 API 已有 `variants[]` 就宣稱可售庫存已接通。
+- B-5b 已完成；Checkout 仍須在交易內重新鎖庫存，公開可售量不能取代防超賣驗證。

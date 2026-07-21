@@ -1,5 +1,6 @@
 package com.yuruicamp.backend.catalog.api;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.yuruicamp.backend.catalog.application.ProductCatalogService;
@@ -22,7 +23,7 @@ import org.springframework.validation.annotation.Validated;
 /**
  * Public product read APIs (線 B：Catalog).
  *
- * <p><b>契約真相</b>：{@code docs/api/product-api-contract.md}（v0.2）</p>
+ * <p><b>契約真相</b>：{@code docs/api/product-api-contract.md}（v0.3）</p>
  *
  * <h2>給新手：新增一支「公開讀」API 的固定步驟</h2>
  * <ol>
@@ -40,7 +41,7 @@ import org.springframework.validation.annotation.Validated;
 @RestController
 @Validated
 @RequestMapping("/api/products")
-@Tag(name = "Catalog", description = "Public product catalog (Contract v0.2)")
+@Tag(name = "Catalog", description = "Public product catalog (Contract v0.3)")
 public class ProductController {
 
 	private final ProductCatalogService productCatalogService;
@@ -54,7 +55,7 @@ public class ProductController {
 			summary = "List sellable products",
 			description = """
 					B-1/B-3: Returns a page of active products with active variants.
-					Response shape is locked by docs/api/product-api-contract.md (v0.2).
+					Response shape is locked by docs/api/product-api-contract.md (v0.3).
 					No auth required.
 					""")
 	public ApiResponse<List<ProductResponse>> list(
@@ -63,8 +64,23 @@ public class ProductController {
 			@Parameter(description = "Page size (1-100)", example = "20")
 			@RequestParam(defaultValue = "20") @Min(value = 1, message = "must be at least 1") @Max(value = 100, message = "must be at most 100") int size,
 			@Parameter(description = "Allowed: id,asc|desc; name,asc|desc", example = "id,asc")
-			@RequestParam(defaultValue = "id,asc") String sort) {
-		PagedProducts result = productCatalogService.listProducts(page, size, sort);
+			@RequestParam(defaultValue = "id,asc") String sort,
+			@Parameter(description = "分類名稱，忽略大小寫", example = "帳篷")
+			@RequestParam(required = false) String category,
+			@Parameter(description = "品牌名稱，忽略大小寫", example = "Coleman")
+			@RequestParam(required = false) String brand,
+			@Parameter(description = "規格最低價格下限，含邊界", example = "1000.00")
+			@RequestParam(required = false) BigDecimal minPrice,
+			@Parameter(description = "規格價格上限，含邊界", example = "5000.00")
+			@RequestParam(required = false) BigDecimal maxPrice) {
+		PagedProducts result = productCatalogService.listProducts(
+				page,
+				size,
+				sort,
+				category,
+				brand,
+				minPrice,
+				maxPrice);
 		PageMeta meta = result.meta();
 		return ApiResponse.ok(result.data(), meta);
 	}

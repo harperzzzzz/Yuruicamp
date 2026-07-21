@@ -58,7 +58,9 @@ const _path = (key) => MOCK_DATA_PATHS[key] || '';
 const PRODUCT_CONTRACT_FIELDS = [
   'id', 'itemId', 'status', 'name', 'category', 'brand', 'description', 'image', 'price', 'variants',
 ];
-const PRODUCT_VARIANT_CONTRACT_FIELDS = ['id', 'sku', 'color', 'size', 'specification', 'price'];
+const PRODUCT_VARIANT_CONTRACT_FIELDS = [
+  'id', 'sku', 'color', 'size', 'specification', 'price', 'availableQuantity', 'inStock',
+];
 const CONTRACT_MONEY = /^\d+\.\d{2}$/;
 
 const _contractError = (message) => {
@@ -74,7 +76,7 @@ const _assertExactKeys = (value, expected, label) => {
 };
 
 /**
- * Public catalog input must already be Product API Contract v0.2.
+ * Public catalog input must already be Product API Contract v0.3.
  * Do not silently create item IDs, SKUs, prices, or variants from old fixtures.
  */
 const _readProductContract = (product) => {
@@ -99,7 +101,9 @@ const _readProductContract = (product) => {
     _assertExactKeys(variant, PRODUCT_VARIANT_CONTRACT_FIELDS, `${product.id} variant`);
     if (typeof variant.id !== 'string' || typeof variant.sku !== 'string'
         || typeof variant.specification !== 'string' || typeof variant.price !== 'string'
-        || !CONTRACT_MONEY.test(variant.price)) {
+        || !CONTRACT_MONEY.test(variant.price)
+        || !Number.isInteger(variant.availableQuantity) || variant.availableQuantity < 0
+        || variant.inStock !== (variant.availableQuantity > 0)) {
       _contractError(`${product.id}: invalid variant ${variant.id || '(missing id)'}`);
     }
     ['color', 'size'].forEach((field) => {
@@ -316,14 +320,27 @@ const _loadProductDisplay = async () => {
  * B-3 product page adapter. It preserves the API envelope's meta while the
  * older getAll API intentionally continues returning an array for old pages.
  */
-const _loadProductPage = async ({ page = 0, size = 20, sort = 'id,asc' } = {}) => {
+const _loadProductPage = async ({
+  page = 0,
+  size = 20,
+  sort = 'id,asc',
+  category = null,
+  brand = null,
+  minPrice = null,
+  maxPrice = null,
+} = {}) => {
   const [field, direction] = String(sort).split(',');
   if (!['id', 'name'].includes(field) || !['asc', 'desc'].includes(direction)) {
     throw new Error('VALIDATION_ERROR: sort must be id,asc|desc or name,asc|desc');
   }
 
   if (!_useMockApi()) {
-    const query = new URLSearchParams({ page: String(page), size: String(size), sort }).toString();
+    const queryParams = new URLSearchParams({ page: String(page), size: String(size), sort });
+    if (category) queryParams.set('category', category);
+    if (brand) queryParams.set('brand', brand);
+    if (minPrice !== null && minPrice !== '') queryParams.set('minPrice', String(minPrice));
+    if (maxPrice !== null && maxPrice !== '') queryParams.set('maxPrice', String(maxPrice));
+    const query = queryParams.toString();
     const result = await window.ApiClient._restRequest(`/products?${query}`, {
       auth: 'optional',
       includeMeta: true,
@@ -335,7 +352,15 @@ const _loadProductPage = async ({ page = 0, size = 20, sort = 'id,asc' } = {}) =
     };
   }
 
-  const all = await _loadProductsRaw();
+  let all = await _loadProductsRaw();
+  if (category) all = all.filter((product) => product.category?.toLocaleLowerCase() === String(category).trim().toLocaleLowerCase());
+  if (brand) all = all.filter((product) => product.brand?.toLocaleLowerCase() === String(brand).trim().toLocaleLowerCase());
+  if ((minPrice !== null && minPrice !== '') || (maxPrice !== null && maxPrice !== '')) {
+    all = all.filter((product) => product.variants.some((variant) => (
+      (minPrice === null || minPrice === '' || Number(variant.price) >= Number(minPrice))
+      && (maxPrice === null || maxPrice === '' || Number(variant.price) <= Number(maxPrice))
+    )));
+  }
   const multiplier = direction === 'asc' ? 1 : -1;
   const ordered = all.slice().sort((a, b) => String(a[field]).localeCompare(String(b[field]), 'zh-Hant') * multiplier);
   const start = Number(page) * Number(size);
