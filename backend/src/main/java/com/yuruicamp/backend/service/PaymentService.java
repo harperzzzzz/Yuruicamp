@@ -3,10 +3,11 @@ package com.yuruicamp.backend.service;
 import com.yuruicamp.backend.config.EcpayProperties;
 import com.yuruicamp.backend.dto.CreatePaymentRequest;
 import com.yuruicamp.backend.dto.CreatePaymentResponse;
-import com.yuruicamp.backend.entity.Order;
 import com.yuruicamp.backend.entity.PaymentTransaction;
+import com.yuruicamp.backend.order.domain.Order;
+import com.yuruicamp.backend.order.domain.PaymentStatus;
+import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.payment.EcpayCheckMacValue;
-import com.yuruicamp.backend.repository.OrderRepository;
 import com.yuruicamp.backend.repository.PaymentTransactionRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -53,7 +54,7 @@ public class PaymentService {
         Order order = orderRepository.findById(request.orderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Order not found: " + request.orderId()));
-        if (!"unpaid".equalsIgnoreCase(order.getPaymentStatus())) {
+        if (order.getPaymentStatus() != PaymentStatus.unpaid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Only unpaid orders can create ECPay payment transactions.");
         }
@@ -120,7 +121,7 @@ public class PaymentService {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Payment transaction is not pending: " + transaction.getStatus());
         }
-        if (!"unpaid".equalsIgnoreCase(order.getPaymentStatus())) {
+        if (order.getPaymentStatus() != PaymentStatus.unpaid) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Order payment status is not unpaid: " + order.getPaymentStatus());
         }
@@ -128,7 +129,7 @@ public class PaymentService {
         OffsetDateTime callbackReceivedAt = OffsetDateTime.now(TAIPEI_ZONE);
         OffsetDateTime paidAt = parsePaymentDate(callbackFields.get("PaymentDate"), callbackReceivedAt);
         transaction.markPaid(callbackFields.get("TradeNo"), callbackReceivedAt, paidAt);
-        order.markPaid(paidAt);
+        order.markPaid(paidAt.toInstant());
         return ECPAY_OK_RESPONSE;
     }
 

@@ -1,17 +1,18 @@
 package com.yuruicamp.backend.service;
 
+import com.yuruicamp.backend.catalog.domain.ProductVariant;
+import com.yuruicamp.backend.checkout.infrastructure.CheckoutProductRepository;
 import com.yuruicamp.backend.dto.CreateOrderItemRequest;
 import com.yuruicamp.backend.dto.CreateOrderRequest;
 import com.yuruicamp.backend.dto.CreateOrderResponse;
-import com.yuruicamp.backend.entity.Order;
-import com.yuruicamp.backend.entity.OrderItem;
-import com.yuruicamp.backend.repository.OrderRepository;
-import com.yuruicamp.backend.repository.ProductVariantRepository;
-import com.yuruicamp.backend.repository.ProductVariantRepository.CatalogVariantView;
+import com.yuruicamp.backend.order.domain.Order;
+import com.yuruicamp.backend.order.domain.OrderItem;
+import com.yuruicamp.backend.order.domain.PaymentMethod;
+import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.ZoneOffset;
 import java.util.Locale;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 @Service
+// 供你自己端到端測試 ECPay 金流用的簡化建單流程；不經過 CheckoutService，僅共用 Order／ProductVariant 實體。
 public class OrderService {
 
     private static final DateTimeFormatter ORDER_ID_FORMAT =
@@ -26,59 +28,56 @@ public class OrderService {
     private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2);
 
     private final OrderRepository orderRepository;
-    private final ProductVariantRepository productVariantRepository;
+    private final CheckoutProductRepository productVariantRepository;
 
-    public OrderService(OrderRepository orderRepository, ProductVariantRepository productVariantRepository) {
+    public OrderService(OrderRepository orderRepository, CheckoutProductRepository productVariantRepository) {
         this.orderRepository = orderRepository;
         this.productVariantRepository = productVariantRepository;
     }
 
     @Transactional
     public CreateOrderResponse createOrder(CreateOrderRequest request) {
-        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        BigDecimal subtotal = ZERO;
-        String paymentMethod = normalizePaymentMethod(request.paymentMethod());
-        Order order = new Order(
-                nextOrderId(now),
+        Instant now = Instant.now();
+        PaymentMethod paymentMethod = normalizePaymentMethod(request.paymentMethod());
+        Order order = new Order();
+        order.initialize(
+                nextOrderId(),
                 request.customerId(),
+                null,
+                null,
                 request.buyerName(),
                 request.buyerEmail(),
                 request.recipientName(),
                 request.shippingAddress(),
                 request.shippingPhone(),
-                ZERO,
-                ZERO,
-                ZERO,
-                ZERO,
                 paymentMethod,
-                "unpaid",
-                "none",
-                "unshipped",
                 now,
-                now,
-                now
-        );
+                null);
 
+        BigDecimal subtotal = ZERO;
         for (CreateOrderItemRequest itemRequest : request.items()) {
-            CatalogVariantView variant = productVariantRepository.findActiveCatalogVariant(itemRequest.variantId())
+            ProductVariant variant = productVariantRepository.findSellableById(itemRequest.variantId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                             "Active product variant not found: " + itemRequest.variantId()));
             BigDecimal lineSubtotal = variant.getPrice().multiply(BigDecimal.valueOf(itemRequest.quantity()));
             subtotal = subtotal.add(lineSubtotal);
-            order.addItem(new OrderItem(
-                    variant.getProductId(),
-                    variant.getVariantId(),
+            String brandName = variant.getProduct().getItem().getBrand() == null
+                    ? ""
+                    : variant.getProduct().getItem().getBrand().getName();
+            order.addItem(OrderItem.snapshot(
+                    order,
+                    variant.getProduct().getId(),
+                    variant.getId(),
                     variant.getSku(),
-                    variant.getProductName(),
+                    variant.getProduct().getItem().getName(),
                     variant.getSpecification(),
-                    variant.getBrandName(),
+                    brandName,
                     null,
                     variant.getPrice(),
-                    itemRequest.quantity()
-            ));
+                    itemRequest.quantity()));
         }
 
-        order.updateTotals(subtotal, ZERO, ZERO);
+        order.setPricing(subtotal, ZERO, ZERO);
         Order saved = orderRepository.save(order);
         return toResponse(saved);
     }
@@ -90,19 +89,26 @@ public class OrderService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + orderId));
     }
 
-    private String normalizePaymentMethod(String paymentMethod) {
+    private PaymentMethod normalizePaymentMethod(String paymentMethod) {
         if (paymentMethod == null || paymentMethod.isBlank()) {
-            return "cod";
+            return PaymentMethod.ecpay_credit;
         }
-        String normalized = paymentMethod.trim().toLowerCase(Locale.ROOT).replace("_", "-");
-        if (!normalized.equals("cod") && !normalized.equals("credit-card") && !normalized.equals("line-pay")) {
+        String normalized = paymentMethod.trim().toLowerCase(Locale.ROOT).replace("-", "_");
+        if (normalized.equals("cod")) {
+            return PaymentMethod.cod;
+        }
+        if (normalized.equals("credit_card") || normalized.equals("ecpay_credit")) {
+            return PaymentMethod.ecpay_credit;
+        }
+        try {
+            return PaymentMethod.valueOf(normalized);
+        } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported paymentMethod: " + paymentMethod);
         }
-        return normalized;
     }
 
-    private String nextOrderId(OffsetDateTime now) {
-        return ORDER_ID_FORMAT.format(now);
+    private String nextOrderId() {
+        return ORDER_ID_FORMAT.format(Instant.now());
     }
 
     private CreateOrderResponse toResponse(Order order) {
@@ -110,7 +116,7 @@ public class OrderService {
                 order.getId(),
                 order.getId(),
                 order.getTotal(),
-                order.getPaymentStatus().toUpperCase(Locale.ROOT)
+                order.getPaymentStatus().name().toUpperCase(Locale.ROOT)
         );
     }
 

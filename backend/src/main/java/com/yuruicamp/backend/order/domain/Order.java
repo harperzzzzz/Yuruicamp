@@ -53,4 +53,7 @@ public class Order {
 
 	// 將訂單狀態改成已取消。
 	public void cancel(){this.status=OrderStatus.cancelled;}
+
+	// 將訂單標記為已付款。
+	public void markPaid(Instant paidAt){this.paymentStatus=PaymentStatus.paid;this.paidAt=paidAt;}
 }

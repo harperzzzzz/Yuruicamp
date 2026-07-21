@@ -6,12 +6,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.yuruicamp.backend.config.EcpayProperties;
-import com.yuruicamp.backend.entity.Order;
 import com.yuruicamp.backend.entity.PaymentTransaction;
+import com.yuruicamp.backend.order.domain.Order;
+import com.yuruicamp.backend.order.domain.PaymentMethod;
+import com.yuruicamp.backend.order.domain.PaymentStatus;
+import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.payment.EcpayCheckMacValue;
-import com.yuruicamp.backend.repository.OrderRepository;
 import com.yuruicamp.backend.repository.PaymentTransactionRepository;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -62,7 +65,7 @@ class PaymentServiceTest {
         assertThat(transaction.getGatewayTradeNo()).isEqualTo(GATEWAY_TRADE_NO);
         assertThat(transaction.getCallbackReceivedAt()).isNotNull();
         assertThat(transaction.getPaidAt()).isEqualTo(OffsetDateTime.parse("2026-07-21T12:34:56+08:00"));
-        assertThat(order.getPaymentStatus()).isEqualTo("paid");
+        assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.paid);
     }
 
     @Test
@@ -93,7 +96,7 @@ class PaymentServiceTest {
                 .isInstanceOf(ResponseStatusException.class);
 
         assertThat(transaction.getStatus()).isEqualTo("pending");
-        assertThat(order.getPaymentStatus()).isEqualTo("unpaid");
+        assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.unpaid);
     }
 
     @Test
@@ -110,7 +113,7 @@ class PaymentServiceTest {
                 .isInstanceOf(ResponseStatusException.class);
 
         assertThat(transaction.getStatus()).isEqualTo("pending");
-        assertThat(order.getPaymentStatus()).isEqualTo("unpaid");
+        assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.unpaid);
     }
 
     private Map<String, String> validCallback() {
@@ -132,25 +135,22 @@ class PaymentServiceTest {
     }
 
     private Order unpaidOrder() {
-        OffsetDateTime now = OffsetDateTime.parse("2026-07-21T12:00:00+08:00");
-        return new Order(
+        Instant now = OffsetDateTime.parse("2026-07-21T12:00:00+08:00").toInstant();
+        Order order = new Order();
+        order.initialize(
                 "O202607210001",
                 "C001",
+                null,
+                null,
                 "Buyer",
                 "buyer@example.test",
                 "Receiver",
                 "Taipei",
                 "0912345678",
-                new BigDecimal("100.00"),
-                BigDecimal.ZERO.setScale(2),
-                BigDecimal.ZERO.setScale(2),
-                new BigDecimal("100.00"),
-                "ecpay-credit",
-                "unpaid",
-                "none",
-                "unshipped",
+                PaymentMethod.ecpay_credit,
                 now,
-                now,
-                now);
+                null);
+        order.setPricing(new BigDecimal("100.00"), BigDecimal.ZERO.setScale(2), BigDecimal.ZERO.setScale(2));
+        return order;
     }
 }
