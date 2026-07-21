@@ -1,0 +1,53 @@
+<!-- partials/reviews.html
+     評論管理頁面
+     由 core.js 的 $.load() 注入到 #contentArea
+     列表邏輯由 reviews.js 處理（瀏覽 + 刪除）
+-->
+
+<div class="card shadow-sm border-0" id="reviewsModuleCard">
+
+  <!-- 工具列：搜尋與篩選 -->
+  <div class="card-header bg-white border-0 reviews-toolbar py-3">
+
+    <!-- 評論總數 -->
+    <div class="reviews-toolbar-row d-flex align-items-center flex-wrap gap-2 mb-2">
+      <span class="text-muted small">
+        <i class="fas fa-comments me-1"></i>共 <strong id="tabCountAll">0</strong> 則評論
+      </span>
+    </div>
+
+    <!-- 搜尋 + 評分篩選 + 排序 + 清除條件 -->
+    <div class="reviews-toolbar-row reviews-toolbar-filters d-flex align-items-center flex-wrap gap-2">
+      <input type="search"
+             id="reviewSearchInput"
+             class="form-control form-control-sm reviews-search-input"
+             placeholder="搜尋商品、買家、內容"
+             autocomplete="off">
+      <select id="reviewRatingFilter" class="form-select form-select-sm reviews-filter-select">
+        <option value="">全部評分</option>
+        <option value="1-2">1–2 星（需關注）</option>
+        <option value="3">3 星</option>
+        <option value="4-5">4–5 星</option>
+      </select>
+      <select id="reviewSortSelect" class="form-select form-select-sm reviews-filter-select">
+        <option value="date-desc">最新優先</option>
+        <option value="rating-asc">評分由低到高</option>
+        <option value="rating-desc">評分由高到低</option>
+      </select>
+      <button type="button" id="btnClearReviewFilters" class="btn btn-sm btn-outline-secondary d-none">
+        <i class="fas fa-rotate-left me-1"></i>清除條件
+      </button>
+    </div>
+  </div>
+
+  <!-- 評論卡片列表（由 reviews.js 動態填入） -->
+  <div class="card-body">
+    <div id="reviewsContainer">
+      <div class="text-center py-5">
+        <div class="spinner-border spinner-border-sm me-2"
+             style="color: var(--admin-brand-accent);"></div>
+        <span class="text-muted">載入評論中...</span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,26 @@
+// Reset：統一 booking 子系統盒模型與表單字體繼承。
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Screen Reader Only：通用無障礙輔助文字，放在 generic 供所有 booking 頁面使用。 */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

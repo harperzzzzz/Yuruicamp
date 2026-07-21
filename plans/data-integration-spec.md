@@ -10,22 +10,22 @@
 >
 > **PostgreSQL 開發 Seed**：[`../docs/seed/README.md`](../docs/seed/README.md)
 
-| 欄位 | 內容 |
-|------|------|
+| 欄位         | 內容                                      |
+| ------------ | ----------------------------------------- |
 | **目前定位** | 前端 Mock JSON 的資料語意、關聯與維護規格 |
-| **更新日期** | 2026-07-21 |
-| **不負責** | PostgreSQL Seed 載入順序、交易與執行方式 |
+| **更新日期** | 2026-07-21                                |
+| **不負責**   | PostgreSQL Seed 載入順序、交易與執行方式  |
 
 > **簡單說**：本文件回答「前端 Mock 資料怎麼維持一致」；[`docs/seed/README.md`](../docs/seed/README.md) 回答「PostgreSQL 本機展示資料怎麼建立」。兩者可以使用相同的固定 ID 與業務語意，但不會自動互相同步。
 
 ## 文件邊界與閱讀路徑
 
-| 要處理的事情 | 先讀哪裡 |
-|-------------|-----------|
-| 修改前端 Mock JSON、localStorage overlay 或衍生資料 | 本文件 |
-| 修改 PostgreSQL 開發展示資料 | [`docs/seed/README.md`](../docs/seed/README.md) |
-| 確認 API Request／Response 欄位 | [`docs/api/README.md`](../docs/api/README.md) 與對應 API Contract |
-| 確認資料表、ENUM、FK、CHECK | [`docs/latest_schema.sql`](../docs/latest_schema.sql) |
+| 要處理的事情                                        | 先讀哪裡                                                          |
+| --------------------------------------------------- | ----------------------------------------------------------------- |
+| 修改前端 Mock JSON、localStorage overlay 或衍生資料 | 本文件                                                            |
+| 修改 PostgreSQL 開發展示資料                        | [`docs/seed/README.md`](../docs/seed/README.md)                   |
+| 確認 API Request／Response 欄位                     | [`docs/api/README.md`](../docs/api/README.md) 與對應 API Contract |
+| 確認資料表、ENUM、FK、CHECK                         | [`docs/latest_schema.sql`](../docs/latest_schema.sql)             |
 
 建議閱讀順序：
 
@@ -36,18 +36,18 @@
 
 ## 定案摘要（2026-07-09）
 
-| 項目 | 決策 |
-|------|------|
-| 會員訂單查詢 | 刪 `customers.orders[]` / `rentals[]`，改 `orders.customerId` / `camp-bookings.customerId` FK |
-| 租借庫存權威 | `data/admin/rental-skus.json` 為唯一寫入來源 → `sync-rental-listings.cjs` 衍生 `camp-equipment.stock` |
-| 預約窗口 | `bookingWindowDays = 90` |
-| 折價券 | 會員中心僅 `birthday` + `firstPurchase`；結帳可輸入 `promotion` |
-| 訂單 / 預約 | **下單當下寫快照（B）** + 保留 `productId` / `variantId` 等 FK |
-| 訂單付款 | `payment`＝方式（ecpay-credit/ecpay-atm/ecpay-cvs/ecpay-other/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status；預約禁止 COD |
-| 商品上下架 | `active` / `inactive`（勿用 `disabled`；`disabled` 僅折價券停用） |
-| 會員登入 | 僅 OAuth，**無 `password`** |
-| 部落格 | `productId` 統一 `P001` 格式、camelCase |
-| 靜態內容（不進 DB） | FAQ、夥伴營地 `PARTNER_DATA`、`rental-guide.html` |
+| 項目                | 決策                                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 會員訂單查詢        | 刪 `customers.orders[]` / `rentals[]`，改 `orders.customerId` / `camp-bookings.customerId` FK                                                                |
+| 租借庫存權威        | `data/admin/rental-skus.json` 為唯一寫入來源 → `sync-rental-listings.cjs` 衍生 `camp-equipment.stock`                                                        |
+| 預約窗口            | `bookingWindowDays = 90`                                                                                                                                     |
+| 折價券              | 會員中心僅 `birthday` + `firstPurchase`；結帳可輸入 `promotion`                                                                                              |
+| 訂單 / 預約         | **下單當下寫快照（B）** + 保留 `productId` / `variantId` 等 FK                                                                                               |
+| 訂單付款            | `payment`＝方式（ecpay-credit/ecpay-atm/ecpay-cvs/ecpay-other/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status；預約禁止 COD |
+| 商品上下架          | `active` / `inactive`（勿用 `disabled`；`disabled` 僅折價券停用）                                                                                            |
+| 會員登入            | 僅 OAuth，**無 `password`**                                                                                                                                  |
+| 部落格              | `productId` 統一 `P001` 格式、camelCase                                                                                                                      |
+| 靜態內容（不進 DB） | FAQ、夥伴營地 `PARTNER_DATA`、`rental-guide.html`                                                                                                            |
 
 ## 目錄結構
 
@@ -68,21 +68,21 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 
 ## API 層
 
-| 全域物件 | 用途 |
-|---------|------|
-| `window.MockDataPaths` | Storefront Mock JSON 絕對路徑；定義於 `frontend/storefront/js/api-mock.js` |
-| `window.API` | 買家 Mock API |
-| `window.BookingAPI` | 預約 Mock API（含 `getAvailability`） |
-| `window.BookingAvailability` | Zone 可用性計算（mock = 未來 SQL 查詢契約） |
-| `AdminAPI` | 後台 CRUD（mock 模式讀 DataPaths；`configure({ useBackend: true })` 接真後端） |
-| `MockStorageMerge` | localStorage overlay 合併（**暫時層**，後端以 DB transaction 取代） |
+| 全域物件                     | 用途                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------ |
+| `window.MockDataPaths`       | Storefront Mock JSON 絕對路徑；定義於 `frontend/storefront/js/api-mock.js`     |
+| `window.API`                 | 買家 Mock API                                                                  |
+| `window.BookingAPI`          | 預約 Mock API（含 `getAvailability`）                                          |
+| `window.BookingAvailability` | Zone 可用性計算（mock = 未來 SQL 查詢契約）                                    |
+| `AdminAPI`                   | 後台 CRUD（mock 模式讀 DataPaths；`configure({ useBackend: true })` 接真後端） |
+| `MockStorageMerge`           | localStorage overlay 合併（**暫時層**，後端以 DB transaction 取代）            |
 
 ## 營區與租借庫存 ID
 
-| ID | 說明 |
-|----|------|
-| C001 | 租借主倉（僅 rental-skus / 後台庫存，**不在** campgrounds.json） |
-| C002–C009 | 可預約營區（`campgrounds.json`） |
+| ID        | 說明                                                             |
+| --------- | ---------------------------------------------------------------- |
+| C001      | 租借主倉（僅 rental-skus / 後台庫存，**不在** campgrounds.json） |
+| C002–C009 | 可預約營區（`campgrounds.json`）                                 |
 
 `rental-skus.camp[]`：`{ campgroundId, name, quantity }`，名稱與 campgrounds 一致（C001 固定「租借主倉」）。
 
@@ -91,23 +91,23 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 
 ## 預約可用性（Zone 級）
 
-| 檔案 | 對應未來 DB 表 | 說明 |
-|------|----------------|------|
-| `campgrounds.json > zones[]` | `campground_zones` | `totalSites` = 庫存上限 |
-| `camp-bookings.json` | `bookings` + `booking_selected_zones` | 佔用來源；區間 `[checkIn, checkOut)` |
-| `booking-policy.json` | `booking_policies` | `bookingWindowDays: 90`、佔用狀態枚舉 |
-| `zone-blocks.json` | `zone_blocks` | 維修停售例外（扣減可賣數） |
-| `campground-closures.json` | `campground_closures` | 營區公休（`date_range` 或 `weekly`） |
+| 檔案                         | 對應未來 DB 表                        | 說明                                  |
+| ---------------------------- | ------------------------------------- | ------------------------------------- |
+| `campgrounds.json > zones[]` | `campground_zones`                    | `totalSites` = 庫存上限               |
+| `camp-bookings.json`         | `bookings` + `booking_selected_zones` | 佔用來源；區間 `[checkIn, checkOut)`  |
+| `booking-policy.json`        | `booking_policies`                    | `bookingWindowDays: 90`、佔用狀態枚舉 |
+| `zone-blocks.json`           | `zone_blocks`                         | 維修停售例外（扣減可賣數）            |
+| `campground-closures.json`   | `campground_closures`                 | 營區公休（`date_range` 或 `weekly`）  |
 
 公休效果：該營區**所有 zone** 當晚 `status: closed`、`remaining: 0`。
 
 ## 折價券規則
 
-| category | 會員中心列表 | 結帳輸入 | 資格 |
-|----------|--------------|----------|------|
-| `birthday` | ✅ | ✅ | 當月生日 |
-| `firstPurchase` | ✅ | ✅ | `firstPurchaseUsed === false` |
-| `promotion` | ❌ | ✅ | 活動碼（如 `YURUIKAMP20`） |
+| category        | 會員中心列表 | 結帳輸入 | 資格                          |
+| --------------- | ------------ | -------- | ----------------------------- |
+| `birthday`      | ✅           | ✅       | 當月生日                      |
+| `firstPurchase` | ✅           | ✅       | `firstPurchaseUsed === false` |
+| `promotion`     | ❌           | ✅       | 活動碼（如 `YURUIKAMP20`）    |
 
 預設：`type: "fixed"`、`minOrder: 0`（缺欄時前端 / 腳本補齊）。
 
@@ -120,28 +120,42 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 - 預約：`bookingInfo.campgroundName` / `region`；`selectedRentals[].specLabel` 等
 - 券：`order.coupons[]` 快照（code / type / discount / amount）
 
-`specLabel` 統一分隔符：` / `（非 `、`）。
+`specLabel` 統一分隔符：`/`（非 `、`）。
 
 ## localStorage Keys（Mock overlay）
 
-| Key | 用途 | 後台 merge |
-|-----|------|------------|
-| `mockOrders` | 結帳新訂單 | orders.js ✅ |
-| `mockBookings` | 預約結帳 | bookings.js ✅ |
-| `mockReviews` | 會員評價 | reviews.js ✅ |
-| `mockCustomerOverlay` | 點數 / 首購 / 個資 patch（語意 ≈ 未來 `PATCH /customers/:id`） | API only |
-| `mockCampgroundClosures` | 公休規則 overlay | booking-calendar.js ✅ |
-| `adminEmployees` | 後台員工帳號 | permissions.js |
+| Key                      | 用途                                                           | 後台 merge             |
+| ------------------------ | -------------------------------------------------------------- | ---------------------- |
+| `mockOrders`             | Legacy Order 頁面暫存；新 Checkout 不再寫入                    | orders.js ✅           |
+| `mockCheckoutSessions`   | 契約化 CheckoutSession、冪等指紋與 Mock 更新／取消             | Checkout facade        |
+| `mockBookings`           | 僅 Mock 模式的預約結帳；Backend 模式不讀寫                     | bookings.js ✅         |
+| `mockReviews`            | 會員評價                                                       | reviews.js ✅          |
+| `mockCustomerOverlay`    | 點數 / 首購 / 個資 patch（語意 ≈ 未來 `PATCH /customers/:id`） | API only               |
+| `mockCampgroundClosures` | 公休規則 overlay                                               | booking-calendar.js ✅ |
+| `adminEmployees`         | 後台員工帳號                                                   | permissions.js         |
 
 可用性為**查詢結果**，不另存日曆矩陣 JSON。
 
+## Checkout sessionStorage Keys
+
+| Key                        | 用途                      | 清除時機               |
+| -------------------------- | ------------------------- | ---------------------- |
+| `checkoutIdempotencyKey`   | 建立商城 Checkout 的 UUID | 購物車變更、取消、逾時 |
+| `checkoutCartFingerprint`  | 規格 ID 與數量指紋        | 購物車變更、取消、逾時 |
+| `checkoutCompletedOrderId` | 建立成功後阻止重複建立    | 購物車變更、取消、逾時 |
+| `lastCheckoutSession`      | 暫存完整 Session 與後端金額 | 購物車變更、取消、逾時 |
+
+這些資料只存在目前分頁的 sessionStorage，不是 PostgreSQL Seed，也不是 Mock 業務資料。
+
+I-6 狀態 UI 只讀 `lastCheckoutSession.checkoutStep`、`checkoutExpiresAt` 與 `pricing`。取消或逾時會清除上述四個 key，但不會修改或清空 localStorage 購物車。
+
 ## 靜態內容（不進 schema / 不進 DB）
 
-| 內容 | 位置 |
-|------|------|
-| FAQ | `pages/faq.html`、`booking/pages/booking-faq.html` |
-| 夥伴營地 | `js/pages/branches.js` → `PARTNER_DATA` |
-| 租借指南 | `booking/pages/rental-guide.html` |
+| 內容     | 位置                                               |
+| -------- | -------------------------------------------------- |
+| FAQ      | `pages/faq.html`、`booking/pages/booking-faq.html` |
+| 夥伴營地 | `js/pages/branches.js` → `PARTNER_DATA`            |
+| 租借指南 | `booking/pages/rental-guide.html`                  |
 
 ## 測試資料 Amy (U001)
 
@@ -168,12 +182,12 @@ npm run normalize:data    # 寫入第一階段資料正規化
 
 ## 多規格資料契約
 
-| 層級 | JSON | 說明 |
-|------|------|------|
-| SPU | `products.json` | `name` 為主名（不含規格） |
-| SKU | `products.variants[]` | `id` = `sku`（例 `v-P004-0`） |
+| 層級    | JSON                  | 說明                                                        |
+| ------- | --------------------- | ----------------------------------------------------------- |
+| SPU     | `products.json`       | `name` 為主名（不含規格）                                   |
+| SKU     | `products.variants[]` | `id` = `sku`（例 `v-P004-0`）                               |
 | Listing | `camp-equipment.json` | 每列一個 `equipmentId` + `variantId` + 營區 `stock`（衍生） |
-| 訂單 | `orders.items[]` | `name` + `specLabel` + `variantId` / `sku` |
+| 訂單    | `orders.items[]`      | `name` + `specLabel` + `variantId` / `sku`                  |
 
 ## 已移除的舊路徑
 

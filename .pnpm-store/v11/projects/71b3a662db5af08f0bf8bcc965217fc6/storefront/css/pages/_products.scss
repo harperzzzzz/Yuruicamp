@@ -1,0 +1,965 @@
+// 商品列表頁 token alias：把商品頁局部變數對應到全站 --yc-* 設計 token。
+$product-text: var(--yc-text);
+$product-muted: var(--yc-text-muted);
+$product-subtle: var(--yc-text-muted);
+$product-primary: var(--yc-sage-action);
+$product-primary-dark: var(--yc-sage-dark);
+$product-primary-soft: var(--yc-sage-soft);
+$product-surface: var(--yc-surface);
+$product-surface-soft: var(--yc-surface-soft);
+$product-background-soft: var(--yc-surface-soft);
+$product-border: var(--yc-border);
+$product-accent: var(--yc-cta);
+$product-danger: var(--yc-error);
+$product-shadow: 0 10px 30px rgb(0 0 0 / 12%);
+$product-rating: var(--yc-pending-line);
+
+// 商品頁橫幅：管理列表頁標題與說明區，不影響共用 header。
+.pageBanner {
+  background: linear-gradient(135deg, $product-primary-dark, $product-primary);
+  color: $product-surface;
+  padding: clamp(1.75rem, 5vw, 3rem) 0;
+}
+
+.pageBanner .container {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pageBanner .breadcrumb {
+  margin: 0;
+}
+
+.pageBanner .breadcrumbItem {
+  color: color-mix(in srgb, $product-surface 74%, transparent);
+  font-weight: 700;
+}
+
+.pageBanner .breadcrumbItem a:hover,
+.pageBanner .breadcrumbItem a:focus-visible {
+  color: $product-surface;
+}
+
+.pageBanner .breadcrumbItem.isSelected {
+  color: $product-surface;
+  font-weight: 800;
+}
+
+.pageBannerTitle {
+  color: $product-surface;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  font-weight: 900;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.pageBannerSub {
+  color: color-mix(in srgb, $product-surface 86%, transparent);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin: 0;
+  max-width: 36rem;
+}
+
+.productsPageMain {
+  padding: 0 0 4rem;
+}
+
+.productsPageLayout {
+  align-items: flex-start;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.productsListContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding-left: 0;
+}
+
+.breadcrumbItem {
+  color: $product-subtle;
+  font-size: 0.875rem;
+}
+
+.breadcrumbItem a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.breadcrumbItem a:hover {
+  color: $product-primary;
+}
+
+.breadcrumbItem.isSelected {
+  color: $product-text;
+  font-weight: 600;
+}
+
+.adCarouselContainer {
+  background: linear-gradient(135deg, var(--yc-sage-soft), var(--yc-sage-soft));
+  margin: 2rem 0;
+  padding: 1.5rem 0;
+}
+
+.adCarouselContainer[hidden],
+.productPagination[hidden] {
+  display: none;
+}
+
+.adCarousel {
+  border-radius: 12px;
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.adCarouselSlides {
+  display: flex;
+  height: 280px;
+  transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+}
+
+.adCarouselSlides.isResetting {
+  transition: none;
+}
+
+.adCarouselSlide {
+  align-items: center;
+  background: linear-gradient(135deg, $product-primary, var(--yc-sage-dark));
+  color: $product-surface;
+  cursor: pointer;
+  display: flex;
+  flex: 0 0 100%;
+  height: 100%;
+  justify-content: space-between;
+  padding: 2rem;
+  transition: background 300ms ease;
+  width: 100%;
+}
+
+.adCarouselSlide:hover {
+  background: linear-gradient(135deg, $product-primary-dark, $product-primary);
+}
+
+.adCarouselContent {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  z-index: 2;
+}
+
+.adCarouselBadge {
+  background: $product-accent;
+  border-radius: 50px;
+  color: $product-primary-dark;
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0.75rem;
+  width: fit-content;
+}
+
+.adCarouselTitle {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin: 0;
+  max-width: 320px;
+}
+
+.adCarouselDesc {
+  font-size: 0.95rem;
+  margin: 0;
+  max-width: 400px;
+  opacity: 0.9;
+}
+
+.adCarouselPrice {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.adCarouselImage {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  height: 200px;
+  object-fit: cover;
+  opacity: 0.9;
+  width: 200px;
+  z-index: 1;
+}
+
+.adCarouselBtn {
+  align-items: center;
+  background: rgb(255 255 255 / 82%);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  font-size: 1.25rem;
+  height: 44px;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: background 200ms ease, transform 200ms ease;
+  width: 44px;
+  z-index: var(--yc-z-raised);
+}
+
+.adCarouselBtn:hover {
+  background: $product-surface;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.adCarouselPrev {
+  left: 1rem;
+}
+
+.adCarouselNext {
+  right: 1rem;
+}
+
+.adCarouselDots {
+  bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  z-index: var(--yc-z-raised);
+}
+
+.adCarouselDot {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  height: 10px;
+  padding: 0;
+  position: relative;
+  transition: box-shadow var(--yc-transition-fast);
+  width: 24px;
+}
+
+.adCarouselDot::after {
+  background: rgb(255 255 255 / 55%);
+  border-radius: 50%;
+  content: '';
+  height: 10px;
+  left: 50%;
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+}
+
+.adCarouselDot.isSelected::after {
+  background: $product-surface;
+  border-radius: 999px;
+  width: 24px;
+}
+
+.productsGrid {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 260px));
+}
+
+.productCard {
+  background: $product-surface;
+  border: 1px solid $product-border;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 250ms ease, transform 250ms ease;
+  cursor: pointer;
+}
+
+.productCard:hover {
+  box-shadow: $product-shadow;
+  transform: translateY(-4px);
+}
+
+// Fixed 4:3 thumbnail — flex-shrink:0 so body content cannot squash the image
+// 縮圖固定 4:3；flex-shrink:0 避免下方規格文字把圖片壓扁
+.productCardImageWrap {
+  aspect-ratio: 4 / 3;
+  background: $product-background-soft;
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.productCardImageWrap img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+// Hover zoom only for plain single-image cards (not Swiper gallery)
+// 僅單圖卡片做 hover 放大；有輪播時交給 card-gallery 處理
+.productCardImageWrap:not(.cardGallery) img {
+  transform: scale(1.02);
+  transition: transform 350ms ease;
+}
+
+.productCard:hover .productCardImageWrap:not(.cardGallery) img {
+  transform: scale(1.06);
+}
+
+.productCardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.productCardBrand {
+  color: var(--yc-sage-light);
+  font-size: 0.7rem;
+  font-weight: 600;
+  height: 0.9rem;
+  letter-spacing: 0.06em;
+  line-height: 0.9rem;
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.productCardName {
+  color: $product-text;
+  display: -webkit-box;
+  font-size: 0.95rem;
+  font-weight: 600;
+  height: 2.66rem;
+  line-height: 1.4;
+  margin: 0 0 0.35rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+// Fixed specs slot so cards with 0 / 1 / many variants stay the same height.
+// 規格區固定高度：無規格／單規格／多規格卡片同高；過多時可捲動仍可點選。
+.productCardSpecs {
+  align-content: start;
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+  max-height: 4.75rem;
+  min-height: 4.75rem;
+  overflow: hidden auto;
+  scrollbar-width: thin;
+}
+
+.productCardSpecGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.productCardSpecChip {
+  border: 1px solid $product-border;
+  border-radius: 999px;
+  background: $product-surface;
+  color: $product-text;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.3rem 0.55rem;
+}
+
+.productCardSpecChip.isSelected {
+  background: $product-primary-soft;
+  border-color: $product-primary;
+  color: $product-primary-dark;
+}
+
+.productCardSpecPreview {
+  color: $product-muted;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productCardRating {
+  align-items: center;
+  color: $product-subtle;
+  display: flex;
+  font-size: 0.78rem;
+  gap: 0.3rem;
+  line-height: 1.1rem;
+  margin-bottom: 0.75rem;
+  min-height: 1.1rem;
+}
+
+.starRating {
+  display: inline-flex;
+  position: relative;
+}
+
+.starRating .star {
+  font-size: 0.85rem;
+}
+
+.starRatingBase {
+  color: $product-border;
+}
+
+.starRatingFill {
+  color: $product-rating;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 0;
+}
+
+@for $ratingValue from 0 through 50 {
+  .starRatingValue#{$ratingValue} .starRatingFill {
+    width: $ratingValue * 2%;
+  }
+}
+
+.productCardPrice {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: auto 0 0.5rem;
+  min-height: 1.5rem;
+}
+
+.priceCurrent {
+  color: $product-primary;
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.priceOriginal {
+  color: $product-subtle;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  text-decoration: line-through;
+}
+
+.priceDiscount {
+  background: var(--yc-warning);
+  border-radius: 4px;
+  color: var(--yc-surface);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  width: fit-content;
+}
+
+.productCardBadge {
+  border-radius: 999px;
+  color: $product-surface;
+  font-size: 0.72rem;
+  font-weight: 700;
+  left: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  position: absolute;
+  top: 0.75rem;
+  z-index: 2;
+}
+
+.badgeNew {
+  background: var(--yc-success-text);
+}
+
+.badgeHot {
+  background: var(--yc-error);
+}
+
+.productCardAddBtn {
+  background-color: var(--yc-cta);
+  border: 2px solid var(--yc-cta);;
+  border-radius: 8px;
+  color: var(--yc-on-cta);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.85rem;
+  min-height: 44px;
+  padding: 0.55rem;
+  transition: background 200ms ease, color 200ms ease;
+  width: 100%;
+}
+
+.productCardAddBtn:hover {
+  background: var(--yc-cta-hover);
+  border: 2px solid var(--yc-cta-hover);;
+}
+
+.filterSidebar {
+  background: $product-surface;
+  border: 1px solid $product-border;
+  border-radius: 12px;
+  flex-shrink: 0;
+  padding: 1.5rem;
+  position: sticky;
+  top: 5rem;
+  width: 240px;
+}
+
+.filterSidebarTitle {
+  align-items: center;
+  border-bottom: 2px solid $product-background-soft;
+  color: $product-primary;
+  display: flex;
+  font-size: 1rem;
+  font-weight: 700;
+  justify-content: space-between;
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.75rem;
+}
+
+.filterResetBtn {
+  background: none;
+  border: 0;
+  color: var(--yc-sage-light);
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0;
+}
+
+.filterResetBtn:hover {
+  color: $product-primary;
+}
+
+.filterGroup {
+  margin: 0;
+}
+
+.filterGroup + .filterGroup {
+  margin-top: 1.5rem;
+}
+
+.filterGroupTitle {
+  color: $product-subtle;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0 0 0.75rem;
+  text-transform: uppercase;
+}
+
+.filterCategoryList,
+.filterBrandList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.filterCategoryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.filterCategoryBtn {
+  background: $product-background-soft;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
+  color: $product-muted;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-height: 36px;
+  padding: 0.3rem 0.75rem;
+  transition: background 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+.filterCategoryBtn:hover {
+  background: $product-primary-soft;
+  color: $product-primary;
+}
+
+.filterCategoryBtn.isSelected {
+  background: $product-primary;
+  border-color: $product-primary;
+  color: $product-surface;
+}
+
+.filterPriceRange {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filterPriceInputs {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filterPriceInputs input[type='number'] {
+  border: 1.5px solid $product-border;
+  border-radius: 6px;
+  color: $product-text;
+  flex: 1;
+  font-size: 0.85rem;
+  min-width: 0;
+  padding: 0.45rem 0.5rem;
+}
+
+.filterPriceInputs input[type='number']:focus,
+.productSortSelect:focus {
+  border-color: $product-primary;
+  box-shadow: var(--yc-focus-ring);
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+
+.filterPriceSep {
+  color: $product-subtle;
+  flex-shrink: 0;
+  font-size: 0.85rem;
+}
+
+.productPriceApply {
+  margin-top: 0.5rem;
+}
+
+.filterBrandList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.filterBrandItem {
+  align-items: center;
+  color: $product-text;
+  cursor: pointer;
+  display: flex;
+  font-size: 0.85rem;
+  gap: 0.5rem;
+}
+
+.filterBrandItem input[type='checkbox'] {
+  accent-color: $product-primary;
+  cursor: pointer;
+  height: 16px;
+  width: 16px;
+}
+
+.productListToolbar {
+  align-items: center;
+  background: $product-surface-soft;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+}
+
+.productCount {
+  color: $product-muted;
+  font-size: 0.875rem;
+}
+
+.productSortSelect {
+  background: $product-surface;
+  border: 1.5px solid $product-border;
+  border-radius: 6px;
+  color: $product-text;
+  cursor: pointer;
+  font-size: 0.875rem;
+  min-height: 40px;
+  padding: 0.35rem 0.75rem;
+}
+
+.productPagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.paginationBtn {
+  background: $product-surface;
+  border: 1px solid $product-border;
+  border-radius: 8px;
+  color: $product-text;
+  cursor: pointer;
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0.4rem 0.7rem;
+}
+
+.paginationBtn.isSelected {
+  background: $product-primary;
+  border-color: $product-primary;
+  color: $product-surface;
+}
+
+.paginationBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.paginationEllipsis {
+  align-items: center;
+  color: $product-subtle;
+  display: inline-flex;
+  padding: 0 0.25rem;
+}
+
+.productGridEmptyState {
+  grid-column: 1 / -1;
+}
+
+.productFilterResetAction {
+  margin-top: 1rem;
+}
+
+.mobileFilterBtn {
+  align-items: center;
+  background: $product-primary;
+  border: 0;
+  border-radius: 999px;
+  bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgb(36 77 77 / 40%);
+  color: $product-surface;
+  cursor: pointer;
+  display: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  gap: 0.4rem;
+  left: 50%;
+  min-height: 44px;
+  padding: 0.75rem 2rem;
+  position: fixed;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.filterSheet {
+  background: $product-surface;
+  border-radius: 20px 20px 0 0;
+  bottom: 0;
+  left: 0;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  position: fixed;
+  right: 0;
+  transform: translateY(100%);
+  transition: transform 350ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  z-index: 1050;
+}
+
+.filterSheet.isOpen {
+  transform: translateY(0);
+}
+
+.filterSheetLocked {
+  overflow: hidden;
+}
+
+.filterSheetHandle {
+  background: $product-border;
+  border-radius: 2px;
+  height: 4px;
+  margin: 0 auto 1.25rem;
+  width: 3rem;
+}
+
+.filterSheetHeader,
+.filterSheetFooter {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.filterSheetHeader {
+  margin-bottom: 1.5rem;
+}
+
+.filterSheetFooter {
+  margin-top: 1.5rem;
+}
+
+.filterSheetTitle {
+  color: $product-primary;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.filterSheetClose {
+  background: none;
+  border: 0;
+  color: $product-subtle;
+  cursor: pointer;
+  font-size: 1.25rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.25rem;
+}
+
+.mobileFilterReset,
+.mobileFilterApply {
+  border: 2px solid $product-primary;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-height: 44px;
+  padding: 0.55rem;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.mobileFilterReset {
+  background: $product-surface;
+  color: $product-primary;
+  flex: 1;
+}
+
+.mobileFilterApply {
+  background: $product-primary;
+  color: $product-surface;
+  flex: 2;
+}
+
+.mobileFilterReset:hover,
+.mobileFilterApply:hover {
+  background: transparent;
+  color: $product-primary;
+}
+
+@media (width <= 992px) {
+  .productsPageLayout {
+    display: block;
+  }
+
+  .mobileFilterBtn {
+    display: flex;
+  }
+
+  .filterSidebar {
+    display: none;
+  }
+}
+
+@media (width <= 767px) {
+  .adCarouselSlides {
+    height: 220px;
+  }
+
+  .adCarouselSlide {
+    padding: 1.5rem;
+  }
+
+  .adCarouselTitle {
+    font-size: 1.25rem;
+    max-width: 100%;
+  }
+
+  .adCarouselDesc {
+    font-size: 0.85rem;
+    max-width: 100%;
+  }
+
+  .adCarouselImage {
+    height: 120px;
+    width: 120px;
+  }
+
+  .adCarouselBtn {
+    height: 36px;
+    width: 36px;
+  }
+}
+
+@media (width <= 575px) {
+  .productsGrid {
+    gap: 0.75rem;
+    grid-template-columns: 1fr;
+  }
+
+  .productCard {
+    border-radius: 10px;
+  }
+
+  .productCardBody {
+    padding: 0.8rem;
+  }
+
+  .productListToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .productSortSelect {
+    width: 100%;
+  }
+
+  .filterSheetFooter {
+    flex-direction: column;
+  }
+
+  .mobileFilterReset,
+  .mobileFilterApply {
+    flex: none;
+    width: 100%;
+  }
+}
+
+@media (width <= 480px) {
+  .adCarouselSlide {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .adCarouselImage {
+    align-self: flex-end;
+    height: 96px;
+    width: 96px;
+  }
+}
+
+@media (hover: none) {
+  .productCard:active {
+    box-shadow: 0 2px 8px rgb(0 0 0 / 12%);
+    transform: scale(0.98);
+  }
+}

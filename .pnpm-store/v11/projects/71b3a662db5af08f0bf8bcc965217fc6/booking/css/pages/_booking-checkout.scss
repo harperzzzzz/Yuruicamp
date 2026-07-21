@@ -1,0 +1,385 @@
+﻿.bookingCheckoutPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--yc-bg);
+}
+
+.bookingCheckoutPage .bookingStepProgress {
+  padding-top: 1rem;
+}
+
+.checkoutPanelBooking {
+  margin-bottom: 0.75rem;
+}
+
+.checkoutPanelHeaderBooking {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.25rem;
+  cursor: pointer;
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.checkoutPanelHeaderBooking:hover {
+  background: var(--yc-bg);
+}
+
+.checkoutPanelBooking.isOpen .checkoutPanelHeaderBooking {
+  border-radius: var(--yc-radius-card) var(--yc-radius-card) 0 0;
+}
+
+.checkoutPanelTitleBooking {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--yc-text);
+}
+
+.checkoutPanelNumberBooking {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.checkoutPanelBodyBooking {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-top: none;
+  border-radius: 0 0 var(--yc-radius-card) var(--yc-radius-card);
+  padding: 1.5rem;
+}
+
+.checkoutPanelBooking:not(.isOpen) .checkoutPanelBodyBooking {
+  display: none;
+}
+
+.checkoutPanelArrowBooking {
+  font-size: 1rem;
+  color: var(--yc-text-muted);
+  transition: transform 0.2s;
+}
+
+.checkoutPanelBooking:not(.isOpen) .checkoutPanelArrowBooking {
+  transform: rotate(-90deg);
+}
+
+.checkoutPanelBooking.isOpen .checkoutPanelArrowBooking {
+  transform: rotate(0deg);
+}
+
+.checkoutSummaryColumnBooking {
+  position: sticky;
+  top: 5rem;
+}
+
+.summaryCardBooking {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
+  padding: 1.5rem;
+}
+
+.summaryCardBooking h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--yc-sage-action);
+  margin: 0 0 1.25rem;
+}
+
+.bookingPaymentOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--yc-border);
+  border-radius: var(--yc-radius-card);
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+  background: var(--yc-surface);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.bookingPaymentOption.isSelected {
+  border-color: var(--yc-sage-action);
+  background: var(--yc-sage-soft);
+}
+
+.bookingPaymentOption input[type='radio'] {
+  margin-top: 0.15rem;
+  accent-color: var(--yc-sage-action);
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.bookingPaymentOptionTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--yc-text);
+}
+
+.linePayBrandText {
+  color: var(--yc-brand-line);
+  font-weight: 800;
+}
+
+.bookingPaymentOptionDesc {
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  margin-top: 0.2rem;
+}
+
+.creditCardSectionBooking {
+  margin-top: 0.75rem;
+  padding: 1.1rem;
+  background: var(--yc-bg);
+  border-radius: var(--yc-radius-card);
+  border: 1px solid var(--yc-border);
+}
+
+.ccLabel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.3rem;
+}
+
+.ccInput {
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1.5px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  font-size: 0.9rem;
+  color: var(--yc-text);
+  background: var(--yc-surface);
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+}
+
+.ccInput:focus {
+  border-color: var(--yc-sage-action);
+  box-shadow: var(--yc-focus-ring);
+}
+
+.formControl.isInvalid,
+.ccInput.isInvalid {
+  border-color: var(--yc-error);
+}
+
+.ccField {
+  margin: 0;
+}
+
+.ccField + .ccField {
+  margin-top: 0.75rem;
+}
+
+.ccRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.checkoutConfirmAreaBooking {
+  margin-top: 1.5rem;
+}
+
+.confirmPayButtonBooking {
+  padding: 1rem;
+  font-size: 1.05rem;
+}
+
+.confirmPayButtonBooking.isSuccess {
+  color: var(--yc-success);
+  border-color: var(--yc-success);
+}
+
+.termsNoteBooking {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--yc-text-muted);
+  margin-top: 0.4rem;
+}
+
+.sslNote {
+  font-size: 0.75rem;
+  color: var(--yc-text-muted);
+  text-align: center;
+  margin-top: 0.6rem;
+}
+
+.loginNoticeBooking {
+  display: none;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.875rem 1rem;
+  background: var(--yc-warning-soft);
+  border: 1.5px solid var(--yc-warning);
+  border-radius: var(--yc-radius-card);
+  font-size: 0.875rem;
+  color: var(--yc-warning-text);
+  margin-bottom: 1rem;
+}
+
+.loginNoticeBooking.isVisible {
+  display: flex;
+}
+
+.loginNoticeButtonBooking {
+  margin-left: auto;
+  padding: 0.35rem 0.9rem;
+  border: 1.5px solid var(--yc-sage-action);
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-radius: var(--yc-radius-control);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.loginNoticeButtonBooking:hover {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+}
+
+.checkoutUpsellSection,
+.checkoutUpsellBannerBooking {
+  display: none;
+}
+
+/* 成功頁顯示導購區塊 / Show upsell on booking success page */
+.bookingSuccessUpsell {
+  display: block;
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.checkoutUpsellSection .cartSectionTitle {
+  color: var(--yc-on-cta);
+}
+
+.checkoutUpsellSection > p {
+  color: var(--yc-text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.checkoutContactFormBooking {
+  padding: 0;
+  background: none;
+  border: none;
+}
+
+.checkoutFillProfileBtn {
+  margin-top: 0.5rem;
+  width: 100%;
+}
+
+.checkoutContactHint {
+  color: var(--yc-text-muted);
+  font-size: 0.78rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+}
+
+.summarySecurityNoteBooking {
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid var(--yc-border);
+  text-align: center;
+}
+
+.summarySecurityNoteLine {
+  color: var(--yc-text-muted);
+  font-size: 0.75rem;
+  margin: 0;
+}
+
+.summarySecurityNoteLine + .summarySecurityNoteLine {
+  margin-top: 0.25rem;
+}
+
+.checkoutUpsellBannerBooking p + p {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.checkoutUpsellBannerBooking .rentalSkipLink {
+  display: block;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.contactForm {
+  margin-bottom: 1.25rem;
+}
+
+.contactForm h4 {
+  font-size: 0.9rem;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.75rem;
+}
+
+.contactForm .formControl {
+  margin-bottom: 0.6rem;
+  font-size: 0.875rem;
+}
+
+.bookingCartBackLink {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+.bookingCartBackLink:hover {
+  color: var(--yc-sage-action);
+}
+
+.upsellBanner {
+  margin-top: 1rem;
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--yc-radius-card);
+  padding: 1rem;
+  text-align: center;
+}
+
+.upsellBanner p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.75rem;
+}

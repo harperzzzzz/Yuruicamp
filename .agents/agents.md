@@ -3,10 +3,11 @@
 - /plans/data-integration-spec.md
 - /docs/api/README.md
 - /backend/README.md
-- /docs/api/order-api-contract.md
 - /docs/seed/README.md
-- /plans/backend-implementation-checklist.md
-
+- README.md
+- /docs/api/payment-api-contract.md
+- /docs/api/booking-api-contract.md
+- \plans\backend-implementation-checklist.md
 
 
 # 限制條件:
@@ -41,4 +42,4 @@ docs/seed/
 
 # 預期目標:
 - 嚴格遵守限制條件完成任務
-- 完成任務後，在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。
+- 完成任務後，在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件，test 文件參考\docs\backend-specs\checkout\README.md 的### swagger 驗證流程格式去填寫。

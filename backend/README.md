@@ -85,22 +85,30 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 
 後端流程文件放在 `docs/backend-specs/`，使用「用途、流程、規則、驗證結果」的簡短格式。
 
-| 項目 | 狀態 |
-|------|------|
-| package 分層、CORS、OpenAPI | ✅ |
-| 統一 Envelope／錯誤 | ✅ |
-| Firebase ID Token Security | ✅ |
-| Customer／Admin session | ✅ |
-| MapStruct | ✅ |
-| **B-1～B-3 商品公開讀** | ✅ 列表、詳情、PostgreSQL 分頁／排序與錯誤 Envelope；見 [`B-3 驗收文件`](../docs/backend-specs/catalog/b3-product-pagination-validation.md) |
-| **B-5a 基本商品規格** | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格 |
-| **B-5b 規格可售庫存** | ⬜ 尚未建立 variant 層級庫存讀模型與 API 欄位；見 [`B-5 狀態文件`](../docs/backend-specs/catalog/b5-product-variants-stock-status.md) |
-| **C-1 訂單／明細／庫存保留 Entity** | ✅ Hibernate `ddl-auto=validate` 已通過；見 [`C-1 驗收文件`](../docs/backend-specs/order/c1-entity-schema-validation.md) |
-| **C-2～C-8 Checkout** | ✅ 建立冪等、防超賣、更新、取消、後端計價、15 分鐘逾時與 PostgreSQL 整合驗收均完成；優惠券套用尚待 F-2；見 [`Checkout 整合文件`](../docs/backend-specs/checkout/README.md) |
-| API 契約索引（P0+P1） | [`docs/api/README.md`](../docs/api/README.md) |
-| 商品契約（已實作） | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md) |
-| 代辦清單 A～J | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md) |
-| 結帳／ECPay／細 RBAC | 🔄 Checkout 線 C 已完成；優惠券、Payment 與細 RBAC 待實作 |
+| 項目                                | 狀態                                                                                                                                                                                                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| package 分層、CORS、OpenAPI         | ✅                                                                                                                                                                                                                                                       |
+| 統一 Envelope／錯誤                 | ✅                                                                                                                                                                                                                                                       |
+| Firebase ID Token Security          | ✅                                                                                                                                                                                                                                                       |
+| Customer／Admin session             | ✅                                                                                                                                                                                                                                                       |
+| MapStruct                           | ✅                                                                                                                                                                                                                                                       |
+| **B-1～B-3 商品公開讀**             | ✅ 列表、詳情、PostgreSQL 分頁／排序與錯誤 Envelope；見 [`B-3 驗收文件`](../docs/backend-specs/catalog/b3-product-pagination-validation.md)                                                                                                              |
+| **B-5a 基本商品規格**               | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格                                                                                                                                                                                   |
+| **B-5b 規格可售庫存**               | ⬜ 尚未建立 variant 層級庫存讀模型與 API 欄位；見 [`B-5 狀態文件`](../docs/backend-specs/catalog/b5-product-variants-stock-status.md)                                                                                                                    |
+| **C-1 訂單／明細／庫存保留 Entity** | ✅ Hibernate `ddl-auto=validate` 已通過；見 [`C-1 驗收文件`](../docs/backend-specs/order/c1-entity-schema-validation.md)                                                                                                                                 |
+| **C-2～C-8 Checkout**               | ✅ 建立冪等、防超賣、更新、取消、後端計價、15 分鐘逾時與 PostgreSQL 整合驗收均完成；優惠券套用尚待 F-2；見 [`Checkout 整合文件`](../docs/backend-specs/checkout/README.md)                                                                               |
+| **E-0 Booking 冪等 Schema**         | ✅ `bookings` 已具備 Checkout key、request hash 與會員範圍唯一約束；見 [`E-0 文件`](../docs/backend-specs/booking/e0-booking-idempotency-schema.md)                                                                                                      |
+| **E-1 Booking 公開讀**              | ✅ 營區、有效營位、租借裝備、policy、closures；見 [`E-1 文件`](../docs/backend-specs/booking/e1-booking-public-read.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e1-booking-public-swagger.md)                                                     |
+| **E-2 Booking 可用性**              | ✅ 公開 POST 查詢跨晚最低剩餘量；包含日期窗口、公休、zone block 與 pending／confirmed 占用；見 [`E-2 文件`](../docs/backend-specs/booking/e2-booking-availability.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e2-booking-availability-swagger.md) |
+| **E-3 Booking Checkout**            | ✅ 會員冪等、固定順序悲觀鎖、跨晚重查、後端平假日計價與 pending／unpaid 快照；見 [`E-3 文件`](../docs/backend-specs/booking/e3-booking-checkout.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e3-booking-checkout-swagger.md)                       |
+| **E-4 Booking 租借保留**            | ✅ 營區庫位解析、跨日 active 保留、後端租借計價與並發防超租；見 [`E-4 文件`](../docs/backend-specs/booking/e4-booking-rental-reservation.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e4-booking-rental-swagger.md)                                |
+| **E-5 會員預約讀取**                | ✅ 本人列表、分頁、詳情與 Checkout 快照；他人與不存在統一 404；見 [`E-5 文件`](../docs/backend-specs/booking/e5-booking-member-read.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e5-booking-member-swagger.md)                                     |
+| **E-6 Booking 取消與逾時**          | ✅ 主動取消、每分鐘逾時掃描、營位恢復、租借保留釋放與鎖定競爭；見 [`E-6 文件`](../docs/backend-specs/booking/e6-booking-cancellation-expiration.md) 與 [`Swagger 流程`](../docs/backend-specs/test/e6-booking-cancellation-swagger.md)                   |
+| **E-7 Booking 前端接線**            | ✅ Booking facade、後端可用性／價格、本人列表／詳情／取消及 15 分鐘倒數已接線；Payment Confirmation 延後線 D；見 [`E-7 文件`](../docs/backend-specs/booking/e7-booking-frontend-integration.md)                                                          |
+| API 契約索引（P0+P1）               | [`docs/api/README.md`](../docs/api/README.md)                                                                                                                                                                                                            |
+| 商品契約（已實作）                  | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md)                                                                                                                                                                                |
+| 代辦清單 A～J                       | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md)                                                                                                                                                              |
+| 結帳／ECPay／細 RBAC                | 🔄 Checkout 線 C 已完成；優惠券、Payment 與細 RBAC 待實作                                                                                                                                                                                                |
 
 ### Schema 整合驗證
 
@@ -110,7 +118,7 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 
 ### 開發用資料種子
 
-全新 Docker volume 會自動跑 [`docs/seed/002-dev-seed.sql`](../docs/seed/002-dev-seed.sql)，依序建立商品參考資料、商品目錄，以及 `V001` 的 `10` 件 Checkout 開發庫存。結構與 AI／開發者維護規則見 [`docs/seed/README.md`](../docs/seed/README.md)。
+全新 Docker volume 會自動跑 [`docs/seed/002-dev-seed.sql`](../docs/seed/002-dev-seed.sql)，依序建立商品與 Booking E-1 參考資料，以及商城／租借開發庫存。結構與 AI／開發者維護規則見 [`docs/seed/README.md`](../docs/seed/README.md)。
 既有資料庫請手動灌一次：
 
 ```powershell
@@ -136,4 +144,6 @@ curl.exe http://localhost:8080/api/products/P001
 - `FIREBASE_ENABLED` / `FIREBASE_CREDENTIALS`
 - `YURUICAMP_CHECKOUT_EXPIRATION_SCAN_MS` 對應 `yuruicamp.checkout.expiration-scan-ms`（預設 `60000` 毫秒）
 - `YURUICAMP_CHECKOUT_EXPIRATION_ENABLED` 對應 `yuruicamp.checkout.expiration-enabled`（預設 `true`）
+- `YURUICAMP_BOOKING_EXPIRATION_SCAN_MS` 對應 `yuruicamp.booking.expiration-scan-ms`（預設 `60000` 毫秒）
+- `YURUICAMP_BOOKING_EXPIRATION_ENABLED` 對應 `yuruicamp.booking.expiration-enabled`（預設 `true`）
 - `CORS_ALLOWED_ORIGINS`

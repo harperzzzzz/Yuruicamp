@@ -154,6 +154,7 @@ const colors = {
 * 共用 CSS 來源：`css/main.css`。
 * 共用元件：`components/header.partial`、`components/footer.partial`。
 * 關鍵 UI 區域：`successIcon`、`orderNumberDisplay`、`nextActions`。
+* 訂單編號讀取 `sessionStorage.lastCheckoutSession.orderId`；I-7 完成導向前，此頁不會由新 Checkout 建立流程直接開啟。
 * 產生新 UI 前，必須先閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`。
 * 未解決問題：沒有提供 Figma 設計稿，因此既有程式碼是設計上的唯一依據。
 * 實作本規格時，**不得**替換既有頁面外殼、storage key、mock data 資料契約，或 partial loader 的載入模式。

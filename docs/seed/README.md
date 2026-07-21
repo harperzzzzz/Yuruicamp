@@ -36,14 +36,15 @@ docs/seed/
 ├── README.md
 ├── 002-dev-seed.sql       # 唯一執行入口與交易邊界
 └── dev/
-    ├── 010-reference.sql  # 商品分類、品牌
-    ├── 030-catalog.sql    # equipment、products、variants、images、tags
-    └── 040-inventory.sql  # 開發庫位與 V001 庫存
+    ├── 010-reference.sql  # 商品分類、品牌、營區、營位、Booking policy、日曆
+    ├── 020-identity.sql   # Booking closure 使用的開發管理員與公休範例
+    ├── 030-catalog.sql    # 商品與租借 SKU／variant
+    └── 040-inventory.sql  # 商城／租借庫位、listing 與庫存
 ```
 
 `002-dev-seed.sql` 依外鍵順序載入片段，並以單一交易包住整批資料。任何一個片段失敗時，PostgreSQL 會停止並回滾，不應直接把片段當作正式入口。
 
-目前保留的編號為：`020-identity.sql`、`050-coupons.sql`、`060-orders.sql`、`070-bookings.sql`。只有真正需要該領域的固定展示資料時才建立檔案，建立後也要加入入口檔；不要預先建立空檔。
+目前保留的編號為：`050-coupons.sql`、`060-orders.sql`、`070-bookings.sql`。只有真正需要該領域的固定展示資料時才建立檔案，建立後也要加入入口檔；不要預先建立空檔。E-1 只需要主檔、政策與庫存，因此沒有建立 `070-bookings.sql`。
 
 ### 執行方式
 
@@ -62,7 +63,7 @@ psql -U postgres -d yuruicamp -f docs/seed/002-dev-seed.sql
 
 入口已設定 `ON_ERROR_STOP`。若自訂了 `POSTGRES_USER` 或 `POSTGRES_DB`，請同步替換指令參數。
 
-> 注意：重跑 seed 會把 `DEV-STORE-MAIN` 的 `V001` 現有庫存更新為 `10`。不要在需要保留手動測試庫存狀態時重跑。`docker compose down -v` 會刪除整個本機資料卷，只能在確定資料可捨棄時使用。
+> 注意：重跑 seed 會把 `DEV-STORE-MAIN` 的 `V001` 現有庫存更新為 `10`，並把 `DEV-RENTAL-C002` 的 `RSV-DEV-001` 租借庫存更新為 `6`。不要在需要保留手動測試庫存狀態時重跑。`docker compose down -v` 會刪除整個本機資料卷，只能在確定資料可捨棄時使用。
 
 ### 維護規則
 

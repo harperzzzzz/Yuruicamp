@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -47,6 +48,15 @@ public class GlobalExceptionHandler {
 		List<ErrorDetail> details = ex.getConstraintViolations().stream()
 				.map(violation -> new ErrorDetail(violation.getPropertyPath().toString(), violation.getMessage()))
 				.toList();
+		return ResponseEntity.badRequest()
+				.body(ApiErrorBody.of(ErrorCode.VALIDATION_ERROR.code(), "Request validation failed", details));
+	}
+
+	// 缺少必填 query parameter 時回傳一致的欄位驗證錯誤。
+	@ExceptionHandler(MissingServletRequestParameterException.class)
+	ResponseEntity<ApiErrorBody> handleMissingRequestParameter(MissingServletRequestParameterException ex) {
+		List<ErrorDetail> details = List.of(new ErrorDetail(ex.getParameterName(), "parameter is required"));
+
 		return ResponseEntity.badRequest()
 				.body(ApiErrorBody.of(ErrorCode.VALIDATION_ERROR.code(), "Request validation failed", details));
 	}

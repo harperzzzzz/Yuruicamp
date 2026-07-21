@@ -53,6 +53,16 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/admin/auth/firebase/session").permitAll()
 						// 線 B：商品公開讀（Product API Contract v0.1）— 不必登入
 						.requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+						// 線 E-1：只開放明確的營區、裝備、政策與公休讀取端點。
+						.requestMatchers(HttpMethod.GET,
+								"/api/booking/campgrounds",
+								"/api/booking/campgrounds/**",
+								"/api/booking/equipment",
+								"/api/booking/policy",
+								"/api/booking/closures")
+						.permitAll()
+						// 線 E-2：可用性只查詢，不建立預約或鎖位，因此允許公開呼叫。
+						.requestMatchers(HttpMethod.POST, "/api/booking/check-availability").permitAll()
 						// Skeleton A: other /api/admin/** require ROLE_ADMIN (whitelist resolved in filter)
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						// Other /api/** still require customer auth until more public GETs are added

@@ -4,7 +4,7 @@
 > **作法**：開發期改 [`docs/latest_schema.sql`](../docs/latest_schema.sql) → `docker compose down -v && up -d` 整檔重建  
 > **同步文件**：`docs/schema-enums.md`、`docs/database-schema-guide.md`、相關 `docs/database-documents/`  
 > **範圍**：Phase 1–4、6（本輪）；Phase 5 不做  
-> **驗證**：2026-07-20 — Docker 重建成功（66 tables / 12 views）；`npm run validate:data` OK  
+> **驗證**：2026-07-20 — Docker 重建成功（66 tables / 12 views）；`npm run validate:data` OK。2026-07-21 — 獨立暫存 PostgreSQL 以完整 `latest_schema.sql` 驗證 Booking 冪等唯一約束通過。
 > **後續**：線 A 骨架見 [`backend/README.md`](../backend/README.md)；認證為 Firebase ID Token（不自簽 JWT），見架構書 v1.1。
 
 ---
@@ -67,6 +67,16 @@
 
 ---
 
+## Phase 4.5 — Booking Checkout 冪等
+
+- [x] **4.5-1** `bookings.checkout_idempotency_key`（會員範圍 key）
+- [x] **4.5-2** `bookings.checkout_request_hash`（正規化 payload 的 SHA-256 指紋）
+- [x] **4.5-3** `UNIQUE (customer_id, checkout_idempotency_key)`
+- [x] **4.5-4** 同步 Booking API 與資料庫文件
+- [ ] **4.5-5** E-3 Service 實作相同 payload 回放、不同 payload 回 `IDEMPOTENCY_CONFLICT`
+
+---
+
 ## Phase 5 — 可選／非本輪
 
 - [ ] **5-1** 草稿訂單佔位（Service 常數，不改 schema）
@@ -96,3 +106,4 @@
 - `branch_features.id` 改為 IDENTITY（避免 sequence 在表之後建立）
 - `active_rental_listing_view` 移到 `rental_skus`／`rental_sku_variants` 之後
 - C-2 Checkout 冪等：`orders.checkout_idempotency_key`、`checkout_request_hash` 與 `UNIQUE (customer_id, checkout_idempotency_key)`。
+- E-3 Booking Checkout 前置 Schema：`bookings.checkout_idempotency_key`、`checkout_request_hash` 與 `UNIQUE (customer_id, checkout_idempotency_key)`；payload 指紋比較留在線 E Service。

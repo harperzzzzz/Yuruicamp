@@ -40,6 +40,13 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 * customer_id                   預約會員；參照 customers.id。
                                 *idx_bookings_customer_created* `(customer_id, created_at)`
 
+* checkout_idempotency_key      建立 Booking Checkout 時由前端提供的冪等鍵。
+                                同一會員不可重複使用相同 key 建立不同預約；
+                                `UNIQUE (customer_id, checkout_idempotency_key)`。
+
+* checkout_request_hash         正規化建立請求的 SHA-256 指紋。
+                                相同 key、相同指紋時回放原預約；相同 key、不同指紋時由 Service 拒絕。
+
 * campground_id                 預約營區；參照 campgrounds.id。
                                 *idx_bookings_campground_dates* `(campground_id, check_in, check_out)`
 
@@ -139,6 +146,31 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 ### 成交快照
 營區名稱、地區、營位類型、租借 SKU／名稱／規格及價格都保存為快照。後續主檔修改名稱、規格或價格時，不應改寫既有預約的交易內容。
 
+### 建立冪等
+Booking Checkout 以會員與 `checkout_idempotency_key` 作為唯一範圍。資料庫唯一約束負責阻止同一會員產生重複 key；Service 還必須比較 `checkout_request_hash`，判斷應回放原結果或回傳 `IDEMPOTENCY_CONFLICT`。不同會員可以使用相同 key。
+
+### 可用性查詢
+
+`POST /api/booking/check-availability` 先依 `booking_policies.id=1` 驗證日期，再呼叫 `get_zone_availability`。API 的住宿區間是 `[checkIn, checkOut)`，因此傳給資料庫函式的包含式結束日為 `checkOut - 1 day`。函式會扣除 `zone_blocks` 與政策表列出的 pending／confirmed 預約，公休日直接回傳 0；Service 再取每個 zone 在所有住宿晚上的最低剩餘量。這個查詢不新增 `bookings`，也不鎖位。
+
+### Booking Checkout 鎖位、租借與計價
+
+`POST /api/booking/checkout/sessions` 先鎖定會員與營區，再依 `zone_id` 固定排序悲觀鎖定營位。Service 在同一交易內重查可用量，依 `calendar_dates` 與資料庫價格計算平假日晚數及金額。
+
+有租借時會解析 `campground_rental_locations`，固定排序鎖定 `rental_sku_variant_stocks`，扣除日期重疊的 active 保留，再建立 `booking_selected_rentals` 快照與 `rental_stock_reservations`。listing 的 `discount` 依 Schema 為 `0.00～0.30` 比率。任何租借不足都會回滾整筆交易。
+
+最後建立 `pending`、`unpaid` 表頭與初始歷程。`checkout_expires_at` 固定為建立時間加 15 分鐘。
+
+### 取消與逾時釋放
+
+E-6 的主動取消與每分鐘排程都會先對 Booking 執行悲觀鎖，再確認狀態仍為 `pending + unpaid`。符合條件時，同一交易會把 Booking 改為 `cancelled`、active 租借保留改為 `released` 並填入 `released_at`，以及新增 cancelled 歷程。已取消資料不會重複寫歷程；營位沒有額外釋放帳，因 cancelled 不在政策占用狀態中，可用性查詢會自然恢復數量。
+
+排程只掃描 `checkout_expires_at <= now` 的候選資料，鎖定後仍會重查狀態。若付款通知先取得相同 Booking 的資料庫鎖並完成付款，排程取得鎖後會略過，避免把已付款預約取消。
+
+### 會員預約讀取
+
+E-5 提供會員列表、詳情與 Checkout 快照讀取。列表 SQL 依登入會員的 `customer_id` 分頁；單筆 SQL 同時限制 `bookings.id` 與 `customer_id`。查不到與不屬於本人都回 `404 NOT_FOUND`，避免洩漏預約 ID 是否存在。
+
 
 
 ## 程式碼追蹤
@@ -174,6 +206,7 @@ customers ─ 1:N ─ bookings ─ N:1 ─ campgrounds
 
 ## 可能的問題
 * 高風險：前端目前寫入巢狀 Mock DTO，與正式四張正規化資料表並行；正式 API 必須負責拆寫與交易一致性。
+* 已處理：唯一約束只能阻止同一會員重複 key，E-3 Service 會比較 `checkout_request_hash`；相同內容回放，不同內容回 `IDEMPOTENCY_CONFLICT`。
 * 中風險：bookings.status 與 booking_status_history.status 已統一使用 booking_status，但資料庫仍未限制 pending、confirmed、completed、cancelled 之間的合法轉換順序。
 * 中風險：資料庫未強制「每次 status 更新都要新增歷程」；應由 Service 在同一交易內處理，或設計受控的資料庫函式。
 * 中風險：bookings.created_at 沒有預設值，所有新增流程都必須明確提供時間。

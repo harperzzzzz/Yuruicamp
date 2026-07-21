@@ -84,7 +84,7 @@ campgrounds
 
 * price_per_day_weekday 平日每日租金，必須大於等於 0。
 * price_per_day_holiday 假日每日租金，必須大於等於 0。
-* discount              折扣金額，預設 0，必須大於等於 0 且不能超過30 (代表折扣最多30%)
+* discount              折扣比率，預設 0，範圍為 0.00～0.30（最多 30%）。
 * terrain               適用地形說明，NULL。
 * description           上架說明，NULL。
 * active                是否上架，預設 true。
@@ -125,8 +125,7 @@ campgrounds
 
 
 ## 可能的問題
-* 高風險：rental_listings 的 active 與 rental_skus、rental_sku_variants 的 status 是獨立狀態；上架查詢應同時確認三者有效，避免停用品項仍被租借。
-    目前只建立view 讓三表狀態同步，後端沒有進行處理
+* 已處理：E-4 Booking Checkout 會同時確認 listing、equipment item、rental SKU、variant 與營區庫位有效，停用品項不會建立租借保留。
 
 * 高風險：campground_rental_locations 的 FK 只確認庫位存在，表結構本身未限制 inventory_locations 必須是 rental 領域的營區庫位；建立或更新對照時應由服務層驗證庫位類型與領域。
 

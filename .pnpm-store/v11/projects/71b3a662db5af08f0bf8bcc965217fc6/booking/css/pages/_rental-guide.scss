@@ -1,0 +1,265 @@
+﻿.rentalGuidePage {
+  background: var(--yc-bg);
+  min-height: 100vh;
+  padding-bottom: 4rem;
+}
+
+.rgHero {
+  background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
+  color: var(--yc-on-dark);
+  padding: 5rem 1.5rem 4rem;
+  text-align: center;
+}
+
+.rgHeroTitle {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  line-height: 1.25;
+}
+
+.rgHeroSubtitle {
+  font-size: 1.15rem;
+  color: var(--yc-on-dark-muted);
+  max-width: 520px;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.rgHeroCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 2rem;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.rgHeroCta:hover {
+  background: var(--yc-cta-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--yc-shadow-cta);
+}
+
+.rgSection {
+  max-width: 1100px;
+  margin: 4rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.rgSectionTitle {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--yc-text);
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.rgSectionDesc {
+  text-align: center;
+  color: var(--yc-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 2.5rem;
+}
+
+.rgSteps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.rgStepCard {
+  background: var(--yc-surface);
+  border-radius: 12px;
+  box-shadow: var(--yc-shadow-soft);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  position: relative;
+}
+
+.rgStepCardNum {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  font-size: 1.25rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.rgStepCardIcon {
+  font-size: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.rgStepCardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--yc-text);
+  margin-bottom: 0.5rem;
+}
+
+.rgStepCardDesc {
+  font-size: 0.875rem;
+  color: var(--yc-text-muted);
+  line-height: 1.6;
+}
+
+.rgStepCard::before {
+  content: '>';
+  display: none;
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.5rem;
+  color: var(--yc-border);
+  z-index: 1;
+}
+
+.rgStepCard + .rgStepCard::before {
+  display: block;
+}
+
+.rgEquipGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+}
+
+.rgEquipCard {
+  background: var(--yc-surface);
+  border-radius: 12px;
+  box-shadow: var(--yc-shadow-soft);
+  padding: 1.75rem 1.25rem;
+  text-align: center;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+
+.rgEquipCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--yc-shadow-hover);
+}
+
+.rgEquipCardIcon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.rgEquipCardName {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--yc-text);
+  margin-bottom: 0.4rem;
+}
+
+.rgEquipCardDesc {
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  line-height: 1.5;
+}
+
+.rgDepositBox {
+  background: var(--yc-warning-soft);
+  border: 2px solid var(--yc-warning);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.rgDepositBoxTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--yc-warning-text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rgDepositBox ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.rgDepositBox li {
+  color: var(--yc-text-secondary);
+  font-size: 0.925rem;
+  line-height: 1.8;
+  margin-bottom: 0.25rem;
+}
+
+.rgDepositBoxLink {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--yc-sage-action);
+  font-size: 0.875rem;
+  text-decoration: underline;
+}
+
+.rgDepositBoxLink:hover {
+  color: var(--yc-sage-dark);
+}
+
+.rgCtaSection {
+  background: linear-gradient(135deg, var(--yc-sage-dark) 0%, var(--yc-sage-action) 100%);
+  padding: 4rem 1.5rem;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+.rgCtaSection h2 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--yc-on-dark);
+  margin-bottom: 0.75rem;
+}
+
+.rgCtaSection p {
+  color: var(--yc-on-dark-muted);
+  font-size: 0.95rem;
+  margin-bottom: 1.75rem;
+}
+
+@media (width <= 768px) {
+  .rgHeroTitle {
+    font-size: 1.75rem;
+  }
+
+  .rgSteps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rgEquipGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rgStepCard::after {
+    display: none;
+  }
+}
+
+@media (width <= 480px) {
+  .rgSteps {
+    grid-template-columns: 1fr;
+  }
+
+  .rgEquipGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
