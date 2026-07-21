@@ -107,3 +107,53 @@ ON CONFLICT (calendar_date) DO UPDATE SET
     source_version = EXCLUDED.source_version,
     effective_at = EXCLUDED.effective_at,
     updated_at = now();
+-- G-1：後台 10 個功能頁面的 view／edit 權限字典。
+INSERT INTO public.admin_permissions (code, section, action)
+VALUES
+    ('analytics.view', 'analytics', 'view'),
+    ('analytics.edit', 'analytics', 'edit'),
+    ('orders.view', 'orders', 'view'),
+    ('orders.edit', 'orders', 'edit'),
+    ('movement.view', 'movement', 'view'),
+    ('movement.edit', 'movement', 'edit'),
+    ('products.view', 'products', 'view'),
+    ('products.edit', 'products', 'edit'),
+    ('customers.view', 'customers', 'view'),
+    ('customers.edit', 'customers', 'edit'),
+    ('discounts.view', 'discounts', 'view'),
+    ('discounts.edit', 'discounts', 'edit'),
+    ('reviews.view', 'reviews', 'view'),
+    ('reviews.edit', 'reviews', 'edit'),
+    ('booking-calendar.view', 'booking-calendar', 'view'),
+    ('booking-calendar.edit', 'booking-calendar', 'edit'),
+    ('bookings.view', 'bookings', 'view'),
+    ('bookings.edit', 'bookings', 'edit'),
+    ('permissions.view', 'permissions', 'view'),
+    ('permissions.edit', 'permissions', 'edit')
+ON CONFLICT (code) DO UPDATE SET
+    section = EXCLUDED.section,
+    action = EXCLUDED.action;
+
+-- admin 擁有全部權限；其他角色只放入日常工作需要的預設權限。
+INSERT INTO public.admin_role_permissions (role, permission_code)
+SELECT 'admin', code
+FROM public.admin_permissions
+ON CONFLICT (role, permission_code) DO NOTHING;
+
+INSERT INTO public.admin_role_permissions (role, permission_code)
+VALUES
+    ('operator', 'analytics.view'),
+    ('operator', 'orders.view'),
+    ('operator', 'orders.edit'),
+    ('operator', 'customers.view'),
+    ('operator', 'discounts.view'),
+    ('operator', 'reviews.view'),
+    ('operator', 'reviews.edit'),
+    ('operator', 'booking-calendar.view'),
+    ('operator', 'bookings.view'),
+    ('operator', 'bookings.edit'),
+    ('warehouse', 'movement.view'),
+    ('warehouse', 'movement.edit'),
+    ('warehouse', 'products.view'),
+    ('warehouse', 'products.edit')
+ON CONFLICT (role, permission_code) DO NOTHING;

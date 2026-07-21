@@ -29,4 +29,4 @@
 
 # 預期目標:
 - 嚴格遵守限制條件完成任務
-- 完成任務後，在/docs/frontend-specs/test/ 下建立一個給開發者手動在frontend 驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件，test 文件參考\docs\backend-specs\checkout\README.md 的### swagger 驗證流程格式去填寫。
+- 完成任務後，在/docs/frontend-specs/test/ 下建立一個給開發者手動在frontend 驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。

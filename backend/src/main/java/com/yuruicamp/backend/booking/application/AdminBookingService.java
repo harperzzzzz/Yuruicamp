@@ -1,0 +1,188 @@
+package com.yuruicamp.backend.booking.application;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import com.yuruicamp.backend.booking.api.AdminBookingDetailResponse;
+import com.yuruicamp.backend.booking.api.AdminBookingListResponse;
+import com.yuruicamp.backend.booking.infrastructure.AdminBookingCommandRepository;
+import com.yuruicamp.backend.booking.infrastructure.AdminBookingReadRepository;
+import com.yuruicamp.backend.common.api.PageMeta;
+import com.yuruicamp.backend.common.exception.BusinessException;
+import com.yuruicamp.backend.common.exception.ErrorCode;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+// 後台預約管理用例，不允許管理員直接改寫付款結果。
+@Service
+public class AdminBookingService {
+
+	private static final ZoneId TAIPEI = ZoneId.of("Asia/Taipei");
+	private static final Set<String> STATUSES = Set.of("pending", "confirmed", "completed", "cancelled");
+	private static final Set<String> PAYMENT_STATUSES = Set.of("unpaid", "paid", "refunded");
+	private static final Set<String> SORT_FIELDS = Set.of("createdAt", "checkIn", "checkOut", "finalAmount", "updatedAt");
+	private static final Set<String> SORT_DIRECTIONS = Set.of("asc", "desc");
+
+	private final AdminBookingReadRepository readRepository;
+	private final AdminBookingCommandRepository commandRepository;
+	private final Clock clock;
+
+	public AdminBookingService(
+			AdminBookingReadRepository readRepository,
+			AdminBookingCommandRepository commandRepository,
+			Clock clock) {
+		this.readRepository = readRepository;
+		this.commandRepository = commandRepository;
+		this.clock = clock;
+	}
+
+	@Transactional(readOnly = true)
+	public PagedBookings list(
+			int page, int size, String query, List<String> statuses, List<String> paymentStatuses,
+			List<String> campgroundIds, List<String> regions, Boolean hasRental,
+			LocalDate checkInFrom, LocalDate checkInTo, LocalDate createdFrom, LocalDate createdTo,
+			String sort) {
+		SortSpec sortSpec = validate(page, size, statuses, paymentStatuses, checkInFrom, checkInTo,
+				createdFrom, createdTo, sort);
+		var idPage = readRepository.findIds(page, size, normalize(query), statuses, paymentStatuses,
+				campgroundIds, regions, hasRental, checkInFrom, checkInTo, createdFrom, createdTo,
+				sortSpec.field(), sortSpec.direction());
+		Map<String, AdminBookingListResponse> byId = new HashMap<>();
+		readRepository.findRows(idPage.ids()).forEach(row -> byId.put(row.id(), row));
+		List<AdminBookingListResponse> data = new ArrayList<>();
+		idPage.ids().forEach(id -> data.add(byId.get(id)));
+		int totalPages = (int) Math.ceil((double) idPage.totalElements() / size);
+
+		return new PagedBookings(data, new PageMeta(page, size, idPage.totalElements(), totalPages));
+	}
+
+	@Transactional(readOnly = true)
+	public AdminBookingDetailResponse get(String id) {
+		var row = readRepository.findDetail(id)
+				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "Booking not found"));
+
+		return toDetail(row);
+	}
+
+	@Transactional
+	public AdminBookingDetailResponse confirm(String id, String actorId, String note) {
+		var booking = lock(id);
+		if ("confirmed".equals(booking.status())) {
+			return get(id);
+		}
+		if (!"pending".equals(booking.status())) {
+			throw conflict("Only pending booking can be confirmed");
+		}
+		if (!"paid".equals(booking.paymentStatus())) {
+			throw conflict("Booking must be paid by verified payment flow before confirmation");
+		}
+		Instant now = clock.instant();
+		commandRepository.updateStatus(id, "confirmed", now);
+		commandRepository.addHistory(id, "confirmed", now, actorId, cleanNote(note, "Booking confirmed by admin"));
+
+		return get(id);
+	}
+
+	@Transactional
+	public AdminBookingDetailResponse complete(String id, String actorId, String note) {
+		var booking = lock(id);
+		if ("completed".equals(booking.status())) {
+			return get(id);
+		}
+		if (!"confirmed".equals(booking.status()) || !"paid".equals(booking.paymentStatus())) {
+			throw conflict("Only paid and confirmed booking can be completed");
+		}
+		LocalDate today = LocalDate.now(clock.withZone(TAIPEI));
+		if (booking.checkOut().isAfter(today)) {
+			throw conflict("Booking cannot be completed before checkout date");
+		}
+		Instant now = clock.instant();
+		commandRepository.updateStatus(id, "completed", now);
+		commandRepository.fulfillRentalReservations(id, now);
+		commandRepository.addHistory(id, "completed", now, actorId, cleanNote(note, "Booking completed by admin"));
+
+		return get(id);
+	}
+
+	private SortSpec validate(
+			int page, int size, List<String> statuses, List<String> paymentStatuses,
+			LocalDate checkInFrom, LocalDate checkInTo, LocalDate createdFrom, LocalDate createdTo,
+			String sort) {
+		if (page < 0 || size < 1 || size > 100) {
+			throw validation("Invalid page or size");
+		}
+		validateValues(statuses, STATUSES, "status");
+		validateValues(paymentStatuses, PAYMENT_STATUSES, "paymentStatus");
+		validateRange(checkInFrom, checkInTo, "checkIn");
+		validateRange(createdFrom, createdTo, "created");
+		String[] parts = sort.split(",", -1);
+		if (parts.length != 2 || !SORT_FIELDS.contains(parts[0]) || !SORT_DIRECTIONS.contains(parts[1])) {
+			throw validation("Invalid booking sort");
+		}
+
+		return new SortSpec(parts[0], parts[1]);
+	}
+
+	private AdminBookingDetailResponse toDetail(AdminBookingReadRepository.DetailRow row) {
+		return new AdminBookingDetailResponse(
+				row.id(),
+				new AdminBookingDetailResponse.CustomerSummary(row.customerId(), row.customerName(), row.customerStatus()),
+				row.campgroundId(), row.campgroundName(), row.region(), row.checkIn(), row.checkOut(),
+				row.guestCount(), row.weekdayCount(), row.holidayCount(), row.paymentMethod(),
+				row.paymentStatus(), row.paidAt(), row.status(),
+				new AdminBookingDetailResponse.PricingSummary(
+						money(row.zoneTotal()), money(row.rentalTotal()), money(row.discount()), money(row.finalAmount())),
+				row.createdAt(), row.updatedAt(), readRepository.findZones(row.id()),
+				readRepository.findRentals(row.id()), readRepository.findHistory(row.id()));
+	}
+
+	private AdminBookingCommandRepository.BookingState lock(String id) {
+		return commandRepository.lockById(id)
+				.orElseThrow(() -> new BusinessException(ErrorCode.NOT_FOUND, "Booking not found"));
+	}
+
+	private static void validateValues(List<String> values, Set<String> allowed, String field) {
+		if (!allowed.containsAll(values)) {
+			throw validation("Invalid " + field);
+		}
+	}
+
+	private static void validateRange(LocalDate from, LocalDate to, String field) {
+		if (from != null && to != null && from.isAfter(to)) {
+			throw validation(field + "From cannot be after " + field + "To");
+		}
+	}
+
+	private static String normalize(String value) {
+		return value == null ? "" : value.trim();
+	}
+
+	private static String cleanNote(String note, String fallback) {
+		return note == null || note.isBlank() ? fallback : note.trim();
+	}
+
+	private static String money(java.math.BigDecimal value) {
+		return value.setScale(2).toPlainString();
+	}
+
+	private static BusinessException validation(String message) {
+		return new BusinessException(ErrorCode.VALIDATION_ERROR, message);
+	}
+
+	private static BusinessException conflict(String message) {
+		return new BusinessException(ErrorCode.CONFLICT, message);
+	}
+
+	public record PagedBookings(List<AdminBookingListResponse> data, PageMeta meta) {
+	}
+
+	private record SortSpec(String field, String direction) {
+	}
+}

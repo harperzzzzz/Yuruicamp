@@ -29,6 +29,87 @@ var customerFilterState = {
   tags: []
 };
 
+/** Customers 頁是否使用正式後端資料。 */
+function isCustomerBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled();
+}
+
+/** 將正式 API DTO 轉成既有 Customers UI 使用的唯讀形狀。 */
+function normalizeBackendCustomer(customer) {
+  var tags = (customer.tags || []).map(function (tag) { return tag.name || tag; });
+  var address = customer.defaultShippingAddress;
+  return Object.assign({}, customer, {
+    totalSpent: Number(customer.totalSpent || 0),
+    tags: tags,
+    preferences: customer.preferences || { styles: [], equipment: [] },
+    shippingAddress: address ? {
+      firstName: address.recipientName,
+      postalCode: address.postalCode,
+      city: address.city,
+      district: address.district,
+      township: '',
+      addressLine1: address.addressLine,
+      addressLine2: '',
+      email: customer.email,
+      phone: address.phone
+    } : emptyShippingAddress()
+  });
+}
+
+/** 載入正式會員列表，Backend 模式不讀取任何 Mock JSON。 */
+function loadBackendCustomers() {
+  $('#addCustomerBtn').addClass('d-none');
+  AdminAPI.customers.list({ page: 0, size: 100, sort: 'registeredAt,desc' })
+    .then(function (result) {
+      window.customersCache = (result.data || []).map(normalizeBackendCustomer);
+      window.ordersCache = [];
+      window.bookingsCache = [];
+      rebuildBackendTagColors();
+      applyCustomerFiltersAndSort();
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '載入會員資料失敗');
+      var html = '<i class="fas fa-exclamation-triangle me-2"></i>載入會員資料失敗';
+      $('#customersTableBody').html('<tr><td colspan="9" class="text-center py-4 text-danger">' + html + '</td></tr>');
+      $('#customersCardList').html('<div class="alert alert-danger m-3">' + html + '</div>');
+    });
+}
+
+function rebuildBackendTagColors() {
+  (window.customersCache || []).forEach(function (customer) {
+    (customer.tags || []).forEach(function (tag) {
+      if (!window.tagColorMap[tag]) window.tagColorMap[tag] = 'bg-secondary';
+    });
+  });
+  buildCustomerTagsFilterOptions();
+}
+
+/** 第一次展開時才讀取正式會員詳情。 */
+function loadBackendCustomerDetail(customerId) {
+  var customer = (window.customersCache || []).find(function (item) { return item.id === customerId; });
+  if (!customer || customer.backendDetailLoaded) return;
+  AdminAPI.customers.getById(customerId)
+    .then(function (result) {
+      var detail = normalizeBackendCustomer(result.data);
+      Object.assign(customer, detail, { backendDetailLoaded: true });
+      applyBackendCustomerDetail(customer);
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '會員詳情載入失敗');
+    });
+}
+
+function applyBackendCustomerDetail(customer) {
+  getCustomerPanels(customer.id).each(function () {
+    var $panel = $(this);
+    $panel.find('.birthday-display').text(formatDateDisplay(customer.birthday));
+    $panel.find('.auth-provider-display').text(getCustomerAuthProviderDisplay(customer));
+    $panel.find('.preferences-display').html(preferencesToHtml(customer.preferences));
+    $panel.find('.tags-display').html(tagsToHtml(customer.tags));
+    $panel.find('.shipping-address-display').html(formatShippingAddressDisplay(customer.shippingAddress));
+  });
+}
+
 /** 從正規化 Mock 關聯檔組裝後台會員 DTO。 */
 window.hydrateNormalizedCustomerRelations = function (customers) {
   return Promise.all([
@@ -1129,8 +1210,31 @@ function revertCustomerPanels(customerId) {
   updateCustomerEditActions(customerId);
 }
 
-/** 一次提交草稿至 cache 並同步 UI */
+/** Backend 模式先等待 API 成功，再更新畫面；Mock 模式維持本地流程。 */
 function commitCustomerDraft(customerId, draft, changes) {
+  if (!isCustomerBackendEnabled()) {
+    commitCustomerDraftLocally(customerId, draft, changes);
+    return;
+  }
+
+  var payload = {};
+  ['phone', 'birthday', 'points'].forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(changes, key)) payload[key] = changes[key];
+  });
+  AdminAPI.customers.update(customerId, payload)
+    .then(function (result) {
+      var customer = (window.customersCache || []).find(function (item) { return item.id === customerId; });
+      if (customer) Object.assign(customer, normalizeBackendCustomer(result.data), { backendDetailLoaded: true });
+      commitCustomerDraftLocally(customerId, draft, payload);
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '更新會員資料失敗');
+      revertCustomerPanels(customerId);
+    });
+}
+
+/** 將已確認成功的資料寫入 cache 並同步既有桌面與手機 UI。 */
+function commitCustomerDraftLocally(customerId, draft, changes) {
   var customer = (window.customersCache || []).find(function (c) { return c.id === customerId; });
   if (!customer) { return; }
 
@@ -1166,7 +1270,7 @@ function commitCustomerDraft(customerId, draft, changes) {
     applyCustomerFiltersAndSort();
   }
 
-  if (typeof AdminAPI !== 'undefined' && AdminAPI.customers) {
+  if (!isCustomerBackendEnabled() && typeof AdminAPI !== 'undefined' && AdminAPI.customers) {
     AdminAPI.customers.update(customerId, changes).catch(function (err) {
       AdminAPI.handleError(err, '更新客戶資料同步失敗');
     });
@@ -1448,6 +1552,31 @@ window.initCustomers = function () {
     resetAddCustomerModal();
   });
 
+  // Backend 模式使用語意化端點停權或恢復，不直接 PATCH status 字串。
+  $(document).on('click.customers', '.customer-status-toggle-btn', function (event) {
+    event.stopPropagation();
+    if (!isCustomerBackendEnabled()) return;
+    var customerId = $(this).data('customer-id');
+    var status = $(this).data('status');
+    var action = status === 'suspended'
+      ? AdminAPI.customers.reactivate(customerId)
+      : AdminAPI.customers.suspend(customerId);
+    $(this).prop('disabled', true);
+    action.then(function (result) {
+      var index = (window.customersCache || []).findIndex(function (item) { return item.id === customerId; });
+      if (index !== -1) window.customersCache[index] = Object.assign(
+        {}, window.customersCache[index], normalizeBackendCustomer(result.data), { backendDetailLoaded: true });
+      applyCustomerFiltersAndSort();
+      window.showAdminToast(status === 'suspended' ? '會員已恢復' : '會員已停權');
+    }).catch(function (err) {
+      AdminAPI.handleError(err, '會員狀態更新失敗');
+    });
+  });
+
+  $(document).on('show.bs.collapse.customers', '.customer-mobile-detail', function () {
+    if (isCustomerBackendEnabled()) loadBackendCustomerDetail(this.id.replace('collapse-mobile-', ''));
+  });
+
   // 配送地址 Modal
   $(document).on('click.customers', '.shipping-address-edit-btn', function (e) {
     e.stopPropagation();
@@ -1482,7 +1611,10 @@ window.initCustomers = function () {
 
   // 載入客戶資料並渲染列表
   // 同時預載訂單 / 預約，詳情面板改用 customerId FK（不再讀 customers.orders[] / rentals[]）
-  loadAdminJsonResource({
+  if (isCustomerBackendEnabled()) {
+    loadBackendCustomers();
+  } else {
+    loadAdminJsonResource({
     adminList: AdminAPI && AdminAPI.customers && AdminAPI.customers.list,
     jsonPath: MockDataPaths.customers,
     emptyValue: [],
@@ -1529,7 +1661,8 @@ window.initCustomers = function () {
       );
       $('#customersCardList').html('<div class="alert alert-danger m-3">' + errHtml + '</div>');
     }
-  });
+    });
+  }
 
   // ── 排序：點擊消費總額表頭（三段式 asc → desc → 取消）──
   $(document).on('click.customers', '#customersTable .sortable-th', function () {
@@ -2045,9 +2178,17 @@ function buildShippingAddressRowHtml(shippingAddressHtml) {
  * 產生展開區完整 HTML（手機/Email/生日/註冊日期/等級/點數/標籤/配送地址/購買紀錄/租借紀錄）
  */
 function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, registeredDisplay, tierDisplay, tagsHtml, preferencesHtml, shippingAddressHtml, ordersHtml, rentalsHtml) {
+  var statusLabel = c.status === 'suspended' ? '停權' : (c.status === 'deleted' ? '已刪除' : '啟用');
+  var statusClass = c.status === 'active' ? 'bg-success' : 'bg-secondary';
   return (
     '<div class="customer-detail-panel" data-customer-id="' + c.id + '">' +
       '<table class="table table-sm mb-0 customer-detail-table"><tbody>' +
+        '<tr><th class="text-muted" style="width:72px">帳號狀態</th>' +
+          '<td><span class="badge customer-status-badge ' + statusClass + '">' + statusLabel + '</span>' +
+          '<button type="button" class="btn btn-sm btn-outline-warning ms-2 customer-status-toggle-btn" ' +
+            'data-customer-id="' + c.id + '" data-status="' + (c.status || 'active') + '"' +
+            (c.status === 'deleted' ? ' disabled' : '') + '>' +
+            (c.status === 'suspended' ? '恢復會員' : '停權會員') + '</button></td></tr>' +
         '<tr>' +
           '<th class="text-muted" style="width:72px">手機號碼</th>' +
           '<td>' +
@@ -2136,6 +2277,7 @@ function bindCustomerCollapseEvents() {
       bootstrap.Collapse.getOrCreateInstance(this, { toggle: false }).hide();
     });
     var customerId = this.id.replace('collapse-', '');
+    if (isCustomerBackendEnabled()) loadBackendCustomerDetail(customerId);
     $('.customer-summary-row').removeClass('is-expanded');
     $('.customer-summary-row[data-customer-id="' + customerId + '"]').addClass('is-expanded');
   });
@@ -2360,6 +2502,12 @@ function renderCustomersList(customers) {
 
   if (typeof window.applyEditPermission === 'function') {
     window.applyEditPermission('customers', $('#contentArea'));
+  }
+  if (isCustomerBackendEnabled()) {
+    $('#contentArea').find('.email-edit-btn, .tags-edit-btn, .shipping-address-edit-btn').addClass('d-none');
+    $('#contentArea').find('.tag-add-btn, .tag-delete-btn').addClass('d-none');
+  } else {
+    $('#contentArea').find('.customer-status-toggle-btn').addClass('d-none');
   }
 }
 

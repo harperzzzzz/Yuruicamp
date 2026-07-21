@@ -35,6 +35,11 @@
 - Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
 - Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
 - Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。線 E 定義為 Booking Prepare／Reservation 完成，ECPay 與付款確認延後線 D。
+- Booking 線 E 的完整人工驗證已整合至 [`E-1～E-7 Booking Swagger 流程`](./docs/backend-specs/test/e1-e7-booking-swagger.md)。
+- Admin 線 G 的 G-1、G-5 已完成程式與非 DB 測試：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已完成，權限頁保留 Mock／Backend 雙模式。PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑後勾選 checklist。
+- Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
+- Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
+- Admin RBAC、Customers、Orders 與 Bookings Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。

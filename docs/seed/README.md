@@ -36,8 +36,8 @@ docs/seed/
 ├── README.md
 ├── 002-dev-seed.sql       # 唯一執行入口與交易邊界
 └── dev/
-    ├── 010-reference.sql  # 商品分類、品牌、營區、營位、Booking policy、日曆
-    ├── 020-identity.sql   # Booking closure 使用的開發管理員與公休範例
+    ├── 010-reference.sql  # 權限字典、角色預設、商品分類、品牌、營區、營位、Booking policy、日曆
+    ├── 020-identity.sql   # 開發管理員與 Booking 公休範例
     ├── 030-catalog.sql    # 商品與租借 SKU／variant
     └── 040-inventory.sql  # 商城／租借庫位、listing 與庫存
 ```

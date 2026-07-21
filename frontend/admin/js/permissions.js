@@ -24,6 +24,15 @@ window.ADMIN_SECTIONS = [
 ];
 
 var EMPLOYEE_STORAGE_KEY = 'adminEmployees';
+var backendEmployeeCache = [];
+var backendPermissionDictionary = [];
+
+/** 判斷權限頁是否已切換到正式後端。 */
+function isPermissionBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' &&
+    AdminAPI.isBackendEnabled &&
+    AdminAPI.isBackendEnabled();
+}
 
 // --- API 預留（未來串接後端時替換 localStorage 邏輯）---
 // GET    /api/admin/employees
@@ -226,9 +235,11 @@ window.initPermissions = function () {
     toggleEmployeeStatus(empId);
   });
 
-  // 超級管理員 checkbox：鎖定權限矩陣
-  $(document).on('change.permissions', '#empIsSuperAdmin', function () {
-    syncPermissionMatrixLock($(this).is(':checked'));
+  // 角色變更後套用該角色的預設權限，仍可再做個別調整。
+  $(document).on('change.permissions', '#empRole', function () {
+    if (isPermissionBackendEnabled()) {
+      applyRolePermissionDefaults($(this).val());
+    }
   });
 
   // 權限矩陣：查看 / 編輯連動
@@ -266,6 +277,11 @@ window.initPermissions = function () {
 
 /** 渲染員工列表 / Render employee table */
 function renderEmployeeTable() {
+  if (isPermissionBackendEnabled()) {
+    renderBackendEmployeeTable();
+    return;
+  }
+
   var employees = fetchEmployees();
   var currentId = sessionStorage.getItem('adminId') || '';
 
@@ -312,8 +328,66 @@ function renderEmployeeTable() {
   }
 }
 
+/** 從正式後端載入管理員列表，失敗時顯示可重試的空狀態。 */
+function renderBackendEmployeeTable() {
+  $('#employeeTableBody').html(
+    '<tr><td colspan="5" class="text-center text-muted py-4">載入管理員資料...</td></tr>'
+  );
+
+  Promise.all([AdminAPI.users.list(0, 100), AdminAPI.permissions.list()])
+    .then(function (results) {
+      backendEmployeeCache = results[0].data || [];
+      backendPermissionDictionary = results[1].data || [];
+      renderBackendEmployeeRows();
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '管理員資料載入失敗');
+      $('#employeeTableBody').html(
+        '<tr><td colspan="5" class="text-center text-danger py-4">管理員資料載入失敗，重新進入本頁後再試</td></tr>'
+      );
+    });
+}
+
+/** 將正式管理員資料轉為既有後台表格樣式。 */
+function renderBackendEmployeeRows() {
+  if (!backendEmployeeCache.length) {
+    $('#employeeTableBody').html(
+      '<tr><td colspan="5" class="text-center text-muted py-4">尚無管理員資料</td></tr>'
+    );
+    return;
+  }
+
+  var currentId = sessionStorage.getItem('adminId') || '';
+  var html = backendEmployeeCache.map(function (employee) {
+    var statusBadge = employee.active
+      ? '<span class="badge bg-success">啟用</span>'
+      : '<span class="badge bg-secondary">停用</span>';
+    var roleLabel = getRoleLabel(employee.role);
+    var toggleButton = employee.id === currentId ? '' :
+      '<button type="button" class="btn btn-sm btn-outline-warning btn-toggle-employee ms-1" ' +
+      'data-employee-id="' + employee.id + '">' + (employee.active ? '停用' : '啟用') + '</button>';
+
+    return '<tr data-employee-id="' + employee.id + '">' +
+      '<td class="fw-semibold">' + escapeHtml(employee.id) + '</td>' +
+      '<td><div>' + escapeHtml(employee.name) + '</div><small class="text-muted">' +
+        escapeHtml(employee.email) + '</small></td>' +
+      '<td>' + roleLabel + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td><button type="button" class="btn btn-sm btn-outline-primary btn-edit-employee" ' +
+        'data-employee-id="' + employee.id + '">編輯</button>' + toggleButton + '</td>' +
+      '</tr>';
+  }).join('');
+
+  $('#employeeTableBody').html(html);
+}
+
 /** 開啟新增/編輯 Modal / Open add or edit employee modal */
 function openEmployeeModal(employeeId) {
+  if (isPermissionBackendEnabled()) {
+    openBackendEmployeeModal(employeeId);
+    return;
+  }
+
   var isEdit = !!employeeId;
   var emp = isEdit ? findEmployeeById(employeeId) : null;
 
@@ -326,6 +400,57 @@ function openEmployeeModal(employeeId) {
   renderPermissionMatrix(isEdit ? emp.permissions : getDefaultPermissions(false), isEdit ? emp.isSuperAdmin : false);
 
   new bootstrap.Modal('#employeeModal').show();
+}
+
+/** 取得正式管理員詳情後開啟編輯視窗。 */
+function openBackendEmployeeModal(employeeId) {
+  if (!employeeId) {
+    fillBackendEmployeeModal(null);
+    return;
+  }
+
+  AdminAPI.users.getById(employeeId)
+    .then(function (result) {
+      fillBackendEmployeeModal(result.data);
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '管理員詳情載入失敗');
+    });
+}
+
+function fillBackendEmployeeModal(employee) {
+  var isEdit = !!employee;
+  $('#employeeModalLabel').text(isEdit ? '編輯管理員' : '新增管理員');
+  $('#empIdDisplay').val(isEdit ? employee.id : '由後端建立');
+  $('#empDisplayName').val(isEdit ? employee.name : '');
+  $('#empEmail').val(isEdit ? employee.email : '').prop('readonly', isEdit);
+  $('#empRole').val(isEdit ? employee.role : 'operator');
+  $('#employeeModal').data('edit-id', isEdit ? employee.id : '');
+
+  var permissions = getBackendPermissionMatrix(employee);
+  renderPermissionMatrix(permissions, false);
+  if (!isEdit) applyRolePermissionDefaults('operator');
+  new bootstrap.Modal('#employeeModal').show();
+}
+
+function getBackendPermissionMatrix(employee) {
+  var effective = new Set(employee && employee.effectivePermissions || []);
+  var matrix = getDefaultPermissions(false);
+  backendPermissionDictionary.forEach(function (permission) {
+    if (!matrix[permission.section]) matrix[permission.section] = { view: false, edit: false };
+    matrix[permission.section][permission.action] = effective.has(permission.code);
+  });
+  return matrix;
+}
+
+function applyRolePermissionDefaults(role) {
+  var matrix = getDefaultPermissions(false);
+  backendPermissionDictionary.forEach(function (permission) {
+    if (!matrix[permission.section]) matrix[permission.section] = { view: false, edit: false };
+    matrix[permission.section][permission.action] =
+      (permission.defaultRoles || []).indexOf(role) !== -1;
+  });
+  renderPermissionMatrix(matrix, false);
 }
 
 /** 渲染 9 頁權限矩陣 / Render 9-row permission matrix */
@@ -378,6 +503,11 @@ function readPermissionsFromModal(isSuperAdmin) {
 
 /** 儲存員工（新增或更新）/ Save employee from modal */
 function saveEmployeeFromModal() {
+  if (isPermissionBackendEnabled()) {
+    saveBackendEmployeeFromModal();
+    return;
+  }
+
   var displayName = $('#empDisplayName').val().trim();
   if (!displayName) {
     window.showAdminToast('請輸入顯示名稱', 'error');
@@ -451,8 +581,67 @@ function saveEmployeeFromModal() {
   window.showAdminToast('員工已新增');
 }
 
+/** 將帳號欄位與權限覆寫分成兩個正式 API 操作。 */
+function saveBackendEmployeeFromModal() {
+  var name = $('#empDisplayName').val().trim();
+  var email = $('#empEmail').val().trim();
+  var role = $('#empRole').val();
+  var editId = $('#employeeModal').data('edit-id');
+  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    $('#empDisplayName').toggleClass('is-invalid', !name);
+    $('#empEmail').toggleClass('is-invalid', !email);
+    window.showAdminToast('輸入姓名與有效的登入 Email', 'error');
+    return;
+  }
+
+  var accountRequest = editId
+    ? AdminAPI.users.update(editId, { name: name, role: role })
+    : AdminAPI.users.create({ name: name, email: email, role: role });
+
+  $('#saveEmployeeBtn').prop('disabled', true);
+  accountRequest
+    .then(function (result) {
+      var adminUserId = editId || result.data.id;
+      return AdminAPI.users.updatePermissions(adminUserId, readBackendPermissionCodes());
+    })
+    .then(function () {
+      bootstrap.Modal.getInstance(document.getElementById('employeeModal')).hide();
+      window.showAdminToast(editId ? '管理員資料已更新' : '管理員已建立');
+      renderEmployeeTable();
+    })
+    .catch(function (err) {
+      AdminAPI.handleError(err, '管理員資料儲存失敗');
+    })
+    .finally(function () {
+      $('#saveEmployeeBtn').prop('disabled', false);
+    });
+}
+
+function readBackendPermissionCodes() {
+  var permissions = {};
+  backendPermissionDictionary.forEach(function (permission) {
+    permissions[permission.code] = $('.perm-' + permission.action + '-cb[data-section="' +
+      permission.section + '"]').is(':checked');
+  });
+  return permissions;
+}
+
 /** 停用或啟用員工 / Toggle employee active status */
 function toggleEmployeeStatus(employeeId) {
+  if (isPermissionBackendEnabled()) {
+    var target = backendEmployeeCache.find(function (employee) { return employee.id === employeeId; });
+    if (!target) return;
+    AdminAPI.users.update(employeeId, { active: !target.active })
+      .then(function () {
+        window.showAdminToast(target.active ? '管理員已停用' : '管理員已啟用');
+        renderEmployeeTable();
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '管理員狀態更新失敗');
+      });
+    return;
+  }
+
   var employees = fetchEmployees();
   var idx = employees.findIndex(function (e) { return e.id === employeeId; });
   if (idx === -1) return;
@@ -483,7 +672,14 @@ function toggleEmployeeStatus(employeeId) {
 
 function resetEmployeeModal() {
   $('#empDisplayName').removeClass('is-invalid');
+  $('#empEmail').removeClass('is-invalid').prop('readonly', false);
   $('#employeeModal').removeData('edit-id');
+}
+
+function getRoleLabel(role) {
+  if (role === 'admin') return '系統管理員';
+  if (role === 'warehouse') return '倉儲人員';
+  return '營運人員';
 }
 
 /** 簡單 HTML 跳脫 / Escape HTML for display */

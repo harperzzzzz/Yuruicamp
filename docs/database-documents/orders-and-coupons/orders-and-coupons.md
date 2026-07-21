@@ -418,3 +418,8 @@ coupons
 
 * 低風險：actor_id 可空會降低人工操作的稽核完整性
     - 系統自動事件可為空；人工操作應由後端統一寫入 actor_id。
+## G-2b 後台訂單履約
+
+後台使用 `/api/admin/orders` 查詢訂單，列表先對 order ID 分頁，再載入表頭摘要；商品與狀態歷程只在詳情讀取。這可避免 `order_items` 或 `order_status_history` 將列表資料列放大。
+
+履約狀態固定為 `unshipped → shipped → completed`。線上付款必須先由可信付款流程標記 paid；COD 可以 unpaid 出貨，完成時於同一交易標記 paid。Admin 不提供任意 payment、refund 或 status PATCH。

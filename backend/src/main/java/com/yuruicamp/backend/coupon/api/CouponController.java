@@ -2,20 +2,21 @@ package com.yuruicamp.backend.coupon.api;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.yuruicamp.backend.common.api.ApiResponse;
 import com.yuruicamp.backend.common.api.PageMeta;
 import com.yuruicamp.backend.common.security.CustomerPrincipal;
 import com.yuruicamp.backend.config.OpenApiConfig;
 import com.yuruicamp.backend.coupon.application.CouponService;
+
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Tag(name = "Coupon", description = "Coupon catalog and member claims")
@@ -35,6 +36,7 @@ public class CouponController {
 		return ApiResponse.ok(coupons, new PageMeta(0, coupons.size(), coupons.size(), coupons.isEmpty() ? 0 : 1));
 	}
 
+	// 取得目前登入會員自己的優惠券清單
 	@GetMapping("/api/me/coupons")
 	@SecurityRequirement(name = OpenApiConfig.FIREBASE_BEARER)
 	public ApiResponse<List<CouponClaimResponse>> mine(
@@ -44,6 +46,7 @@ public class CouponController {
 		return ApiResponse.ok(claims, new PageMeta(0, claims.size(), claims.size(), claims.isEmpty() ? 0 : 1));
 	}
 
+	// 領取 coupon
 	@PostMapping("/api/me/coupons/claims")
 	@SecurityRequirement(name = OpenApiConfig.FIREBASE_BEARER)
 	public ApiResponse<CouponClaimResponse> claim(

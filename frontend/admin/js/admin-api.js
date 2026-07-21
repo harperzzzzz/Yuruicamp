@@ -28,7 +28,7 @@
    * @param {Object|null} body
    * @returns {Promise<Object>}
    */
-  function request(method, path, body) {
+  function request(method, path, body, includeMeta) {
     if (!config.useBackend) {
       if (config.logMockCalls && global.console && global.console.debug) {
         global.console.debug('[AdminAPI mock]', method, path, body || '');
@@ -52,7 +52,8 @@
       credentials: 'same-origin',
       body: body !== undefined && body !== null && method !== 'GET' && method !== 'HEAD'
         ? body
-        : undefined
+        : undefined,
+      includeMeta: includeMeta === true
     }).then(function (data) {
       return { ok: true, data: data };
     });
@@ -91,11 +92,44 @@
 
     handleError: handleError,
 
+    // ── 管理員與細權限 / Admin users and RBAC ──
+    users: {
+      list: function (page, size) {
+        return request('GET', '/users?page=' + (page || 0) + '&size=' + (size || 100));
+      },
+      getById: function (adminUserId) {
+        return request('GET', '/users/' + encodeURIComponent(adminUserId));
+      },
+      create: function (payload) {
+        return request('POST', '/users', payload);
+      },
+      update: function (adminUserId, payload) {
+        return request('PATCH', '/users/' + encodeURIComponent(adminUserId), payload);
+      },
+      updatePermissions: function (adminUserId, permissions) {
+        return request('PUT', '/users/' + encodeURIComponent(adminUserId) + '/permissions', {
+          permissions: permissions
+        });
+      }
+    },
+
+    permissions: {
+      list: function () {
+        return request('GET', '/permissions');
+      }
+    },
+
     // ── 客戶 / Customers ──
     customers: {
       /** GET /api/admin/customers */
-      list: function () {
-        return request('GET', '/customers');
+      list: function (query) {
+        var params = new URLSearchParams(query || {});
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/customers' + suffix);
+      },
+      /** GET /api/admin/customers/:id */
+      getById: function (customerId) {
+        return request('GET', '/customers/' + encodeURIComponent(customerId));
       },
       /** POST /api/admin/customers */
       create: function (customer) {
@@ -104,6 +138,14 @@
       /** PATCH /api/admin/customers/:id */
       update: function (customerId, changes) {
         return request('PATCH', '/customers/' + encodeURIComponent(customerId), changes);
+      },
+      /** POST /api/admin/customers/:id/suspend */
+      suspend: function (customerId) {
+        return request('POST', '/customers/' + encodeURIComponent(customerId) + '/suspend');
+      },
+      /** POST /api/admin/customers/:id/reactivate */
+      reactivate: function (customerId) {
+        return request('POST', '/customers/' + encodeURIComponent(customerId) + '/reactivate');
       }
     },
 
@@ -118,8 +160,20 @@
     // ── 訂單 / Orders ──
     orders: {
       /** GET /api/admin/orders */
-      list: function () {
-        return request('GET', '/orders');
+      list: function (query) {
+        var search = new URLSearchParams();
+        Object.keys(query || {}).forEach(function (key) {
+          var value = query[key];
+          (Array.isArray(value) ? value : [value]).forEach(function (item) {
+            if (item !== undefined && item !== null && item !== '') search.append(key, item);
+          });
+        });
+        var suffix = search.toString() ? '?' + search.toString() : '';
+        return request('GET', '/orders' + suffix, null, true);
+      },
+      /** GET /api/admin/orders/:id */
+      getById: function (orderId) {
+        return request('GET', '/orders/' + encodeURIComponent(orderId));
       },
       /** PATCH /api/admin/orders/:id — 狀態、history 等 */
       update: function (orderId, payload) {
@@ -127,23 +181,43 @@
       },
       /** 語意化捷徑：出貨 */
       ship: function (orderId, payload) {
-        return request('PATCH', '/orders/' + encodeURIComponent(orderId) + '/ship', payload);
+        return request('POST', '/orders/' + encodeURIComponent(orderId) + '/ship', payload || {});
       },
       /** 語意化捷徑：完成 */
       complete: function (orderId, payload) {
-        return request('PATCH', '/orders/' + encodeURIComponent(orderId) + '/complete', payload);
+        return request('POST', '/orders/' + encodeURIComponent(orderId) + '/complete', payload || {});
       }
     },
 
     // ── 預約 / Bookings ──
     bookings: {
       /** GET /api/admin/bookings */
-      list: function () {
-        return request('GET', '/bookings');
+      list: function (query) {
+        var search = new URLSearchParams();
+        Object.keys(query || {}).forEach(function (key) {
+          var value = query[key];
+          (Array.isArray(value) ? value : [value]).forEach(function (item) {
+            if (item !== undefined && item !== null && item !== '') search.append(key, item);
+          });
+        });
+        var suffix = search.toString() ? '?' + search.toString() : '';
+        return request('GET', '/bookings' + suffix, null, true);
+      },
+      /** GET /api/admin/bookings/:id */
+      getById: function (bookingId) {
+        return request('GET', '/bookings/' + encodeURIComponent(bookingId));
       },
       /** PATCH /api/admin/bookings/:id — 狀態、備註等 */
       update: function (bookingId, payload) {
         return request('PATCH', '/bookings/' + encodeURIComponent(bookingId), payload);
+      },
+      /** POST /api/admin/bookings/:id/confirm */
+      confirm: function (bookingId, payload) {
+        return request('POST', '/bookings/' + encodeURIComponent(bookingId) + '/confirm', payload || {});
+      },
+      /** POST /api/admin/bookings/:id/complete */
+      complete: function (bookingId, payload) {
+        return request('POST', '/bookings/' + encodeURIComponent(bookingId) + '/complete', payload || {});
       }
     },
 
