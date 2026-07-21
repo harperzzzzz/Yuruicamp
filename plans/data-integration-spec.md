@@ -1,9 +1,38 @@
 # Yuruicamp 假資料整合規格
 
-> **Schema 整合任務清單**（可勾選進度）：[`schema-migration-checklist.md`](./schema-migration-checklist.md)  
-> **DDL（真相來源）**：[`../docs/latest_schema.sql`](../docs/latest_schema.sql)  
-> **導覽／枚舉**：[`../docs/database-schema-guide.md`](../docs/database-schema-guide.md) · [`../docs/schema-enums.md`](../docs/schema-enums.md)  
+> **Schema 整合任務清單**（可勾選進度）：[`schema-migration-checklist.md`](./schema-migration-checklist.md)
+>
+> **DDL（真相來源）**：[`../docs/latest_schema.sql`](../docs/latest_schema.sql)
+>
+> **導覽／枚舉**：[`../docs/database-schema-guide.md`](../docs/database-schema-guide.md) · [`../docs/schema-enums.md`](../docs/schema-enums.md)
+>
 > **領域說明（含快照語意）**：[`../docs/database-documents/`](../docs/database-documents/)
+>
+> **PostgreSQL 開發 Seed**：[`../docs/seed/README.md`](../docs/seed/README.md)
+
+| 欄位 | 內容 |
+|------|------|
+| **目前定位** | 前端 Mock JSON 的資料語意、關聯與維護規格 |
+| **更新日期** | 2026-07-21 |
+| **不負責** | PostgreSQL Seed 載入順序、交易與執行方式 |
+
+> **簡單說**：本文件回答「前端 Mock 資料怎麼維持一致」；[`docs/seed/README.md`](../docs/seed/README.md) 回答「PostgreSQL 本機展示資料怎麼建立」。兩者可以使用相同的固定 ID 與業務語意，但不會自動互相同步。
+
+## 文件邊界與閱讀路徑
+
+| 要處理的事情 | 先讀哪裡 |
+|-------------|-----------|
+| 修改前端 Mock JSON、localStorage overlay 或衍生資料 | 本文件 |
+| 修改 PostgreSQL 開發展示資料 | [`docs/seed/README.md`](../docs/seed/README.md) |
+| 確認 API Request／Response 欄位 | [`docs/api/README.md`](../docs/api/README.md) 與對應 API Contract |
+| 確認資料表、ENUM、FK、CHECK | [`docs/latest_schema.sql`](../docs/latest_schema.sql) |
+
+建議閱讀順序：
+
+1. 先看對應 API Contract，確認前後端交換欄位。
+2. 需要 Mock 模式時，再依本文件維護 `frontend/data/**`。
+3. 需要真後端資料時，依 [`docs/seed/README.md`](../docs/seed/README.md) 維護 `docs/seed/**`。
+4. 涉及資料庫欄位或外鍵時，回到 `latest_schema.sql` 驗證，不可從 JSON 反推 Schema。
 
 ## 定案摘要（2026-07-09）
 
@@ -22,15 +51,17 @@
 
 ## 目錄結構
 
+```text
+frontend/data/catalog/          products.json, campgrounds.json, camp-equipment.json
+frontend/data/commerce/         orders.json, camp-bookings.json
+frontend/data/customers/        customers.json
+frontend/data/marketing/        articles.json, branches.json, brands.json
+frontend/data/promotions/       coupons.json
+frontend/data/admin/            reviews.json, movement.json, min-stock.json, rental-skus.json,
+                                booking-policy.json, zone-blocks.json, campground-closures.json
 ```
-/data/catalog/          products.json, campgrounds.json, camp-equipment.json
-/data/commerce/         orders.json, camp-bookings.json
-/data/customers/        customers.json
-/data/marketing/        articles.json, branches.json, brands.json
-/data/promotions/       coupons.json
-/data/admin/            reviews.json, movement.json, min-stock.json, rental-skus.json,
-                        booking-policy.json, zone-blocks.json, campground-closures.json
-```
+
+磁碟來源位於 `frontend/data/**`；Vite 以 `frontend/` 為網站根目錄，因此瀏覽器執行期使用 `/data/**`。這些 JSON 不是 PostgreSQL Seed，也不可直接複製成 SQL。
 
 > `camp-equipment.json` 的 **stock 為唯讀衍生**，請勿手改；改庫存請改 `rental-skus.json` 後執行 `npm run sync:listings`。  
 > `products.totalStock` / `products.branch` 亦為衍生（由 `variants[].branch` 加總）。
@@ -39,7 +70,7 @@
 
 | 全域物件 | 用途 |
 |---------|------|
-| `window.DataPaths` | 所有 JSON 絕對路徑 |
+| `window.MockDataPaths` | Storefront Mock JSON 絕對路徑；定義於 `frontend/storefront/js/api-mock.js` |
 | `window.API` | 買家 Mock API |
 | `window.BookingAPI` | 預約 Mock API（含 `getAvailability`） |
 | `window.BookingAvailability` | Zone 可用性計算（mock = 未來 SQL 查詢契約） |
@@ -120,17 +151,20 @@
 
 ## 維護腳本
 
-```bash
-npm run validate:data          # FK + schema 規則
-npm run sync:listings          # rental-skus → camp-equipment.stock
-npm run fix:articles           # prod-xxx → Pxxx（已遷移後通常 0 變更）
-node admin/scripts/normalize-phase1-data.cjs   # specLabel / coupons / movement / stock
-node admin/scripts/run-variant-integration-v2.cjs  # @deprecated 一次性整合
-node admin/scripts/run-data-alignment.cjs          # 預約 FK + 庫存拆分
-node admin/scripts/seed-booking-window.cjs
-node admin/scripts/seed-zone-coverage.cjs
-node admin/scripts/seed-summer-2026.cjs
+以下指令從 `frontend/` 執行；可用指令以 `frontend/package.json` 為準：
+
+```powershell
+cd frontend
+npm run validate:data     # 驗證 Mock FK 與資料規則
+npm run check:listings    # 預覽租借 listing 是否需要同步
+npm run sync:listings     # 寫入 rental-skus 衍生的 camp-equipment.stock
+npm run check:articles    # 預覽文章商品 ID 修正
+npm run fix:articles      # 寫入文章商品 ID 修正
+npm run check:normalize   # 預覽第一階段資料正規化
+npm run normalize:data    # 寫入第一階段資料正規化
 ```
+
+已移除的一次性整合腳本不再列為操作入口；需要追溯舊遷移流程時請查看 Git 歷史，不要重新建立同名腳本。
 
 ## 多規格資料契約
 
@@ -143,7 +177,7 @@ node admin/scripts/seed-summer-2026.cjs
 
 ## 已移除的舊路徑
 
-以下舊 Mock 路徑已刪除（內容已併入 `/data/**`；需要對照時查 git 歷史）：
+以下舊 Mock 路徑已刪除（內容已併入 `frontend/data/**`；需要對照時查 git 歷史）：
 
 - `admin/data/*.json`（含舊檔名 `reantal.json`）
 - `booking/data/*.json`
@@ -151,4 +185,4 @@ node admin/scripts/seed-summer-2026.cjs
 - `equipment-id-map.json`
 - `_archive/pre-integration/`（過渡歸檔目錄，已清空）
 
-正式資料只改 `/data/**`（路徑見 `js/data-paths.js`）。
+Mock 來源只改 `frontend/data/**`（Storefront 路徑見 `frontend/storefront/js/api-mock.js`，其他頁面依各自載入設定）。PostgreSQL 開發資料只改 `docs/seed/**`；若兩邊需要相同案例，必須分別依 API Contract 與 Schema 驗證後同步更新。

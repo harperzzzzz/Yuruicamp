@@ -1,12 +1,13 @@
-# Checkout API Contract（v0.2）
+# Checkout API Contract（v0.4）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（C-2 已實作） |
-| **日期** | 2026-07-20 |
-| **版本** | 0.2 |
+| **狀態** | Locked（C-2、C-4、C-6 已實作） |
+| **日期** | 2026-07-21 |
+| **版本** | 0.4 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **相關** | [`order-api-contract.md`](./order-api-contract.md)、[`payment-api-contract.md`](./payment-api-contract.md)、[`coupon-api-contract.md`](./coupon-api-contract.md) |
+| **實作說明** | [`../backend-specs/checkout/README.md`](../backend-specs/checkout/README.md) |
 | **策略** | **D1.A**：待付款 `orders` + `product_stock_reservations`；**不**另建 `checkout_sessions` 表 |
 | **保留時間** | **15 分鐘**（`orders.checkout_expires_at` 與保留帳 `expires_at` 對齊） |
 
@@ -117,15 +118,34 @@
 
 ## 3. PATCH — 更新結帳
 
-可更新欄位（僅 `payment_status=unpaid` 且未過期）：
+可更新欄位（僅 `payment_status=unpaid`、未取消且未過期）：
 
 | 欄位 | 說明 |
 |------|------|
 | `shipping.*` | 更新收件快照 |
 | `paymentMethod` | `ecpay-credit` \| `ecpay-atm` \| `ecpay-cvs` \| `ecpay-other` \| `cod` |
-| `couponClaimId` | 更換／清除券（`null`＝清除）後**重算** `pricing` |
+| `couponClaimId` | **尚未完成**；C-4 僅接受 `null`，非空值回 `400 VALIDATION_ERROR`，等待 F-2 實作 |
 
-不可：改 `items` 數量（要改請 cancel 再新建，v0.1 簡化）。
+Request 範例：
+
+```json
+{
+  "shipping": {
+    "recipientName": "王小明",
+    "phone": "0912345678",
+    "address": "台北市信義區"
+  },
+  "paymentMethod": "ecpay-credit",
+  "couponClaimId": null
+}
+```
+
+- `shipping` 與 `paymentMethod` 採部分更新；未提供的欄位保留原值。
+- Request 至少要提供一個收件欄位或 `paymentMethod`。
+- 收件欄位若有提供，不可為空白；長度上限分別為姓名 `100`、電話 `32`、地址 `500`。
+- 更新交易使用訂單悲觀鎖，避免與付款、取消或 C-6 逾時排程互相覆蓋。
+- 回應中的 `couponClaimId` 在優惠券功能完成前固定為 `null`。
+- 不可修改 `items` 數量；要改商品請先 cancel 再重新建立 Checkout。
 
 ---
 
@@ -136,6 +156,15 @@
 | `confirm-cod` | `paymentMethod=cod`，`checkoutStep=ready_to_pay` | 確認下單；**仍 unpaid** 直到履約；保留帳維持至履約規則（見 Payment／Order） |
 | `ecpay` | 非 `cod`，`ready_to_pay` | 回傳綠界表單欄位（見 Payment 契約）；不代表已付款 |
 | `cancel` | unpaid | 訂單取消、保留帳 `released`／`expired` |
+
+### 4.1 自動逾時規則
+
+- 排程預設每 `60000` 毫秒掃描一次，期限判斷包含 `checkoutExpiresAt <= now`。
+- 只有 `paymentStatus=unpaid`、尚未取消且已達期限的訂單會被處理。
+- 同一交易內將 `orders.status` 改為 `cancelled`、active 保留帳改為 `expired`，並設定 `releasedAt=now`。
+- `order_status_history` 新增一筆 `cancelled`，固定 `note="Checkout expired"`。
+- `checkoutExpiresAt` 保留原值供稽核；重複掃描不重複修改資料或新增歷程。
+- 會員主動取消使用 `released`；排程自動逾時使用 `expired`，兩者語意不可混用。
 
 ---
 
@@ -176,5 +205,7 @@
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.4 | 2026-07-21 | C-4：完成收件資料與付款方式 PATCH；優惠券套用明確延後至 F-2 |
+| 0.3 | 2026-07-21 | C-6：鎖定自動逾時條件、`expired` 保留帳、狀態歷程與冪等規則 |
 | 0.2 | 2026-07-20 | C-2：冪等鍵必填、重送回放、Payload 衝突與空值保障 |
 | 0.1 | 2026-07-20 | D1.A + 15 分 + pricing 字串金額 |

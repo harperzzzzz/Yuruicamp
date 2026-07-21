@@ -1,9 +1,13 @@
 # 請先讀取:
 - /plans/java-backend-architecture-proposal.md 
+- /plans/data-integration-spec.md
 - /docs/api/README.md
 - /backend/README.md
 - /docs/api/order-api-contract.md
+- /docs/seed/README.md
 - /plans/backend-implementation-checklist.md
+
+
 
 # 限制條件:
 - 執行完任務將所有相關文件更新。
@@ -17,3 +21,24 @@
     - 成員變數與方法之間：一定要空一行。
     - 方法與方法之間：一定要空一行。
     - 方法內部的邏輯區塊：用一個空行隔開「參數驗證」、「業務邏輯」、「回傳結果」。
+- 不要破壞backend 文件層架構，嚴格遵守
+- 只使用spring boot 現有的依賴和套件不要新增其他的。
+
+- 有新增seed 資料的話遵守以下架構不要破壞。
+docs/seed/
+├── README.md
+├── 002-dev-seed.sql          # 統一入口，只負責依序載入
+└── dev/
+    ├── 010-reference.sql     # 品牌、分類、分店、庫位等基礎資料
+    ├── 020-identity.sql      # 開發會員、管理員
+    ├── 030-catalog.sql       # equipment、products、variants、images
+    ├── 040-inventory.sql     # inventory_stocks
+    ├── 050-coupons.sql       # 優惠券展示資料
+    ├── 060-orders.sql        # 可選：開發展示訂單
+    └── 070-bookings.sql      # 可選：開發展示預約
+
+- 所有文件敘述都用/docs/seed/README.md 的方式去參考
+
+# 預期目標:
+- 嚴格遵守限制條件完成任務
+- 完成任務後，在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。

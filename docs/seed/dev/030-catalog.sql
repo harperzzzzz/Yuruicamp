@@ -1,23 +1,5 @@
--- Generated from frontend/data/catalog/products.json. Do not hand-edit.
--- Source values are development fixtures; verify via GET /api/products before release.
-BEGIN;
-
-INSERT INTO public.product_categories (id, code, name, sort_order) OVERRIDING SYSTEM VALUE VALUES
-  (1, 'tent', '帳篷', 0),
-  (2, 'sleeping-bag', '睡袋', 1),
-  (3, 'cookware', '炊具', 2),
-  (4, 'lighting', '燈具', 3),
-  (5, 'backpack', '背包', 4),
-  (6, 'other', '其他', 5)
-ON CONFLICT DO NOTHING;
-SELECT setval('public.product_categories_id_seq', GREATEST((SELECT max(id) FROM public.product_categories), 1), true);
-
-INSERT INTO public.brands (id, name, logo_url, sort_order) VALUES
-  ('coleman', 'Coleman', NULL, 0),
-  ('msr', 'MSR', NULL, 1),
-  ('yuruicamp', 'Yuruicamp', NULL, 2),
-  ('snow-peak', 'Snow Peak', NULL, 3)
-ON CONFLICT DO NOTHING;
+-- 開發環境商品目錄資料；由 002-dev-seed.sql 統一載入。
+-- 固定 ID 與預期價格請同步核對 docs/data/product-catalog-seed-manifest.md。
 
 INSERT INTO public.equipment_items (id, category_id, brand_id, name, description, active) VALUES ('E001', 1, 'coleman', 'Coleman 六人帳篷', '<p>適合露營使用。</p>', true) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.products (id, status, item_id) VALUES ('P001', 'active', 'E001') ON CONFLICT (id) DO NOTHING;
@@ -321,44 +303,3 @@ INSERT INTO public.equipment_interest_tags (item_id, tag) VALUES ('E030', 'safet
 INSERT INTO public.equipment_tags (item_id, tag) VALUES ('E030', '其他') ON CONFLICT (item_id, tag) DO NOTHING;
 INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V030-01', 'P030', 'P030-01', '50入', NULL, 199.00, '50入', 'inactive') ON CONFLICT (id) DO NOTHING;
 
--- 建立 Swagger Checkout 可使用的門市庫位與 V001 庫存。
-INSERT INTO public.inventory_locations (
-    id,
-    code,
-    inventory_domain,
-    type,
-    branch_id,
-    name,
-    active
-)
-VALUES (
-    'DEV-STORE-MAIN',
-    'DEV-STORE-MAIN',
-    'store',
-    'main',
-    NULL,
-    '開發測試主倉',
-    true
-)
-ON CONFLICT (id) DO UPDATE SET
-    name = EXCLUDED.name,
-    active = EXCLUDED.active,
-    updated_at = now();
-
-INSERT INTO public.inventory_stocks (
-    location_id,
-    variant_id,
-    on_hand_quantity,
-    inventory_domain
-)
-VALUES (
-    'DEV-STORE-MAIN',
-    'V001',
-    10,
-    'store'
-)
-ON CONFLICT (location_id, variant_id) DO UPDATE SET
-    on_hand_quantity = EXCLUDED.on_hand_quantity,
-    updated_at = now();
-
-COMMIT;

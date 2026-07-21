@@ -20,7 +20,7 @@
 | **契約** | P0+P1 API Contracts（甲） | ✅ 見 [`docs/api/README.md`](../docs/api/README.md) |
 | **A** | 骨架（Security／Session／Envelope／OpenAPI） | ✅ |
 | **B** | Catalog 公開讀（商品） | 🔄 B-1～B-3、B-5a 已完成；B-4、B-5b～B-7 待做 |
-| **C** | Checkout + 庫存保留 + 15 分排程 | 🔄 C-1／C-2／C-3／C-5／C-7 已驗收；C-4／C-6／C-8 待完成 |
+| **C** | Checkout + 庫存保留 + 15 分排程 | ✅ C-1～C-8 已驗收；C-4 優惠券套用另待 F-2 |
 | **D** | Payment（ECPay + COD） | ⬜（契約已鎖） |
 | **E** | Booking（營位 + 租借） | ⬜（契約已鎖） |
 | **F** | Coupon 三種規則 | ⬜（契約已鎖） |
@@ -92,13 +92,13 @@
 - [x] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`（Hibernate `ddl-auto=validate` + Docker PostgreSQL 整合測試通過）
 - [x] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳；會員層冪等、Payload 指紋與空值保障已驗收）
 - [x] C-3 交易內悲觀鎖／防超賣（PostgreSQL 雙執行緒競爭最後一件庫存，只有一筆成功）
-- [ ] C-4 `PATCH .../sessions/{orderId}`
+- [x] C-4 `PATCH .../sessions/{orderId}`（收件資料、付款方式、本人限制、期限檢查與悲觀鎖已完成；**優惠券功能尚未完成，等待 F-2**）
 - [x] C-5 `POST .../cancel`（PostgreSQL 驗證保留帳由 `active` 改為 `released`）
-- [ ] C-6 `@Scheduled` 15 分鐘逾時釋放
+- [x] C-6 `@Scheduled` 15 分鐘逾時釋放（每分鐘掃描；訂單鎖定、取消、保留帳 `expired` 與歷程同交易完成）
 - [x] C-7 金額後端重算（偽造 `unitPrice`／`total` 不會覆蓋資料庫價格）
-- [ ] C-8 整合測試：鎖庫與超賣已完成；逾時排程仍待 C-6
+- [x] C-8 整合測試：鎖庫、超賣、逾時取消、庫存恢復與重複執行冪等皆通過真正 PostgreSQL 驗證
 
-> C-1／C-2／C-3／C-5／C-7 已於 2026-07-20 通過 PostgreSQL 驗收。C-1 見 [`c1-entity-schema-validation.md`](../docs/backend-specs/order/c1-entity-schema-validation.md)，C-2 見 [`c2-create-checkout-idempotency.md`](../docs/backend-specs/checkout/c2-create-checkout-idempotency.md)，庫存與金額見 [`c3-c5-c7-postgresql-validation.md`](../docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md)。
+> C-1／C-2／C-3／C-5／C-7 已於 2026-07-20 通過 PostgreSQL 驗收；C-4／C-6／C-8 已於 2026-07-21 通過。C-1 見 [`c1-entity-schema-validation.md`](../docs/backend-specs/order/c1-entity-schema-validation.md)；C-2～C-8 的唯一整合流程與驗收文件見 [`checkout/README.md`](../docs/backend-specs/checkout/README.md)。
 
 ---
 
@@ -128,7 +128,7 @@
 ## 線 F — Coupon（P1）
 
 - [ ] F-1 可領列表／我的券
-- [ ] F-2 結帳三種券規則（後端重算）
+- [ ] F-2 結帳三種券規則（後端重算；包含補齊 C-4 `couponClaimId` 套用／清除功能）
 - [ ] F-3 與 DB Trigger 不打架
 - [ ] F-4 測試：灌水／重複用券
 

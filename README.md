@@ -21,9 +21,10 @@
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
 - Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
-- C-2 流程與驗收見 [`docs/backend-specs/checkout/c2-create-checkout-idempotency.md`](./docs/backend-specs/checkout/c2-create-checkout-idempotency.md)。
+- Checkout C-2～C-8 的完整流程、規則與驗收入口見 [`docs/backend-specs/checkout/README.md`](./docs/backend-specs/checkout/README.md)。
+- Checkout 線 C 的 C-4 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料與付款方式，並以悲觀鎖避免和逾時排程互相覆蓋；優惠券套用尚未完成，等待 F-2。
 - Checkout 線 C 的 C-3、C-5、C-7 已完成：PostgreSQL 併發防超賣、取消釋放保留帳及後端價格重算均已通過整合測試。
-- C-3、C-5、C-7 流程與結果見 [`docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md`](./docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md)；C-6 逾時排程仍待實作。
+- Checkout 線 C 的 C-6、C-8 已完成：每分鐘掃描滿 15 分鐘的未付款訂單，交易內取消訂單、將保留帳改為 `expired` 並釋放庫存；PostgreSQL 逾時與冪等驗收已通過。
 - 開發 Seed 已提供 `DEV-STORE-MAIN` 與 `V001` 的 `10` 件庫存，可直接從 Swagger 驗證 Checkout。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
@@ -143,6 +144,7 @@ docker compose down -v
 compose 在**資料卷第一次建立**時，會自動執行：
 
 - [`docs/latest_schema.sql`](./docs/latest_schema.sql)（現行唯一 DDL；破壞性整檔重建）
+- [`docs/seed/002-dev-seed.sql`](./docs/seed/002-dev-seed.sql)（開發資料唯一入口；依序載入 `docs/seed/dev/`）
 
 說明文件：
 
@@ -182,7 +184,8 @@ A: 不行。請用 `.env`（已在 `.gitignore`），範本用 `.env.example`。
 | [`docs/database-schema-guide.md`](./docs/database-schema-guide.md) | ER 圖、函式／Trigger、資料字典 |
 | [`docs/schema-enums.md`](./docs/schema-enums.md) | status / category 等 ENUM 允許值 |
 | [`docs/database-documents/`](./docs/database-documents/) | 各業務表領域說明 |
-| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md) | 假資料整合規格（定案摘要） |
+| [`docs/seed/README.md`](./docs/seed/README.md) | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md) | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則 |
 | [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準） |
 
 ```powershell
@@ -455,7 +458,8 @@ npm run normalize:data
 | [docs/database-schema-guide.md](docs/database-schema-guide.md) | ER 圖與資料字典導覽 |
 | [docs/schema-enums.md](docs/schema-enums.md) | 狀態／分類枚舉允許值 |
 | [docs/database-documents/](docs/database-documents/) | 各業務表領域說明（含快照欄位語意） |
-| [plans/data-integration-spec.md](plans/data-integration-spec.md) | 假資料整合規格與定案摘要 |
+| [docs/seed/README.md](docs/seed/README.md) | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [plans/data-integration-spec.md](plans/data-integration-spec.md) | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則 |
 | [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史） |
 
 ## 📋 專案概述

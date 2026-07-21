@@ -24,6 +24,7 @@ import com.yuruicamp.backend.catalog.domain.ProductVariant;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.checkout.api.CheckoutCreateRequest;
 import com.yuruicamp.backend.checkout.api.CheckoutSessionResponse;
+import com.yuruicamp.backend.checkout.api.CheckoutUpdateRequest;
 import com.yuruicamp.backend.checkout.infrastructure.CheckoutProductRepository;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
@@ -43,7 +44,7 @@ import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.order.infrastructure.OrderStatusHistoryRepository;
 
 @Service
-// 處理建立結帳、取消訂單與保留庫存。
+// 處理建立、更新、取消 Checkout 與保留庫存。
 public class CheckoutService {
 	private static final Duration HOLD = Duration.ofMinutes(15);
 	private static final String PENDING = "PENDING_CHECKOUT";
@@ -55,7 +56,7 @@ public class CheckoutService {
 	private final OrderStatusHistoryRepository histories;
 	private final EquipmentImageRepository images;
 
-	// 準備建立與取消結帳需要使用的資料庫元件。
+	// 準備 Checkout 流程需要使用的資料庫元件。
 	public CheckoutService(CustomerRepository customers, CheckoutProductRepository products,
 			InventoryStockRepository stocks, ProductStockReservationRepository reservations,
 			OrderRepository orders, OrderStatusHistoryRepository histories,
@@ -138,6 +139,39 @@ public class CheckoutService {
 		return toResponse(saved);
 	}
 
+	// 更新會員自己的未付款 Checkout 收件資料與付款方式。
+	@Transactional
+	public CheckoutSessionResponse update(String customerId, String orderId,
+			CheckoutUpdateRequest request) {
+		validateUpdateInput(customerId, orderId, request);
+		Order order = orders.findForCustomerForUpdate(orderId, customerId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.FORBIDDEN,
+						"Order not found or not owned by customer"));
+		Instant now = Instant.now();
+
+		if (order.getPaymentStatus() != PaymentStatus.unpaid) {
+			throw new BusinessException(ErrorCode.CONFLICT,
+					"Paid order cannot be updated here");
+		}
+		if (!order.isCheckoutEditable(now)) {
+			throw new BusinessException(ErrorCode.CHECKOUT_EXPIRED,
+					"Checkout is cancelled or expired");
+		}
+
+		CheckoutUpdateRequest.Shipping shipping = request.shipping();
+		if (shipping != null) {
+			order.updateShipping(
+					updatedValue(shipping.recipientName(), order.getRecipientName()),
+					updatedValue(shipping.phone(), order.getShippingPhone()),
+					updatedValue(shipping.address(), order.getShippingAddress()));
+		}
+		if (request.paymentMethod() != null) {
+			order.changePaymentMethod(parsePaymentMethod(request.paymentMethod()));
+		}
+
+		return toResponse(order);
+	}
+
 	// 取消會員自己的未付款訂單，並釋放庫存。
 	@Transactional
 	public CheckoutSessionResponse cancel(String customerId, String orderId) {
@@ -152,7 +186,7 @@ public class CheckoutService {
 		Instant now = Instant.now();
 		order.cancel();
 		reservations.findActiveByOrderItemIdIn(order.getItems().stream().map(OrderItem::getId).toList())
-				.forEach(reservation -> reservation.release("released", now));
+				.forEach(reservation -> reservation.release(now));
 		histories.save(OrderStatusHistory.of(orderId, OrderStatus.cancelled, now, "Cancelled by customer"));
 
 		return toResponse(order);
@@ -187,6 +221,54 @@ public class CheckoutService {
 						"Each checkout item requires variantId and a positive quantity");
 			}
 		}
+	}
+
+	// 檢查更新請求至少包含一個可修改欄位，且暫時不接受優惠券。
+	private static void validateUpdateInput(String customerId, String orderId,
+			CheckoutUpdateRequest request) {
+		if (customerId == null || customerId.isBlank()
+				|| orderId == null || orderId.isBlank()
+				|| request == null) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"customerId, orderId and request are required");
+		}
+		if (request.couponClaimId() != null) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"couponClaimId is not supported until the coupon checkout flow is implemented");
+		}
+
+		boolean hasShippingUpdate = request.shipping() != null
+				&& (request.shipping().recipientName() != null
+						|| request.shipping().phone() != null
+						|| request.shipping().address() != null);
+		boolean hasPaymentUpdate = request.paymentMethod() != null;
+		if (!hasShippingUpdate && !hasPaymentUpdate) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"At least one shipping field or paymentMethod is required");
+		}
+		if (hasPaymentUpdate && request.paymentMethod().isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"paymentMethod must not be blank");
+		}
+		validateShippingValue(request.shipping() == null ? null : request.shipping().recipientName(),
+				"recipientName");
+		validateShippingValue(request.shipping() == null ? null : request.shipping().phone(),
+				"phone");
+		validateShippingValue(request.shipping() == null ? null : request.shipping().address(),
+				"address");
+	}
+
+	// 已提供的收件欄位不可只包含空白。
+	private static void validateShippingValue(String value, String field) {
+		if (value != null && value.isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					field + " must not be blank");
+		}
+	}
+
+	// 欄位未提供時保留原值，有提供時移除前後空白。
+	private static String updatedValue(String value, String currentValue) {
+		return value == null ? currentValue : value.trim();
 	}
 
 	// 合併相同規格的數量，並固定商品順序。
@@ -282,7 +364,7 @@ public class CheckoutService {
 		return new CheckoutSessionResponse(order.getId(), order.getPaymentStatus().name(),
 				order.getPaymentMethod().name().replace('_', '-'), order.getStatus().name(),
 				order.getCheckoutExpiresAt().toString(), pricing, items, shipping,
-				ready ? "ready_to_pay" : "draft");
+				null, ready ? "ready_to_pay" : "draft");
 	}
 
 	// 暫存建立庫存保留紀錄需要的資料。

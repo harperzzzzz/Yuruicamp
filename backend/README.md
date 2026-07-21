@@ -96,12 +96,11 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | **B-5a 基本商品規格** | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格 |
 | **B-5b 規格可售庫存** | ⬜ 尚未建立 variant 層級庫存讀模型與 API 欄位；見 [`B-5 狀態文件`](../docs/backend-specs/catalog/b5-product-variants-stock-status.md) |
 | **C-1 訂單／明細／庫存保留 Entity** | ✅ Hibernate `ddl-auto=validate` 已通過；見 [`C-1 驗收文件`](../docs/backend-specs/order/c1-entity-schema-validation.md) |
-| **C-2 建立 Checkout** | ✅ 會員層冪等、Payload 衝突偵測、空值保障；見 [`C-2 驗收文件`](../docs/backend-specs/checkout/c2-create-checkout-idempotency.md) |
-| **C-3／C-5／C-7 庫存與金額** | ✅ PostgreSQL 防超賣、取消釋放與後端價格重算已通過；見 [`整合驗收文件`](../docs/backend-specs/checkout/c3-c5-c7-postgresql-validation.md) |
+| **C-2～C-8 Checkout** | ✅ 建立冪等、防超賣、更新、取消、後端計價、15 分鐘逾時與 PostgreSQL 整合驗收均完成；優惠券套用尚待 F-2；見 [`Checkout 整合文件`](../docs/backend-specs/checkout/README.md) |
 | API 契約索引（P0+P1） | [`docs/api/README.md`](../docs/api/README.md) |
 | 商品契約（已實作） | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md) |
 | 代辦清單 A～J | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md) |
-| 結帳／ECPay／細 RBAC | 🔄 C-3 以後待實作／驗收 |
+| 結帳／ECPay／細 RBAC | 🔄 Checkout 線 C 已完成；優惠券、Payment 與細 RBAC 待實作 |
 
 ### Schema 整合驗證
 
@@ -109,16 +108,18 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 
 `DB_PASSWORD` 必須與 Docker `.env` 的 `POSTGRES_PASSWORD` 相同。若出現 `password authentication failed`，先修正連線密碼；不要修改 Entity，也不要將 `ddl-auto` 改成 `update`。
 
-### 開發用商品種子
+### 開發用資料種子
 
-全新 Docker volume 會自動跑 `docs/seed/002-dev-catalog.sql`，並建立 `V001` 的 `10` 件 Checkout 開發庫存。
+全新 Docker volume 會自動跑 [`docs/seed/002-dev-seed.sql`](../docs/seed/002-dev-seed.sql)，依序建立商品參考資料、商品目錄，以及 `V001` 的 `10` 件 Checkout 開發庫存。結構與 AI／開發者維護規則見 [`docs/seed/README.md`](../docs/seed/README.md)。
 既有資料庫請手動灌一次：
 
 ```powershell
-# PowerShell 管線可能弄壞 UTF-8 中文，請用 docker cp
-docker cp ..\docs\seed\002-dev-catalog.sql yuruicamp-db:/tmp/002-dev-catalog.sql
-docker exec yuruicamp-db psql -U postgres -d yuruicamp -v ON_ERROR_STOP=1 -f /tmp/002-dev-catalog.sql
+# 先讓 compose 套用 runner 與 dev/ 的唯讀掛載，再執行唯一入口
+docker compose up -d
+docker exec yuruicamp-db psql -U postgres -d yuruicamp -f /docker-entrypoint-initdb.d/002-dev-seed.sql
 ```
+
+重跑會將 `DEV-STORE-MAIN` 的 `V001` 現有庫存更新為 `10`，請先確認不需要保留手動測試狀態。
 
 驗收：
 
@@ -133,4 +134,6 @@ curl.exe http://localhost:8080/api/products/P001
 
 - `DB_URL` / `DB_USERNAME` / `DB_PASSWORD`
 - `FIREBASE_ENABLED` / `FIREBASE_CREDENTIALS`
+- `YURUICAMP_CHECKOUT_EXPIRATION_SCAN_MS` 對應 `yuruicamp.checkout.expiration-scan-ms`（預設 `60000` 毫秒）
+- `YURUICAMP_CHECKOUT_EXPIRATION_ENABLED` 對應 `yuruicamp.checkout.expiration-enabled`（預設 `true`）
 - `CORS_ALLOWED_ORIGINS`

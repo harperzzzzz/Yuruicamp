@@ -2,6 +2,8 @@
 
 > Generated from the legacy storefront fixture. It establishes repeatable development IDs and prices; API verification is still required before promoting the fixture to the public contract.
 
+SQL 資料位於 `docs/seed/dev/030-catalog.sql`，並由 `docs/seed/002-dev-seed.sql` 統一載入。
+
 | Product | Item | Variants (ID / SKU / price) | Status |
 |---|---|---|---|
 | P001 | E001 | V001 / TENT-OLIVE / 3200.00<br>V002 / TENT-SAND / 3300.00 | active |
