@@ -1,7 +1,8 @@
 # 前端認證與 REST 共用層
 
-> **協作者：** Firebase 分支合併進 `main` 後的影響範圍、Do/Don’t、過渡期 `YuruiApiHttp` 說明，見  
-> [`../firebase-merge-into-main-notes.md`](../firebase-merge-into-main-notes.md)。
+> **協作者：** Firebase 合併後的影響範圍、Do/Don’t、單一 HTTP 主幹說明，見  
+> [`../firebase-merge-into-main-notes.md`](../firebase-merge-into-main-notes.md)。  
+> 過渡層 `YuruiApiHttp`／`api-http.js` 已移除；登入與 REST 一律走 `AppAuth`／`ApiClient`。
 
 ## 用途
 

@@ -13,19 +13,26 @@
 
 ```text
 頁面／Facade（API、BookingAPI、AdminAPI）
-    → ApiClient._restRequest()     ← main 正式入口（請繼續用這個）
+    → ApiClient._restRequest()     ← 正式入口（請繼續用這個）
     → AppAuth.getIdToken()         ← 正式從 Firebase currentUser 取 token
     → Spring Boot
 ```
 
-Firebase 登入程式（`firebase-app.js`、登入按鈕）**還在**，會在初始化後注入：
+Firebase 登入程式（`firebase-app.js`、`auth.js`）會在初始化後注入：
 
 ```javascript
 window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 ```
 
-目前還有一層 **過渡期** 檔案 `api-http.js`（`YuruiApiHttp`），主要給舊的 `auth.js` 登入驗收用。  
-**新功能請不要再擴充 `YuruiApiHttp`**；應走 `ApiClient`／`AppAuth`。
+會員登入流程（已收斂，無過渡雙軌）：
+
+```text
+YuruiFirebase.signInWithProvider
+  → ApiClient POST /auth/firebase/session（auth: 'none'）
+  → ApiClient GET /me（auth: 'required'，Bearer 由 AppAuth）
+```
+
+過渡層 `api-http.js`／`YuruiApiHttp` **已移除**。請勿再加回第二套 HTTP。
 
 ---
 
@@ -53,12 +60,12 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 
 ### 3.1 不要再開第二條 HTTP 水管
 
-| 請用（正式） | 過渡／請勿擴充 |
-|--------------|----------------|
-| `window.ApiClient._restRequest(...)` | `window.YuruiApiHttp.apiFetch`／`fetchJson`／`fetchMe` |
-| `window.AppAuth.getIdToken()`／`configure()` | 在頁面裡自己 `fetch` + 手拼 Bearer（除非文件另有規定） |
+| 請用（正式） | 禁止 |
+|--------------|------|
+| `window.ApiClient._restRequest(...)` | 自製 `fetch` + 手拼 Bearer（除非文件另有規定） |
+| `window.AppAuth.getIdToken()`／`configure()` | 新增平行於 `ApiClient` 的 HTTP 包裝（例如舊的 `YuruiApiHttp`） |
 
-**為什麼：** 若一邊走 `ApiClient`、一邊走 `YuruiApiHttp`，之後 token、Envelope、錯誤碼會不一致，合併衝突也會再來一次。
+**為什麼：** 若一邊走 `ApiClient`、一邊另寫 fetch，之後 token、Envelope、錯誤碼會不一致，合併衝突也會再來一次。
 
 ### 3.2 Booking 共用腳本清單（最容易漏頁）
 
@@ -95,7 +102,7 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 
 漏掉 `api-client.js` 時，常見症狀：`ApiClient not loaded`、Booking REST 全掛。
 
-### 3.3 登入／Auth UI（過渡雙軌）
+### 3.3 登入／Auth UI
 
 相關檔案：
 
@@ -103,13 +110,9 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 |------|------|
 | `frontend/storefront/js/firebase-app.js` | Firebase 初始化，`window.YuruiFirebase` |
 | `frontend/storefront/js/api-client.js` | **正式** AppAuth + ApiClient |
-| `frontend/storefront/js/api-http.js` | **過渡** YuruiApiHttp（登入驗收仍用） |
-| `frontend/storefront/js/components/auth.js` | 登入按鈕／session／部分仍呼叫 YuruiApiHttp |
-| `frontend/storefront/js/main.js` | 商城：Firebase → `AppAuth.configure` →（暫）載 api-http → auth.js |
+| `frontend/storefront/js/components/auth.js` | 登入按鈕／session／`YuruiAuth` UI 狀態（內部走 ApiClient） |
+| `frontend/storefront/js/main.js` | 商城：Firebase → `AppAuth.configure` → auth.js |
 | `frontend/booking/js/layout.js` | 預約：同上注入邏輯 |
-
-**改登入流程前請先問／先讀：** 不要刪掉 `api-http.js` 卻沒把 `auth.js` 改完，否則 Google／LINE 登入會壞。  
-後續收斂目標（另開 PR 即可）：`auth.js` 只走 `AppAuth`／`ApiClient`，再移除或薄化 `api-http.js`。
 
 ### 3.4 本機環境變數（前後端都要對齊）
 
@@ -162,9 +165,9 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 
 ### Don’t
 
-- 不要新增「第三套」fetch 包裝跟 `ApiClient` 搶入口
+- 不要新增「第二套」fetch 包裝跟 `ApiClient` 搶入口
 - 不要在 Booking HTML 重複貼 `config.js`／`api-client.js`／`booking-api.js`
-- 不要在未收斂前直接刪除 `api-http.js` 或大幅改 `auth.js` 卻不測登入
+- 不要重新引入已移除的 `api-http.js`／`YuruiApiHttp`
 - 不要提交 `.env`／`.env.local`／service account JSON／真實 token
 
 ---
@@ -173,8 +176,8 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 
 1. 啟動後端（依需要開 Firebase）+ `frontend` 的 `npm run dev`
 2. 商城任一頁：Console 無致命錯誤；若有 Firebase config，應看到 AppAuth 注入 log
-3. 預約頁（例如 `booking/pages/rental-guide.html`）：`window.AppConfig?.API_BASE_URL` 有值；`window.ApiClient` 存在
-4. 登入一顆 provider（若本機有設 Firebase）：session 打到 `localhost:8080`，不是 Vite
+3. 預約頁（例如 `booking/pages/rental-guide.html`）：`window.AppConfig?.API_BASE_URL` 有值；`window.ApiClient` 存在；`window.YuruiApiHttp` **應為 undefined**
+4. 登入一顆 provider（若本機有設 Firebase）：session 打到 `localhost:8080`，不是 Vite；Console 出現 `✓ GET /api/me OK (ApiClient)`
 5. 需登入的 API（例如會員／Checkout）：Request Header 有 `Authorization: Bearer ...`
 6. 後台若 `useBackend: true`：確認有載 `api-client.js` 且 Admin 請求走 `ApiClient`
 
@@ -185,15 +188,13 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 
 ---
 
-## 6. 已知後續工作（不阻擋合併，但請排程）
+## 6. 已知後續工作（不阻擋合併）
 
 | 項目 | 說明 |
 |------|------|
-| 收斂 `auth.js` | 改為使用 `AppAuth`／`ApiClient`，少依賴 `YuruiApiHttp` |
-| 薄化或移除 `api-http.js` | 雙軌消失後，main 更好維護 |
-| 文件／註解清理 | 標明「過渡」字樣可在收斂 PR 一併刪 |
-
-若你正在改登入，請優先做收斂 PR，避免別人在過渡層上繼續疊功能。
+| Admin Firebase 登入 UI | 後台 Google／白名單（見後台登入規格） |
+| Facebook 本機 HTTPS | Meta 擋 HTTP；正式站驗收 |
+| 拿掉業務頁 demo `U001` fallback | Checkout／會員中心對齊真實 `customerId` |
 
 ---
 
@@ -203,8 +204,7 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 |------|------|
 | `frontend/storefront/js/api-client.js` | AppAuth + ApiClient（正式） |
 | `frontend/storefront/js/firebase-app.js` | Firebase Web 初始化 |
-| `frontend/storefront/js/api-http.js` | YuruiApiHttp（過渡） |
-| `frontend/storefront/js/components/auth.js` | 登入 UI |
+| `frontend/storefront/js/components/auth.js` | 登入 UI（走 ApiClient） |
 | `frontend/booking/js/booking-core-scripts.js` | Booking 共用腳本同步注入 |
 | `frontend/booking/js/layout.js` | Booking layout + Firebase／AppAuth 注入 |
 | `frontend/admin/js/admin-api.js` | Admin → ApiClient |
@@ -221,6 +221,7 @@ window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 - [ ] Booking 新頁只使用 `booking-core-scripts.js`  
 - [ ] 未提交 secret／本機 token  
 - [ ] 若動到 auth／Firebase：煙霧測試第 5 節有跑過  
+- [ ] 程式碼中無 `YuruiApiHttp`／`api-http.js` 依賴  
 
 ---
 

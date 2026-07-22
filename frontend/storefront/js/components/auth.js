@@ -1,8 +1,12 @@
 /**
- * 主站與 booking 共用的前端登入狀態模組（步驟 2-3／3-x）。
+ * 主站與 booking 共用的前端登入狀態模組。
  * Shared auth — all providers via Firebase (no mock U001).
  *
- * Google／Facebook／LINE → Firebase popup → POST /auth/firebase/session → Bearer
+ * Google／Facebook／LINE → Firebase popup
+ *   → POST /auth/firebase/session（ApiClient, auth:none）
+ *   → GET /me 驗收（ApiClient, auth:required；Bearer 由 AppAuth）
+ *
+ * 正式 HTTP 只走 AppAuth + ApiClient（合併後 B 方案）；不再依賴 YuruiApiHttp。
  */
 (function () {
   'use strict';
@@ -49,6 +53,8 @@
   }
 
   function persistIdToken(idToken) {
+    // 保留本機複本方便除錯；正式 REST 以 AppAuth → Firebase currentUser 為準
+    // Keep a local copy for debugging; live REST uses AppAuth → Firebase currentUser
     if (idToken) {
       localStorage.setItem(STORAGE_KEYS.idToken, idToken);
     } else {
@@ -127,37 +133,62 @@
     };
   }
 
-  function sessionUrl() {
-    var base = String((window.AppConfig && window.AppConfig.API_BASE_URL) || '').replace(/\/$/, '');
-    return base + '/auth/firebase/session';
-  }
-
-  function sessionErrorMessage(body, status) {
-    if (body && body.error && body.error.message) return body.error.message;
-    if (status === 401) {
-      return 'Invalid Firebase ID token（請確認後端 FIREBASE_ENABLED=true）';
+  /** Ensure AppAuth + ApiClient exist before session /me. */
+  function requireApiClient() {
+    if (!window.ApiClient || typeof window.ApiClient._restRequest !== 'function') {
+      throw new Error('ApiClient 尚未載入。請確認頁面已引入 /storefront/js/api-client.js');
     }
-    return '登入失敗（HTTP ' + status + '）';
   }
 
+  /** Ensure Firebase Auth is wired into AppAuth so Bearer works. */
+  function ensureAppAuthWired() {
+    if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
+      return;
+    }
+    if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function') {
+      return;
+    }
+    if (!window.YuruiFirebase.isReady()) {
+      return;
+    }
+    try {
+      window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
+    } catch (error) {
+      console.warn('[YuruiAuth] AppAuth.configure 略過:', error);
+    }
+  }
+
+  function sessionErrorMessage(error) {
+    if (error && error.message) return error.message;
+    return '登入失敗';
+  }
+
+  /**
+   * 登入後用正式水管驗 Bearer：GET /api/me
+   * Post-login probe via ApiClient (AppAuth Bearer).
+   */
   function verifySessionWithMe() {
-    if (!window.YuruiApiHttp || typeof window.YuruiApiHttp.fetchMe !== 'function') {
-      console.warn('[YuruiAuth] YuruiApiHttp 尚未載入，跳過 /api/me 驗收');
+    if (!window.ApiClient || typeof window.ApiClient._restRequest !== 'function') {
+      console.warn('[YuruiAuth] ApiClient 尚未載入，跳過 /api/me 驗收');
       return Promise.resolve(null);
     }
-    return window.YuruiApiHttp.fetchMe()
+    ensureAppAuthWired();
+    return window.ApiClient._restRequest('/me', { auth: 'required' })
       .then(function (me) {
-        console.log('✓ GET /api/me OK', me);
+        console.log('✓ GET /api/me OK (ApiClient)', me);
         return me;
       })
       .catch(function (error) {
-        console.warn('✗ GET /api/me 失敗（登入 UI 仍可用）:', error && error.message ? error.message : error);
+        console.warn(
+          '✗ GET /api/me 失敗（登入 UI 仍可用）:',
+          error && error.message ? error.message : error
+        );
         return null;
       });
   }
 
   /**
-   * 任一 OAuth provider：Firebase → session → /api/me（步驟 3-1～3-3，已無 mock U001）。
+   * 任一 OAuth provider：Firebase → session → /api/me
    * @param {string} provider
    * @param {object} [options]
    */
@@ -175,26 +206,28 @@
       return Promise.reject(new Error('YuruiFirebase.signInWithProvider 不可用，請硬刷頁面'));
     }
 
+    try {
+      requireApiClient();
+    } catch (error) {
+      return Promise.reject(error);
+    }
+
     return window.YuruiFirebase.signInWithProvider(normalized)
       .then(function (firebaseResult) {
-        return fetch(sessionUrl(), {
+        // Session 公開端點：不帶 Bearer，只送 body.idToken
+        // Public session endpoint: auth none, body carries idToken
+        ensureAppAuthWired();
+        return window.ApiClient._restRequest('/auth/firebase/session', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idToken: firebaseResult.idToken })
-        }).then(function (response) {
-          return response.json().then(function (body) {
-            return { response: response, body: body, idToken: firebaseResult.idToken };
-          }).catch(function () {
-            throw new Error('伺服器回應格式錯誤');
-          });
+          auth: 'none',
+          body: { idToken: firebaseResult.idToken }
+        }).then(function (data) {
+          return { data: data, idToken: firebaseResult.idToken };
         });
       })
       .then(function (result) {
-        if (!result.response.ok || !result.body || result.body.success !== true) {
-          throw new Error(sessionErrorMessage(result.body, result.response.status));
-        }
         persistIdToken(result.idToken);
-        var user = finishLogin(mapSessionToUser(result.body.data), options, label);
+        var user = finishLogin(mapSessionToUser(result.data), options, label);
         return verifySessionWithMe().then(function () {
           return user;
         });
@@ -203,11 +236,14 @@
         if (error && error.name === 'TypeError') {
           throw new Error('無法連線伺服器，請確認後端已啟動（localhost:8080）');
         }
-        throw error;
+        if (error && error.code === 'API_NETWORK_ERROR') {
+          throw new Error('無法連線伺服器，請確認後端已啟動（localhost:8080）');
+        }
+        throw new Error(sessionErrorMessage(error));
       });
   }
 
-  /** 對外入口：三顆按鈕都走真 Firebase（步驟 3-3） */
+  /** 對外入口：三顆按鈕都走真 Firebase */
   function loginWithProvider(provider, options) {
     return loginWithFirebaseProvider(provider, options);
   }
@@ -241,23 +277,26 @@
     getUser: getUser,
     isLoggedIn: isLoggedIn,
     getIdToken: getIdToken,
+    /** Prefer AppAuth (Firebase currentUser); fallback to stored token. */
     getValidIdToken: function (forceRefresh) {
-      if (window.YuruiApiHttp && typeof window.YuruiApiHttp.getValidIdToken === 'function') {
-        return window.YuruiApiHttp.getValidIdToken(forceRefresh);
+      if (window.AppAuth && typeof window.AppAuth.getIdToken === 'function') {
+        return window.AppAuth.getIdToken({
+          required: false,
+          forceRefresh: Boolean(forceRefresh)
+        }).catch(function () {
+          return getIdToken();
+        });
       }
       return Promise.resolve(getIdToken());
     },
-    apiFetch: function (url, options) {
-      if (window.YuruiApiHttp && typeof window.YuruiApiHttp.apiFetch === 'function') {
-        return window.YuruiApiHttp.apiFetch(url, options);
-      }
-      return fetch(url, options || {});
-    },
+    /**
+     * 薄轉接：新程式請直接用 ApiClient._restRequest。
+     * Thin adapter — prefer ApiClient for new code.
+     */
     fetchMe: function () {
-      if (window.YuruiApiHttp && typeof window.YuruiApiHttp.fetchMe === 'function') {
-        return window.YuruiApiHttp.fetchMe();
-      }
-      return Promise.reject(new Error('YuruiApiHttp 尚未載入'));
+      requireApiClient();
+      ensureAppAuthWired();
+      return window.ApiClient._restRequest('/me', { auth: 'required' });
     },
     verifySessionWithMe: verifySessionWithMe,
     loginWithProvider: loginWithProvider,
