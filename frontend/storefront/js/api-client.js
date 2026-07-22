@@ -1,5 +1,6 @@
 // ========================================
 // 前端認證與 REST 請求共用層
+// FA-2：401／Token 過期 → 刷新重試一次 → 仍失敗則清登入並導回登入
 // ========================================
 
 (function (global) {
@@ -7,6 +8,9 @@
 
   var configuredAuth = null;
   var configuredDevToken = '';
+  /** 避免並行 401 連續清狀態／開多次登入框 */
+  var lastSessionExpiredAt = 0;
+  var SESSION_EXPIRED_DEBOUNCE_MS = 2500;
 
   /**
    * 保存後端錯誤碼、欄位細節與 HTTP 狀態，讓頁面只處理一致的錯誤物件。
@@ -157,10 +161,126 @@
     );
   }
 
-  /** 通知管理頁 Firebase Token 已無法刷新，需要重新登入。 */
-  function notifyAuthExpired() {
-    if (typeof global.dispatchEvent !== 'function' || typeof global.CustomEvent !== 'function') return;
-    global.dispatchEvent(new global.CustomEvent('app-auth-expired'));
+  /** HTTP 401 或常見未授權錯誤碼 */
+  function isAuthFailure(error) {
+    if (!error) return false;
+    if (Number(error.status) === 401) return true;
+    var code = String(error.code || '').toUpperCase();
+    return (
+      code === 'UNAUTHORIZED'
+      || code === 'AUTH_TOKEN_UNAVAILABLE'
+      || code === 'INVALID_TOKEN'
+      || code === 'INVALID_FIREBASE_ID_TOKEN'
+    );
+  }
+
+  /** 目前是否在賣家後台路徑 */
+  function isAdminPath() {
+    try {
+      return String(global.location && global.location.pathname || '').indexOf('/admin/') !== -1;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  /**
+   * FA-2：登入失效時清狀態並導回登入（有 debounce，避免並行請求洗版）。
+   * @param {object} [options]
+   * @param {boolean} [options.silent] - 不顯示 toast（仍清狀態／開登入）
+   */
+  function notifySessionExpired(options) {
+    options = options || {};
+    var now = Date.now();
+    if (now - lastSessionExpiredAt < SESSION_EXPIRED_DEBOUNCE_MS) {
+      return;
+    }
+    lastSessionExpiredAt = now;
+
+    console.warn('[ApiClient] 登入已失效（401），清本機狀態並請重新登入');
+
+    if (isAdminPath()) {
+      var goAdminLogin = function () {
+        try {
+          global.location.href = '/admin/login.html';
+        } catch (error) {
+          // ignore
+        }
+      };
+
+      if (global.AdminAuth && typeof global.AdminAuth.logout === 'function') {
+        Promise.resolve(global.AdminAuth.logout()).finally(goAdminLogin);
+      } else {
+        try {
+          sessionStorage.removeItem('adminLoggedIn');
+          sessionStorage.removeItem('adminId');
+          sessionStorage.removeItem('adminName');
+          sessionStorage.removeItem('isSuperAdmin');
+          sessionStorage.removeItem('adminPermissions');
+          sessionStorage.removeItem('adminAuthSource');
+        } catch (error) {
+          // ignore
+        }
+        goAdminLogin();
+      }
+      return;
+    }
+
+    // 商城／預約：清會員狀態（含 Firebase signOut）
+    var clearPromise = Promise.resolve();
+    if (global.YuruiAuth && typeof global.YuruiAuth.logout === 'function') {
+      clearPromise = Promise.resolve(
+        global.YuruiAuth.logout({ showToast: false })
+      ).catch(function (error) {
+        console.warn('[ApiClient] YuruiAuth.logout 失敗（繼續開登入）:', error);
+      });
+    } else {
+      try {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('yuruiUser');
+        localStorage.removeItem('yuruiFirebaseIdToken');
+      } catch (error) {
+        // ignore
+      }
+      if (global.AppState) {
+        global.AppState.isLoggedIn = false;
+        global.AppState.currentUser = null;
+      }
+      try {
+        global.dispatchEvent(new CustomEvent('yurui:auth-changed', {
+          detail: { type: 'logout', user: null, reason: 'session-expired' }
+        }));
+      } catch (error) {
+        // ignore
+      }
+    }
+
+    clearPromise.finally(function () {
+      if (!options.silent && typeof global.showToast === 'function') {
+        global.showToast('登入已過期，請重新登入', 'warning');
+      }
+      if (typeof global.openModal === 'function') {
+        global.openModal('loginModal');
+      }
+    });
+  }
+
+  /**
+   * 是否應在此錯誤上做 FA-2（登入 session／公開端點的 401 不要踢人）。
+   */
+  function shouldHandleSessionExpired(authMode, error) {
+    if (authMode === 'none') return false;
+    return isAuthFailure(error);
+  }
+
+  /**
+   * 尚有 Firebase currentUser 時，強制刷新 ID Token 後重試一次。
+   */
+  function canRetryWithFreshToken(settings) {
+    if (settings.__authRetried) return false;
+    if (settings.auth === 'none') return false;
+    var auth = resolveFirebaseAuth();
+    return Boolean(auth && auth.currentUser && typeof auth.currentUser.getIdToken === 'function');
   }
 
   /**
@@ -182,15 +302,23 @@
       headers.set('Content-Type', 'application/json');
     }
 
-    if (authMode !== 'none') {
-      var token = await AppAuth.getIdToken({
-        required: authMode === 'required',
-        forceRefresh: settings.forceRefresh === true,
-      });
+    try {
+      if (authMode !== 'none') {
+        var token = await AppAuth.getIdToken({
+          required: authMode === 'required',
+          forceRefresh: settings.forceRefresh === true,
+        });
 
-      if (token) {
-        headers.set('Authorization', 'Bearer ' + token);
+        if (token) {
+          headers.set('Authorization', 'Bearer ' + token);
+        }
       }
+    } catch (tokenError) {
+      // auth:required 但完全沒有 token → 請重新登入
+      if (shouldHandleSessionExpired(authMode, tokenError)) {
+        notifySessionExpired();
+      }
+      throw tokenError;
     }
 
     if (body !== undefined && body !== null) {
@@ -247,22 +375,52 @@
     try {
       json = await response.json();
     } catch (cause) {
-      throw new ApiRequestError(
+      var invalidError = new ApiRequestError(
         'API_RESPONSE_INVALID',
         '後端回應不是有效的 JSON。',
         [],
         response.status,
         cause
       );
+      if (shouldHandleSessionExpired(authMode, invalidError) && response.status === 401) {
+        if (canRetryWithFreshToken(settings)) {
+          return _restRequest(path, Object.assign({}, settings, {
+            __authRetried: true,
+            forceRefresh: true,
+          }));
+        }
+        notifySessionExpired();
+      }
+      throw invalidError;
     }
 
     if (!response.ok || !json || json.success !== true) {
-      throw toApiError(
+      var apiError = toApiError(
         response,
         json,
         'API_REQUEST_FAILED',
         'API request failed'
       );
+
+      if (shouldHandleSessionExpired(authMode, apiError)) {
+        // FA-2：先強制刷新 Firebase ID Token 再打一次；仍 401 才踢回登入
+        if (canRetryWithFreshToken(settings)) {
+          try {
+            return await _restRequest(path, Object.assign({}, settings, {
+              __authRetried: true,
+              forceRefresh: true,
+            }));
+          } catch (retryError) {
+            if (shouldHandleSessionExpired(authMode, retryError)) {
+              notifySessionExpired();
+            }
+            throw retryError;
+          }
+        }
+        notifySessionExpired();
+      }
+
+      throw apiError;
     }
 
     if (settings.includeMeta) {
@@ -279,6 +437,9 @@
   global.AppAuth = AppAuth;
   global.ApiClient = {
     _restRequest: _restRequest,
+    /** FA-2：供測試或特殊頁面手動觸發「登入失效」處理 */
+    notifySessionExpired: notifySessionExpired,
+    isAuthFailure: isAuthFailure,
   };
 })(typeof window !== 'undefined' ? window : this);
 

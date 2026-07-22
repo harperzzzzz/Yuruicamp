@@ -58,4 +58,13 @@
    AppAuth.configure({ devToken: '' });
    ```
 
+9. **FA-2（可選）**：模擬登入失效（需已載入 auth／modal）：
+
+   ```javascript
+   ApiClient.notifySessionExpired();
+   ```
+
+   商城／預約：應出現 toast「登入已過期」、登入 Modal 開啟，且本機登入狀態被清掉。  
+   後台頁：應導向 `/admin/login.html`。
+
 這項手動驗證可確認瀏覽器、CORS、Bearer Header、後端 Envelope 與錯誤格式真的串通；Node 測試則負責穩定驗證 Firebase Token、dev Token、URL、body 與錯誤物件，兩者用途不同且都需要保留。
