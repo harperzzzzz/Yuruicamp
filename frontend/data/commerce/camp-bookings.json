@@ -33,8 +33,8 @@
         "subtotal": 1800,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
@@ -77,7 +77,7 @@
       "checkIn": "2026-03-26",
       "checkOut": "2026-03-27",
       "totalDays": 1,
-      "weekdayCount": 0,
+      "weekdayCount": 1,
       "holidayCount": 0,
       "guestCount": 6
     },
@@ -86,15 +86,15 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 1700
+        "subtotal": 1100
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 1700,
+      "zoneTotal": 1100,
       "rentalTotal": 0,
       "appliedDiscount": 59,
-      "finalAmount": 1641
+      "finalAmount": 1041
     },
     "history": [
       {
@@ -140,7 +140,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 2200
+        "subtotal": 1500
       }
     ],
     "selectedRentals": [
@@ -151,16 +151,16 @@
         "subtotal": 300,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
     "summary": {
-      "zoneTotal": 2200,
+      "zoneTotal": 1500,
       "rentalTotal": 300,
       "appliedDiscount": 0,
-      "finalAmount": 2500
+      "finalAmount": 1800
     },
     "history": [
       {
@@ -197,8 +197,8 @@
       "checkIn": "2026-03-26",
       "checkOut": "2026-03-29",
       "totalDays": 3,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 1,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -206,15 +206,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 2,
-        "subtotal": 30000
+        "subtotal": 27000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 30000,
+      "zoneTotal": 27000,
       "rentalTotal": 0,
       "appliedDiscount": 62,
-      "finalAmount": 29938
+      "finalAmount": 26938
     },
     "history": [
       {
@@ -252,7 +252,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 4400
+        "subtotal": 3700
       }
     ],
     "selectedRentals": [
@@ -260,30 +260,30 @@
         "equipmentId": "E025",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 1500,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       },
       {
         "equipmentId": "E023",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 1000,
+        "subtotal": 1500,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
     "summary": {
-      "zoneTotal": 4400,
-      "rentalTotal": 1600,
+      "zoneTotal": 3700,
+      "rentalTotal": 3000,
       "appliedDiscount": 0,
-      "finalAmount": 6000
+      "finalAmount": 6700
     },
     "history": [
       {
@@ -310,8 +310,8 @@
       "checkIn": "2026-03-29",
       "checkOut": "2026-03-31",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 2,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -319,15 +319,15 @@
         "zoneId": "Z002",
         "zoneType": "雨棚區",
         "quantity": 1,
-        "subtotal": 3600
+        "subtotal": 2400
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 3600,
+      "zoneTotal": 2400,
       "rentalTotal": 0,
       "appliedDiscount": 71,
-      "finalAmount": 3529
+      "finalAmount": 2329
     },
     "history": [
       {
@@ -362,7 +362,7 @@
       "checkIn": "2026-04-15",
       "checkOut": "2026-04-17",
       "totalDays": 2,
-      "weekdayCount": 1,
+      "weekdayCount": 2,
       "holidayCount": 0,
       "guestCount": 2
     },
@@ -371,15 +371,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 1,
-        "subtotal": 10000
+        "subtotal": 7000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 10000,
+      "zoneTotal": 7000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 10000
+      "finalAmount": 7000
     },
     "history": [
       {
@@ -414,7 +414,7 @@
       "checkIn": "2026-03-28",
       "checkOut": "2026-03-31",
       "totalDays": 3,
-      "weekdayCount": 0,
+      "weekdayCount": 2,
       "holidayCount": 1,
       "guestCount": 6
     },
@@ -423,7 +423,7 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 5100
+        "subtotal": 3900
       }
     ],
     "selectedRentals": [
@@ -434,16 +434,16 @@
         "subtotal": 1800,
         "rentalSkuId": "R007",
         "productId": "P006",
-        "variantId": "v-P006-0",
-        "sku": "v-P006-0",
+        "variantId": "RSV-R007-01",
+        "sku": "RSV-R007-01",
         "specLabel": "鈦金屬原色"
       }
     ],
     "summary": {
-      "zoneTotal": 5100,
+      "zoneTotal": 3900,
       "rentalTotal": 1800,
       "appliedDiscount": 81,
-      "finalAmount": 6819
+      "finalAmount": 5619
     },
     "history": [
       {
@@ -476,8 +476,8 @@
       "checkIn": "2026-03-30",
       "checkOut": "2026-03-31",
       "totalDays": 1,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 1,
+      "holidayCount": 0,
       "guestCount": 6
     },
     "selectedZones": [
@@ -493,30 +493,30 @@
         "equipmentId": "E013",
         "name": "MSR 超輕量帳篷",
         "quantity": 2,
-        "subtotal": 3200,
+        "subtotal": 600,
         "rentalSkuId": "R002",
         "productId": "P002",
-        "variantId": "v-P002-0",
-        "sku": "v-P002-0",
+        "variantId": "RSV-R002-01",
+        "sku": "RSV-R002-01",
         "specLabel": "沙漠卡其"
       },
       {
         "equipmentId": "E011",
         "name": "Coleman 六人帳篷",
         "quantity": 1,
-        "subtotal": 300,
+        "subtotal": 500,
         "rentalSkuId": "R001",
         "productId": "P001",
-        "variantId": "v-P001-1",
-        "sku": "v-P001-1",
+        "variantId": "RSV-R001-02",
+        "sku": "RSV-R001-02",
         "specLabel": "沙漠棕"
       }
     ],
     "summary": {
       "zoneTotal": 1000,
-      "rentalTotal": 3500,
+      "rentalTotal": 1100,
       "appliedDiscount": 0,
-      "finalAmount": 4500
+      "finalAmount": 2100
     },
     "history": [
       {
@@ -551,8 +551,8 @@
       "checkIn": "2026-04-02",
       "checkOut": "2026-04-04",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 2
     },
     "selectedZones": [
@@ -560,7 +560,7 @@
         "zoneId": "Z004",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 2600
+        "subtotal": 2200
       }
     ],
     "selectedRentals": [
@@ -568,19 +568,19 @@
         "equipmentId": "E015",
         "name": "四季保暖睡袋",
         "quantity": 1,
-        "subtotal": 500,
+        "subtotal": 850,
         "rentalSkuId": "R004",
         "productId": "P012",
-        "variantId": "v-P012-0",
-        "sku": "v-P012-0",
+        "variantId": "RSV-R004-01",
+        "sku": "RSV-R004-01",
         "specLabel": "深藍 / M"
       }
     ],
     "summary": {
-      "zoneTotal": 2600,
-      "rentalTotal": 500,
+      "zoneTotal": 2200,
+      "rentalTotal": 850,
       "appliedDiscount": 87,
-      "finalAmount": 3013
+      "finalAmount": 2963
     },
     "history": [
       {
@@ -615,8 +615,8 @@
       "checkIn": "2026-04-06",
       "checkOut": "2026-04-08",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 5
     },
     "selectedZones": [
@@ -624,15 +624,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 2,
-        "subtotal": 20000
+        "subtotal": 14000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 20000,
+      "zoneTotal": 14000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 20000
+      "finalAmount": 14000
     },
     "history": [
       {
@@ -668,7 +668,7 @@
       "checkOut": "2026-03-31",
       "totalDays": 3,
       "weekdayCount": 2,
-      "holidayCount": 3,
+      "holidayCount": 1,
       "guestCount": 3
     },
     "selectedZones": [
@@ -676,7 +676,7 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 6000
+        "subtotal": 7000
       }
     ],
     "selectedRentals": [
@@ -684,19 +684,19 @@
         "equipmentId": "E010",
         "name": "Coleman 六人帳篷",
         "quantity": 2,
-        "subtotal": 1800,
+        "subtotal": 3600,
         "rentalSkuId": "R001",
         "productId": "P001",
-        "variantId": "v-P001-0",
-        "sku": "v-P001-0",
+        "variantId": "RSV-R001-01",
+        "sku": "RSV-R001-01",
         "specLabel": "深橄欖綠"
       }
     ],
     "summary": {
-      "zoneTotal": 6000,
-      "rentalTotal": 1800,
+      "zoneTotal": 7000,
+      "rentalTotal": 3600,
       "appliedDiscount": 135,
-      "finalAmount": 7665
+      "finalAmount": 10465
     },
     "history": [
       {
@@ -728,7 +728,7 @@
       "checkOut": "2026-04-21",
       "totalDays": 2,
       "weekdayCount": 2,
-      "holidayCount": 2,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -736,7 +736,7 @@
         "zoneId": "Z003",
         "zoneType": "碎石區",
         "quantity": 1,
-        "subtotal": 2400
+        "subtotal": 1600
       }
     ],
     "selectedRentals": [
@@ -744,19 +744,19 @@
         "equipmentId": "E016",
         "name": "四季保暖睡袋",
         "quantity": 1,
-        "subtotal": 1600,
+        "subtotal": 700,
         "rentalSkuId": "R004",
         "productId": "P012",
-        "variantId": "v-P012-1",
-        "sku": "v-P012-1",
+        "variantId": "RSV-R004-02",
+        "sku": "RSV-R004-02",
         "specLabel": "深藍 / L"
       }
     ],
     "summary": {
-      "zoneTotal": 2400,
-      "rentalTotal": 1600,
+      "zoneTotal": 1600,
+      "rentalTotal": 700,
       "appliedDiscount": 0,
-      "finalAmount": 4000
+      "finalAmount": 2300
     },
     "history": [
       {
@@ -796,15 +796,15 @@
         "zoneId": "Z002",
         "zoneType": "雨棚區",
         "quantity": 1,
-        "subtotal": 5400
+        "subtotal": 4200
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 5400,
+      "zoneTotal": 4200,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 5400
+      "finalAmount": 4200
     },
     "history": [
       {
@@ -831,8 +831,8 @@
       "checkIn": "2026-05-09",
       "checkOut": "2026-05-12",
       "totalDays": 3,
-      "weekdayCount": 0,
-      "holidayCount": 0,
+      "weekdayCount": 2,
+      "holidayCount": 1,
       "guestCount": 3
     },
     "selectedZones": [
@@ -840,15 +840,15 @@
         "zoneId": "Z012",
         "zoneType": "碎石區",
         "quantity": 1,
-        "subtotal": 2850
+        "subtotal": 3350
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 2850,
+      "zoneTotal": 3350,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 2850
+      "finalAmount": 3350
     },
     "history": [
       {
@@ -875,7 +875,7 @@
       "checkIn": "2026-05-05",
       "checkOut": "2026-05-08",
       "totalDays": 3,
-      "weekdayCount": 2,
+      "weekdayCount": 3,
       "holidayCount": 0,
       "guestCount": 2
     },
@@ -884,7 +884,7 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 2,
-        "subtotal": 10200
+        "subtotal": 6600
       }
     ],
     "selectedRentals": [
@@ -892,19 +892,19 @@
         "equipmentId": "E021",
         "name": "Snow Peak 鈦合金杯組",
         "quantity": 2,
-        "subtotal": 3200,
+        "subtotal": 1500,
         "rentalSkuId": "R007",
         "productId": "P006",
-        "variantId": "v-P006-0",
-        "sku": "v-P006-0",
+        "variantId": "RSV-R007-01",
+        "sku": "RSV-R007-01",
         "specLabel": "鈦金屬原色"
       }
     ],
     "summary": {
-      "zoneTotal": 10200,
-      "rentalTotal": 3200,
+      "zoneTotal": 6600,
+      "rentalTotal": 1500,
       "appliedDiscount": 0,
-      "finalAmount": 13400
+      "finalAmount": 8100
     },
     "history": [
       {
@@ -939,8 +939,8 @@
       "checkIn": "2026-04-24",
       "checkOut": "2026-04-26",
       "totalDays": 2,
-      "weekdayCount": 1,
-      "holidayCount": 1,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 6
     },
     "selectedZones": [
@@ -991,8 +991,8 @@
       "checkIn": "2026-04-27",
       "checkOut": "2026-04-29",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -1000,7 +1000,7 @@
         "zoneId": "Z006",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 4400
+        "subtotal": 2800
       }
     ],
     "selectedRentals": [
@@ -1008,19 +1008,19 @@
         "equipmentId": "E017",
         "name": "羽絨睡袋",
         "quantity": 1,
-        "subtotal": 300,
+        "subtotal": 800,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
     "summary": {
-      "zoneTotal": 4400,
-      "rentalTotal": 300,
+      "zoneTotal": 2800,
+      "rentalTotal": 800,
       "appliedDiscount": 0,
-      "finalAmount": 4700
+      "finalAmount": 3600
     },
     "history": [
       {
@@ -1056,7 +1056,7 @@
       "checkOut": "2026-04-28",
       "totalDays": 2,
       "weekdayCount": 2,
-      "holidayCount": 2,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -1064,15 +1064,15 @@
         "zoneId": "Z003",
         "zoneType": "碎石區",
         "quantity": 1,
-        "subtotal": 2400
+        "subtotal": 1600
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 2400,
+      "zoneTotal": 1600,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 2400
+      "finalAmount": 1600
     },
     "history": [
       {
@@ -1124,30 +1124,30 @@
         "equipmentId": "E019",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 1200,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       },
       {
         "equipmentId": "E017",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 1000,
+        "subtotal": 1200,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
     "summary": {
       "zoneTotal": 2200,
-      "rentalTotal": 1600,
+      "rentalTotal": 2400,
       "appliedDiscount": 0,
-      "finalAmount": 3800
+      "finalAmount": 4600
     },
     "history": [
       {
@@ -1175,7 +1175,7 @@
       "checkOut": "2026-05-15",
       "totalDays": 2,
       "weekdayCount": 2,
-      "holidayCount": 2,
+      "holidayCount": 0,
       "guestCount": 3
     },
     "selectedZones": [
@@ -1226,8 +1226,8 @@
       "checkIn": "2026-05-15",
       "checkOut": "2026-05-17",
       "totalDays": 2,
-      "weekdayCount": 1,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 4
     },
     "selectedZones": [
@@ -1235,7 +1235,7 @@
         "zoneId": "Z012",
         "zoneType": "碎石區",
         "quantity": 2,
-        "subtotal": 3800
+        "subtotal": 5800
       }
     ],
     "selectedRentals": [
@@ -1243,19 +1243,19 @@
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 2800,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
     "summary": {
-      "zoneTotal": 3800,
-      "rentalTotal": 600,
+      "zoneTotal": 5800,
+      "rentalTotal": 2800,
       "appliedDiscount": 166,
-      "finalAmount": 4234
+      "finalAmount": 8434
     },
     "history": [
       {
@@ -1286,8 +1286,8 @@
       "checkIn": "2026-05-19",
       "checkOut": "2026-05-22",
       "totalDays": 3,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 3,
+      "holidayCount": 0,
       "guestCount": 5
     },
     "selectedZones": [
@@ -1295,7 +1295,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 6600
+        "subtotal": 4500
       }
     ],
     "selectedRentals": [
@@ -1303,19 +1303,19 @@
         "equipmentId": "E025",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 1800,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       }
     ],
     "summary": {
-      "zoneTotal": 6600,
-      "rentalTotal": 600,
+      "zoneTotal": 4500,
+      "rentalTotal": 1800,
       "appliedDiscount": 0,
-      "finalAmount": 7200
+      "finalAmount": 6300
     },
     "history": [
       {
@@ -1351,7 +1351,7 @@
       "checkOut": "2026-05-13",
       "totalDays": 3,
       "weekdayCount": 3,
-      "holidayCount": 3,
+      "holidayCount": 0,
       "guestCount": 3
     },
     "selectedZones": [
@@ -1367,30 +1367,30 @@
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 1000,
+        "subtotal": 2700,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       },
       {
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 2700,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
     "summary": {
       "zoneTotal": 5700,
-      "rentalTotal": 1600,
+      "rentalTotal": 5400,
       "appliedDiscount": 131,
-      "finalAmount": 7169
+      "finalAmount": 10969
     },
     "history": [
       {
@@ -1425,8 +1425,8 @@
       "checkIn": "2026-05-13",
       "checkOut": "2026-05-15",
       "totalDays": 2,
-      "weekdayCount": 1,
-      "holidayCount": 2,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 4
     },
     "selectedZones": [
@@ -1434,7 +1434,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 8800
+        "subtotal": 6000
       }
     ],
     "selectedRentals": [
@@ -1442,19 +1442,19 @@
         "equipmentId": "E024",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 1200,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-1",
-        "sku": "v-P004-1",
+        "variantId": "RSV-R005-02",
+        "sku": "RSV-R005-02",
         "specLabel": "-5°C"
       }
     ],
     "summary": {
-      "zoneTotal": 8800,
-      "rentalTotal": 600,
+      "zoneTotal": 6000,
+      "rentalTotal": 1200,
       "appliedDiscount": 82,
-      "finalAmount": 9318
+      "finalAmount": 7118
     },
     "history": [
       {
@@ -1489,7 +1489,7 @@
       "checkIn": "2026-05-03",
       "checkOut": "2026-05-05",
       "totalDays": 2,
-      "weekdayCount": 1,
+      "weekdayCount": 2,
       "holidayCount": 0,
       "guestCount": 5
     },
@@ -1498,7 +1498,7 @@
         "zoneId": "Z006",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 4400
+        "subtotal": 2800
       }
     ],
     "selectedRentals": [
@@ -1506,19 +1506,19 @@
         "equipmentId": "E019",
         "name": "羽絨睡袋",
         "quantity": 1,
-        "subtotal": 900,
+        "subtotal": 800,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       }
     ],
     "summary": {
-      "zoneTotal": 4400,
-      "rentalTotal": 900,
+      "zoneTotal": 2800,
+      "rentalTotal": 800,
       "appliedDiscount": 0,
-      "finalAmount": 5300
+      "finalAmount": 3600
     },
     "history": [
       {
@@ -1550,7 +1550,7 @@
       "checkOut": "2026-05-03",
       "totalDays": 2,
       "weekdayCount": 0,
-      "holidayCount": 0,
+      "holidayCount": 2,
       "guestCount": 4
     },
     "selectedZones": [
@@ -1602,7 +1602,7 @@
       "checkOut": "2026-05-06",
       "totalDays": 2,
       "weekdayCount": 2,
-      "holidayCount": 2,
+      "holidayCount": 0,
       "guestCount": 4
     },
     "selectedZones": [
@@ -1610,7 +1610,7 @@
         "zoneId": "Z006",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 2200
+        "subtotal": 1400
       }
     ],
     "selectedRentals": [
@@ -1618,30 +1618,30 @@
         "equipmentId": "E018",
         "name": "羽絨睡袋",
         "quantity": 1,
-        "subtotal": 300,
+        "subtotal": 800,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-1",
-        "sku": "v-P004-1",
+        "variantId": "RSV-R005-02",
+        "sku": "RSV-R005-02",
         "specLabel": "-5°C"
       },
       {
         "equipmentId": "E019",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 1400,
+        "subtotal": 1600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       }
     ],
     "summary": {
-      "zoneTotal": 2200,
-      "rentalTotal": 1700,
+      "zoneTotal": 1400,
+      "rentalTotal": 2400,
       "appliedDiscount": 0,
-      "finalAmount": 3900
+      "finalAmount": 3800
     },
     "history": [
       {
@@ -1672,7 +1672,7 @@
       "checkIn": "2026-05-27",
       "checkOut": "2026-05-29",
       "totalDays": 2,
-      "weekdayCount": 1,
+      "weekdayCount": 2,
       "holidayCount": 0,
       "guestCount": 3
     },
@@ -1681,15 +1681,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 2,
-        "subtotal": 20000
+        "subtotal": 14000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 20000,
+      "zoneTotal": 14000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 20000
+      "finalAmount": 14000
     },
     "history": [
       {
@@ -1716,8 +1716,8 @@
       "checkIn": "2026-05-23",
       "checkOut": "2026-05-24",
       "totalDays": 1,
-      "weekdayCount": 1,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 1,
       "guestCount": 5
     },
     "selectedZones": [
@@ -1769,7 +1769,7 @@
       "checkOut": "2026-06-05",
       "totalDays": 1,
       "weekdayCount": 1,
-      "holidayCount": 1,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -1777,7 +1777,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 4400
+        "subtotal": 3000
       }
     ],
     "selectedRentals": [
@@ -1785,19 +1785,19 @@
         "equipmentId": "E024",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 3200,
+        "subtotal": 600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-1",
-        "sku": "v-P004-1",
+        "variantId": "RSV-R005-02",
+        "sku": "RSV-R005-02",
         "specLabel": "-5°C"
       }
     ],
     "summary": {
-      "zoneTotal": 4400,
-      "rentalTotal": 3200,
+      "zoneTotal": 3000,
+      "rentalTotal": 600,
       "appliedDiscount": 151,
-      "finalAmount": 7449
+      "finalAmount": 3449
     },
     "history": [
       {
@@ -1837,15 +1837,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 2,
-        "subtotal": 10000
+        "subtotal": 7000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 10000,
+      "zoneTotal": 7000,
       "rentalTotal": 0,
       "appliedDiscount": 76,
-      "finalAmount": 9924
+      "finalAmount": 6924
     },
     "history": [
       {
@@ -1876,8 +1876,8 @@
       "checkIn": "2026-06-10",
       "checkOut": "2026-06-12",
       "totalDays": 2,
-      "weekdayCount": 1,
-      "holidayCount": 2,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 5
     },
     "selectedZones": [
@@ -1885,7 +1885,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 4400
+        "subtotal": 3000
       }
     ],
     "selectedRentals": [
@@ -1893,19 +1893,19 @@
         "equipmentId": "E023",
         "name": "羽絨睡袋",
         "quantity": 1,
-        "subtotal": 500,
+        "subtotal": 600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
     "summary": {
-      "zoneTotal": 4400,
-      "rentalTotal": 500,
+      "zoneTotal": 3000,
+      "rentalTotal": 600,
       "appliedDiscount": 0,
-      "finalAmount": 4900
+      "finalAmount": 3600
     },
     "history": [
       {
@@ -1940,8 +1940,8 @@
       "checkIn": "2026-06-14",
       "checkOut": "2026-06-15",
       "totalDays": 1,
-      "weekdayCount": 0,
-      "holidayCount": 1,
+      "weekdayCount": 1,
+      "holidayCount": 0,
       "guestCount": 4
     },
     "selectedZones": [
@@ -1984,8 +1984,8 @@
       "checkIn": "2026-06-16",
       "checkOut": "2026-06-19",
       "totalDays": 3,
-      "weekdayCount": 1,
-      "holidayCount": 1,
+      "weekdayCount": 3,
+      "holidayCount": 0,
       "guestCount": 3
     },
     "selectedZones": [
@@ -1993,15 +1993,15 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 5100
+        "subtotal": 3300
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 5100,
+      "zoneTotal": 3300,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 5100
+      "finalAmount": 3300
     },
     "history": [
       {
@@ -2032,8 +2032,8 @@
       "checkIn": "2026-06-13",
       "checkOut": "2026-06-15",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 5
     },
     "selectedZones": [
@@ -2041,7 +2041,7 @@
         "zoneId": "Z004",
         "zoneType": "棧板區",
         "quantity": 2,
-        "subtotal": 5200
+        "subtotal": 4400
       }
     ],
     "selectedRentals": [
@@ -2049,30 +2049,30 @@
         "equipmentId": "E014",
         "name": "Snow Peak 客廳帳",
         "quantity": 1,
-        "subtotal": 300,
+        "subtotal": 550,
         "rentalSkuId": "R003",
         "productId": "P011",
-        "variantId": "v-P011-0",
-        "sku": "v-P011-0",
+        "variantId": "RSV-R003-01",
+        "sku": "RSV-R003-01",
         "specLabel": "象牙白"
       },
       {
         "equipmentId": "E016",
         "name": "四季保暖睡袋",
         "quantity": 1,
-        "subtotal": 1600,
+        "subtotal": 850,
         "rentalSkuId": "R004",
         "productId": "P012",
-        "variantId": "v-P012-1",
-        "sku": "v-P012-1",
+        "variantId": "RSV-R004-02",
+        "sku": "RSV-R004-02",
         "specLabel": "深藍 / L"
       }
     ],
     "summary": {
-      "zoneTotal": 5200,
-      "rentalTotal": 1900,
+      "zoneTotal": 4400,
+      "rentalTotal": 1400,
       "appliedDiscount": 0,
-      "finalAmount": 7100
+      "finalAmount": 5800
     },
     "history": [
       {
@@ -2159,8 +2159,8 @@
       "checkIn": "2026-06-11",
       "checkOut": "2026-06-13",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 5
     },
     "selectedZones": [
@@ -2168,7 +2168,7 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 3400
+        "subtotal": 2800
       }
     ],
     "selectedRentals": [
@@ -2176,19 +2176,19 @@
         "equipmentId": "E021",
         "name": "Snow Peak 鈦合金杯組",
         "quantity": 1,
-        "subtotal": 500,
+        "subtotal": 650,
         "rentalSkuId": "R007",
         "productId": "P006",
-        "variantId": "v-P006-0",
-        "sku": "v-P006-0",
+        "variantId": "RSV-R007-01",
+        "sku": "RSV-R007-01",
         "specLabel": "鈦金屬原色"
       }
     ],
     "summary": {
-      "zoneTotal": 3400,
-      "rentalTotal": 500,
+      "zoneTotal": 2800,
+      "rentalTotal": 650,
       "appliedDiscount": 0,
-      "finalAmount": 3900
+      "finalAmount": 3450
     },
     "history": [
       {
@@ -2224,7 +2224,7 @@
       "checkOut": "2026-06-07",
       "totalDays": 2,
       "weekdayCount": 0,
-      "holidayCount": 0,
+      "holidayCount": 2,
       "guestCount": 6
     },
     "selectedZones": [
@@ -2232,7 +2232,7 @@
         "zoneId": "Z012",
         "zoneType": "碎石區",
         "quantity": 1,
-        "subtotal": 1900
+        "subtotal": 2900
       }
     ],
     "selectedRentals": [
@@ -2240,19 +2240,19 @@
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 1000,
+        "subtotal": 2800,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
     "summary": {
-      "zoneTotal": 1900,
-      "rentalTotal": 1000,
+      "zoneTotal": 2900,
+      "rentalTotal": 2800,
       "appliedDiscount": 0,
-      "finalAmount": 2900
+      "finalAmount": 5700
     },
     "history": [
       {
@@ -2287,8 +2287,8 @@
       "checkIn": "2026-06-17",
       "checkOut": "2026-06-19",
       "totalDays": 2,
-      "weekdayCount": 1,
-      "holidayCount": 2,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 3
     },
     "selectedZones": [
@@ -2296,15 +2296,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 2,
-        "subtotal": 20000
+        "subtotal": 14000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 20000,
+      "zoneTotal": 14000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 20000
+      "finalAmount": 14000
     },
     "history": [
       {
@@ -2340,15 +2340,15 @@
         "zoneId": "Z004",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 2600
+        "subtotal": 1800
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 2600,
+      "zoneTotal": 1800,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 2600
+      "finalAmount": 1800
     },
     "history": [
       {
@@ -2383,7 +2383,7 @@
       "checkIn": "2026-06-20",
       "checkOut": "2026-06-22",
       "totalDays": 2,
-      "weekdayCount": 2,
+      "weekdayCount": 1,
       "holidayCount": 1,
       "guestCount": 3
     },
@@ -2392,7 +2392,7 @@
         "zoneId": "Z012",
         "zoneType": "碎石區",
         "quantity": 2,
-        "subtotal": 3800
+        "subtotal": 4800
       }
     ],
     "selectedRentals": [
@@ -2400,19 +2400,19 @@
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 2300,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
     "summary": {
-      "zoneTotal": 3800,
-      "rentalTotal": 600,
+      "zoneTotal": 4800,
+      "rentalTotal": 2300,
       "appliedDiscount": 0,
-      "finalAmount": 4400
+      "finalAmount": 7100
     },
     "history": [
       {
@@ -2447,7 +2447,7 @@
       "checkIn": "2026-06-13",
       "checkOut": "2026-06-15",
       "totalDays": 2,
-      "weekdayCount": 0,
+      "weekdayCount": 1,
       "holidayCount": 1,
       "guestCount": 6
     },
@@ -2456,7 +2456,7 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 2000
+        "subtotal": 2500
       }
     ],
     "selectedRentals": [
@@ -2464,19 +2464,19 @@
         "equipmentId": "E013",
         "name": "MSR 超輕量帳篷",
         "quantity": 2,
-        "subtotal": 600,
+        "subtotal": 1500,
         "rentalSkuId": "R002",
         "productId": "P002",
-        "variantId": "v-P002-0",
-        "sku": "v-P002-0",
+        "variantId": "RSV-R002-01",
+        "sku": "RSV-R002-01",
         "specLabel": "沙漠卡其"
       }
     ],
     "summary": {
-      "zoneTotal": 2000,
-      "rentalTotal": 600,
+      "zoneTotal": 2500,
+      "rentalTotal": 1500,
       "appliedDiscount": 0,
-      "finalAmount": 2600
+      "finalAmount": 4000
     },
     "history": [
       {
@@ -2511,8 +2511,8 @@
       "checkIn": "2026-07-06",
       "checkOut": "2026-07-09",
       "totalDays": 3,
-      "weekdayCount": 0,
-      "holidayCount": 3,
+      "weekdayCount": 3,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2520,15 +2520,15 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 6600
+        "subtotal": 4500
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 6600,
+      "zoneTotal": 4500,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 6600
+      "finalAmount": 4500
     },
     "history": [
       {
@@ -2563,8 +2563,8 @@
       "checkIn": "2026-07-07",
       "checkOut": "2026-07-09",
       "totalDays": 2,
-      "weekdayCount": 0,
-      "holidayCount": 2,
+      "weekdayCount": 2,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2572,15 +2572,15 @@
         "zoneId": "Z005",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 1,
-        "subtotal": 10000
+        "subtotal": 7000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 10000,
+      "zoneTotal": 7000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 10000
+      "finalAmount": 7000
     },
     "history": [
       {
@@ -2611,7 +2611,7 @@
       "checkIn": "2026-06-20",
       "checkOut": "2026-06-21",
       "totalDays": 1,
-      "weekdayCount": 1,
+      "weekdayCount": 0,
       "holidayCount": 1,
       "guestCount": 3
     },
@@ -2663,8 +2663,8 @@
       "checkIn": "2026-07-06",
       "checkOut": "2026-07-09",
       "totalDays": 3,
-      "weekdayCount": 1,
-      "holidayCount": 3,
+      "weekdayCount": 3,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2728,19 +2728,19 @@
         "equipmentId": "E021",
         "name": "Snow Peak 鈦合金杯組",
         "quantity": 2,
-        "subtotal": 1000,
+        "subtotal": 1600,
         "rentalSkuId": "R007",
         "productId": "P006",
-        "variantId": "v-P006-0",
-        "sku": "v-P006-0",
+        "variantId": "RSV-R007-01",
+        "sku": "RSV-R007-01",
         "specLabel": "鈦金屬原色"
       }
     ],
     "summary": {
       "zoneTotal": 6800,
-      "rentalTotal": 1000,
+      "rentalTotal": 1600,
       "appliedDiscount": 129,
-      "finalAmount": 7671
+      "finalAmount": 8271
     },
     "history": [
       {
@@ -2771,7 +2771,7 @@
       "checkIn": "2026-07-13",
       "checkOut": "2026-07-14",
       "totalDays": 1,
-      "weekdayCount": 0,
+      "weekdayCount": 1,
       "holidayCount": 0,
       "guestCount": 6
     },
@@ -2780,7 +2780,7 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 1,
-        "subtotal": 2200
+        "subtotal": 1500
       }
     ],
     "selectedRentals": [
@@ -2788,30 +2788,30 @@
         "equipmentId": "E024",
         "name": "羽絨睡袋",
         "quantity": 1,
-        "subtotal": 400,
+        "subtotal": 300,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-1",
-        "sku": "v-P004-1",
+        "variantId": "RSV-R005-02",
+        "sku": "RSV-R005-02",
         "specLabel": "-5°C"
       },
       {
         "equipmentId": "E025",
         "name": "羽絨睡袋",
         "quantity": 2,
-        "subtotal": 1400,
+        "subtotal": 600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       }
     ],
     "summary": {
-      "zoneTotal": 2200,
-      "rentalTotal": 1800,
+      "zoneTotal": 1500,
+      "rentalTotal": 900,
       "appliedDiscount": 57,
-      "finalAmount": 3943
+      "finalAmount": 2343
     },
     "history": [
       {
@@ -2842,8 +2842,8 @@
       "checkIn": "2026-07-06",
       "checkOut": "2026-07-09",
       "totalDays": 3,
-      "weekdayCount": 0,
-      "holidayCount": 3,
+      "weekdayCount": 3,
+      "holidayCount": 0,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2859,30 +2859,30 @@
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 3200,
+        "subtotal": 2700,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       },
       {
         "equipmentId": "E022",
         "name": "折疊桌椅組",
         "quantity": 2,
-        "subtotal": 1400,
+        "subtotal": 2700,
         "rentalSkuId": "R008",
         "productId": "P009",
-        "variantId": "v-P009-0",
-        "sku": "v-P009-0",
+        "variantId": "RSV-R008-01",
+        "sku": "RSV-R008-01",
         "specLabel": "鋁合金輕量版"
       }
     ],
     "summary": {
       "zoneTotal": 5700,
-      "rentalTotal": 4600,
+      "rentalTotal": 5400,
       "appliedDiscount": 0,
-      "finalAmount": 10300
+      "finalAmount": 11100
     },
     "history": [
       {
@@ -2910,8 +2910,8 @@
       "checkIn": "2026-07-17",
       "checkOut": "2026-07-19",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2919,15 +2919,15 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 3,
-        "subtotal": 6000
+        "subtotal": 9000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 6000,
+      "zoneTotal": 9000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 6000
+      "finalAmount": 9000
     },
     "history": [
       {
@@ -2957,8 +2957,8 @@
       "checkIn": "2026-07-17",
       "checkOut": "2026-07-19",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -2966,15 +2966,15 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 3,
-        "subtotal": 6000
+        "subtotal": 9000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 6000,
+      "zoneTotal": 9000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 6000
+      "finalAmount": 9000
     },
     "history": [
       {
@@ -3004,8 +3004,8 @@
       "checkIn": "2026-07-17",
       "checkOut": "2026-07-19",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3013,15 +3013,15 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 3,
-        "subtotal": 6000
+        "subtotal": 9000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 6000,
+      "zoneTotal": 9000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 6000
+      "finalAmount": 9000
     },
     "history": [
       {
@@ -3051,8 +3051,8 @@
       "checkIn": "2026-07-17",
       "checkOut": "2026-07-19",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 0,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3060,15 +3060,15 @@
         "zoneId": "Z001",
         "zoneType": "草皮區",
         "quantity": 5,
-        "subtotal": 10000
+        "subtotal": 15000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 10000,
+      "zoneTotal": 15000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 10000
+      "finalAmount": 15000
     },
     "history": [
       {
@@ -3098,8 +3098,8 @@
       "checkIn": "2026-07-16",
       "checkOut": "2026-07-19",
       "totalDays": 3,
-      "weekdayCount": 3,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 2,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3107,15 +3107,15 @@
         "zoneId": "Z010",
         "zoneType": "草皮區",
         "quantity": 2,
-        "subtotal": 9000
+        "subtotal": 11800
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 9000,
+      "zoneTotal": 11800,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 9000
+      "finalAmount": 11800
     },
     "history": [
       {
@@ -3145,8 +3145,8 @@
       "checkIn": "2026-07-25",
       "checkOut": "2026-07-27",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3154,15 +3154,15 @@
         "zoneId": "Z011",
         "zoneType": "免搭帳／豪華露營 (Glamping)",
         "quantity": 1,
-        "subtotal": 8000
+        "subtotal": 10000
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 8000,
+      "zoneTotal": 10000,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 8000
+      "finalAmount": 10000
     },
     "history": [
       {
@@ -3333,8 +3333,8 @@
       "checkIn": "2026-07-23",
       "checkOut": "2026-07-25",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3342,15 +3342,15 @@
         "zoneId": "Z009",
         "zoneType": "棧板區",
         "quantity": 2,
-        "subtotal": 4400
+        "subtotal": 5600
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 4400,
+      "zoneTotal": 5600,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 4400
+      "finalAmount": 5600
     },
     "history": [
       {
@@ -3662,8 +3662,8 @@
       "checkIn": "2026-07-18",
       "checkOut": "2026-07-20",
       "totalDays": 2,
-      "weekdayCount": 2,
-      "holidayCount": 0,
+      "weekdayCount": 1,
+      "holidayCount": 1,
       "guestCount": 2
     },
     "selectedZones": [
@@ -3671,15 +3671,15 @@
         "zoneId": "Z013",
         "zoneType": "棧板區",
         "quantity": 1,
-        "subtotal": 2100
+        "subtotal": 2650
       }
     ],
     "selectedRentals": [],
     "summary": {
-      "zoneTotal": 2100,
+      "zoneTotal": 2650,
       "rentalTotal": 0,
       "appliedDiscount": 0,
-      "finalAmount": 2100
+      "finalAmount": 2650
     },
     "history": [
       {
@@ -3914,19 +3914,19 @@
         "equipmentId": "E014",
         "name": "Snow Peak 客廳帳",
         "quantity": 1,
-        "subtotal": 400,
+        "subtotal": 550,
         "rentalSkuId": "R003",
         "productId": "P011",
-        "variantId": "v-P011-0",
-        "sku": "v-P011-0",
+        "variantId": "RSV-R003-01",
+        "sku": "RSV-R003-01",
         "specLabel": "象牙白"
       }
     ],
     "summary": {
       "zoneTotal": 2200,
-      "rentalTotal": 400,
+      "rentalTotal": 550,
       "appliedDiscount": 0,
-      "finalAmount": 2600
+      "finalAmount": 2750
     },
     "history": [
       {
@@ -4023,8 +4023,8 @@
         "subtotal": 600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-1",
-        "sku": "v-P004-1",
+        "variantId": "RSV-R005-02",
+        "sku": "RSV-R005-02",
         "specLabel": "-5°C"
       }
     ],
@@ -4129,8 +4129,8 @@
         "subtotal": 800,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-0",
-        "sku": "v-P004-0",
+        "variantId": "RSV-R005-01",
+        "sku": "RSV-R005-01",
         "specLabel": "-10°C"
       }
     ],
@@ -4423,8 +4423,8 @@
         "subtotal": 600,
         "rentalSkuId": "R005",
         "productId": "P004",
-        "variantId": "v-P004-2",
-        "sku": "v-P004-2",
+        "variantId": "RSV-R005-03",
+        "sku": "RSV-R005-03",
         "specLabel": "0°C"
       }
     ],
@@ -4717,8 +4717,8 @@
         "subtotal": 1200,
         "rentalSkuId": "R006",
         "productId": "P005",
-        "variantId": "v-P005-0",
-        "sku": "v-P005-0",
+        "variantId": "RSV-R006-01",
+        "sku": "RSV-R006-01",
         "specLabel": "標準版"
       }
     ],

@@ -55,31 +55,79 @@ public class ProductVariant {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public Product getProduct() {
 		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	public String getSku() {
 		return sku;
 	}
 
+	public void setSku(String sku) {
+		this.sku = sku;
+	}
+
 	public String getColor() {
 		return color;
+	}
+
+	public void setColor(String color) {
+		this.color = color;
 	}
 
 	public String getSize() {
 		return size;
 	}
 
+	public void setSize(String size) {
+		this.size = size;
+	}
+
 	public BigDecimal getPrice() {
 		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
 	}
 
 	public String getSpecification() {
 		return specification;
 	}
 
+	public void setSpecification(String specification) {
+		this.specification = specification;
+	}
+
 	public String getStatus() {
 		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 }

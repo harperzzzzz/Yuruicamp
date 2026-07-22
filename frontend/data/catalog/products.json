@@ -29,6 +29,16 @@
         "price": "3300.00",
         "availableQuantity": 0,
         "inStock": false
+      },
+      {
+        "id": "V003",
+        "sku": "TENT-GRAY",
+        "color": "太空灰",
+        "size": null,
+        "specification": "太空灰",
+        "price": "3200.00",
+        "availableQuantity": 0,
+        "inStock": false
       }
     ]
   },

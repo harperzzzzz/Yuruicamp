@@ -10,8 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Schema(description = "公開營區資料")
 public record CampgroundResponse(
 		@Schema(example = "C002") String id,
-		@Schema(example = "悠旅森林露營區") String name,
-		@Schema(example = "南投縣") String region,
+		@Schema(example = "雲海仙境露營區") String name,
+		@Schema(example = "北部") String region,
 		String description,
 		boolean active,
 		List<ZoneResponse> zones) {

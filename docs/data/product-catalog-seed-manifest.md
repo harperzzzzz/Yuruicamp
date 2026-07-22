@@ -6,7 +6,7 @@ SQL 資料位於 `docs/seed/dev/030-catalog.sql`，並由 `docs/seed/002-dev-see
 
 | Product | Item | Variants (ID / SKU / price) | Status |
 |---|---|---|---|
-| P001 | E001 | V001 / TENT-OLIVE / 3200.00<br>V002 / TENT-SAND / 3300.00 | active |
+| P001 | E001 | V001 / TENT-OLIVE / 3200.00<br>V002 / TENT-SAND / 3300.00<br>V003 / TENT-GRAY / 3200.00 | active |
 | P002 | E002 | V002-01 / P002-01 / 9800.00 | active |
 | P003 | E003 | V003-01 / P003-01 / 1200.00<br>V003-02 / P003-02 / 1200.00<br>V003-03 / P003-03 / 1200.00 | active |
 | P004 | E004 | V004-01 / P004-01 / 2800.00<br>V004-02 / P004-02 / 2800.00<br>V004-03 / P004-03 / 2800.00 | active |

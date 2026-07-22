@@ -123,6 +123,8 @@ campgrounds
     * 正式後端應以 rental_sku_variants 作為租借、庫存與上架關聯的變體識別。
     * 營區端只傳遞 campground_id；服務層負責解析對應的 location_id。
 
+* 開發 Seed 現況：`030-catalog.sql` 已建立 R001～R028 與 37 個 `RSV-Rxxx-xx`；`040-inventory.sql` 已建立 16 筆有明確定價的 listing。未在 `camp-equipment.json` 出現的組合不會因為有庫存就自動上架。
+
 
 ## 可能的問題
 * 已處理：E-4 Booking Checkout 會同時確認 listing、equipment item、rental SKU、variant 與營區庫位有效，停用品項不會建立租借保留。

@@ -9,20 +9,25 @@
 > **領域說明（含快照語意）**：[`../docs/database-documents/`](../docs/database-documents/)
 >
 > **PostgreSQL 開發 Seed**：[`../docs/seed/README.md`](../docs/seed/README.md)
+>
+> **JSON／Seed 固定 ID**：[`../docs/data/json-seed-id-mapping.md`](../docs/data/json-seed-id-mapping.md)
 
 | 欄位         | 內容                                      |
 | ------------ | ----------------------------------------- |
 | **目前定位** | 前端 Mock JSON 的資料語意、關聯與維護規格 |
-| **更新日期** | 2026-07-21                                |
+| **更新日期** | 2026-07-22                                |
 | **不負責**   | PostgreSQL Seed 載入順序、交易與執行方式  |
 
 > **簡單說**：本文件回答「前端 Mock 資料怎麼維持一致」；[`docs/seed/README.md`](../docs/seed/README.md) 回答「PostgreSQL 本機展示資料怎麼建立」。兩者可以使用相同的固定 ID 與業務語意，但不會自動互相同步。
+
+商品、商城規格、品牌、營區、zone、標籤、門市、租借 SKU 與租借規格的 canonical ID 統一記錄於 [`json-seed-id-mapping.md`](../docs/data/json-seed-id-mapping.md)。品牌、營區、zone、門市與租借資料已對齊 SQL Seed；其他 Mock 若仍使用舊 ID，必須先依對照表轉換，不得直接把 `v-P...` 寫入商城或租借 FK。
 
 ## 文件邊界與閱讀路徑
 
 | 要處理的事情                                        | 先讀哪裡                                                          |
 | --------------------------------------------------- | ----------------------------------------------------------------- |
 | 修改前端 Mock JSON、localStorage overlay 或衍生資料 | 本文件                                                            |
+| 確認 JSON 與 Seed 應共用的固定 ID                 | [`json-seed-id-mapping.md`](../docs/data/json-seed-id-mapping.md)  |
 | 修改 PostgreSQL 開發展示資料                        | [`docs/seed/README.md`](../docs/seed/README.md)                   |
 | 確認 API Request／Response 欄位                     | [`docs/api/README.md`](../docs/api/README.md) 與對應 API Contract |
 | 確認資料表、ENUM、FK、CHECK                         | [`docs/latest_schema.sql`](../docs/latest_schema.sql)             |
@@ -65,6 +70,8 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 
 > `camp-equipment.json` 的 **stock 為唯讀衍生**，請勿手改；改庫存請改 `rental-skus.json` 後執行 `npm run sync:listings`。  
 > `products.totalStock` / `products.branch` 亦為衍生（由 `variants[].branch` 加總）。
+
+租借跨層規則：`rental-skus.json` 與 Seed 都使用 `RSV-Rxxx-xx`；C001～C009 分別對應資料庫庫位 `RENTAL-C001`～`RENTAL-C009`。Mock 模式仍由 `rental-skus.json` 衍生 listing stock，Backend 模式則只採 `rental_sku_variant_stocks`。現有 listing 折扣已統一為 `0`，因舊 Mock 固定金額折抵不能直接寫入資料庫折扣比率。
 
 ## API 層
 
@@ -110,6 +117,8 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 | `promotion`     | ❌           | ✅       | 活動碼（如 `YURUIKAMP20`）    |
 
 預設：`type: "fixed"`、`minOrder: 0`（缺欄時前端 / 腳本補齊）。
+
+`coupons.json` 已對齊 `050-coupons.sql` 的固定 ID 1～7 與顯示名稱。前端 `startDate`／`endDate` 視為 `Asia/Taipei` 本地時間；SQL 寫入 `timestamptz` 時明確使用 `+08:00`。會員與 claim Seed 尚未建立，所以本階段所有 `used` 皆為 `0`；Backend 模式的已領數只採 `coupons.claimed_quantity` 與 claim 流程。
 
 ## 訂單 / 預約快照（策略 B）
 
@@ -185,9 +194,11 @@ npm run normalize:data    # 寫入第一階段資料正規化
 | 層級    | JSON                  | 說明                                                        |
 | ------- | --------------------- | ----------------------------------------------------------- |
 | SPU     | `products.json`       | `name` 為主名（不含規格）                                   |
-| SKU     | `products.variants[]` | `id` = `sku`（例 `v-P004-0`）                               |
+| SKU     | `products.variants[]` | `id` 與 `sku` 均採後端 canonical 值（例 `V004-01` / `P004-01`） |
 | Listing | `camp-equipment.json` | 每列一個 `equipmentId` + `variantId` + 營區 `stock`（衍生） |
 | 訂單    | `orders.items[]`      | `name` + `specLabel` + `variantId` / `sku`                  |
+
+`orders.items[]` 不再使用舊 `v-P...`；active 商品的 `variantId` 必須存在於 `products.variants[].id`，`sku` 必須等於同一 variant 的 `sku`。歷史訂單可以保留已下架商品快照（目前為 P010），但其 product／variant 必須仍存在 PostgreSQL Seed，不能因為不在公開商品 JSON 就改回 legacy ID。預訂天數以 `[checkIn, checkOut)` 計夜，週五、週六計入 `holidayCount`，其餘計入 `weekdayCount`；兩者合計必須等於日期差，快照總額須由目前 zone／listing 定價重算。
 
 ## 已移除的舊路徑
 

@@ -3,8 +3,8 @@
     "equipmentId": "E010",
     "rentalSkuId": "R001",
     "productId": "P001",
-    "variantId": "v-P001-0",
-    "sku": "v-P001-0",
+    "variantId": "RSV-R001-01",
+    "sku": "RSV-R001-01",
     "campgroundId": "C002",
     "name": "Coleman 六人帳篷",
     "color": "深橄欖綠",
@@ -16,7 +16,7 @@
     "pricing": {
       "pricePerDayWeekday": 500,
       "pricePerDayHoliday": 800,
-      "discount": 100
+      "discount": 0
     },
     "stock": 0
   },
@@ -24,8 +24,8 @@
     "equipmentId": "E011",
     "rentalSkuId": "R001",
     "productId": "P001",
-    "variantId": "v-P001-1",
-    "sku": "v-P001-1",
+    "variantId": "RSV-R001-02",
+    "sku": "RSV-R001-02",
     "campgroundId": "C002",
     "name": "Coleman 六人帳篷",
     "color": "沙漠棕",
@@ -37,7 +37,7 @@
     "pricing": {
       "pricePerDayWeekday": 500,
       "pricePerDayHoliday": 800,
-      "discount": 100
+      "discount": 0
     },
     "stock": 0
   },
@@ -45,8 +45,8 @@
     "equipmentId": "E012",
     "rentalSkuId": "R001",
     "productId": "P001",
-    "variantId": "v-P001-2",
-    "sku": "v-P001-2",
+    "variantId": "RSV-R001-03",
+    "sku": "RSV-R001-03",
     "campgroundId": "C002",
     "name": "Coleman 六人帳篷",
     "color": "太空灰",
@@ -58,7 +58,7 @@
     "pricing": {
       "pricePerDayWeekday": 500,
       "pricePerDayHoliday": 800,
-      "discount": 100
+      "discount": 0
     },
     "stock": 1
   },
@@ -66,8 +66,8 @@
     "equipmentId": "E013",
     "rentalSkuId": "R002",
     "productId": "P002",
-    "variantId": "v-P002-0",
-    "sku": "v-P002-0",
+    "variantId": "RSV-R002-01",
+    "sku": "RSV-R002-01",
     "campgroundId": "C002",
     "name": "MSR 超輕量帳篷",
     "color": "沙漠卡其",
@@ -87,8 +87,8 @@
     "equipmentId": "E014",
     "rentalSkuId": "R003",
     "productId": "P011",
-    "variantId": "v-P011-0",
-    "sku": "v-P011-0",
+    "variantId": "RSV-R003-01",
+    "sku": "RSV-R003-01",
     "campgroundId": "C003",
     "name": "Snow Peak 客廳帳",
     "color": "象牙白",
@@ -100,7 +100,7 @@
     "pricing": {
       "pricePerDayWeekday": 200,
       "pricePerDayHoliday": 350,
-      "discount": 50
+      "discount": 0
     },
     "stock": 3
   },
@@ -108,8 +108,8 @@
     "equipmentId": "E015",
     "rentalSkuId": "R004",
     "productId": "P012",
-    "variantId": "v-P012-0",
-    "sku": "v-P012-0",
+    "variantId": "RSV-R004-01",
+    "sku": "RSV-R004-01",
     "campgroundId": "C003",
     "name": "四季保暖睡袋",
     "color": "深藍",
@@ -129,8 +129,8 @@
     "equipmentId": "E016",
     "rentalSkuId": "R004",
     "productId": "P012",
-    "variantId": "v-P012-1",
-    "sku": "v-P012-1",
+    "variantId": "RSV-R004-02",
+    "sku": "RSV-R004-02",
     "campgroundId": "C003",
     "name": "四季保暖睡袋",
     "color": "深藍",
@@ -150,8 +150,8 @@
     "equipmentId": "E017",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-0",
-    "sku": "v-P004-0",
+    "variantId": "RSV-R005-01",
+    "sku": "RSV-R005-01",
     "campgroundId": "C005",
     "name": "羽絨睡袋",
     "color": "",
@@ -171,8 +171,8 @@
     "equipmentId": "E018",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-1",
-    "sku": "v-P004-1",
+    "variantId": "RSV-R005-02",
+    "sku": "RSV-R005-02",
     "campgroundId": "C005",
     "name": "羽絨睡袋",
     "color": "",
@@ -192,8 +192,8 @@
     "equipmentId": "E019",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-2",
-    "sku": "v-P004-2",
+    "variantId": "RSV-R005-03",
+    "sku": "RSV-R005-03",
     "campgroundId": "C005",
     "name": "羽絨睡袋",
     "color": "",
@@ -213,8 +213,8 @@
     "equipmentId": "E020",
     "rentalSkuId": "R006",
     "productId": "P005",
-    "variantId": "v-P005-0",
-    "sku": "v-P005-0",
+    "variantId": "RSV-R006-01",
+    "sku": "RSV-R006-01",
     "campgroundId": "C006",
     "name": "Coleman 氣化爐",
     "color": "標準版",
@@ -226,7 +226,7 @@
     "pricing": {
       "pricePerDayWeekday": 600,
       "pricePerDayHoliday": 900,
-      "discount": 100
+      "discount": 0
     },
     "stock": 5
   },
@@ -234,8 +234,8 @@
     "equipmentId": "E021",
     "rentalSkuId": "R007",
     "productId": "P006",
-    "variantId": "v-P006-0",
-    "sku": "v-P006-0",
+    "variantId": "RSV-R007-01",
+    "sku": "RSV-R007-01",
     "campgroundId": "C007",
     "name": "Snow Peak 鈦合金杯組",
     "color": "鈦金屬原色",
@@ -255,8 +255,8 @@
     "equipmentId": "E022",
     "rentalSkuId": "R008",
     "productId": "P009",
-    "variantId": "v-P009-0",
-    "sku": "v-P009-0",
+    "variantId": "RSV-R008-01",
+    "sku": "RSV-R008-01",
     "campgroundId": "C009",
     "name": "折疊桌椅組",
     "color": "鋁合金輕量版",
@@ -268,7 +268,7 @@
     "pricing": {
       "pricePerDayWeekday": 450,
       "pricePerDayHoliday": 700,
-      "discount": 50
+      "discount": 0
     },
     "stock": 1
   },
@@ -276,8 +276,8 @@
     "equipmentId": "E023",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-0",
-    "sku": "v-P004-0",
+    "variantId": "RSV-R005-01",
+    "sku": "RSV-R005-01",
     "campgroundId": "C008",
     "name": "羽絨睡袋",
     "color": "",
@@ -297,8 +297,8 @@
     "equipmentId": "E024",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-1",
-    "sku": "v-P004-1",
+    "variantId": "RSV-R005-02",
+    "sku": "RSV-R005-02",
     "campgroundId": "C008",
     "name": "羽絨睡袋",
     "color": "",
@@ -318,8 +318,8 @@
     "equipmentId": "E025",
     "rentalSkuId": "R005",
     "productId": "P004",
-    "variantId": "v-P004-2",
-    "sku": "v-P004-2",
+    "variantId": "RSV-R005-03",
+    "sku": "RSV-R005-03",
     "campgroundId": "C008",
     "name": "羽絨睡袋",
     "color": "",

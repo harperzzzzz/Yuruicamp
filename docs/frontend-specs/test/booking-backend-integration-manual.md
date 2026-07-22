@@ -28,12 +28,12 @@ docker exec yuruicamp-db psql -U postgres -d yuruicamp -f /docker-entrypoint-ini
 Booking 開發資料包含：
 
 - 營區：`C002`
-- 營位：`C002-Z-A`
-- 可用營位數：`8`
+- 營位：`Z001`
+- 可用營位數：`10`
 - 租借 listing：`RL-DEV-C002-001`
 - 租借 variant：`RSV-DEV-001`
 - 租借庫存：`6`
-- 停用營區：`C009`，公開列表不應出現
+- 停用營區：`DEV-CAMP-INACTIVE`，公開列表不應出現
 
 注意：重跑 seed 會重設部分開發庫存。
 
@@ -229,8 +229,8 @@ GET /api/booking/closures
 
 ### 畫面預期
 
-- 應看到營區 `C002`「悠旅森林露營區」。
-- 不應看到停用營區 `C009`。
+- 應看到營區 `C002`「雲海仙境露營區」。
+- 不應看到停用營區 `DEV-CAMP-INACTIVE`。
 - 頁面不應顯示「營區載入失敗」。
 
 也可以在 Network 點開 `/api/booking/campgrounds`，確認 Response 使用統一 Envelope：
@@ -241,8 +241,8 @@ GET /api/booking/closures
   "data": [
     {
       "id": "C002",
-      "name": "悠旅森林露營區",
-      "region": "南投縣",
+      "name": "雲海仙境露營區",
+      "region": "北部",
       "active": true
     }
   ]
@@ -277,7 +277,7 @@ Request Payload 應類似：
   "checkOut": "2026-07-25",
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ]
@@ -294,9 +294,9 @@ Response 應類似：
     "reasons": [],
     "zones": [
       {
-        "zoneId": "C002-Z-A",
+        "zoneId": "Z001",
         "requested": 1,
-        "availableQuantity": 8
+        "availableQuantity": 10
       }
     ]
   }
@@ -329,16 +329,16 @@ GET /api/booking/equipment?campgroundId=C002
 
 營區詳情應包含：
 
-- active 營位 `C002-Z-A`
-- 平日價格 `"1200.00"`
+- active 營位 `Z001`
+- 平日價格 `"1000.00"`
 - 假日價格 `"1500.00"`
-- 總營位數 `8`
+- 總營位數 `10`
 
 停用營位 `C002-Z-HIDDEN` 不應顯示。
 
 選擇：
 
-- 營位：`C002-Z-A`
+- 營位：`Z001`
 - 數量：`1`
 
 租借品可以：
@@ -402,7 +402,7 @@ Request Payload 應類似：
   "guestCount": 2,
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ],
@@ -451,13 +451,13 @@ region
     "paymentMethod": "ecpay-credit",
     "checkoutExpiresAt": "ISO-8601時間",
     "campgroundId": "C002",
-    "campgroundName": "悠旅森林露營區",
-    "region": "南投縣",
+    "campgroundName": "雲海仙境露營區",
+    "region": "北部",
     "pricing": {
-      "zoneTotal": "1200.00",
+      "zoneTotal": "1000.00",
       "rentalTotal": "180.00",
       "discount": "0.00",
-      "finalAmount": "1380.00"
+      "finalAmount": "1180.00"
     },
     "checkoutStep": "ready_to_pay"
   }
@@ -542,7 +542,7 @@ const sameRequest = {
   guestCount: 2,
   zones: [
     {
-      zoneId: "C002-Z-A",
+      zoneId: "Z001",
       quantity: 1,
     },
   ],

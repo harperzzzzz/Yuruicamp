@@ -215,6 +215,112 @@ function isFixedCampId(campId) {
 var adminProductsCache = [];
 var adminRentalsCache = [];
 var adminRentalsLoaded = false;
+
+// 正式後端商品表單的分類與品牌選項，送出時使用主檔 ID。
+var adminProductLookups = {
+  categories: [],
+  brands: []
+};
+
+/** 判斷商品頁目前是否使用正式後端。 */
+function isAdminProductBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' &&
+    AdminAPI.isBackendEnabled &&
+    AdminAPI.isBackendEnabled();
+}
+
+/**
+ * 將後端商品回應轉成既有 Admin 表格使用的 ViewModel。
+ * 庫存只映射為唯讀顯示，商品更新 Request 不會再帶回後端。
+ */
+function mapAdminProductResponse(product) {
+  var variants = (product.variants || []).map(function (variant) {
+    var branch = createEmptyBranchStock();
+    (variant.stockLocations || []).forEach(function (location) {
+      var branchKey = location.locationType === 'main' ? ADMIN_STORE_WAREHOUSE_ID : location.branchId;
+      if (branchKey && isFixedBranchId(branchKey)) {
+        branch[branchKey] += normalizeStockValue(location.onHandQuantity);
+      }
+    });
+
+    return {
+      id: variant.id,
+      sku: variant.sku,
+      color: variant.color || '',
+      size: variant.size || '',
+      specification: variant.specification,
+      label: variant.specification || buildVariantLabel(variant.color, variant.size),
+      price: variant.price,
+      status: variant.status,
+      branch: branch,
+      total: normalizeStockValue(variant.onHandQuantity),
+      availableQuantity: normalizeStockValue(variant.availableQuantity)
+    };
+  });
+
+  return normalizeProductBranch({
+    id: product.id,
+    itemId: product.itemId,
+    status: product.status,
+    name: product.name,
+    categoryId: product.categoryId,
+    category: product.category,
+    brandId: product.brandId,
+    brand: product.brand || '',
+    description: product.description || '',
+    image: product.image || '',
+    images: (product.images || []).map(function (image) { return image.url; }),
+    price: product.price,
+    variants: variants,
+    createdAt: product.createdAt,
+    updatedAt: product.updatedAt
+  });
+}
+
+/** 依顯示名稱取得後端分類 ID。 */
+function findAdminCategoryId(categoryName) {
+  var match = adminProductLookups.categories.find(function (category) {
+    return category.name === categoryName;
+  });
+  return match ? match.id : null;
+}
+
+/** 依顯示名稱取得後端品牌 ID，未指定品牌時回傳 null。 */
+function findAdminBrandId(brandName) {
+  if (!brandName) {
+    return null;
+  }
+  var match = adminProductLookups.brands.find(function (brand) {
+    return brand.name === brandName;
+  });
+  return match ? match.id : null;
+}
+
+/**
+ * 正式模式只開放商品主檔、規格、圖片 URL 與上下架。
+ * 庫存編輯、租借與調撥等待各自的正式後端線程。
+ */
+function syncBackendProductUi() {
+  var useBackend = isAdminProductBackendEnabled();
+  $('.admin-product-tab[data-products-view="rental"]').toggleClass('d-none', useBackend);
+  if (useBackend) {
+    $('[data-products-panel="rental"]').addClass('d-none');
+  }
+  $('#toggleMinStockMode, #minStockModeHint').toggleClass('d-none', useBackend);
+  $('#newProductIsRentalWrapper, #rentalCampField').toggleClass('d-none', useBackend);
+  $('#newProductStockCol').toggleClass('d-none', useBackend);
+  $('#newProductImages').toggleClass('d-none', useBackend).prop('disabled', useBackend);
+  $('#backendProductImageUrlRow').toggleClass('d-none', !useBackend);
+  $('#newProductImagesHelp').text(useBackend
+    ? '正式模式只儲存 /assets/... 或 http(s) 圖片 URL；第一張為主圖。'
+    : '可一次選多張；第一張為主圖，拖曳握把調整順序');
+  if (useBackend) {
+    switchProductView('store');
+    $('.stock-edit-btn, .stock-confirm-btn, .stock-cancel-btn, .transfer-to-rental-btn')
+      .prop('disabled', true)
+      .addClass('d-none');
+  }
+}
 // 租借表目前營區欄位 ID 順序（僅固定 C001–C009）；表頭與 tbody 共用
 // Rental table camp column IDs: preset C001–C009 only; shared by thead/tbody
 var rentalTableCampColumnIds = ADMIN_RENTAL_CAMP_IDS.slice();
@@ -296,10 +402,12 @@ function renderProductComboboxSelect($select, options, config) {
     }));
   });
 
-  $select.append($('<option>', {
-    value: PRODUCT_COMBOBOX_CUSTOM_VALUE,
-    text: '＋ 新增自訂…'
-  }));
+  if (!config || config.allowCustom !== false) {
+    $select.append($('<option>', {
+      value: PRODUCT_COMBOBOX_CUSTOM_VALUE,
+      text: '＋ 新增自訂…'
+    }));
+  }
 }
 
 /** 顯示或隱藏自訂輸入框 / Toggle custom text input for combobox */
@@ -382,17 +490,23 @@ function setProductComboboxValue(type, value) {
 
 /** 重設分類 / 品牌 combobox 為新增模式預設值 / Reset combobox fields for add mode */
 function resetProductComboboxFields() {
+  var backendCategories = adminProductLookups.categories.map(function (category) { return category.name; });
+  var backendBrands = adminProductLookups.brands.map(function (brand) { return brand.name; });
   renderProductComboboxSelect(
     $('#newProductCategorySelect'),
-    collectProductFieldOptions('category', DEFAULT_PRODUCT_CATEGORIES),
-    { allowEmpty: false }
+    isAdminProductBackendEnabled()
+      ? backendCategories
+      : collectProductFieldOptions('category', DEFAULT_PRODUCT_CATEGORIES),
+    { allowEmpty: false, allowCustom: !isAdminProductBackendEnabled() }
   );
   renderProductComboboxSelect(
     $('#newProductBrandSelect'),
-    collectProductFieldOptions('brand', DEFAULT_PRODUCT_BRANDS),
-    { allowEmpty: true, emptyLabel: '請選擇品牌' }
+    isAdminProductBackendEnabled()
+      ? backendBrands
+      : collectProductFieldOptions('brand', DEFAULT_PRODUCT_BRANDS),
+    { allowEmpty: true, emptyLabel: '請選擇品牌', allowCustom: !isAdminProductBackendEnabled() }
   );
-  setProductComboboxValue('category', '帳篷');
+  setProductComboboxValue('category', backendCategories[0] || '帳篷');
   setProductComboboxValue('brand', '');
 }
 
@@ -403,19 +517,25 @@ function resetProductComboboxFields() {
 function loadProductFormComboboxOptions() {
   var categoryValue = getProductComboboxValue('category');
   var brandValue = getProductComboboxValue('brand');
+  var backendCategories = adminProductLookups.categories.map(function (category) { return category.name; });
+  var backendBrands = adminProductLookups.brands.map(function (brand) { return brand.name; });
 
   renderProductComboboxSelect(
     $('#newProductCategorySelect'),
-    collectProductFieldOptions('category', DEFAULT_PRODUCT_CATEGORIES),
-    { allowEmpty: false }
+    isAdminProductBackendEnabled()
+      ? backendCategories
+      : collectProductFieldOptions('category', DEFAULT_PRODUCT_CATEGORIES),
+    { allowEmpty: false, allowCustom: !isAdminProductBackendEnabled() }
   );
   renderProductComboboxSelect(
     $('#newProductBrandSelect'),
-    collectProductFieldOptions('brand', DEFAULT_PRODUCT_BRANDS),
-    { allowEmpty: true, emptyLabel: '請選擇品牌' }
+    isAdminProductBackendEnabled()
+      ? backendBrands
+      : collectProductFieldOptions('brand', DEFAULT_PRODUCT_BRANDS),
+    { allowEmpty: true, emptyLabel: '請選擇品牌', allowCustom: !isAdminProductBackendEnabled() }
   );
 
-  setProductComboboxValue('category', categoryValue || '帳篷');
+  setProductComboboxValue('category', categoryValue || backendCategories[0] || '帳篷');
   setProductComboboxValue('brand', brandValue);
   refreshProductCategoryFilterOptions();
   refreshProductBrandFilterOptions();
@@ -919,6 +1039,8 @@ function getLowCampKeys(rental) {
 window.initProducts = function () {
   $(document).off('.products');
 
+  syncBackendProductUi();
+
   // 每次進入重置分類 / 品牌篩選
   productFilterState = { category: [], brand: [] };
 
@@ -954,14 +1076,33 @@ window.initProducts = function () {
     onError: function () { productsDeferred.resolve([]); }
   });
 
+  // 正式模式從後端載入分類與品牌 ID，Mock 模式沿用本地顯示值。
+  var lookupsDeferred = $.Deferred();
+  if (isAdminProductBackendEnabled()) {
+    AdminAPI.products.getLookups()
+      .then(function (response) {
+        lookupsDeferred.resolve((response && response.data) || { categories: [], brands: [] });
+      })
+      .catch(function (error) {
+        AdminAPI.handleError(error, '載入商品分類與品牌失敗');
+        lookupsDeferred.resolve({ categories: [], brands: [] });
+      });
+  } else {
+    lookupsDeferred.resolve(null);
+  }
+
+  var minStockPromise = isAdminProductBackendEnabled()
+    ? $.Deferred().resolve({}).promise()
+    : $.getJSON(MockDataPaths.minStock).then(null, function () {
+      // 靜默降級：min_stock.json 不存在或格式錯誤時，回傳空物件
+      return $.Deferred().resolve({}).promise();
+    });
+
   $.when(
     productsDeferred.promise(),
-    $.getJSON(MockDataPaths.minStock).then(null, function () {
-      // 靜默降級：min_stock.json 不存在或格式錯誤時，回傳空物件
-      // Silent fallback: return empty object if min_stock.json is missing or broken
-      return $.Deferred().resolve({}).promise();
-    })
-  ).done(function (productsResult, minStockResult) {
+    minStockPromise,
+    lookupsDeferred.promise()
+  ).done(function (productsResult, minStockResult, lookupsResult) {
     // Ajax 回傳 [data, status, jqXHR]；自訂 deferred 直接回傳 data 陣列
     function unwrapAjaxResult(result) {
       if (Array.isArray(result) && result.length >= 1 && Array.isArray(result[0])) {
@@ -972,8 +1113,16 @@ window.initProducts = function () {
     var products = unwrapAjaxResult(productsResult);
     var minStock = unwrapAjaxResult(minStockResult);
 
+    if (lookupsResult) {
+      adminProductLookups = lookupsResult;
+    }
+
     adminMinStockCache = (minStock && typeof minStock === 'object') ? minStock : {};
-    adminProductsCache = (Array.isArray(products) ? products : []).map(normalizeProductBranch);
+    adminProductsCache = (Array.isArray(products) ? products : []).map(function (product) {
+      return isAdminProductBackendEnabled()
+        ? mapAdminProductResponse(product)
+        : normalizeProductBranch(product);
+    });
     loadProductFormComboboxOptions();
     applyProductCategoryFilterAndRender();
 
@@ -1072,6 +1221,23 @@ window.initProducts = function () {
   // 選擇新圖片時追加至列表並更新預覽 / Append newly selected files to image list
   $(document).on('change.products', '#newProductImages', function () {
     appendNewProductImageFiles(this.files);
+  });
+
+  // 正式模式以圖片 URL 加入預覽，實際上傳功能留待 Cloud Storage 線程。
+  $(document).on('click.products', '#addBackendProductImageUrl', function () {
+    var url = String($('#backendProductImageUrl').val() || '').trim();
+    if (!url || !(url.indexOf('/assets/') === 0 || /^https?:\/\//i.test(url))) {
+      window.showAdminToast('圖片網址必須使用 /assets/... 或 http(s)', 'danger');
+      return;
+    }
+    var $form = $('#addProductForm');
+    var items = getProductImageItems($form);
+    if (!items.some(function (item) { return item.src === url; })) {
+      items.push({ id: 'path:' + url, type: 'path', src: url });
+      setProductImageItems($form, items);
+    }
+    $('#backendProductImageUrl').val('');
+    refreshProductImagePreviews();
   });
 
   // 移除預覽圖（X 按鈕）/ Remove image from list
@@ -1396,6 +1562,12 @@ window.initProducts = function () {
     // 商店新增/編輯：其他情況（含商店編輯時 switch ON 狀態）
     var isRentalEditPath = (editType === 'rental');
 
+    // 正式模式使用精簡 Request，等待 API 成功後才更新畫面快取。
+    if (isAdminProductBackendEnabled()) {
+      submitBackendProductForm(editType === 'store' ? editProductId : null);
+      return;
+    }
+
     // 驗證：名稱必填；非租借編輯路徑時售價也必填
     if (!name || (!isRentalEditPath && price <= 0)) {
       window.showAdminToast(isRentalEditPath ? '請填寫商品名稱' : '請填寫商品名稱和有效的價格', 'danger');
@@ -1511,7 +1683,7 @@ window.initProducts = function () {
       price: price,
       totalStock: newTotalStock,
       branch: newBranchStock,
-      status: existingStatus,
+      status: $('#newProductStatus').val() || existingStatus,
       images: resolvedImages.images,
       specifications: cleanLegacySpecifications(
         oldProductForSave ? oldProductForSave.specifications : {}
@@ -3036,9 +3208,14 @@ function normalizeProductVariants(product) {
       var size = (variant.size || '').trim();
       return {
         id: (variant.id || '').trim(),
+        sku: String(variant.sku || '').trim(),
         color: color,
         size: size,
-        label: (variant.label || '').trim() || buildVariantLabel(color, size),
+        specification: String(variant.specification || '').trim(),
+        label: (variant.label || '').trim() || String(variant.specification || '').trim() || buildVariantLabel(color, size),
+        price: variant.price == null ? '' : String(variant.price),
+        status: variant.status || 'active',
+        availableQuantity: normalizeStockValue(variant.availableQuantity),
         branch: cloneBranchStock(variant.branch),
         camp: cloneCampStock(variant.camp),
         total: normalizeStockValue(variant.total)
@@ -3332,6 +3509,7 @@ function addProductVariantCard(variant, mode) {
   var stockMode = mode || getProductModalStockMode();
   var isEdit = stockMode === 'edit';
   var variantData = variant || {};
+  var hasPersistedVariant = !!variantData.id;
   var variantId = variantData.id || generateVariantId();
   var branchStock = cloneBranchStock(variantData.branch);
   var mainAddQty = normalizeStockValue(branchStock[ADMIN_STORE_WAREHOUSE_ID]);
@@ -3341,7 +3519,8 @@ function addProductVariantCard(variant, mode) {
   var $wrapper = $('<div>', { class: 'col-6 variant-card-col' });
   var $card = $('<div>', {
     class: 'variant-stock-card border rounded p-2',
-    'data-variant-id': variantId
+    'data-variant-id': variantId,
+    'data-persisted-variant-id': hasPersistedVariant ? variantData.id : ''
   });
 
   var $toolbar = $('<div>', { class: 'variant-stock-card__toolbar' });
@@ -3376,10 +3555,48 @@ function addProductVariantCard(variant, mode) {
       type: 'text',
       class: 'form-control form-control-sm variant-size',
       placeholder: '例：L'
-    }).val(variantData.size || '')
+    }).val(variantData.size || ''),
+    $('<label>', { class: 'form-label form-label-sm mt-1' }).text('SKU'),
+    $('<input>', {
+      type: 'text',
+      class: 'form-control form-control-sm variant-sku',
+      maxlength: '64',
+      placeholder: '例：TENT-OLIVE'
+    }).val(variantData.sku || ''),
+    $('<label>', { class: 'form-label form-label-sm mt-1' }).text('規格說明'),
+    $('<input>', {
+      type: 'text',
+      class: 'form-control form-control-sm variant-specification',
+      maxlength: '200',
+      placeholder: '例：深橄欖綠 / L'
+    }).val(variantData.specification || initialTitle),
+    $('<div>', { class: 'row g-2 mt-0' }).append(
+      $('<div>', { class: 'col-7' }).append(
+        $('<label>', { class: 'form-label form-label-sm' }).text('售價'),
+        $('<input>', {
+          type: 'number',
+          class: 'form-control form-control-sm variant-price',
+          min: '0',
+          step: '0.01',
+          placeholder: '3200.00'
+        }).val(variantData.price || $('#newProductPrice').val() || '')
+      ),
+      $('<div>', { class: 'col-5' }).append(
+        $('<label>', { class: 'form-label form-label-sm' }).text('狀態'),
+        $('<select>', { class: 'form-select form-select-sm variant-status' }).append(
+          $('<option>', { value: 'active' }).text('啟用'),
+          $('<option>', { value: 'inactive' }).text('停用')
+        ).val(variantData.status || 'active')
+      )
+    )
   );
 
-  if (isEdit) {
+  if (isAdminProductBackendEnabled()) {
+    $body.append(
+      $('<div>', { class: 'small text-muted mt-2 border-top pt-2' })
+        .text('庫存由庫存異動功能管理，此處只維護商品規格。')
+    );
+  } else if (isEdit) {
     $body.append(
       $('<div>', { class: 'mt-2 variant-branch-section' }).append(
         $(buildVariantBranchListHtml(branchStock))
@@ -3606,9 +3823,10 @@ function getProductVariantsWithStock(mode) {
     var $card = $(this);
     var color = $card.find('.variant-color').val().trim();
     var size = $card.find('.variant-size').val().trim();
-    var label = buildVariantLabel(color, size);
+    var specification = $card.find('.variant-specification').val().trim();
+    var label = specification || buildVariantLabel(color, size);
 
-    if (!color && !size) {
+    if (!color && !size && !specification) {
       return;
     }
 
@@ -3632,9 +3850,14 @@ function getProductVariantsWithStock(mode) {
 
     variants.push({
       id: $card.data('variant-id') || generateVariantId(),
+      persistedId: $card.attr('data-persisted-variant-id') || null,
+      sku: $card.find('.variant-sku').val().trim(),
       color: color,
       size: size,
       label: label,
+      specification: specification || label,
+      price: $card.find('.variant-price').val() || $('#newProductPrice').val() || '0',
+      status: $card.find('.variant-status').val() || 'active',
       branch: branchStock,
       total: getBranchTotal(branchStock)
     });
@@ -4245,9 +4468,11 @@ function fillProductModal(product) {
   setProductComboboxValue('category', product.category || '其他');
   setProductComboboxValue('brand', product.brand || '');
   $('#newProductPrice').val(product.price || '');
+  $('#newProductStatus').val(product.status || 'active');
   setProductDescriptionHtml(product.description || '');
 
   renderProductImagePreviews(product.image || '', product.images || []);
+  syncBackendProductUi();
 }
 
 // 將租借商品資料回填到新增商品 Modal，並帶入各營地庫存明細。
@@ -4296,6 +4521,7 @@ function resetProductModalForm() {
   $('#newRentalWarehouseStock').val(0);
 
   $('#newProductIsRental').prop('checked', false);
+  $('#newProductStatus').val('active');
   $('#newProductStock').prop('readonly', false).removeClass('bg-light').val('0');
   setProductDescriptionHtml('');
   setProductModalMode('add');
@@ -4313,8 +4539,124 @@ function resetProductModalForm() {
   // Loss reason fields have been removed; nothing to reset here.
 
   clearProductImagePreviews();
+  syncBackendProductUi();
 }
 
+/**
+ * 從商品 Modal 建立後端允許的乾淨 Request。
+ * 此處刻意不包含 branch、totalStock、rentalEnabled 或 camp。
+ */
+function buildAdminProductRequestFromForm() {
+  var name = String($('#newProductName').val() || '').trim();
+  var categoryName = getProductComboboxValue('category');
+  var brandName = getProductComboboxValue('brand');
+  var categoryId = findAdminCategoryId(categoryName);
+  var brandId = findAdminBrandId(brandName);
+  var variantState = getProductVariantsWithStock(getProductModalStockMode());
+
+  if (!name) {
+    throw new Error('請填寫商品名稱');
+  }
+  if (categoryId === null) {
+    throw new Error('請選擇後端已建立的商品分類');
+  }
+  if (brandName && brandId === null) {
+    throw new Error('請選擇後端已建立的品牌');
+  }
+  if (!variantState.variants.length) {
+    throw new Error('請至少新增一筆規格');
+  }
+
+  var variants = variantState.variants.map(function (variant, index) {
+    var price = Number(variant.price);
+    if (!variant.sku) {
+      throw new Error('規格 ' + (index + 1) + ' 請填寫 SKU');
+    }
+    if (!variant.specification) {
+      throw new Error('規格 ' + (index + 1) + ' 請填寫規格說明');
+    }
+    if (!Number.isFinite(price) || price < 0) {
+      throw new Error('規格 ' + (index + 1) + ' 售價格式錯誤');
+    }
+
+    return {
+      id: variant.persistedId || null,
+      sku: variant.sku,
+      color: variant.color || null,
+      size: variant.size || null,
+      specification: variant.specification,
+      price: price.toFixed(2),
+      status: variant.status || 'active'
+    };
+  });
+
+  var images = getProductImageItems($('#addProductForm')).map(function (item) {
+    if (item.type === 'file') {
+      throw new Error('正式模式請改用圖片 URL；目前尚未啟用檔案上傳');
+    }
+    return {
+      url: item.src,
+      altText: name
+    };
+  });
+
+  return {
+    name: name,
+    description: getProductDescriptionHtml() || null,
+    categoryId: categoryId,
+    brandId: brandId,
+    status: $('#newProductStatus').val() || 'active',
+    images: images,
+    variants: variants
+  };
+}
+
+/** 正式後端商品送出流程，成功前不修改 adminProductsCache。 */
+function submitBackendProductForm(productId) {
+  var request;
+  try {
+    request = buildAdminProductRequestFromForm();
+  } catch (error) {
+    window.showAdminToast(error.message, 'danger');
+    return;
+  }
+
+  var $button = $('#submitAddProduct');
+  var originalHtml = $button.html();
+  $button
+    .prop('disabled', true)
+    .html('<span class="spinner-border spinner-border-sm me-1"></span>儲存中');
+
+  var operation = productId
+    ? AdminAPI.products.update(productId, request)
+    : AdminAPI.products.create(request);
+  operation.then(function (response) {
+    var saved = mapAdminProductResponse(response.data);
+    var index = adminProductsCache.findIndex(function (product) {
+      return product.id === saved.id;
+    });
+    if (index >= 0) {
+      adminProductsCache[index] = saved;
+    } else {
+      adminProductsCache.unshift(saved);
+    }
+
+    applyProductCategoryFilterAndRender();
+    loadProductFormComboboxOptions();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addProductModal')).hide();
+    resetProductModalForm();
+    window.showAdminToast('商品「' + saved.name + '」已' + (productId ? '更新' : '建立'));
+  }).catch(function (error) {
+    AdminAPI.handleError(error, '儲存商品失敗');
+  }).finally(function () {
+    $button.prop('disabled', false).html(originalHtml);
+    if (typeof window.applyEditPermission === 'function') {
+      window.applyEditPermission('products', $('#addProductModal'));
+    }
+  });
+}
+
+/** Mock 模式只更新本地快取；正式模式由 submitBackendProductForm 等後端成功後再更新。 */
 function upsertAdminProductCache(product) {
   product = normalizeProductBranch(product);
   var index = adminProductsCache.findIndex(function (item) {
@@ -4325,15 +4667,6 @@ function upsertAdminProductCache(product) {
     adminProductsCache[index] = product;
   } else {
     adminProductsCache.unshift(product);
-  }
-
-  if (typeof AdminAPI !== 'undefined' && AdminAPI.products) {
-    var apiCall = index >= 0
-      ? AdminAPI.products.update(product.id, product)
-      : AdminAPI.products.create(product);
-    apiCall.catch(function (err) {
-      AdminAPI.handleError(err, '同步商品資料失敗');
-    });
   }
 }
 
@@ -4561,6 +4894,9 @@ function buildProductRow(p) {
     '<span class="admin-cell-link product-name-cell edit-product-name" ' +
     'title="編輯商品：' + escapeHtml(p.name) + '">' +
     escapeHtml(p.name) +
+    '</span>' +
+    '<span class="badge ms-1 ' + (p.status === 'inactive' ? 'bg-secondary' : 'bg-success') + '">' +
+    (p.status === 'inactive' ? '下架' : '上架') +
     '</span>' +
     '</td>' +
 
@@ -5500,6 +5836,7 @@ function renderProductsTable(products) {
 
   $('#productsTableBody').html(html);
   updateMovementGenerateButtonState();
+  syncBackendProductUi();
 
   if (typeof window.applyEditPermission === 'function') {
     window.applyEditPermission('products', $('#contentArea'));

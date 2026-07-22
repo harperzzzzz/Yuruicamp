@@ -55,7 +55,7 @@
     ],
     "variants": [
       {
-        "id": "v-P001-0",
+        "id": "RSV-R001-01",
         "color": "深橄欖綠",
         "size": "",
         "label": "深橄欖綠",
@@ -73,7 +73,7 @@
         "total": 6
       },
       {
-        "id": "v-P001-1",
+        "id": "RSV-R001-02",
         "color": "沙漠棕",
         "size": "",
         "label": "沙漠棕",
@@ -91,7 +91,7 @@
         "total": 4
       },
       {
-        "id": "v-P001-2",
+        "id": "RSV-R001-03",
         "color": "太空灰",
         "size": "",
         "label": "太空灰",
@@ -166,7 +166,7 @@
     ],
     "variants": [
       {
-        "id": "v-P002-0",
+        "id": "RSV-R002-01",
         "color": "沙漠卡其",
         "size": "",
         "label": "沙漠卡其",
@@ -241,7 +241,7 @@
     ],
     "variants": [
       {
-        "id": "v-P003-0",
+        "id": "RSV-R018-01",
         "color": "",
         "size": "S",
         "label": "S",
@@ -259,7 +259,7 @@
         "total": 7
       },
       {
-        "id": "v-P003-1",
+        "id": "RSV-R018-02",
         "color": "",
         "size": "M",
         "label": "M",
@@ -277,7 +277,7 @@
         "total": 7
       },
       {
-        "id": "v-P003-2",
+        "id": "RSV-R018-03",
         "color": "",
         "size": "L",
         "label": "L",
@@ -352,7 +352,7 @@
     ],
     "variants": [
       {
-        "id": "v-P004-0",
+        "id": "RSV-R005-01",
         "color": "",
         "size": "-10°C",
         "label": "-10°C",
@@ -370,7 +370,7 @@
         "total": 6
       },
       {
-        "id": "v-P004-1",
+        "id": "RSV-R005-02",
         "color": "",
         "size": "-5°C",
         "label": "-5°C",
@@ -388,7 +388,7 @@
         "total": 3
       },
       {
-        "id": "v-P004-2",
+        "id": "RSV-R005-03",
         "color": "",
         "size": "0°C",
         "label": "0°C",
@@ -463,7 +463,7 @@
     ],
     "variants": [
       {
-        "id": "v-P005-0",
+        "id": "RSV-R006-01",
         "color": "標準版",
         "size": "",
         "label": "標準版",
@@ -538,7 +538,7 @@
     ],
     "variants": [
       {
-        "id": "v-P006-0",
+        "id": "RSV-R007-01",
         "color": "鈦金屬原色",
         "size": "",
         "label": "鈦金屬原色",
@@ -613,7 +613,7 @@
     ],
     "variants": [
       {
-        "id": "v-P007-0",
+        "id": "RSV-R011-01",
         "color": "暖白光",
         "size": "",
         "label": "暖白光",
@@ -631,7 +631,7 @@
         "total": 4
       },
       {
-        "id": "v-P007-1",
+        "id": "RSV-R011-02",
         "color": "冷白光",
         "size": "",
         "label": "冷白光",
@@ -706,7 +706,7 @@
     ],
     "variants": [
       {
-        "id": "v-P008-0",
+        "id": "RSV-R013-01",
         "color": "森林綠",
         "size": "35L",
         "label": "森林綠 / 35L",
@@ -724,7 +724,7 @@
         "total": 3
       },
       {
-        "id": "v-P008-1",
+        "id": "RSV-R013-02",
         "color": "森林綠",
         "size": "45L",
         "label": "森林綠 / 45L",
@@ -799,7 +799,7 @@
     ],
     "variants": [
       {
-        "id": "v-P009-0",
+        "id": "RSV-R008-01",
         "color": "鋁合金輕量版",
         "size": "",
         "label": "鋁合金輕量版",
@@ -874,7 +874,7 @@
     ],
     "variants": [
       {
-        "id": "v-P011-0",
+        "id": "RSV-R003-01",
         "color": "象牙白",
         "size": "",
         "label": "象牙白",
@@ -949,7 +949,7 @@
     ],
     "variants": [
       {
-        "id": "v-P012-0",
+        "id": "RSV-R004-01",
         "color": "深藍",
         "size": "M",
         "label": "深藍 / M",
@@ -967,7 +967,7 @@
         "total": 6
       },
       {
-        "id": "v-P012-1",
+        "id": "RSV-R004-02",
         "color": "深藍",
         "size": "L",
         "label": "深藍 / L",
@@ -1042,7 +1042,7 @@
     ],
     "variants": [
       {
-        "id": "v-P013-0",
+        "id": "RSV-R009-01",
         "color": "胡桃木紋",
         "size": "",
         "label": "胡桃木紋",
@@ -1117,7 +1117,7 @@
     ],
     "variants": [
       {
-        "id": "v-P014-0",
+        "id": "RSV-R010-01",
         "color": "軍綠",
         "size": "",
         "label": "軍綠",
@@ -1192,7 +1192,7 @@
     ],
     "variants": [
       {
-        "id": "v-P015-0",
+        "id": "RSV-R012-01",
         "color": "USB-C",
         "size": "",
         "label": "USB-C",
@@ -1267,7 +1267,7 @@
     ],
     "variants": [
       {
-        "id": "v-P016-0",
+        "id": "RSV-R014-01",
         "color": "岩石灰",
         "size": "",
         "label": "岩石灰",
@@ -1342,7 +1342,7 @@
     ],
     "variants": [
       {
-        "id": "v-P017-0",
+        "id": "RSV-R015-01",
         "color": "折疊式",
         "size": "",
         "label": "折疊式",
@@ -1417,7 +1417,7 @@
     ],
     "variants": [
       {
-        "id": "v-P018-0",
+        "id": "RSV-R016-01",
         "color": "4x4m",
         "size": "",
         "label": "4x4m",
@@ -1492,7 +1492,7 @@
     ],
     "variants": [
       {
-        "id": "v-P019-0",
+        "id": "RSV-R017-01",
         "color": "標準套組",
         "size": "",
         "label": "標準套組",
@@ -1567,7 +1567,7 @@
     ],
     "variants": [
       {
-        "id": "v-P020-0",
+        "id": "RSV-R019-01",
         "color": "500Wh",
         "size": "",
         "label": "500Wh",
@@ -1642,7 +1642,7 @@
     ],
     "variants": [
       {
-        "id": "v-P021-0",
+        "id": "RSV-R020-01",
         "color": "深藍",
         "size": "",
         "label": "深藍",
@@ -1717,7 +1717,7 @@
     ],
     "variants": [
       {
-        "id": "v-P022-0",
+        "id": "RSV-R021-01",
         "color": "L號",
         "size": "",
         "label": "L號",
@@ -1792,7 +1792,7 @@
     ],
     "variants": [
       {
-        "id": "v-P023-0",
+        "id": "RSV-R022-01",
         "color": "不鏽鋼",
         "size": "",
         "label": "不鏽鋼",
@@ -1867,7 +1867,7 @@
     ],
     "variants": [
       {
-        "id": "v-P024-0",
+        "id": "RSV-R023-01",
         "color": "一對",
         "size": "",
         "label": "一對",
@@ -1942,7 +1942,7 @@
     ],
     "variants": [
       {
-        "id": "v-P025-0",
+        "id": "RSV-R024-01",
         "color": "GPS版",
         "size": "",
         "label": "GPS版",
@@ -2017,7 +2017,7 @@
     ],
     "variants": [
       {
-        "id": "v-P026-0",
+        "id": "RSV-R025-01",
         "color": "雙人",
         "size": "",
         "label": "雙人",
@@ -2092,7 +2092,7 @@
     ],
     "variants": [
       {
-        "id": "v-P027-0",
+        "id": "RSV-R026-01",
         "color": "20L",
         "size": "",
         "label": "20L",
@@ -2167,7 +2167,7 @@
     ],
     "variants": [
       {
-        "id": "v-P028-0",
+        "id": "RSV-R027-01",
         "color": "不鏽鋼",
         "size": "",
         "label": "不鏽鋼",
@@ -2242,7 +2242,7 @@
     ],
     "variants": [
       {
-        "id": "v-P029-0",
+        "id": "RSV-R028-01",
         "color": "通用型",
         "size": "",
         "label": "通用型",

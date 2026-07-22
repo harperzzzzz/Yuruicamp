@@ -5,9 +5,9 @@
 - /backend/README.md
 - /docs/seed/README.md
 - README.md
-- /docs/api/payment-api-contract.md
-- /docs/api/booking-api-contract.md
 - \plans\backend-implementation-checklist.md
+- \plans\frontend-folder-migration-spec.md
+- \plans\frontend-root-absolute-path-and-api-contract-spec.md
 
 
 # 限制條件:
@@ -24,7 +24,9 @@
     - 方法內部的邏輯區塊：用一個空行隔開「參數驗證」、「業務邏輯」、「回傳結果」。
     - Controller 的每個端口都要用中文註解標註在做什麼功能，簡短描述就好。
 - 不要破壞backend 文件層架構，嚴格遵守
+- 不要破壞frontend 文件層架構，嚴格遵守
 - 只使用spring boot 現有的依賴和套件不要新增其他的。
+- 所有前端行為都要以後端為主。
 
 - 有新增seed 資料的話遵守以下架構不要破壞。
 docs/seed/
@@ -39,11 +41,12 @@ docs/seed/
     ├── 060-orders.sql        # 可選：開發展示訂單
     └── 070-bookings.sql      # 可選：開發展示預約
 
+- frontend/data/* 同步都要依/docs/seed/* 的資料為準去同步。
 - 所有文件敘述都用/docs/seed/README.md 的方式去參考
 
 # 預期目標:
 - 嚴格遵守限制條件完成任務
-- 完成任務後，在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件，test 文件參考以下格式。
+- 完成任務後，後端在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，前端在/docs/frontend-specs/test/ 下建立網頁的驗證流程，詳細說明步驟，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件，test 文件參考以下格式。
     ### swagger 驗證流程
 
     測試前確認：

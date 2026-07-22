@@ -43,12 +43,40 @@ public class EquipmentImage {
 		return itemId;
 	}
 
+	public void setItemId(String itemId) {
+		this.itemId = itemId;
+	}
+
 	public int getSortOrder() {
 		return sortOrder;
 	}
 
+	public void setSortOrder(int sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+
 	public String getUrl() {
 		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getAltText() {
+		return altText;
+	}
+
+	public void setAltText(String altText) {
+		this.altText = altText;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
 	/** Composite primary key for (item_id, sort_order). */

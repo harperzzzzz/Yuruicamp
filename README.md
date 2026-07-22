@@ -39,7 +39,9 @@
 - Admin 線 G 的 G-1、G-5 已完成程式與非 DB 測試：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已完成，權限頁保留 Mock／Backend 雙模式。PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑後勾選 checklist。
 - Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
 - Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
-- Admin RBAC、Customers、Orders 與 Bookings Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
+- Admin 線 G 的 G-2c Products 已完成並通過 PostgreSQL 整合驗收：商品、規格與圖片以單一交易同步，庫存只讀且交由 G-3 異動；前端 Backend 模式只送契約欄位，API 成功後才更新 cache。
+- G-2c 前端驗收於 2026-07-22 完成 API、Mock UI、資料庫與 build 實測；Backend UI 因 G-6 尚未提供永久切換，仍需依 [`G-2c 前端驗收流程`](./docs/frontend-specs/test/g2c-admin-products.md) 在 DevTools Console 啟用後完成 Network 與錯誤狀態人工核對。
+- Admin RBAC、Customers、Orders、Bookings 與 Products Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
@@ -48,6 +50,11 @@
 - Checkout I-5 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order、不消耗前端優惠券，ECPay 也不在本站收集卡號、到期日或 CVV。
 - Checkout I-6 已完成：Draft 可 PATCH 補資料，Ready 顯示後端金額與 15 分鐘倒數；逾時／取消會清除 Session、保留購物車，並依後端錯誤碼提供重新登入、調整庫存或重建 Checkout 操作。
 - 開發 Seed 已提供 `DEV-STORE-MAIN` 與 `V001` 的 `10` 件庫存，可直接從 Swagger 驗證 Checkout。
+- Reference Seed 已對齊前端展示資料：12 個公開品牌、8 個 active 營區、13 個 active zone、營區標籤與 3 個門市；品牌 JSON 已改用後端 canonical slug，詳見 [`JSON／Seed 固定 ID 對照`](./docs/data/json-seed-id-mapping.md)。
+- 租借 Seed 已建立 28 SKU、37 canonical 規格、9 個固定租借庫位、16 筆有明確定價的 listing 與 333 筆規格庫存；租借 Mock 與預約快照也已改用 `RSV-Rxxx-xx`。
+- 優惠券 Seed 已建立固定 ID 1～7 的 7 張券；目前沒有領券案例，尚未建立 claim，已領數維持 `0`。
+- 交易 Seed 已加入 U001～U050、222 筆訂單與 90 筆預訂；商品快照已使用 canonical variant／SKU，預訂平假日天數與金額已依主檔重算。評論、庫存異動與庫存保留留待後續階段。
+- 完整 Seed 已於 2026-07-22 使用獨立 PostgreSQL 16 空資料庫實灌：`latest_schema.sql` 加 `010`～`070` 在單一交易成功 `COMMIT`，主要筆數與外鍵孤兒檢查通過；流程見 [`完整 Seed 全新資料庫驗證`](./docs/backend-specs/test/full-seed-fresh-database.md)。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
 
@@ -207,6 +214,7 @@ A: 不行。請用 `.env`（已在 `.gitignore`），範本用 `.env.example`。
 | [`docs/schema-enums.md`](./docs/schema-enums.md)                               | status / category 等 ENUM 允許值                             |
 | [`docs/database-documents/`](./docs/database-documents/)                       | 各業務表領域說明                                             |
 | [`docs/seed/README.md`](./docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [`docs/data/json-seed-id-mapping.md`](./docs/data/json-seed-id-mapping.md)     | JSON／Seed 固定 ID：商品、規格、品牌、營區、zone、標籤、門市、租借 SKU |
 | [`plans/data-integration-spec.md`](./plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
 | [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準）   |
 
@@ -481,6 +489,7 @@ npm run normalize:data
 | [docs/schema-enums.md](docs/schema-enums.md)                               | 狀態／分類枚舉允許值                                         |
 | [docs/database-documents/](docs/database-documents/)                       | 各業務表領域說明（含快照欄位語意）                           |
 | [docs/seed/README.md](docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [docs/data/json-seed-id-mapping.md](docs/data/json-seed-id-mapping.md)     | JSON／Seed 固定 ID：商品、規格、品牌、營區、zone、標籤、門市、租借 SKU |
 | [plans/data-integration-spec.md](plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
 | [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史）                              |
 

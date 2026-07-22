@@ -247,6 +247,12 @@ coupons
     - 使用時將 claim 改成 consumed(消耗)。
     - 設為consumed(消耗) 後不會再回復成 claimed(擁有)。
 
+* 開發 Seed 現況
+    - `050-coupons.sql` 先建立固定 ID 1～7 的優惠券主檔。
+    - 首次載入尚無會員與 `coupon_claims`，所以主檔 `claimed_quantity` 為 0。
+    - 後續會員 Seed 必須建立 claim 明細，由資料庫領券流程維護名額，不可只修改主檔計數。
+    - 重跑 `050-coupons.sql` 會保留既有 `claimed_quantity`，避免破壞後續會員 claim。
+
 
 
 ## 程式碼追蹤
