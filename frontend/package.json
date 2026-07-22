@@ -25,6 +25,8 @@
     "test:admin-orders-bookings": "node tests/admin-orders-bookings-facade.mjs",
     "test:admin-products": "node tests/admin-products-facade.mjs",
     "test:admin-inventory": "node tests/admin-inventory-movements-facade.mjs",
+    "test:admin-g4": "node tests/admin-g4-facade.mjs",
+    "test:admin-g6": "node tests/admin-g6-runtime.mjs",
     "smoke:browser": "node tests/smoke-browser-encoding.mjs",
     "validate:data": "node admin/scripts/validate-data-fk.cjs",
     "check:listings": "node admin/scripts/sync-rental-listings.cjs",

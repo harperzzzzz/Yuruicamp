@@ -5,6 +5,14 @@
 * product_stock_reservations
     商品訂單的數量提前管控表
 
+## 開發 Seed 現況（2026-07-22）
+
+- `060-orders.sql` 已由 435 筆 `order_items` 建立 435 筆商城保留：68 active、28 expired、339 fulfilled。active 數量總計 98。
+- 舊訂單沒有出貨倉欄位，固定 Seed 政策是使用前端定義的主倉 `main`；不從地址猜測分店。
+- `040-inventory.sql` 的 main on-hand 已加回 active 保留量，因此後端扣除保留後，28 個 active 商品的可用量總計為 399，與 `products.json` 一致。
+- `070-bookings.sql` 已由 40 筆 `booking_selected_rentals` 建立 40 筆租借保留：22 active、4 released、14 fulfilled。
+- 9 筆租借庫存已對齊 active 區間的最大重疊需求，SQL 驗證 `rental_overlap_over_stock = 0`。保留的交易明細／variant 複合 FK 與地點／domain 複合 FK 孤兒均為 0。
+
 ## 關聯與資料流
 ```text
 order_items

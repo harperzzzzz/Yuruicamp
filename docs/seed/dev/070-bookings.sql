@@ -465,6 +465,92 @@ ON CONFLICT (id) DO UPDATE SET
     actor_id = EXCLUDED.actor_id,
     note = EXCLUDED.note;
 
+-- 40 筆租借快照的 variant、listing、營區庫位與日期都可由預訂明細唯一推導，因此建立租借庫存保留。
+INSERT INTO public.rental_stock_reservations (
+    id,
+    booking_selected_rental_id,
+    rental_sku_variant_id,
+    location_id,
+    check_in,
+    check_out,
+    quantity,
+    status,
+    idempotency_key,
+    reserved_at,
+    released_at,
+    fulfilled_at,
+    inventory_domain
+) OVERRIDING SYSTEM VALUE
+SELECT
+    1000000 + selected_rental.id,
+    selected_rental.id,
+    selected_rental.rental_sku_variant_id,
+    rental_location.location_id,
+    booking.check_in,
+    booking.check_out,
+    selected_rental.quantity,
+    CASE
+        WHEN booking.status = 'cancelled' THEN 'released'
+        WHEN booking.status = 'completed' THEN 'fulfilled'
+        ELSE 'active'
+    END,
+    'seed-booking-rental-' || selected_rental.id,
+    booking.created_at,
+    CASE
+        WHEN booking.status = 'cancelled' THEN COALESCE(
+            (
+                SELECT min(history.occurred_at)
+                FROM public.booking_status_history history
+                WHERE history.booking_id = booking.id
+                  AND history.status = 'cancelled'
+            ),
+            booking.updated_at
+        )
+        ELSE NULL
+    END,
+    CASE
+        WHEN booking.status = 'completed' THEN COALESCE(
+            (
+                SELECT min(history.occurred_at)
+                FROM public.booking_status_history history
+                WHERE history.booking_id = booking.id
+                  AND history.status = 'completed'
+            ),
+            booking.updated_at
+        )
+        ELSE NULL
+    END,
+    'rental'
+FROM public.booking_selected_rentals selected_rental
+JOIN public.bookings booking ON booking.id = selected_rental.booking_id
+JOIN public.campground_rental_locations rental_location
+  ON rental_location.campground_id = booking.campground_id
+WHERE booking.id ~ '^[0-9]+$'
+  AND booking.id::integer BETWEEN 1 AND 90
+ON CONFLICT (id) DO UPDATE SET
+    booking_selected_rental_id = EXCLUDED.booking_selected_rental_id,
+    rental_sku_variant_id = EXCLUDED.rental_sku_variant_id,
+    location_id = EXCLUDED.location_id,
+    check_in = EXCLUDED.check_in,
+    check_out = EXCLUDED.check_out,
+    quantity = EXCLUDED.quantity,
+    status = EXCLUDED.status,
+    idempotency_key = EXCLUDED.idempotency_key,
+    reserved_at = EXCLUDED.reserved_at,
+    released_at = EXCLUDED.released_at,
+    fulfilled_at = EXCLUDED.fulfilled_at,
+    inventory_domain = EXCLUDED.inventory_domain;
+
+-- frontend/data/admin/reviews.json 只有 REV031 明確提供 orderId=208，並可唯一對到訂單明細 602081；其餘評論不猜測交易關聯。
+INSERT INTO public.reviews (id, order_item_id, rating, comment, created_at)
+VALUES ('REV031', 602081, 5, '暑假出貨很快，帳篷品質很棒！', TIMESTAMPTZ '2026-07-10T10:00:00+08:00')
+ON CONFLICT (id) DO UPDATE SET
+    order_item_id = EXCLUDED.order_item_id,
+    rating = EXCLUDED.rating,
+    comment = EXCLUDED.comment,
+    created_at = EXCLUDED.created_at;
+
 SELECT setval('public.booking_selected_zones_id_seq', GREATEST((SELECT max(id) FROM public.booking_selected_zones), 1), true);
 SELECT setval('public.booking_selected_rentals_id_seq', GREATEST((SELECT max(id) FROM public.booking_selected_rentals), 1), true);
 SELECT setval('public.booking_status_history_id_seq', GREATEST((SELECT max(id) FROM public.booking_status_history), 1), true);
+SELECT setval('public.rental_stock_reservations_id_seq', GREATEST((SELECT max(id) FROM public.rental_stock_reservations), 1), true);

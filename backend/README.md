@@ -113,16 +113,20 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | API 契約索引（P0+P1）               | [`docs/api/README.md`](../docs/api/README.md)                                                                                                                                                                                                            |
 | 商品契約（已實作）                  | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md)                                                                                                                                                                                |
 | 代辦清單 A～J                       | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md)                                                                                                                                                              |
-| **G-1／G-5 Admin RBAC**             | 🔄 程式、非 DB 測試與權限頁雙模式接線完成；PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑，全站 Backend 切換仍待 G-6                                                                                                                                       |
+| **G-1／G-5 Admin RBAC**             | ✅ 細權限、管理員白名單 CRUD、個別覆寫、每請求授權與正式 Admin Session 接線完成；見 [`G-1／G-5 文件`](../docs/backend-specs/admin/g1-g5-admin-rbac.md)                                                                                                   |
 | **G-2a Admin Customers**            | ✅ 列表、篩選、詳情、基本資料更新、停權／恢復、RBAC、前端雙模式與 PostgreSQL 整合驗收已完成                                                                                                                                                       |
 | **G-2b Admin Orders／Bookings**     | ✅ 列表、詳情、履約狀態命令、RBAC、前端雙模式、PostgreSQL 整合測試與 Swagger 驗收完成                                                                                                                                                       |
 | **G-2c Admin Products**             | ✅ 商品／規格／圖片正規化交易、唯讀庫存、上下架、RBAC、前端乾淨 Request 與 PostgreSQL 整合驗收完成；見 [`G-2c 文件`](../docs/backend-specs/catalog/g2c-admin-products.md)                                                                 |
 | **G-3 Admin Inventory**             | ✅ 商城／租借 draft、明細、入庫、出庫／損耗、同領域調撥、悲觀鎖過帳、作廢、冪等、RBAC 與前端雙模式完成；見 [`G-3 文件`](../docs/backend-specs/inventory/g3-admin-inventory-movements.md)                                 |
-| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C 與商城 Coupon 已完成；Booking Coupon、Payment 與 G-4 待實作                                                                                                                                                                            |
+| **G-4 Admin Coupons／Closures**     | ✅ 優惠券與營區公休 CRUD、安全刪除、建立者紀錄、RBAC、前端 backend-first 與 PostgreSQL 整合驗收完成；見 [`Coupon`](../docs/backend-specs/coupon/g4-admin-coupons.md)／[`Closures`](../docs/backend-specs/booking/g4-admin-campground-closures.md) |
+| **G-6 Admin Runtime**               | ✅ Firebase Google／dev Session、有效權限初始化、401 Token 刷新、readiness gate 與全站 Backend 切換完成；見 [`G-6 文件`](../docs/backend-specs/admin/g6-admin-runtime.md)                                                                                |
+| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C、商城 Coupon 與 G 線已完成；Booking Coupon、Payment 及 readiness 中標示的後台延伸功能待後續契約                                                                                                                                     |
 
 ### Schema 整合驗證
 
 `RUN_BACKEND_IT=true` 時，`BackendApplicationTests` 會連線 Docker PostgreSQL 並載入完整 Spring Context；因 `ddl-auto=validate`，Context 成功即代表目前所有 JPA Entity 已通過 Schema 驗證。
+
+G 線於 2026-07-22 同批執行 RBAC、Customers、Orders／Bookings、Products、Inventory 與 G-4 六個 PostgreSQL 類別，結果為 **14 tests、0 failure、0 error、0 skipped**。
 
 `DB_PASSWORD` 必須與 Docker `.env` 的 `POSTGRES_PASSWORD` 相同。若出現 `password authentication failed`，先修正連線密碼；不要修改 Entity，也不要將 `ddl-auto` 改成 `update`。
 
@@ -137,7 +141,7 @@ docker compose up -d
 docker exec yuruicamp-db psql -U postgres -d yuruicamp -f /docker-entrypoint-initdb.d/002-dev-seed.sql
 ```
 
-重跑會將 `DEV-STORE-MAIN` 的 `V001` 現有庫存更新為 `10`，請先確認不需要保留手動測試狀態。
+重跑會將 `main`、`branch-001`～`branch-003` 的 156 筆商城庫存與 435 筆訂單保留還原為固定 Seed 狀態，請先確認不需要保留同 ID 的手動測試資料。
 
 驗收：
 

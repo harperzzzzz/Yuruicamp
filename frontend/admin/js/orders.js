@@ -904,6 +904,12 @@ window.showOrderModal = function (order) {
   if (typeof window.applyEditPermission === 'function') {
     window.applyEditPermission('orders', $('#orderDetailModal'));
   }
+  if (isOrderBackendEnabled()) {
+    $('#modalSellerNote')
+      .prop('disabled', true)
+      .attr('placeholder', '正式後端尚未提供賣家備註端點');
+    $('#btnSaveSellerNote').addClass('d-none');
+  }
 
   // 開啟時無未儲存變更 → 隱藏「儲存」按鈕
   updateSellerNoteSaveButton();
@@ -917,6 +923,10 @@ window.showOrderModal = function (order) {
  * Compare current textarea with saved baseline; toggle save button visibility
  */
 function updateSellerNoteSaveButton() {
+  if (isOrderBackendEnabled()) {
+    $('#btnSaveSellerNote').addClass('d-none');
+    return;
+  }
   if (typeof window.canEdit === 'function' && !window.canEdit('orders')) {
     $('#btnSaveSellerNote').addClass('d-none');
     return;

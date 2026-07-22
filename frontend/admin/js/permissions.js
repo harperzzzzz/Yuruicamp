@@ -198,8 +198,10 @@ function canRemoveSuperAdminStatus(employee, employees) {
   return { ok: true };
 }
 
-// 模組載入時初始化種子資料 / Initialize seed data on script load
-initEmployeeStore();
+// 正式模式不建立 localStorage 員工種子；Mock 模式才初始化展示資料。
+if (!isPermissionBackendEnabled()) {
+  initEmployeeStore();
+}
 
 // 匯出給 login.html 使用 / Expose helpers for login page
 window.fetchEmployees = fetchEmployees;
@@ -599,14 +601,26 @@ function saveBackendEmployeeFromModal() {
     : AdminAPI.users.create({ name: name, email: email, role: role });
 
   $('#saveEmployeeBtn').prop('disabled', true);
+  var savedAdminUserId = '';
   accountRequest
     .then(function (result) {
       var adminUserId = editId || result.data.id;
+      savedAdminUserId = adminUserId;
       return AdminAPI.users.updatePermissions(adminUserId, readBackendPermissionCodes());
+    })
+    .then(function () {
+      if (savedAdminUserId === (sessionStorage.getItem('adminId') || '') && window.AdminRuntime) {
+        return window.AdminRuntime.refreshBackendSession({ forceRefresh: false });
+      }
+      return null;
     })
     .then(function () {
       bootstrap.Modal.getInstance(document.getElementById('employeeModal')).hide();
       window.showAdminToast(editId ? '管理員資料已更新' : '管理員已建立');
+      if (savedAdminUserId === (sessionStorage.getItem('adminId') || '')) {
+        window.location.reload();
+        return;
+      }
       renderEmployeeTable();
     })
     .catch(function (err) {

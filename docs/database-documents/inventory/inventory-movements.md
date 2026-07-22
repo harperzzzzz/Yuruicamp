@@ -5,6 +5,17 @@
 * rental_inventory_movement_items  
     租借庫存異動明細關聯表；記錄租借 SKU 規格及異動當下的 SKU、品名快照。
 
+## 舊 Mock 搬移結論（2026-07-22）
+
+`frontend/data/admin/movement.json` 目前保留為 Mock，Seed 不建立 `inventory_movements`，原因是來源不足以滿足本文件的 variant、表頭與員工 FK 約束：
+
+- 100 張異動、141 筆明細全部只有 `productId`，沒有 variantId；其中 24 筆屬於多規格商品，無法唯一對到 `product_variants`。
+- 26 張異動在同一表頭混合不同 type／from／to，不能對到單一 `inventory_domain + movement_type + locations` 表頭。
+- `employeeId` 只有 01、02、03，沒有可追溯的 `admin_users` 主檔對照。
+- 「調撥」為商城→租借跨領域異動，必須拆為 `conversion_out` 與 `conversion_in`；舊 JSON 並沒有共用轉換單號或 canonical 租借 variant。
+
+後續最低補件為：每筆明細的 canonical variantId，每張單唯一的領域／type／來源／目的，01～03 的 `admin_users.id` 對照，以及跨領域調撥的配對 ID。資料齊備前不得用單一規格或開發管理員代填。
+
 
 ## 關聯與資料流
 inventory_movements

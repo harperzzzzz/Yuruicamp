@@ -28,7 +28,7 @@
 | P0   | [`payment-api-contract.md`](./payment-api-contract.md)     | D    | Locked v0.1（待實作）                                                                           |
 | P1   | [`booking-api-contract.md`](./booking-api-contract.md)     | E    | Locked v0.9（E-1～E-7 已實作；Booking Prepare／Reservation 完成，ECPay、優惠券分別延後至 D、F） |
 | P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)       | F    | Partially Implemented v0.2（商城完成；Booking 關聯 Schema 待決定）                                |
-| P1   | [`admin-api-contract.md`](./admin-api-contract.md)         | G    | Locked v0.6（G-1、G-2a～G-3、G-5 已實作；G-4、G-6 待做）                                     |
+| P1   | [`admin-api-contract.md`](./admin-api-contract.md)         | G    | Locked v0.8（G-1～G-6 正式接線完成；未就緒子功能依 readiness 停用）                           |
 
 ### 刻意延後（P2，本輪不寫死）
 

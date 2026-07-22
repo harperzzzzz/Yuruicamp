@@ -149,6 +149,9 @@ const colors = {
 ## Implementation Notes
 
 - Source file: `admin/login.html`.
+- G-6 正式模式以 Google Firebase popup 登入，再呼叫 `/api/admin/auth/firebase/session`；不接受員工 ID／任意密碼。
+- development 顯示 dev Token 驗收入口；正式環境隱藏。Firebase 未設定、白名單拒絕、停用與 Token 逾期都使用既有 alert／disabled 狀態呈現。
+- Firebase ID Token 不寫入 Web Storage；Dashboard 重新載入時由 Firebase SDK 還原使用者並向後端重取有效權限。
 - Shared CSS source: `admin/css/admin.css`.
 - Shared components: admin/dashboard.html shell and admin partial loader.
 - Key UI areas: loginForm, togglePassword, loginError.

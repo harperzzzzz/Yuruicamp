@@ -125,4 +125,29 @@ function jsonResponse(status, payload) {
   );
 }
 
+{
+  const tokens = [];
+  let requestCount = 0;
+  const runtime = createRuntime(async (_url, options) => {
+    requestCount += 1;
+    tokens.push(options.headers.get('Authorization'));
+    if (requestCount === 1) {
+      return jsonResponse(401, { success: false, error: { code: 'UNAUTHORIZED' } });
+    }
+    return jsonResponse(200, { success: true, data: { refreshed: true } });
+  });
+  runtime.AppAuth.configure({
+    auth: {
+      currentUser: {
+        getIdToken: async forceRefresh => forceRefresh ? 'fresh-token' : 'expired-token',
+      },
+    },
+  });
+
+  const result = await runtime.ApiClient._restRequest('/admin/users', { auth: 'required' });
+  assert.equal(requestCount, 2);
+  assert.deepEqual(tokens, ['Bearer expired-token', 'Bearer fresh-token']);
+  assert.equal(result.refreshed, true);
+}
+
 console.log('API client checks passed');

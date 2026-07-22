@@ -17,8 +17,8 @@
         "size": null,
         "specification": "深橄欖綠",
         "price": "3200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 3,
+        "inStock": true
       },
       {
         "id": "V002",
@@ -27,8 +27,8 @@
         "size": null,
         "specification": "沙漠棕",
         "price": "3300.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 2,
+        "inStock": true
       },
       {
         "id": "V003",
@@ -60,8 +60,8 @@
         "size": null,
         "specification": "沙漠卡其",
         "price": "9800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 14,
+        "inStock": true
       }
     ]
   },
@@ -83,8 +83,8 @@
         "size": "S",
         "specification": "S",
         "price": "1200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 6,
+        "inStock": true
       },
       {
         "id": "V003-02",
@@ -93,8 +93,8 @@
         "size": "M",
         "specification": "M",
         "price": "1200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 6,
+        "inStock": true
       },
       {
         "id": "V003-03",
@@ -103,8 +103,8 @@
         "size": "L",
         "specification": "L",
         "price": "1200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 3,
+        "inStock": true
       }
     ]
   },
@@ -126,8 +126,8 @@
         "size": "-10°C",
         "specification": "-10°C",
         "price": "2800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 6,
+        "inStock": true
       },
       {
         "id": "V004-02",
@@ -136,8 +136,8 @@
         "size": "-5°C",
         "specification": "-5°C",
         "price": "2800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 4,
+        "inStock": true
       },
       {
         "id": "V004-03",
@@ -146,8 +146,8 @@
         "size": "0°C",
         "specification": "0°C",
         "price": "2800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 1,
+        "inStock": true
       }
     ]
   },
@@ -169,8 +169,8 @@
         "size": null,
         "specification": "標準版",
         "price": "5000.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 11,
+        "inStock": true
       }
     ]
   },
@@ -192,8 +192,8 @@
         "size": null,
         "specification": "鈦金屬原色",
         "price": "1800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 10,
+        "inStock": true
       }
     ]
   },
@@ -215,8 +215,8 @@
         "size": null,
         "specification": "暖白光",
         "price": "800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 7,
+        "inStock": true
       },
       {
         "id": "V007-02",
@@ -225,8 +225,8 @@
         "size": null,
         "specification": "冷白光",
         "price": "800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 7,
+        "inStock": true
       }
     ]
   },
@@ -248,8 +248,8 @@
         "size": "35L",
         "specification": "森林綠 / 35L",
         "price": "1600.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 8,
+        "inStock": true
       },
       {
         "id": "V008-02",
@@ -258,8 +258,8 @@
         "size": "45L",
         "specification": "森林綠 / 45L",
         "price": "1600.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 9,
+        "inStock": true
       }
     ]
   },
@@ -281,8 +281,8 @@
         "size": null,
         "specification": "鋁合金輕量版",
         "price": "2800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 26,
+        "inStock": true
       }
     ]
   },
@@ -304,8 +304,8 @@
         "size": null,
         "specification": "象牙白",
         "price": "8500.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 10,
+        "inStock": true
       }
     ]
   },
@@ -327,8 +327,8 @@
         "size": "M",
         "specification": "深藍 / M",
         "price": "2200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 11,
+        "inStock": true
       },
       {
         "id": "V012-02",
@@ -337,8 +337,8 @@
         "size": "L",
         "specification": "深藍 / L",
         "price": "2200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 10,
+        "inStock": true
       }
     ]
   },
@@ -360,8 +360,8 @@
         "size": null,
         "specification": "胡桃木紋",
         "price": "1500.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 9,
+        "inStock": true
       }
     ]
   },
@@ -383,8 +383,8 @@
         "size": null,
         "specification": "軍綠",
         "price": "980.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 15,
+        "inStock": true
       }
     ]
   },
@@ -406,8 +406,8 @@
         "size": null,
         "specification": "USB-C",
         "price": "650.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 12,
+        "inStock": true
       }
     ]
   },
@@ -429,8 +429,8 @@
         "size": null,
         "specification": "岩石灰",
         "price": "4200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 12,
+        "inStock": true
       }
     ]
   },
@@ -452,8 +452,8 @@
         "size": null,
         "specification": "折疊式",
         "price": "3600.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 11,
+        "inStock": true
       }
     ]
   },
@@ -475,8 +475,8 @@
         "size": null,
         "specification": "4x4m",
         "price": "2400.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 18,
+        "inStock": true
       }
     ]
   },
@@ -498,8 +498,8 @@
         "size": null,
         "specification": "標準套組",
         "price": "450.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 10,
+        "inStock": true
       }
     ]
   },
@@ -521,8 +521,8 @@
         "size": null,
         "specification": "500Wh",
         "price": "12800.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 16,
+        "inStock": true
       }
     ]
   },
@@ -544,8 +544,8 @@
         "size": null,
         "specification": "深藍",
         "price": "1900.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 12,
+        "inStock": true
       }
     ]
   },
@@ -567,8 +567,8 @@
         "size": null,
         "specification": "L號",
         "price": "3200.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 15,
+        "inStock": true
       }
     ]
   },
@@ -590,8 +590,8 @@
         "size": null,
         "specification": "不鏽鋼",
         "price": "1100.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 25,
+        "inStock": true
       }
     ]
   },
@@ -613,8 +613,8 @@
         "size": null,
         "specification": "一對",
         "price": "1400.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 15,
+        "inStock": true
       }
     ]
   },
@@ -636,8 +636,8 @@
         "size": null,
         "specification": "GPS版",
         "price": "5600.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 13,
+        "inStock": true
       }
     ]
   },
@@ -659,8 +659,8 @@
         "size": null,
         "specification": "雙人",
         "price": "890.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 9,
+        "inStock": true
       }
     ]
   },
@@ -682,8 +682,8 @@
         "size": null,
         "specification": "20L",
         "price": "680.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 15,
+        "inStock": true
       }
     ]
   },
@@ -705,8 +705,8 @@
         "size": null,
         "specification": "不鏽鋼",
         "price": "2100.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 24,
+        "inStock": true
       }
     ]
   },
@@ -728,8 +728,8 @@
         "size": null,
         "specification": "通用型",
         "price": "750.00",
-        "availableQuantity": 0,
-        "inStock": false
+        "availableQuantity": 14,
+        "inStock": true
       }
     ]
   }

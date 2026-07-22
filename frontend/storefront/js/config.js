@@ -32,6 +32,11 @@ window.AppConfig = {
     DEV_TOKEN: '',
   },
 
+  // 後台正式模式獨立開關；G-6 由 AdminRuntime 套用 readiness，不直接假設所有模組都有端點。
+  ADMIN: {
+    USE_BACKEND: true,
+  },
+
   // 購物車相關
   CART: {
     MAX_QUANTITY: 999,

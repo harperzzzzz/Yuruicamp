@@ -102,6 +102,17 @@ body {
   cursor: not-allowed;
 }
 
+/* Backend 尚未提供端點時，在導覽直接標示，避免誤以為是權限問題。 */
+.sidebar-link.backend-not-ready::after {
+  content: '未接';
+  margin-left: auto;
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
 /* 無編輯權限時容器標記（各模組共用） */
 .permission-readonly .btn:not(.btn-close):not([data-bs-dismiss]),
 button[data-permission-disabled="true"] {

@@ -157,6 +157,12 @@
     );
   }
 
+  /** 通知管理頁 Firebase Token 已無法刷新，需要重新登入。 */
+  function notifyAuthExpired() {
+    if (typeof global.dispatchEvent !== 'function' || typeof global.CustomEvent !== 'function') return;
+    global.dispatchEvent(new global.CustomEvent('app-auth-expired'));
+  }
+
   /**
    * 所有真後端請求的唯一入口；頁面與各 facade 不直接處理 fetch、Token 或 Envelope。
    */
@@ -212,6 +218,21 @@
         0,
         cause
       );
+    }
+
+    // Firebase SDK 會刷新過期 Token；若伺服器仍回 401，只重試一次並要求重新登入。
+    if (response.status === 401 && authMode === 'required' && settings.authRetry !== false) {
+      try {
+        var refreshedToken = await AppAuth.getIdToken({ required: true, forceRefresh: true });
+        headers.set('Authorization', 'Bearer ' + refreshedToken);
+        response = await fetch(buildRestUrl(path, settings.baseUrl), requestOptions);
+      } catch (refreshError) {
+        notifyAuthExpired();
+        throw refreshError;
+      }
+      if (response.status === 401) {
+        notifyAuthExpired();
+      }
     }
 
     if (response.status === 204) {

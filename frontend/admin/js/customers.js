@@ -898,6 +898,10 @@ function resetAddCustomerModal() {
 
 /** 開啟新增客戶 Modal / Open add-customer modal */
 function openAddCustomerModal() {
+  if (isCustomerBackendEnabled()) {
+    window.showAdminToast('正式後端尚未開放由管理員建立會員', 'warning');
+    return;
+  }
   var nextId = getNextCustomerId(window.customersCache);
   $('#newCustomerId').val(nextId);
   $('#newCustomerRegisteredAt').val(new Date().toISOString().slice(0, 10));
@@ -907,6 +911,10 @@ function openAddCustomerModal() {
 
 /** 儲存新客戶至 customersCache 並重渲染 / Save new customer from modal */
 function saveCustomerFromModal() {
+  if (isCustomerBackendEnabled()) {
+    window.showAdminToast('正式後端尚未開放由管理員建立會員', 'warning');
+    return;
+  }
   var data = readNewCustomerFromModal();
   var validation = validateNewCustomerForm(data);
 
@@ -1936,6 +1944,10 @@ window.initCustomers = function () {
   // ==========================================================================
   $(document).on('click.customers', '.tag-add-btn', function (e) {
     e.stopPropagation(); // 阻止冒泡，避免觸發外部點擊關閉
+    if (isCustomerBackendEnabled()) {
+      window.showAdminToast('正式後端尚未提供會員標籤池維護', 'warning');
+      return;
+    }
     var $wrap    = $(this).closest('.tags-wrap');
     var rawName  = $wrap.find('.new-tag-input').val().trim();
     var newColor = $wrap.find('.new-tag-color').val();
@@ -1981,6 +1993,10 @@ window.initCustomers = function () {
   // ==========================================================================
   $(document).on('click.customers', '.tag-delete-btn', function (e) {
     e.stopPropagation(); // 阻止冒泡，避免觸發外部點擊關閉
+    if (isCustomerBackendEnabled()) {
+      window.showAdminToast('正式後端尚未提供會員標籤池維護', 'warning');
+      return;
+    }
     var tagName = $(this).data('tag');
 
     if (!window.confirm('確定要刪除標籤「' + tagName + '」嗎？\n這將移除所有客戶身上的此標籤。')) {
@@ -2504,6 +2520,7 @@ function renderCustomersList(customers) {
     window.applyEditPermission('customers', $('#contentArea'));
   }
   if (isCustomerBackendEnabled()) {
+    $('#addCustomerBtn').addClass('d-none');
     $('#contentArea').find('.email-edit-btn, .tags-edit-btn, .shipping-address-edit-btn').addClass('d-none');
     $('#contentArea').find('.tag-add-btn, .tag-delete-btn').addClass('d-none');
   } else {

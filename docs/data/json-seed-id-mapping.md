@@ -2,11 +2,11 @@
 
 | 欄位 | 內容 |
 |---|---|
-| 文件狀態 | Active（reference、租借、庫存與優惠券主檔已搬移；會員與交易資料待續） |
+| 文件狀態 | Active（reference、會員周邊、庫存、交易保留與可追溯評論已搬移） |
 | 更新日期 | 2026-07-22 |
 | 權威順序 | PostgreSQL Schema／Seed → 本文件 → 前端 Mock JSON |
-| 適用範圍 | 商品、商城規格、品牌、營區、營位、標籤、門市、租借 SKU、租借規格與優惠券 |
-| 不包含 | 訂單、預約、評論、庫存異動等交易資料搬移 |
+| 適用範圍 | 商品、商城規格、品牌、營區、營位、門市、會員地址／偏好／標籤、租借 SKU、租借規格、優惠券與交易固定 ID |
+| 不包含 | 無法追溯交易的 37 筆評論、庫存異動、最低庫存與 coupon claim |
 
 > **簡單說**：本文件只回答「同一筆資料在 JSON 與 Seed 應使用哪個固定 ID」。欄位、ENUM、外鍵與金額仍以 [`latest_schema.sql`](../latest_schema.sql) 與 API 契約為準；Seed 載入與交易規則仍以 [`docs/seed/README.md`](../seed/README.md) 為準。
 
@@ -209,7 +209,18 @@
 
 優惠券時間一律將前端本地時間解讀為 `Asia/Taipei`（`+08:00`）。目前已有 50 位展示會員，但沒有任何領券案例，所以尚未建立 `coupon_claims`，`claimed_quantity`／Mock `used` 固定為 `0`；後續不得只改主檔計數而不建立對應 claim。
 
-### 7.2 交易固定 ID 與時間規則
+建立 claim 的最低證據是 `customerId + couponId/code + claimedAt + status`；若狀態為 `consumed`，還必須有可對應的 `orderId`、折扣金額與 `order_coupons` 快照。只有資格、券有效期、訂單金額或推測使用時間都不構成可追溯來源。
+
+### 7.2 會員周邊固定 ID
+
+- `customers.id` 固定為 `U001`～`U050`。
+- `preference_options.id` 固定為 1～18：1～8 是 `style`，9～18 是 `equipment`。
+- `customer_shipping_addresses.id` 固定為 1～50，分別對應同號 U001～U050；每位展示會員一筆預設地址。
+- `customer_tags.id` 固定為 1「高消費」、2「高退貨率」、3「新會員」。
+- 偏好與標籤關聯採複合鍵，不另建前端 surrogate ID。
+- 地址 JSON 的 `email` 來自同會員 `customers.email`；資料庫 `customer_shipping_addresses` 沒有 email 欄位。
+
+### 7.3 交易固定 ID 與時間規則
 
 - `customers.id` 沿用 `U001`～`U050`。
 - `orders.id` 與 `bookings.id` 在資料庫保存為前端數字 ID 的字串，例如前端 `1` 對應資料庫 `'1'`；畫面格式 `ORD-0001` 仍只是 display ID。
@@ -224,13 +235,15 @@
 3. ✅ 已擴充 `040-inventory.sql`：9 個租借庫位、8 組營區對照、16 筆既有 listing 與 333 筆規格庫存；最低庫存尚未搬移。
 4. ✅ 品牌、租借 SKU、衍生 listing 與預約租借快照已同步 canonical ID。
 5. ✅ 已建立 `050-coupons.sql`：固定優惠券 ID 1～7，尚未建立會員 claim。
-6. ✅ 已在 `020-identity.sql` 建立 U001～U050，並建立 `060-orders.sql`（222 筆）與 `070-bookings.sql`（90 筆）；交易商品規格已改為 canonical ID。
-7. 後續只有出現真實領券案例時才建立 `coupon_claims`，並由明細維護已領數。
-8. 評論與庫存異動最後處理；評論中的舊商品規格仍待轉換。
+6. ✅ 已在 `020-identity.sql` 建立 U001～U050，以及地址、偏好與會員標籤；另建立 `060-orders.sql`（222 筆）與 `070-bookings.sql`（90 筆），交易商品規格已改為 canonical ID。
+7. 後續只有出現可追溯的領券／使用案例時才建立 `coupon_claims` 與必要的 `order_coupons`，並由 Trigger 維護已領數。
+8. ✅ `reviews.json` 的 38 筆 `v-P...` variant／SKU 已全數轉為 canonical ID；只有明確 `orderId=208` 的 `REV031` 建立 Seed verified-purchase 關聯。
+9. ✅ 已建立 435 筆訂單庫存保留與 40 筆租借庫存保留；商城 active 商品可用量為 399，租借 active 區間無重疊超賣。
+10. `movement.json` 暫不搬移：141 筆明細都沒有 variantId，24 筆無法由 productId 唯一推導，26 張表頭混合異動語意，員工 01～03 也缺 `admin_users` 對照。
 
 ## 9. 本輪完成標準
 
 - 商品、商城規格、品牌、營區、zone、租借 SKU 與租借規格都有唯一 canonical ID。
 - 開發驗收 fixture 與完整展示資料的身分已分開。
 - 已標示既有 Seed 缺口與 ID 衝突，不把資料值差異誤當成 ID 對照完成。
-- Reference、會員、商品／租借主檔、實體庫存、優惠券主檔與訂單／預訂 Seed 已完成；Schema 未修改，領券 claim、最低庫存、評論與庫存異動仍待後續階段。
+- Reference、會員與周邊資料、商品／租借主檔、實體庫存、訂單／預訂、庫存保留與可追溯評論 Seed 已完成；Schema 未修改，領券 claim、最低庫存、無交易證據評論與庫存異動維持不搬移。

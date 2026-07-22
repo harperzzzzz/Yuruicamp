@@ -9,7 +9,7 @@
 | **前端 Mock 規格** | [`../../plans/data-integration-spec.md`](../../plans/data-integration-spec.md) |
 | **固定 ID 對照** | [`../data/json-seed-id-mapping.md`](../data/json-seed-id-mapping.md) |
 
-> **簡單說**：本文件回答「資料怎麼灌進 PostgreSQL」；[`data-integration-spec.md`](../../plans/data-integration-spec.md) 回答「前端 Mock JSON 怎麼維持一致」。兩者可以共用固定 ID 與業務語意，但不是同一份資料來源，也不會自動同步。
+> **簡單說**：本文件回答「資料怎麼灌進 PostgreSQL」；[`data-integration-spec.md`](../../plans/data-integration-spec.md) 回答「前端 Mock JSON 怎麼維持一致」。已搬移的資料以 Schema／Seed 為準，Mock JSON 必須同步相同固定 ID 與業務值，但目前不會自動產檔。
 
 跨 JSON／Seed 的商品、規格、品牌、營區、zone、標籤、門市與租借 SKU 身分，以 [`json-seed-id-mapping.md`](../data/json-seed-id-mapping.md) 為唯一對照。對照表只決定身分；實際欄位與限制仍以 Schema 為準。
 
@@ -41,7 +41,7 @@ docs/seed/
 ├── 002-dev-seed.sql       # 唯一執行入口與交易邊界
 └── dev/
     ├── 010-reference.sql  # 權限、分類、品牌、營區、營位、標籤、門市、Booking policy、日曆
-    ├── 020-identity.sql   # 50 位展示會員、開發管理員與 Booking 公休範例
+    ├── 020-identity.sql   # 50 位會員、地址／偏好／標籤、開發管理員與 Booking 公休範例
     ├── 030-catalog.sql    # 商品與租借 SKU／variant
     ├── 040-inventory.sql  # 商城／租借庫位、listing 與庫存
     ├── 050-coupons.sql    # 優惠券主檔（claim 尚未建立）
@@ -53,11 +53,15 @@ docs/seed/
 
 `010-reference.sql` 目前包含 12 個前端公開品牌（另保留 `yuruicamp` 站內品牌）、8 個 active 營區 `C002`～`C009`、13 個 active zone `Z001`～`Z013`、5 個環境標籤、7 個設施標籤與 3 個門市。資料值與固定 ID 對齊 `frontend/data/catalog/campgrounds.json`、`frontend/data/marketing/brands.json`、`frontend/data/marketing/branches.json`；跨層 ID 仍以 [`json-seed-id-mapping.md`](../data/json-seed-id-mapping.md) 為準。
 
-`030-catalog.sql` 已包含 28 個租借 SKU 與 37 個 canonical 租借規格。`040-inventory.sql` 已包含 C001～C009 的 9 個租借庫位、8 組營區對照、16 筆有明確前端定價的 listing，以及 37 規格 × 9 庫位的 333 筆實體庫存。沒有定價來源的 SKU 不會自行建立 listing；最低庫存仍待獨立搬移。
+`030-catalog.sql` 已包含 28 個租借 SKU 與 37 個 canonical 租借規格。`040-inventory.sql` 已包含 `main`、`branch-001`～`branch-003` 四個商城據點、39 規格 × 4 據點的 156 筆商城庫存，以及 C001～C009 的 9 個租借庫位、16 筆有明確定價的 listing 與 333 筆前端對照租借庫存。租借庫存中 9 筆已依 active 預訂的區間重疊下限調整，避免載入後立即超賣；`rental-skus.json` 已同步。沒有定價來源的 SKU 不自行建立 listing；最低庫存仍待獨立搬移。
 
-`020-identity.sql` 已包含固定會員 U001～U050；資料使用 `example.com` 與固定假電話，不含 Firebase UID。`050-coupons.sql` 已包含固定 ID 1～7 的 7 張優惠券，但目前沒有領券案例，因此不建立 `coupon_claims`，`claimed_quantity` 為 `0`。Seed 重跑只更新券主檔，不覆寫既有已領數。
+`020-identity.sql` 已包含固定會員 U001～U050、18 個偏好選項、200 筆會員偏好、50 筆預設配送地址、3 個會員標籤與 56 筆標籤指派；資料使用 `example.com` 與固定假電話，不含 Firebase UID。這批周邊資料對齊 `frontend/data/customers/*.json`，但不參與訂單／預訂成立條件。地址 JSON 的 `email` 取自 `customers.email`，資料庫地址表不重複保存。`050-coupons.sql` 已包含固定 ID 1～7 的 7 張優惠券，但目前沒有領券案例，因此不建立 `coupon_claims`，`claimed_quantity` 為 `0`。Seed 重跑只更新券主檔，不覆寫既有已領數。
 
-`060-orders.sql` 已包含訂單 1～222、435 筆商品快照、431 筆狀態歷程與 607 筆舊付款／建立事件；商品 FK／SKU 已轉為 canonical variant。`070-bookings.sql` 已包含預訂 1～90、90 筆 zone、40 筆租借快照與 190 筆狀態歷程。這兩批展示交易刻意不建立庫存保留、庫存異動、評論或領券 claim；這些領域要等各自來源完成後再獨立搬移。
+`coupon_claims` 不是為了補齊關聯而建立的展示資料。只有來源同時能確認會員、券、領券時間、claim 狀態，以及 consumed claim 對應的訂單與折扣快照時，才可另行加入；否則 `coupon_claims`、`order_coupons` 與 Seed 訂單折扣都維持空／`0`。`claimed_quantity` 必須由 claim Trigger 配額流程產生，不可只修改主檔計數。
+
+`060-orders.sql` 已包含訂單 1～222、435 筆商品快照、431 筆狀態歷程、607 筆舊付款／建立事件與 435 筆商城庫存保留；商品 FK／SKU 已轉為 canonical variant。`070-bookings.sql` 已包含預訂 1～90、90 筆 zone、40 筆租借快照、190 筆狀態歷程與 40 筆租借庫存保留。訂單保留以固定主倉 `main` 履約；商城庫存的 on-hand 已加回 active 保留量，扣除後 active 商品可用量維持 JSON 的 399。
+
+`frontend/data/admin/reviews.json` 的 38 筆舊 `v-P...` variant／SKU 已全數轉為 canonical ID。但只有 `REV031` 明確提供 `orderId=208`，且可唯一對到 order item 602081，所以 Seed 只建立這 1 筆 verified-purchase 評論。其餘 37 筆不從會員、日期或商品碰巧反推交易。`movement.json` 仍不搬移：141 筆明細全部缺 variantId，其中 24 筆對到多規格商品，26 張表頭混合異動語意，員工 01～03 也沒有可追溯的 `admin_users` 主檔。
 
 ### 全新資料庫實灌結果（2026-07-22）
 
@@ -65,10 +69,11 @@ docs/seed/
 
 主要驗證筆數：
 
-- Reference／Identity：13 品牌、8 個 active 營區、13 個 active zone、3 門市、50 會員。
-- Catalog／Inventory：30 商品、39 商城規格、29 租借 SKU、38 租借規格、17 listing、334 筆租借庫存。租借總數包含 28／37／16／333 筆前端對照資料，以及各 1 筆既有開發驗收資料。
-- Coupon／Order／Booking：7 優惠券、222 訂單、435 訂單明細、431 狀態歷程、607 事件、90 預訂、90 zone 快照、40 租借快照、190 預訂歷程。
-- 訂單會員、訂單規格、預訂會員、營區、zone、租借 listing／variant 的孤兒檢查皆為 `0`；沒有連線停留在 `idle in transaction`。
+- Reference／Identity：13 品牌、8 個 active 營區、13 個 active zone、3 門市、50 會員、18 偏好選項、200 會員偏好、50 預設地址、3 會員標籤、56 標籤指派。
+- Catalog／Inventory：30 商品、39 商城規格、4 商城庫位、156 商城庫存、29 租借 SKU、38 租借規格、17 listing、334 筆租借庫存。商城總 on-hand／active 保留／可用量為 `499／98／401`，其中 active catalog 可用量為 399；租借庫存總量為 555。
+- Coupon／Order／Booking／Review：7 優惠券、0 claim、0 訂單券快照、222 筆零折扣訂單、435 訂單明細、435 商城保留、90 預訂、90 zone 快照、40 租借快照、40 租借保留、1 筆 verified-purchase 評論、0 庫存異動。
+- 會員偏好、地址、會員標籤、訂單會員、訂單規格、預訂會員、營區、zone、租借 listing／variant 的孤兒檢查皆為 `0`；每位展示會員只有一筆預設地址，沒有連線停留在 `idle in transaction`。
+- 2026-07-22 在 PostgreSQL 16 全新獨立資料庫 `yuruicamp_inventory_verify_final_0722` 先執行 `latest_schema.sql`，再完整執行 `010`～`070`，一次成功 `COMMIT`；另在前一個隔離庫連續重跑驗證冪等性。同一版本已套用到目前 `yuruicamp`；商城／租借保留為 `435／40`，active catalog 可用量 399，負庫存、複合 FK 孤兒與租借區間超賣皆為 `0`。
 
 可重做的隔離驗證流程見 [`../backend-specs/test/full-seed-fresh-database.md`](../backend-specs/test/full-seed-fresh-database.md)。驗證只使用專用容器與 volume，不會停止、重建或清除既有 `yuruicamp-db`。
 
@@ -89,7 +94,7 @@ psql -U postgres -d yuruicamp -f docs/seed/002-dev-seed.sql
 
 入口已設定 `ON_ERROR_STOP`。若自訂了 `POSTGRES_USER` 或 `POSTGRES_DB`，請同步替換指令參數。
 
-> 注意：重跑 seed 會以 reference 主檔覆寫同 ID 的品牌、營區、zone、標籤與門市欄位，並重建 C002～C009 的標籤關聯及 3 門市 features；舊 `C002-Z-A`、`C002-Z-HIDDEN` 只會改為 inactive，不會刪除。它也會覆寫 U001～U050、訂單 1～222、預訂 1～90 及其固定明細／歷程，覆寫 333 筆租借規格庫存、把 `DEV-STORE-MAIN` 的 `V001` 更新為 `10`，並在 `RENTAL-C002` 保留 `RSV-DEV-001` 的 `6` 件驗收庫存。優惠券主檔會更新，但既有 `claimed_quantity` 不會被重設。交易 Seed 不會刪除多出的人工明細，也不建立庫存保留。不要在需要保留同 ID 手動測試資料時重跑。`docker compose down -v` 會刪除整個本機資料卷，只能在確定資料可捨棄時使用。
+> 注意：重跑 seed 會以 reference 主檔覆寫同 ID 的品牌、營區、zone、標籤與門市欄位，並重建 C002～C009 的標籤關聯及 3 門市 features；舊 `C002-Z-A`、`C002-Z-HIDDEN` 只會改為 inactive，不會刪除。它也會覆寫 U001～U050、訂單 1～222、預訂 1～90 及其固定明細／歷程。Seed 會覆寫 156 筆商城庫存、333 筆前端對照租借庫存、435／40 筆交易保留與 `REV031`；不會刪除多出的人工交易明細。優惠券主檔會更新，但既有 `claimed_quantity` 不會被重設。不要在需要保留同 ID 手動測試資料時重跑。`docker compose down -v` 會刪除整個本機資料卷，只能在確定資料可捨棄時使用。
 
 ### 維護規則
 
@@ -97,9 +102,10 @@ psql -U postgres -d yuruicamp -f docs/seed/002-dev-seed.sql
 - 片段不可包含 `BEGIN`、`COMMIT` 或 `\set ON_ERROR_STOP`，交易與錯誤處理由入口統一管理。
 - 檔名數字就是相依順序。新增片段後，必須明確加入 `002-dev-seed.sql`。
 - 使用固定、可辨識的開發 ID；可重跑的寫入應使用適當的 `ON CONFLICT`。
+- 不得從優惠券主檔、會員資格或訂單金額反推 `coupon_claims`；缺少可追溯領券／使用證據時必須維持空集合。
 - 不得放真實 email、電話、Token、密碼或其他個資。
-- `frontend/data/**` 是前端 Mock 契約資料，不是 PostgreSQL seed 的真相來源。
-- Mock JSON 與 SQL Seed 不會自動同步；需要共用案例時，兩邊都必須依各自契約驗證。
+- 已搬移領域以 PostgreSQL Schema／Seed 為真相來源；`frontend/data/**` 只保留符合前端契約的 Mock 投影。
+- Mock JSON 與 SQL Seed 不會自動同步；Seed 值異動時必須同步 JSON，並逐筆驗證固定 ID、欄位投影與關聯。
 - 整合測試資料留在 `backend/src/test/**`，由測試自行建立與清理，避免測試互相污染。
 - 商品 ID、variant 與價格異動時，同步更新 [`../data/product-catalog-seed-manifest.md`](../data/product-catalog-seed-manifest.md)。
 - 完成修改後，至少驗證 compose 設定、入口引用檔案存在，並在可丟棄的空資料庫執行一次完整 schema + seed。

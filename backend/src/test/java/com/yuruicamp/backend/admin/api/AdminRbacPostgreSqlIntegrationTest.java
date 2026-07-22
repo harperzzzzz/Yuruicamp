@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @SpringBootTest
 @AutoConfigureMockMvc
 @EnabledIfEnvironmentVariable(named = "RUN_BACKEND_IT", matches = "true")
+@Execution(ExecutionMode.SAME_THREAD)
 // 使用真正 PostgreSQL 驗證角色權限、個人覆寫與管理員 API 授權。
 class AdminRbacPostgreSqlIntegrationTest {
 

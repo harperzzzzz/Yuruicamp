@@ -40,6 +40,8 @@ GET /api/admin/customers/{customerId}
 
 預期回傳 Email、電話、生日、唯讀標籤／偏好／預設地址與 summary，但只回 `firebaseUidBound`，不回完整 Firebase UID。
 
+完整開發 Seed 的 U001 應回 2 個 `styles`、2 個 `equipment`、1 個會員標籤與地址 ID `1`。2026-07-22 已用 Admin API 實際驗證成功；全批 Seed 為 18 個偏好選項、200 筆會員偏好、50 筆預設地址、3 個標籤與 56 筆指派。
+
 ### 3. 更新基本資料
 
 ```http

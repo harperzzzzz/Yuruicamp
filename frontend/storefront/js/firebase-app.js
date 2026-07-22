@@ -15,6 +15,7 @@ import {
   OAuthProvider,
   signInWithPopup,
   signOut,
+  onAuthStateChanged,
 } from 'firebase/auth';
 
 /**
@@ -166,6 +167,17 @@ window.YuruiFirebase = {
   },
   getInitError: function getInitError() {
     return initError;
+  },
+
+  /** 等待 Firebase 從 IndexedDB 還原登入者，避免 Dashboard 太早判定未登入。 */
+  waitForAuthState: function waitForAuthState() {
+    if (!ready || !auth) return Promise.resolve(null);
+    return new Promise(function (resolve) {
+      var unsubscribe = onAuthStateChanged(auth, function (user) {
+        unsubscribe();
+        resolve(user || null);
+      });
+    });
   },
 
   /**

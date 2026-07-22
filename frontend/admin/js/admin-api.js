@@ -1,10 +1,10 @@
 /**
  * admin/js/admin-api.js
- * 後台 REST API 抽象層（Mock → 未來串接後端 / 資料庫）
+ * 後台 REST API 抽象層；正式開關由 admin-runtime.js 依 AppConfig 統一設定。
  *
  * 使用方式：
- *   1. 預設 useBackend = false：只更新前端 cache，API 回傳 resolved Promise（不發 request）
- *   2. 後端就緒後：AdminAPI.configure({ useBackend: true, baseUrl: '/api/admin' })
+ *   1. AppConfig.USE_MOCK_API=true：保留 Mock adapter。
+ *   2. AppConfig.USE_MOCK_API=false：由 AdminRuntime 啟用正式後端與 readiness gate。
  *
  * 各模組在修改 cache 後呼叫對應方法，例如：
  *   AdminAPI.orders.updateStatus(orderId, payload).catch(handleApiError);
@@ -56,8 +56,22 @@
         : undefined,
       includeMeta: includeMeta === true
     }).then(function (data) {
+      if (includeMeta === true) {
+        return { ok: true, data: data.data, meta: data.meta };
+      }
       return { ok: true, data: data };
     });
+  }
+
+  /** 正式模式遇到未實作功能時直接拒絕，不發出必然 404 的請求。 */
+  function unsupported(feature, message, mockCall) {
+    if (!config.useBackend && typeof mockCall === 'function') {
+      return mockCall();
+    }
+    var error = global.ApiRequestError
+      ? new global.ApiRequestError('ADMIN_FEATURE_NOT_READY', message, [{ field: 'feature', reason: feature }], 501)
+      : new Error(message);
+    return Promise.reject(error);
   }
 
   /** 統一錯誤提示（各模組可選用） */
@@ -92,6 +106,19 @@
     },
 
     handleError: handleError,
+
+    auth: {
+      /** 使用 Firebase ID Token 建立或刷新後台 Session 與有效權限。 */
+      establishSession: function (idToken) {
+        return global.ApiClient._restRequest('/admin/auth/firebase/session', {
+          method: 'POST',
+          auth: 'none',
+          body: { idToken: idToken },
+        }).then(function (data) {
+          return { ok: true, data: data };
+        });
+      }
+    },
 
     // ── 管理員與細權限 / Admin users and RBAC ──
     users: {
@@ -134,7 +161,9 @@
       },
       /** POST /api/admin/customers */
       create: function (customer) {
-        return request('POST', '/customers', customer);
+        return unsupported('customers.create', '正式後端尚未開放由管理員建立會員', function () {
+          return request('POST', '/customers', customer);
+        });
       },
       /** PATCH /api/admin/customers/:id */
       update: function (customerId, changes) {
@@ -154,7 +183,9 @@
     tags: {
       /** PUT /api/admin/tag-pool */
       savePool: function (tagColorMap) {
-        return request('PUT', '/tag-pool', { tagColorMap: tagColorMap });
+        return unsupported('customers.tagPool', '正式後端尚未提供會員標籤池維護', function () {
+          return request('PUT', '/tag-pool', { tagColorMap: tagColorMap });
+        });
       }
     },
 
@@ -178,7 +209,9 @@
       },
       /** PATCH /api/admin/orders/:id — 狀態、history 等 */
       update: function (orderId, payload) {
-        return request('PATCH', '/orders/' + encodeURIComponent(orderId), payload);
+        return unsupported('orders.sellerNote', '正式後端尚未提供訂單備註修改', function () {
+          return request('PATCH', '/orders/' + encodeURIComponent(orderId), payload);
+        });
       },
       /** 語意化捷徑：出貨 */
       ship: function (orderId, payload) {
@@ -210,7 +243,9 @@
       },
       /** PATCH /api/admin/bookings/:id — 狀態、備註等 */
       update: function (bookingId, payload) {
-        return request('PATCH', '/bookings/' + encodeURIComponent(bookingId), payload);
+        return unsupported('bookings.sellerNote', '正式後端尚未提供預約備註修改', function () {
+          return request('PATCH', '/bookings/' + encodeURIComponent(bookingId), payload);
+        });
       },
       /** POST /api/admin/bookings/:id/confirm */
       confirm: function (bookingId, payload) {
@@ -256,7 +291,9 @@
       },
       /** PUT /api/admin/rentals/:id — 租借庫存 */
       updateRental: function (rentalId, rental) {
-        return request('PUT', '/rentals/' + encodeURIComponent(rentalId), rental);
+        return unsupported('products.rentalWrite', '正式後端尚未提供租借商品寫入', function () {
+          return request('PUT', '/rentals/' + encodeURIComponent(rentalId), rental);
+        });
       }
     },
 
@@ -264,27 +301,39 @@
     reviews: {
       /** GET /api/admin/reviews */
       list: function () {
-        return request('GET', '/reviews');
+        return unsupported('reviews.manage', '評論管理尚未提供正式後端端點', function () {
+          return request('GET', '/reviews');
+        });
       },
       /** DELETE /api/admin/reviews/:id — 刪除整則評論 */
       remove: function (reviewId) {
-        return request('DELETE', '/reviews/' + encodeURIComponent(reviewId));
+        return unsupported('reviews.manage', '評論管理尚未提供正式後端端點', function () {
+          return request('DELETE', '/reviews/' + encodeURIComponent(reviewId));
+        });
       }
     },
 
     // ── 優惠券 / Coupons ──
     coupons: {
-      list: function () {
-        return request('GET', '/coupons');
+      list: function (query) {
+        var params = new URLSearchParams(query || { page: 0, size: 100, sort: 'createdAt,desc' });
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/coupons' + suffix);
+      },
+      getById: function (couponId) {
+        return request('GET', '/coupons/' + encodeURIComponent(couponId));
       },
       create: function (coupon) {
         return request('POST', '/coupons', coupon);
       },
-      updateStatus: function (code, status) {
-        return request('PATCH', '/coupons/' + encodeURIComponent(code), { status: status });
+      update: function (couponId, coupon) {
+        return request('PATCH', '/coupons/' + encodeURIComponent(couponId), coupon);
       },
-      remove: function (code) {
-        return request('DELETE', '/coupons/' + encodeURIComponent(code));
+      updateStatus: function (couponId, status) {
+        return request('PATCH', '/coupons/' + encodeURIComponent(couponId), { status: status });
+      },
+      remove: function (couponId) {
+        return request('DELETE', '/coupons/' + encodeURIComponent(couponId));
       }
     },
 
@@ -321,14 +370,19 @@
 
     // ── 營區公休 / Campground closures ──
     closures: {
-      list: function () {
-        return request('GET', '/campground-closures');
+      list: function (query) {
+        var params = new URLSearchParams(query || { page: 0, size: 100, sort: 'createdAt,desc' });
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/campground-closures' + suffix);
+      },
+      getById: function (closureId) {
+        return request('GET', '/campground-closures/' + encodeURIComponent(closureId));
       },
       create: function (closure) {
         return request('POST', '/campground-closures', closure);
       },
       update: function (id, closure) {
-        return request('PUT', '/campground-closures/' + encodeURIComponent(id), closure);
+        return request('PATCH', '/campground-closures/' + encodeURIComponent(id), closure);
       },
       remove: function (id) {
         return request('DELETE', '/campground-closures/' + encodeURIComponent(id));
