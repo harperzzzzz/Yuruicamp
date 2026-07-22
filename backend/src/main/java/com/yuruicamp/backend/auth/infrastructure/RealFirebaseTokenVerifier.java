@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,6 +42,10 @@ public class RealFirebaseTokenVerifier implements FirebaseTokenVerifier {
 	@PostConstruct
 	void initFirebase() {
 		if (!FirebaseApp.getApps().isEmpty()) {
+			FirebaseApp existing = FirebaseApp.getInstance();
+			log.info(
+					"Firebase Admin already initialized (projectId={}); skip re-init",
+					existing.getOptions().getProjectId());
 			return;
 		}
 		String path = properties.getFirebase().getCredentialsPath();
@@ -49,15 +54,40 @@ public class RealFirebaseTokenVerifier implements FirebaseTokenVerifier {
 					"yuruicamp.firebase.enabled=true requires yuruicamp.firebase.credentials-path");
 		}
 		try (InputStream in = new FileInputStream(path)) {
-			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(in))
-					.build();
-			FirebaseApp.initializeApp(options);
-			log.info("Firebase Admin initialized from {}", path);
+			GoogleCredentials credentials = GoogleCredentials.fromStream(in);
+			String projectId = resolveProjectId(credentials);
+
+			FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder().setCredentials(credentials);
+			if (StringUtils.hasText(projectId)) {
+				// Explicit projectId avoids ambiguous Admin binding when verifying ID tokens
+				optionsBuilder.setProjectId(projectId);
+			}
+
+			FirebaseApp app = FirebaseApp.initializeApp(optionsBuilder.build());
+			log.info(
+					"Firebase Admin initialized from {} (projectId={})",
+					path,
+					app.getOptions().getProjectId());
 		}
 		catch (IOException ex) {
 			throw new IllegalStateException("Failed to load Firebase credentials: " + path, ex);
 		}
+	}
+
+	/**
+	 * Prefer configured {@code yuruicamp.firebase.project-id}, else service-account JSON.
+	 */
+	private String resolveProjectId(GoogleCredentials credentials) {
+		String configured = properties.getFirebase().getProjectId();
+		if (StringUtils.hasText(configured)) {
+			return configured.trim();
+		}
+		if (credentials instanceof ServiceAccountCredentials serviceAccount
+				&& StringUtils.hasText(serviceAccount.getProjectId())) {
+			return serviceAccount.getProjectId();
+		}
+		log.warn("Firebase projectId is empty; set FIREBASE_PROJECT_ID or fix service-account JSON");
+		return null;
 	}
 
 	@Override
@@ -67,11 +97,14 @@ public class RealFirebaseTokenVerifier implements FirebaseTokenVerifier {
 		}
 		try {
 			FirebaseToken decoded = FirebaseAuth.getInstance().verifyIdToken(idToken.trim());
-			String email = decoded.getEmail();
-			if (email == null || email.isBlank()) {
-				throw new BusinessException(ErrorCode.UNAUTHORIZED, "Firebase token has no email");
-			}
 			String provider = mapProvider(decoded);
+			String email = decoded.getEmail();
+			// LINE 等 OIDC 常沒有 email：合成穩定唯一信箱，方便 upsert／查詢
+			// LINE/OIDC often omit email — synthesize a stable unique address for DB
+			if (email == null || email.isBlank()) {
+				email = provider + "." + decoded.getUid() + "@noreply.yuruicamp.local";
+				log.info("Firebase token has no email; using synthetic email for provider={}", provider);
+			}
 			String name = decoded.getName() != null && !decoded.getName().isBlank()
 					? decoded.getName()
 					: email;
@@ -83,6 +116,12 @@ public class RealFirebaseTokenVerifier implements FirebaseTokenVerifier {
 					decoded.getPicture());
 		}
 		catch (FirebaseAuthException ex) {
+			// Log real cause for ops/debug; do not put token or full stack detail into API body
+			log.warn(
+					"Firebase verifyIdToken failed: authErrorCode={}, message={}, cause={}",
+					ex.getAuthErrorCode(),
+					ex.getMessage(),
+					ex.getCause() != null ? ex.getCause().toString() : null);
 			throw new BusinessException(ErrorCode.UNAUTHORIZED, "Invalid Firebase ID token");
 		}
 	}
@@ -99,6 +138,7 @@ public class RealFirebaseTokenVerifier implements FirebaseTokenVerifier {
 				if (raw.contains("facebook")) {
 					return "facebook";
 				}
+				// Identity Platform LINE：sign_in_provider 常為 "oidc.line"
 				if (raw.contains("line")) {
 					return "line";
 				}

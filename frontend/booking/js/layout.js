@@ -106,12 +106,58 @@ function applyBookingAuthSemanticClasses(target) {
 }
 
 /**
+ * 動態載入 Firebase 初始化模組（只載一次）。
+ * Dynamically import firebase-app.js once for booking pages.
+ * @returns {Promise<unknown>}
+ */
+function loadFirebaseAppOnce() {
+  if (window.__yuruiFirebaseModuleLoaded) {
+    return window.__yuruiFirebaseModuleLoaded;
+  }
+  window.__yuruiFirebaseModuleLoaded = import('/storefront/js/firebase-app.js');
+  return window.__yuruiFirebaseModuleLoaded;
+}
+
+/**
+ * 把 Firebase Auth 注入 main 的 AppAuth（B 方案最小接線）。
+ * Wire Firebase Auth into AppAuth so ApiClient can attach Bearer tokens.
+ * api-http.js 仍可暫時保留給 auth.js；之後再收斂。
+ */
+function injectFirebaseAuthIntoAppAuth() {
+  if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
+    return;
+  }
+  if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function') {
+    return;
+  }
+  if (!window.YuruiFirebase.isReady()) {
+    return;
+  }
+  try {
+    window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
+    console.log('✓ AppAuth 已注入 Firebase Auth');
+  } catch (error) {
+    console.warn('[AppAuth] Firebase 注入略過:', error);
+  }
+}
+
+/**
  * 載入 booking shared auth 與 header 互動腳本。
  * 套用元件：#loginModal、#personalizationModal、.bookingHeader。
  */
 function loadBookingHeaderScript() {
   // booking-utils 先載入：header 讀 bookingCart 時需要 normalizeBookingCart（3-13 camelCase）
   loadScriptOnce('/booking/js/booking-utils.js', '__bookingUtilsScriptLoaded')
+    .then(function () {
+      // 2-2：Firebase 必須在 auth.js 之前就緒
+      return loadFirebaseAppOnce();
+    })
+    .then(function () {
+      // B：Firebase → AppAuth（ApiClient 才能帶 token）
+      injectFirebaseAuthIntoAppAuth();
+      // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
+      return loadScriptOnce('/storefront/js/api-http.js', '__yuruiApiHttpScriptLoaded');
+    })
     .then(function () {
       return loadScriptOnce('/storefront/js/components/modal.js', '__yuruiModalScriptLoaded');
     })
@@ -173,31 +219,62 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
 }
 
 /**
+ * 載入 booking 全站共用腳本（config／api-client／formatters／api-mock／booking-api）。
+ * 與 booking/partials/booking-core-scripts.partial 清單一致；用 loadScriptOnce 當安全網。
+ * @returns {Promise<void>}
+ */
+function loadBookingCoreScripts() {
+  var scripts = [
+    ['/storefront/js/config.js', '__bookingCoreConfigLoaded'],
+    ['/storefront/js/api-client.js', '__bookingCoreApiClientLoaded'],
+    ['/storefront/js/formatters.js', '__bookingCoreFormattersLoaded'],
+    ['/storefront/js/api-mock.js', '__bookingCoreApiMockLoaded'],
+    ['/storefront/js/booking-api.js', '__bookingCoreBookingApiLoaded'],
+  ];
+
+  return scripts.reduce(function (chain, item) {
+    return chain.then(function () {
+      return loadScriptOnce(item[0], item[1]);
+    });
+  }, Promise.resolve());
+}
+
+/**
  * Loads the booking header, shared auth modal, and footer for booking pages.
  * 使用根絕對路徑載入 partial / Root-absolute partial URLs.
+ * 先載入 core scripts，確保登入／session 有 AppConfig.API_BASE_URL。
  */
 window.loadBookingSharedLayout = function () {
-  loadBookingLayoutPartial(
-    '#bookingHeader',
-    '/components/header.partial',
-    '[data-layout-part="bookingHeader"]',
-    function (ok) {
-      if (!ok) return;
+  return loadBookingCoreScripts()
+    .catch(function (error) {
+      console.error('booking core scripts load failed:', error);
+    })
+    .then(function () {
       loadBookingLayoutPartial(
         '#bookingHeader',
         '/components/header.partial',
-        '[data-layout-part="shared-auth"]',
-        function () {
-          loadBookingHeaderScript();
+        '[data-layout-part="bookingHeader"]',
+        function (ok) {
+          if (!ok) return;
+          loadBookingLayoutPartial(
+            '#bookingHeader',
+            '/components/header.partial',
+            '[data-layout-part="shared-auth"]',
+            function () {
+              loadBookingHeaderScript();
+            }
+          );
         }
       );
-    }
-  );
-  loadBookingLayoutPartial(
-    '#bookingFooter',
-    '/components/footer.partial',
-    '[data-layout-part="bookingFooter"]'
-  );
+      loadBookingLayoutPartial(
+        '#bookingFooter',
+        '/components/footer.partial',
+        '[data-layout-part="bookingFooter"]'
+      );
+    });
 };
+
+/** 供頁面或測試直接呼叫（與 loadBookingSharedLayout 共用同一清單） */
+window.loadBookingCoreScripts = loadBookingCoreScripts;
 
 document.addEventListener('DOMContentLoaded', initFloatingActions);

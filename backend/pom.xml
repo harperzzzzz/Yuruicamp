@@ -18,7 +18,8 @@
 		<java.version>25</java.version>
 		<mapstruct.version>1.6.3</mapstruct.version>
 		<springdoc.version>3.0.3</springdoc.version>
-		<firebase-admin.version>9.5.0</firebase-admin.version>
+		<!-- 9.5.0 + Java 25：verifyIdToken 拉公鑰曾出現 CERTIFICATE_FETCH_FAILED / Not in GZIP format -->
+		<firebase-admin.version>9.10.0</firebase-admin.version>
 	</properties>
 
 	<dependencies>

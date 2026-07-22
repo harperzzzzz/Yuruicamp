@@ -31,6 +31,7 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
+  /** Mock JSON 用原生 fetch；真後端 REST 一律走 ApiClient（帶 AppAuth token） */
   function fetchJson(url) {
     return fetch(url, { cache: 'no-store' }).then(function (response) {
       if (!response.ok) {

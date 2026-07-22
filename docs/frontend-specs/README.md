@@ -11,10 +11,12 @@
 1. 先閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`。
 2. 開啟 `docs/frontend-specs/pages/` 中對應頁面的規格文件。
 3. 保留既有的資料契約、localStorage key、共用 header/footer 載入方式、訂房版面載入方式，以及後台 partial 載入方式。
-4. 將這些檔案視為 AI 實作指示，而不是執行時期的程式碼。
+4. 訂房系統頁面腳本：見 [Booking 共用腳本](booking-shared-scripts.md)（`config.js`／`AppConfig` 必載，避免漏頁）。
+5. 將這些檔案視為 AI 實作指示，而不是執行時期的程式碼。
 
 ## API 接線規格
 
+- [**Firebase 合併進 main 後注意事項（協作者必讀）**](firebase-merge-into-main-notes.md)
 - [前端認證與 REST 共用層](api/auth-rest-client.md)
 - [認證與 REST 手動驗證](test/auth-rest-client-manual.md)
 - [Checkout API facade](api/checkout-facade.md)
@@ -52,6 +54,7 @@
 
 ### 訂房系統
 
+- [Booking 共用腳本](booking-shared-scripts.md)－`booking/partials/booking-core-scripts.partial` + `booking/js/booking-core-scripts.js`
 - [CampSearchPage](pages/camp-search-page.md)－`booking/pages/camp-search.html`
 - [CampDetailPage](pages/camp-detail-page.md)－`booking/pages/camp-detail.html`
 - [CampRentalPage](pages/camp-rental-page.md)－`booking/pages/camp-rental.html`

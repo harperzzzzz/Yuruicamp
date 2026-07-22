@@ -223,6 +223,22 @@ async function initGlobalLayout() {
   );
 
   try {
+    // 2-2：先載入 Firebase ES module（npm firebase），再載入經典 auth.js
+    // Load Firebase ESM first so window.YuruiFirebase exists before auth.js
+    await import('/storefront/js/firebase-app.js');
+    // B：把 Firebase Auth 注入 AppAuth，讓 ApiClient 能帶 Bearer
+    if (window.AppAuth && typeof window.AppAuth.configure === 'function'
+      && window.YuruiFirebase && window.YuruiFirebase.isReady
+      && window.YuruiFirebase.isReady()) {
+      try {
+        window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
+        console.log('✓ AppAuth 已注入 Firebase Auth');
+      } catch (injectError) {
+        console.warn('[AppAuth] Firebase 注入略過:', injectError);
+      }
+    }
+    // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
+    await loadComponentScript('/storefront/js/api-http.js');
     await loadComponentScript('/storefront/js/components/auth.js');
     await loadComponentScript('/storefront/js/components/modal.js');
     await loadComponentScript('/storefront/js/components/header.js');

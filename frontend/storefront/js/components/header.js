@@ -258,7 +258,11 @@
 
   window.handleLogout = function () {
     if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
-      window.YuruiAuth.logout({ close: closeUserMenu });
+      // logout 可能回傳 Promise（Firebase signOut）；完成後再更新 navbar
+      Promise.resolve(window.YuruiAuth.logout({ close: closeUserMenu }))
+        .finally(function () {
+          window.updateNavbarLoginState();
+        });
       return;
     }
     if (window.AppState) {
@@ -269,6 +273,7 @@
     localStorage.setItem('isLoggedIn', 'false');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('yuruiUser');
+    localStorage.removeItem('yuruiFirebaseIdToken');
     window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'logout', user: null } }));
     closeUserMenu();
     window.updateNavbarLoginState();

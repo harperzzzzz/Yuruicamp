@@ -899,7 +899,14 @@ window.AppAuth.configure({ auth: firebaseAuth });
 window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 ```
 
+- 商城頁：各 HTML 直接載入 `config.js`。
+- 預約頁：一律透過 `booking/js/booking-core-scripts.js`（清單見 `booking/partials/booking-core-scripts.partial`）；說明文件：[`docs/frontend-specs/booking-shared-scripts.md`](./docs/frontend-specs/booking-shared-scripts.md)。
+
 詳細規則與驗證步驟見 [`docs/frontend-specs/api/auth-rest-client.md`](./docs/frontend-specs/api/auth-rest-client.md)。
+
+**合併 Firebase 進 main 後，協作者請先讀：**  
+[`docs/frontend-specs/firebase-merge-into-main-notes.md`](./docs/frontend-specs/firebase-merge-into-main-notes.md)  
+（正式入口仍是 `AppAuth`／`ApiClient`；`YuruiApiHttp` 僅過渡；Booking 共用腳本勿每頁手貼。）
 
 ---
 

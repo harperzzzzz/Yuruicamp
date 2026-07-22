@@ -45,6 +45,7 @@
       backendBase = global.AppConfig.API_BASE_URL.replace(/\/$/, '') + '/admin';
     }
 
+    // 走 main 的 ApiClient（Bearer 由 AppAuth / Firebase 注入提供）
     return global.ApiClient._restRequest(path, {
       method: method,
       auth: 'required',
