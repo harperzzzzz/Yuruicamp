@@ -29,7 +29,7 @@
 2. 已建立以 `variant_id` 為粒度的讀模型。
 3. 可售量以 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity` 計算。
 4. 後端 DTO 與 OpenAPI 已同步更新。
-5. Swagger 驗證流程見 `docs/backend-specs/test/b-catalog-public-swagger.md`。
+5. Swagger 驗證流程見 `docs/backend-specs/test/public-member-api-validation.md`。
 
 ## 驗證結論
 

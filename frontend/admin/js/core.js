@@ -263,17 +263,6 @@ function clearAdminSession() {
   sessionStorage.removeItem('isSuperAdmin');
   sessionStorage.removeItem('adminPermissions');
 }
-    return;
-  }
-  sessionStorage.removeItem('adminLoggedIn');
-  sessionStorage.removeItem('adminId');
-  sessionStorage.removeItem('adminName');
-  sessionStorage.removeItem('isSuperAdmin');
-  sessionStorage.removeItem('adminPermissions');
-  sessionStorage.removeItem('adminAuthSource');
-  sessionStorage.removeItem('adminEmail');
-  sessionStorage.removeItem('adminRole');
-}
 
 $(document).ready(async function () {
 

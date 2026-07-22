@@ -7,6 +7,7 @@ import vm from 'node:vm';
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const apiSource = readFileSync(join(rootDir, 'admin/js/admin-api.js'), 'utf8');
 const runtimeSource = readFileSync(join(rootDir, 'admin/js/admin-runtime.js'), 'utf8');
+const authSource = readFileSync(join(rootDir, 'admin/js/admin-auth.js'), 'utf8');
 const loginHtml = readFileSync(join(rootDir, 'admin/login.html'), 'utf8');
 const calls = [];
 const storage = new Map();
@@ -96,8 +97,12 @@ await assert.rejects(
 );
 assert.equal(calls.length, callCountBeforeUnsupported);
 
-assert.match(loginHtml, /googleAdminLoginBtn/);
+assert.match(loginHtml, /googleLoginBtn/);
+assert.match(loginHtml, /firebaseLoginStatus/);
 assert.match(loginHtml, /admin-runtime\.js/);
+assert.match(authSource, /\$\('#googleLoginBtn'\)/);
+assert.doesNotMatch(authSource, /googleAdminLoginBtn|backendLoginPanel/);
+assert.doesNotMatch(loginHtml, /permissions\.js/);
 assert.doesNotMatch(loginHtml, /findEmployeeById|localStorage\.adminEmployees/);
 
 console.log('Admin G-6 runtime, session and readiness tests passed.');

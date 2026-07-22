@@ -8,6 +8,12 @@
 
   var configuredAuth = null;
   var configuredDevToken = '';
+  var authInitializationSettled = false;
+  var resolveAuthInitialization = null;
+  // 頁面 API 可以早於 Firebase 模組啟動，先共用這個 Promise 等待認證注入完成。
+  var authInitializationPromise = new Promise(function (resolve) {
+    resolveAuthInitialization = resolve;
+  });
   /** 避免並行 401 連續清狀態／開多次登入框 */
   var lastSessionExpiredAt = 0;
   var SESSION_EXPIRED_DEBOUNCE_MS = 2500;
@@ -80,6 +86,36 @@
     return token;
   }
 
+  /**
+   * 等待 Firebase 完成首次登入狀態還原，避免新分頁把暫時的 currentUser=null 當成登出。
+   */
+  async function waitForFirebaseAuthState(auth) {
+    if (!auth) return;
+
+    if (typeof auth.authStateReady === 'function') {
+      await auth.authStateReady();
+
+      return;
+    }
+
+    if (
+      global.YuruiFirebase
+      && typeof global.YuruiFirebase.waitForAuthState === 'function'
+    ) {
+      await global.YuruiFirebase.waitForAuthState();
+    }
+  }
+
+  /**
+   * 標記 Firebase 或 development Token 已完成初始化，讓提早發出的 API 繼續執行。
+   */
+  function markAuthInitializationReady() {
+    if (authInitializationSettled) return;
+
+    authInitializationSettled = true;
+    resolveAuthInitialization();
+  }
+
   var AppAuth = {
     /**
      * 應用啟動時可注入 Firebase Auth；本機也可暫時注入 dev Token。
@@ -89,11 +125,20 @@
 
       if (Object.prototype.hasOwnProperty.call(next, 'auth')) {
         configuredAuth = next.auth || null;
+        markAuthInitializationReady();
       }
 
       if (Object.prototype.hasOwnProperty.call(next, 'devToken')) {
         configuredDevToken = String(next.devToken || '').trim();
+        if (configuredDevToken) markAuthInitializationReady();
       }
+    },
+
+    /**
+     * 等待 Firebase Auth 或 development Token 完成注入。
+     */
+    whenReady: function () {
+      return authInitializationPromise;
     },
 
     /**
@@ -103,6 +148,20 @@
       var settings = options || {};
       var required = settings.required !== false;
       var auth = resolveFirebaseAuth();
+
+      // 頁面程式可能比 main.js／Booking layout 更早呼叫 API，先等待認證初始化。
+      if (!auth) {
+        // 本機設定已有合法 dev Token 時可直接使用，不必等待不存在的 Firebase。
+        var earlyDevToken = resolveDevToken();
+        if (earlyDevToken) return earlyDevToken;
+
+        await authInitializationPromise;
+        auth = resolveFirebaseAuth();
+      }
+
+      // Firebase 會從 IndexedDB 還原跨分頁登入，完成前不能判定 Token 不存在。
+      await waitForFirebaseAuthState(auth);
+
       var user = auth && auth.currentUser;
 
       if (user && typeof user.getIdToken === 'function') {

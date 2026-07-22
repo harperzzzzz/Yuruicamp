@@ -126,10 +126,14 @@ function injectFirebaseAuthIntoAppAuth() {
   if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
     return;
   }
+
+  // Firebase 未設定或模組載入失敗時，也要解除 AppAuth readiness 等待。
   if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function') {
+    window.AppAuth.configure({ auth: null });
     return;
   }
   if (!window.YuruiFirebase.isReady()) {
+    window.AppAuth.configure({ auth: null });
     return;
   }
   try {
@@ -152,6 +156,14 @@ function loadBookingHeaderScript() {
       return loadFirebaseAppOnce();
     })
     .then(function () {
+      // 等待 Firebase 還原跨分頁登入者，避免 Booking 首批 API 誤判為登出。
+      if (window.YuruiFirebase && typeof window.YuruiFirebase.waitForAuthState === 'function') {
+        return window.YuruiFirebase.waitForAuthState();
+      }
+
+      return null;
+    })
+    .then(function () {
       // B：Firebase → AppAuth（ApiClient 才能帶 token）
       injectFirebaseAuthIntoAppAuth();
       // auth.js 已收斂到 AppAuth／ApiClient，不再載入過渡層 api-http.js
@@ -165,6 +177,10 @@ function loadBookingHeaderScript() {
       return loadScriptOnce('/booking/js/booking-header.js', '__bookingHeaderScriptLoaded');
     })
     .catch(function (error) {
+      // Booking 初始化失敗時讓共用 API 正常回報未登入，不要永久等待。
+      if (window.AppAuth && typeof window.AppAuth.configure === 'function') {
+        window.AppAuth.configure({ auth: null });
+      }
       console.error(error);
     });
 }

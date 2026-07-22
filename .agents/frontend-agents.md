@@ -1,23 +1,15 @@
 # 請先讀取:
-- /plans/data-integration-spec.md
-- /backend/README.md
-- /docs/api/README.md
-- /docs/seed/README.md
 - README.md
-- \plans\backend-implementation-checklist.md
-- /plans/java-backend-architecture-proposal.md 
+- \docs\seed\README.md
+- \docs\latest_schema.sql
 - \plans\frontend-folder-migration-spec.md
 - \plans\frontend-root-absolute-path-and-api-contract-spec.md
-- \plans\backend-schema-change-checklist.md
-- \plans\schema-migration-checklist.md
-
 
 # 限制條件:
 - 如果在cmd 和powershell 有受到中文影響播壞了程式，那就不要將那條程序完成避免破壞專案。
 - 執行完任務將所有相關文件更新。
 - 根目錄的README.md 也要更新。
 - 所有任務新增的程式都要加上中文註解用簡單易懂的方式說明程式功能。
-- 任務新增的有關前端的程式流程、用途的說明要簡單易懂不要長篇大論，都要在docs/frontend-specs 創建或新增到相關的文件進行記錄和更新，格式參考/backend/README.md，文件命名和歸類依照後端分類的架構區分。
 - 不要產生因為錯誤紀錄的log 檔案。
 - 程式的排版使用以下條件完成:
     - 註解必須單獨一行，不要跟宣告擠在一起。
@@ -33,4 +25,3 @@
 
 # 預期目標:
 - 嚴格遵守限制條件完成任務
-- 完成任務後，在/docs/frontend-specs/test/ 下建立一個給開發者手動在frontend 驗證的流程，簡單的說重點步驟就好，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。

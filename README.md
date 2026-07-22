@@ -35,7 +35,7 @@
 - Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
 - Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
 - Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。線 E 定義為 Booking Prepare／Reservation 完成，ECPay 與付款確認延後線 D。
-- Booking 線 E 的完整人工驗證已整合至 [`E-1～E-7 Booking Swagger 流程`](./docs/backend-specs/test/e1-e7-booking-swagger.md)。
+- Booking 線 E 的後端與前端人工驗證已整合至 [`公開／會員 API 驗證`](./docs/backend-specs/test/public-member-api-validation.md) 與 [`商城 Checkout 與 Booking 驗證`](./docs/frontend-specs/test/commerce-booking-validation.md)。
 - Admin 線 G 的 G-1、G-5 已完成：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已接入正式 Admin Session。
 - Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
 - Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
@@ -46,6 +46,7 @@
 - Admin 線 G 的 G-6 已完成：Firebase Google／development dev Token 會建立後端 Admin Session，以有效權限初始化 Sidebar；401 只強制刷新一次，未就緒的 Reviews、標籤池、seller note 與租借商品寫入由 readiness gate 阻擋，不會發出預期 404。
 - Admin RBAC、Customers、Orders、Bookings、Products 與 Inventory Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
+- 前台跨分頁與站內導頁共用 `AppAuth` readiness：頁面 API 會等待 Firebase 注入並從 IndexedDB 還原 `currentUser`，再取得 Token；初始化期間不會誤判成登入失效並清除會員狀態。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
 - Checkout 頁面已改呼叫 `API.checkout.createSession()`；Request 不再傳會員 ID、商品快照、前端價格、總額、狀態或點數，會員由 Firebase principal 決定，金額由 Spring Boot 從 PostgreSQL 重算。
@@ -59,7 +60,7 @@
 - 交易 Seed 已加入 U001～U050、222 筆訂單、90 筆預訂、435 筆商城保留與 40 筆租借保留；租借 active 區間重疊超賣數為 0。
 - 38 筆評論 Mock 的舊 `v-P...` 已全數轉為 canonical variant／SKU；Seed 只建立有明確 orderId 與 order item 的 `REV031`。舊庫存異動因缺 variant、單一表頭語意與員工主檔對照，維持不搬移。
 - 會員周邊 Seed 已獨立補入 `020-identity.sql`：18 個偏好選項、200 筆會員偏好、50 筆預設地址、3 個會員標籤與 56 筆標籤指派；逐筆對齊 `frontend/data/customers/*.json`，不影響訂單／預訂成立條件。
-- 完整 Seed 已於 2026-07-22 使用 PostgreSQL 16 全新獨立資料庫 `yuruicamp_inventory_verify_final_0722` 實灌，`latest_schema.sql` 與 `010`～`070` 一次成功 `COMMIT`；同一版本也已成功套用到目前 `yuruicamp`。會員／訂單／明細／預訂／zone／租借快照為 `50／222／435／90／90／40`，商城／租借保留為 `435／40`，相關 FK 孤兒與租借區間超賣皆為 `0`。流程見 [`完整 Seed 全新資料庫驗證`](./docs/backend-specs/test/full-seed-fresh-database.md)。
+- 完整 Seed 已於 2026-07-22 使用 PostgreSQL 16 全新獨立資料庫實灌，`latest_schema.sql` 與 `010`～`070` 一次成功 `COMMIT`；同一版本也已成功套用到目前 `yuruicamp`。可重做的流程與判定標準見 [`資料庫與完整 Seed 實際驗證`](./docs/backend-specs/test/database-seed-validation.md)。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
 
@@ -946,8 +947,8 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 - Admin 訂單／預訂真實 API 已分別驗證 222／90 筆，抽查詳情與 `frontend/data` JSON Mock 的核心欄位一致。
 - 會員 U001 的預訂 API 可查到 `25`、`55`，列表／詳情契約測試通過。
-- 尚未全數完成：正式 Admin 頁仍缺 `AdminAPI.configure({ useBackend: true })`；會員訂單 `/api/me/orders` 回 HTTP 500，且前端 Backend 模式仍讀 Mock。
-- 完整結果與待辦：[`docs/frontend-specs/test/orders-bookings-backend-display-validation.md`](./docs/frontend-specs/test/orders-bookings-backend-display-validation.md)。
+- 尚未全數完成：Admin 已由 `AdminRuntime` 統一設定 Backend 模式並以 readiness 阻擋未接功能；會員訂單 Controller 仍不存在，前端 Backend 模式也尚未完成會員訂單 REST 分流。
+- 目前可驗證範圍與未完成邊界統一記錄於 [`前端實際驗證總覽`](./docs/frontend-specs/test/README.md)。
 
 > 以下指令請先 `cd frontend` 再執行（`package.json` 已不在 repo 根）。
 
@@ -968,7 +969,7 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | 接入真實後端（前台）    | 修改 `js/api-mock.js` 的各函數實作，頁面邏輯零改動                                                                   |
 | 擴充後台正式契約        | G-6 已正式接線；後續補 Reviews、會員標籤池、seller note 與租借商品寫入後，再解除 readiness gate                    |
-| 後台操作日誌            | Firebase 登入與後端細 RBAC 已完成；跨模組完整審計紀錄仍可延伸（見 [plans/adminPermissions.md](plans/adminPermissions.md)） |
+| 後台操作日誌            | Firebase 登入與後端細 RBAC 已完成；跨模組完整審計紀錄與工程收尾見 [`backend-implementation-checklist.md`](./plans/backend-implementation-checklist.md) |
 | 升級至 SPA              | 以 Vue 3 或 React 重構，可直接複用現有 CSS 設計系統與 JSON 資料                                                      |
 | 加入數據分析            | 在 `main.js` 的 `initGlobalListeners()` 接入 GA4 / GTM 事件追蹤                                                      |
 | 自動化測試              | 以 Playwright 或 Cypress 撰寫自動化測試腳本                                                                          |

@@ -83,7 +83,7 @@ docs/seed/
 - 會員偏好、地址、會員標籤、訂單會員、訂單規格、預訂會員、營區、zone、租借 listing／variant 的孤兒檢查皆為 `0`；每位展示會員只有一筆預設地址，沒有連線停留在 `idle in transaction`。
 - 2026-07-22 在 PostgreSQL 16 全新獨立資料庫 `yuruicamp_inventory_verify_final_0722` 先執行 `latest_schema.sql`，再完整執行 `010`～`070`，一次成功 `COMMIT`；另在前一個隔離庫連續重跑驗證冪等性。同一版本已套用到目前 `yuruicamp`；商城／租借保留為 `435／40`，active catalog 可用量 399，負庫存、複合 FK 孤兒與租借區間超賣皆為 `0`。
 
-可重做的隔離驗證流程見 [`../backend-specs/test/full-seed-fresh-database.md`](../backend-specs/test/full-seed-fresh-database.md)。驗證只使用專用容器與 volume，不會停止、重建或清除既有 `yuruicamp-db`。
+可重做的隔離驗證流程見 [`../backend-specs/test/database-seed-validation.md`](../backend-specs/test/database-seed-validation.md)。驗證使用專用容器與 port，不會停止、重建或清除既有 `yuruicamp-db`。
 
 ### 執行方式
 

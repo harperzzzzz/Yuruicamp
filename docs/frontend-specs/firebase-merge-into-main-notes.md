@@ -116,6 +116,13 @@ YuruiFirebase.signInWithProvider
 | `frontend/storefront/js/main.js` | 商城：Firebase → `AppAuth.configure` → auth.js |
 | `frontend/booking/js/layout.js` | 預約：同上注入邏輯 |
 
+商城、Booking 與後台在讀取 `auth.currentUser` 前，必須先等待
+`YuruiFirebase.waitForAuthState()`。`AppAuth.getIdToken()` 也會集中執行同一層等待，避免新分頁尚未完成 IndexedDB 還原時，誤拋 `AUTH_TOKEN_UNAVAILABLE` 並清除登入狀態。
+
+頁面專屬程式可能早於 `main.js` 或 Booking layout 呼叫 API，因此 `AppAuth` 另提供共用 `whenReady()` Promise。Firebase Auth、development Token、Firebase 未設定或初始化失敗都必須明確完成 readiness；`getIdToken()` 在 Auth 尚未注入時會先等待，不會把啟動中的 `null` 誤判成登出。
+
+正式 REST 不可改讀 `localStorage.yuruiFirebaseIdToken` 作為認證真相；Token 仍由 Firebase `currentUser.getIdToken()` 取得。
+
 ### 3.4 本機環境變數（前後端都要對齊）
 
 **前端**（`frontend/.env.local`，可參考 `frontend/.env.example`）：
@@ -185,8 +192,9 @@ YuruiFirebase.signInWithProvider
 
 手動驗收文件：
 
-- [`test/auth-rest-client-manual.md`](./test/auth-rest-client-manual.md)
-- [`test/booking-backend-integration-manual.md`](./test/booking-backend-integration-manual.md)
+- [`test/auth-member-validation.md`](./test/auth-member-validation.md)
+- [`test/commerce-booking-validation.md`](./test/commerce-booking-validation.md)
+- [`test/admin-validation.md`](./test/admin-validation.md)
 
 ---
 

@@ -1,12 +1,12 @@
 /**
- * 後台 Firebase 登入／session 工具（階段 3）
- * Admin Firebase auth helpers — Google popup → POST /admin/auth/firebase/session
- *
- * 正式 REST 走 AppAuth + ApiClient；sessionStorage 仍給 dashboard UI／Sidebar 權限用。
- * 後台登入頁：正式模式使用 Firebase Google 與 Admin Session；Mock 模式保留舊員工登入。
+ * 後台登入頁：Firebase Google 登入、development Dev Token 與 Admin Session。
  */
 (function (global) {
   'use strict';
+
+  var DEV_SEED_TOKEN =
+    'dev:booking-seed-admin:booking-seed@example.test:google:Booking Seed Admin';
+  var AUTH_SOURCE_KEY = 'adminAuthSource';
 
   function showError(message) {
     $('#loginError').removeClass('d-none').text(message);
@@ -16,6 +16,13 @@
     $('#loginError').addClass('d-none').text('');
   }
 
+  function showFirebaseStatus(message, type) {
+    $('#firebaseLoginStatus')
+      .removeClass('d-none alert-info alert-success alert-warning')
+      .addClass('alert-' + type)
+      .text(message);
+  }
+
   function setBusy($button, busy, label) {
     $button.prop('disabled', busy);
     if (busy) {
@@ -23,367 +30,175 @@
       $button.html('<span class="spinner-border spinner-border-sm me-2"></span>' + label);
       return;
     }
-    if ($button.data('original-html')) $button.html($button.data('original-html'));
+    if ($button.data('original-html')) {
+      $button.html($button.data('original-html'));
+    }
   }
 
   function friendlyMessage(error) {
-    var code = error && error.code;
-    if (code === 'ADMIN_NOT_WHITELISTED') return '此 Google 帳號不在後台白名單中。';
-    if (code === 'ADMIN_INACTIVE') return '此管理員帳號已停用。';
-    if (code === 'FORBIDDEN') return '此 Email 已綁定其他 Firebase 帳號。';
-    if (code === 'API_NETWORK_ERROR') return '無法連線後端，請確認 Spring Boot 已啟動。';
-    return (error && error.message) || '登入失敗，請稍後再試。';
-  }
-
-  async function completeLogin(idToken) {
-    await global.AdminRuntime.refreshBackendSession({ idToken: idToken });
-    global.location.href = '/admin/dashboard.html';
-  }
-
-  async function initializeBackendLogin() {
-    $('#loginForm, #mockLoginHint').addClass('d-none');
-    $('#backendLoginPanel').removeClass('d-none');
-    var storedMessage = sessionStorage.getItem('adminLoginMessage');
-    sessionStorage.removeItem('adminLoginMessage');
-    if (storedMessage) showError(storedMessage);
-
-    try {
-      var auth = await global.AdminRuntime.initializeFirebase();
-      $('#firebaseLoginStatus').toggleClass('d-none', !!auth);
-      $('#googleAdminLoginBtn').prop('disabled', !auth);
-      if (auth && auth.currentUser) {
-        $('#googleAdminLoginBtn').html('<i class="fab fa-google me-2"></i>繼續使用 ' +
-          $('<div>').text(auth.currentUser.email || '目前帳號').html());
-      }
-    } catch (error) {
-      $('#firebaseLoginStatus').removeClass('d-none').text(friendlyMessage(error));
-      $('#googleAdminLoginBtn').prop('disabled', true);
-    }
-
-    if (global.AppConfig && global.AppConfig.ENVIRONMENT === 'development') {
-      $('#adminDevLoginPanel').removeClass('d-none');
-      $('#adminDevToken').val((global.AppConfig.AUTH && global.AppConfig.AUTH.DEV_TOKEN) || '');
-    }
-  }
-
-  function loadMockEmployeeStore() {
-    var script = document.createElement('script');
-    script.src = '/admin/js/permissions.js';
-    script.onload = function () {
-      $('#loginBtn').prop('disabled', false);
-      bindMockLogin();
-    };
-    script.onerror = function () {
-      showError('Mock 員工資料載入失敗。');
-    };
-    $('#loginBtn').prop('disabled', true);
-    document.head.appendChild(script);
-  }
-
-  /** Mock 模式才允許舊員工 ID 登入，避免正式流程讀取 localStorage 員工。 */
-  function bindMockLogin() {
-    $('#loginForm').off('submit.adminMock').on('submit.adminMock', function (event) {
-      event.preventDefault();
-      var employeeId = $('#username').val().trim();
-      var password = $('#password').val().trim();
-      clearError();
-      $('#username, #password').removeClass('is-invalid');
-      if (!employeeId || !password) {
-        $('#username').toggleClass('is-invalid', !employeeId);
-        $('#password').toggleClass('is-invalid', !password);
-        showError('請輸入員工 ID 與密碼。');
-        return;
-      }
-      var employee = global.findEmployeeById(employeeId);
-      if (!employee || !employee.isActive) {
-        showError('帳號不存在或已停用。');
-        return;
-      }
-      sessionStorage.setItem('adminLoggedIn', 'true');
-      sessionStorage.setItem('adminId', employee.id);
-      sessionStorage.setItem('adminName', employee.displayName);
-      sessionStorage.setItem('isSuperAdmin', String(!!employee.isSuperAdmin));
-      sessionStorage.setItem('adminPermissions', JSON.stringify(employee.permissions || {}));
-      global.location.href = '/admin/dashboard.html';
-    });
-  }
-
-  var SESSION_KEYS = {
-    loggedIn: 'adminLoggedIn',
-    adminId: 'adminId',
-    adminName: 'adminName',
-    isSuperAdmin: 'isSuperAdmin',
-    adminPermissions: 'adminPermissions',
-    authSource: 'adminAuthSource',
-    adminEmail: 'adminEmail',
-    adminRole: 'adminRole'
-  };
-
-  /** Seed / Swagger 用的本機 Dev Token（僅 FIREBASE_ENABLED=false 時後端才接受） */
-  var DEV_SEED_TOKEN =
-    'dev:booking-seed-admin:booking-seed@example.test:google:Booking Seed Admin';
-
-  /**
-   * 後端 effectivePermissions（如 orders.view）→ 前端 Sidebar 用的巢狀物件
-   * Map backend permission codes to UI { section: { view, edit } }
-   * @param {string[]|Set<string>|null} codes
-   * @param {string} role
-   * @returns {Record<string, { view: boolean, edit: boolean }>}
-   */
-  function mapEffectivePermissionsToUi(codes, role) {
-    var sections = (global.ADMIN_SECTIONS || []).map(function (s) {
-      return s.key;
-    });
-    var perms = {};
-    sections.forEach(function (key) {
-      perms[key] = { view: false, edit: false };
-    });
-
-    // role=admin → 前端視為超級管理員（canView／canEdit 全開）
-    if (String(role || '').toLowerCase() === 'admin') {
-      sections.forEach(function (key) {
-        perms[key] = { view: true, edit: true };
-      });
-      return perms;
-    }
-
-    var list = [];
-    if (codes && typeof codes.forEach === 'function') {
-      codes.forEach(function (code) {
-        list.push(code);
-      });
-    } else if (Array.isArray(codes)) {
-      list = codes;
-    }
-
-    list.forEach(function (code) {
-      var parts = String(code || '').split('.');
-      if (parts.length < 2) return;
-      var action = parts[parts.length - 1];
-      var section = parts.slice(0, -1).join('.');
-      if (!perms[section]) {
-        perms[section] = { view: false, edit: false };
-      }
-      if (action === 'view' || action === 'edit') {
-        perms[section][action] = true;
-      }
-    });
-
-    return perms;
-  }
-
-  /**
-   * 寫入 dashboard 既有 sessionStorage 契約（5 個主 key + 輔助欄位）
-   * @param {object} session - AdminSession data from backend
-   * @param {string} authSource - 'firebase' | 'dev-token'
-   */
-  function persistAdminSession(session, authSource) {
-    var role = session.role || '';
-    var isSuperAdmin = String(role).toLowerCase() === 'admin';
-    var permissions = mapEffectivePermissionsToUi(
-      session.effectivePermissions,
-      role
-    );
-
-    sessionStorage.setItem(SESSION_KEYS.loggedIn, 'true');
-    sessionStorage.setItem(SESSION_KEYS.adminId, session.adminUserId || '');
-    sessionStorage.setItem(SESSION_KEYS.adminName, session.name || session.email || '管理員');
-    sessionStorage.setItem(SESSION_KEYS.isSuperAdmin, String(isSuperAdmin));
-    sessionStorage.setItem(SESSION_KEYS.adminPermissions, JSON.stringify(permissions));
-    sessionStorage.setItem(SESSION_KEYS.authSource, authSource || 'firebase');
-    sessionStorage.setItem(SESSION_KEYS.adminEmail, session.email || '');
-    sessionStorage.setItem(SESSION_KEYS.adminRole, role);
-  }
-
-  function clearAdminSessionStorage() {
-    Object.keys(SESSION_KEYS).forEach(function (key) {
-      sessionStorage.removeItem(SESSION_KEYS[key]);
-    });
-  }
-
-  function requireApiClient() {
-    if (!global.ApiClient || typeof global.ApiClient._restRequest !== 'function') {
-      throw new Error('ApiClient 尚未載入。請確認已引入 /storefront/js/api-client.js');
-    }
-  }
-
-  function ensureAppAuthWired() {
-    if (!global.AppAuth || typeof global.AppAuth.configure !== 'function') {
-      return;
-    }
-    if (!global.YuruiFirebase || typeof global.YuruiFirebase.isReady !== 'function') {
-      return;
-    }
-    if (!global.YuruiFirebase.isReady()) {
-      return;
-    }
-    try {
-      global.AppAuth.configure({ auth: global.YuruiFirebase.getAuth() });
-      console.log('✓ AppAuth 已注入 Firebase Auth（admin）');
-    } catch (error) {
-      console.warn('[AdminAuth] AppAuth.configure 略過:', error);
-    }
-  }
-
-  function friendlySessionError(error) {
     var code = error && error.code ? String(error.code) : '';
-    var message = (error && error.message) || '後台登入失敗';
+    var message = (error && error.message) || '登入失敗，請稍後再試。';
     if (code === 'ADMIN_NOT_WHITELISTED' || /not whitelisted/i.test(message)) {
-      return '此 Google 帳號尚未加入後台白名單。請請管理員把你的 email 寫入 admin_users。';
+      return '此 Google 帳號不在後台白名單中。';
     }
     if (code === 'ADMIN_INACTIVE' || /disabled/i.test(message)) {
-      return '此後台帳號已停用。';
+      return '此管理員帳號已停用。';
     }
     if (code === 'FORBIDDEN' || /different Firebase/i.test(message)) {
-      return '此 email 已綁定其他 Firebase 帳號，無法以此身分登入。';
+      return '此 Email 已綁定其他 Firebase 帳號。';
     }
     if (code === 'API_NETWORK_ERROR') {
-      return '無法連線伺服器，請確認後端已啟動（localhost:8080）。';
+      return '無法連線後端，請確認 Spring Boot 已啟動於 localhost:8080。';
     }
-    if (/Invalid Firebase ID token|INVALID_TOKEN|401/i.test(message + code)) {
-      return 'Firebase Token 無效。請確認後端 FIREBASE_ENABLED 與憑證設定。';
+    if (/auth\/unauthorized-domain/i.test(code + message)) {
+      return '目前網址未加入 Firebase Authorized domains，請加入 127.0.0.1 與 localhost。';
+    }
+    if (/auth\/popup-blocked/i.test(code + message)) {
+      return '瀏覽器阻擋了 Google 登入視窗，請允許此網站開啟彈出視窗。';
     }
     return message;
   }
 
-  /**
-   * POST /api/admin/auth/firebase/session
-   * @param {string} idToken
-   * @returns {Promise<object>}
-   */
-  function establishAdminSession(idToken) {
-    requireApiClient();
-    return global.ApiClient._restRequest('/admin/auth/firebase/session', {
-      method: 'POST',
-      auth: 'none',
-      body: { idToken: idToken }
+  /** Google 登入成功後，以 ID Token 建立後端管理員 Session。 */
+  async function loginWithGoogle() {
+    var auth = await global.AdminRuntime.initializeFirebase();
+    if (!auth) {
+      throw new Error(
+        'Firebase 尚未就緒。請確認 frontend/.env.local 的 VITE_FIREBASE_*，並重啟 npm run dev。'
+      );
+    }
+
+    var firebaseResult = await global.YuruiFirebase.signInWithGoogle();
+    sessionStorage.removeItem('adminDevToken');
+    global.AppAuth.configure({ auth: auth, devToken: '' });
+    var session = await global.AdminRuntime.refreshBackendSession({
+      idToken: firebaseResult.idToken,
+    });
+    sessionStorage.setItem(AUTH_SOURCE_KEY, 'firebase');
+    return session;
+  }
+
+  /** 本機後端關閉 Firebase 驗證時，使用 Seed 管理員 Dev Token。 */
+  async function loginWithDevSeedToken() {
+    if (!global.AppConfig || global.AppConfig.ENVIRONMENT !== 'development') {
+      throw new Error('Dev Token 登入只允許 development 環境。');
+    }
+
+    sessionStorage.setItem('adminDevToken', DEV_SEED_TOKEN);
+    global.AppAuth.configure({ auth: null, devToken: DEV_SEED_TOKEN });
+    var session = await global.AdminRuntime.refreshBackendSession({ idToken: DEV_SEED_TOKEN });
+    sessionStorage.setItem(AUTH_SOURCE_KEY, 'dev-token');
+    return session;
+  }
+
+  function clearAdminSessionStorage() {
+    if (global.AdminRuntime) {
+      global.AdminRuntime.clearSession();
+    }
+    sessionStorage.removeItem(AUTH_SOURCE_KEY);
+  }
+
+  async function logout() {
+    if (global.AdminRuntime) {
+      await global.AdminRuntime.signOut();
+    } else {
+      clearAdminSessionStorage();
+    }
+    sessionStorage.removeItem(AUTH_SOURCE_KEY);
+    if (global.AppAuth) {
+      global.AppAuth.configure({ auth: null, devToken: '' });
+    }
+  }
+
+  /** Dashboard 相容入口；實際 Firebase 還原由 AdminRuntime 負責。 */
+  async function restoreAppAuthIfNeeded() {
+    if (!global.AdminRuntime || !global.AdminRuntime.isBackendMode()) return;
+    if (sessionStorage.getItem(AUTH_SOURCE_KEY) === 'firebase') {
+      try {
+        await global.AdminRuntime.initializeFirebase();
+      } catch (error) {
+        console.warn('[AdminAuth] Firebase 登入狀態還原失敗:', error);
+      }
+    }
+  }
+
+  async function initializeLoginPage() {
+    var $googleButton = $('#googleLoginBtn');
+    var $devButton = $('#devTokenLoginBtn');
+    $googleButton.prop('disabled', true);
+
+    var storedMessage = sessionStorage.getItem('adminLoginMessage');
+    sessionStorage.removeItem('adminLoginMessage');
+    if (storedMessage) showError(storedMessage);
+
+    if (!global.AdminRuntime || !global.AdminRuntime.isBackendMode()) {
+      showFirebaseStatus('Admin Backend 目前未啟用，Google 登入不可用。', 'warning');
+      return;
+    }
+
+    if (global.AppConfig && global.AppConfig.ENVIRONMENT === 'development') {
+      $('#devLoginPanel').removeClass('d-none');
+    }
+
+    try {
+      var auth = await global.AdminRuntime.initializeFirebase();
+      if (!auth) {
+        showFirebaseStatus(
+          'Firebase 設定未載入。請確認 frontend/.env.local 後重新啟動 Vite。',
+          'warning'
+        );
+        return;
+      }
+      showFirebaseStatus('Firebase 已就緒，可以使用 Google 管理員帳號登入。', 'success');
+      $googleButton.prop('disabled', false);
+      if (auth.currentUser) {
+        $googleButton.html(
+          '<i class="fab fa-google me-2"></i>繼續使用 ' +
+          $('<div>').text(auth.currentUser.email || '目前帳號').html()
+        );
+      }
+    } catch (error) {
+      showFirebaseStatus(friendlyMessage(error), 'warning');
+    }
+
+    $googleButton.off('click.adminAuth').on('click.adminAuth', async function () {
+      clearError();
+      setBusy($googleButton, true, '驗證管理員資格...');
+      try {
+        await loginWithGoogle();
+        global.location.href = '/admin/dashboard.html';
+      } catch (error) {
+        showError(friendlyMessage(error));
+        setBusy($googleButton, false);
+      }
+    });
+
+    $devButton.off('click.adminAuth').on('click.adminAuth', async function () {
+      clearError();
+      setBusy($devButton, true, '驗證開發帳號...');
+      try {
+        await loginWithDevSeedToken();
+        global.location.href = '/admin/dashboard.html';
+      } catch (error) {
+        showError(friendlyMessage(error));
+        setBusy($devButton, false);
+      }
     });
   }
 
-  /**
-   * Google → Admin session → 寫入 sessionStorage
-   * @returns {Promise<object>}
-   */
-  function loginWithGoogle() {
-    requireApiClient();
-
-    return Promise.resolve()
-      .then(function () {
-        if (global.YuruiFirebase && global.YuruiFirebase.isReady && global.YuruiFirebase.isReady()) {
-          return null;
-        }
-        return import('/storefront/js/firebase-app.js');
-      })
-      .then(function () {
-        if (!global.YuruiFirebase || !global.YuruiFirebase.isReady || !global.YuruiFirebase.isReady()) {
-          throw new Error(
-            'Firebase 尚未就緒。請確認 frontend/.env.local 的 VITE_FIREBASE_* 並重啟 npm run dev。'
-          );
-        }
-        ensureAppAuthWired();
-        return global.YuruiFirebase.signInWithGoogle();
-      })
-      .then(function (firebaseResult) {
-        return establishAdminSession(firebaseResult.idToken).then(function (session) {
-          ensureAppAuthWired();
-          persistAdminSession(session, 'firebase');
-          console.log('✓ Admin Firebase session OK', {
-            adminUserId: session.adminUserId,
-            email: session.email,
-            role: session.role
-          });
-          return session;
-        });
-      })
-      .catch(function (error) {
-        throw new Error(friendlySessionError(error));
-      });
-  }
-
-  /**
-   * 本機開發：用 seed 管理員 Dev Token（後端必須 FIREBASE_ENABLED=false）
-   * @returns {Promise<object>}
-   */
-  function loginWithDevSeedToken() {
-    var env = global.AppConfig && global.AppConfig.ENVIRONMENT;
-    if (env !== 'development') {
-      return Promise.reject(new Error('Dev Token 登入只允許 development 環境。'));
-    }
-
-    requireApiClient();
-
-    if (global.AppAuth && typeof global.AppAuth.configure === 'function') {
-      global.AppAuth.configure({ devToken: DEV_SEED_TOKEN });
-    }
-
-    return establishAdminSession(DEV_SEED_TOKEN)
-      .then(function (session) {
-        persistAdminSession(session, 'dev-token');
-        console.log('✓ Admin Dev Token session OK', {
-          adminUserId: session.adminUserId,
-          email: session.email,
-          role: session.role
-        });
-        return session;
-      })
-      .catch(function (error) {
-        throw new Error(friendlySessionError(error));
-      });
-  }
-
-  /**
-   * 登出：清 sessionStorage；若有 Firebase 一併 signOut
-   * @returns {Promise<void>}
-   */
-  function logout() {
-    var signOutPromise = Promise.resolve();
-    if (global.YuruiFirebase && typeof global.YuruiFirebase.signOut === 'function') {
-      signOutPromise = global.YuruiFirebase.signOut();
-    }
-    return signOutPromise
-      .catch(function (error) {
-        console.warn('[AdminAuth] Firebase signOut 失敗（繼續清 session）:', error);
-      })
-      .then(function () {
-        clearAdminSessionStorage();
-        if (global.AppAuth && typeof global.AppAuth.configure === 'function') {
-          try {
-            global.AppAuth.configure({ auth: null, devToken: '' });
-          } catch (error) {
-            // ignore
-          }
-        }
-      });
-  }
-
-  /**
-   * Dashboard 載入時：若已用 Firebase 登入，把 Auth 注回 AppAuth
-   * @returns {Promise<void>}
-   */
-  function restoreAppAuthIfNeeded() {
-    var source = sessionStorage.getItem(SESSION_KEYS.authSource);
-    if (source !== 'firebase') {
-      return Promise.resolve();
-    }
-    return import('/storefront/js/firebase-app.js')
-      .then(function () {
-        ensureAppAuthWired();
-      })
-      .catch(function (error) {
-        console.warn('[AdminAuth] 還原 AppAuth 失敗:', error);
-      });
-  }
-
   global.AdminAuth = {
-    SESSION_KEYS: SESSION_KEYS,
     DEV_SEED_TOKEN: DEV_SEED_TOKEN,
-    mapEffectivePermissionsToUi: mapEffectivePermissionsToUi,
-    persistAdminSession: persistAdminSession,
-    clearAdminSessionStorage: clearAdminSessionStorage,
     loginWithGoogle: loginWithGoogle,
     loginWithDevSeedToken: loginWithDevSeedToken,
+    clearAdminSessionStorage: clearAdminSessionStorage,
     logout: logout,
     restoreAppAuthIfNeeded: restoreAppAuthIfNeeded,
-    friendlySessionError: friendlySessionError
+    friendlySessionError: friendlyMessage,
   };
+
+  $(document).ready(function () {
+    if ($('#googleLoginBtn').length === 1) {
+      initializeLoginPage();
+    }
+  });
 })(typeof window !== 'undefined' ? window : this);
