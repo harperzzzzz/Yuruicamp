@@ -904,6 +904,10 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 詳細規則與驗證步驟見 [`docs/frontend-specs/api/auth-rest-client.md`](./docs/frontend-specs/api/auth-rest-client.md)。
 
+**合併 Firebase 進 main 後，協作者請先讀：**  
+[`docs/frontend-specs/firebase-merge-into-main-notes.md`](./docs/frontend-specs/firebase-merge-into-main-notes.md)  
+（正式入口仍是 `AppAuth`／`ApiClient`；`YuruiApiHttp` 僅過渡；Booking 共用腳本勿每頁手貼。）
+
 ---
 
 ## 📦 關鍵數字

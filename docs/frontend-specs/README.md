@@ -16,6 +16,7 @@
 
 ## API 接線規格
 
+- [**Firebase 合併進 main 後注意事項（協作者必讀）**](firebase-merge-into-main-notes.md)
 - [前端認證與 REST 共用層](api/auth-rest-client.md)
 - [認證與 REST 手動驗證](test/auth-rest-client-manual.md)
 - [Checkout API facade](api/checkout-facade.md)

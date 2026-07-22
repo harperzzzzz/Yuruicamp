@@ -29,6 +29,8 @@ Spring Boot **4.1.0** / Java **25** / PostgreSQL 16。
    $env:FIREBASE_ENABLED = "true"
    $env:FIREBASE_CREDENTIALS = "C:\path\to\serviceAccount.json"
    $env:FIREBASE_PROJECT_ID = "yuruicamp-2026"   # 建議與前端／service account 一致
+   # 合併 Firebase 進 main 後的前端協作注意事項：
+   # docs/frontend-specs/firebase-merge-into-main-notes.md
    ```
 
 ## 啟動

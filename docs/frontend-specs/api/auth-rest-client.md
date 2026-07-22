@@ -1,5 +1,8 @@
 # 前端認證與 REST 共用層
 
+> **協作者：** Firebase 分支合併進 `main` 後的影響範圍、Do/Don’t、過渡期 `YuruiApiHttp` 說明，見  
+> [`../firebase-merge-into-main-notes.md`](../firebase-merge-into-main-notes.md)。
+
 ## 用途
 
 `frontend/storefront/js/api-client.js` 是真後端請求的統一入口。頁面只呼叫 `window.API`、`BookingAPI` 或 `AdminAPI`，不自行取得 Token、解析 Envelope 或組合後端 URL。
