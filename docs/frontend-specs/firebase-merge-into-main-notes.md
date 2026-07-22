@@ -201,7 +201,7 @@ YuruiFirebase.signInWithProvider
 | 業務（優先） | 預約建立失敗診斷 **BK-1～BK-3** | 非 Firebase；先看 Network `error.code` |
 | 業務（記錄） | Checkout 建立失敗 **CK-1～CK-3** | **暫不改程式**，先記錄 |
 | 業務（延後） | Checkout 優惠券／ECPay **CK-4～CK-5** | 更後面 |
-| Auth 剩餘 | Facebook HTTPS（本機跳過）、401 導回登入 | checklist §3 |
+| Auth 剩餘 | Facebook HTTPS（本機跳過）；**FA-2 401 導回登入已完成** | checklist §3 |
 | 可選 | Admin `useBackend: true`＋RBAC | checklist **FA-3** |
 | 工程 | 階段 1／3／4 commit／PR | checklist **ENG-1**（需明確下指令） |
 

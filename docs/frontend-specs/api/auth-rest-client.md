@@ -63,6 +63,19 @@ const profile = await window.ApiClient._restRequest('/me', {
 - `includeMeta: true` 時回傳 `{ data, meta }`。
 - 將後端錯誤轉成 `ApiRequestError`。
 
+### FA-2：401／Token 過期
+
+當 `auth` 不是 `'none'`，且回應為 **HTTP 401**（或 `UNAUTHORIZED`／`AUTH_TOKEN_UNAVAILABLE` 等）：
+
+1. 若仍有 Firebase `currentUser`：**強制 `getIdToken(true)` 後自動重試一次**。
+2. 重試仍失敗、或根本沒有可用 token：呼叫 `ApiClient.notifySessionExpired()`  
+   - **商城／預約**：`YuruiAuth.logout` → toast「登入已過期」→ `openModal('loginModal')`  
+   - **後台** `/admin/**`：`AdminAuth.logout` → 導向 `/admin/login.html`  
+3. 並行請求有 debounce（約 2.5 秒），避免連續開多次登入框。
+4. **不會**對 `auth: 'none'`（例如 session 登入端點）做踢人，以免登入失敗時誤清狀態。
+
+頁面仍可自行處理 `ApiRequestError`（例如 Checkout 顯示錯誤面板）；共用層已負責清狀態與導回登入。
+
 `ApiRequestError` 保留 `code`、`message`、`details` 與 `status`，頁面不可再從錯誤字串拆後端錯誤碼。
 
 Mock JSON 與 HTML partial 是靜態資源，仍可由 API／layout 載入層使用 fetch；這不等於真後端 REST。頁面新增業務 API 時必須先加到對應 facade。
