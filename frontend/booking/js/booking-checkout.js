@@ -121,17 +121,22 @@ function renderCheckoutPage(cart) {
 // 會員資料帶入 / Fill member profile
 // ============================================================
 
-/** 取得目前登入會員（優先 YuruiAuth，fallback localStorage） */
+/**
+ * 取得目前登入會員（優先 YuruiAuth，其次 localStorage）。
+ * 必須有真實 id（customerId）；不再接受只有 name 的殘缺物件。
+ */
 function getLoggedInUser() {
   if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
-    return window.YuruiAuth.getUser();
+    var authUser = window.YuruiAuth.getUser();
+    if (authUser && authUser.id) return authUser;
   }
   try {
-    var user = JSON.parse(localStorage.getItem('yuruiUser'));
-    return user && user.name ? user : null;
+    var user = JSON.parse(localStorage.getItem('yuruiUser') || 'null');
+    if (user && user.id) return user;
   } catch {
-    return null;
+    // ignore
   }
+  return null;
 }
 
 /** 將會員姓名、電話、Email 填入訂購人欄位（備註不帶入） */

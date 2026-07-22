@@ -9,8 +9,8 @@
  *  6. Toast 工廠函式（供所有模組呼叫）
  *
  *  API 持久化：各模組透過 admin/js/admin-api.js 預留 REST 接口。
- *  後端就緒後在登入成功處或此處呼叫：
- *    AdminAPI.configure({ useBackend: true, baseUrl: '/api/admin' });
+ *  Firebase 後台登入後會還原 AppAuth；各模組若要打真後端：
+ *    AdminAPI.configure({ useBackend: true });
  */
 
 /**
@@ -236,13 +236,20 @@ function loadDefaultHomeSection() {
   loadSection(defaultSection);
 }
 
-/** 登出時清除全部 session 資料（5 個 key） */
+/** 登出時清除全部 session 資料（相容舊 5 key + AdminAuth 輔助 key） */
 function clearAdminSession() {
+  if (window.AdminAuth && typeof window.AdminAuth.clearAdminSessionStorage === 'function') {
+    window.AdminAuth.clearAdminSessionStorage();
+    return;
+  }
   sessionStorage.removeItem('adminLoggedIn');
   sessionStorage.removeItem('adminId');
   sessionStorage.removeItem('adminName');
   sessionStorage.removeItem('isSuperAdmin');
   sessionStorage.removeItem('adminPermissions');
+  sessionStorage.removeItem('adminAuthSource');
+  sessionStorage.removeItem('adminEmail');
+  sessionStorage.removeItem('adminRole');
 }
 
 $(document).ready(function () {
@@ -252,11 +259,15 @@ $(document).ready(function () {
   // ==========================================================
   // 說明：進入 dashboard.html 時，先檢查 sessionStorage 是否有登入標記
   //       若未登入則踢回 login.html
-  // API 預留：實際串接後，改為向後端驗證 token 是否有效
   const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
   if (!isLoggedIn) {
     window.location.href = 'login.html';
     return; // 停止後續 JS 執行
+  }
+
+  // Firebase 登入後還原 AppAuth，之後 AdminAPI.useBackend=true 才能帶 Bearer
+  if (window.AdminAuth && typeof window.AdminAuth.restoreAppAuthIfNeeded === 'function') {
+    window.AdminAuth.restoreAppAuthIfNeeded();
   }
 
   // 顯示管理員名稱（從 sessionStorage 取出）
@@ -312,11 +323,18 @@ $(document).ready(function () {
   $(document).on('click', '#logoutBtn, #logoutBtnTopbar, .sidebar-logout-mobile', function (e) {
     e.preventDefault();
 
-    // 清除登入狀態（5 個 sessionStorage key）
-    clearAdminSession();
+    var goLogin = function () {
+      window.location.href = 'login.html';
+    };
 
-    // 跳回登入頁
-    window.location.href = 'login.html';
+    // Firebase／Dev Token：清 session +（若有）Firebase signOut
+    if (window.AdminAuth && typeof window.AdminAuth.logout === 'function') {
+      window.AdminAuth.logout().finally(goLogin);
+      return;
+    }
+
+    clearAdminSession();
+    goLogin();
   });
 
 }); // end $(document).ready()

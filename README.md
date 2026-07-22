@@ -645,7 +645,7 @@ npx http-server -p 8000
 **賣家後台（管理流程）** — 詳見 [userguide.md 第 13 節](userguide.md#13-賣家後台--admin)
 
 ```
-登入   → admin/login.html（Demo 員工 ID：01 老闆 / 02 員工，密碼任意非空）
+登入   → admin/login.html（Firebase Google；email 須在 admin_users 白名單，見 docs/seed/dev/021-admin-google-whitelist.example.sql）
 後台   → admin/dashboard.html（預設載入第一個有 view 權限的模組）
          ├── 分析報表      ← Sidebar「分析報表」
          ├── 訂單管理      ← Sidebar「訂單管理」
@@ -916,6 +916,9 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 **合併 Firebase 進 main 後，協作者請先讀：**  
 [`docs/frontend-specs/firebase-merge-into-main-notes.md`](./docs/frontend-specs/firebase-merge-into-main-notes.md)  
 （正式入口是 `AppAuth`／`ApiClient`；Booking 共用腳本勿每頁手貼。）
+
+**Firebase 主線已完成；Checkout／預約建單等業務債見：**  
+[`plans/post-firebase-roadmap-checklist.md`](./plans/post-firebase-roadmap-checklist.md)
 
 ---
 

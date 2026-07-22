@@ -17,8 +17,10 @@
 ## API 接線規格
 
 - [**Firebase 合併進 main 後注意事項（協作者必讀）**](firebase-merge-into-main-notes.md)
+- [**Firebase 主線完成後：後續 Checklist（BK／CK 業務債）**](../../plans/post-firebase-roadmap-checklist.md)
 - [前端認證與 REST 共用層](api/auth-rest-client.md)
 - [認證與 REST 手動驗證](test/auth-rest-client-manual.md)
+- [Admin 登入頁（Firebase Google）](pages/admin-login-page.md)
 - [Checkout API facade](api/checkout-facade.md)
 - [Checkout facade 手動驗證](test/checkout-facade-manual.md)
 - [Checkout Mock 契約手動驗證](test/checkout-mock-contract-manual.md)

@@ -3,6 +3,8 @@
 **對象：** 合併 PR（`firebase` → `main`，例如 [#39](https://github.com/kobishi0401/Yuruicamp/pull/39)）之後，繼續在 `main` 開發的所有人  
 **狀態：** 生效中（合併後請先讀這份）  
 **最後更新：** 2026-07-22  
+**Firebase 主線：** **已完成**（收斂 `AppAuth`／`ApiClient`、後台 Google、移除 `U001` fallback）  
+**後續業務債／加固清單：** [`plans/post-firebase-roadmap-checklist.md`](../../plans/post-firebase-roadmap-checklist.md)  
 **相關 PR／分支：** `firebase` 已先把 `origin/main` merge 進來，再以 **B 方案**接線（保留 main 的 `AppAuth` + `ApiClient`，Firebase 掛上去）
 
 ---
@@ -188,13 +190,22 @@ YuruiFirebase.signInWithProvider
 
 ---
 
-## 6. 已知後續工作（不阻擋合併）
+## 6. 後續工作（Firebase 主線已完成）
 
-| 項目 | 說明 |
-|------|------|
-| Admin Firebase 登入 UI | 後台 Google／白名單（見後台登入規格） |
-| Facebook 本機 HTTPS | Meta 擋 HTTP；正式站驗收 |
-| 拿掉業務頁 demo `U001` fallback | Checkout／會員中心對齊真實 `customerId` |
+完整勾選清單（含 BK／CK 業務債、Auth 加固、工程收尾）：  
+→ **[`plans/post-firebase-roadmap-checklist.md`](../../plans/post-firebase-roadmap-checklist.md)**
+
+| 類型 | 項目 | 備註 |
+|------|------|------|
+| 已完成 | 雙軌收斂、Admin Google、拿掉 `U001` fallback | 見 checklist §1 |
+| 業務（優先） | 預約建立失敗診斷 **BK-1～BK-3** | 非 Firebase；先看 Network `error.code` |
+| 業務（記錄） | Checkout 建立失敗 **CK-1～CK-3** | **暫不改程式**，先記錄 |
+| 業務（延後） | Checkout 優惠券／ECPay **CK-4～CK-5** | 更後面 |
+| Auth 剩餘 | Facebook HTTPS（本機跳過）、401 導回登入 | checklist §3 |
+| 可選 | Admin `useBackend: true`＋RBAC | checklist **FA-3** |
+| 工程 | 階段 1／3／4 commit／PR | checklist **ENG-1**（需明確下指令） |
+
+**重要：** 能 `GET /api/me OK` 卻建單失敗 → 預設當業務／種子／庫存問題，不要先回頭改 Firebase。
 
 ---
 

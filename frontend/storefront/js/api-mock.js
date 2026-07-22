@@ -635,11 +635,21 @@ const _checkoutMockError = (code, message, status = 0) => new window.ApiRequestE
 
 /**
  * 取得 Mock Checkout 所屬會員，讓冪等鍵仍維持會員範圍。
+ * 必須是已登入的真實 customerId（不再 fallback MOCK-CUSTOMER／U001）。
  */
 const _getMockCheckoutCustomerId = () => {
+  if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
+    const authUser = window.YuruiAuth.getUser();
+    if (authUser && authUser.id) return String(authUser.id);
+  }
   const current = window.AppState?.currentUser;
+  if (current && current.id) return String(current.id);
 
-  return String(current?.id || 'MOCK-CUSTOMER');
+  throw _checkoutMockError(
+    'AUTH_TOKEN_UNAVAILABLE',
+    '請先登入後再結帳（Mock Checkout 需要真實 customerId）',
+    401
+  );
 };
 
 /**
@@ -1170,6 +1180,18 @@ window.API = {
         );
       }
 
+      const customerId = orderData && orderData.customerId
+        ? String(orderData.customerId).trim()
+        : '';
+      if (!customerId) {
+        throw new window.ApiRequestError(
+          'VALIDATION_ERROR',
+          '建立訂單需要真實 customerId（已移除 U001 fallback）',
+          [],
+          400
+        );
+      }
+
       const seed = await _loadOrdersSeed();
       const stored = _getStoredOrders();
       const merged = _mergeOrders(seed, stored);
@@ -1179,7 +1201,7 @@ window.API = {
 
       const newOrder = _normalizeOrder({
         id: nextId,
-        customerId: orderData.customerId || 'U001',
+        customerId,
         buyerName: orderData.buyerName || '',
         buyerPhone: orderData.buyerPhone || '',
         buyerEmail: orderData.buyerEmail || '',

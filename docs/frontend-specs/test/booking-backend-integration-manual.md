@@ -1,5 +1,10 @@
 
 
+# Booking Backend 接線手動驗證
+
+> **業務債：** Firebase 登入主線已完成。若「已登入／`/api/me` OK」但仍無法建立預約，請依  
+> [`plans/post-firebase-roadmap-checklist.md`](../../../plans/post-firebase-roadmap-checklist.md) 的 **BK-1～BK-3** 診斷（先看 Network `error.code`，不要先改 Firebase）。
+
 ## 一、啟動環境
 
 ### 1. 啟動 PostgreSQL
