@@ -40,7 +40,7 @@ Firebase 就緒後由 `layout.js`／`main.js` 呼叫：
 window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
 ```
 
-讓 `ApiClient` 自動帶 Bearer；`api-http.js` 暫留作登入 UI 過渡。
+讓 `ApiClient` 自動帶 Bearer；登入 UI（`auth.js`）也走同一套 `AppAuth`／`ApiClient`。
 
 ---
 

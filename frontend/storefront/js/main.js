@@ -237,8 +237,7 @@ async function initGlobalLayout() {
         console.warn('[AppAuth] Firebase 注入略過:', injectError);
       }
     }
-    // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
-    await loadComponentScript('/storefront/js/api-http.js');
+    // auth.js 已收斂到 AppAuth／ApiClient，不再載入過渡層 api-http.js
     await loadComponentScript('/storefront/js/components/auth.js');
     await loadComponentScript('/storefront/js/components/modal.js');
     await loadComponentScript('/storefront/js/components/header.js');

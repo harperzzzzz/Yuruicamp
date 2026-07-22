@@ -157,12 +157,8 @@ const _writeJsonStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-/** 直接 fetch JSON；REST 時帶 Firebase Bearer（步驟 2-5） */
+/** 載入本機 Mock JSON（靜態資源，不走 ApiClient／Bearer） */
 const _fetchJson = async (url, options = {}) => {
-  // Prefer shared auth-aware fetch when available (after main.js layout init)
-  if (window.YuruiApiHttp && typeof window.YuruiApiHttp.fetchJson === 'function') {
-    return window.YuruiApiHttp.fetchJson(url, options);
-  }
   const res = await fetch(url, { cache: 'no-store', ...options });
   if (!res.ok) throw new Error('Fetch failed: ' + url);
   return res.json();
