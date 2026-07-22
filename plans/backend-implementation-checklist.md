@@ -148,7 +148,7 @@
   - [x] G-2a Customers（PostgreSQL 整合測試通過；列表、詳情、更新、停權／恢復、RBAC 與前端雙模式完成）
   - [x] G-2b Orders／Bookings（PostgreSQL 整合測試與 Swagger 驗收通過；查詢、詳情、履約狀態、RBAC 與前端雙模式完成）
   - [x] G-2c Products（PostgreSQL 整合測試通過；正規化商品／規格／圖片交易、唯讀庫存、RBAC 與前端雙模式完成）
-- [ ] G-3 庫存異動
+- [x] G-3 庫存異動（商城／租借 draft、明細、過帳、作廢、悲觀鎖、負庫存防護、冪等、RBAC 與前端雙模式完成）
 - [ ] G-4 優惠券／營區關閉日
 - [x] G-5 管理員建立／列表／詳情／更新與個別權限覆寫 API（PostgreSQL 整合驗收通過）
 - [ ] G-6 `AdminAPI.configure({ useBackend: true })`
@@ -160,6 +160,8 @@
 > G-2b 已完成 Admin Orders／Bookings 查詢、履約狀態命令、RBAC、前端雙模式、`AdminFulfillmentPostgreSqlIntegrationTest` 與 Swagger 驗收。流程見 [`order/g2b-admin-orders.md`](../docs/backend-specs/order/g2b-admin-orders.md) 與 [`booking/g2b-admin-bookings.md`](../docs/backend-specs/booking/g2b-admin-bookings.md)，人工流程見 [`g2b-admin-orders-bookings-swagger.md`](../docs/backend-specs/test/g2b-admin-orders-bookings-swagger.md)。
 
 > G-2c 已完成 Admin Products 分頁／詳情／lookup、商品／規格／圖片交易同步、唯讀庫存、上下架、RBAC 與前端乾淨 Request。流程見 [`catalog/g2c-admin-products.md`](../docs/backend-specs/catalog/g2c-admin-products.md)，人工流程見 [`g2c-admin-products-swagger.md`](../docs/backend-specs/test/g2c-admin-products-swagger.md)。庫存異動仍由 G-3 負責。
+
+> G-3 已完成商城與租借同領域的入庫、出庫／損耗、調撥草稿與原子過帳；posted／cancelled 不可變、重複過帳冪等、固定順序悲觀鎖與併發驗收完成。流程見 [`inventory/g3-admin-inventory-movements.md`](../docs/backend-specs/inventory/g3-admin-inventory-movements.md)，人工流程見 [`g3-admin-inventory-movements-swagger.md`](../docs/backend-specs/test/g3-admin-inventory-movements-swagger.md)。跨領域商店轉租借另立契約。
 
 ---
 

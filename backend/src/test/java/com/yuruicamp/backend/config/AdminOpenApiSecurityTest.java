@@ -8,6 +8,7 @@ import com.yuruicamp.backend.admin.api.AdminUserController;
 import com.yuruicamp.backend.booking.api.AdminBookingController;
 import com.yuruicamp.backend.catalog.api.AdminProductController;
 import com.yuruicamp.backend.customer.api.AdminCustomerController;
+import com.yuruicamp.backend.inventory.api.AdminInventoryMovementController;
 import com.yuruicamp.backend.order.api.AdminOrderController;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,8 @@ class AdminOpenApiSecurityTest {
 				AdminCustomerController.class,
 				AdminOrderController.class,
 				AdminBookingController.class,
-				AdminProductController.class);
+				AdminProductController.class,
+				AdminInventoryMovementController.class);
 
 		assertThat(protectedControllers)
 				.allSatisfy(controller -> assertThat(controller.getAnnotation(SecurityRequirement.class))

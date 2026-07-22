@@ -290,9 +290,30 @@
 
     // ── 庫存異動 / Movement ──
     movement: {
-      list: function () {
-        return request('GET', '/inventory-movements');
+      list: function (query) {
+        var params = new URLSearchParams(query || { page: 0, size: 100, sort: 'occurredAt,desc' });
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/inventory-movements' + suffix);
       },
+      getById: function (movementId) {
+        return request('GET', '/inventory-movements/' + encodeURIComponent(movementId));
+      },
+      getLookups: function () {
+        return request('GET', '/inventory-movements/lookups');
+      },
+      createDraft: function (record) {
+        return request('POST', '/inventory-movements', record);
+      },
+      addItem: function (movementId, item) {
+        return request('POST', '/inventory-movements/' + encodeURIComponent(movementId) + '/items', item);
+      },
+      post: function (movementId) {
+        return request('POST', '/inventory-movements/' + encodeURIComponent(movementId) + '/post', {});
+      },
+      cancel: function (movementId) {
+        return request('POST', '/inventory-movements/' + encodeURIComponent(movementId) + '/cancel', {});
+      },
+      // Mock 模式保留舊 create 名稱；Backend 模式一律使用 createDraft。
       create: function (record) {
         return request('POST', '/inventory-movements', record);
       }

@@ -41,7 +41,8 @@
 - Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
 - Admin 線 G 的 G-2c Products 已完成並通過 PostgreSQL 整合驗收：商品、規格與圖片以單一交易同步，庫存只讀且交由 G-3 異動；前端 Backend 模式只送契約欄位，API 成功後才更新 cache。
 - G-2c 前端驗收於 2026-07-22 完成 API、Mock UI、資料庫與 build 實測；Backend UI 因 G-6 尚未提供永久切換，仍需依 [`G-2c 前端驗收流程`](./docs/frontend-specs/test/g2c-admin-products.md) 在 DevTools Console 啟用後完成 Network 與錯誤狀態人工核對。
-- Admin RBAC、Customers、Orders、Bookings 與 Products Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
+- Admin 線 G 的 G-3 Inventory 已完成並通過 PostgreSQL 併發驗收：商城與租借庫存只能透過 draft 異動單過帳，支援入庫、出庫／損耗與同領域調撥；固定順序悲觀鎖、active 保留下限與重複過帳冪等會防止負庫存及重複加減。
+- Admin RBAC、Customers、Orders、Bookings、Products 與 Inventory Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。

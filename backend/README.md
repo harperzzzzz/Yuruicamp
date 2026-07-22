@@ -117,7 +117,8 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | **G-2a Admin Customers**            | ✅ 列表、篩選、詳情、基本資料更新、停權／恢復、RBAC、前端雙模式與 PostgreSQL 整合驗收已完成                                                                                                                                                       |
 | **G-2b Admin Orders／Bookings**     | ✅ 列表、詳情、履約狀態命令、RBAC、前端雙模式、PostgreSQL 整合測試與 Swagger 驗收完成                                                                                                                                                       |
 | **G-2c Admin Products**             | ✅ 商品／規格／圖片正規化交易、唯讀庫存、上下架、RBAC、前端乾淨 Request 與 PostgreSQL 整合驗收完成；見 [`G-2c 文件`](../docs/backend-specs/catalog/g2c-admin-products.md)                                                                 |
-| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C 與商城 Coupon 已完成；Booking Coupon、Payment 與 G-3～G-4 待實作                                                                                                                                                                       |
+| **G-3 Admin Inventory**             | ✅ 商城／租借 draft、明細、入庫、出庫／損耗、同領域調撥、悲觀鎖過帳、作廢、冪等、RBAC 與前端雙模式完成；見 [`G-3 文件`](../docs/backend-specs/inventory/g3-admin-inventory-movements.md)                                 |
+| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C 與商城 Coupon 已完成；Booking Coupon、Payment 與 G-4 待實作                                                                                                                                                                            |
 
 ### Schema 整合驗證
 

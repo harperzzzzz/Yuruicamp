@@ -13,6 +13,34 @@
 
 window.generatedMovementRecords = window.generatedMovementRecords || [];
 window.movementBaseLoaded = false;
+window.movementLoadedMode = window.movementLoadedMode || null;
+
+// Backend 模式的庫位與規格選項，送出時只使用正式 ID。
+var adminMovementLookups = { locations: [], variants: [] };
+
+var MOVEMENT_TYPE_LABELS = {
+  receipt: '進貨',
+  write_off: '損耗',
+  transfer: '調撥'
+};
+
+var MOVEMENT_STATUS_LABELS = {
+  draft: '草稿',
+  posted: '已過帳',
+  cancelled: '已作廢'
+};
+
+/** 判斷庫存異動頁是否使用正式後端。 */
+function isAdminMovementBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' &&
+    AdminAPI.isBackendEnabled &&
+    AdminAPI.isBackendEnabled();
+}
+
+/** Backend 模式才顯示正式庫存寫入控制。 */
+function syncBackendMovementUi() {
+  $('.backend-movement-action').toggleClass('d-none', !isAdminMovementBackendEnabled());
+}
 
 /**
  * 排序堆疊：依點擊時間順序排列
@@ -53,6 +81,16 @@ window.initMovement = function () {
   movementFilterState = { employeeId: [], movementType: [], dateStart: null, dateEnd: null };
   movementDateState = { days: 30, startDate: null, endDate: null };
 
+  var currentMode = isAdminMovementBackendEnabled() ? 'backend' : 'mock';
+  if (window.movementLoadedMode && window.movementLoadedMode !== currentMode) {
+    window.movementBaseLoaded = false;
+    window.movementCache = [];
+  }
+  syncBackendMovementUi();
+  if (currentMode === 'backend') {
+    loadBackendMovementLookups();
+  }
+
   setupMovementPeriodFilter();
   initMovementFlatpickr();
   applyMovementDayRange(30);
@@ -74,6 +112,7 @@ window.initMovement = function () {
           })
         );
         window.movementBaseLoaded = true;
+        window.movementLoadedMode = currentMode;
         populateEmployeeFilterOptions(window.movementCache);
         applyMovementFiltersAndSort();
       },
@@ -156,9 +195,53 @@ window.initMovement = function () {
       showMovementDetailModal(record);
     }
   });
+
+  // 開啟正式庫存異動草稿表單。
+  $(document).on('click.movement', '#openMovementDraftModal', function () {
+    resetMovementDraftForm();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('movementDraftModal')).show();
+  });
+
+  $(document).on('change.movement', '#movementDomain, #movementType', function () {
+    renderMovementLocationOptions();
+    renderMovementDraftRows();
+    syncMovementLocationFields();
+  });
+
+  $(document).on('click.movement', '#addMovementDraftRow', function () {
+    appendMovementDraftRow();
+  });
+
+  $(document).on('click.movement', '.remove-movement-draft-row', function () {
+    $(this).closest('.movement-draft-row').remove();
+    if (!$('#movementDraftRows .movement-draft-row').length) {
+      appendMovementDraftRow();
+    }
+  });
+
+  $(document).on('submit.movement', '#movementDraftForm', function (event) {
+    event.preventDefault();
+    submitMovementDraftForm();
+  });
+
+  $(document).on('click.movement', '#addDraftMovementItem', function () {
+    addItemToOpenMovementDraft();
+  });
+
+  $(document).on('click.movement', '#postMovementDraft', function () {
+    changeOpenMovementStatus('post');
+  });
+
+  $(document).on('click.movement', '#cancelMovementDraft', function () {
+    changeOpenMovementStatus('cancel');
+  });
 };
 
 window.addMovementRecord = function (record) {
+  if (isAdminMovementBackendEnabled()) {
+    window.showAdminToast('正式庫存請到「庫存異動紀錄」建立草稿並過帳', 'info');
+    return;
+  }
   var normalizedRecord = normalizeMovementRecord(record);
 
   window.generatedMovementRecords = window.generatedMovementRecords || [];
@@ -242,9 +325,20 @@ function normalizeMovementRecord(record) {
 
   return {
     id: (record && record.id) || createMovementRecordId(),
+    movementNo: record && record.movementNo,
+    inventoryDomain: (record && record.inventoryDomain) || 'legacy',
+    movementType: record && record.movementType,
+    status: (record && record.status) || 'posted',
+    sourceLocationId: record && record.sourceLocationId,
+    sourceLocationName: record && record.sourceLocationName,
+    destinationLocationId: record && record.destinationLocationId,
+    destinationLocationName: record && record.destinationLocationName,
+    reason: (record && record.reason) || '',
+    postedAt: record && record.postedAt,
     // 權威欄位 camelCase；保留 created_at 一版相容讀取（getMovementCreatedAt 已 fallback）
-    createdAt: getMovementCreatedAt(record) || formatMovementDateTime(new Date()),
+    createdAt: (record && record.occurredAt) || getMovementCreatedAt(record) || formatMovementDateTime(new Date()),
     employeeId: (record && (record.employeeId || record.adminId || record.staffId)) || '—',
+    employeeName: record && record.employeeName,
     items: items.map(function (item) {
       return {
         inventoryDomain: (item && item.inventoryDomain) || (record && record.inventoryDomain) || 'legacy',
@@ -253,10 +347,11 @@ function normalizeMovementRecord(record) {
         productName: (item && item.productName) || '未命名商品',
         quantity: parseInt(item && item.quantity, 10) || 0,
         fromStore: (item && (item.fromStore || item.sourceLocationId)) ||
-          (record && record.sourceLocationId) || '—',
+          (record && (record.sourceLocationName || record.sourceLocationId)) || '—',
         toStore: (item && (item.toStore || item.destinationLocationId)) ||
-          (record && record.destinationLocationId) || '—',
-        type: (item && item.type) || (record && record.movementType) || '—'
+          (record && (record.destinationLocationName || record.destinationLocationId)) || '—',
+        type: (item && item.type) || MOVEMENT_TYPE_LABELS[record && record.movementType] ||
+          (record && record.movementType) || '—'
       };
     })
   };
@@ -609,7 +704,7 @@ function updateMovementFilterUI() {
 function renderMovementTable(records) {
   if (!records || records.length === 0) {
     $('#movementTableBody').html(
-      '<tr><td colspan="5" class="text-center text-muted py-4">目前沒有符合條件的庫存異動紀錄</td></tr>'
+      '<tr><td colspan="6" class="text-center text-muted py-4">目前沒有符合條件的庫存異動紀錄</td></tr>'
     );
     return;
   }
@@ -622,12 +717,13 @@ function renderMovementTable(records) {
       '<td>' +
       '<span class="admin-cell-link movement-detail-link" ' +
       'data-movement-id="' + escapeMovementHtml(record.id) + '">' +
-      escapeMovementHtml(window.formatMovementId(record.id)) +
+      escapeMovementHtml(record.movementNo || window.formatMovementId(record.id)) +
       '</span>' +
       '</td>' +
       '<td>' + escapeMovementHtml(getMovementCreatedAt(record).slice(0, 10)) + '</td>' +
       '<td>' + escapeMovementHtml(record.employeeId || '—') + '</td>' +
       '<td>' + itemCount + ' 筆</td>' +
+      '<td>' + buildMovementStatusBadge(record.status) + '</td>' +
       '<td>' + escapeMovementHtml(typesSummary) + '</td>' +
       '</tr>';
   }).join('');
@@ -637,9 +733,14 @@ function renderMovementTable(records) {
 
 function showMovementDetailModal(record) {
   $('#movementDetailModal').data('movement-id', record.id);
-  $('#modalMovementId').text(window.formatMovementId(record.id));
+  $('#modalMovementId').text(record.movementNo || window.formatMovementId(record.id));
   $('#modalMovementDate').text(getMovementCreatedAt(record));
-  $('#modalMovementEmployeeId').text(record.employeeId || '—');
+  $('#modalMovementEmployeeId').text(
+    (record.employeeName ? record.employeeName + ' / ' : '') + (record.employeeId || '—')
+  );
+  $('#modalMovementStatus').html(buildMovementStatusBadge(record.status));
+  $('#modalMovementDomain').text(record.inventoryDomain === 'rental' ? '租借庫存' : '商城庫存');
+  $('#modalMovementReason').text(record.reason || '—');
 
   var itemsHtml = (record.items || []).map(function (item) {
     var typeBadge = item.type || '—';
@@ -660,7 +761,214 @@ function showMovementDetailModal(record) {
     itemsHtml || '<tr><td colspan="5" class="text-center text-muted">沒有異動明細</td></tr>'
   );
 
+  var isDraft = isAdminMovementBackendEnabled() && record.status === 'draft';
+  $('#draftMovementItemEditor').toggleClass('d-none', !isDraft);
+  $('#postMovementDraft, #cancelMovementDraft').toggleClass('d-none', !isDraft);
+  if (isDraft) {
+    renderOpenDraftVariantOptions(record);
+  }
+
   bootstrap.Modal.getOrCreateInstance(document.getElementById('movementDetailModal')).show();
+}
+
+/** 依異動狀態建立一致的 Bootstrap badge。 */
+function buildMovementStatusBadge(status) {
+  var style = status === 'posted'
+    ? 'bg-success'
+    : (status === 'cancelled' ? 'bg-secondary' : 'bg-warning text-dark');
+  return '<span class="badge ' + style + '">' +
+    escapeMovementHtml(MOVEMENT_STATUS_LABELS[status] || status || '—') +
+    '</span>';
+}
+
+/** 載入正式庫位與規格 lookup，避免前端用名稱猜 ID。 */
+function loadBackendMovementLookups() {
+  AdminAPI.movement.getLookups().then(function (response) {
+    adminMovementLookups = response.data || { locations: [], variants: [] };
+    renderMovementLocationOptions();
+    renderMovementDraftRows();
+  }).catch(function (error) {
+    AdminAPI.handleError(error, '載入庫存異動選項失敗');
+  });
+}
+
+/** 重設建立草稿 Modal，預設使用商城入庫與一筆明細。 */
+function resetMovementDraftForm() {
+  document.getElementById('movementDraftForm').reset();
+  $('#movementDomain').val('store');
+  $('#movementType').val('receipt');
+  $('#movementOccurredAt').val('');
+  $('#movementDraftRows').empty();
+  renderMovementLocationOptions();
+  appendMovementDraftRow();
+  syncMovementLocationFields();
+}
+
+function movementLocationsForDomain(domain) {
+  return (adminMovementLookups.locations || []).filter(function (location) {
+    return location.inventoryDomain === domain;
+  });
+}
+
+function movementVariantsForDomain(domain) {
+  return (adminMovementLookups.variants || []).filter(function (variant) {
+    return variant.inventoryDomain === domain;
+  });
+}
+
+/** 依庫存領域刷新來源與目的庫位選項。 */
+function renderMovementLocationOptions() {
+  var domain = $('#movementDomain').val() || 'store';
+  var options = movementLocationsForDomain(domain).map(function (location) {
+    return '<option value="' + escapeMovementHtml(location.id) + '">' +
+      escapeMovementHtml(location.name + '（' + location.code + '）') +
+      '</option>';
+  }).join('');
+  $('#movementSourceLocation, #movementDestinationLocation').html(options);
+}
+
+/** 類型決定來源／目的欄位，完全對齊後端與 DB CHECK。 */
+function syncMovementLocationFields() {
+  var type = $('#movementType').val();
+  $('#movementSourceGroup').toggleClass('d-none', type === 'receipt');
+  $('#movementDestinationGroup').toggleClass('d-none', type === 'write_off');
+}
+
+function buildMovementVariantOptions(domain) {
+  return movementVariantsForDomain(domain).map(function (variant) {
+    return '<option value="' + escapeMovementHtml(variant.id) + '">' +
+      escapeMovementHtml(variant.productName + ' / ' + variant.sku + ' / ' + variant.specification) +
+      '</option>';
+  }).join('');
+}
+
+/** 在草稿建立表單加入一筆規格數量列。 */
+function appendMovementDraftRow() {
+  var domain = $('#movementDomain').val() || 'store';
+  var html = '<div class="movement-draft-row row g-2 align-items-end border rounded p-2">' +
+    '<div class="col-md-9"><label class="form-label small">商品規格</label>' +
+    '<select class="form-select form-select-sm movement-draft-variant" required>' +
+    buildMovementVariantOptions(domain) + '</select></div>' +
+    '<div class="col-md-2"><label class="form-label small">數量</label>' +
+    '<input type="number" class="form-control form-control-sm movement-draft-quantity" ' +
+    'min="1" value="1" required></div>' +
+    '<div class="col-md-1 d-grid"><button type="button" ' +
+    'class="btn btn-sm btn-outline-danger remove-movement-draft-row" title="移除">' +
+    '<i class="fas fa-trash"></i></button></div></div>';
+  $('#movementDraftRows').append(html);
+}
+
+/** 領域變更時保留列數並重建每列可選規格。 */
+function renderMovementDraftRows() {
+  var $rows = $('#movementDraftRows .movement-draft-row');
+  if (!$rows.length) return;
+  var options = buildMovementVariantOptions($('#movementDomain').val() || 'store');
+  $rows.find('.movement-draft-variant').html(options);
+}
+
+/** 建立表頭後逐筆新增明細；任何失敗都保留已建立的 draft 供修正。 */
+function submitMovementDraftForm() {
+  var type = $('#movementType').val();
+  var occurredValue = $('#movementOccurredAt').val();
+  var request = {
+    inventoryDomain: $('#movementDomain').val(),
+    movementType: type,
+    sourceLocationId: type === 'receipt' ? null : $('#movementSourceLocation').val(),
+    destinationLocationId: type === 'write_off' ? null : $('#movementDestinationLocation').val(),
+    reason: String($('#movementReason').val() || '').trim(),
+    occurredAt: occurredValue ? new Date(occurredValue).toISOString() : null
+  };
+  var items = [];
+  var variantIds = {};
+  $('#movementDraftRows .movement-draft-row').each(function () {
+    var variantId = $(this).find('.movement-draft-variant').val();
+    var quantity = parseInt($(this).find('.movement-draft-quantity').val(), 10);
+    if (variantId && quantity > 0 && !variantIds[variantId]) {
+      items.push({ variantId: variantId, quantity: quantity });
+      variantIds[variantId] = true;
+    }
+  });
+  if (!request.reason || !items.length) {
+    window.showAdminToast('請填寫原因並至少加入一筆有效明細', 'danger');
+    return;
+  }
+  var $button = $('#submitMovementDraft').prop('disabled', true).text('建立中…');
+  var movementId;
+  AdminAPI.movement.createDraft(request).then(function (response) {
+    movementId = response.data.id;
+    return items.reduce(function (chain, item) {
+      return chain.then(function () {
+        return AdminAPI.movement.addItem(movementId, item);
+      });
+    }, Promise.resolve(response));
+  }).then(function (response) {
+    upsertBackendMovement(response.data);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('movementDraftModal')).hide();
+    window.showAdminToast('已建立草稿 ' + response.data.movementNo);
+  }).catch(function (error) {
+    AdminAPI.handleError(error, movementId
+      ? '草稿已建立，但部分明細新增失敗；請從草稿詳情繼續處理'
+      : '建立庫存異動草稿失敗');
+  }).finally(function () {
+    $button.prop('disabled', false).text('建立草稿');
+  });
+}
+
+function renderOpenDraftVariantOptions(record) {
+  $('#draftMovementVariant').html(buildMovementVariantOptions(record.inventoryDomain));
+  $('#draftMovementQuantity').val(1);
+}
+
+/** 對目前開啟的 draft 新增明細，後端成功後才更新 cache。 */
+function addItemToOpenMovementDraft() {
+  var movementId = $('#movementDetailModal').data('movement-id');
+  var request = {
+    variantId: $('#draftMovementVariant').val(),
+    quantity: parseInt($('#draftMovementQuantity').val(), 10)
+  };
+  if (!request.variantId || !(request.quantity > 0)) {
+    window.showAdminToast('請選擇規格並輸入正整數數量', 'danger');
+    return;
+  }
+  AdminAPI.movement.addItem(movementId, request).then(function (response) {
+    var record = upsertBackendMovement(response.data);
+    showMovementDetailModal(record);
+    window.showAdminToast('異動明細已新增');
+  }).catch(function (error) {
+    AdminAPI.handleError(error, '新增異動明細失敗');
+  });
+}
+
+/** 過帳或作廢都以後端回應取代 cache，避免前端假成功。 */
+function changeOpenMovementStatus(action) {
+  var movementId = $('#movementDetailModal').data('movement-id');
+  var operation = action === 'post'
+    ? AdminAPI.movement.post(movementId)
+    : AdminAPI.movement.cancel(movementId);
+  operation.then(function (response) {
+    var record = upsertBackendMovement(response.data);
+    showMovementDetailModal(record);
+    window.showAdminToast(action === 'post' ? '庫存異動已過帳' : '庫存異動已作廢');
+  }).catch(function (error) {
+    AdminAPI.handleError(error, action === 'post' ? '庫存異動過帳失敗' : '庫存異動作廢失敗');
+  });
+}
+
+function upsertBackendMovement(movement) {
+  var record = normalizeMovementRecord(movement);
+  var index = (window.movementCache || []).findIndex(function (item) {
+    return window.sameId(item.id, record.id);
+  });
+  window.movementCache = window.movementCache || [];
+  if (index >= 0) {
+    window.movementCache[index] = record;
+  } else {
+    window.movementCache.unshift(record);
+  }
+  populateEmployeeFilterOptions(window.movementCache);
+  applyMovementFiltersAndSort();
+
+  return record;
 }
 
 function escapeMovementHtml(value) {
