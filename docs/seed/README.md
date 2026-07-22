@@ -38,9 +38,18 @@ docs/seed/
 └── dev/
     ├── 010-reference.sql  # 權限字典、角色預設、商品分類、品牌、營區、營位、Booking policy、日曆
     ├── 020-identity.sql   # 開發管理員與 Booking 公休範例
+    ├── 021-admin-google-whitelist.example.sql  # 範例：本機把 Google email 加入白名單（不進 002 入口、勿提交真實 email）
     ├── 030-catalog.sql    # 商品與租借 SKU／variant
     └── 040-inventory.sql  # 商城／租借庫位、listing 與庫存
 ```
+
+### 後台 Google 白名單（本機）
+
+正式 seed 只含 `booking-seed@example.test`（給 Swagger／Dev Token）。  
+真 Firebase Google 登入後台時，請依 [`dev/021-admin-google-whitelist.example.sql`](./dev/021-admin-google-whitelist.example.sql) **在本機**把你的 Google email 寫入 `admin_users`（不要把真實 email commit 進 git）。
+
+`docker compose down -v` 會清空 volume：白名單與既有 `customers` 都會消失，需重新執行白名單 SQL，並請會員重新登入（重建 Firebase session）。  
+後續業務診斷清單見 [`../../plans/post-firebase-roadmap-checklist.md`](../../plans/post-firebase-roadmap-checklist.md)。
 
 `002-dev-seed.sql` 依外鍵順序載入片段，並以單一交易包住整批資料。任何一個片段失敗時，PostgreSQL 會停止並回滾，不應直接把片段當作正式入口。
 
