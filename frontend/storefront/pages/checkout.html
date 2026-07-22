@@ -218,7 +218,7 @@
                 </label>
               </fieldset>
 
-              <fieldset class="creditCardBox" id="creditCardSection">
+              <fieldset class="creditCardBox" id="creditCardSection" hidden>
                 <legend class="creditCardTitle">信用卡資訊</legend>
                 <div class="checkoutField">
                   <label class="checkoutLabel" for="cardNumber">卡號</label>
@@ -227,6 +227,7 @@
                     type="text"
                     id="cardNumber"
                     name="cardNumber"
+                    disabled
                     placeholder="1234 5678 9012 3456"
                     maxlength="19"
                     inputmode="numeric"
@@ -241,6 +242,7 @@
                       type="text"
                       id="cardExpiry"
                       name="cardExpiry"
+                      disabled
                       placeholder="MM / YY"
                       maxlength="7"
                       inputmode="numeric"
@@ -254,6 +256,7 @@
                       type="text"
                       id="cardCvv"
                       name="cardCvv"
+                      disabled
                       placeholder="123"
                       minlength="3"
                       maxlength="4"

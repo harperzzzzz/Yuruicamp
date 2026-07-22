@@ -7,7 +7,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K
+-- \restrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K
 
 -- Dumped from database version 16.14 (Debian 16.14-1.pgdg13+1)
 -- Dumped by pg_dump version 16.14 (Debian 16.14-1.pgdg13+1)
@@ -4297,4 +4297,4 @@ ALTER TABLE ONLY public.store_inventory_movement_items
 -- PostgreSQL database dump complete
 --
 
-\unrestrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K
+-- \unrestrict hByqopxLyaSGhhtkX6cZdF3Rcf7Ez3ga7gOCchUwh1Y4BdXsQiWE7UbicEIFm6K

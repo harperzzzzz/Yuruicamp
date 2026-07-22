@@ -41,7 +41,8 @@ public class SecurityConfig {
 		http
 				.csrf(csrf -> csrf.ignoringRequestMatchers(
 						request -> "POST".equals(request.getMethod())
-								&& "/api/payments/ecpay/return".equals(request.getServletPath())))
+								&& ("/api/payments/ecpay/return".equals(request.getServletPath())
+									|| "/api/payments/ecpay/order-result".equals(request.getServletPath()))))
 				.cors(Customizer.withDefaults())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
@@ -54,6 +55,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/auth/firebase/session").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/admin/auth/firebase/session").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/payments/ecpay/return").permitAll()
+						.requestMatchers(HttpMethod.POST, "/api/payments/ecpay/order-result").permitAll()
+						.requestMatchers(HttpMethod.GET, "/api/payments/*/status").permitAll()
 						// 線 B：商品公開讀（Product API Contract v0.1）— 不必登入
 						.requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
 						// Skeleton A: other /api/admin/** require ROLE_ADMIN (whitelist resolved in filter)

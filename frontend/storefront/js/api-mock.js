@@ -182,6 +182,33 @@ const _fetchJson = async (url) => {
   return res.json();
 };
 
+const _buildDevAuthHeader = (user = {}) => {
+  const id = String(user.id || 'U001').trim();
+  const email = String(user.email || '').trim();
+  if (!email) return {};
+  const name = encodeURIComponent(String(user.name || email).trim());
+  return { Authorization: `Bearer dev:${id}:${email}:google:${name}` };
+};
+
+const _requestJson = async (restPath, { method = 'GET', body, authUser } = {}) => {
+  const headers = { Accept: 'application/json' };
+  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  Object.assign(headers, _buildDevAuthHeader(authUser || window.AppState?.currentUser || {}));
+  const res = await fetch(_restUrl(restPath), {
+    method,
+    headers,
+    cache: 'no-store',
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`API request failed: ${method} ${restPath} ${res.status} ${text}`);
+  }
+  const contentType = res.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) return null;
+  return _unwrapApiData(await res.json());
+};
+
 const _formatLocalDateTime = (date = new Date()) => {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
@@ -670,6 +697,29 @@ window.API = {
     },
 
     create: async (orderData) => {
+      if (orderData?.payment === 'ecpay-credit') {
+        return _requestJson('/orders', {
+          method: 'POST',
+          authUser: {
+            id: orderData.customerId || window.AppState?.currentUser?.id,
+            email: orderData.buyerEmail || window.AppState?.currentUser?.email,
+            name: orderData.buyerName || window.AppState?.currentUser?.name,
+          },
+          body: {
+            customerId: orderData.customerId || 'U001',
+            buyerName: orderData.buyerName || '',
+            buyerEmail: orderData.buyerEmail || '',
+            recipientName: orderData.buyerName || '',
+            shippingAddress: orderData.address || '',
+            shippingPhone: orderData.buyerPhone || '',
+            paymentMethod: 'ecpay-credit',
+            items: (orderData.items || []).map((item) => ({
+              variantId: item.variantId,
+              quantity: item.quantity,
+            })),
+          },
+        });
+      }
       const seed = await _loadOrdersSeed();
       const stored = _getStoredOrders();
       const merged = _mergeOrders(seed, stored);
@@ -733,6 +783,18 @@ window.API = {
         _writeJsonStorage(MOCK_ORDERS_KEY, stored);
       }
     },
+  },
+
+  payments: {
+    create: async (orderId, authUser) => _requestJson('/payments', {
+      method: 'POST',
+      authUser,
+      body: { orderId },
+    }),
+
+    getStatus: async (merchantTradeNo) => _requestJson(
+      `/payments/${encodeURIComponent(merchantTradeNo)}/status`
+    ),
   },
 
   customers: customersApi,

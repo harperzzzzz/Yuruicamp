@@ -127,7 +127,7 @@ function _getSelectedPaymentCode() {
 // COD = payment:'cod' + paymentStatus:'unpaid'；其餘預設已付款。
 // Keep method vs status separate: COD → unpaid; other methods → paid.
 function _getCheckoutPaymentStatus() {
-  return _getSelectedPaymentCode() === 'cod' ? 'unpaid' : 'paid';
+  return 'unpaid';
 }
 
 // Build coupon snapshots for the order payload.
@@ -330,8 +330,7 @@ function _syncDeliveryAddressState() {
 // Toggle credit-card form by payment method.
 function _syncCreditCardState() {
   const section = document.getElementById('creditCardSection');
-  const selected = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'credit';
-  if (section) section.hidden = selected !== 'credit';
+  if (section) section.hidden = true;
 }
 
 // Initialize credit-card input formatting.
@@ -479,6 +478,10 @@ async function _handleConfirmOrder(confirmBtn) {
 
   try {
     const orderData = await _buildOrderData(formData);
+    if (_getSelectedPaymentCode() === 'ecpay-credit') {
+      await _startEcpayCreditPayment(orderData);
+      return;
+    }
     const newOrder = await window.API.orders.create(orderData);
     if (appliedCheckoutCouponCodes.includes('YRUIFIRST')) {
       await window.API.customers.markFirstPurchaseUsed(_getCheckoutUserId());
@@ -492,6 +495,27 @@ async function _handleConfirmOrder(confirmBtn) {
   }
 }
 
+async function _startEcpayCreditPayment(orderData) {
+  const newOrder = await window.API.orders.create(orderData);
+  const orderId = newOrder.orderId || newOrder.id;
+  if (!orderId) throw new Error('Order API did not return orderId.');
+
+  const payment = await window.API.payments.create(orderId, {
+    id: orderData.customerId,
+    email: orderData.buyerEmail,
+    name: orderData.buyerName,
+  });
+  if (!payment?.formHtml) throw new Error('Payment API did not return formHtml.');
+
+  localStorage.setItem(CHECKOUT_LAST_ORDER_STORAGE_KEY, JSON.stringify({
+    ...newOrder,
+    merchantTradeNo: payment.merchantTradeNo,
+  }));
+  document.open();
+  document.write(payment.formHtml);
+  document.close();
+}
+
 // Read checkout form field values.
 function _readCheckoutFormData() {
   const shippingAddress = _getCheckoutShippingAddress();
@@ -499,9 +523,6 @@ function _readCheckoutFormData() {
     buyerName: document.getElementById('buyerName')?.value.trim() || '',
     buyerPhone: document.getElementById('buyerPhone')?.value.trim() || '',
     buyerEmail: document.getElementById('buyerEmail')?.value.trim() || '',
-    cardNumber: document.getElementById('cardNumber')?.value.replace(/\D/g, '') || '',
-    cardExpiry: document.getElementById('cardExpiry')?.value.trim() || '',
-    cardCvv: document.getElementById('cardCvv')?.value.trim() || '',
     shippingAddress,
     deliveryAddress: window.formatShippingAddressLine
       ? window.formatShippingAddressLine(shippingAddress)
@@ -547,6 +568,7 @@ function _validateCheckoutForm(data) {
     );
   }
 
+  paymentRules.length = 0;
   const failedBuyerRules = buyerRules.filter(rule => !rule.valid);
   const failedPaymentRules = paymentRules.filter(rule => !rule.valid);
   [...failedBuyerRules, ...failedPaymentRules].forEach(rule => {

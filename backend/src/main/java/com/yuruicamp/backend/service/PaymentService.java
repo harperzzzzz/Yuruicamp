@@ -3,6 +3,7 @@ package com.yuruicamp.backend.service;
 import com.yuruicamp.backend.config.EcpayProperties;
 import com.yuruicamp.backend.dto.CreatePaymentRequest;
 import com.yuruicamp.backend.dto.CreatePaymentResponse;
+import com.yuruicamp.backend.dto.PaymentStatusResponse;
 import com.yuruicamp.backend.entity.PaymentTransaction;
 import com.yuruicamp.backend.order.domain.Order;
 import com.yuruicamp.backend.order.domain.PaymentStatus;
@@ -11,6 +12,9 @@ import com.yuruicamp.backend.payment.EcpayCheckMacValue;
 import com.yuruicamp.backend.repository.PaymentTransactionRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -133,12 +137,40 @@ public class PaymentService {
         return ECPAY_OK_RESPONSE;
     }
 
+    public URI buildOrderResultRedirect(Map<String, String> browserReturnFields) {
+        String merchantTradeNo = browserReturnFields == null ? null : browserReturnFields.get("MerchantTradeNo");
+        if (isBlank(merchantTradeNo)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "MerchantTradeNo is required.");
+        }
+        String separator = ecpayProperties.getCheckoutSuccessUrl().contains("?") ? "&" : "?";
+        String encodedTradeNo = URLEncoder.encode(merchantTradeNo, StandardCharsets.UTF_8);
+        return URI.create(ecpayProperties.getCheckoutSuccessUrl() + separator + "merchantTradeNo=" + encodedTradeNo);
+    }
+
+    @Transactional(readOnly = true)
+    public PaymentStatusResponse getPaymentStatus(String merchantTradeNo) {
+        PaymentTransaction transaction = paymentTransactionRepository.findByMerchantTradeNo(merchantTradeNo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Payment transaction not found: " + merchantTradeNo));
+        Order order = transaction.getOrder();
+        return new PaymentStatusResponse(
+                transaction.getMerchantTradeNo(),
+                order.getId(),
+                transaction.getStatus(),
+                order.getPaymentStatus().name(),
+                transaction.getAmount(),
+                transaction.getPaidAt()
+        );
+    }
+
     private void requireEcpayConfig() {
         if (isBlank(ecpayProperties.getMerchantId())
                 || isBlank(ecpayProperties.getHashKey())
                 || isBlank(ecpayProperties.getHashIv())
                 || isBlank(ecpayProperties.getPaymentUrl())
-                || isBlank(ecpayProperties.getReturnUrl())) {
+                || isBlank(ecpayProperties.getReturnUrl())
+                || isBlank(ecpayProperties.getOrderResultUrl())
+                || isBlank(ecpayProperties.getCheckoutSuccessUrl())) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                     "ECPay configuration is incomplete.");
         }
@@ -239,6 +271,7 @@ public class PaymentService {
         fields.put("TradeDesc", "Yuruicamp order payment");
         fields.put("ItemName", "Yuruicamp order " + order.getId());
         fields.put("ReturnURL", ecpayProperties.getReturnUrl());
+        fields.put("OrderResultURL", ecpayProperties.getOrderResultUrl());
         fields.put("ChoosePayment", "Credit");
         fields.put("EncryptType", "1");
         fields.put("CheckMacValue", ecpayCheckMacValue.generate(

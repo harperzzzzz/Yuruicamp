@@ -10,6 +10,8 @@ public class EcpayProperties {
     private String hashIv;
     private String paymentUrl;
     private String returnUrl;
+    private String orderResultUrl;
+    private String checkoutSuccessUrl;
 
     public String getMerchantId() {
         return merchantId;
@@ -49,5 +51,21 @@ public class EcpayProperties {
 
     public void setReturnUrl(String returnUrl) {
         this.returnUrl = returnUrl;
+    }
+
+    public String getOrderResultUrl() {
+        return orderResultUrl;
+    }
+
+    public void setOrderResultUrl(String orderResultUrl) {
+        this.orderResultUrl = orderResultUrl;
+    }
+
+    public String getCheckoutSuccessUrl() {
+        return checkoutSuccessUrl;
+    }
+
+    public void setCheckoutSuccessUrl(String checkoutSuccessUrl) {
+        this.checkoutSuccessUrl = checkoutSuccessUrl;
     }
 }

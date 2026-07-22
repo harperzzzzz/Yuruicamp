@@ -47,6 +47,8 @@ class PaymentServiceTest {
         properties.setHashIv(HASH_IV);
         properties.setPaymentUrl("https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5");
         properties.setReturnUrl("https://callback.example.test/api/payments/ecpay/return");
+        properties.setOrderResultUrl("https://callback.example.test/api/payments/ecpay/order-result");
+        properties.setCheckoutSuccessUrl("https://storefront.example.test/checkout-success.html");
 
         service = new PaymentService(orders, paymentTransactions, properties, checkMacValue);
     }

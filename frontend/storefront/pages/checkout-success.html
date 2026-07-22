@@ -48,24 +48,76 @@
     <script src="/storefront/js/components/success-effects.js" defer></script>
     <script src="/storefront/js/main.js" defer></script>
     <script>
-      (function initSuccessPage() {
+      document.addEventListener('DOMContentLoaded', function initSuccessPage() {
+        window.initNavbar?.();
+        window.initModalListeners?.();
+        window.initCartListeners?.();
+
+        const params = new URLSearchParams(window.location.search);
+        const merchantTradeNo = params.get('merchantTradeNo');
+        if (merchantTradeNo) {
+          pollPaymentStatus(merchantTradeNo);
+          return;
+        }
+        renderLegacyOrderNumber();
+      });
+
+      function renderLegacyOrderNumber() {
         const orderNumberDisplay = document.getElementById('orderNumberDisplay');
         const orderNum = readOrderNumber();
-        if (orderNumberDisplay) {
-          const normalizedOrderNum = String(orderNum || '--').replace(/^#/, '');
-          orderNumberDisplay.textContent = normalizedOrderNum === '--' ? '#--' : '#' + normalizedOrderNum;
-          orderNumberDisplay.classList.remove('isLoading');
+        if (!orderNumberDisplay) return;
+        const normalizedOrderNum = String(orderNum || '--').replace(/^#/, '');
+        orderNumberDisplay.textContent = normalizedOrderNum === '--' ? '#--' : '#' + normalizedOrderNum;
+        orderNumberDisplay.classList.remove('isLoading');
+      }
+
+      async function pollPaymentStatus(merchantTradeNo) {
+        const orderNumberDisplay = document.getElementById('orderNumberDisplay');
+        const title = document.getElementById('successTitle');
+        const description = document.querySelector('.successDescription');
+        const startedAt = Date.now();
+        const timeoutMs = 180000;
+
+        renderPaymentState('pending', { merchantTradeNo });
+        const timer = window.setInterval(async function () {
+          try {
+            const status = await window.API.payments.getStatus(merchantTradeNo);
+            renderPaymentState(status.transactionStatus, status);
+            if (status.transactionStatus === 'paid' || status.transactionStatus === 'failed') {
+              window.clearInterval(timer);
+            }
+          } catch (error) {
+            console.error('Payment status polling failed', error);
+            renderPaymentState('failed', { merchantTradeNo });
+            window.clearInterval(timer);
+          }
+          if (Date.now() - startedAt > timeoutMs) {
+            renderPaymentState('timeout', { merchantTradeNo });
+            window.clearInterval(timer);
+          }
+        }, 1000);
+
+        function renderPaymentState(state, status) {
+          if (orderNumberDisplay) {
+            orderNumberDisplay.textContent = status?.orderId ? '#' + status.orderId : merchantTradeNo;
+            orderNumberDisplay.classList.remove('isLoading');
+          }
+          if (state === 'paid') {
+            if (title) title.textContent = '付款成功';
+            if (description) description.textContent = '已收到付款完成通知，訂單付款狀態已更新。';
+          } else if (state === 'failed') {
+            if (title) title.textContent = '付款失敗';
+            if (description) description.textContent = '付款未完成或狀態查詢失敗，請稍後至會員中心確認訂單。';
+          } else if (state === 'timeout') {
+            if (title) title.textContent = '付款結果確認中';
+            if (description) description.textContent = '尚未收到付款完成通知，請稍後至會員中心確認訂單。';
+          } else {
+            if (title) title.textContent = '付款結果確認中';
+            if (description) description.textContent = '正在向後端確認綠界付款狀態，請稍候。';
+          }
         }
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', function () {
-            window.initNavbar?.();
-            window.initModalListeners?.();
-            window.initCartListeners?.();
-          }, { once: true });
-        } else {
-          window.initNavbar?.();
-        }
-      })();
+      }
+
       function readOrderNumber() {
         const params = new URLSearchParams(window.location.search);
         const queryOrderNum = params.get('orderNum');
