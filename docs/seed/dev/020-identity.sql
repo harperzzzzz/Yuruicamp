@@ -1,4 +1,6 @@
 -- Booking E-1：公休資料需要一位固定的開發管理員作為建立者。
+-- 真 Firebase Google 後台登入：請在本機另加白名單（勿把真實 email 寫進本檔）
+-- → 見 021-admin-google-whitelist.example.sql
 INSERT INTO public.admin_users (id, name, email, role, active)
 VALUES (
     'DEV-BOOKING-ADMIN',

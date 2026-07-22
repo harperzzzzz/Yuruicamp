@@ -119,9 +119,8 @@ function loadFirebaseAppOnce() {
 }
 
 /**
- * 把 Firebase Auth 注入 main 的 AppAuth（B 方案最小接線）。
+ * 把 Firebase Auth 注入 main 的 AppAuth（B 方案接線）。
  * Wire Firebase Auth into AppAuth so ApiClient can attach Bearer tokens.
- * api-http.js 仍可暫時保留給 auth.js；之後再收斂。
  */
 function injectFirebaseAuthIntoAppAuth() {
   if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
@@ -155,10 +154,7 @@ function loadBookingHeaderScript() {
     .then(function () {
       // B：Firebase → AppAuth（ApiClient 才能帶 token）
       injectFirebaseAuthIntoAppAuth();
-      // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
-      return loadScriptOnce('/storefront/js/api-http.js', '__yuruiApiHttpScriptLoaded');
-    })
-    .then(function () {
+      // auth.js 已收斂到 AppAuth／ApiClient，不再載入過渡層 api-http.js
       return loadScriptOnce('/storefront/js/components/modal.js', '__yuruiModalScriptLoaded');
     })
     .then(function () {

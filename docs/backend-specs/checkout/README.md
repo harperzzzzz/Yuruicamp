@@ -549,6 +549,7 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 
 ## 9. 後續工作
 
-- F-2：完成 `couponClaimId` 資格驗證、套用／清除與金額重算。
-- D：完成 ECPay Gateway、付款表單、Notify webhook、Return URL 與商城 COD。
+- 前端／本機「建立 Checkout 失敗」追蹤（先記錄、暫不改 Firebase）：見 [`plans/post-firebase-roadmap-checklist.md`](../../../plans/post-firebase-roadmap-checklist.md) **CK-1～CK-5**。
+- F-2：完成 `couponClaimId` 資格驗證、套用／清除與金額重算（對應 checklist **CK-4**）。
+- D：完成 ECPay Gateway、付款表單、Notify webhook、Return URL 與商城 COD（對應 checklist **CK-5**）。
 - Order API：會員讀取自己的訂單列表與詳情。

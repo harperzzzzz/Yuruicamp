@@ -8,6 +8,9 @@
  *  5. 登出邏輯
  *  6. Toast 工廠函式（供所有模組呼叫）
  *
+ *  API 持久化：各模組透過 admin/js/admin-api.js 預留 REST 接口。
+ *  Firebase 後台登入後會還原 AppAuth；各模組若要打真後端：
+ *    AdminAPI.configure({ useBackend: true });
  *  API 持久化：AdminRuntime 依 AppConfig 啟用正式 API、刷新 Session 並套用 readiness。
  */
 
@@ -244,9 +247,13 @@ function loadDefaultHomeSection() {
   loadSection(defaultSection);
 }
 
-/** 登出時清除 UI Session；正式 Token 由 Firebase SDK 管理。 */
+/** 登出時清除全部 session 資料（相容舊 5 key + AdminAuth 輔助 key） */
 function clearAdminSession() {
-  if (window.AdminRuntime) {
+  if (window.AdminAuth && typeof window.AdminAuth.clearAdminSessionStorage === 'function') {
+    window.AdminAuth.clearAdminSessionStorage();
+    return;
+  }
+  if (window.AdminRuntime && typeof window.AdminRuntime.clearSession === 'function') {
     window.AdminRuntime.clearSession();
     return;
   }
@@ -255,6 +262,17 @@ function clearAdminSession() {
   sessionStorage.removeItem('adminName');
   sessionStorage.removeItem('isSuperAdmin');
   sessionStorage.removeItem('adminPermissions');
+}
+    return;
+  }
+  sessionStorage.removeItem('adminLoggedIn');
+  sessionStorage.removeItem('adminId');
+  sessionStorage.removeItem('adminName');
+  sessionStorage.removeItem('isSuperAdmin');
+  sessionStorage.removeItem('adminPermissions');
+  sessionStorage.removeItem('adminAuthSource');
+  sessionStorage.removeItem('adminEmail');
+  sessionStorage.removeItem('adminRole');
 }
 
 $(document).ready(async function () {
@@ -278,6 +296,11 @@ $(document).ready(async function () {
   if (!isLoggedIn) {
     window.location.href = '/admin/login.html';
     return;
+  }
+
+  // Firebase 登入後還原 AppAuth，之後 AdminAPI.useBackend=true 才能帶 Bearer
+  if (window.AdminAuth && typeof window.AdminAuth.restoreAppAuthIfNeeded === 'function') {
+    window.AdminAuth.restoreAppAuthIfNeeded();
   }
 
   // 顯示管理員名稱（從 sessionStorage 取出）
@@ -337,11 +360,25 @@ $(document).ready(async function () {
   $(document).on('click', '#logoutBtn, #logoutBtnTopbar, .sidebar-logout-mobile', async function (e) {
     e.preventDefault();
 
-    if (window.AdminRuntime) await window.AdminRuntime.signOut();
-    else clearAdminSession();
+    var goLogin = function () {
+      window.location.href = '/admin/login.html';
+    };
 
-    // 跳回登入頁
-    window.location.href = '/admin/login.html';
+    // 優先使用 AdminAuth.logout（會處理 Firebase signOut + 清 session）
+    if (window.AdminAuth && typeof window.AdminAuth.logout === 'function') {
+      window.AdminAuth.logout().finally(goLogin);
+      return;
+    }
+
+    // 若有 AdminRuntime（舊流程），則使用其 signOut
+    if (window.AdminRuntime && typeof window.AdminRuntime.signOut === 'function') {
+      await window.AdminRuntime.signOut();
+      goLogin();
+      return;
+    }
+
+    clearAdminSession();
+    goLogin();
   });
 
 }); // end $(document).ready()

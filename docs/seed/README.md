@@ -49,6 +49,14 @@ docs/seed/
     └── 070-bookings.sql   # 90 筆展示預訂、zone／租借快照與歷程
 ```
 
+### 後台 Google 白名單（本機）
+
+正式 seed 只含 `booking-seed@example.test`（給 Swagger／Dev Token）。  
+真 Firebase Google 登入後台時，請依 [`dev/021-admin-google-whitelist.example.sql`](./dev/021-admin-google-whitelist.example.sql) **在本機**把你的 Google email 寫入 `admin_users`（不要把真實 email commit 進 git）。
+
+`docker compose down -v` 會清空 volume：白名單與既有 `customers` 都會消失，需重新執行白名單 SQL，並請會員重新登入（重建 Firebase session）。  
+後續業務診斷清單見 [`../../plans/post-firebase-roadmap-checklist.md`](../../plans/post-firebase-roadmap-checklist.md)。
+
 `002-dev-seed.sql` 依外鍵順序載入片段，並以單一交易包住整批資料。任何一個片段失敗時，PostgreSQL 會停止並回滾，不應直接把片段當作正式入口。
 
 `010-reference.sql` 目前包含 12 個前端公開品牌（另保留 `yuruicamp` 站內品牌）、8 個 active 營區 `C002`～`C009`、13 個 active zone `Z001`～`Z013`、5 個環境標籤、7 個設施標籤與 3 個門市。資料值與固定 ID 對齊 `frontend/data/catalog/campgrounds.json`、`frontend/data/marketing/brands.json`、`frontend/data/marketing/branches.json`；跨層 ID 仍以 [`json-seed-id-mapping.md`](../data/json-seed-id-mapping.md) 為準。
