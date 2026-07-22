@@ -3,7 +3,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const mainRuntimeOrder = ['config.js', 'storage.js', 'state.js', 'formatters.js', 'validators.js', 'cart-service.js'];
+const mainRuntimeOrder = [
+  'config.js',
+  'api-client.js',
+  'storage.js',
+  'state.js',
+  'formatters.js',
+  'validators.js',
+  'cart-service.js',
+];
 
 /**
  * Reads a project file as UTF-8 text.
@@ -71,6 +79,7 @@ function getMainHtmlPages() {
   'storefront/js/validators.js',
   'storefront/js/cart-service.js',
   'storefront/js/api-mock.js',
+  'storefront/js/api-client.js',
   'storefront/js/config.js',
   'components/member-center.partial',
   'components/shipping-address-modal.partial',
@@ -118,11 +127,42 @@ assert(apiMock.includes('MOCK_DATA_PATHS'), 'api-mock.js must define MOCK_DATA_P
 assert(apiMock.includes('/data/catalog/products.json'), 'Mock products path must be root-absolute');
 assert(apiMock.includes('USE_MOCK_API'), 'api-mock.js must respect USE_MOCK_API');
 assert(!apiMock.includes('rewriteAssetUrlsDeep'), 'api-mock.js must not rewrite asset URLs');
+assert(apiMock.includes('mockCheckoutSessions'), 'Checkout Mock must use separate session storage');
+assert(apiMock.includes('LEGACY_ORDER_CREATE_DISABLED'), 'Backend mode must reject legacy order creation');
 
 const config = readProjectFile('storefront/js/config.js');
 assert(config.includes('USE_MOCK_API'), 'config.js must expose USE_MOCK_API');
 assert(config.includes('API_BASE_URL'), 'config.js must expose API_BASE_URL');
 assert(config.includes('ASSET_BASE_URL'), 'config.js must expose ASSET_BASE_URL');
+assert(config.includes('DEV_TOKEN'), 'config.js must expose an empty development auth setting');
+
+const apiClient = readProjectFile('storefront/js/api-client.js');
+assert(apiClient.includes('AppAuth'), 'api-client.js must expose AppAuth');
+assert(apiClient.includes('getIdToken'), 'AppAuth must expose getIdToken');
+assert(apiClient.includes('_restRequest'), 'api-client.js must expose the shared REST request');
+assert(apiClient.includes('Authorization'), 'REST requests must support Firebase Bearer tokens');
+
+const checkoutPage = readProjectFile('storefront/js/pages/checkout.js');
+assert(checkoutPage.includes('_buildCheckoutRequest'), 'Checkout page must build the backend request contract');
+assert(
+  checkoutPage.includes('API.checkout.createSession(request)'),
+  'Checkout page must create sessions through the shared facade',
+);
+assert(!checkoutPage.includes('API.orders.create(orderData)'), 'Checkout page must not create Legacy Orders');
+assert(checkoutPage.includes('lastCheckoutSession'), 'Checkout page must store CheckoutSession as page state');
+assert(!checkoutPage.includes('lastCheckoutOrder'), 'Checkout page must not store CheckoutSession as a Legacy Order');
+assert(!checkoutPage.includes('markFirstPurchaseUsed'), 'Checkout page must not consume coupons in Backend mode');
+
+const checkoutHtml = readProjectFile('storefront/pages/checkout.html');
+assert(!checkoutHtml.includes('id="cardNumber"'), 'Checkout must not collect a card number');
+assert(!checkoutHtml.includes('id="cardExpiry"'), 'Checkout must not collect a card expiry date');
+assert(!checkoutHtml.includes('id="cardCvv"'), 'Checkout must not collect a card CVV');
+assert(checkoutHtml.includes('下一步將前往 ECPay'), 'Checkout must explain the ECPay redirect step');
+assert(checkoutHtml.includes('id="checkoutSessionPanel"'), 'Checkout must render CheckoutSession status UI');
+assert(checkoutHtml.includes('id="checkoutCountdown"'), 'Checkout must render the stock hold countdown');
+assert(checkoutPage.includes('API.checkout.updateSession('), 'Draft Checkout must support PATCH updates');
+assert(checkoutPage.includes('API.checkout.cancelSession('), 'Checkout must support active cancellation');
+assert(checkoutPage.includes('CHECKOUT_EXPIRED'), 'Checkout must handle expiration errors');
 
 const forbiddenPathHelpers = ['resolveAppUrl', 'rewriteAssetUrlsDeep', 'rewriteAppPathsIn', 'getAppBase'];
 const scanRoots = ['storefront/js', 'booking/js', 'admin/js', 'storefront/pages', 'booking/pages', 'components'];

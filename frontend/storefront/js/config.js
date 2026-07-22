@@ -27,6 +27,11 @@ window.AppConfig = {
   // 環境
   ENVIRONMENT: 'development',
 
+  // 本機可暫時填入 dev: Token；正式環境必須留空並使用 Firebase currentUser。
+  AUTH: {
+    DEV_TOKEN: '',
+  },
+
   // 購物車相關
   CART: {
     MAX_QUANTITY: 999,

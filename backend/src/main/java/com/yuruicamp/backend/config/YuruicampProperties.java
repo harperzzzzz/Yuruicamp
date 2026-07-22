@@ -41,6 +41,11 @@ public class YuruicampProperties {
 		private boolean enabled = false;
 		/** Absolute path to Firebase service-account JSON; empty when disabled. */
 		private String credentialsPath = "";
+		/**
+		 * Firebase / GCP project id（與前端 VITE_FIREBASE_PROJECT_ID 相同）。
+		 * 建議顯式設定；若空白則嘗試從 service account JSON 讀取。
+		 */
+		private String projectId = "";
 
 		public boolean isEnabled() {
 			return enabled;
@@ -56,6 +61,14 @@ public class YuruicampProperties {
 
 		public void setCredentialsPath(String credentialsPath) {
 			this.credentialsPath = credentialsPath;
+		}
+
+		public String getProjectId() {
+			return projectId;
+		}
+
+		public void setProjectId(String projectId) {
+			this.projectId = projectId;
 		}
 	}
 }

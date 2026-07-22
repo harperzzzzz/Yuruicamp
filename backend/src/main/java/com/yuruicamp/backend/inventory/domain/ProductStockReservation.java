@@ -1,23 +1,122 @@
 package com.yuruicamp.backend.inventory.domain;
 
 import java.time.Instant;
-import jakarta.persistence.*;
 
-@Entity @Table(name="product_stock_reservations")
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+// 記錄商品庫存在結帳期間的保留狀態。
+@Entity
+@Table(name = "product_stock_reservations")
 public class ProductStockReservation {
-	@Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
-	@Column(name="order_item_id",nullable=false) private Long orderItemId;
-	@Column(name="variant_id",nullable=false) private String variantId;
-	@Column(name="location_id",nullable=false) private String locationId;
-	@Column(nullable=false) private int quantity;
-	@Column(nullable=false) private String status;
-	@Column(name="idempotency_key",nullable=false,unique=true) private String idempotencyKey;
-	@Column(name="reserved_at",nullable=false) private Instant reservedAt;
-	@Column(name="expires_at") private Instant expiresAt;
-	@Column(name="released_at") private Instant releasedAt;
-	@Column(name="fulfilled_at") private Instant fulfilledAt;
-	@Column(name="inventory_domain",nullable=false) private String inventoryDomain;
-	public static ProductStockReservation active(Long orderItemId,String variantId,String locationId,int quantity,String idempotencyKey,Instant now,Instant expiresAt){ProductStockReservation r=new ProductStockReservation();r.orderItemId=orderItemId;r.variantId=variantId;r.locationId=locationId;r.quantity=quantity;r.status="active";r.idempotencyKey=idempotencyKey;r.reservedAt=now;r.expiresAt=expiresAt;r.inventoryDomain="store";return r;}
-	public void release(String nextStatus, Instant now){if("active".equals(status)){status=nextStatus;releasedAt=now;}}
-	public String getStatus(){return status;} public Instant getExpiresAt(){return expiresAt;} public String getVariantId(){return variantId;} public String getLocationId(){return locationId;} public int getQuantity(){return quantity;}
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "order_item_id", nullable = false)
+    private Long orderItemId;
+
+    @Column(name = "variant_id", nullable = false)
+    private String variantId;
+
+    @Column(name = "location_id", nullable = false)
+    private String locationId;
+
+    @Column(nullable = false)
+    private int quantity;
+
+    @Column(nullable = false)
+    private String status;
+
+    @Column(name = "idempotency_key", nullable = false, unique = true)
+    private String idempotencyKey;
+
+    @Column(name = "reserved_at", nullable = false)
+    private Instant reservedAt;
+
+    @Column(name = "expires_at")
+    private Instant expiresAt;
+
+    @Column(name = "released_at")
+    private Instant releasedAt;
+
+    @Column(name = "fulfilled_at")
+    private Instant fulfilledAt;
+
+    @Column(name = "inventory_domain", nullable = false)
+    private String inventoryDomain;
+
+    // 建立仍在有效期限內的商品庫存保留帳。
+    public static ProductStockReservation active(
+            Long orderItemId,
+            String variantId,
+            String locationId,
+            int quantity,
+            String idempotencyKey,
+            Instant now,
+            Instant expiresAt) {
+        ProductStockReservation reservation = new ProductStockReservation();
+        reservation.orderItemId = orderItemId;
+        reservation.variantId = variantId;
+        reservation.locationId = locationId;
+        reservation.quantity = quantity;
+        reservation.status = "active";
+        reservation.idempotencyKey = idempotencyKey;
+        reservation.reservedAt = now;
+        reservation.expiresAt = expiresAt;
+        reservation.inventoryDomain = "store";
+
+        return reservation;
+    }
+
+    // 會員取消結帳時，將仍有效的保留帳標記為已釋放。
+    public boolean release(Instant now) {
+        return finish("released", now);
+    }
+
+    // 結帳逾時時，將仍有效的保留帳標記為已過期。
+    public boolean expire(Instant now) {
+        return finish("expired", now);
+    }
+
+    // 保留帳只能由 active 進入一個終止狀態。
+    private boolean finish(String nextStatus, Instant now) {
+        if (!"active".equals(status)) {
+            return false;
+        }
+
+        status = nextStatus;
+        releasedAt = now;
+
+        return true;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public Instant getExpiresAt() {
+        return expiresAt;
+    }
+
+    public Instant getReleasedAt() {
+        return releasedAt;
+    }
+
+    public String getVariantId() {
+        return variantId;
+    }
+
+    public String getLocationId() {
+        return locationId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
 }

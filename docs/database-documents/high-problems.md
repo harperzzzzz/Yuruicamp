@@ -40,7 +40,7 @@
 
 來源：`rentals/rentals.md`
 
-- `rental_listings.active` 與 `rental_skus`、`rental_sku_variants` 的 `status` 目前只建立 View 讓三表狀態同步，後端尚未處理。
+- `rental_listings.active` 與 `rental_skus`、`rental_sku_variants` 的狀態已由 E-4 Booking Checkout 同步驗證；後續其他租借寫入端點也必須沿用相同規則。
 - 結構本身未限制 `inventory_locations` 必須是 rental 領域的營區庫位；建立或更新對照時應由服務層驗證庫位類型與領域。
 
 

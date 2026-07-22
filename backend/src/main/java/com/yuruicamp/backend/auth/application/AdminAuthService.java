@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.yuruicamp.backend.admin.domain.AdminUser;
 import com.yuruicamp.backend.admin.infrastructure.AdminUserRepository;
+import com.yuruicamp.backend.admin.application.AdminPermissionService;
 import com.yuruicamp.backend.auth.api.AdminSessionResponse;
 import com.yuruicamp.backend.auth.infrastructure.FirebaseTokenVerifier;
 import com.yuruicamp.backend.auth.infrastructure.VerifiedFirebaseToken;
@@ -21,10 +22,15 @@ public class AdminAuthService {
 
 	private final FirebaseTokenVerifier tokenVerifier;
 	private final AdminUserRepository adminUserRepository;
+	private final AdminPermissionService adminPermissionService;
 
-	public AdminAuthService(FirebaseTokenVerifier tokenVerifier, AdminUserRepository adminUserRepository) {
+	public AdminAuthService(
+			FirebaseTokenVerifier tokenVerifier,
+			AdminUserRepository adminUserRepository,
+			AdminPermissionService adminPermissionService) {
 		this.tokenVerifier = tokenVerifier;
 		this.adminUserRepository = adminUserRepository;
+		this.adminPermissionService = adminPermissionService;
 	}
 
 	@Transactional
@@ -57,8 +63,9 @@ public class AdminAuthService {
 				admin.getId(),
 				admin.getEmail(),
 				admin.getName(),
-				admin.getRole(),
+				admin.getRole().name(),
 				admin.getFirebaseUid(),
-				boundNow);
+				boundNow,
+				adminPermissionService.resolveEffectivePermissions(admin.getId(), admin.getRole()));
 	}
 }

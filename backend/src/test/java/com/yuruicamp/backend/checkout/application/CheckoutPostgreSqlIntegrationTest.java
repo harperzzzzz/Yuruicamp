@@ -3,10 +3,12 @@ package com.yuruicamp.backend.checkout.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -17,6 +19,7 @@ import java.util.concurrent.Future;
 
 import com.yuruicamp.backend.checkout.api.CheckoutCreateRequest;
 import com.yuruicamp.backend.checkout.api.CheckoutSessionResponse;
+import com.yuruicamp.backend.checkout.api.CheckoutUpdateRequest;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 import org.junit.jupiter.api.AfterEach;
@@ -46,6 +49,9 @@ class CheckoutPostgreSqlIntegrationTest {
 
 	@Autowired
 	private CheckoutService checkoutService;
+
+	@Autowired
+	private CheckoutExpirationService expirationService;
 
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -142,6 +148,184 @@ class CheckoutPostgreSqlIntegrationTest {
 				"select released_at is not null from product_stock_reservations where order_item_id = ?",
 				Boolean.class,
 				created.items().getFirst().orderItemId())).isTrue();
+	}
+
+	@Test
+	void patchPersistsShippingAndPaymentMethod() throws Exception {
+		CheckoutCreateRequest draftRequest = new CheckoutCreateRequest(
+				List.of(new CheckoutCreateRequest.Item(VARIANT_ID, 1)),
+				"ecpay-credit",
+				null,
+				"patch-" + UUID.randomUUID());
+		CheckoutSessionResponse created = checkoutService.create(CUSTOMER_A, draftRequest);
+		String body = """
+				{
+				  "shipping": {
+				    "recipientName": "更新收件人",
+				    "phone": "0987654321",
+				    "address": "新北市測試路 2 號"
+				  },
+				  "paymentMethod": "cod",
+				  "couponClaimId": null
+				}
+				""";
+
+		mockMvc.perform(patch("/api/checkout/sessions/{orderId}", created.orderId())
+					.header("Authorization", "Bearer dev:checkout-it-a:checkout-it-a@example.com:google:Tester")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(body))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.checkoutStep").value("ready_to_pay"))
+				.andExpect(jsonPath("$.data.paymentMethod").value("cod"))
+				.andExpect(jsonPath("$.data.shipping.recipientName").value("更新收件人"));
+
+		var updated = jdbcTemplate.queryForMap("""
+				select recipient_name_snapshot, shipping_phone_snapshot,
+				       shipping_address_snapshot, payment_method
+				from orders
+				where id = ?
+				""", created.orderId());
+		assertThat(updated.get("recipient_name_snapshot")).isEqualTo("更新收件人");
+		assertThat(updated.get("shipping_phone_snapshot")).isEqualTo("0987654321");
+		assertThat(updated.get("shipping_address_snapshot")).isEqualTo("新北市測試路 2 號");
+		assertThat(updated.get("payment_method").toString()).isEqualTo("cod");
+	}
+
+	@Test
+	void patchRejectsExpiredCheckoutWithoutRestoringIt() throws Exception {
+		CheckoutSessionResponse created = checkoutService.create(
+				CUSTOMER_A,
+				request("patch-expired-" + UUID.randomUUID(), 1));
+		jdbcTemplate.update("""
+				update orders
+				set checkout_expires_at = placed_at + interval '1 millisecond'
+				where id = ?
+				""", created.orderId());
+
+		mockMvc.perform(patch("/api/checkout/sessions/{orderId}", created.orderId())
+					.header("Authorization", "Bearer dev:checkout-it-a:checkout-it-a@example.com:google:Tester")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content("{\"paymentMethod\":\"cod\"}"))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error.code").value("CHECKOUT_EXPIRED"));
+
+		assertThat(jdbcTemplate.queryForObject(
+				"select payment_method from orders where id = ?",
+				String.class,
+				created.orderId())).isEqualTo("ecpay-credit");
+	}
+
+	@Test
+	void concurrentPatchAndExpirationKeepCheckoutCancelled() throws Exception {
+		CheckoutSessionResponse created = checkoutService.create(
+				CUSTOMER_A,
+				request("patch-expiration-race-" + UUID.randomUUID(), 1));
+		jdbcTemplate.update("""
+				update orders
+				set checkout_expires_at = placed_at + interval '1 millisecond'
+				where id = ?
+				""", created.orderId());
+		Instant fixedNow = Instant.now().plusSeconds(60);
+		CountDownLatch ready = new CountDownLatch(2);
+		CountDownLatch start = new CountDownLatch(1);
+
+		try (ExecutorService executor = Executors.newFixedThreadPool(2)) {
+			Future<Integer> expiration = executor.submit(() -> {
+				ready.countDown();
+				start.await();
+
+				return expirationService.expireDueCheckouts(fixedNow);
+			});
+			Future<CheckoutSessionResponse> update = executor.submit(() -> {
+				ready.countDown();
+				start.await();
+
+				return checkoutService.update(CUSTOMER_A, created.orderId(),
+						new CheckoutUpdateRequest(null, "cod", null));
+			});
+
+			ready.await();
+			start.countDown();
+
+			assertThat(expiration.get()).isEqualTo(1);
+			assertThatThrownBy(update::get)
+					.isInstanceOf(ExecutionException.class)
+					.hasCauseInstanceOf(BusinessException.class)
+					.satisfies(ex -> assertThat(((BusinessException) ex.getCause()).getErrorCode())
+							.isEqualTo(ErrorCode.CHECKOUT_EXPIRED));
+		}
+
+		assertThat(jdbcTemplate.queryForObject(
+				"select status from orders where id = ?",
+				String.class,
+				created.orderId())).isEqualTo("cancelled");
+		assertThat(jdbcTemplate.queryForObject(
+				"select payment_method from orders where id = ?",
+				String.class,
+				created.orderId())).isEqualTo("ecpay-credit");
+	}
+
+	@Test
+	void expirationCancelsOrderReleasesStockAndIsIdempotent() {
+		jdbcTemplate.update("""
+				update inventory_stocks
+				set on_hand_quantity = 1
+				where location_id = ? and variant_id = ?
+				""", LOCATION_ID, VARIANT_ID);
+		CheckoutSessionResponse created = checkoutService.create(
+				CUSTOMER_A,
+				request("expiration-" + UUID.randomUUID(), 1));
+		jdbcTemplate.update("""
+				update orders
+				set checkout_expires_at = placed_at + interval '1 millisecond'
+				where id = ?
+				""", created.orderId());
+		jdbcTemplate.update("""
+				update product_stock_reservations
+				set expires_at = reserved_at + interval '1 millisecond'
+				where order_item_id = ?
+				""", created.items().getFirst().orderItemId());
+		Instant fixedNow = Instant.now().plusSeconds(60);
+
+		assertThat(expirationService.expireDueCheckouts(fixedNow)).isEqualTo(1);
+		assertThat(jdbcTemplate.queryForObject(
+				"select status from orders where id = ?",
+				String.class,
+				created.orderId())).isEqualTo("cancelled");
+		assertThat(jdbcTemplate.queryForObject(
+				"select payment_status from orders where id = ?",
+				String.class,
+				created.orderId())).isEqualTo("unpaid");
+		assertThat(jdbcTemplate.queryForObject(
+				"select status from product_stock_reservations where order_item_id = ?",
+				String.class,
+				created.items().getFirst().orderItemId())).isEqualTo("expired");
+		assertThat(jdbcTemplate.queryForObject(
+				"select released_at is not null from product_stock_reservations where order_item_id = ?",
+				Boolean.class,
+				created.items().getFirst().orderItemId())).isTrue();
+		assertThat(jdbcTemplate.queryForObject("""
+				select count(*)
+				from order_status_history
+				where order_id = ? and status = 'cancelled' and note = 'Checkout expired'
+				""", Integer.class, created.orderId())).isEqualTo(1);
+		assertThat(jdbcTemplate.queryForObject("""
+				select coalesce(sum(quantity), 0)
+				from product_stock_reservations
+				where variant_id = ? and location_id = ? and status = 'active'
+				""", Integer.class, VARIANT_ID, LOCATION_ID)).isZero();
+
+		CheckoutSessionResponse reused = checkoutService.create(
+				CUSTOMER_B,
+				request("expiration-reuse-" + UUID.randomUUID(), 1));
+
+		assertThat(reused.orderId()).isNotEqualTo(created.orderId());
+		assertThat(expirationService.expireDueCheckouts(fixedNow)).isZero();
+		assertThat(jdbcTemplate.queryForObject("""
+				select count(*)
+				from order_status_history
+				where order_id = ? and status = 'cancelled' and note = 'Checkout expired'
+				""", Integer.class, created.orderId())).isEqualTo(1);
 	}
 
 	@Test

@@ -17,9 +17,16 @@ public record CheckoutCreateRequest(
 		String paymentMethod,
 		@Valid
 		Shipping shipping,
+		Long couponClaimId,
 		@NotBlank
 		@Size(max = 128)
 		String idempotencyKey) {
+
+	// 保留既有呼叫方式，未指定時代表建立不套券的 Checkout。
+	public CheckoutCreateRequest(List<Item> items, String paymentMethod, Shipping shipping,
+			String idempotencyKey) {
+		this(items, paymentMethod, shipping, null, idempotencyKey);
+	}
 
 	// 表示一項要購買的商品規格與數量。
 	public record Item(

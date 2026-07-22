@@ -35,6 +35,7 @@
     </main>
     <div id="footer"></div>
     <script src="/storefront/js/config.js" defer></script>
+    <script src="/storefront/js/api-client.js" defer></script>
     <script src="/storefront/js/storage.js" defer></script>
     <script src="/storefront/js/state.js" defer></script>
     <script src="/storefront/js/formatters.js" defer></script>
@@ -123,9 +124,10 @@
         const queryOrderNum = params.get('orderNum');
         if (queryOrderNum) return queryOrderNum;
         try {
-          const lastOrder = JSON.parse(localStorage.getItem('lastCheckoutOrder') || 'null');
-          if (!lastOrder) return '';
-          return window.formatOrderDisplayId ? window.formatOrderDisplayId(lastOrder.id) : String(lastOrder.id || '');
+          const lastSession = JSON.parse(sessionStorage.getItem('lastCheckoutSession') || 'null');
+          if (!lastSession) return '';
+          const orderId = lastSession.orderId;
+          return window.formatOrderDisplayId ? window.formatOrderDisplayId(orderId) : String(orderId || '');
         } catch (error) { return ''; }
       }
     </script>

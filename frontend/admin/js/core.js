@@ -63,7 +63,7 @@ var EDIT_PERMISSION_SELECTORS = {
   reviews: '.btn-delete-review, #confirmDeleteReviewBtn',
   bookings: '.btn-confirm-booking, .btn-cancel-booking, #btnSaveBookingSellerNote, #bkModalSellerNote',
   'booking-calendar': '#bcBtnClosureSettings, #bcBtnSaveClosure, #bcBtnCloseSingleDay, .bc-btn-delete-closure',
-  permissions: '#addEmployeeBtn, .btn-edit-employee, .btn-toggle-employee, #employeeModal input:not([readonly]), #employeeModal button:not(.btn-close):not([data-bs-dismiss]), #saveEmployeeBtn, .perm-view-cb, .perm-edit-cb, #empIsSuperAdmin',
+  permissions: '#addEmployeeBtn, .btn-edit-employee, .btn-toggle-employee, #employeeModal input:not([readonly]), #employeeModal select, #employeeModal button:not(.btn-close):not([data-bs-dismiss]), #saveEmployeeBtn, .perm-view-cb, .perm-edit-cb',
 };
 
 /**

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -19,16 +20,20 @@ import com.yuruicamp.backend.catalog.domain.ProductVariant;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.checkout.api.CheckoutCreateRequest;
 import com.yuruicamp.backend.checkout.api.CheckoutSessionResponse;
+import com.yuruicamp.backend.checkout.api.CheckoutUpdateRequest;
 import com.yuruicamp.backend.checkout.infrastructure.CheckoutProductRepository;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
+import com.yuruicamp.backend.coupon.application.CouponService;
 import com.yuruicamp.backend.inventory.domain.InventoryStock;
 import com.yuruicamp.backend.inventory.infrastructure.InventoryStockRepository;
 import com.yuruicamp.backend.inventory.infrastructure.ProductStockReservationRepository;
 import com.yuruicamp.backend.order.domain.Order;
 import com.yuruicamp.backend.order.domain.OrderItem;
+import com.yuruicamp.backend.order.domain.OrderStatus;
+import com.yuruicamp.backend.order.domain.PaymentStatus;
 import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.order.infrastructure.OrderStatusHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,6 +50,7 @@ class CheckoutServiceTest {
 	private OrderRepository orders;
 	private OrderStatusHistoryRepository histories;
 	private EquipmentImageRepository images;
+	private CouponService couponService;
 	private CheckoutService service;
 
 	// 每個測試開始前建立乾淨的模擬元件。
@@ -57,7 +63,10 @@ class CheckoutServiceTest {
 		orders = mock(OrderRepository.class);
 		histories = mock(OrderStatusHistoryRepository.class);
 		images = mock(EquipmentImageRepository.class);
-		service = new CheckoutService(customers, products, stocks, reservations, orders, histories, images);
+		couponService = mock(CouponService.class);
+		when(couponService.appliedClaimId(any())).thenReturn(null);
+		service = new CheckoutService(customers, products, stocks, reservations, orders, histories, images,
+				couponService);
 	}
 
 	// 相同請求重送時應回傳原本的訂單。
@@ -100,6 +109,109 @@ class CheckoutServiceTest {
 				.isInstanceOfSatisfying(BusinessException.class, ex ->
 						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR));
 		verify(customers, never()).findByIdForCheckout(any());
+	}
+
+	// 更新完整收件資料後應進入可付款狀態並保存付款方式。
+	@Test
+	void updateCompletesDraftAndChangesPaymentMethod() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+		CheckoutUpdateRequest request = new CheckoutUpdateRequest(
+				new CheckoutUpdateRequest.Shipping(" 王小明 ", " 0912345678 ", " 台北市信義區 "),
+				"cod",
+				null);
+
+		CheckoutSessionResponse response = service.update("C001", "O-C4", request);
+
+		assertThat(response.checkoutStep()).isEqualTo("ready_to_pay");
+		assertThat(response.paymentMethod()).isEqualTo("cod");
+		assertThat(response.shipping().recipientName()).isEqualTo("王小明");
+		assertThat(response.shipping().phone()).isEqualTo("0912345678");
+		assertThat(response.shipping().address()).isEqualTo("台北市信義區");
+		assertThat(response.couponClaimId()).isNull();
+	}
+
+	// 不屬於目前會員的訂單不可更新。
+	@Test
+	void updateRejectsOrderOwnedByAnotherCustomer() {
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.empty());
+		CheckoutUpdateRequest request = paymentUpdate("cod");
+
+		assertThatThrownBy(() -> service.update("C001", "O-C4", request))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN));
+	}
+
+	// 已付款 Checkout 不可再修改。
+	@Test
+	void updateRejectsPaidCheckout() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		ReflectionTestUtils.setField(order, "paymentStatus", PaymentStatus.paid);
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+
+		assertThatThrownBy(() -> service.update("C001", "O-C4", paymentUpdate("cod")))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CONFLICT));
+	}
+
+	// 已取消或已到期 Checkout 應回傳 CHECKOUT_EXPIRED。
+	@Test
+	void updateRejectsCancelledAndExpiredCheckout() {
+		Order cancelled = editableOrder(Instant.now().plusSeconds(300));
+		cancelled.cancel();
+		Order expired = editableOrder(Instant.now().minusSeconds(1));
+		when(orders.findForCustomerForUpdate("O-CANCELLED", "C001"))
+				.thenReturn(Optional.of(cancelled));
+		when(orders.findForCustomerForUpdate("O-EXPIRED", "C001"))
+				.thenReturn(Optional.of(expired));
+
+		assertThatThrownBy(() -> service.update("C001", "O-CANCELLED", paymentUpdate("cod")))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CHECKOUT_EXPIRED));
+		assertThatThrownBy(() -> service.update("C001", "O-EXPIRED", paymentUpdate("cod")))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.CHECKOUT_EXPIRED));
+		assertThat(cancelled.getStatus()).isEqualTo(OrderStatus.cancelled);
+	}
+
+	// F-2 支援在既有 Checkout 套用會員優惠券。
+	@Test
+	void updateAppliesCouponClaim() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+		when(couponService.applyToOrder(
+				org.mockito.ArgumentMatchers.eq(order),
+				org.mockito.ArgumentMatchers.eq("C001"),
+				org.mockito.ArgumentMatchers.eq(99L),
+				org.mockito.ArgumentMatchers.any(Instant.class)))
+				.thenReturn(99L);
+		when(couponService.appliedClaimId("O-C4")).thenReturn(99L);
+		CheckoutUpdateRequest request = new CheckoutUpdateRequest(null, "cod", 99L);
+
+		CheckoutSessionResponse response = service.update("C001", "O-C4", request);
+
+		assertThat(response.couponClaimId()).isEqualTo(99L);
+		verify(couponService).applyToOrder(
+				org.mockito.ArgumentMatchers.eq(order),
+				org.mockito.ArgumentMatchers.eq("C001"),
+				org.mockito.ArgumentMatchers.eq(99L),
+				org.mockito.ArgumentMatchers.any(Instant.class));
+	}
+
+	// 不支援的付款方式應回傳驗證錯誤。
+	@Test
+	void updateRejectsUnsupportedPaymentMethod() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+
+		assertThatThrownBy(() -> service.update("C001", "O-C4", paymentUpdate("cash")))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR));
 	}
 
 	// 準備測試建立訂單需要的商品、庫存與會員資料。
@@ -150,5 +262,21 @@ class CheckoutServiceTest {
 		return new CheckoutCreateRequest(
 				List.of(new CheckoutCreateRequest.Item("V001", 1)),
 				"ecpay-credit", shipping, idempotencyKey);
+	}
+
+	// 建立可供 C-4 更新的待付款 Checkout。
+	private static Order editableOrder(Instant expiresAt) {
+		Order order = new Order();
+		order.initialize("O-C4", "C001", "c4-key", "c4-request-hash",
+				"Buyer", "buyer@example.com", "PENDING_CHECKOUT", "PENDING_CHECKOUT",
+				"PENDING_CHECKOUT", com.yuruicamp.backend.order.domain.PaymentMethod.ecpay_credit,
+				Instant.now(), expiresAt);
+
+		return order;
+	}
+
+	// 建立只修改付款方式的 C-4 請求。
+	private static CheckoutUpdateRequest paymentUpdate(String paymentMethod) {
+		return new CheckoutUpdateRequest(null, paymentMethod, null);
 	}
 }

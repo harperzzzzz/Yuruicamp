@@ -22,6 +22,8 @@ let updatePriceSlider = function () {};
 let searchBookingWindow = { minDate: null, maxDate: null };
 let searchAvailabilityCtx = null;
 let searchDateRange = { checkIn: null, checkOut: null };
+let backendCampAvailability = new Map();
+let availabilityRefreshId = 0;
 
 // ============================================================
 // 頁面初始化 / Page Initialization
@@ -63,10 +65,7 @@ function loadCampgrounds() {
   window.BookingAPI.getCampgrounds()
     .then(function (data) {
       allCampgrounds = data;
-      return Promise.all([
-        window.BookingAPI.getBookingWindow(),
-        window.BookingAPI.loadAvailabilityContext(),
-      ]);
+      return Promise.all([window.BookingAPI.getBookingWindow(), window.BookingAPI.loadAvailabilityContext()]);
     })
     .then(function (results) {
       searchBookingWindow = results[0] || searchBookingWindow;
@@ -237,6 +236,7 @@ function bindFilterEvents() {
     const datePicker = document.querySelector('#dateRange')._flatpickr;
     if (datePicker) datePicker.clear();
     searchDateRange = { checkIn: null, checkOut: null };
+    backendCampAvailability.clear();
 
     updatePriceSlider();
     filterCampgrounds();
@@ -270,8 +270,42 @@ function initFlatpickrDateRange() {
       } else if (selectedDates.length === 0) {
         searchDateRange = { checkIn: null, checkOut: null };
       }
-      filterCampgrounds();
+      refreshBackendAvailability();
     },
+  });
+}
+
+// Backend 模式逐營區呼叫正式可用性 API，避免下載所有 Booking 在前端計算。
+function refreshBackendAvailability() {
+  const refreshId = ++availabilityRefreshId;
+  if (searchAvailabilityCtx || !searchDateRange.checkIn || !searchDateRange.checkOut) {
+    filterCampgrounds();
+    return;
+  }
+
+  Promise.all(
+    allCampgrounds.map(function (campground) {
+      return window.BookingAPI.getAvailability({
+        campgroundId: campground.campgroundId,
+        checkIn: searchDateRange.checkIn,
+        checkOut: searchDateRange.checkOut,
+        zones: (campground.zones || []).map(function (zone) {
+          return { zoneId: zone.zoneId, quantity: 1 };
+        }),
+      })
+        .then(function (result) {
+          return [campground.campgroundId, result];
+        })
+        .catch(function (error) {
+          console.error('[camp-search] 營區可用性查詢失敗:', error);
+          return [campground.campgroundId, null];
+        });
+    })
+  ).then(function (entries) {
+    if (refreshId !== availabilityRefreshId) return;
+
+    backendCampAvailability = new Map(entries);
+    filterCampgrounds();
   });
 }
 
@@ -281,15 +315,30 @@ function initFlatpickrDateRange() {
  */
 function getCampRangeStatus(camp) {
   const AV = window.BookingAvailability;
-  if (!AV || !searchAvailabilityCtx) return { available: true };
   if (!searchDateRange.checkIn || !searchDateRange.checkOut) return { available: true };
 
-  if (AV.hasClosedNightInRange(
-    camp.campgroundId,
-    searchDateRange.checkIn,
-    searchDateRange.checkOut,
-    searchAvailabilityCtx
-  )) {
+  if (!searchAvailabilityCtx) {
+    const result = backendCampAvailability.get(camp.campgroundId);
+    if (!result) return { available: true };
+
+    const closed = (result.reasons || []).includes('CAMPGROUND_CLOSED');
+    return {
+      available: result.available,
+      closed: closed,
+      reason: closed ? '公休' : '',
+    };
+  }
+
+  if (!AV) return { available: true };
+
+  if (
+    AV.hasClosedNightInRange(
+      camp.campgroundId,
+      searchDateRange.checkIn,
+      searchDateRange.checkOut,
+      searchAvailabilityCtx
+    )
+  ) {
     const reason = AV.getClosureReason(
       camp.campgroundId,
       searchDateRange.checkIn,
@@ -299,23 +348,17 @@ function getCampRangeStatus(camp) {
   }
 
   const hasSlot = (camp.zones || []).some(function (zone) {
-    return AV.getMinRemainingInRange(
-      zone.zoneId,
-      searchDateRange.checkIn,
-      searchDateRange.checkOut,
-      searchAvailabilityCtx
-    ) > 0;
+    return (
+      AV.getMinRemainingInRange(
+        zone.zoneId,
+        searchDateRange.checkIn,
+        searchDateRange.checkOut,
+        searchAvailabilityCtx
+      ) > 0
+    );
   });
 
   return { available: hasSlot, closed: false };
-}
-
-/**
- * 檢查營區在所選日期區間是否至少有一個 zone 可訂
- * Check if campground has any available zone for the date range
- */
-function isCampAvailableForRange(camp) {
-  return getCampRangeStatus(camp).available;
 }
 
 /**
@@ -349,41 +392,44 @@ function filterCampgrounds() {
   const selectedRegion = $('#regionFilter').val();
 
   // 過濾陣列 / Filter array
-  const filtered = allCampgrounds.filter(function (camp) {
-    // 地區篩選：有選才過濾，未選則略過 / Region: filter only if selected
-    if (selectedRegion && camp.region !== selectedRegion) return false;
+  const filtered = allCampgrounds
+    .filter(function (camp) {
+      // 地區篩選：有選才過濾，未選則略過 / Region: filter only if selected
+      if (selectedRegion && camp.region !== selectedRegion) return false;
 
-    // 環境標籤：每個勾選的標籤都必須存在於 camp.environment_tags
-    // Every checked env tag must be in camp.environment_tags
-    const envMatch = checkedEnv.every((tag) => camp.environmentTags.includes(tag));
-    if (!envMatch) return false;
+      // 環境標籤：每個勾選的標籤都必須存在於 camp.environment_tags
+      // Every checked env tag must be in camp.environment_tags
+      const envMatch = checkedEnv.every((tag) => camp.environmentTags.includes(tag));
+      if (!envMatch) return false;
 
-    // 設施標籤：每個勾選的標籤都必須存在於 camp.facilityTags
-    // Every checked facility tag must be in camp.facilityTags
-    const facilityMatch = checkedFacility.every((tag) => camp.facilityTags.includes(tag));
-    if (!facilityMatch) return false;
+      // 設施標籤：每個勾選的標籤都必須存在於 camp.facilityTags
+      // Every checked facility tag must be in camp.facilityTags
+      const facilityMatch = checkedFacility.every((tag) => camp.facilityTags.includes(tag));
+      if (!facilityMatch) return false;
 
-    // 價格篩選：各 zone 最低平日價須落在 [minBudget, maxBudget] 區間內
-    const minBudget = parseInt($('#priceMin').val());
-    const maxBudget = parseInt($('#priceMax').val());
-    if (minBudget > 500 || maxBudget < 5000) {
-      const minWeekdayPrice = Math.min(...camp.zones.map((z) => z.priceWeekday));
-      if (minWeekdayPrice < minBudget || minWeekdayPrice > maxBudget) return false;
-    }
+      // 價格篩選：各 zone 最低平日價須落在 [minBudget, maxBudget] 區間內
+      const minBudget = parseInt($('#priceMin').val());
+      const maxBudget = parseInt($('#priceMax').val());
+      if (minBudget > 500 || maxBudget < 5000) {
+        const minWeekdayPrice = Math.min(...camp.zones.map((z) => z.priceWeekday));
+        if (minWeekdayPrice < minBudget || minWeekdayPrice > maxBudget) return false;
+      }
 
-    return true;
-  }).map(function (camp) {
-    const status = getCampRangeStatus(camp);
-    return Object.assign({}, camp, {
-      _dateFull: !status.available && !status.closed,
-      _dateClosed: Boolean(status.closed),
-      _closureReason: status.reason || '',
+      return true;
+    })
+    .map(function (camp) {
+      const status = getCampRangeStatus(camp);
+      return Object.assign({}, camp, {
+        _dateFull: !status.available && !status.closed,
+        _dateClosed: Boolean(status.closed),
+        _closureReason: status.reason || '',
+      });
+    })
+    .sort(function (a, b) {
+      if (a._dateClosed !== b._dateClosed) return a._dateClosed ? 1 : -1;
+      if (a._dateFull !== b._dateFull) return a._dateFull ? 1 : -1;
+      return 0;
     });
-  }).sort(function (a, b) {
-    if (a._dateClosed !== b._dateClosed) return a._dateClosed ? 1 : -1;
-    if (a._dateFull !== b._dateFull) return a._dateFull ? 1 : -1;
-    return 0;
-  });
 
   renderCampCards(filtered);
 }

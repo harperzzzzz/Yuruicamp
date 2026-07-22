@@ -21,4 +21,9 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select c from Customer c where c.id = :id")
 	Optional<Customer> findByIdForCheckout(@Param("id") String id);
+
+	// 後台更新會員前先鎖定資料，避免基本資料與停權操作互相覆蓋。
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("select c from Customer c where c.id = :id")
+	Optional<Customer> findByIdForUpdate(@Param("id") String id);
 }

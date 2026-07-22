@@ -24,11 +24,13 @@ import com.yuruicamp.backend.catalog.domain.ProductVariant;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.checkout.api.CheckoutCreateRequest;
 import com.yuruicamp.backend.checkout.api.CheckoutSessionResponse;
+import com.yuruicamp.backend.checkout.api.CheckoutUpdateRequest;
 import com.yuruicamp.backend.checkout.infrastructure.CheckoutProductRepository;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
+import com.yuruicamp.backend.coupon.application.CouponService;
 import com.yuruicamp.backend.inventory.domain.InventoryStock;
 import com.yuruicamp.backend.inventory.domain.ProductStockReservation;
 import com.yuruicamp.backend.inventory.infrastructure.InventoryStockRepository;
@@ -43,7 +45,7 @@ import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.order.infrastructure.OrderStatusHistoryRepository;
 
 @Service
-// 處理建立結帳、取消訂單與保留庫存。
+// 處理建立、更新、取消 Checkout 與保留庫存。
 public class CheckoutService {
 	private static final Duration HOLD = Duration.ofMinutes(15);
 	private static final String PENDING = "PENDING_CHECKOUT";
@@ -54,12 +56,13 @@ public class CheckoutService {
 	private final OrderRepository orders;
 	private final OrderStatusHistoryRepository histories;
 	private final EquipmentImageRepository images;
+	private final CouponService couponService;
 
-	// 準備建立與取消結帳需要使用的資料庫元件。
+	// 準備 Checkout 流程需要使用的資料庫元件。
 	public CheckoutService(CustomerRepository customers, CheckoutProductRepository products,
 			InventoryStockRepository stocks, ProductStockReservationRepository reservations,
 			OrderRepository orders, OrderStatusHistoryRepository histories,
-			EquipmentImageRepository images) {
+			EquipmentImageRepository images, CouponService couponService) {
 		this.customers = customers;
 		this.products = products;
 		this.stocks = stocks;
@@ -67,6 +70,7 @@ public class CheckoutService {
 		this.orders = orders;
 		this.histories = histories;
 		this.images = images;
+		this.couponService = couponService;
 	}
 
 	// 建立待付款訂單，並保留商品庫存 15 分鐘。
@@ -76,7 +80,7 @@ public class CheckoutService {
 		String idempotencyKey = request.idempotencyKey().trim();
 		Map<String, Integer> requested = mergeRequestedItems(request.items());
 		PaymentMethod paymentMethod = parsePaymentMethod(request.paymentMethod());
-		String requestHash = fingerprint(requested, paymentMethod, request.shipping());
+		String requestHash = fingerprint(requested, paymentMethod, request.shipping(), request.couponClaimId());
 
 		Customer customer = customers.findByIdForCheckout(customerId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED, "Customer not found"));
@@ -124,6 +128,9 @@ public class CheckoutService {
 
 		order.setPricing(subtotal, BigDecimal.ZERO, BigDecimal.ZERO);
 		Order saved = orders.saveAndFlush(order);
+		if (request.couponClaimId() != null) {
+			couponService.applyToOrder(saved, customerId, request.couponClaimId(), now);
+		}
 
 		for (int i = 0; i < saved.getItems().size(); i++) {
 			OrderItem item = saved.getItems().get(i);
@@ -136,6 +143,45 @@ public class CheckoutService {
 				"Checkout draft created"));
 
 		return toResponse(saved);
+	}
+
+	// 更新會員自己的未付款 Checkout 收件資料與付款方式。
+	@Transactional
+	public CheckoutSessionResponse update(String customerId, String orderId,
+			CheckoutUpdateRequest request) {
+		validateUpdateInput(customerId, orderId, request);
+		Order order = orders.findForCustomerForUpdate(orderId, customerId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.FORBIDDEN,
+						"Order not found or not owned by customer"));
+		Instant now = Instant.now();
+
+		if (order.getPaymentStatus() != PaymentStatus.unpaid) {
+			throw new BusinessException(ErrorCode.CONFLICT,
+					"Paid order cannot be updated here");
+		}
+		if (!order.isCheckoutEditable(now)) {
+			throw new BusinessException(ErrorCode.CHECKOUT_EXPIRED,
+					"Checkout is cancelled or expired");
+		}
+
+		CheckoutUpdateRequest.Shipping shipping = request.shipping();
+		if (shipping != null) {
+			order.updateShipping(
+					updatedValue(shipping.recipientName(), order.getRecipientName()),
+					updatedValue(shipping.phone(), order.getShippingPhone()),
+					updatedValue(shipping.address(), order.getShippingAddress()));
+		}
+		if (request.paymentMethod() != null) {
+			order.changePaymentMethod(parsePaymentMethod(request.paymentMethod()));
+		}
+		if (request.couponClaimId() != null) {
+			couponService.applyToOrder(order, customerId, request.couponClaimId(), now);
+		}
+		else if (request.shipping() == null && request.paymentMethod() == null) {
+			couponService.applyToOrder(order, customerId, null, now);
+		}
+
+		return toResponse(order);
 	}
 
 	// 取消會員自己的未付款訂單，並釋放庫存。
@@ -152,7 +198,7 @@ public class CheckoutService {
 		Instant now = Instant.now();
 		order.cancel();
 		reservations.findActiveByOrderItemIdIn(order.getItems().stream().map(OrderItem::getId).toList())
-				.forEach(reservation -> reservation.release("released", now));
+				.forEach(reservation -> reservation.release(now));
 		histories.save(OrderStatusHistory.of(orderId, OrderStatus.cancelled, now, "Cancelled by customer"));
 
 		return toResponse(order);
@@ -189,6 +235,46 @@ public class CheckoutService {
 		}
 	}
 
+	// 檢查更新請求至少包含收件、付款方式或優惠券操作。
+	private static void validateUpdateInput(String customerId, String orderId,
+			CheckoutUpdateRequest request) {
+		if (customerId == null || customerId.isBlank()
+				|| orderId == null || orderId.isBlank()
+				|| request == null) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"customerId, orderId and request are required");
+		}
+		boolean hasShippingUpdate = request.shipping() != null
+				&& (request.shipping().recipientName() != null
+						|| request.shipping().phone() != null
+						|| request.shipping().address() != null);
+		boolean hasPaymentUpdate = request.paymentMethod() != null;
+		// 空的更新內容視為清除目前優惠券，讓 couponClaimId=null 能完成清除操作。
+		if (hasPaymentUpdate && request.paymentMethod().isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"paymentMethod must not be blank");
+		}
+		validateShippingValue(request.shipping() == null ? null : request.shipping().recipientName(),
+				"recipientName");
+		validateShippingValue(request.shipping() == null ? null : request.shipping().phone(),
+				"phone");
+		validateShippingValue(request.shipping() == null ? null : request.shipping().address(),
+				"address");
+	}
+
+	// 已提供的收件欄位不可只包含空白。
+	private static void validateShippingValue(String value, String field) {
+		if (value != null && value.isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					field + " must not be blank");
+		}
+	}
+
+	// 欄位未提供時保留原值，有提供時移除前後空白。
+	private static String updatedValue(String value, String currentValue) {
+		return value == null ? currentValue : value.trim();
+	}
+
 	// 合併相同規格的數量，並固定商品順序。
 	private static Map<String, Integer> mergeRequestedItems(List<CheckoutCreateRequest.Item> items) {
 		Map<String, Integer> requested = new TreeMap<>();
@@ -215,12 +301,13 @@ public class CheckoutService {
 
 	// 產生請求指紋，用來判斷相同冪等鍵的內容是否一致。
 	private static String fingerprint(Map<String, Integer> items, PaymentMethod paymentMethod,
-			CheckoutCreateRequest.Shipping shipping) {
+			CheckoutCreateRequest.Shipping shipping, Long couponClaimId) {
 		StringBuilder canonical = new StringBuilder();
 		appendCanonical(canonical, paymentMethod.name());
 		appendCanonical(canonical, shipping == null ? null : shipping.recipientName());
 		appendCanonical(canonical, shipping == null ? null : shipping.phone());
 		appendCanonical(canonical, shipping == null ? null : shipping.address());
+		appendCanonical(canonical, couponClaimId == null ? null : couponClaimId.toString());
 		items.forEach((variantId, quantity) -> {
 			appendCanonical(canonical, variantId);
 			appendCanonical(canonical, String.valueOf(quantity));
@@ -265,7 +352,7 @@ public class CheckoutService {
 	}
 
 	// 將訂單資料轉成前端需要的結帳回應。
-	private static CheckoutSessionResponse toResponse(Order order) {
+	private CheckoutSessionResponse toResponse(Order order) {
 		var items = order.getItems().stream()
 				.map(item -> new CheckoutSessionResponse.Item(item.getId(), item.getProductId(),
 						item.getVariantId(), item.getSku(), item.getProductName(), item.getSpecification(),
@@ -282,7 +369,7 @@ public class CheckoutService {
 		return new CheckoutSessionResponse(order.getId(), order.getPaymentStatus().name(),
 				order.getPaymentMethod().name().replace('_', '-'), order.getStatus().name(),
 				order.getCheckoutExpiresAt().toString(), pricing, items, shipping,
-				ready ? "ready_to_pay" : "draft");
+				couponService.appliedClaimId(order.getId()), ready ? "ready_to_pay" : "draft");
 	}
 
 	// 暫存建立庫存保留紀錄需要的資料。

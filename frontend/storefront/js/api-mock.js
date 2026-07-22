@@ -39,6 +39,7 @@ const MOCK_DATA_PATHS = {
 window.MockDataPaths = MOCK_DATA_PATHS;
 
 const MOCK_ORDERS_KEY = 'mockOrders';
+const MOCK_CHECKOUT_SESSIONS_KEY = 'mockCheckoutSessions';
 const MOCK_REVIEWS_KEY = 'mockReviews';
 const MOCK_CUSTOMER_OVERLAY_KEY = 'mockCustomerOverlay';
 const MOCK_CUSTOMER_RELATIONS_KEY = 'mockCustomerRelations';
@@ -54,34 +55,12 @@ const _useMockApi = () => window.AppConfig?.USE_MOCK_API !== false;
 
 const _path = (key) => MOCK_DATA_PATHS[key] || '';
 
-/** 組 REST URL：API_BASE_URL + path（path 以 / 開頭） */
-const _restUrl = (restPath) => {
-  const base = String(window.AppConfig?.API_BASE_URL || '').replace(/\/$/, '');
-  return base + restPath;
-};
-
-/**
- * 解開後端統一 Envelope：{ success, data } → data
- * Unwrap Spring ApiResponse so pages keep receiving the payload only.
- * 契約文件：docs/api/product-api-contract.md
- */
-const _unwrapApiData = (json) => {
-  if (json && typeof json === 'object' && Object.prototype.hasOwnProperty.call(json, 'success')
-      && Object.prototype.hasOwnProperty.call(json, 'data')) {
-    if (json.success === false) {
-      const code = json.error?.code || 'ERROR';
-      const message = json.error?.message || 'API request failed';
-      throw new Error(`${code}: ${message}`);
-    }
-    return json.data;
-  }
-  return json;
-};
-
 const PRODUCT_CONTRACT_FIELDS = [
   'id', 'itemId', 'status', 'name', 'category', 'brand', 'description', 'image', 'price', 'variants',
 ];
-const PRODUCT_VARIANT_CONTRACT_FIELDS = ['id', 'sku', 'color', 'size', 'specification', 'price'];
+const PRODUCT_VARIANT_CONTRACT_FIELDS = [
+  'id', 'sku', 'color', 'size', 'specification', 'price', 'availableQuantity', 'inStock',
+];
 const CONTRACT_MONEY = /^\d+\.\d{2}$/;
 
 const _contractError = (message) => {
@@ -97,7 +76,7 @@ const _assertExactKeys = (value, expected, label) => {
 };
 
 /**
- * Public catalog input must already be Product API Contract v0.2.
+ * Public catalog input must already be Product API Contract v0.3.
  * Do not silently create item IDs, SKUs, prices, or variants from old fixtures.
  */
 const _readProductContract = (product) => {
@@ -122,7 +101,9 @@ const _readProductContract = (product) => {
     _assertExactKeys(variant, PRODUCT_VARIANT_CONTRACT_FIELDS, `${product.id} variant`);
     if (typeof variant.id !== 'string' || typeof variant.sku !== 'string'
         || typeof variant.specification !== 'string' || typeof variant.price !== 'string'
-        || !CONTRACT_MONEY.test(variant.price)) {
+        || !CONTRACT_MONEY.test(variant.price)
+        || !Number.isInteger(variant.availableQuantity) || variant.availableQuantity < 0
+        || variant.inStock !== (variant.availableQuantity > 0)) {
       _contractError(`${product.id}: invalid variant ${variant.id || '(missing id)'}`);
     }
     ['color', 'size'].forEach((field) => {
@@ -143,8 +124,9 @@ const _loadMockOrRest = async (mockKey, restPath) => {
   if (_useMockApi()) {
     return _fetchJson(_path(mockKey));
   }
-  // REST：先解 Envelope，頁面／快取只看到 data
-  return _unwrapApiData(await _fetchJson(_restUrl(restPath)));
+
+  // REST 的 Token、Envelope 與錯誤都交給共用請求層。
+  return window.ApiClient._restRequest(restPath, { auth: 'optional' });
 };
 
 /**
@@ -155,7 +137,7 @@ const _loadMockOrRest = async (mockKey, restPath) => {
 const _loadDisplaySeed = async (mockKey, restPath) => {
   if (_useMockApi()) return _fetchJson(_path(mockKey));
   try {
-    return await _unwrapApiData(await _fetchJson(_restUrl(restPath)));
+    return await window.ApiClient._restRequest(restPath, { auth: 'optional' });
   } catch (error) {
     console.info(`Backend ${restPath} is not available yet; using local ${mockKey} display seed.`, error);
     return _fetchJson(_path(mockKey));
@@ -175,9 +157,13 @@ const _writeJsonStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-/** 直接 fetch JSON；圖片欄位保持 /assets 或完整 URL，不做路徑改寫 */
-const _fetchJson = async (url) => {
-  const res = await fetch(url, { cache: 'no-store' });
+/** 直接 fetch JSON；REST 時帶 Firebase Bearer（步驟 2-5） */
+const _fetchJson = async (url, options = {}) => {
+  // Prefer shared auth-aware fetch when available (after main.js layout init)
+  if (window.YuruiApiHttp && typeof window.YuruiApiHttp.fetchJson === 'function') {
+    return window.YuruiApiHttp.fetchJson(url, options);
+  }
+  const res = await fetch(url, { cache: 'no-store', ...options });
   if (!res.ok) throw new Error('Fetch failed: ' + url);
   return res.json();
 };
@@ -365,23 +351,47 @@ const _loadProductDisplay = async () => {
  * B-3 product page adapter. It preserves the API envelope's meta while the
  * older getAll API intentionally continues returning an array for old pages.
  */
-const _loadProductPage = async ({ page = 0, size = 20, sort = 'id,asc' } = {}) => {
+const _loadProductPage = async ({
+  page = 0,
+  size = 20,
+  sort = 'id,asc',
+  category = null,
+  brand = null,
+  minPrice = null,
+  maxPrice = null,
+} = {}) => {
   const [field, direction] = String(sort).split(',');
   if (!['id', 'name'].includes(field) || !['asc', 'desc'].includes(direction)) {
     throw new Error('VALIDATION_ERROR: sort must be id,asc|desc or name,asc|desc');
   }
 
   if (!_useMockApi()) {
-    const query = new URLSearchParams({ page: String(page), size: String(size), sort }).toString();
-    const envelope = await _fetchJson(_restUrl(`/products?${query}`));
-    if (!envelope?.success) {
-      const code = envelope?.error?.code || 'ERROR';
-      throw new Error(`${code}: ${envelope?.error?.message || 'API request failed'}`);
-    }
-    return { data: Array.isArray(envelope.data) ? envelope.data.map(_readProductContract) : [], meta: envelope.meta };
+    const queryParams = new URLSearchParams({ page: String(page), size: String(size), sort });
+    if (category) queryParams.set('category', category);
+    if (brand) queryParams.set('brand', brand);
+    if (minPrice !== null && minPrice !== '') queryParams.set('minPrice', String(minPrice));
+    if (maxPrice !== null && maxPrice !== '') queryParams.set('maxPrice', String(maxPrice));
+    const query = queryParams.toString();
+    const result = await window.ApiClient._restRequest(`/products?${query}`, {
+      auth: 'optional',
+      includeMeta: true,
+    });
+
+    return {
+      data: Array.isArray(result.data) ? result.data.map(_readProductContract) : [],
+      meta: result.meta,
+    };
   }
 
-  const all = await _loadProductsRaw();
+  let all = await _loadProductsRaw();
+  if (category) all = all.filter((product) => product.category?.toLocaleLowerCase() === String(category).trim().toLocaleLowerCase());
+  if (brand) all = all.filter((product) => product.brand?.toLocaleLowerCase() === String(brand).trim().toLocaleLowerCase());
+  if ((minPrice !== null && minPrice !== '') || (maxPrice !== null && maxPrice !== '')) {
+    all = all.filter((product) => product.variants.some((variant) => (
+      (minPrice === null || minPrice === '' || Number(variant.price) >= Number(minPrice))
+      && (maxPrice === null || maxPrice === '' || Number(variant.price) <= Number(maxPrice))
+    )));
+  }
   const multiplier = direction === 'asc' ? 1 : -1;
   const ordered = all.slice().sort((a, b) => String(a[field]).localeCompare(String(b[field]), 'zh-Hant') * multiplier);
   const start = Number(page) * Number(size);
@@ -585,7 +595,433 @@ const customersApi = {
   },
 };
 
+/**
+ * 驗證並編碼 Checkout orderId，避免組出 undefined 或未編碼的路徑。
+ */
+const _checkoutOrderPath = (orderId) => {
+  const normalized = String(orderId || '').trim();
+
+  if (!normalized) {
+    throw new window.ApiRequestError(
+      'VALIDATION_ERROR',
+      'orderId is required'
+    );
+  }
+
+  return `/checkout/sessions/${encodeURIComponent(normalized)}`;
+};
+
+/**
+ * Checkout 都是會員操作，統一要求 Firebase／dev Bearer Token。
+ */
+const _checkoutRestRequest = (path, options = {}) => window.ApiClient._restRequest(path, {
+  ...options,
+  auth: 'required',
+});
+
+// 即使離開 Checkout 頁，也能清除目前分頁保存的冪等狀態。
+const _clearCheckoutRequestState = () => {
+  if (window.CheckoutIdempotency?.clear) {
+    window.CheckoutIdempotency.clear();
+    return;
+  }
+
+  window.sessionStorage?.removeItem('checkoutIdempotencyKey');
+  window.sessionStorage?.removeItem('checkoutCartFingerprint');
+  window.sessionStorage?.removeItem('checkoutCompletedOrderId');
+  window.sessionStorage?.removeItem('lastCheckoutSession');
+};
+
+// Checkout 取消成功或逾時時，通知頁面清除舊冪等狀態。
+const _runCheckoutAction = async (action, clearOnSuccess = false) => {
+  try {
+    const result = await action();
+    if (clearOnSuccess) _clearCheckoutRequestState();
+    return result;
+  } catch (error) {
+    if (error?.code === 'CHECKOUT_EXPIRED') _clearCheckoutRequestState();
+    throw error;
+  }
+};
+
+const MOCK_CHECKOUT_HOLD_MS = 15 * 60 * 1000;
+const MOCK_CHECKOUT_PENDING = 'PENDING_CHECKOUT';
+const CHECKOUT_PAYMENT_METHODS = [
+  'ecpay-credit',
+  'ecpay-atm',
+  'ecpay-cvs',
+  'ecpay-other',
+  'cod',
+];
+
+/**
+ * 建立與真後端相同格式的前端 API 錯誤。
+ */
+const _checkoutMockError = (code, message, status = 0) => new window.ApiRequestError(
+  code,
+  message,
+  [],
+  status
+);
+
+/**
+ * 取得 Mock Checkout 所屬會員，讓冪等鍵仍維持會員範圍。
+ */
+const _getMockCheckoutCustomerId = () => {
+  const current = window.AppState?.currentUser;
+
+  return String(current?.id || 'MOCK-CUSTOMER');
+};
+
+/**
+ * 複製公開 CheckoutSession，避免內部冪等資訊被頁面修改或看到。
+ */
+const _copyCheckoutSession = (session) => JSON.parse(JSON.stringify(session));
+
+/**
+ * 讀寫獨立的 Checkout Mock 紀錄，不與 Legacy mockOrders 混用。
+ */
+const _getMockCheckoutRecords = () => _readJsonStorage(MOCK_CHECKOUT_SESSIONS_KEY, []);
+
+const _saveMockCheckoutRecords = (records) => {
+  _writeJsonStorage(MOCK_CHECKOUT_SESSIONS_KEY, records);
+};
+
+/**
+ * 統一付款方式；後端未提供時預設 ecpay-credit。
+ */
+const _normalizeCheckoutPaymentMethod = (value) => {
+  const paymentMethod = value == null || String(value).trim() === ''
+    ? 'ecpay-credit'
+    : String(value).trim();
+
+  if (!CHECKOUT_PAYMENT_METHODS.includes(paymentMethod)) {
+    throw _checkoutMockError(
+      'VALIDATION_ERROR',
+      `Unsupported paymentMethod: ${paymentMethod}`,
+      400
+    );
+  }
+
+  return paymentMethod;
+};
+
+/**
+ * 合併重複 variant 並固定排序，對齊後端的 Checkout 正規化方式。
+ */
+const _normalizeCheckoutItems = (items) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw _checkoutMockError('VALIDATION_ERROR', 'items are required', 400);
+  }
+
+  const quantities = new Map();
+  items.forEach((item) => {
+    const variantId = String(item?.variantId || '').trim();
+    const quantity = Number(item?.quantity);
+
+    if (!variantId || !Number.isInteger(quantity) || quantity < 1) {
+      throw _checkoutMockError(
+        'VALIDATION_ERROR',
+        'Each checkout item requires variantId and a positive quantity',
+        400
+      );
+    }
+
+    quantities.set(variantId, (quantities.get(variantId) || 0) + quantity);
+  });
+
+  return [...quantities.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([variantId, quantity]) => ({ variantId, quantity }));
+};
+
+/**
+ * 將 Request 轉為穩定字串，支援相同冪等鍵的回放與衝突判斷。
+ */
+const _checkoutRequestFingerprint = (items, paymentMethod, shipping) => JSON.stringify({
+  items,
+  paymentMethod,
+  shipping: {
+    recipientName: String(shipping?.recipientName || '').trim(),
+    phone: String(shipping?.phone || '').trim(),
+    address: String(shipping?.address || '').trim(),
+  },
+});
+
+/**
+ * 使用 Mock 商品契約建立後端 Checkout item 快照與金額。
+ */
+const _buildMockCheckoutItems = async (requestedItems) => {
+  const products = await _loadProductsRaw();
+  let subtotalCents = 0;
+  const snapshots = requestedItems.map((requested, index) => {
+    let matchedProduct = null;
+    let matchedVariant = null;
+
+    for (const product of products) {
+      const variant = product.variants.find((item) => item.id === requested.variantId);
+      if (variant) {
+        matchedProduct = product;
+        matchedVariant = variant;
+        break;
+      }
+    }
+
+    if (!matchedProduct || !matchedVariant) {
+      throw _checkoutMockError(
+        'VARIANT_NOT_SELLABLE',
+        `Variant not sellable: ${requested.variantId}`,
+        409
+      );
+    }
+
+    const unitPriceCents = Math.round(Number(matchedVariant.price) * 100);
+    const lineTotalCents = unitPriceCents * requested.quantity;
+    subtotalCents += lineTotalCents;
+
+    return {
+      orderItemId: index + 1,
+      productId: matchedProduct.id,
+      variantId: matchedVariant.id,
+      sku: matchedVariant.sku,
+      productName: matchedProduct.name,
+      specification: matchedVariant.specification,
+      brandName: matchedProduct.brand || '',
+      imageUrl: matchedProduct.image,
+      unitPrice: (unitPriceCents / 100).toFixed(2),
+      quantity: requested.quantity,
+      lineTotal: (lineTotalCents / 100).toFixed(2),
+    };
+  });
+
+  return { snapshots, subtotalCents };
+};
+
+/**
+ * 建立 Mock orderId；只需符合 CheckoutSession 字串識別碼契約。
+ */
+const _newMockCheckoutId = () => {
+  const time = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 10).toUpperCase();
+
+  return `O-MOCK-${time}-${random}`;
+};
+
+/**
+ * 取得 Mock Checkout 紀錄；不存在時使用與後端一致的 NOT_FOUND 錯誤。
+ */
+const _findMockCheckoutRecord = (orderId) => {
+  const customerId = _getMockCheckoutCustomerId();
+  const records = _getMockCheckoutRecords();
+  const record = records.find((item) => (
+    item.customerId === customerId && item.session?.orderId === orderId
+  ));
+
+  if (!record) {
+    throw _checkoutMockError('NOT_FOUND', 'Checkout session not found', 404);
+  }
+
+  return { record, records };
+};
+
+/**
+ * 更新指定 Mock 紀錄並寫回 localStorage。
+ */
+const _replaceMockCheckoutRecord = (records, nextRecord) => {
+  const next = records.map((item) => (
+    item.session?.orderId === nextRecord.session.orderId ? nextRecord : item
+  ));
+
+  _saveMockCheckoutRecords(next);
+};
+
+/**
+ * 檢查 Mock Checkout 是否仍可更新或操作。
+ */
+const _assertMockCheckoutActive = (record) => {
+  if (record.session.status === 'cancelled') {
+    throw _checkoutMockError('CONFLICT', 'Checkout is cancelled or expired', 409);
+  }
+
+  if (new Date(record.session.checkoutExpiresAt).getTime() <= Date.now()) {
+    throw _checkoutMockError('CHECKOUT_EXPIRED', 'Checkout is expired', 409);
+  }
+};
+
+/**
+ * Mock Checkout adapter 回傳與 Spring Boot 完全相同的 CheckoutSession 形狀。
+ */
+const checkoutMockAdapter = {
+  createSession: async (request) => {
+    const idempotencyKey = String(request?.idempotencyKey || '').trim();
+    if (!idempotencyKey || idempotencyKey.length > 128) {
+      throw _checkoutMockError(
+        'VALIDATION_ERROR',
+        'idempotencyKey is required and must not exceed 128 characters',
+        400
+      );
+    }
+
+    const items = _normalizeCheckoutItems(request?.items);
+    const paymentMethod = _normalizeCheckoutPaymentMethod(request?.paymentMethod);
+    const shippingInput = request?.shipping || {};
+    const fingerprint = _checkoutRequestFingerprint(items, paymentMethod, shippingInput);
+    const customerId = _getMockCheckoutCustomerId();
+    const records = _getMockCheckoutRecords();
+    const replay = records.find((item) => (
+      item.customerId === customerId && item.idempotencyKey === idempotencyKey
+    ));
+
+    if (replay) {
+      if (replay.fingerprint !== fingerprint) {
+        throw _checkoutMockError(
+          'CONFLICT',
+          'Idempotency key was already used with a different checkout request',
+          409
+        );
+      }
+
+      return _copyCheckoutSession(replay.session);
+    }
+
+    const user = window.AppState?.currentUser || {};
+    const recipientName = String(
+      shippingInput.recipientName || user.name || user.displayName || MOCK_CHECKOUT_PENDING
+    ).trim();
+    const phone = String(shippingInput.phone || user.phone || MOCK_CHECKOUT_PENDING).trim();
+    const address = String(shippingInput.address || MOCK_CHECKOUT_PENDING).trim();
+    const checkoutItems = await _buildMockCheckoutItems(items);
+    const subtotal = (checkoutItems.subtotalCents / 100).toFixed(2);
+    const ready = [recipientName, phone, address]
+      .every((value) => value && value !== MOCK_CHECKOUT_PENDING);
+    const session = {
+      orderId: _newMockCheckoutId(),
+      paymentStatus: 'unpaid',
+      paymentMethod,
+      status: 'unshipped',
+      checkoutExpiresAt: new Date(Date.now() + MOCK_CHECKOUT_HOLD_MS).toISOString(),
+      pricing: {
+        subtotal,
+        shippingFee: '0.00',
+        discount: '0.00',
+        total: subtotal,
+      },
+      items: checkoutItems.snapshots,
+      shipping: { recipientName, phone, address },
+      couponClaimId: null,
+      checkoutStep: ready ? 'ready_to_pay' : 'draft',
+    };
+
+    records.push({ customerId, idempotencyKey, fingerprint, session });
+    _saveMockCheckoutRecords(records);
+
+    return _copyCheckoutSession(session);
+  },
+
+  getSession: async (orderId) => {
+    const result = _findMockCheckoutRecord(orderId);
+
+    return _copyCheckoutSession(result.record.session);
+  },
+
+  updateSession: async (orderId, request) => {
+    const result = _findMockCheckoutRecord(orderId);
+    const next = _copyCheckoutSession(result.record.session);
+    _assertMockCheckoutActive(result.record);
+
+    if (request?.couponClaimId != null) {
+      throw _checkoutMockError(
+        'VALIDATION_ERROR',
+        'couponClaimId is not supported until the coupon checkout flow is implemented',
+        400
+      );
+    }
+
+    const shipping = request?.shipping;
+    const hasShipping = shipping && ['recipientName', 'phone', 'address']
+      .some((field) => shipping[field] != null);
+    const hasPaymentMethod = request?.paymentMethod != null;
+    if (!hasShipping && !hasPaymentMethod) {
+      throw _checkoutMockError(
+        'VALIDATION_ERROR',
+        'At least one shipping field or paymentMethod is required',
+        400
+      );
+    }
+
+    if (hasPaymentMethod) {
+      if (String(request.paymentMethod).trim() === '') {
+        throw _checkoutMockError('VALIDATION_ERROR', 'paymentMethod must not be blank', 400);
+      }
+
+      next.paymentMethod = _normalizeCheckoutPaymentMethod(request.paymentMethod);
+    }
+
+    if (hasShipping) {
+      ['recipientName', 'phone', 'address'].forEach((field) => {
+        if (shipping[field] == null) {
+          return;
+        }
+
+        const value = String(shipping[field]).trim();
+        if (!value) {
+          throw _checkoutMockError('VALIDATION_ERROR', `${field} must not be blank`, 400);
+        }
+
+        next.shipping[field] = value;
+      });
+    }
+
+    next.checkoutStep = Object.values(next.shipping)
+      .every((value) => value && value !== MOCK_CHECKOUT_PENDING)
+      ? 'ready_to_pay'
+      : 'draft';
+    const nextRecord = { ...result.record, session: next };
+    _replaceMockCheckoutRecord(result.records, nextRecord);
+
+    return _copyCheckoutSession(next);
+  },
+
+  cancelSession: async (orderId) => {
+    const result = _findMockCheckoutRecord(orderId);
+    if (result.record.session.status === 'cancelled') {
+      return _copyCheckoutSession(result.record.session);
+    }
+
+    _assertMockCheckoutActive(result.record);
+
+    const next = {
+      ...result.record.session,
+      status: 'cancelled',
+    };
+    _replaceMockCheckoutRecord(result.records, { ...result.record, session: next });
+
+    return _copyCheckoutSession(next);
+  },
+
+  confirmCod: async () => {
+    throw _checkoutMockError(
+      'PAYMENT_NOT_IMPLEMENTED',
+      'COD confirmation waits for Payment line D',
+      501
+    );
+  },
+
+  createEcpayForm: async () => {
+    throw _checkoutMockError(
+      'PAYMENT_NOT_IMPLEMENTED',
+      'ECPay form creation waits for Payment line D',
+      501
+    );
+  },
+};
+
 window.API = {
+  /**
+   * 真後端共用請求入口；頁面應呼叫領域方法，不自行 fetch。
+   */
+  _restRequest: window.ApiClient._restRequest,
+
   /** @deprecated 請用 MockDataPaths / API 方法 */
   _getDataPath() {
     return '/data';
@@ -683,6 +1119,67 @@ window.API = {
     },
   },
 
+  checkout: {
+    // 建立 Checkout；Mock 與 Backend 都回傳 CheckoutSession。
+    createSession: async (request) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.createSession(request)
+        : _checkoutRestRequest('/checkout/sessions', {
+          method: 'POST',
+          body: request,
+        })
+    )),
+
+    // 取得會員自己的 Checkout Session。
+    getSession: async (orderId) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.getSession(String(orderId || '').trim())
+        : _checkoutRestRequest(_checkoutOrderPath(orderId), {
+          method: 'GET',
+        })
+    )),
+
+    // 更新會員自己的收件資料與付款方式。
+    updateSession: async (orderId, request) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.updateSession(String(orderId || '').trim(), request)
+        : _checkoutRestRequest(_checkoutOrderPath(orderId), {
+          method: 'PATCH',
+          body: request,
+        })
+    )),
+
+    // 主動取消未付款 Checkout 並釋放庫存。
+    cancelSession: async (orderId) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.cancelSession(String(orderId || '').trim())
+        : _checkoutRestRequest(
+          `${_checkoutOrderPath(orderId)}/cancel`,
+          { method: 'POST' }
+        )
+    ), true),
+
+    // 確認商城 COD；後端 Payment 線完成前端點可能尚不可用。
+    confirmCod: async (orderId) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.confirmCod(orderId)
+        : _checkoutRestRequest(
+          `${_checkoutOrderPath(orderId)}/confirm-cod`,
+          { method: 'POST' }
+        )
+    )),
+
+    // 取得 ECPay 表單；後端 Payment 線完成前端點可能尚不可用。
+    createEcpayForm: async (orderId) => _runCheckoutAction(() => (
+      _useMockApi()
+        ? checkoutMockAdapter.createEcpayForm(orderId)
+        : _checkoutRestRequest(
+          `${_checkoutOrderPath(orderId)}/ecpay`,
+          { method: 'POST' }
+        )
+    )),
+  },
+
   orders: {
     getAll: async () => {
       const seed = await _loadOrdersSeed();
@@ -697,29 +1194,36 @@ window.API = {
     },
 
     create: async (orderData) => {
-      if (orderData?.payment === 'ecpay-credit') {
-        return _requestJson('/orders', {
-          method: 'POST',
-          authUser: {
-            id: orderData.customerId || window.AppState?.currentUser?.id,
-            email: orderData.buyerEmail || window.AppState?.currentUser?.email,
-            name: orderData.buyerName || window.AppState?.currentUser?.name,
-          },
-          body: {
-            customerId: orderData.customerId || 'U001',
-            buyerName: orderData.buyerName || '',
-            buyerEmail: orderData.buyerEmail || '',
-            recipientName: orderData.buyerName || '',
-            shippingAddress: orderData.address || '',
-            shippingPhone: orderData.buyerPhone || '',
-            paymentMethod: 'ecpay-credit',
-            items: (orderData.items || []).map((item) => ({
-              variantId: item.variantId,
-              quantity: item.quantity,
-            })),
-          },
-        });
-      }
+if (orderData?.payment === 'ecpay-credit') {
+  return _requestJson('/orders', {
+    method: 'POST',
+    authUser: {
+      id: orderData.customerId || window.AppState?.currentUser?.id,
+      email: orderData.buyerEmail || window.AppState?.currentUser?.email,
+      name: orderData.buyerName || window.AppState?.currentUser?.name,
+    },
+    body: {
+      customerId: orderData.customerId || 'U001',
+      buyerName: orderData.buyerName || '',
+      buyerEmail: orderData.buyerEmail || '',
+      recipientName: orderData.buyerName || '',
+      shippingAddress: orderData.address || '',
+      shippingPhone: orderData.buyerPhone || '',
+      paymentMethod: 'ecpay-credit',
+      items: (orderData.items || []).map((item) => ({
+        variantId: item.variantId,
+        quantity: item.quantity,
+      })),
+    },
+  });
+}
+
+if (!_useMockApi()) {
+  throw new window.ApiRequestError(
+    'LEGACY_ORDER_CREATE_DISABLED',
+    'Legacy orders.create() is disabled when USE_MOCK_API=false'
+  );
+}
       const seed = await _loadOrdersSeed();
       const stored = _getStoredOrders();
       const merged = _mergeOrders(seed, stored);

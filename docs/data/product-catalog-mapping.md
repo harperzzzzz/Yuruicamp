@@ -1,5 +1,7 @@
 # Product Catalog Mapping
 
+> 商品以外的品牌、營區、zone 與租借 SKU 固定 ID，見 [`json-seed-id-mapping.md`](./json-seed-id-mapping.md)。
+
 | 欄位 | 內容 |
 |---|---|
 | 狀態 | Development seed verified through local `GET /api/products` |

@@ -73,12 +73,15 @@
 
   function logout() {
     if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
-      window.YuruiAuth.logout({ close: closeUserDropdown });
+      Promise.resolve(window.YuruiAuth.logout({ close: closeUserDropdown })).finally(function () {
+        checkLoginState();
+      });
       return;
     }
     localStorage.setItem('isLoggedIn', 'false');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('yuruiUser');
+    localStorage.removeItem('yuruiFirebaseIdToken');
     window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'logout', user: null } }));
     closeUserDropdown();
     checkLoginState();

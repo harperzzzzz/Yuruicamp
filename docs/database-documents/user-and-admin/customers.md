@@ -376,3 +376,17 @@ customers.updated_at = now()
 * 低風險：registered_at 與 created_at 語意接近
     (如果兩者永遠相同，可以移除其中之一)
 * 低風險：color 沒有格式限制
+
+## G-2a 後台會員管理
+
+正式後端已提供 `/api/admin/customers` 管理流程：
+
+- `GET /api/admin/customers`：會員分頁、關鍵字、狀態、等級、標籤與排序查詢。
+- `GET /api/admin/customers/{id}`：基本資料、唯讀標籤／偏好／預設地址及訂單／預約筆數。
+- `PATCH /api/admin/customers/{id}`：只允許姓名、電話、生日與點數。
+- `POST /api/admin/customers/{id}/suspend`：停權會員。
+- `POST /api/admin/customers/{id}/reactivate`：只恢復 suspended 會員。
+
+列表採兩階段查詢，先對 customer ID 分頁，再載入本頁資料與標籤，避免 N:M JOIN 造成重複與錯誤筆數。`totalSpent`、`tier`、`tierName` 以 `customer_tier_summary` 為真相；沒有消費紀錄時補為 `0.00`、`explorer`、`探險家`。
+
+G-2a 不提供後台建立 OAuth 會員、修改 Email／Firebase UID／登入來源、恢復 deleted 會員，也不寫入標籤、偏好或地址。

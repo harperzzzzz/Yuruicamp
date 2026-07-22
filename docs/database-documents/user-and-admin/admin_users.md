@@ -95,6 +95,12 @@ admin_user_permissions.allowed 個別覆寫
 
 
 ## 程式碼追蹤
+* G-1／G-5 正式後端：
+    - `AdminUserController` 提供建立、列表、詳情、更新與個別權限覆寫。
+    - `FirebaseAuthenticationFilter` 每次請求重新檢查 `active`、Firebase UID 與有效權限。
+    - 管理員不可刪除；離職改為 `active=false`，且不可停用自己或最後一位啟用中的 admin。
+    - 前端權限頁在 Backend 模式使用 `AdminAPI.users`，Mock 模式才使用 `localStorage.adminEmployees`。
+
 * 後台登入
     `admin/login.html`
             ↓

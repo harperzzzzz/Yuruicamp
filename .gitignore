@@ -1,8 +1,13 @@
 # Git 忽略文件
 # Yuruicamp 專案
 
+# 本地 ECPay skill（獨立 git repo，勿嵌進主專案）
+# Local ECPay skill (separate git repo — do not embed in main project)
+.ecpay-skill/
+
 # 依賴相關（前端依賴安裝於 frontend/）
 node_modules/
+.pnpm-store/
 yarn.lock
 
 # IDE 相關
@@ -64,19 +69,3 @@ frontend/admin/scripts/lib/*
 !frontend/admin/scripts/migrate-datetime.cjs
 !frontend/admin/scripts/migrate-phase1-data.cjs
 !frontend/admin/scripts/resequence-ids.cjs
-!frontend/admin/scripts/generate-p0-baseline.cjs
-!frontend/admin/scripts/audit-p0-completion.cjs
-!frontend/admin/scripts/generate-p0-target-dictionary.cjs
-!frontend/admin/scripts/generate-p1-backfill.cjs
-!frontend/admin/scripts/generate-p2-backfill.cjs
-!frontend/admin/scripts/generate-p3-backfill.cjs
-!frontend/admin/scripts/generate-p4-backfill.cjs
-!frontend/admin/scripts/generate-p4-financial-report.cjs
-!frontend/admin/scripts/audit-p4-sources.cjs
-!frontend/admin/scripts/generate-p5-backfill.cjs
-!frontend/admin/scripts/audit-p5-sources.cjs
-!frontend/admin/scripts/validate-p5-availability.cjs
-!frontend/admin/scripts/generate-p6-backfill.cjs
-!frontend/admin/scripts/audit-p6-sources.cjs
-!frontend/admin/scripts/audit-p7-gates.cjs
-

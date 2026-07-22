@@ -2,8 +2,10 @@ package com.yuruicamp.backend.common.security;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.yuruicamp.backend.admin.infrastructure.AdminUserRepository;
+import com.yuruicamp.backend.admin.application.AdminPermissionService;
 import com.yuruicamp.backend.auth.infrastructure.FirebaseTokenVerifier;
 import com.yuruicamp.backend.auth.infrastructure.VerifiedFirebaseToken;
 import com.yuruicamp.backend.common.exception.BusinessException;
@@ -36,14 +38,17 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 	private final FirebaseTokenVerifier tokenVerifier;
 	private final CustomerRepository customerRepository;
 	private final AdminUserRepository adminUserRepository;
+	private final AdminPermissionService adminPermissionService;
 
 	public FirebaseAuthenticationFilter(
 			FirebaseTokenVerifier tokenVerifier,
 			CustomerRepository customerRepository,
-			AdminUserRepository adminUserRepository) {
+			AdminUserRepository adminUserRepository,
+			AdminPermissionService adminPermissionService) {
 		this.tokenVerifier = tokenVerifier;
 		this.customerRepository = customerRepository;
 		this.adminUserRepository = adminUserRepository;
+		this.adminPermissionService = adminPermissionService;
 	}
 
 	@Override
@@ -96,10 +101,19 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 		if (admin == null || !admin.isActive()) {
 			return;
 		}
+		if (admin.getFirebaseUid() == null || !admin.getFirebaseUid().equals(verified.uid())) {
+			return;
+		}
 		AdminPrincipal principal = new AdminPrincipal(
-				admin.getId(), admin.getEmail(), admin.getRole(), admin.getFirebaseUid());
+				admin.getId(), admin.getEmail(), admin.getRole().name(), admin.getFirebaseUid());
+		var authorities = new ArrayList<SimpleGrantedAuthority>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		adminPermissionService.resolveEffectivePermissions(admin.getId(), admin.getRole())
+				.stream()
+				.map(SimpleGrantedAuthority::new)
+				.forEach(authorities::add);
 		var auth = new UsernamePasswordAuthenticationToken(
-				principal, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+				principal, null, authorities);
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 }

@@ -3768,6 +3768,124 @@ body.shippingAddressModalOpen {
   min-width: 0;
 }
 
+.checkoutSessionPanel {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-action);
+  border-radius: 12px;
+  color: var(--yc-text);
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.checkoutSessionPanel[hidden],
+.checkoutSessionDetails[hidden],
+.checkoutSessionTimer[hidden],
+.checkoutSessionActions button[hidden] {
+  display: none;
+}
+
+.checkoutSessionMain {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.875rem;
+}
+
+.checkoutSessionIcon {
+  color: var(--yc-sage-action);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.checkoutSessionBadge {
+  color: var(--yc-sage-action);
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.checkoutSessionTitle {
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.checkoutSessionMessage {
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0.35rem 0 0;
+}
+
+.checkoutSessionDetails {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.checkoutSessionTimer {
+  align-items: center;
+  border-top: 1px solid var(--yc-border);
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.checkoutSessionTimer span {
+  color: var(--yc-text-muted);
+  font-size: 0.8rem;
+}
+
+.checkoutSessionTimer strong {
+  color: var(--yc-sage-action);
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.checkoutSessionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.checkoutSessionPanel.isDraft {
+  background: var(--yc-warning-soft);
+  border-color: var(--yc-warning);
+  color: var(--yc-warning-text);
+}
+
+.checkoutSessionPanel.isDraft .checkoutSessionBadge,
+.checkoutSessionPanel.isDraft .checkoutSessionIcon {
+  color: var(--yc-warning);
+}
+
+.checkoutSessionPanel.isError,
+.checkoutSessionPanel.isExpired {
+  background: var(--yc-error-soft);
+  border-color: var(--yc-error);
+  color: var(--yc-error-text);
+}
+
+.checkoutSessionPanel.isError .checkoutSessionBadge,
+.checkoutSessionPanel.isError .checkoutSessionIcon,
+.checkoutSessionPanel.isExpired .checkoutSessionBadge,
+.checkoutSessionPanel.isExpired .checkoutSessionIcon {
+  color: var(--yc-error);
+}
+
+.shippingAddressDisplay.isInvalid,
+.checkoutPanel.isInvalid {
+  border-color: var(--yc-error);
+  box-shadow: 0 0 0 3px var(--yc-error-soft);
+}
+
 .checkoutPanel {
   background: var(--yc-surface);
   border: 1px solid var(--yc-border);
@@ -3849,7 +3967,8 @@ body.shippingAddressModalOpen {
 
 .checkoutPanelBody[hidden],
 .checkoutAddressField[hidden],
-.creditCardBox[hidden],
+.checkoutPaymentNotice[hidden],
+.checkoutActionStatus[hidden],
 .checkoutDiscountRow[hidden],
 .couponAppliedList[hidden],
 .couponMessage[hidden] {
@@ -4011,24 +4130,46 @@ body.shippingAddressModalOpen {
   margin-top: 1rem;
 }
 
-.creditCardBox {
-  background: var(--yc-surface-soft);
-  border: 1px solid var(--yc-border);
+.checkoutPaymentNotice {
+  align-items: flex-start;
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-action);
   border-radius: 8px;
-  margin: 1.25rem 0 0;
-  padding: 1.25rem;
+  color: var(--yc-text);
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
 }
 
-.creditCardTitle {
-  color: var(--yc-text);
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  padding: 0;
+.checkoutPaymentNotice > i {
+  color: var(--yc-sage-action);
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.checkoutPaymentNotice strong,
+.checkoutPaymentNotice span span {
+  display: block;
+}
+
+.checkoutPaymentNotice span span {
+  color: var(--yc-text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
 }
 
 .checkoutActions {
   margin-top: 1.5rem;
+}
+
+.checkoutActionStatus {
+  color: var(--yc-sage-action);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0.75rem 0 0;
+  text-align: center;
 }
 
 .checkoutConfirmBtn {
@@ -4181,6 +4322,10 @@ body.shippingAddressModalOpen {
   color: var(--yc-error);
 }
 
+.couponMessage.isInfo {
+  color: var(--yc-text-muted);
+}
+
 .checkoutSummaryRows {
   border-bottom: 2px solid var(--yc-border);
   border-top: 1px solid var(--yc-border);
@@ -4223,6 +4368,18 @@ body.shippingAddressModalOpen {
   color: var(--yc-sage-action);
   font-size: 1.4rem;
   font-weight: 800;
+}
+
+.checkoutPricingSource {
+  color: var(--yc-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: -0.75rem 0 1.25rem;
+}
+
+.checkoutPricingSource.isConfirmed {
+  color: var(--yc-success);
+  font-weight: 700;
 }
 
 .checkoutTrustNote {

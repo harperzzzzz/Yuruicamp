@@ -86,6 +86,7 @@ Dev：`dev:<uid>:<email>:<provider>:<displayName>`。
 | `role` | string | `admin_users.role`（`admin`\|`operator`\|`warehouse`） |
 | `firebaseUid` | string \| null | `admin_users.firebase_uid` |
 | `firebaseUidBound` | boolean | 本次是否完成／已有綁定 |
+| `effectivePermissions` | string[] | 角色預設套用個別覆寫後的有效權限 |
 
 ### 3.3 後台帳號生命週期
 
@@ -103,7 +104,7 @@ Dev：`dev:<uid>:<email>:<provider>:<displayName>`。
 
 1. 會員：依 `firebase_uid` 找人；沒有則依 email／新建並綁定。  
 2. `status=suspended` 或 `deleted` → 拒絕後續 API（`CUSTOMER_SUSPENDED`／未授權）。  
-3. 後台：email 必須預先存在於 `admin_users`；細 RBAC（section.view／edit）見 Admin 契約，骨架僅白名單 + active。  
+3. 後台：email 必須預先存在於 `admin_users`；登入與每次 Admin API 都檢查 `active` 及 Firebase UID 綁定，細 RBAC 見 Admin 契約。
 4. **不**回傳任何後端自簽 JWT。
 
 ---
@@ -114,7 +115,6 @@ Dev：`dev:<uid>:<email>:<provider>:<displayName>`。
 |------|------|
 | 密碼登入 | 產品僅 OAuth |
 | Refresh token API | Firebase 客戶端處理 |
-| 後台細權限陣列回傳 | G 階段再擴充 |
 
 ---
 
@@ -123,3 +123,4 @@ Dev：`dev:<uid>:<email>:<provider>:<displayName>`。
 | 版本 | 日期 | 說明 |
 |------|------|------|
 | 0.1 | 2026-07-20 | 對齊線 A 實作 |
+| 0.2 | 2026-07-21 | Admin session 回傳有效權限，並鎖定 Firebase UID 一致性 |

@@ -21,7 +21,7 @@
         <thead class="table-light">
           <tr>
             <th>員工編號</th>
-            <th>顯示名稱</th>
+            <th>姓名／Email</th>
             <th>身份</th>
             <th>狀態</th>
             <th>操作</th>
@@ -54,7 +54,7 @@
             <input type="text" class="form-control" id="empIdDisplay" readonly>
           </div>
 
-          <!-- 顯示名稱（必填） -->
+          <!-- 姓名與登入 Email -->
           <div class="mb-3">
             <label class="form-label fw-semibold" for="empDisplayName">
               顯示名稱 <span class="text-danger">*</span>
@@ -64,18 +64,27 @@
             <div class="invalid-feedback">請輸入顯示名稱</div>
           </div>
 
-          <!-- 設為超級管理員 -->
-          <div class="mb-4">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="empIsSuperAdmin">
-              <label class="form-check-label fw-semibold" for="empIsSuperAdmin">
-                設為超級管理員（擁有全部頁面權限）
-              </label>
-            </div>
-            <small class="text-muted">勾選後下方權限矩陣將全開且鎖定</small>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="empEmail">
+              登入 Email <span class="text-danger">*</span>
+            </label>
+            <input type="email" class="form-control" id="empEmail"
+                   placeholder="name@example.com" required>
+            <div class="invalid-feedback">輸入有效的登入 Email</div>
           </div>
 
-          <!-- 9 頁權限矩陣 -->
+          <!-- 角色決定預設權限，矩陣可再做個別調整 -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold" for="empRole">角色</label>
+            <select class="form-select" id="empRole">
+              <option value="operator">營運人員</option>
+              <option value="warehouse">倉儲人員</option>
+              <option value="admin">系統管理員</option>
+            </select>
+            <small class="text-muted">角色提供預設權限，下方矩陣保存個別差異</small>
+          </div>
+
+          <!-- 10 頁權限矩陣 -->
           <h6 class="fw-semibold mb-2">
             <i class="fas fa-th-list me-2 text-muted"></i>頁面權限
           </h6>
