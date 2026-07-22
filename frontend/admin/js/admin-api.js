@@ -55,7 +55,13 @@
 
     var url = config.baseUrl.replace(/\/$/, '') + path;
 
-    return fetch(url, options).then(function (res) {
+    // 2-5：後端模式帶 Firebase Bearer（之後台 Google 登入就緒後即可用）
+    var doFetch =
+      global.YuruiApiHttp && typeof global.YuruiApiHttp.apiFetch === 'function'
+        ? global.YuruiApiHttp.apiFetch
+        : fetch;
+
+    return doFetch(url, options).then(function (res) {
       if (!res.ok) {
         return res.text().then(function (text) {
           var err = new Error('AdminAPI ' + method + ' ' + path + ' failed: ' + res.status);

@@ -1,0 +1,22 @@
+<!--
+  Booking 全站共用腳本清單（單一真相來源）
+  Canonical list of booking shared scripts.
+
+  Runtime 載入方式（二選一，建議頁面用 A）：
+  A) 頁面 HTML：<script src="/booking/js/booking-core-scripts.js"></script>
+     （parse 階段 document.write 同步注入，供後續頁面 JS 立刻使用 AppConfig）
+  B) layout.js：loadBookingSharedLayout() 內會再 loadScriptOnce 一次當安全網
+     （僅 layout、使用者稍後才登入的頁也夠用）
+
+  新增／刪除共用腳本時：同時改本檔與 booking/js/booking-core-scripts.js 的清單。
+-->
+<div data-layout-part="booking-core-scripts">
+  <!-- 1. AppConfig（API_BASE_URL／USE_MOCK_API）— 登入 session／REST 必備 -->
+  <script src="/storefront/js/config.js" data-booking-core-script></script>
+  <!-- 2. 顯示格式（訂單／預約編號等） -->
+  <script src="/storefront/js/formatters.js" data-booking-core-script></script>
+  <!-- 3. window.API 門面（mock 或 Spring REST） -->
+  <script src="/storefront/js/api-mock.js" data-booking-core-script></script>
+  <!-- 4. BookingAPI -->
+  <script src="/storefront/js/booking-api.js" data-booking-core-script></script>
+</div>

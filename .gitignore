@@ -1,6 +1,10 @@
 # Git 忽略文件
 # Yuruicamp 專案
 
+# 本地 ECPay skill（獨立 git repo，勿嵌進主專案）
+# Local ECPay skill (separate git repo — do not embed in main project)
+.ecpay-skill/
+
 # 依賴相關（前端依賴安裝於 frontend/）
 node_modules/
 yarn.lock

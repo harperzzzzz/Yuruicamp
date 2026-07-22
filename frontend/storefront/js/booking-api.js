@@ -35,12 +35,24 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
-  /** 直接 fetch；圖片欄位保持後端／JSON 原樣 / No path rewriting */
-  function fetchJson(url) {
-    return fetch(url, { cache: 'no-store' }).then(function (res) {
+  /** 直接 fetch；REST 時帶 Firebase Bearer（步驟 2-5） */
+  function fetchJson(url, options) {
+    options = options || {};
+    if (global.YuruiApiHttp && typeof global.YuruiApiHttp.fetchJson === 'function') {
+      return global.YuruiApiHttp.fetchJson(url, options);
+    }
+    return fetch(url, Object.assign({ cache: 'no-store' }, options)).then(function (res) {
       if (!res.ok) throw new Error('Fetch failed: ' + url);
       return res.json();
     });
+  }
+
+  /** POST／帶自訂 method 的 REST（有 Bearer） */
+  function apiFetch(url, options) {
+    if (global.YuruiApiHttp && typeof global.YuruiApiHttp.apiFetch === 'function') {
+      return global.YuruiApiHttp.apiFetch(url, options);
+    }
+    return fetch(url, options);
   }
 
   /** mock 檔或 REST / Mock file or REST endpoint */
@@ -132,7 +144,7 @@
 
     createBooking: function (payload) {
       if (!useMockApi()) {
-        return fetch(restUrl('/booking/bookings'), {
+        return apiFetch(restUrl('/booking/bookings'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),

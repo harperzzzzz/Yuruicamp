@@ -223,6 +223,11 @@ async function initGlobalLayout() {
   );
 
   try {
+    // 2-2：先載入 Firebase ES module（npm firebase），再載入經典 auth.js
+    // Load Firebase ESM first so window.YuruiFirebase exists before auth.js
+    await import('/storefront/js/firebase-app.js');
+    // 2-5：Bearer 共用 HTTP（在 auth 前也可，但放 firebase 後才能刷新 token）
+    await loadComponentScript('/storefront/js/api-http.js');
     await loadComponentScript('/storefront/js/components/auth.js');
     await loadComponentScript('/storefront/js/components/modal.js');
     await loadComponentScript('/storefront/js/components/header.js');

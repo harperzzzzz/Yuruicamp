@@ -856,10 +856,13 @@ window.API.products.getAll = async (filters) => {
 };
 ```
 
-API Base URL 設定在 `js/config.js`：
+API Base URL 設定在 `frontend/storefront/js/config.js`（`window.AppConfig.API_BASE_URL`）。
+
+- 商城頁：各 HTML 直接載入 `config.js`。
+- 預約頁：一律透過 `booking/js/booking-core-scripts.js`（清單見 `booking/partials/booking-core-scripts.partial`）；說明文件：`docs/frontend-specs/booking-shared-scripts.md`。
 
 ```javascript
-window.AppConfig.API_BASE_URL = 'http://localhost:3000/api'; // 修改此處即可
+window.AppConfig.API_BASE_URL = 'http://localhost:8080/api'; // 修改 storefront/js/config.js
 ```
 
 ---

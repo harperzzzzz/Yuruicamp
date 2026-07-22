@@ -82,37 +82,24 @@
 
   function handleLoginSuccess(provider) {
     if (window.YuruiAuth && typeof window.YuruiAuth.loginWithProvider === 'function') {
+      // 處理 Google／FB／LINE 取消／後端錯誤等 Promise reject
       window.YuruiAuth.loginWithProvider(provider, {
         close: function () {
           window.closeModal('loginModal');
         },
-      });
-      window.updateNavbarLoginState?.();
+      })
+        .then(function () {
+          window.updateNavbarLoginState?.();
+        })
+        .catch(function (error) {
+          var message = (error && error.message) || '登入失敗';
+          console.error('Login failed:', error);
+          window.showToast && window.showToast(message, 'error');
+        });
       return;
     }
 
-    var user = {
-      id: 'U001',
-      name: provider + ' 使用者',
-      email: 'user@' + provider.toLowerCase() + '.example',
-      avatarUrl: provider.charAt(0),
-      provider: provider.toLowerCase(),
-    };
-    if (window.AppState) {
-      window.AppState.isLoggedIn = true;
-      window.AppState.currentUser = user;
-    }
-    localStorage.setItem('isLoggedIn', 'true');
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    localStorage.setItem('yuruiUser', JSON.stringify(user));
-    window.saveAppState?.();
-    window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'login', user: user } }));
-    window.updateNavbarLoginState?.();
-    window.closeModal('loginModal');
-    window.showToast && window.showToast('已使用 ' + provider + ' 登入', 'success');
-    setTimeout(function () {
-      window.openPersonalizationModal();
-    }, 300);
+    window.showToast && window.showToast('登入模組尚未載入，請重新整理頁面', 'error');
   }
 
   function validateSurveySelection(count, minimum) {
