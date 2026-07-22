@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#73816E" />
     <link rel="icon" href="/assets/icons/camping_icon.png" type="image/png" />
-    <title>確�?結帳 | Yuruicamp ?��??�物</title>
+    <title>確認結帳 | Yuruicamp 露營選物</title>
 
     <link rel="stylesheet" href="/booking/css/booking-main.css" />
 
@@ -18,167 +18,199 @@
     <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <main class="bookingCheckoutPage">
-      <!-- 步�??�度??/ Step Progress Bar -->
+      <!-- 步驟進度列 / Step Progress Bar -->
       <div class="bookingStepProgress">
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          ?��??��?
+          選擇營區
         </div>
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          ?��??��?
+          選擇日期
         </div>
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          租借�???
+          租借裝備
         </div>
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          確�??��?
+          確認背包
         </div>
         <div class="bookingStep isSelected">
           <span>5</span>
-          確�?結帳
+          確認結帳
         </div>
       </div>
 
-      <!-- ?��?佈�?：checkoutLayout ?�共?��?帳�??��?checkoutLayoutBooking 保�? booking 流�?尺寸??-->
+      <!-- 兩欄佈局：checkoutLayout 是共用結帳語意，checkoutLayoutBooking 保留 booking 流程尺寸。 -->
       <div class="checkoutLayout checkoutLayoutBooking">
-        <!-- ?��??��??��??��??��??��??��??��??��??��??��??��??��??��??��?
-           左側：�?風琴?�板
-      ?��??��??��??��??��??��??��??��??��??��??��??��??��??��??��? -->
+        <!-- ══════════════════════════════
+           左側：手風琴面板
+      ══════════════════════════════ -->
         <div class="checkoutFormColumn checkoutFormColumnBooking">
-          <!-- ?�?� Panel 1：�?約�?細�??�設展�?）�??� -->
+          <!-- ── Panel 1：預約明細（預設展開）── -->
           <div class="checkoutPanel checkoutPanelBooking isOpen" id="panelDetails">
             <div class="checkoutPanelHeader checkoutPanelHeaderBooking" data-panel="panelDetails">
               <div class="checkoutPanelTitle checkoutPanelTitleBooking">
                 <span class="checkoutPanelNumber checkoutPanelNumberBooking">1</span>
-                <span>?��??�細</span>
+                <span>預約明細</span>
               </div>
-              <span class="checkoutPanelArrow checkoutPanelArrowBooking">??/span>
+              <span class="checkoutPanelArrow checkoutPanelArrowBooking">▼</span>
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
               <section class="cartSection" id="staySection">
-                <h3 class="cartSectionTitle"><i class="bi bi-house-door"></i> 住宿資�?</h3>
+                <h3 class="cartSectionTitle"><i class="bi bi-house-door"></i> 住宿資訊</h3>
                 <div id="stayDetail">
-                  <div class="loadingSkeleton"><i class="bi bi-hourglass-split"></i> 載入�?..</div>
+                  <div class="loadingSkeleton"><i class="bi bi-hourglass-split"></i> 載入中...</div>
                 </div>
               </section>
 
               <section class="cartSection" id="rentalSection">
-                <h3 class="cartSectionTitle"><i class="bi bi-bag"></i> 租借�???/h3>
+                <h3 class="cartSectionTitle"><i class="bi bi-bag"></i> 租借裝備</h3>
                 <div id="rentalDetail">
-                  <!-- ??JS ?��?填入 -->
+                  <!-- 由 JS 動態填入 -->
                 </div>
               </section>
 
               <section class="cartSection checkoutUpsellSection" id="upsellSection">
-                <h3 class="cartSectionTitle"><i class="bi bi-star"></i> ?�歡?��?裝�??��?</h3>
-                <p>租借�?驗�?，若?��??�自己�?裝�?，可?�選?��?店選購全?��??��?/p>
+                <h3 class="cartSectionTitle"><i class="bi bi-star"></i> 喜歡這些裝備嗎？</h3>
+                <p>租借體驗後，若想擁有自己的裝備，可至選物商店選購全新商品。</p>
                 <a href="../../storefront/pages/products.html" class="btn btnOutline">
-                  <i class="bi bi-shop"></i> ?��??�購?��?裝�?
+                  <i class="bi bi-shop"></i> 前往選購露營裝備
                 </a>
               </section>
             </div>
           </div>
 
-          <!-- ?�?� Panel 2：�?購人資�? ?�?� -->
+          <!-- ── Panel 2：訂購人資訊 ── -->
           <div class="checkoutPanel checkoutPanelBooking" id="panelContact">
             <div class="checkoutPanelHeader checkoutPanelHeaderBooking" data-panel="panelContact">
               <div class="checkoutPanelTitle checkoutPanelTitleBooking">
                 <span class="checkoutPanelNumber checkoutPanelNumberBooking">2</span>
-                <span>訂購人�?�?/span>
+                <span>訂購人資訊</span>
               </div>
-              <span class="checkoutPanelArrow checkoutPanelArrowBooking">??/span>
+              <span class="checkoutPanelArrow checkoutPanelArrowBooking">▼</span>
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
               <div class="contactForm checkoutContactFormBooking">
-                <input type="text" id="contactName" class="formControl" placeholder="訂購人�???*" required />
-                <input type="tel" id="contactPhone" class="formControl" placeholder="?��??�碼 *" required />
-                <input type="email" id="contactEmail" class="formControl" placeholder="?��?信箱 *" required />
-                <textarea
-                  id="buyerNote"
-                  class="formControl"
-                  rows="3"
-                  maxlength="500"
-                  placeholder="?�註（選填�????��?麼�?要�??��??�方?��?�?
-                ></textarea>
+                <input type="text" id="contactName" class="formControl" placeholder="訂購人姓名 *" required />
+                <input type="tel" id="contactPhone" class="formControl" placeholder="手機號碼 *" required />
+                <input type="email" id="contactEmail" class="formControl" placeholder="電子信箱 *" required />
+                <textarea id="buyerNote"
+                          class="formControl"
+                          rows="3"
+                          maxlength="500"
+                          placeholder="備註（選填）— 有什麼需要告知營地方的嗎？"></textarea>
                 <button type="button" id="fillProfileBtn" class="btn btnOutline checkoutFillProfileBtn">
-                  帶入?�員資�?
+                  帶入會員資料
                 </button>
-                <p class="checkoutContactHint">* 確�?信�?寄送至此信�?/p>
+                <p class="checkoutContactHint">* 確認信將寄送至此信箱</p>
               </div>
             </div>
           </div>
 
-          <!-- ?�?� Panel 3：�?款方�??�?� -->
+          <!-- ── Panel 3：付款方式 ── -->
           <div class="checkoutPanel checkoutPanelBooking" id="panelPayment">
             <div class="checkoutPanelHeader checkoutPanelHeaderBooking" data-panel="panelPayment">
               <div class="checkoutPanelTitle checkoutPanelTitleBooking">
                 <span class="checkoutPanelNumber checkoutPanelNumberBooking">3</span>
-                <span>付款?��?</span>
+                <span>付款方式</span>
               </div>
-              <span class="checkoutPanelArrow checkoutPanelArrowBooking">??/span>
+              <span class="checkoutPanelArrow checkoutPanelArrowBooking">▼</span>
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
-              <!-- 線�?付款（�??��??��?不�?�?COD�?-->
-              <label class="bookingPaymentOption isSelected" id="payOptEcpay">
-                <input type="radio" name="paymentMethod" value="ecpay-credit" id="payEcpay" checked />
+              <!-- 線上付款（綠界；預約不提供 COD） -->
+              <label class="bookingPaymentOption isSelected" id="payOptCredit">
+                <input type="radio" name="paymentMethod" value="credit" id="payCredit" checked />
                 <div>
-                  <div class="bookingPaymentOptionTitle">綠�?線�?付款（�??��?�?/div>
-                  <div class="bookingPaymentOptionDesc">
-                    ?��?段只建�? 15 ?��?待�?款�?約�?付款表單?�確認�?給�? D
-                  </div>
+                  <div class="bookingPaymentOptionTitle">線上付款（綠界）</div>
+                  <div class="bookingPaymentOptionDesc">預約須線上付款；正式環境導向 ECPay</div>
                 </div>
               </label>
 
-              <p class="checkoutContactHint">
-                此�?不收?�卡?��?也�??��??��?標�?已�?款�?付款?�?�以?��? ECPay Notify ?��???
-              </p>
+              <!-- 信用卡資訊欄位（選信用卡時顯示）-->
+              <div id="creditCardSection" class="creditCardSectionBooking">
+                <div class="ccField">
+                  <label class="ccLabel" for="cardNumber">卡號</label>
+                  <input
+                    type="text"
+                    class="ccInput"
+                    id="cardNumber"
+                    placeholder="1234 5678 9012 3456"
+                    maxlength="19"
+                    inputmode="numeric"
+                  />
+                </div>
+                <div class="ccRow">
+                  <div class="ccField">
+                    <label class="ccLabel" for="cardExpiry">到期日</label>
+                    <input
+                      type="text"
+                      class="ccInput"
+                      id="cardExpiry"
+                      placeholder="MM / YY"
+                      maxlength="7"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <div class="ccField">
+                    <label class="ccLabel" for="cardCvv">CVV</label>
+                    <input
+                      type="text"
+                      class="ccInput"
+                      id="cardCvv"
+                      placeholder="123"
+                      maxlength="4"
+                      inputmode="numeric"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- ?�?� 確�??�出?� ?�?� -->
+          <!-- ── 確認送出區 ── -->
           <div class="checkoutConfirmArea checkoutConfirmAreaBooking">
-            <!-- ?�登?��?示�???JS ?�制顯示�?-->
+            <!-- 未登入提示（由 JS 控制顯示） -->
             <div id="loginNotice" class="loginNotice loginNoticeBooking">
               <i class="bi bi-person-exclamation"></i>
-              ?��??�登?��??�入後即?��??��?�?
+              您尚未登入，登入後即可完成預約
               <button type="button" id="loginNoticeBtn" class="loginNoticeButton loginNoticeButtonBooking">
-                立即?�入 / 註�?
+                立即登入 / 註冊
               </button>
             </div>
 
             <button class="btn btnPrimary btnFull confirmPayButtonBooking" id="confirmPayBtn">
-              <i class="bi bi-lock-fill"></i> 建�?待�?款�?�?
+              <i class="bi bi-lock-fill"></i> 確認預約並送出
             </button>
-            <p class="termsNote termsNoteBooking">點�?確�??�表示您?��? Yuruicamp ?��??��?款�??��??��?</p>
-            <p class="sslNote"><i class="bi bi-shield-lock"></i> SSL ?��?保護，�??��?�?/p>
-            <a href="./booking-cart.html" class="bookingCartBackLink" id="backToCartLink"> ??返�??��??��? </a>
+            <p class="termsNote termsNoteBooking">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
+            <p class="sslNote"><i class="bi bi-shield-lock"></i> SSL 加密保護，安全付款</p>
+            <a href="./booking-cart.html" class="bookingCartBackLink" id="backToCartLink"> ← 返回預約背包 </a>
           </div>
         </div>
 
-        <!-- ?��??��??��??��??��??��??��??��??��??��??��??��??��??��??��?
-           ?�側：費?��?要�?Sticky�?
-      ?��??��??��??��??��??��??��??��??��??��??��??��??��??��??��? -->
+        <!-- ══════════════════════════════
+           右側：費用摘要（Sticky）
+      ══════════════════════════════ -->
         <div class="checkoutSummaryColumn checkoutSummaryColumnBooking">
           <div class="summaryCard summaryCardBooking">
-            <h3>費用?�細</h3>
+            <h3>費用明細</h3>
 
-            <!-- 費用?��?（由 JS 填入�?->
+            <!-- 費用逐項（由 JS 填入）-->
             <div id="costBreakdown"></div>
 
-            <!-- ?��?總�?�?-->
+            <!-- 應付總金額 -->
             <div class="costTotal">
-              <span>?��?總�?�?/span>
+              <span>應付總金額</span>
               <strong class="costTotalAmount" id="finalAmount">NT$0</strong>
             </div>
 
-            <!-- 安全保�? -->
+            <!-- 安全保障 -->
             <div class="summarySecurityNote summarySecurityNoteBooking">
-              <p class="summarySecurityNoteLine">?? SSL ?��?保護，�??��?�?/p>
-              <p class="summarySecurityNoteLine">?? ?��?確�?信�?寄送至?��?信箱</p>
+              <p class="summarySecurityNoteLine">🔒 SSL 加密保護，安全付款</p>
+              <p class="summarySecurityNoteLine">📋 預約確認信將寄送至您的信箱</p>
             </div>
+
           </div>
         </div>
       </div>
@@ -188,7 +220,7 @@
     <div id="bookingFooter"></div>
 
     <script src="/booking/js/layout.js"></script>
-    <!-- ?�用：config／formatters／api-mock／booking-api（�? booking/partials/booking-core-scripts.partial�?-->
+    <!-- 共用：config／formatters／api-mock／booking-api（見 booking/partials/booking-core-scripts.partial） -->
     <script src="/booking/js/booking-core-scripts.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
