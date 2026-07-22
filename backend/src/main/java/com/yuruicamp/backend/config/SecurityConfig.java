@@ -41,10 +41,7 @@ public class SecurityConfig {
 			FirebaseAuthenticationFilter firebaseAuthenticationFilter,
 			ObjectMapper objectMapper) throws Exception {
 		http
-				.csrf(csrf -> csrf.ignoringRequestMatchers(
-						request -> "POST".equals(request.getMethod())
-								&& ("/api/payments/ecpay/return".equals(request.getServletPath())
-									|| "/api/payments/ecpay/order-result".equals(request.getServletPath()))))
+				.csrf(csrf -> csrf.disable())
 				.cors(Customizer.withDefaults())
 				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth

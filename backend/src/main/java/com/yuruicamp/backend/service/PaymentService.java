@@ -58,6 +58,20 @@ public class PaymentService {
         Order order = orderRepository.findById(request.orderId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Order not found: " + request.orderId()));
+        return createPaymentForOrder(order);
+    }
+
+    @Transactional
+    public CreatePaymentResponse createPaymentForCustomer(String customerId, CreatePaymentRequest request) {
+        requireEcpayConfig();
+
+        Order order = orderRepository.findForCustomer(request.orderId(), customerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "Order not found or not owned by customer: " + request.orderId()));
+        return createPaymentForOrder(order);
+    }
+
+    private CreatePaymentResponse createPaymentForOrder(Order order) {
         if (order.getPaymentStatus() != PaymentStatus.unpaid) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Only unpaid orders can create ECPay payment transactions.");
@@ -255,12 +269,18 @@ public class PaymentService {
                 "Unable to generate a unique MerchantTradeNo.");
     }
 
-    private String buildMerchantTradeNo(OffsetDateTime now, int attempt) {
-        String timestamp = DateTimeFormatter.ofPattern("yyMMddHHmmssSSS").format(now);
-        String suffix = Integer.toString(attempt, 36).toUpperCase(Locale.ROOT);
-        return ("YRC" + timestamp + suffix).substring(0, 20);
-    }
+private String buildMerchantTradeNo(OffsetDateTime now, int attempt) {
+    String timestamp = DateTimeFormatter
+            .ofPattern("yyMMddHHmmssSSS")
+            .format(now);
 
+    String suffix = Integer.toString(attempt, 36)
+            .toUpperCase(Locale.ROOT);
+
+    String tradeNo = "YRC" + timestamp + suffix;
+
+    return tradeNo.substring(0, Math.min(20, tradeNo.length()));
+}
     private Map<String, String> buildFormFields(Order order, PaymentTransaction transaction, OffsetDateTime now) {
         Map<String, String> fields = new LinkedHashMap<>();
         fields.put("MerchantID", ecpayProperties.getMerchantId());

@@ -35,7 +35,17 @@ public class WebConfig {
 		config.setAllowCredentials(true);
 		config.setMaxAge(3600L);
 
+		// 綠界的 OrderResultURL / ReturnURL 是綠界伺服器端網域自動送出的 callback，
+		// 不是商城前端的 fetch/XHR 呼叫，因此不能套用上面商城限定的來源白名單，
+		// 否則瀏覽器帶著綠界網域的 Origin 送出時會被 CorsFilter 直接擋下。
+		CorsConfiguration ecpayCallbackConfig = new CorsConfiguration();
+		ecpayCallbackConfig.setAllowedOriginPatterns(List.of("*"));
+		ecpayCallbackConfig.setAllowedMethods(List.of("GET", "POST"));
+		ecpayCallbackConfig.setAllowedHeaders(List.of("*"));
+		ecpayCallbackConfig.setAllowCredentials(false);
+
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/api/payments/ecpay/**", ecpayCallbackConfig);
 		source.registerCorsConfiguration("/**", config);
 		return source;
 	}

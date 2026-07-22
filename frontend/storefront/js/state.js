@@ -30,13 +30,40 @@ function _resolveStoredLoginState(storedFlag, storedUser) {
   return Boolean(storedUser);
 }
 
-const _storedAuthUser = window.YuruiStorage.readAuthUser();
+function _isDevAuthEnabled() {
+  const authConfig = window.AppConfig && window.AppConfig.AUTH;
+  const isDevelopment = window.AppConfig && window.AppConfig.ENVIRONMENT === 'development';
+  if (!isDevelopment || !authConfig || authConfig.DEV_LOGIN_ENABLED !== true) {
+    return false;
+  }
+
+  const devToken = String(authConfig.DEV_TOKEN || '').trim();
+  return devToken.indexOf('dev:') === 0 && Boolean(authConfig.DEV_USER);
+}
+
+function _resolveDevAuthUser(storedUser) {
+  if (!_isDevAuthEnabled()) {
+    return storedUser;
+  }
+
+  const authConfig = window.AppConfig.AUTH;
+  return {
+    ...authConfig.DEV_USER,
+    authProvider: authConfig.DEV_USER.authProvider || 'google',
+    firebaseUid: authConfig.DEV_USER.firebaseUid || authConfig.DEV_USER.id,
+  };
+}
+
+const _storedAuthUser = _resolveDevAuthUser(window.YuruiStorage.readAuthUser());
+const _storedLoginState = _isDevAuthEnabled() && _storedAuthUser
+  ? true
+  : _resolveStoredLoginState(localStorage.getItem('isLoggedIn'), _storedAuthUser);
 
 /**
  * Stores mutable runtime state shared by main-site components.
  */
 window.AppState = {
-  isLoggedIn: _resolveStoredLoginState(localStorage.getItem('isLoggedIn'), _storedAuthUser),
+  isLoggedIn: _storedLoginState,
   currentUser: _storedAuthUser,
   cart: window.YuruiStorage.readJson('cart', []),
   preferences: window.YuruiStorage.readJson('preferences', {}),

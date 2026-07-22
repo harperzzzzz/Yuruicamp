@@ -29,7 +29,14 @@ window.AppConfig = {
 
   // 本機可暫時填入 dev: Token；正式環境必須留空並使用 Firebase currentUser。
   AUTH: {
-    DEV_TOKEN: '',
+    DEV_LOGIN_ENABLED: true,
+    DEV_TOKEN: 'dev:U001:amy@example.com:google:Amy Chen',
+    DEV_USER: {
+      id: 'U001',
+      name: 'Amy Chen',
+      email: 'amy@example.com',
+      phone: '0912345678',
+    },
   },
 
   // 購物車相關

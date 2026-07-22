@@ -277,3 +277,4 @@ public void markPaid(Instant paidAt) {
 	this.paymentStatus = PaymentStatus.paid;
 	this.paidAt = paidAt;
 }
+}

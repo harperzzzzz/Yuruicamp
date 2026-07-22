@@ -176,6 +176,13 @@ const _buildDevAuthHeader = (user = {}) => {
   return { Authorization: `Bearer dev:${id}:${email}:google:${name}` };
 };
 
+const _unwrapApiData = (json) => {
+  if (json && json.success === true && Object.prototype.hasOwnProperty.call(json, 'data')) {
+    return json.data;
+  }
+  return json;
+};
+
 const _requestJson = async (restPath, { method = 'GET', body, authUser } = {}) => {
   const headers = { Accept: 'application/json' };
   if (body !== undefined) headers['Content-Type'] = 'application/json';

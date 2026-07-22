@@ -152,6 +152,7 @@ function _getCheckoutDateTimeString() {
 // Return today's local date in yyyy-mm-dd format.
 function _getCheckoutTodayString() {
   return _getCheckoutDateTimeString().slice(0, 10);
+}
 // 判斷目前是否直接連接 Spring Boot。
 function _isBackendCheckoutMode() {
   return window.AppConfig?.USE_MOCK_API === false;
@@ -480,43 +481,65 @@ async function _handleConfirmOrder(confirmBtn) {
   _setConfirmButtonLoading(confirmBtn, true);
 
   try {
-    const orderData = await _buildOrderData(formData);
-    if (_getSelectedPaymentCode() === 'ecpay-credit') {
-      await _startEcpayCreditPayment(orderData);
+    const checkoutSession = await _createCheckoutSession(_buildCheckoutRequest(formData));
+    _saveCheckoutSession(checkoutSession);
+    _showCheckoutSessionReady(checkoutSession, confirmBtn);
+
+    if (checkoutSession.checkoutStep !== 'ready_to_pay') {
       return;
     }
-    const newOrder = await window.API.orders.create(orderData);
-    if (appliedCheckoutCouponCodes.includes('YRUIFIRST')) {
-      await window.API.customers.markFirstPurchaseUsed(_getCheckoutUserId());
+
+    if (checkoutSession.paymentMethod === 'cod') {
+      await window.API.checkout.confirmCod(checkoutSession.orderId);
+      return;
     }
-    localStorage.setItem(CHECKOUT_LAST_ORDER_STORAGE_KEY, JSON.stringify(newOrder));
-    _completeOrder(newOrder);
+
+    await _startEcpayCheckoutPayment(checkoutSession);
   } catch (error) {
-    cancelBtn.disabled = false;
-    cancelBtn.textContent = '取消 Checkout';
-    _handleCheckoutError(error, document.getElementById('confirmOrderBtn'));
+    _handleCheckoutError(error, confirmBtn);
   }
 }
 
-async function _startEcpayCreditPayment(orderData) {
-  const newOrder = await window.API.orders.create(orderData);
-  const orderId = newOrder.orderId || newOrder.id;
-  if (!orderId) throw new Error('Order API did not return orderId.');
-
-  const payment = await window.API.payments.create(orderId, {
-    id: orderData.customerId,
-    email: orderData.buyerEmail,
-    name: orderData.buyerName,
-  });
+async function _startEcpayCheckoutPayment(checkoutSession) {
+  const payment = await window.API.checkout.createEcpayForm(checkoutSession.orderId);
   if (!payment?.formHtml) throw new Error('Payment API did not return formHtml.');
 
-  localStorage.setItem(CHECKOUT_LAST_ORDER_STORAGE_KEY, JSON.stringify({
-    ...newOrder,
+  sessionStorage.setItem(CHECKOUT_LAST_SESSION_STORAGE_KEY, JSON.stringify({
+    ...checkoutSession,
     merchantTradeNo: payment.merchantTradeNo,
   }));
   document.open();
   document.write(payment.formHtml);
   document.close();
+}
+
+function _initCheckoutSessionActions() {
+  document.getElementById('cancelCheckoutBtn')?.addEventListener('click', _handleCancelCheckout);
+  document.getElementById('returnToCartBtn')?.addEventListener('click', () => {
+    if (typeof window.openCartDrawer === 'function') {
+      window.openCartDrawer();
+      return;
+    }
+    window.location.href = 'products.html';
+  });
+}
+
+async function _handleCancelCheckout() {
+  const cancelBtn = document.getElementById('cancelCheckoutBtn');
+  const checkoutSession = _getStoredCheckoutSession();
+  const orderId = checkoutSession?.orderId || sessionStorage.getItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
+  if (!orderId || !cancelBtn) return;
+
+  cancelBtn.disabled = true;
+  cancelBtn.textContent = '取消中...';
+  try {
+    await window.API.checkout.cancelSession(orderId);
+    _renderCheckoutCancelledState();
+  } catch (error) {
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = '取消 Checkout';
+    _handleCheckoutError(error, document.getElementById('confirmOrderBtn'));
+  }
 }
 
 // Read checkout form field values.
