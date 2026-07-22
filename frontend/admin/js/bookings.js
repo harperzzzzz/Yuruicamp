@@ -1103,6 +1103,12 @@ function showBookingModal(booking) {
   if (typeof window.applyEditPermission === 'function') {
     window.applyEditPermission('bookings', $('#bookingDetailModal'));
   }
+  if (isBookingBackendEnabled()) {
+    $('#bkModalSellerNote')
+      .prop('disabled', true)
+      .attr('placeholder', '正式後端尚未提供賣家備註端點');
+    $('#btnSaveBookingSellerNote').addClass('d-none');
+  }
   updateBookingSellerNoteSaveButton();
 
   // 開啟 Modal
@@ -1114,6 +1120,10 @@ function showBookingModal(booking) {
  * Compare booking seller note with saved baseline; toggle save button
  */
 function updateBookingSellerNoteSaveButton() {
+  if (isBookingBackendEnabled()) {
+    $('#btnSaveBookingSellerNote').addClass('d-none');
+    return;
+  }
   if (typeof window.canEdit === 'function' && !window.canEdit('bookings')) {
     $('#btnSaveBookingSellerNote').addClass('d-none');
     return;

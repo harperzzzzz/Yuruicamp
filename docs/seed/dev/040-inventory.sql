@@ -1,5 +1,16 @@
--- 建立 Swagger Checkout 可使用的門市庫位與 V001 庫存。
--- V001 由 030-catalog.sql 建立，因此本檔必須在商品目錄之後載入。
+-- 來源：frontend/data/admin/products.legacy.json 的四個固定商城據點庫存。
+-- main 的 on_hand 已加回 060-orders.sql 將建立的 active 保留量；後端扣除保留後，可用量會與舊 JSON 一致。
+-- 商品 variant 由 030-catalog.sql 建立，因此本檔必須在商品目錄之後載入。
+-- 舊版只供 Swagger 的 DEV-STORE-MAIN／V001 fixture 已由完整四據點庫存取代；保留 location 供舊保留 FK 查閱，但停用並移除該庫存列。
+DELETE FROM public.inventory_stocks
+WHERE location_id = 'DEV-STORE-MAIN'
+  AND variant_id = 'V001';
+
+UPDATE public.inventory_locations
+SET active = false,
+    updated_at = now()
+WHERE id = 'DEV-STORE-MAIN';
+
 INSERT INTO public.inventory_locations (
     id,
     code,
@@ -9,32 +20,74 @@ INSERT INTO public.inventory_locations (
     name,
     active
 )
-VALUES (
-    'DEV-STORE-MAIN',
-    'DEV-STORE-MAIN',
-    'store',
-    'main',
-    NULL,
-    '開發測試主倉',
-    true
-)
+VALUES
+    ('main', 'main', 'store', 'main', NULL, '商店主倉', true),
+    ('branch-001', 'branch-001', 'store', 'branch', 'branch-001', '台北旗艦店', true),
+    ('branch-002', 'branch-002', 'store', 'branch', 'branch-002', '台中中港店', true),
+    ('branch-003', 'branch-003', 'store', 'branch', 'branch-003', '高雄左營店', true)
 ON CONFLICT (id) DO UPDATE SET
+    code = EXCLUDED.code,
+    inventory_domain = EXCLUDED.inventory_domain,
+    type = EXCLUDED.type,
+    branch_id = EXCLUDED.branch_id,
     name = EXCLUDED.name,
     active = EXCLUDED.active,
     updated_at = now();
 
-INSERT INTO public.inventory_stocks (
-    location_id,
-    variant_id,
-    on_hand_quantity,
-    inventory_domain
+WITH source_stock (variant_id, main_quantity, branch_001_quantity, branch_002_quantity, branch_003_quantity) AS (
+VALUES
+    ('V001', 2, 1, 0, 0),
+    ('V002', 1, 1, 0, 1),
+    ('V003', 2, 0, 0, 0),
+    ('V002-01', 7, 7, 4, 1),
+    ('V003-01', 1, 3, 1, 1),
+    ('V003-02', 1, 3, 1, 1),
+    ('V003-03', 5, 2, 0, 1),
+    ('V004-01', 5, 3, 2, 0),
+    ('V004-02', 1, 2, 1, 0),
+    ('V004-03', 0, 1, 0, 0),
+    ('V005-01', 5, 0, 2, 6),
+    ('V006-01', 3, 1, 2, 5),
+    ('V007-01', 1, 2, 2, 2),
+    ('V007-02', 2, 2, 2, 2),
+    ('V008-01', 1, 2, 2, 3),
+    ('V008-02', 4, 2, 3, 3),
+    ('V009-01', 7, 8, 8, 7),
+    ('V010-01', 1, 0, 0, 0),
+    ('V011-01', 8, 7, 2, 0),
+    ('V012-01', 4, 3, 3, 4),
+    ('V012-02', 3, 3, 3, 4),
+    ('V013-01', 5, 5, 2, 0),
+    ('V014-01', 5, 4, 4, 5),
+    ('V015-01', 3, 8, 0, 3),
+    ('V016-01', 8, 1, 8, 0),
+    ('V017-01', 4, 3, 1, 4),
+    ('V018-01', 5, 5, 6, 4),
+    ('V019-01', 7, 1, 3, 4),
+    ('V020-01', 7, 0, 8, 5),
+    ('V021-01', 7, 3, 5, 3),
+    ('V022-01', 2, 5, 6, 3),
+    ('V023-01', 6, 8, 8, 8),
+    ('V024-01', 5, 0, 8, 4),
+    ('V025-01', 8, 7, 3, 1),
+    ('V026-01', 2, 1, 2, 4),
+    ('V027-01', 7, 0, 6, 7),
+    ('V028-01', 6, 6, 8, 7),
+    ('V029-01', 6, 5, 6, 1),
+    ('V030-01', 1, 0, 0, 0)
+), normalized_stock AS (
+    SELECT source_stock.variant_id, location.id AS location_id, location.quantity
+    FROM source_stock
+    CROSS JOIN LATERAL (VALUES
+        ('main', source_stock.main_quantity),
+        ('branch-001', source_stock.branch_001_quantity),
+        ('branch-002', source_stock.branch_002_quantity),
+        ('branch-003', source_stock.branch_003_quantity)
+    ) AS location(id, quantity)
 )
-VALUES (
-    'DEV-STORE-MAIN',
-    'V001',
-    10,
-    'store'
-)
+INSERT INTO public.inventory_stocks (location_id, variant_id, on_hand_quantity, inventory_domain)
+SELECT location_id, variant_id, quantity, 'store'
+FROM normalized_stock
 ON CONFLICT (location_id, variant_id) DO UPDATE SET
     on_hand_quantity = EXCLUDED.on_hand_quantity,
     updated_at = now();
@@ -194,7 +247,7 @@ ON CONFLICT (id) DO UPDATE SET
     active = EXCLUDED.active,
     updated_at = now();
 
--- rental-skus.json 的 37 個規格 × 9 個固定租借庫位。
+-- rental-skus.json 的 37 個規格 × 9 個固定租借庫位；9 筆已對齊 active 保留的最大區間重疊需求。
 INSERT INTO public.rental_sku_variant_stocks (
     location_id,
     rental_sku_variant_id,
@@ -202,7 +255,7 @@ INSERT INTO public.rental_sku_variant_stocks (
 )
 VALUES
     ('RENTAL-C001', 'RSV-R001-01', 0),
-    ('RENTAL-C002', 'RSV-R001-01', 0),
+    ('RENTAL-C002', 'RSV-R001-01', 2),
     ('RENTAL-C003', 'RSV-R001-01', 1),
     ('RENTAL-C004', 'RSV-R001-01', 2),
     ('RENTAL-C005', 'RSV-R001-01', 1),
@@ -268,28 +321,28 @@ VALUES
     ('RENTAL-C002', 'RSV-R005-01', 1),
     ('RENTAL-C003', 'RSV-R005-01', 1),
     ('RENTAL-C004', 'RSV-R005-01', 1),
-    ('RENTAL-C005', 'RSV-R005-01', 1),
+    ('RENTAL-C005', 'RSV-R005-01', 2),
     ('RENTAL-C006', 'RSV-R005-01', 2),
     ('RENTAL-C007', 'RSV-R005-01', 0),
-    ('RENTAL-C008', 'RSV-R005-01', 0),
+    ('RENTAL-C008', 'RSV-R005-01', 2),
     ('RENTAL-C009', 'RSV-R005-01', 0),
     ('RENTAL-C001', 'RSV-R005-02', 0),
     ('RENTAL-C002', 'RSV-R005-02', 0),
     ('RENTAL-C003', 'RSV-R005-02', 1),
     ('RENTAL-C004', 'RSV-R005-02', 1),
-    ('RENTAL-C005', 'RSV-R005-02', 0),
+    ('RENTAL-C005', 'RSV-R005-02', 1),
     ('RENTAL-C006', 'RSV-R005-02', 1),
     ('RENTAL-C007', 'RSV-R005-02', 0),
-    ('RENTAL-C008', 'RSV-R005-02', 0),
+    ('RENTAL-C008', 'RSV-R005-02', 2),
     ('RENTAL-C009', 'RSV-R005-02', 0),
     ('RENTAL-C001', 'RSV-R005-03', 0),
     ('RENTAL-C002', 'RSV-R005-03', 1),
     ('RENTAL-C003', 'RSV-R005-03', 1),
     ('RENTAL-C004', 'RSV-R005-03', 1),
-    ('RENTAL-C005', 'RSV-R005-03', 1),
+    ('RENTAL-C005', 'RSV-R005-03', 3),
     ('RENTAL-C006', 'RSV-R005-03', 1),
     ('RENTAL-C007', 'RSV-R005-03', 1),
-    ('RENTAL-C008', 'RSV-R005-03', 1),
+    ('RENTAL-C008', 'RSV-R005-03', 2),
     ('RENTAL-C009', 'RSV-R005-03', 1),
     ('RENTAL-C001', 'RSV-R006-01', 0),
     ('RENTAL-C002', 'RSV-R006-01', 4),
@@ -306,7 +359,7 @@ VALUES
     ('RENTAL-C004', 'RSV-R007-01', 4),
     ('RENTAL-C005', 'RSV-R007-01', 2),
     ('RENTAL-C006', 'RSV-R007-01', 1),
-    ('RENTAL-C007', 'RSV-R007-01', 1),
+    ('RENTAL-C007', 'RSV-R007-01', 2),
     ('RENTAL-C008', 'RSV-R007-01', 1),
     ('RENTAL-C009', 'RSV-R007-01', 1),
     ('RENTAL-C001', 'RSV-R011-01', 0),
@@ -353,7 +406,7 @@ VALUES
     ('RENTAL-C006', 'RSV-R008-01', 1),
     ('RENTAL-C007', 'RSV-R008-01', 1),
     ('RENTAL-C008', 'RSV-R008-01', 1),
-    ('RENTAL-C009', 'RSV-R008-01', 1),
+    ('RENTAL-C009', 'RSV-R008-01', 4),
     ('RENTAL-C001', 'RSV-R003-01', 0),
     ('RENTAL-C002', 'RSV-R003-01', 1),
     ('RENTAL-C003', 'RSV-R003-01', 3),

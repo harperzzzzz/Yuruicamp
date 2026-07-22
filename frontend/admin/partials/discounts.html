@@ -4,8 +4,8 @@
      折扣券生成邏輯與列表渲染由 discounts.js 處理
 
      欄位對齊 data/promotions/coupons.json 與 DB coupons：
-       code, discount, type, minOrder(min_order), quantity, used,
-       startDate(start_date), endDate(end_date), status, category
+       code, discount, type, minOrder(minimum_amount), quantity, used,
+       startDate(valid_from), endDate(valid_until), status, category
 -->
 
 <!-- ===== 新增優惠券操作區 ===== -->
@@ -13,7 +13,7 @@
   <div class="card-body">
     <div class="row g-3 align-items-end" id="addCouponForm">
 
-      <!-- ===== 第一列：優惠碼 / 折扣類型 / 最低消費 ===== -->
+      <!-- ===== 第一列：優惠碼 / 名稱 / 類別 ===== -->
 
       <!-- 優惠碼 + 隨機生成按鈕 -->
       <div class="col-md-4">
@@ -29,6 +29,26 @@
           </button>
         </div>
       </div>
+
+      <!-- 名稱會隨優惠碼一起顯示，方便辨識生日券與首購券。 -->
+      <div class="col-md-4">
+        <label class="form-label small text-muted" for="newCouponName">
+          優惠券名稱 <span class="text-danger">*</span>
+        </label>
+        <input type="text" class="form-control" id="newCouponName"
+               placeholder="例：悠露營活動折抵 200" maxlength="120">
+      </div>
+
+      <div class="col-md-4">
+        <label class="form-label small text-muted" for="newCouponCategory">優惠券類別</label>
+        <select class="form-select" id="newCouponCategory">
+          <option value="promotion">活動券</option>
+          <option value="birthday">生日券</option>
+          <option value="firstPurchase">首購券</option>
+        </select>
+      </div>
+
+      <!-- ===== 第二列：折扣 / 最低消費 / 發行數量 ===== -->
 
       <!-- 折扣類型 Switch + 輸入欄（type: fixed | percent，對齊 schema coupon_type） -->
       <div class="col-md-4">
@@ -47,7 +67,7 @@
                placeholder="例：200" min="1" step="1">
       </div>
 
-      <!-- 最低消費（假資料 minOrder / DB min_order；0 = 無門檻） -->
+      <!-- 最低消費（假資料 minOrder / DB minimum_amount；0 = 無門檻） -->
       <div class="col-md-4">
         <label class="form-label small text-muted" for="newCouponMinOrder">
           最低消費 (NT$)
@@ -56,7 +76,16 @@
                placeholder="例：1000（0 = 無門檻）" min="0" step="1" value="0">
       </div>
 
-      <!-- ===== 第二列：有效期限 + 發行數量 ===== -->
+      <!-- 發行數量與 DB issue_quantity 對齊。 -->
+      <div class="col-md-4">
+        <label class="form-label small text-muted" for="newCouponQty">
+          發行數量
+        </label>
+        <input type="number" class="form-control" id="newCouponQty"
+               placeholder="例：50" min="1" max="999999" value="50">
+      </div>
+
+      <!-- ===== 第三列：有效期限 + 新增按鈕 ===== -->
 
       <!-- 起始時間（含「有效期限」label） -->
       <div class="col-md-4">
@@ -78,16 +107,7 @@
         </div>
       </div>
 
-      <!-- 發行數量（與日期同一列） -->
-      <div class="col-md-4">
-        <label class="form-label small text-muted" for="newCouponQty">
-          發行數量
-        </label>
-        <input type="number" class="form-control" id="newCouponQty"
-               placeholder="例：50" min="1" max="999" value="50">
-      </div>
-
-      <!-- ===== 第三列：新增按鈕靠右 ===== -->
+      <!-- 新增按鈕靠右，正式模式成功後才清除表單。 -->
       <div class="col-auto ms-auto">
         <button class="btn px-4 text-white fw-semibold" id="submitAddCoupon"
                 style="background-color: var(--admin-brand-accent);">
@@ -115,7 +135,7 @@
             <th>折扣</th>
             <th>最低消費</th>
             <th class="text-center">總數量</th>
-            <th class="text-center">已使用</th>
+            <th class="text-center">已領取</th>
             <th class="text-center">剩餘</th>
             <th>開始時間</th>
             <th>結束時間</th>

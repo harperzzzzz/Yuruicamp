@@ -176,15 +176,25 @@
     }
   }
 
+  /**
+   * 目前登入會員：優先 YuruiAuth（Firebase session 後寫入的真實 customerId）
+   * Never invent demo id U001 when only isLoggedIn flag exists.
+   */
   function loginUser() {
-    if (window.AppState && window.AppState.isLoggedIn && window.AppState.currentUser)
-      return window.AppState.currentUser;
+    if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
+      var authUser = window.YuruiAuth.getUser();
+      if (authUser && authUser.id) return authUser;
+    }
+    if (window.AppState && window.AppState.isLoggedIn && window.AppState.currentUser) {
+      var appUser = window.AppState.currentUser;
+      if (appUser && appUser.id) return appUser;
+    }
     var keys = [cfg.authStorageKey, cfg.fallbackAuthStorageKey, 'currentUser', 'yuruiUser'].filter(Boolean);
     for (var i = 0; i < keys.length; i++) {
       var u = parse(localStorage.getItem(keys[i]), null);
-      if (u) return u;
+      if (u && u.id) return u;
     }
-    return localStorage.getItem('isLoggedIn') === 'true' ? { id: 'U001' } : null;
+    return null;
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function loggedIn() {
@@ -207,9 +217,10 @@
       : { value: normalized, label: normalized, cls: 'isPending' };
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
+  /** @returns {string|null} 真實 customerId；未登入為 null */
   function currentMemberId() {
-    var u = loginUser() || {};
-    return u.id || 'U001';
+    var u = loginUser();
+    return u && u.id ? String(u.id) : null;
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function pointOf(order) {
@@ -1074,7 +1085,7 @@
     }
     state.dataLoading = true;
     var uid = currentMemberId();
-    if (!window.API) {
+    if (!uid || !window.API) {
       state.user = null;
       state.orders = [];
       state.rentalOrders = [];

@@ -2011,6 +2011,12 @@ function findAdminRentalById(rentalId) {
 // 並應觸發 listing 同步（等同 npm run sync:listings：rental-skus → camp-equipment.stock）。
 // Source of truth: rental-skus. After backend write, sync derived camp-equipment.stock.
 function upsertAdminRentalCache(rentalItem) {
+  if (isAdminProductBackendEnabled()) {
+    AdminAPI.products.updateRental(rentalItem && rentalItem.id, rentalItem).catch(function (err) {
+      AdminAPI.handleError(err, '正式後端尚未提供租借商品寫入');
+    });
+    return null;
+  }
   var normalizedItem = normalizeRentalItem(rentalItem);
   var index = adminRentalsCache.findIndex(function (item) {
     return item.id === normalizedItem.id;

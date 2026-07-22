@@ -18,7 +18,7 @@
       "pricePerDayHoliday": 800,
       "discount": 0
     },
-    "stock": 0
+    "stock": 2
   },
   {
     "equipmentId": "E011",
@@ -165,7 +165,7 @@
       "pricePerDayHoliday": 600,
       "discount": 0
     },
-    "stock": 1
+    "stock": 2
   },
   {
     "equipmentId": "E018",
@@ -186,7 +186,7 @@
       "pricePerDayHoliday": 600,
       "discount": 0
     },
-    "stock": 0
+    "stock": 1
   },
   {
     "equipmentId": "E019",
@@ -207,7 +207,7 @@
       "pricePerDayHoliday": 600,
       "discount": 0
     },
-    "stock": 1
+    "stock": 3
   },
   {
     "equipmentId": "E020",
@@ -249,7 +249,7 @@
       "pricePerDayHoliday": 400,
       "discount": 0
     },
-    "stock": 1
+    "stock": 2
   },
   {
     "equipmentId": "E022",
@@ -270,7 +270,7 @@
       "pricePerDayHoliday": 700,
       "discount": 0
     },
-    "stock": 1
+    "stock": 4
   },
   {
     "equipmentId": "E023",
@@ -291,7 +291,7 @@
       "pricePerDayHoliday": 450,
       "discount": 0
     },
-    "stock": 0
+    "stock": 2
   },
   {
     "equipmentId": "E024",
@@ -312,7 +312,7 @@
       "pricePerDayHoliday": 450,
       "discount": 0
     },
-    "stock": 0
+    "stock": 2
   },
   {
     "equipmentId": "E025",
@@ -333,6 +333,6 @@
       "pricePerDayHoliday": 450,
       "discount": 0
     },
-    "stock": 1
+    "stock": 2
   }
 ]

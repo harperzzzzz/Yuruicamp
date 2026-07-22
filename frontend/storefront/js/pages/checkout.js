@@ -8,7 +8,6 @@ let checkoutShippingUi = null;
 let checkoutCreatePromise = null;
 let checkoutCountdownTimer = null;
 
-const DEFAULT_CHECKOUT_USER_ID = 'U001';
 const STORE_PICKUP_ADDRESS = '台北門市';
 const CHECKOUT_LAST_SESSION_STORAGE_KEY = 'lastCheckoutSession';
 const CHECKOUT_IDEMPOTENCY_KEY = 'checkoutIdempotencyKey';
@@ -158,10 +157,28 @@ function _isBackendCheckoutMode() {
   return window.AppConfig?.USE_MOCK_API === false;
 }
 
-// Get the current checkout user id.
+/**
+ * 取得目前登入會員（優先 YuruiAuth，其次 AppState）。
+ * Resolve logged-in member; never invent a demo id like U001.
+ * @returns {object|null}
+ */
+function _resolveCheckoutUser() {
+  if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
+    const authUser = window.YuruiAuth.getUser();
+    if (authUser && authUser.id) return authUser;
+  }
+  const currentUser = window.AppState?.currentUser;
+  if (currentUser && currentUser.id) return currentUser;
+  return null;
+}
+
+/**
+ * 真實 customerId；未登入回傳 null（不再 fallback U001）
+ * @returns {string|null}
+ */
 function _getCheckoutUserId() {
-  const currentUser = window.AppState?.currentUser || {};
-  return currentUser.id || DEFAULT_CHECKOUT_USER_ID;
+  const user = _resolveCheckoutUser();
+  return user && user.id ? String(user.id) : null;
 }
 
 // Load shared coupon catalog for checkout.
@@ -415,10 +432,17 @@ async function _applyCheckoutCouponCode({ showToast = true } = {}) {
     return;
   }
 
+  const customerId = _getCheckoutUserId();
+  if (!customerId) {
+    _showCouponMessage('請先登入後再使用優惠券', 'error');
+    window.showToast?.('請先登入後再使用優惠券', 'info');
+    window.openModal?.('loginModal');
+    return;
+  }
+
   const code = couponInput.value.trim().toUpperCase();
   const coupons = await _loadCheckoutCouponCatalog();
   const subtotal = window.calculateCartTotal(window.AppState.cart);
-  const customerId = _getCheckoutUserId();
   const result = await window.YuruiCoupons.validateCoupon(coupons, code, subtotal, customerId);
 
   if (!result.valid) {
@@ -476,6 +500,13 @@ function _initConfirmOrderBtn() {
 
 // 驗證表單後建立 Session；草稿則 PATCH 補齊資料。
 async function _handleConfirmOrder(confirmBtn) {
+  // 後端 Checkout 依 Bearer 辨識會員；未登入不要送出
+  if (!_getCheckoutUserId()) {
+    window.showToast?.('請先登入後再結帳', 'info');
+    window.openModal?.('loginModal');
+    return;
+  }
+
   const formData = _readCheckoutFormData();
   if (!_validateCheckoutForm(formData)) return;
   _setConfirmButtonLoading(confirmBtn, true);

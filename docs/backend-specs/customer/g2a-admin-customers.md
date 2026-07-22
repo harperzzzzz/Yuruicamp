@@ -18,6 +18,8 @@ Admin Firebase Token
 
 `totalSpent`、`tier`、`tierName` 來自 `customer_tier_summary`。無消費會員以 LEFT JOIN 補為 `0.00`、`explorer`、`探險家`。
 
+開發展示用的偏好、預設地址與會員標籤已由 `docs/seed/dev/020-identity.sql` 建立；這些是唯讀周邊資料，不是訂單／預訂成立條件。固定 ID 與 Mock 投影規則以 [`docs/seed/README.md`](../../seed/README.md) 為準。
+
 ## 寫入規則
 
 - PATCH 只允許姓名、電話、生日與點數。

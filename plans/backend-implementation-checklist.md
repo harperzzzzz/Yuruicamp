@@ -24,7 +24,7 @@
 | **D**    | Payment（ECPay + COD）                       | ⬜（契約已鎖）                                      |
 | **E**    | Booking（營位 + 租借）                       | ✅ E-0～E-7 已完成；Payment Confirmation 延後至線 D |
 | **F**    | Coupon 三種規則                              | ⬜（契約已鎖）                                      |
-| **G**    | Admin 細 RBAC + 後台 CRUD                    | ⬜（契約已鎖）                                      |
+| **G**    | Admin 細 RBAC + 後台 CRUD                    | ✅ G-1～G-6 正式接線與整合驗收完成                  |
 | **H**    | calendar／文章／評價                         | ⬜（可延後；契約未寫）                              |
 | **I**    | 共用 REST 基礎 + 商城 Checkout 前端接線      | 🔄 I-2a～I-6 已完成；I-1、I-7～I-8 待完成           |
 | **J**    | GCP／Flyway／ADR 收尾                        | ⬜                                                  |
@@ -85,7 +85,7 @@
 - [x] B-3：非空分頁、跨頁無重複／遺漏、`id`／`name` 雙向 PostgreSQL 排序、參數錯誤 Envelope、超頁 meta 與實際 Controller 驗收
 
 > B-3 驗收細節與執行指令見 [`b3-product-pagination-validation.md`](../docs/backend-specs/catalog/b3-product-pagination-validation.md)。
-> B-4／B-5b／B-7 流程見 [`b4-b5b-b7-catalog-public-read.md`](../docs/backend-specs/catalog/b4-b5b-b7-catalog-public-read.md)，Swagger 見 [`b-catalog-public-swagger.md`](../docs/backend-specs/test/b-catalog-public-swagger.md)。
+> B-4／B-5b／B-7 流程見 [`b4-b5b-b7-catalog-public-read.md`](../docs/backend-specs/catalog/b4-b5b-b7-catalog-public-read.md)，人工驗證見 [`public-member-api-validation.md`](../docs/backend-specs/test/public-member-api-validation.md)。
 
 ---
 
@@ -137,7 +137,7 @@
 - [x] F-3 與 DB Trigger 不打架（Service 管資格與折扣；Trigger 僅原子配置名額）
 - [x] F-4 測試：名額、重複領券、售罄、資格、後端折扣快照與取消規則通過 PostgreSQL 驗證
 
-> 線 F 的領券與商城套券已完成；F-2 要完整勾選前，需先決定 Booking Coupon 關聯 Schema。付款成功或 COD 成立後將 claim 改為 `consumed`，由線 D 在同一付款交易呼叫。流程見 [`coupon/README.md`](../docs/backend-specs/coupon/README.md)，Swagger 見 [`f-coupon-swagger.md`](../docs/backend-specs/test/f-coupon-swagger.md)。
+> 線 F 的領券與商城套券已完成；F-2 要完整勾選前，需先決定 Booking Coupon 關聯 Schema。付款成功或 COD 成立後將 claim 改為 `consumed`，由線 D 在同一付款交易呼叫。流程見 [`coupon/README.md`](../docs/backend-specs/coupon/README.md)，人工驗證見 [`public-member-api-validation.md`](../docs/backend-specs/test/public-member-api-validation.md)。
 
 ---
 
@@ -148,18 +148,26 @@
   - [x] G-2a Customers（PostgreSQL 整合測試通過；列表、詳情、更新、停權／恢復、RBAC 與前端雙模式完成）
   - [x] G-2b Orders／Bookings（PostgreSQL 整合測試與 Swagger 驗收通過；查詢、詳情、履約狀態、RBAC 與前端雙模式完成）
   - [x] G-2c Products（PostgreSQL 整合測試通過；正規化商品／規格／圖片交易、唯讀庫存、RBAC 與前端雙模式完成）
-- [ ] G-3 庫存異動
-- [ ] G-4 優惠券／營區關閉日
+- [x] G-3 庫存異動（商城／租借 draft、明細、過帳、作廢、悲觀鎖、負庫存防護、冪等、RBAC 與前端雙模式完成）
+- [x] G-4 優惠券／營區關閉日（CRUD、安全刪除、RBAC、前端 backend-first 與 PostgreSQL 整合驗收完成）
 - [x] G-5 管理員建立／列表／詳情／更新與個別權限覆寫 API（PostgreSQL 整合驗收通過）
-- [ ] G-6 `AdminAPI.configure({ useBackend: true })`
+- [x] G-6 正式 Admin Runtime（Firebase Session、有效權限、Token 刷新、readiness gate 與全站 Backend 切換）
 
-> G-1／G-5 已通過 PostgreSQL 整合測試（2 項、0 失敗、0 錯誤、0 跳過）並完成權限頁雙模式接線；全站 AdminAPI 正式切換仍由 G-6 負責。流程見 [`admin/g1-g5-admin-rbac.md`](../docs/backend-specs/admin/g1-g5-admin-rbac.md)，Swagger 見 [`g1-g5-admin-rbac-swagger.md`](../docs/backend-specs/test/g1-g5-admin-rbac-swagger.md)。
+> G-6 由 `AppConfig.ADMIN.USE_BACKEND` 與 `AdminRuntime` 統一啟動，不再依賴 DevTools 手動 configure。Dashboard 每次載入重新建立 Admin Session 與有效權限；Reviews、標籤池、seller note、租借商品寫入等缺少正式端點的功能由 readiness gate 停用。流程見 [`admin/g6-admin-runtime.md`](../docs/backend-specs/admin/g6-admin-runtime.md)，前端驗收見 [`admin-validation.md`](../docs/frontend-specs/test/admin-validation.md)。
 
-> G-2a 已完成後台 Customers API、RBAC、兩階段列表查詢、前端 Mock／Backend 分流與 PostgreSQL 整合驗收。流程見 [`customer/g2a-admin-customers.md`](../docs/backend-specs/customer/g2a-admin-customers.md)，Swagger 見 [`g2a-admin-customers-swagger.md`](../docs/backend-specs/test/g2a-admin-customers-swagger.md)。
+> G 線最終整合於 2026-07-22 同批執行六個 PostgreSQL 類別，共 14 tests、0 failure、0 error、0 skipped；未納入現行契約的 Reviews、標籤池、seller note 與租借商品寫入屬後續擴充，不以假端點冒充 G-6 完成。
 
-> G-2b 已完成 Admin Orders／Bookings 查詢、履約狀態命令、RBAC、前端雙模式、`AdminFulfillmentPostgreSqlIntegrationTest` 與 Swagger 驗收。流程見 [`order/g2b-admin-orders.md`](../docs/backend-specs/order/g2b-admin-orders.md) 與 [`booking/g2b-admin-bookings.md`](../docs/backend-specs/booking/g2b-admin-bookings.md)，人工流程見 [`g2b-admin-orders-bookings-swagger.md`](../docs/backend-specs/test/g2b-admin-orders-bookings-swagger.md)。
+> G-1／G-5 已通過 PostgreSQL 整合測試並完成權限頁雙模式接線；全站 AdminAPI 正式切換仍由 G-6 負責。流程見 [`admin/g1-g5-admin-rbac.md`](../docs/backend-specs/admin/g1-g5-admin-rbac.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。
 
-> G-2c 已完成 Admin Products 分頁／詳情／lookup、商品／規格／圖片交易同步、唯讀庫存、上下架、RBAC 與前端乾淨 Request。流程見 [`catalog/g2c-admin-products.md`](../docs/backend-specs/catalog/g2c-admin-products.md)，人工流程見 [`g2c-admin-products-swagger.md`](../docs/backend-specs/test/g2c-admin-products-swagger.md)。庫存異動仍由 G-3 負責。
+> G-2a 已完成後台 Customers API、RBAC、兩階段列表查詢、前端 Mock／Backend 分流與 PostgreSQL 整合驗收。流程見 [`customer/g2a-admin-customers.md`](../docs/backend-specs/customer/g2a-admin-customers.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。
+
+> G-2b 已完成 Admin Orders／Bookings 查詢、履約狀態命令、RBAC、前端雙模式與 PostgreSQL 整合測試。流程見 [`order/g2b-admin-orders.md`](../docs/backend-specs/order/g2b-admin-orders.md) 與 [`booking/g2b-admin-bookings.md`](../docs/backend-specs/booking/g2b-admin-bookings.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。
+
+> G-2c 已完成 Admin Products 分頁／詳情／lookup、商品／規格／圖片交易同步、唯讀庫存、上下架、RBAC 與前端乾淨 Request。流程見 [`catalog/g2c-admin-products.md`](../docs/backend-specs/catalog/g2c-admin-products.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。庫存異動仍由 G-3 負責。
+
+> G-3 已完成商城與租借同領域的入庫、出庫／損耗、調撥草稿與原子過帳；posted／cancelled 不可變、重複過帳冪等、固定順序悲觀鎖與併發驗收完成。流程見 [`inventory/g3-admin-inventory-movements.md`](../docs/backend-specs/inventory/g3-admin-inventory-movements.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。跨領域商店轉租借另立契約。
+
+> G-4 已完成 Admin Coupons 與 Campground Closures 列表／詳情／建立／更新／刪除、既有領取優惠券安全保護、建立者紀錄、細 RBAC 與前端 Backend 成功後更新。流程見 [`coupon/g4-admin-coupons.md`](../docs/backend-specs/coupon/g4-admin-coupons.md)、[`booking/g4-admin-campground-closures.md`](../docs/backend-specs/booking/g4-admin-campground-closures.md)，人工驗證見 [`admin-api-validation.md`](../docs/backend-specs/test/admin-api-validation.md)。
 
 ---
 
@@ -174,6 +182,8 @@
 ## 線 I — 共用 REST 基礎 + 商城 Checkout 前端接線
 
 - [ ] I-1 全域 Mock／Backend 模式基線（不能只看 `USE_MOCK_API=false`；各目標 API client 必須實際依設定分流）
+
+> 2026-07-22 檢查：會員預訂已依 Backend 模式呼叫 `/api/booking/bookings`；會員訂單 `API.orders.getAll/getByCustomerId` 仍固定讀 Mock，且 `/api/me/orders` 目前回 HTTP 500，因此 I-1 維持未完成。
 - [x] I-2a Firebase／dev Token provider（`AppAuth.getIdToken()`；未在頁面寫死 Token）
 - [x] I-2b 共用 REST request helper（`ApiClient._restRequest()`；Bearer、Envelope、meta 與錯誤處理）
 - [x] I-3a 新增 `API.checkout` facade（六個契約方法、Bearer、orderId 編碼與無重複 `/api` 路徑測試通過）

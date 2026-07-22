@@ -108,6 +108,14 @@
     };
   }
 
+  // 公開 API 使用 closureType／weekday，既有月曆 ViewModel 使用 type／dayOfWeek。
+  function normalizeClosure(closure) {
+    return Object.assign({}, closure, {
+      type: closure.type || closure.closureType,
+      dayOfWeek: closure.dayOfWeek == null ? closure.weekday : closure.dayOfWeek,
+    });
+  }
+
   // 會員中心仍使用既有顯示模型，資料內容則完全取自 Backend 快照。
   function normalizeBooking(booking) {
     if (booking.bookingInfo) {
@@ -324,19 +332,23 @@
 
     getClosures: function () {
       if (!useMockApi()) {
-        return restRequest('/booking/closures', { auth: 'none' });
+        return restRequest('/booking/closures', { auth: 'none' }).then(function (list) {
+          return (list || []).map(normalizeClosure);
+        });
       }
 
       var merge = global.MockStorageMerge;
       return fetchJson(path('campgroundClosures')).then(function (seed) {
         if (!merge) {
-          return seed;
+          return (seed || []).map(normalizeClosure);
         }
 
         var overlay = merge.readJsonStorage(MOCK_CLOSURES_KEY, []);
-        return merge.mergeById(seed, overlay, 'id').filter(function (closure) {
-          return !closure._deleted;
-        });
+        return merge.mergeById(seed, overlay, 'id')
+          .filter(function (closure) {
+            return !closure._deleted;
+          })
+          .map(normalizeClosure);
       });
     },
 

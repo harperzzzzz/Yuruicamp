@@ -9,8 +9,9 @@
  *  6. Toast 工廠函式（供所有模組呼叫）
  *
  *  API 持久化：各模組透過 admin/js/admin-api.js 預留 REST 接口。
- *  後端就緒後在登入成功處或此處呼叫：
- *    AdminAPI.configure({ useBackend: true, baseUrl: '/api/admin' });
+ *  Firebase 後台登入後會還原 AppAuth；各模組若要打真後端：
+ *    AdminAPI.configure({ useBackend: true });
+ *  API 持久化：AdminRuntime 依 AppConfig 啟用正式 API、刷新 Session 並套用 readiness。
  */
 
 /**
@@ -89,6 +90,7 @@ function isCurrentSuperAdmin() {
  * Check view permission for a section
  */
 window.canView = function (section) {
+  if (window.AdminRuntime && !window.AdminRuntime.isSectionReady(section)) return false;
   if (isCurrentSuperAdmin()) return true;
   var perms = window.getAdminPermissions();
   return !!(perms[section] && perms[section].view);
@@ -113,10 +115,19 @@ window.applySidebarPermissions = function () {
     var section = $(this).data('section');
     if (!section) return;
 
-    if (window.canView(section)) {
-      $(this).removeClass('disabled');
+    var readiness = window.AdminRuntime && window.AdminRuntime.getReadiness(section);
+    if (window.AdminRuntime && !window.AdminRuntime.isSectionReady(section)) {
+      $(this)
+        .addClass('disabled backend-not-ready')
+        .removeClass('active')
+        .attr('title', readiness.note);
+    } else if (window.canView(section)) {
+      $(this).removeClass('disabled backend-not-ready').removeAttr('title');
     } else {
-      $(this).addClass('disabled').removeClass('active');
+      $(this)
+        .addClass('disabled')
+        .removeClass('active backend-not-ready')
+        .attr('title', '目前帳號沒有查看權限');
     }
   });
 };
@@ -236,8 +247,16 @@ function loadDefaultHomeSection() {
   loadSection(defaultSection);
 }
 
-/** 登出時清除全部 session 資料（5 個 key） */
+/** 登出時清除全部 session 資料（相容舊 5 key + AdminAuth 輔助 key） */
 function clearAdminSession() {
+  if (window.AdminAuth && typeof window.AdminAuth.clearAdminSessionStorage === 'function') {
+    window.AdminAuth.clearAdminSessionStorage();
+    return;
+  }
+  if (window.AdminRuntime && typeof window.AdminRuntime.clearSession === 'function') {
+    window.AdminRuntime.clearSession();
+    return;
+  }
   sessionStorage.removeItem('adminLoggedIn');
   sessionStorage.removeItem('adminId');
   sessionStorage.removeItem('adminName');
@@ -245,18 +264,32 @@ function clearAdminSession() {
   sessionStorage.removeItem('adminPermissions');
 }
 
-$(document).ready(function () {
+$(document).ready(async function () {
 
   // ==========================================================
   // === 1. Auth 守衛：驗證是否已登入 ===
   // ==========================================================
-  // 說明：進入 dashboard.html 時，先檢查 sessionStorage 是否有登入標記
-  //       若未登入則踢回 login.html
-  // API 預留：實際串接後，改為向後端驗證 token 是否有效
-  const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
+  // 正式模式重新驗證 Firebase、管理員白名單與有效權限；Mock 才讀舊 session flag。
+  var isLoggedIn = false;
+  try {
+    isLoggedIn = window.AdminRuntime
+      ? await window.AdminRuntime.initializeDashboard()
+      : sessionStorage.getItem('adminLoggedIn') === 'true';
+  } catch (error) {
+    if (window.AdminRuntime) window.AdminRuntime.clearSession();
+    sessionStorage.setItem(
+      'adminLoginMessage',
+      (error && error.message) || '管理員 Session 驗證失敗，請重新登入。'
+    );
+  }
   if (!isLoggedIn) {
-    window.location.href = 'login.html';
-    return; // 停止後續 JS 執行
+    window.location.href = '/admin/login.html';
+    return;
+  }
+
+  // Firebase 登入後還原 AppAuth，之後 AdminAPI.useBackend=true 才能帶 Bearer
+  if (window.AdminAuth && typeof window.AdminAuth.restoreAppAuthIfNeeded === 'function') {
+    window.AdminAuth.restoreAppAuthIfNeeded();
   }
 
   // 顯示管理員名稱（從 sessionStorage 取出）
@@ -267,6 +300,10 @@ $(document).ready(function () {
   // 頭像縮寫（取名字第一個字）
   const initial = adminName.charAt(0).toUpperCase();
   $('#adminAvatarBtn').text(initial);
+  $('#adminRuntimeBadge')
+    .text(window.AdminRuntime && window.AdminRuntime.isBackendMode() ? 'Backend' : 'Mock')
+    .toggleClass('text-bg-success', !!(window.AdminRuntime && window.AdminRuntime.isBackendMode()))
+    .toggleClass('text-bg-secondary', !(window.AdminRuntime && window.AdminRuntime.isBackendMode()));
 
   // ==========================================================
   // === 2. Sidebar 權限 + 預設載入第一個可查看頁面 ===
@@ -309,14 +346,28 @@ $(document).ready(function () {
   // === 4. 登出邏輯（Sidebar 底部 + Topbar 下拉選單）===
   // ==========================================================
   // 說明：點擊任意登出按鈕，清除 sessionStorage 並跳回登入頁
-  $(document).on('click', '#logoutBtn, #logoutBtnTopbar, .sidebar-logout-mobile', function (e) {
+  $(document).on('click', '#logoutBtn, #logoutBtnTopbar, .sidebar-logout-mobile', async function (e) {
     e.preventDefault();
 
-    // 清除登入狀態（5 個 sessionStorage key）
-    clearAdminSession();
+    var goLogin = function () {
+      window.location.href = '/admin/login.html';
+    };
 
-    // 跳回登入頁
-    window.location.href = 'login.html';
+    // 優先使用 AdminAuth.logout（會處理 Firebase signOut + 清 session）
+    if (window.AdminAuth && typeof window.AdminAuth.logout === 'function') {
+      window.AdminAuth.logout().finally(goLogin);
+      return;
+    }
+
+    // 若有 AdminRuntime（舊流程），則使用其 signOut
+    if (window.AdminRuntime && typeof window.AdminRuntime.signOut === 'function') {
+      await window.AdminRuntime.signOut();
+      goLogin();
+      return;
+    }
+
+    clearAdminSession();
+    goLogin();
   });
 
 }); // end $(document).ready()
@@ -338,6 +389,11 @@ $(document).ready(function () {
  * 後端回傳動態 HTML 即可，其餘邏輯完全不變。
  */
 function loadSection(sectionName) {
+  if (window.AdminRuntime && !window.AdminRuntime.isSectionReady(sectionName)) {
+    var readiness = window.AdminRuntime.getReadiness(sectionName);
+    window.showAdminToast(readiness.note, 'warning');
+    return;
+  }
   // 1. 查看權限守衛：無 view 權限則阻擋
   if (!window.canView(sectionName)) {
     window.showAdminToast('您沒有「' + getSectionTitle(sectionName) + '」的查看權限', 'error');

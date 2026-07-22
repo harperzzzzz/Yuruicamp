@@ -11,8 +11,8 @@
     "photos": [],
     "createdAt": "2026-03-05 10:20:00",
     "productName": "Coleman 六人帳篷",
-    "variantId": "v-P001-0",
-    "sku": "v-P001-0"
+    "variantId": "V001",
+    "sku": "TENT-OLIVE"
   },
   {
     "id": "REV002",
@@ -26,8 +26,8 @@
     "photos": [],
     "createdAt": "2026-03-06 09:10:00",
     "productName": "MSR 超輕量帳篷",
-    "variantId": "v-P002-0",
-    "sku": "v-P002-0"
+    "variantId": "V002-01",
+    "sku": "P002-01"
   },
   {
     "id": "REV003",
@@ -41,8 +41,8 @@
     "photos": [],
     "createdAt": "2026-03-07 16:58:00",
     "productName": "充氣式睡墊",
-    "variantId": "v-P003-2",
-    "sku": "v-P003-2"
+    "variantId": "V003-03",
+    "sku": "P003-03"
   },
   {
     "id": "REV004",
@@ -56,8 +56,8 @@
     "photos": [],
     "createdAt": "2026-03-08 12:47:00",
     "productName": "羽絨睡袋",
-    "variantId": "v-P004-0",
-    "sku": "v-P004-0"
+    "variantId": "V004-01",
+    "sku": "P004-01"
   },
   {
     "id": "REV005",
@@ -71,8 +71,8 @@
     "photos": [],
     "createdAt": "2026-03-09 11:26:00",
     "productName": "Coleman 氣化爐",
-    "variantId": "v-P005-0",
-    "sku": "v-P005-0"
+    "variantId": "V005-01",
+    "sku": "P005-01"
   },
   {
     "id": "REV006",
@@ -86,8 +86,8 @@
     "photos": [],
     "createdAt": "2026-03-10 18:21:00",
     "productName": "Snow Peak 鈦合金杯組",
-    "variantId": "v-P006-0",
-    "sku": "v-P006-0"
+    "variantId": "V006-01",
+    "sku": "P006-01"
   },
   {
     "id": "REV007",
@@ -101,8 +101,8 @@
     "photos": [],
     "createdAt": "2026-03-11 11:56:00",
     "productName": "LED 露營燈",
-    "variantId": "v-P007-0",
-    "sku": "v-P007-0"
+    "variantId": "V007-01",
+    "sku": "P007-01"
   },
   {
     "id": "REV008",
@@ -116,8 +116,8 @@
     "photos": [],
     "createdAt": "2026-03-12 13:53:00",
     "productName": "防水登山背包",
-    "variantId": "v-P008-1",
-    "sku": "v-P008-1"
+    "variantId": "V008-02",
+    "sku": "P008-02"
   },
   {
     "id": "REV009",
@@ -131,8 +131,8 @@
     "photos": [],
     "createdAt": "2026-03-13 09:42:00",
     "productName": "折疊桌椅組",
-    "variantId": "v-P009-0",
-    "sku": "v-P009-0"
+    "variantId": "V009-01",
+    "sku": "P009-01"
   },
   {
     "id": "REV010",
@@ -146,8 +146,8 @@
     "photos": [],
     "createdAt": "2026-03-14 20:15:00",
     "productName": "保溫壺 1L",
-    "variantId": "v-P010-0",
-    "sku": "v-P010-0"
+    "variantId": "V010-01",
+    "sku": "P010-01"
   },
   {
     "id": "REV011",
@@ -161,8 +161,8 @@
     "photos": [],
     "createdAt": "2026-03-15 18:26:00",
     "productName": "Snow Peak 客廳帳",
-    "variantId": "v-P011-0",
-    "sku": "v-P011-0"
+    "variantId": "V011-01",
+    "sku": "P011-01"
   },
   {
     "id": "REV012",
@@ -176,8 +176,8 @@
     "photos": [],
     "createdAt": "2026-03-16 10:03:00",
     "productName": "四季保暖睡袋",
-    "variantId": "v-P012-1",
-    "sku": "v-P012-1"
+    "variantId": "V012-02",
+    "sku": "P012-02"
   },
   {
     "id": "REV013",
@@ -191,8 +191,8 @@
     "photos": [],
     "createdAt": "2026-03-17 08:42:00",
     "productName": "折疊蛋捲桌",
-    "variantId": "v-P013-0",
-    "sku": "v-P013-0"
+    "variantId": "V013-01",
+    "sku": "P013-01"
   },
   {
     "id": "REV014",
@@ -206,8 +206,8 @@
     "photos": [],
     "createdAt": "2026-03-18 19:24:00",
     "productName": "高背月亮椅",
-    "variantId": "v-P014-0",
-    "sku": "v-P014-0"
+    "variantId": "V014-01",
+    "sku": "P014-01"
   },
   {
     "id": "REV015",
@@ -221,8 +221,8 @@
     "photos": [],
     "createdAt": "2026-03-19 08:26:00",
     "productName": "充電式頭燈",
-    "variantId": "v-P015-0",
-    "sku": "v-P015-0"
+    "variantId": "V015-01",
+    "sku": "P015-01"
   },
   {
     "id": "REV016",
@@ -236,8 +236,8 @@
     "photos": [],
     "createdAt": "2026-03-20 11:49:00",
     "productName": "65L 重裝背包",
-    "variantId": "v-P016-0",
-    "sku": "v-P016-0"
+    "variantId": "V016-01",
+    "sku": "P016-01"
   },
   {
     "id": "REV017",
@@ -251,8 +251,8 @@
     "photos": [],
     "createdAt": "2026-03-21 16:00:00",
     "productName": "露營拖車",
-    "variantId": "v-P017-0",
-    "sku": "v-P017-0"
+    "variantId": "V017-01",
+    "sku": "P017-01"
   },
   {
     "id": "REV018",
@@ -266,8 +266,8 @@
     "photos": [],
     "createdAt": "2026-03-22 12:40:00",
     "productName": "大型天幕",
-    "variantId": "v-P018-0",
-    "sku": "v-P018-0"
+    "variantId": "V018-01",
+    "sku": "P018-01"
   },
   {
     "id": "REV019",
@@ -281,8 +281,8 @@
     "photos": [],
     "createdAt": "2026-03-23 11:45:00",
     "productName": "營柱與營繩組",
-    "variantId": "v-P019-0",
-    "sku": "v-P019-0"
+    "variantId": "V019-01",
+    "sku": "P019-01"
   },
   {
     "id": "REV020",
@@ -296,8 +296,8 @@
     "photos": [],
     "createdAt": "2026-03-24 14:30:00",
     "productName": "行動電源站",
-    "variantId": "v-P020-0",
-    "sku": "v-P020-0"
+    "variantId": "V020-01",
+    "sku": "P020-01"
   },
   {
     "id": "REV021",
@@ -311,8 +311,8 @@
     "photos": [],
     "createdAt": "2026-03-25 19:22:00",
     "productName": "保冷冰桶 45L",
-    "variantId": "v-P021-0",
-    "sku": "v-P021-0"
+    "variantId": "V021-01",
+    "sku": "P021-01"
   },
   {
     "id": "REV022",
@@ -326,8 +326,8 @@
     "photos": [],
     "createdAt": "2026-03-26 14:40:00",
     "productName": "雙層防風外套",
-    "variantId": "v-P022-0",
-    "sku": "v-P022-0"
+    "variantId": "V022-01",
+    "sku": "P022-01"
   },
   {
     "id": "REV023",
@@ -341,8 +341,8 @@
     "photos": [],
     "createdAt": "2026-03-27 20:12:00",
     "productName": "快煮鍋 1.5L",
-    "variantId": "v-P023-0",
-    "sku": "v-P023-0"
+    "variantId": "V023-01",
+    "sku": "P023-01"
   },
   {
     "id": "REV024",
@@ -356,8 +356,8 @@
     "photos": [],
     "createdAt": "2026-03-28 13:16:00",
     "productName": "碳纖維登山杖",
-    "variantId": "v-P024-0",
-    "sku": "v-P024-0"
+    "variantId": "V024-01",
+    "sku": "P024-01"
   },
   {
     "id": "REV025",
@@ -371,8 +371,8 @@
     "photos": [],
     "createdAt": "2026-03-29 10:03:00",
     "productName": "防水戶外手錶",
-    "variantId": "v-P025-0",
-    "sku": "v-P025-0"
+    "variantId": "V025-01",
+    "sku": "P025-01"
   },
   {
     "id": "REV026",
@@ -386,8 +386,8 @@
     "photos": [],
     "createdAt": "2026-03-30 09:10:00",
     "productName": "輕量吊床",
-    "variantId": "v-P026-0",
-    "sku": "v-P026-0"
+    "variantId": "V026-01",
+    "sku": "P026-01"
   },
   {
     "id": "REV027",
@@ -401,8 +401,8 @@
     "photos": [],
     "createdAt": "2026-04-01 21:10:00",
     "productName": "戶外淋浴袋",
-    "variantId": "v-P027-0",
-    "sku": "v-P027-0"
+    "variantId": "V027-01",
+    "sku": "P027-01"
   },
   {
     "id": "REV028",
@@ -416,8 +416,8 @@
     "photos": [],
     "createdAt": "2026-04-02 11:42:00",
     "productName": "折疊式焚火台",
-    "variantId": "v-P028-0",
-    "sku": "v-P028-0"
+    "variantId": "V028-01",
+    "sku": "P028-01"
   },
   {
     "id": "REV029",
@@ -431,8 +431,8 @@
     "photos": [],
     "createdAt": "2026-04-03 14:09:00",
     "productName": "防蚊帳篷內帳",
-    "variantId": "v-P029-0",
-    "sku": "v-P029-0"
+    "variantId": "V029-01",
+    "sku": "P029-01"
   },
   {
     "id": "REV030",
@@ -446,8 +446,8 @@
     "photos": [],
     "createdAt": "2026-04-04 17:04:00",
     "productName": "露營貼紙組",
-    "variantId": "v-P030-0",
-    "sku": "v-P030-0"
+    "variantId": "V030-01",
+    "sku": "P030-01"
   },
   {
     "id": "REV031",
@@ -462,8 +462,8 @@
     "photos": [],
     "createdAt": "2026-07-10 10:00:00",
     "productName": "Coleman 六人帳篷",
-    "variantId": "v-P001-0",
-    "sku": "v-P001-0"
+    "variantId": "V001",
+    "sku": "TENT-OLIVE"
   },
   {
     "id": "REV032",
@@ -478,8 +478,8 @@
     "photos": [],
     "createdAt": "2026-07-12 14:30:00",
     "productName": "防水登山背包",
-    "variantId": "v-P008-0",
-    "sku": "v-P008-0"
+    "variantId": "V008-01",
+    "sku": "P008-01"
   },
   {
     "id": "REV033",
@@ -494,8 +494,8 @@
     "photos": [],
     "createdAt": "2026-07-15 09:20:00",
     "productName": "碳纖維登山杖",
-    "variantId": "v-P024-0",
-    "sku": "v-P024-0"
+    "variantId": "V024-01",
+    "sku": "P024-01"
   },
   {
     "id": "REV034",
@@ -510,8 +510,8 @@
     "photos": [],
     "createdAt": "2026-07-25 16:00:00",
     "productName": "折疊桌椅組",
-    "variantId": "v-P009-0",
-    "sku": "v-P009-0"
+    "variantId": "V009-01",
+    "sku": "P009-01"
   },
   {
     "id": "REV035",
@@ -526,8 +526,8 @@
     "photos": [],
     "createdAt": "2026-08-12 11:45:00",
     "productName": "折疊蛋捲桌",
-    "variantId": "v-P013-0",
-    "sku": "v-P013-0"
+    "variantId": "V013-01",
+    "sku": "P013-01"
   },
   {
     "id": "REV036",
@@ -542,8 +542,8 @@
     "photos": [],
     "createdAt": "2026-08-28 10:10:00",
     "productName": "65L 重裝背包",
-    "variantId": "v-P016-0",
-    "sku": "v-P016-0"
+    "variantId": "V016-01",
+    "sku": "P016-01"
   },
   {
     "id": "REV037",
@@ -558,8 +558,8 @@
     "photos": [],
     "createdAt": "2026-09-05 15:00:00",
     "productName": "營柱與營繩組",
-    "variantId": "v-P019-0",
-    "sku": "v-P019-0"
+    "variantId": "V019-01",
+    "sku": "P019-01"
   },
   {
     "id": "REV038",
@@ -574,7 +574,7 @@
     "photos": [],
     "createdAt": "2026-09-18 09:30:00",
     "productName": "保冷冰桶 45L",
-    "variantId": "v-P021-0",
-    "sku": "v-P021-0"
+    "variantId": "V021-01",
+    "sku": "P021-01"
   }
 ]

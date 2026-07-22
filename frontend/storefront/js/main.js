@@ -226,23 +226,36 @@ async function initGlobalLayout() {
     // 2-2：先載入 Firebase ES module（npm firebase），再載入經典 auth.js
     // Load Firebase ESM first so window.YuruiFirebase exists before auth.js
     await import('/storefront/js/firebase-app.js');
-    // B：把 Firebase Auth 注入 AppAuth，讓 ApiClient 能帶 Bearer
-    if (window.AppAuth && typeof window.AppAuth.configure === 'function'
-      && window.YuruiFirebase && window.YuruiFirebase.isReady
-      && window.YuruiFirebase.isReady()) {
+    // 等待 Firebase 還原跨分頁登入者，避免 Header 與首批 API 太早判定未登入。
+    if (window.YuruiFirebase && typeof window.YuruiFirebase.waitForAuthState === 'function') {
+      await window.YuruiFirebase.waitForAuthState();
+    }
+    // B：無論 Firebase 是否有設定，都要完成 AppAuth readiness，避免提早發出的 API 永久等待。
+    if (window.AppAuth && typeof window.AppAuth.configure === 'function') {
+      var firebaseAuth = null;
+
       try {
-        window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
-        console.log('✓ AppAuth 已注入 Firebase Auth');
+        if (window.YuruiFirebase && window.YuruiFirebase.isReady && window.YuruiFirebase.isReady()) {
+          firebaseAuth = window.YuruiFirebase.getAuth();
+        }
+        window.AppAuth.configure({ auth: firebaseAuth });
+        if (firebaseAuth) {
+          console.log('✓ AppAuth 已注入 Firebase Auth');
+        }
       } catch (injectError) {
+        window.AppAuth.configure({ auth: null });
         console.warn('[AppAuth] Firebase 注入略過:', injectError);
       }
     }
-    // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
-    await loadComponentScript('/storefront/js/api-http.js');
+    // auth.js 已收斂到 AppAuth／ApiClient，不再載入過渡層 api-http.js
     await loadComponentScript('/storefront/js/components/auth.js');
     await loadComponentScript('/storefront/js/components/modal.js');
     await loadComponentScript('/storefront/js/components/header.js');
   } catch (error) {
+    // Firebase 模組載入失敗也要解除 readiness，讓 API 回傳正常的未登入錯誤而非卡住。
+    if (window.AppAuth && typeof window.AppAuth.configure === 'function') {
+      window.AppAuth.configure({ auth: null });
+    }
     console.error('組件腳本載入失敗:', error);
   }
 }

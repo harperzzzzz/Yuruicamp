@@ -6,6 +6,10 @@ const source = readFileSync(
   new URL('../storefront/js/pages/checkout.js', import.meta.url),
   'utf8',
 );
+const pageSource = readFileSync(
+  new URL('../storefront/pages/checkout.html', import.meta.url),
+  'utf8',
+);
 
 const createClassList = () => {
   const values = new Set();
@@ -207,5 +211,20 @@ assert.match(elements.get('checkoutSessionMessage').textContent, /稍後再試/)
 
 assert(source.includes('API.checkout.updateSession('));
 assert(source.includes('_buildCheckoutUpdateRequest'));
+
+for (const panelName of ['Buyer', 'Shipping', 'Payment']) {
+  assert.match(
+    pageSource,
+    new RegExp(`<section class="checkoutPanel isOpen" id="panel${panelName}"`),
+  );
+  assert.match(
+    pageSource,
+    new RegExp(`aria-expanded="true"[\\s\\S]*?aria-controls="panel${panelName}Body"`),
+  );
+  assert.match(
+    pageSource,
+    new RegExp(`<div class="checkoutPanelBody" id="panel${panelName}Body">`),
+  );
+}
 
 console.log('checkout session UI checks passed');

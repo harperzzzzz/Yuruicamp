@@ -1,8 +1,10 @@
 ﻿# AdminMovementPage Spec
 
-**Status:** Draft
+**Status:** Implemented for G-3 Backend integration; legacy page spec retained
 **Category:** Page
 **Design Ref:** N/A - derived from existing source file `admin/partials/movement.html`
+
+> G-3 已在現有 Bootstrap Admin shell 完成 Mock／Backend 雙模式。Backend 模式提供 draft、多筆明細、商城／租借 lookup、posted 與 cancelled 狀態；只有後端過帳成功才更新畫面，Products 頁不能直接寫庫存。人工驗收見 [`../test/admin-validation.md`](../test/admin-validation.md)，API 契約見 [`../../api/admin-api-contract.md`](../../api/admin-api-contract.md)。
 
 ---
 

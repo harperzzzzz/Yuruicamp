@@ -389,17 +389,17 @@ function closeReviewDeleteModal() {
  * @param {string} reviewId
  */
 function deleteReview(reviewId) {
+  if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
+    AdminAPI.reviews.remove(reviewId).catch(function (err) {
+      AdminAPI.handleError(err, '評論管理尚未提供正式後端端點');
+    });
+    return;
+  }
   var updated = reviewsState.allReviews.filter(function (r) {
     return r.id !== reviewId;
   });
 
   saveReviews(updated);
-
-  if (typeof AdminAPI !== 'undefined' && AdminAPI.reviews) {
-    AdminAPI.reviews.remove(reviewId).catch(function (err) {
-      AdminAPI.handleError(err, '刪除評論失敗');
-    });
-  }
 
   closeReviewDeleteModal();
   updateReviewCount();

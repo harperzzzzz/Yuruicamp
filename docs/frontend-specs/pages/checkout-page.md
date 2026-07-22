@@ -12,6 +12,8 @@
 
 此頁用於建立商品 Checkout Session。送出前顯示購物車預估金額；建立成功後只以後端 `CheckoutSession.pricing` 顯示成交金額。
 
+買家資訊、物流選擇與付款方式三個 `checkoutPanel` 進入頁面時預設全部展開；面板仍可由標題按鈕個別收合，`isOpen`、`aria-expanded` 與內容 `hidden` 狀態必須同步。
+
 ## TypeScript 介面
 
 ```typescript

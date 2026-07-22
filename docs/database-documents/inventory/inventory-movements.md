@@ -5,6 +5,17 @@
 * rental_inventory_movement_items  
     租借庫存異動明細關聯表；記錄租借 SKU 規格及異動當下的 SKU、品名快照。
 
+## 舊 Mock 搬移結論（2026-07-22）
+
+`frontend/data/admin/movement.json` 目前保留為 Mock，Seed 不建立 `inventory_movements`，原因是來源不足以滿足本文件的 variant、表頭與員工 FK 約束：
+
+- 100 張異動、141 筆明細全部只有 `productId`，沒有 variantId；其中 24 筆屬於多規格商品，無法唯一對到 `product_variants`。
+- 26 張異動在同一表頭混合不同 type／from／to，不能對到單一 `inventory_domain + movement_type + locations` 表頭。
+- `employeeId` 只有 01、02、03，沒有可追溯的 `admin_users` 主檔對照。
+- 「調撥」為商城→租借跨領域異動，必須拆為 `conversion_out` 與 `conversion_in`；舊 JSON 並沒有共用轉換單號或 canonical 租借 variant。
+
+後續最低補件為：每筆明細的 canonical variantId，每張單唯一的領域／type／來源／目的，01～03 的 `admin_users.id` 對照，以及跨領域調撥的配對 ID。資料齊備前不得用單一規格或開發管理員代填。
+
 
 ## 關聯與資料流
 inventory_movements
@@ -147,12 +158,14 @@ inventory_movements
 
 
 
-## 可能的問題
-* 高風險：前端異動記錄目前讀寫 JSON 與記憶體快取，尚未寫入 `inventory_movements`、`store_inventory_movement_items` 或 `rental_inventory_movement_items`。
-* 高風險：現行前端 mock 資料仍可含 `進貨`、`損耗`、`移轉` 等中文類型；正式 API 串接前必須改為送出 canonical 值
-* 高風險：未完成後端規則前，資料庫層無法阻止事後修改。
+## G-3 實作狀態
 
-* 高風險: inventory_movements.status 的 `posted` 與 `cancelled` 異動的不可變性，以及明細僅能在草稿階段編輯
+* 正式 Backend 模式已改由 `/api/admin/inventory-movements` 建立 draft、加入明細、過帳與作廢；只有過帳交易能寫入實體庫存表。
+* API 只接受 canonical `receipt`、`write_off`、`transfer`；中文只留在前端顯示層。
+* posted／cancelled 的不可變性、明細僅能在 draft 編輯、重複過帳冪等及負庫存防護已由 Service 執行。
+* 前端 legacy JSON 與記憶體流程只留在 Mock 模式；Backend 模式的 `addMovementRecord()` 不會送出胖 Mock 紀錄。
+* 跨領域 `conversion_out`／`conversion_in` 尚未開放，商店轉租借需另立成對轉換契約。
+* 現有表頭只有一個 `employee_id`，用來保存最後過帳或作廢操作者；若需逐事件 audit history，仍需新增獨立 Schema。
         目前 `latest_schema.sql` 中沒有這些 Trigger，需由後端執行。
 
 * 中風險：前端異動資料格式使用顯示用欄位（例如 `fromStore`、`toStore`、`productName`）

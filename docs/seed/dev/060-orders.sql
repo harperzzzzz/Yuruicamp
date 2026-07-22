@@ -1,4 +1,5 @@
--- 來源：frontend/data/commerce/orders.json；固定展示訂單不建立庫存保留或庫存異動。
+-- 來源：frontend/data/commerce/orders.json；訂單明細會建立可追溯的商城庫存保留，但不建立無法還原 variant 與員工的舊庫存異動。
+-- 222 筆來源訂單皆為 discount=0，且沒有 coupon claim／券快照來源，因此刻意不建立 order_coupons。
 INSERT INTO public.orders (id, customer_id, buyer_name_snapshot, buyer_email_snapshot, recipient_name_snapshot, shipping_address_snapshot, shipping_phone_snapshot, subtotal, shipping_fee, discount, total, payment_method, payment_status, refund_status, status, placed_at, paid_at, created_at, updated_at)
 VALUES
     ('1', 'U001', 'Amy Chen', 'amy@example.com', 'Amy Chen', '台南市東區長榮路二段200號', '0912345678', 6090.00, 0.00, 0.00, 6090.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-03-02T09:10:29+08:00', TIMESTAMPTZ '2026-03-02T09:19:29+08:00', TIMESTAMPTZ '2026-03-02T09:10:29+08:00', TIMESTAMPTZ '2026-03-04T09:19:29+08:00'),
@@ -1748,6 +1749,82 @@ ON CONFLICT (id) DO UPDATE SET
     actor_id = EXCLUDED.actor_id,
     note = EXCLUDED.note;
 
+-- 舊訂單沒有出貨倉欄位，Seed 以前端固定商城主倉 main 作為穩定履約庫位。
+-- 已付款或 COD 的 unshipped 訂單保持 active；逾時未付 ECPay 訂單為 expired；其餘已出貨交易為 fulfilled。
+INSERT INTO public.product_stock_reservations (
+    id,
+    order_item_id,
+    variant_id,
+    location_id,
+    quantity,
+    status,
+    idempotency_key,
+    reserved_at,
+    expires_at,
+    released_at,
+    fulfilled_at,
+    inventory_domain
+) OVERRIDING SYSTEM VALUE
+SELECT
+    7600000 + item.id,
+    item.id,
+    item.variant_id,
+    'main',
+    item.quantity,
+    CASE
+        WHEN order_header.status = 'unshipped'
+             AND order_header.payment_status = 'unpaid'
+             AND order_header.payment_method = 'ecpay-credit' THEN 'expired'
+        WHEN order_header.status = 'unshipped' THEN 'active'
+        ELSE 'fulfilled'
+    END,
+    'seed-order-item-' || item.id,
+    order_header.placed_at,
+    CASE
+        WHEN order_header.status = 'unshipped'
+             AND order_header.payment_status = 'unpaid'
+             AND order_header.payment_method = 'ecpay-credit'
+            THEN order_header.placed_at + INTERVAL '15 minutes'
+        ELSE NULL
+    END,
+    CASE
+        WHEN order_header.status = 'unshipped'
+             AND order_header.payment_status = 'unpaid'
+             AND order_header.payment_method = 'ecpay-credit'
+            THEN order_header.placed_at + INTERVAL '15 minutes'
+        ELSE NULL
+    END,
+    CASE
+        WHEN order_header.status <> 'unshipped' THEN COALESCE(
+            (
+                SELECT min(history.occurred_at)
+                FROM public.order_status_history history
+                WHERE history.order_id = order_header.id
+                  AND history.status = 'shipped'
+            ),
+            order_header.updated_at
+        )
+        ELSE NULL
+    END,
+    'store'
+FROM public.order_items item
+JOIN public.orders order_header ON order_header.id = item.order_id
+WHERE order_header.id ~ '^[0-9]+$'
+  AND order_header.id::integer BETWEEN 1 AND 222
+ON CONFLICT (id) DO UPDATE SET
+    order_item_id = EXCLUDED.order_item_id,
+    variant_id = EXCLUDED.variant_id,
+    location_id = EXCLUDED.location_id,
+    quantity = EXCLUDED.quantity,
+    status = EXCLUDED.status,
+    idempotency_key = EXCLUDED.idempotency_key,
+    reserved_at = EXCLUDED.reserved_at,
+    expires_at = EXCLUDED.expires_at,
+    released_at = EXCLUDED.released_at,
+    fulfilled_at = EXCLUDED.fulfilled_at,
+    inventory_domain = EXCLUDED.inventory_domain;
+
 SELECT setval('public.order_items_id_seq', GREATEST((SELECT max(id) FROM public.order_items), 1), true);
 SELECT setval('public.order_status_history_id_seq', GREATEST((SELECT max(id) FROM public.order_status_history), 1), true);
 SELECT setval('public.order_event_history_id_seq', GREATEST((SELECT max(id) FROM public.order_event_history), 1), true);
+SELECT setval('public.product_stock_reservations_id_seq', GREATEST((SELECT max(id) FROM public.product_stock_reservations), 1), true);

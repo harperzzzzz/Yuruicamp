@@ -56,6 +56,76 @@ function jsonResponse(status, payload) {
 }
 
 {
+  const runtime = createRuntime(async () => jsonResponse(200, { success: true, data: null }));
+  const auth = {
+    currentUser: null,
+    authStateReady: async () => {
+      auth.currentUser = {
+        getIdToken: async () => 'restored-firebase-token',
+      };
+    },
+  };
+  runtime.AppAuth.configure({ auth });
+
+  // 新分頁必須等 Firebase 從 IndexedDB 還原使用者後才讀取 Token。
+  assert.equal(await runtime.AppAuth.getIdToken(), 'restored-firebase-token');
+}
+
+{
+  const runtime = createRuntime(async () => jsonResponse(200, { success: true, data: null }));
+  const auth = { currentUser: null };
+  runtime.YuruiFirebase = {
+    waitForAuthState: async () => {
+      auth.currentUser = {
+        getIdToken: async () => 'restored-fallback-token',
+      };
+    },
+  };
+  runtime.AppAuth.configure({ auth });
+
+  // 舊版 Auth 沒有 authStateReady 時，仍使用共用 Firebase readiness 等待流程。
+  assert.equal(await runtime.AppAuth.getIdToken(), 'restored-fallback-token');
+}
+
+{
+  let requestStarted = false;
+  let capturedAuthorization = '';
+  const runtime = createRuntime(async (_url, options) => {
+    requestStarted = true;
+    capturedAuthorization = options.headers.get('Authorization');
+
+    return jsonResponse(200, { success: true, data: { id: 'U001' } });
+  });
+  const pendingRequest = runtime.ApiClient._restRequest('/me', { auth: 'required' });
+
+  await Promise.resolve();
+  assert.equal(requestStarted, false);
+
+  // 頁面 API 先啟動時，必須等 main.js 或 Booking layout 注入 Firebase Auth。
+  runtime.AppAuth.configure({
+    auth: {
+      currentUser: {
+        getIdToken: async () => 'late-configured-token',
+      },
+    },
+  });
+
+  const result = await pendingRequest;
+  assert.equal(requestStarted, true);
+  assert.equal(capturedAuthorization, 'Bearer late-configured-token');
+  assert.equal(result.id, 'U001');
+}
+
+{
+  const runtime = createRuntime(async () => jsonResponse(200, { success: true, data: null }));
+  const pendingToken = runtime.AppAuth.getIdToken({ required: false });
+
+  // Firebase 未設定時也必須明確完成 readiness，optional API 才能不帶 Token 繼續。
+  runtime.AppAuth.configure({ auth: null });
+  assert.equal(await pendingToken, null);
+}
+
+{
   const runtime = createRuntime(
     async () => jsonResponse(200, { success: true, data: null }),
     { AUTH: { DEV_TOKEN: 'dev:uid-local:local@example.com:google:Local' } },
@@ -123,6 +193,31 @@ function jsonResponse(status, payload) {
       return true;
     },
   );
+}
+
+{
+  const tokens = [];
+  let requestCount = 0;
+  const runtime = createRuntime(async (_url, options) => {
+    requestCount += 1;
+    tokens.push(options.headers.get('Authorization'));
+    if (requestCount === 1) {
+      return jsonResponse(401, { success: false, error: { code: 'UNAUTHORIZED' } });
+    }
+    return jsonResponse(200, { success: true, data: { refreshed: true } });
+  });
+  runtime.AppAuth.configure({
+    auth: {
+      currentUser: {
+        getIdToken: async forceRefresh => forceRefresh ? 'fresh-token' : 'expired-token',
+      },
+    },
+  });
+
+  const result = await runtime.ApiClient._restRequest('/admin/users', { auth: 'required' });
+  assert.equal(requestCount, 2);
+  assert.deepEqual(tokens, ['Bearer expired-token', 'Bearer fresh-token']);
+  assert.equal(result.refreshed, true);
 }
 
 console.log('API client checks passed');

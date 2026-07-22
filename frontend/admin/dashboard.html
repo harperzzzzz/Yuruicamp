@@ -216,6 +216,9 @@
       <!-- 右側：管理員頭像下拉 -->
       <div class="d-flex align-items-center gap-2">
 
+        <!-- 顯示目前資料來源，正式模式可快速辨識不是 Mock。 -->
+        <span class="badge rounded-pill text-bg-success" id="adminRuntimeBadge">Backend</span>
+
         <!-- 管理員頭像下拉選單 -->
         <div class="dropdown">
           <!-- 頭像按鈕（使用字首縮寫代替圖片） -->
@@ -952,11 +955,13 @@
   <script src="/storefront/js/formatters.js"></script>
   <script src="/storefront/js/mock-storage-merge.js"></script>
   <script src="js/admin-api.js"></script>
+  <script src="js/admin-runtime.js"></script>
   <!-- 編號工具：資料存數字 id，畫面顯示加前綴（須在 orders / bookings / movement 之前） -->
   <script src="js/id-utils.js"></script>
   <script src="/storefront/js/booking-availability.js"></script>
   <script src="/storefront/js/booking-api.js"></script>
   <script src="js/permissions.js"></script>
+  <script src="js/admin-auth.js"></script>
   <script src="js/core.js"></script>
   <script src="js/analytics.js"></script>
   <script src="js/orders.js"></script>

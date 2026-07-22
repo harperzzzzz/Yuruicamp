@@ -9,7 +9,7 @@
 
   <!-- 卡片頂部：日期篩選 + 清除條件按鈕（結構對齊 orders.html） -->
   <div class="card-header bg-white border-0
-              d-flex justify-content-start align-items-center flex-wrap gap-2 py-3">
+              d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
     <div class="d-flex align-items-center flex-nowrap gap-2">
       <div class="btn-group btn-group-sm" id="movementPeriodBtns" role="group">
         <button type="button" class="btn btn-outline-secondary" data-days="7">近 7 天</button>
@@ -26,9 +26,14 @@
              placeholder="開始日期 ~ 結束日期" readonly>
       <span class="text-muted small" id="movementPeriodLabel"></span>
     </div>
-    <button id="btnClearMovementSort" class="btn btn-sm btn-outline-secondary d-none">
-      <i class="fas fa-rotate-left me-1"></i>清除條件
-    </button>
+    <div class="d-flex gap-2">
+      <button id="btnClearMovementSort" class="btn btn-sm btn-outline-secondary d-none">
+        <i class="fas fa-rotate-left me-1"></i>清除條件
+      </button>
+      <button id="openMovementDraftModal" class="btn btn-sm btn-primary backend-movement-action d-none">
+        <i class="fas fa-plus me-1"></i>建立異動草稿
+      </button>
+    </div>
   </div>
 
   <!-- 表格容器 -->
@@ -56,6 +61,8 @@
 
             <th>明細筆數</th>
 
+            <th>狀態</th>
+
             <!-- 異動性質：多選篩選（比對 items[].type） -->
             <th class="filter-th" data-filter-key="movementType">
               異動性質
@@ -75,13 +82,13 @@
         <!-- tbody 由 movement.js 的 renderMovementTable() 動態填入 -->
         <tbody id="movementTableBody">
           <tr>
-            <td colspan="5" class="text-center py-4">
+            <td colspan="6" class="text-center py-4">
               <div class="spinner-border spinner-border-sm me-2"
                    style="color: var(--admin-brand-accent);"></div>
               <span class="text-muted">載入庫存異動紀錄中...</span>
             </td>
           </tr>
-          <!-- colspan 需對應 thead 5 欄 -->
+          <!-- colspan 需對應 thead 6 欄 -->
         </tbody>
       </table>
     </div>
@@ -102,13 +109,25 @@
       </div>
       <div class="modal-body">
         <div class="row g-3 mb-3">
-          <div class="col-sm-6">
+          <div class="col-sm-4">
             <small class="text-muted d-block">異動日期</small>
             <span id="modalMovementDate" class="fw-semibold"></span>
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-4">
             <small class="text-muted d-block">員工 ID</small>
             <span id="modalMovementEmployeeId" class="fw-semibold"></span>
+          </div>
+          <div class="col-sm-4">
+            <small class="text-muted d-block">狀態</small>
+            <span id="modalMovementStatus"></span>
+          </div>
+          <div class="col-sm-6">
+            <small class="text-muted d-block">庫存領域</small>
+            <span id="modalMovementDomain" class="fw-semibold"></span>
+          </div>
+          <div class="col-sm-6">
+            <small class="text-muted d-block">原因</small>
+            <span id="modalMovementReason" class="fw-semibold"></span>
           </div>
         </div>
         <div class="table-responsive">
@@ -127,7 +146,94 @@
             </tbody>
           </table>
         </div>
+        <div id="draftMovementItemEditor" class="border rounded p-3 mt-3 d-none">
+          <div class="small fw-semibold mb-2">新增草稿明細</div>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-8">
+              <label class="form-label small">商品規格</label>
+              <select id="draftMovementVariant" class="form-select form-select-sm"></select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">數量</label>
+              <input id="draftMovementQuantity" type="number" min="1" value="1"
+                     class="form-control form-control-sm">
+            </div>
+            <div class="col-md-2 d-grid">
+              <button id="addDraftMovementItem" type="button" class="btn btn-sm btn-outline-primary">
+                新增
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer backend-movement-action d-none">
+        <button id="cancelMovementDraft" type="button" class="btn btn-outline-danger d-none">作廢草稿</button>
+        <button id="postMovementDraft" type="button" class="btn btn-primary d-none">確認過帳</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">關閉</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Backend 模式建立 draft，庫存只會在後續過帳時改動。 -->
+<div class="modal fade" id="movementDraftModal" tabindex="-1"
+     aria-labelledby="movementDraftModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <form class="modal-content" id="movementDraftForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="movementDraftModalLabel">建立庫存異動草稿</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-light border small">
+          建立草稿不會改動庫存；確認規格與庫位後，請到明細執行過帳。
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">庫存領域</label>
+            <select id="movementDomain" class="form-select" required>
+              <option value="store">商城庫存</option>
+              <option value="rental">租借庫存</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">異動類型</label>
+            <select id="movementType" class="form-select" required>
+              <option value="receipt">入庫</option>
+              <option value="write_off">出庫／損耗</option>
+              <option value="transfer">同領域調撥</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">發生時間</label>
+            <input id="movementOccurredAt" type="datetime-local" class="form-control">
+          </div>
+          <div class="col-md-6" id="movementSourceGroup">
+            <label class="form-label">來源庫位</label>
+            <select id="movementSourceLocation" class="form-select"></select>
+          </div>
+          <div class="col-md-6" id="movementDestinationGroup">
+            <label class="form-label">目的庫位</label>
+            <select id="movementDestinationLocation" class="form-select"></select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">原因</label>
+            <textarea id="movementReason" class="form-control" rows="2" maxlength="1000" required></textarea>
+          </div>
+        </div>
+        <hr>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="fw-semibold">草稿明細</div>
+          <button id="addMovementDraftRow" type="button" class="btn btn-sm btn-outline-secondary">
+            <i class="fas fa-plus me-1"></i>新增規格
+          </button>
+        </div>
+        <div id="movementDraftRows" class="vstack gap-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+        <button id="submitMovementDraft" type="submit" class="btn btn-primary">建立草稿</button>
+      </div>
+    </form>
   </div>
 </div>

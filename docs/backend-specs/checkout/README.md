@@ -125,10 +125,10 @@ PATCH 更新資料
 
 - PostgreSQL 與後端已啟動。
 - `FIREBASE_ENABLED=false`。
-- Seed 已建立 `V001` 與 `DEV-STORE-MAIN` 的 10 件庫存。
+- Seed 已建立 `main`、`branch-001`～`branch-003` 四個商城庫位與 39 個 variant 庫存；Checkout 會依庫位 ID 順序選取可用庫存。
 - Swagger 網址為 `http://localhost:8080/swagger-ui.html`。
 - 每次建立新 Checkout 都要使用新的 `idempotencyKey`。
-- 如果先前有未取消、未逾時的 Checkout，實際可用庫存可能少於 10。
+- 如果先前有未取消、未逾時的 Checkout，實際可用庫存會再扣除該筆 active 保留。
 
 #### 1. 建立開發會員並授權
 
@@ -515,10 +515,10 @@ Swagger 目前沒有實作 `GET /api/checkout/sessions/{orderId}`，因此無法
 
 [`docs/seed/002-dev-seed.sql`](../../seed/002-dev-seed.sql) 會建立：
 
-- 開發庫位 `DEV-STORE-MAIN`。
-- 商品規格 `V001` 的現有庫存 10 件。
+- 商城庫位 `main`、`branch-001`～`branch-003`。
+- 39 個商品規格的 156 筆 on-hand 庫存，以及展示訂單對應的 active／expired／fulfilled 保留。
 
-既有資料庫可依 [`docs/seed/README.md`](../../seed/README.md) 手動重跑 Seed；重跑會把該庫存更新回 10，執行前先確認不需要保留手動測試狀態。
+既有資料庫可依 [`docs/seed/README.md`](../../seed/README.md) 手動重跑 Seed；重跑會還原 156 筆商城庫存與 435 筆展示訂單保留，執行前先確認不需要保留同 ID 的手動測試狀態。
 
 ## 7. 測試與驗收
 
@@ -549,6 +549,7 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 
 ## 9. 後續工作
 
-- F-2：完成 `couponClaimId` 資格驗證、套用／清除與金額重算。
-- D：完成 ECPay Gateway、付款表單、Notify webhook、Return URL 與商城 COD。
+- 前端／本機「建立 Checkout 失敗」追蹤（先記錄、暫不改 Firebase）：見 [`plans/post-firebase-roadmap-checklist.md`](../../../plans/post-firebase-roadmap-checklist.md) **CK-1～CK-5**。
+- F-2：完成 `couponClaimId` 資格驗證、套用／清除與金額重算（對應 checklist **CK-4**）。
+- D：完成 ECPay Gateway、付款表單、Notify webhook、Return URL 與商城 COD（對應 checklist **CK-5**）。
 - Order API：會員讀取自己的訂單列表與詳情。

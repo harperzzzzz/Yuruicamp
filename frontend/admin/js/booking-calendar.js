@@ -37,6 +37,54 @@ var BC_BOOKING_STATUS_LABEL = {
   cancelled: '已取消',
 };
 
+/** 判斷公休管理是否使用正式 Admin API。 */
+function isClosureBackendMode() {
+  return !!(window.AdminAPI && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled());
+}
+
+/** 將後端公休回應轉成既有月曆使用的 ViewModel。 */
+function mapAdminClosureResponse(closure) {
+  if (!closure) return closure;
+
+  return {
+    id: closure.id,
+    campgroundId: closure.campgroundId,
+    campgroundName: closure.campgroundName,
+    type: closure.closureType || closure.type,
+    startDate: closure.startDate,
+    endDate: closure.endDate,
+    dayOfWeek: closure.weekday == null ? closure.dayOfWeek : closure.weekday,
+    effectiveFrom: closure.effectiveFrom,
+    effectiveTo: closure.effectiveTo,
+    reason: closure.reason,
+    createdBy: closure.createdBy,
+    createdByName: closure.createdByName,
+    createdAt: closure.createdAt,
+  };
+}
+
+/** 建立後端只接受的公休 Request，不傳 Mock overlay 欄位。 */
+function buildAdminClosureRequest(closure) {
+  return {
+    campgroundId: closure.campgroundId,
+    closureType: closure.type,
+    startDate: closure.type === 'date_range' ? closure.startDate : null,
+    endDate: closure.type === 'date_range' ? closure.endDate : null,
+    weekday: closure.type === 'weekly' ? closure.dayOfWeek : null,
+    effectiveFrom: closure.type === 'weekly' ? closure.effectiveFrom : null,
+    effectiveTo: closure.type === 'weekly' ? closure.effectiveTo : null,
+    reason: closure.reason,
+  };
+}
+
+/** 正式模式重新讀取資料庫，避免前端自行猜測寫入結果。 */
+function loadAdminClosures() {
+  return AdminAPI.closures.list({ page: 0, size: 100, sort: 'createdAt,desc' })
+    .then(function (response) {
+      return (response.data || []).map(mapAdminClosureResponse);
+    });
+}
+
 window.initBookingCalendar = function () {
   $(document).off('.bookingCalendar');
   bcState.selectedDate = null;
@@ -87,11 +135,14 @@ window.initBookingCalendar = function () {
 };
 
 function loadBookingCalendarData() {
+  var closuresPromise = isClosureBackendMode()
+    ? loadAdminClosures()
+    : window.BookingAPI.getClosures();
   var tasks = [
     window.BookingAPI.getCampgrounds(),
     window.BookingAPI.loadAvailabilityContext(),
     window.BookingAPI.getBookingWindow(),
-    window.BookingAPI.getClosures(),
+    closuresPromise,
   ];
 
   var customersPromise;
@@ -125,6 +176,9 @@ function loadBookingCalendarData() {
       bcState.customersById = {};
       customers.forEach(function (c) { bcState.customersById[c.id] = c; });
 
+      if (!bcState.ctx) {
+        return null;
+      }
       if (window.bookingsCache && window.bookingsCache.length) {
         bcState.ctx.bookings = window.bookingsCache;
       } else {
@@ -247,7 +301,10 @@ function getAvailabilityForView(range) {
 function renderCalendar() {
   var AV = window.BookingAvailability;
   if (!AV || !bcState.ctx || !bcState.zoneId) {
-    $('#bcCalendarGrid').html('<p class="text-muted text-center py-3">請選擇營區與營位類型。</p>');
+    var message = isClosureBackendMode()
+      ? '正式模式的月曆可用量仍由後端查詢；公休規則可在下方管理。'
+      : '請選擇營區與營位類型。';
+    $('#bcCalendarGrid').html('<p class="text-muted text-center py-3">' + message + '</p>');
     return;
   }
 
@@ -480,13 +537,62 @@ function writeClosureOverlay(overlay) {
   });
 }
 
-function nextClosureId() {
+/** 套用後端或 Mock 回傳的真實公休列表並重繪相關畫面。 */
+function applyClosureList(list) {
+  bcState.closures = (list || []).map(mapAdminClosureResponse);
+  if (bcState.ctx) bcState.ctx.closures = bcState.closures;
+  renderClosureTable();
+  renderCalendar();
+  if (bcState.selectedDate) renderDayDetail(bcState.selectedDate);
+
+  return bcState.closures;
+}
+
+/** 建立一或多筆公休；正式模式只有 API 全部回應後才更新畫面。 */
+function persistClosureItems(items) {
+  if (!isClosureBackendMode()) {
+    var overlay = readClosureOverlay();
+    items.forEach(function (item) { overlay.push(item); });
+
+    return writeClosureOverlay(overlay).then(applyClosureList);
+  }
+
+  var requests = items.map(function (item) {
+    return AdminAPI.closures.create(buildAdminClosureRequest(item));
+  });
+
+  return Promise.all(requests)
+    .then(loadAdminClosures)
+    .then(applyClosureList)
+    .catch(function (error) {
+      // 多星期建立若中途失敗，重新查詢可呈現資料庫已成功的部分。
+      return loadAdminClosures()
+        .then(applyClosureList)
+        .then(function () { throw error; });
+    });
+}
+
+/** 刪除公休；正式模式失敗時保留原畫面。 */
+function persistClosureDelete(closureId) {
+  if (!isClosureBackendMode()) {
+    var overlay = readClosureOverlay();
+    overlay.push({ id: closureId, _deleted: true });
+
+    return writeClosureOverlay(overlay).then(applyClosureList);
+  }
+
+  return AdminAPI.closures.remove(closureId)
+    .then(loadAdminClosures)
+    .then(applyClosureList);
+}
+
+function nextClosureId(offset) {
   var max = 0;
   bcState.closures.forEach(function (cl) {
     var n = parseInt(String(cl.id).replace(/\D/g, ''), 10);
     if (n > max) max = n;
   });
-  return 'CL' + String(max + 1).padStart(3, '0');
+  return 'CL' + String(max + 1 + (offset || 0)).padStart(3, '0');
 }
 
 function saveClosureFromModal() {
@@ -507,7 +613,6 @@ function saveClosureFromModal() {
     String(now.getHours()).padStart(2, '0') + ':' +
     String(now.getMinutes()).padStart(2, '0') + ':00';
 
-  var overlay = readClosureOverlay();
   var newItems = [];
 
   if (type === 'date_range') {
@@ -518,13 +623,10 @@ function saveClosureFromModal() {
     }
     var AV = window.BookingAvailability;
     var start = AV.formatISODate(dates[0]);
-    var end = AV.formatISODate(dates[1]);
-    // 單日：start=end 時 end 為隔天（左閉右開）
-    if (start === end) {
-      end = AV.formatISODate(AV.addDays(dates[0], 1));
-    }
+    // flatpickr 結束日是管理員選取的最後公休日，送 API 時轉為左閉右開的隔日。
+    var end = AV.formatISODate(AV.addDays(dates[1], 1));
     newItems.push({
-      id: nextClosureId(),
+      id: nextClosureId(newItems.length),
       campgroundId: camp.campgroundId,
       type: 'date_range',
       startDate: start,
@@ -551,7 +653,7 @@ function saveClosureFromModal() {
 
     days.forEach(function (dow) {
       newItems.push({
-        id: nextClosureId(),
+        id: nextClosureId(newItems.length),
         campgroundId: camp.campgroundId,
         type: 'weekly',
         dayOfWeek: dow,
@@ -564,20 +666,21 @@ function saveClosureFromModal() {
     });
   }
 
-  newItems.forEach(function (item) { overlay.push(item); });
-
-  writeClosureOverlay(overlay)
-    .then(function (merged) {
-      bcState.closures = merged;
-      if (bcState.ctx) bcState.ctx.closures = merged;
+  var $saveButton = $('#bcBtnSaveClosure').prop('disabled', true);
+  persistClosureItems(newItems)
+    .then(function () {
       bootstrap.Modal.getInstance(document.getElementById('bcClosureModal')).hide();
       window.showAdminToast('公休規則已儲存', 'success');
-      renderClosureTable();
-      renderCalendar();
-      if (bcState.selectedDate) renderDayDetail(bcState.selectedDate);
     })
-    .catch(function () {
-      window.showAdminToast('公休儲存失敗', 'error');
+    .catch(function (error) {
+      if (window.AdminAPI && AdminAPI.handleError && isClosureBackendMode()) {
+        AdminAPI.handleError(error, '公休儲存失敗');
+      } else {
+        window.showAdminToast('公休儲存失敗', 'error');
+      }
+    })
+    .finally(function () {
+      $saveButton.prop('disabled', false);
     });
 }
 
@@ -589,9 +692,7 @@ function closeSingleSelectedDay() {
   var AV = window.BookingAvailability;
   var start = bcState.selectedDate;
   var end = AV.formatISODate(AV.addDays(AV.parseISODate(start), 1));
-  var overlay = readClosureOverlay();
-
-  overlay.push({
+  var item = {
     id: nextClosureId(),
     campgroundId: camp.campgroundId,
     type: 'date_range',
@@ -600,31 +701,36 @@ function closeSingleSelectedDay() {
     reason: '單日公休',
     createdBy: 'admin',
     createdAt: new Date().toISOString().slice(0, 19).replace('T', ' '),
-  });
+  };
 
-  writeClosureOverlay(overlay).then(function (merged) {
-    bcState.closures = merged;
-    if (bcState.ctx) bcState.ctx.closures = merged;
-    window.showAdminToast('已將 ' + start + ' 設為公休', 'success');
-    renderClosureTable();
-    renderCalendar();
-    renderDayDetail(start);
-  });
+  persistClosureItems([item])
+    .then(function () {
+      window.showAdminToast('已將 ' + start + ' 設為公休', 'success');
+    })
+    .catch(function (error) {
+      if (window.AdminAPI && AdminAPI.handleError && isClosureBackendMode()) {
+        AdminAPI.handleError(error, '單日公休儲存失敗');
+      } else {
+        window.showAdminToast('單日公休儲存失敗', 'error');
+      }
+    });
 }
 
 function deleteClosure(closureId) {
   if (!window.canEdit('booking-calendar')) return;
-  var overlay = readClosureOverlay();
-  overlay.push({ id: closureId, _deleted: true });
+  if (!window.confirm('確定要刪除此公休規則嗎？')) return;
 
-  writeClosureOverlay(overlay).then(function (merged) {
-    bcState.closures = merged;
-    if (bcState.ctx) bcState.ctx.closures = merged;
-    window.showAdminToast('公休規則已刪除', 'success');
-    renderClosureTable();
-    renderCalendar();
-    if (bcState.selectedDate) renderDayDetail(bcState.selectedDate);
-  });
+  persistClosureDelete(closureId)
+    .then(function () {
+      window.showAdminToast('公休規則已刪除', 'success');
+    })
+    .catch(function (error) {
+      if (window.AdminAPI && AdminAPI.handleError && isClosureBackendMode()) {
+        AdminAPI.handleError(error, '公休規則刪除失敗');
+      } else {
+        window.showAdminToast('公休規則刪除失敗', 'error');
+      }
+    });
 }
 
 function openBookingDetail(bookingId) {

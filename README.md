@@ -35,26 +35,32 @@
 - Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
 - Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
 - Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。線 E 定義為 Booking Prepare／Reservation 完成，ECPay 與付款確認延後線 D。
-- Booking 線 E 的完整人工驗證已整合至 [`E-1～E-7 Booking Swagger 流程`](./docs/backend-specs/test/e1-e7-booking-swagger.md)。
-- Admin 線 G 的 G-1、G-5 已完成程式與非 DB 測試：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已完成，權限頁保留 Mock／Backend 雙模式。PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑後勾選 checklist。
+- Booking 線 E 的後端與前端人工驗證已整合至 [`公開／會員 API 驗證`](./docs/backend-specs/test/public-member-api-validation.md) 與 [`商城 Checkout 與 Booking 驗證`](./docs/frontend-specs/test/commerce-booking-validation.md)。
+- Admin 線 G 的 G-1、G-5 已完成：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已接入正式 Admin Session。
 - Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
 - Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
 - Admin 線 G 的 G-2c Products 已完成並通過 PostgreSQL 整合驗收：商品、規格與圖片以單一交易同步，庫存只讀且交由 G-3 異動；前端 Backend 模式只送契約欄位，API 成功後才更新 cache。
-- G-2c 前端驗收於 2026-07-22 完成 API、Mock UI、資料庫與 build 實測；Backend UI 因 G-6 尚未提供永久切換，仍需依 [`G-2c 前端驗收流程`](./docs/frontend-specs/test/g2c-admin-products.md) 在 DevTools Console 啟用後完成 Network 與錯誤狀態人工核對。
-- Admin RBAC、Customers、Orders、Bookings 與 Products Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
+- G-2c 前端驗收於 2026-07-22 完成 API、Mock UI、資料庫與 build 實測；G-6 之後由正式 Admin Runtime 自動啟用 Backend，不再需要 DevTools 手動切換。
+- Admin 線 G 的 G-3 Inventory 已完成並通過 PostgreSQL 併發驗收：商城與租借庫存只能透過 draft 異動單過帳，支援入庫、出庫／損耗與同領域調撥；固定順序悲觀鎖、active 保留下限與重複過帳冪等會防止負庫存及重複加減。
+- Admin 線 G 的 G-4 已完成並通過 PostgreSQL 整合驗收：優惠券與營區公休均使用正式 CRUD 與細 RBAC；已領取優惠券不可硬刪，公休立即同步公開可用性，前端 Backend 模式只有 API 成功後才更新畫面。
+- Admin 線 G 的 G-6 已完成：Firebase Google／development dev Token 會建立後端 Admin Session，以有效權限初始化 Sidebar；401 只強制刷新一次，未就緒的 Reviews、標籤池、seller note 與租借商品寫入由 readiness gate 阻擋，不會發出預期 404。
+- Admin RBAC、Customers、Orders、Bookings、Products 與 Inventory Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
+- 前台跨分頁與站內導頁共用 `AppAuth` readiness：頁面 API 會等待 Firebase 注入並從 IndexedDB 還原 `currentUser`，再取得 Token；初始化期間不會誤判成登入失效並清除會員狀態。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
 - Checkout 頁面已改呼叫 `API.checkout.createSession()`；Request 不再傳會員 ID、商品快照、前端價格、總額、狀態或點數，會員由 Firebase principal 決定，金額由 Spring Boot 從 PostgreSQL 重算。
 - Checkout 冪等鍵由 `crypto.randomUUID()` 產生並暫存在 sessionStorage；網路重試與連點沿用同一 key，成功保存後端 `orderId`，購物車變更、取消或逾時才清除。
 - Checkout I-5 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order、不消耗前端優惠券，ECPay 也不在本站收集卡號、到期日或 CVV。
 - Checkout I-6 已完成：Draft 可 PATCH 補資料，Ready 顯示後端金額與 15 分鐘倒數；逾時／取消會清除 Session、保留購物車，並依後端錯誤碼提供重新登入、調整庫存或重建 Checkout 操作。
-- 開發 Seed 已提供 `DEV-STORE-MAIN` 與 `V001` 的 `10` 件庫存，可直接從 Swagger 驗證 Checkout。
+- 開發 Seed 已建立 `main`、`branch-001`～`branch-003` 四個商城庫位與 156 筆 variant 庫存；扣除 98 件 active 訂單保留後，active catalog 可用量總計 399，可直接從 Swagger 驗證 Checkout。
 - Reference Seed 已對齊前端展示資料：12 個公開品牌、8 個 active 營區、13 個 active zone、營區標籤與 3 個門市；品牌 JSON 已改用後端 canonical slug，詳見 [`JSON／Seed 固定 ID 對照`](./docs/data/json-seed-id-mapping.md)。
 - 租借 Seed 已建立 28 SKU、37 canonical 規格、9 個固定租借庫位、16 筆有明確定價的 listing 與 333 筆規格庫存；租借 Mock 與預約快照也已改用 `RSV-Rxxx-xx`。
-- 優惠券 Seed 已建立固定 ID 1～7 的 7 張券；目前沒有領券案例，尚未建立 claim，已領數維持 `0`。
-- 交易 Seed 已加入 U001～U050、222 筆訂單與 90 筆預訂；商品快照已使用 canonical variant／SKU，預訂平假日天數與金額已依主檔重算。評論、庫存異動與庫存保留留待後續階段。
-- 完整 Seed 已於 2026-07-22 使用獨立 PostgreSQL 16 空資料庫實灌：`latest_schema.sql` 加 `010`～`070` 在單一交易成功 `COMMIT`，主要筆數與外鍵孤兒檢查通過；流程見 [`完整 Seed 全新資料庫驗證`](./docs/backend-specs/test/full-seed-fresh-database.md)。
+- 優惠券 Seed 已建立固定 ID 1～7 的 7 張券；目前 222 筆訂單都沒有可追溯 claim、券快照或折扣，因此 `coupon_claims`／`order_coupons` 維持空集合、已領數維持 `0`。只有確認會員、券、領券時間／狀態及 consumed 訂單後才可補建，不從資格或金額反推。
+- 交易 Seed 已加入 U001～U050、222 筆訂單、90 筆預訂、435 筆商城保留與 40 筆租借保留；租借 active 區間重疊超賣數為 0。
+- 38 筆評論 Mock 的舊 `v-P...` 已全數轉為 canonical variant／SKU；Seed 只建立有明確 orderId 與 order item 的 `REV031`。舊庫存異動因缺 variant、單一表頭語意與員工主檔對照，維持不搬移。
+- 會員周邊 Seed 已獨立補入 `020-identity.sql`：18 個偏好選項、200 筆會員偏好、50 筆預設地址、3 個會員標籤與 56 筆標籤指派；逐筆對齊 `frontend/data/customers/*.json`，不影響訂單／預訂成立條件。
+- 完整 Seed 已於 2026-07-22 使用 PostgreSQL 16 全新獨立資料庫實灌，`latest_schema.sql` 與 `010`～`070` 一次成功 `COMMIT`；同一版本也已成功套用到目前 `yuruicamp`。可重做的流程與判定標準見 [`資料庫與完整 Seed 實際驗證`](./docs/backend-specs/test/database-seed-validation.md)。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
 
@@ -495,7 +501,7 @@ npm run normalize:data
 
 ## 📋 專案概述
 
-Yuruicamp 是一個完整的露營選物電商網站前端實現，包含 `storefront/pages/` 下 **11 個**買家功能頁面、Mock API 層、完整 RWD 響應式設計，以及一套獨立的**賣家管理後台**（含員工 ID 登入、**九大管理模組**、逐頁 view/edit 權限、圖表儀表板）。
+Yuruicamp 是一個露營選物電商專案，包含 `storefront/pages/` 下 **11 個**買家功能頁面、Mock／REST 雙模式、完整 RWD 響應式設計，以及一套獨立的**賣家管理後台**。正式後台使用 Firebase Google 登入、後端 Admin Session、細粒度 RBAC、Backend readiness 與圖表儀表板；員工 ID 登入只保留給 Mock 開發模式。
 
 **開發目標**：能跑 → 看懂 → 好改 → 效能，按此優先順序逐步實現。
 
@@ -509,7 +515,7 @@ Yuruicamp 是一個完整的露營選物電商網站前端實現，包含 `store
 | Vite + Sass                                      | SCSS 編譯、多頁面建置、資產壓縮      |
 | ESLint + Prettier + Stylelint                    | JS / HTML / CSS / SCSS 基礎品質檢查  |
 | Bootstrap 5 + jQuery 3 + Chart.js                | 賣家後台 UI 框架、圖表視覺化         |
-| Mock API（localStorage / sessionStorage + JSON） | 模擬前後台資料，預留真實 API 接入點  |
+| REST API + Mock facade                           | 正式模式以 Spring Boot 為真相，Mock 僅供離線開發    |
 | Git                                              | 版本控制                             |
 
 **建置狀態**：✅ 買家前台 14 階段完成 + 賣家後台 9 模組完成（2026/06/15，含租借多營地庫存與異動員工 ID）+ 預約子系統 6 頁面完成（2026/06/12）
@@ -645,7 +651,7 @@ npx http-server -p 8000
 **賣家後台（管理流程）** — 詳見 [userguide.md 第 13 節](userguide.md#13-賣家後台--admin)
 
 ```
-登入   → admin/login.html（Demo 員工 ID：01 老闆 / 02 員工，密碼任意非空）
+登入   → admin/login.html（Firebase Google；email 須在 admin_users 白名單，見 docs/seed/dev/021-admin-google-whitelist.example.sql）
 後台   → admin/dashboard.html（預設載入第一個有 view 權限的模組）
          ├── 分析報表      ← Sidebar「分析報表」
          ├── 訂單管理      ← Sidebar「訂單管理」
@@ -659,7 +665,7 @@ npx http-server -p 8000
 登出   → Sidebar 底部或 Topbar 頭像 → 登出（清除 5 個 sessionStorage key，返回登入頁）
 ```
 
-> 💡 後台登入狀態用 `sessionStorage`（5 個 key）；員工主檔用 `localStorage.adminEmployees`。關閉分頁後 session 自動清除，不影響買家前台的 `localStorage`。
+> 💡 正式後台由 Firebase 保存登入狀態，ID Token 不寫入 Web Storage；`sessionStorage` 只快取管理員顯示資料與後端有效權限。只有 `AppConfig.ADMIN.USE_BACKEND=false` 的 Mock 模式才使用 `localStorage.adminEmployees`。
 
 **預約系統（預約流程）**
 
@@ -808,7 +814,7 @@ window.throttle(fn, 100); // 節流（滾動事件使用）
 | `memberProfile`        | Object        | 會員中心儲存的個人資料                                                    |
 | `bookingCart`          | Object        | 預約購物車（`{booking_info, selected_zones, selected_rentals, summary}`） |
 | `mockCheckoutSessions` | Array         | 契約化 Checkout Mock Session 與內部冪等資料                               |
-| `adminEmployees`       | Array         | 後台員工清單與逐頁權限（`permissions.js` 種子初始化）                     |
+| `adminEmployees`       | Array         | 僅 Mock 後台使用的員工與逐頁權限種子；正式 Backend 模式不讀取              |
 
 > ⚠️ `cart`（電商）與 `bookingCart`（預約）是兩個**完全獨立**的 localStorage key，互不干擾。
 
@@ -915,7 +921,10 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 **合併 Firebase 進 main 後，協作者請先讀：**  
 [`docs/frontend-specs/firebase-merge-into-main-notes.md`](./docs/frontend-specs/firebase-merge-into-main-notes.md)  
-（正式入口仍是 `AppAuth`／`ApiClient`；`YuruiApiHttp` 僅過渡；Booking 共用腳本勿每頁手貼。）
+（正式入口是 `AppAuth`／`ApiClient`；Booking 共用腳本勿每頁手貼。）
+
+**Firebase 主線已完成；Checkout／預約建單等業務債見：**  
+[`plans/post-firebase-roadmap-checklist.md`](./plans/post-firebase-roadmap-checklist.md)
 
 ---
 
@@ -933,6 +942,13 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 ---
 
 ## ✅ 品質工具與 Smoke Test
+
+### 訂單／預訂 Backend 顯示驗證（2026-07-22）
+
+- Admin 訂單／預訂真實 API 已分別驗證 222／90 筆，抽查詳情與 `frontend/data` JSON Mock 的核心欄位一致。
+- 會員 U001 的預訂 API 可查到 `25`、`55`，列表／詳情契約測試通過。
+- 尚未全數完成：Admin 已由 `AdminRuntime` 統一設定 Backend 模式並以 readiness 阻擋未接功能；會員訂單 Controller 仍不存在，前端 Backend 模式也尚未完成會員訂單 REST 分流。
+- 目前可驗證範圍與未完成邊界統一記錄於 [`前端實際驗證總覽`](./docs/frontend-specs/test/README.md)。
 
 > 以下指令請先 `cd frontend` 再執行（`package.json` 已不在 repo 根）。
 
@@ -952,8 +968,8 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 | 方向                    | 說明                                                                                                                 |
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | 接入真實後端（前台）    | 修改 `js/api-mock.js` 的各函數實作，頁面邏輯零改動                                                                   |
-| 接入真實後端（後台）    | 修改 `admin/js/*.js` 中各 `fetch('../data/xxx.json')` 及 `permissions.js` 的 localStorage 邏輯改為真實 API           |
-| 後台密碼驗證 / 操作日誌 | 逐頁 view/edit 權限已完成；待辦：密碼後端驗證、審計紀錄（見 [plans/adminPermissions.md](plans/adminPermissions.md)） |
+| 擴充後台正式契約        | G-6 已正式接線；後續補 Reviews、會員標籤池、seller note 與租借商品寫入後，再解除 readiness gate                    |
+| 後台操作日誌            | Firebase 登入與後端細 RBAC 已完成；跨模組完整審計紀錄與工程收尾見 [`backend-implementation-checklist.md`](./plans/backend-implementation-checklist.md) |
 | 升級至 SPA              | 以 Vue 3 或 React 重構，可直接複用現有 CSS 設計系統與 JSON 資料                                                      |
 | 加入數據分析            | 在 `main.js` 的 `initGlobalListeners()` 接入 GA4 / GTM 事件追蹤                                                      |
 | 自動化測試              | 以 Playwright 或 Cypress 撰寫自動化測試腳本                                                                          |

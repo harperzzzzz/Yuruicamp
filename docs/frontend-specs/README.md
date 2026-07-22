@@ -17,16 +17,15 @@
 ## API 接線規格
 
 - [**Firebase 合併進 main 後注意事項（協作者必讀）**](firebase-merge-into-main-notes.md)
+- [**Firebase 主線完成後：後續 Checklist（BK／CK 業務債）**](../../plans/post-firebase-roadmap-checklist.md)
 - [前端認證與 REST 共用層](api/auth-rest-client.md)
-- [認證與 REST 手動驗證](test/auth-rest-client-manual.md)
+- [前端實際驗證總覽](test/README.md)
+- [認證與會員實際驗證](test/auth-member-validation.md)
+- [Admin 登入頁（Firebase Google）](pages/admin-login-page.md)
 - [Checkout API facade](api/checkout-facade.md)
-- [Checkout facade 手動驗證](test/checkout-facade-manual.md)
-- [Checkout Mock 契約手動驗證](test/checkout-mock-contract-manual.md)
-- [Checkout Request 手動驗證](test/checkout-request-manual.md)
-- [Checkout I-5 Backend 狀態手動驗證](test/checkout-backend-state-manual.md)
-- [Checkout I-6 Session UI 手動驗證](test/checkout-session-ui-manual.md)
+- [商城 Checkout 與 Booking 實際驗證](test/commerce-booking-validation.md)
 - [Booking API facade](api/booking-facade.md)
-- [Booking Backend 接線手動驗證](test/booking-backend-integration-manual.md)
+- [後台前端實際驗證](test/admin-validation.md)
 
 ## 假設條件
 

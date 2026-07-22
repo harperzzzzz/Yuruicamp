@@ -98,30 +98,35 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | **B-1～B-4 商品公開讀**             | ✅ 列表、詳情、分頁、排序及分類／品牌／價格篩選；未指定篩選會使用明確型別預設值，避免 PostgreSQL `lower(bytea)`；見 [`Catalog 文件`](../docs/backend-specs/catalog/b4-b5b-b7-catalog-public-read.md)                                                      |
 | **B-5a 基本商品規格**               | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格                                                                                                                                                                                   |
 | **B-5b 規格可售庫存**               | ✅ variant 層級加總商城庫存並扣除 active 保留量；回傳 `availableQuantity`／`inStock`                                                                                                                                                                  |
-| **B-7 門市公開讀**                  | ✅ `GET /api/branches`；見 [`Branch 契約`](../docs/api/branch-api-contract.md) 與 [`Swagger 流程`](../docs/backend-specs/test/b-catalog-public-swagger.md)                                                                                              |
+| **B-7 門市公開讀**                  | ✅ `GET /api/branches`；見 [`Branch 契約`](../docs/api/branch-api-contract.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)                                                                                              |
 | **C-1 訂單／明細／庫存保留 Entity** | ✅ Hibernate `ddl-auto=validate` 已通過；見 [`C-1 驗收文件`](../docs/backend-specs/order/c1-entity-schema-validation.md)                                                                                                                                 |
 | **C-2～C-8 Checkout**               | ✅ 建立冪等、防超賣、更新、取消、後端計價、15 分鐘逾時與 PostgreSQL 整合驗收均完成；F-2 已補齊優惠券套用；見 [`Checkout 整合文件`](../docs/backend-specs/checkout/README.md)                                                                              |
 | **F Coupon**                        | 🔄 F-1、F-3、F-4 與商城 F-2 完成；Booking 缺少 Coupon 關聯 Schema，付款後消耗待線 D；見 [`Coupon 流程`](../docs/backend-specs/coupon/README.md)                                                                                                     |
 | **E-0 Booking 冪等 Schema**         | ✅ `bookings` 已具備 Checkout key、request hash 與會員範圍唯一約束；見 [`E-0 文件`](../docs/backend-specs/booking/e0-booking-idempotency-schema.md)                                                                                                      |
-| **E-1 Booking 公開讀**              | ✅ 營區、有效營位、租借裝備、policy、closures；見 [`E-1 文件`](../docs/backend-specs/booking/e1-booking-public-read.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md)                                  |
-| **E-2 Booking 可用性**              | ✅ 公開 POST 查詢跨晚最低剩餘量；包含日期窗口、公休、zone block 與 pending／confirmed 占用；見 [`E-2 文件`](../docs/backend-specs/booking/e2-booking-availability.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md) |
-| **E-3 Booking Checkout**            | ✅ 會員冪等、固定順序悲觀鎖、跨晚重查、後端平假日計價與 pending／unpaid 快照；見 [`E-3 文件`](../docs/backend-specs/booking/e3-booking-checkout.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md)           |
-| **E-4 Booking 租借保留**            | ✅ 營區庫位解析、跨日 active 保留、後端租借計價與並發防超租；見 [`E-4 文件`](../docs/backend-specs/booking/e4-booking-rental-reservation.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md)            |
-| **E-5 會員預約讀取**                | ✅ 本人列表、分頁、詳情與 Checkout 快照；他人與不存在統一 404；見 [`E-5 文件`](../docs/backend-specs/booking/e5-booking-member-read.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md)                 |
-| **E-6 Booking 取消與逾時**          | ✅ 主動取消、每分鐘逾時掃描、營位恢復、租借保留釋放與鎖定競爭；見 [`E-6 文件`](../docs/backend-specs/booking/e6-booking-cancellation-expiration.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md)       |
-| **E-7 Booking 前端接線**            | ✅ Booking facade、後端可用性／價格、本人列表／詳情／取消及 15 分鐘倒數已接線；Payment Confirmation 延後線 D；見 [`E-7 文件`](../docs/backend-specs/booking/e7-booking-frontend-integration.md) 與 [`E-1～E-7 Swagger 整合流程`](../docs/backend-specs/test/e1-e7-booking-swagger.md) |
+| **E-1 Booking 公開讀**              | ✅ 營區、有效營位、租借裝備、policy、closures；見 [`E-1 文件`](../docs/backend-specs/booking/e1-booking-public-read.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)                                  |
+| **E-2 Booking 可用性**              | ✅ 公開 POST 查詢跨晚最低剩餘量；包含日期窗口、公休、zone block 與 pending／confirmed 占用；見 [`E-2 文件`](../docs/backend-specs/booking/e2-booking-availability.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md) |
+| **E-3 Booking Checkout**            | ✅ 會員冪等、固定順序悲觀鎖、跨晚重查、後端平假日計價與 pending／unpaid 快照；見 [`E-3 文件`](../docs/backend-specs/booking/e3-booking-checkout.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)           |
+| **E-4 Booking 租借保留**            | ✅ 營區庫位解析、跨日 active 保留、後端租借計價與並發防超租；見 [`E-4 文件`](../docs/backend-specs/booking/e4-booking-rental-reservation.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)            |
+| **E-5 會員預約讀取**                | ✅ 本人列表、分頁、詳情與 Checkout 快照；他人與不存在統一 404；見 [`E-5 文件`](../docs/backend-specs/booking/e5-booking-member-read.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)                 |
+| **E-6 Booking 取消與逾時**          | ✅ 主動取消、每分鐘逾時掃描、營位恢復、租借保留釋放與鎖定競爭；見 [`E-6 文件`](../docs/backend-specs/booking/e6-booking-cancellation-expiration.md) 與 [`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md)       |
+| **E-7 Booking 前端接線**            | ✅ Booking facade、後端可用性／價格、本人列表／詳情／取消及 15 分鐘倒數已接線；Payment Confirmation 延後線 D；見 [`E-7 文件`](../docs/backend-specs/booking/e7-booking-frontend-integration.md)、[`公開／會員 API 驗證`](../docs/backend-specs/test/public-member-api-validation.md) 與 [`前端商城／預約驗證`](../docs/frontend-specs/test/commerce-booking-validation.md) |
 | API 契約索引（P0+P1）               | [`docs/api/README.md`](../docs/api/README.md)                                                                                                                                                                                                            |
 | 商品契約（已實作）                  | [`docs/api/product-api-contract.md`](../docs/api/product-api-contract.md)                                                                                                                                                                                |
 | 代辦清單 A～J                       | [`plans/backend-implementation-checklist.md`](../plans/backend-implementation-checklist.md)                                                                                                                                                              |
-| **G-1／G-5 Admin RBAC**             | 🔄 程式、非 DB 測試與權限頁雙模式接線完成；PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑，全站 Backend 切換仍待 G-6                                                                                                                                       |
+| **G-1／G-5 Admin RBAC**             | ✅ 細權限、管理員白名單 CRUD、個別覆寫、每請求授權與正式 Admin Session 接線完成；見 [`G-1／G-5 文件`](../docs/backend-specs/admin/g1-g5-admin-rbac.md)                                                                                                   |
 | **G-2a Admin Customers**            | ✅ 列表、篩選、詳情、基本資料更新、停權／恢復、RBAC、前端雙模式與 PostgreSQL 整合驗收已完成                                                                                                                                                       |
 | **G-2b Admin Orders／Bookings**     | ✅ 列表、詳情、履約狀態命令、RBAC、前端雙模式、PostgreSQL 整合測試與 Swagger 驗收完成                                                                                                                                                       |
 | **G-2c Admin Products**             | ✅ 商品／規格／圖片正規化交易、唯讀庫存、上下架、RBAC、前端乾淨 Request 與 PostgreSQL 整合驗收完成；見 [`G-2c 文件`](../docs/backend-specs/catalog/g2c-admin-products.md)                                                                 |
-| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C 與商城 Coupon 已完成；Booking Coupon、Payment 與 G-3～G-4 待實作                                                                                                                                                                       |
+| **G-3 Admin Inventory**             | ✅ 商城／租借 draft、明細、入庫、出庫／損耗、同領域調撥、悲觀鎖過帳、作廢、冪等、RBAC 與前端雙模式完成；見 [`G-3 文件`](../docs/backend-specs/inventory/g3-admin-inventory-movements.md)                                 |
+| **G-4 Admin Coupons／Closures**     | ✅ 優惠券與營區公休 CRUD、安全刪除、建立者紀錄、RBAC、前端 backend-first 與 PostgreSQL 整合驗收完成；見 [`Coupon`](../docs/backend-specs/coupon/g4-admin-coupons.md)／[`Closures`](../docs/backend-specs/booking/g4-admin-campground-closures.md) |
+| **G-6 Admin Runtime**               | ✅ Firebase Google／dev Session、有效權限初始化、401 Token 刷新、readiness gate 與全站 Backend 切換完成；見 [`G-6 文件`](../docs/backend-specs/admin/g6-admin-runtime.md)                                                                                |
+| 結帳／ECPay／Admin CRUD             | 🔄 Checkout 線 C、商城 Coupon 與 G 線已完成；Booking Coupon、Payment 及 readiness 中標示的後台延伸功能待後續契約                                                                                                                                     |
 
 ### Schema 整合驗證
 
 `RUN_BACKEND_IT=true` 時，`BackendApplicationTests` 會連線 Docker PostgreSQL 並載入完整 Spring Context；因 `ddl-auto=validate`，Context 成功即代表目前所有 JPA Entity 已通過 Schema 驗證。
+
+G 線於 2026-07-22 同批執行 RBAC、Customers、Orders／Bookings、Products、Inventory 與 G-4 六個 PostgreSQL 類別，結果為 **14 tests、0 failure、0 error、0 skipped**。
 
 `DB_PASSWORD` 必須與 Docker `.env` 的 `POSTGRES_PASSWORD` 相同。若出現 `password authentication failed`，先修正連線密碼；不要修改 Entity，也不要將 `ddl-auto` 改成 `update`。
 
@@ -136,7 +141,7 @@ docker compose up -d
 docker exec yuruicamp-db psql -U postgres -d yuruicamp -f /docker-entrypoint-initdb.d/002-dev-seed.sql
 ```
 
-重跑會將 `DEV-STORE-MAIN` 的 `V001` 現有庫存更新為 `10`，請先確認不需要保留手動測試狀態。
+重跑會將 `main`、`branch-001`～`branch-003` 的 156 筆商城庫存與 435 筆訂單保留還原為固定 Seed 狀態，請先確認不需要保留同 ID 的手動測試資料。
 
 驗收：
 

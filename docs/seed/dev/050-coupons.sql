@@ -1,5 +1,6 @@
--- 優惠券主檔先於會員領券資料載入。
--- 本批展示會員沒有領券明細；尚未建立 coupon_claims，因此 claimed_quantity 維持 0。
+-- 優惠券主檔先於可能的會員領券資料載入。
+-- 本批展示資料沒有可追溯的領券人、領券時間、狀態或對應訂單，因此禁止製造 coupon_claims。
+-- claimed_quantity 的 0 只用於全新主檔；既有值不由 upsert 覆寫，日後必須由 coupon_claims Trigger 維護。
 INSERT INTO public.coupons (
     id,
     code,

@@ -119,18 +119,21 @@ function loadFirebaseAppOnce() {
 }
 
 /**
- * 把 Firebase Auth 注入 main 的 AppAuth（B 方案最小接線）。
+ * 把 Firebase Auth 注入 main 的 AppAuth（B 方案接線）。
  * Wire Firebase Auth into AppAuth so ApiClient can attach Bearer tokens.
- * api-http.js 仍可暫時保留給 auth.js；之後再收斂。
  */
 function injectFirebaseAuthIntoAppAuth() {
   if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
     return;
   }
+
+  // Firebase 未設定或模組載入失敗時，也要解除 AppAuth readiness 等待。
   if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function') {
+    window.AppAuth.configure({ auth: null });
     return;
   }
   if (!window.YuruiFirebase.isReady()) {
+    window.AppAuth.configure({ auth: null });
     return;
   }
   try {
@@ -153,12 +156,17 @@ function loadBookingHeaderScript() {
       return loadFirebaseAppOnce();
     })
     .then(function () {
-      // B：Firebase → AppAuth（ApiClient 才能帶 token）
-      injectFirebaseAuthIntoAppAuth();
-      // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
-      return loadScriptOnce('/storefront/js/api-http.js', '__yuruiApiHttpScriptLoaded');
+      // 等待 Firebase 還原跨分頁登入者，避免 Booking 首批 API 誤判為登出。
+      if (window.YuruiFirebase && typeof window.YuruiFirebase.waitForAuthState === 'function') {
+        return window.YuruiFirebase.waitForAuthState();
+      }
+
+      return null;
     })
     .then(function () {
+      // B：Firebase → AppAuth（ApiClient 才能帶 token）
+      injectFirebaseAuthIntoAppAuth();
+      // auth.js 已收斂到 AppAuth／ApiClient，不再載入過渡層 api-http.js
       return loadScriptOnce('/storefront/js/components/modal.js', '__yuruiModalScriptLoaded');
     })
     .then(function () {
@@ -169,6 +177,10 @@ function loadBookingHeaderScript() {
       return loadScriptOnce('/booking/js/booking-header.js', '__bookingHeaderScriptLoaded');
     })
     .catch(function (error) {
+      // Booking 初始化失敗時讓共用 API 正常回報未登入，不要永久等待。
+      if (window.AppAuth && typeof window.AppAuth.configure === 'function') {
+        window.AppAuth.configure({ auth: null });
+      }
       console.error(error);
     });
 }

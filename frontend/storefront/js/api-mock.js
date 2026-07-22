@@ -157,12 +157,8 @@ const _writeJsonStorage = (key, value) => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 
-/** 直接 fetch JSON；REST 時帶 Firebase Bearer（步驟 2-5） */
+/** 載入本機 Mock JSON（靜態資源，不走 ApiClient／Bearer） */
 const _fetchJson = async (url, options = {}) => {
-  // Prefer shared auth-aware fetch when available (after main.js layout init)
-  if (window.YuruiApiHttp && typeof window.YuruiApiHttp.fetchJson === 'function') {
-    return window.YuruiApiHttp.fetchJson(url, options);
-  }
   const res = await fetch(url, { cache: 'no-store', ...options });
   if (!res.ok) throw new Error('Fetch failed: ' + url);
   return res.json();
@@ -673,11 +669,21 @@ const _checkoutMockError = (code, message, status = 0) => new window.ApiRequestE
 
 /**
  * 取得 Mock Checkout 所屬會員，讓冪等鍵仍維持會員範圍。
+ * 必須是已登入的真實 customerId（不再 fallback MOCK-CUSTOMER／U001）。
  */
 const _getMockCheckoutCustomerId = () => {
+  if (window.YuruiAuth && typeof window.YuruiAuth.getUser === 'function') {
+    const authUser = window.YuruiAuth.getUser();
+    if (authUser && authUser.id) return String(authUser.id);
+  }
   const current = window.AppState?.currentUser;
+  if (current && current.id) return String(current.id);
 
-  return String(current?.id || 'MOCK-CUSTOMER');
+  throw _checkoutMockError(
+    'AUTH_TOKEN_UNAVAILABLE',
+    '請先登入後再結帳（Mock Checkout 需要真實 customerId）',
+    401
+  );
 };
 
 /**
@@ -1201,23 +1207,40 @@ window.API = {
     },
 
     create: async (orderData) => {
+const customerId = orderData?.customerId
+  ? String(orderData.customerId).trim()
+  : '';
+
+if (!customerId) {
+  throw new window.ApiRequestError(
+    'VALIDATION_ERROR',
+    '建立訂單需要真實 customerId（已移除 U001 fallback）',
+    [],
+    400
+  );
+}
+
 if (orderData?.payment === 'ecpay-credit') {
   return _requestJson('/orders', {
     method: 'POST',
     authUser: {
-      id: orderData.customerId || window.AppState?.currentUser?.id,
-      email: orderData.buyerEmail || window.AppState?.currentUser?.email,
-      name: orderData.buyerName || window.AppState?.currentUser?.name,
+      id: customerId || window.AppState?.currentUser?.id,
+      email:
+        orderData.buyerEmail ||
+        window.AppState?.currentUser?.email,
+      name:
+        orderData.buyerName ||
+        window.AppState?.currentUser?.name,
     },
     body: {
-      customerId: orderData.customerId || 'U001',
+      customerId,
       buyerName: orderData.buyerName || '',
       buyerEmail: orderData.buyerEmail || '',
       recipientName: orderData.buyerName || '',
       shippingAddress: orderData.address || '',
       shippingPhone: orderData.buyerPhone || '',
       paymentMethod: 'ecpay-credit',
-      items: (orderData.items || []).map((item) => ({
+      items: (orderData.items || []).map(item => ({
         variantId: item.variantId,
         quantity: item.quantity,
       })),
@@ -1240,7 +1263,7 @@ if (!_useMockApi()) {
 
       const newOrder = _normalizeOrder({
         id: nextId,
-        customerId: orderData.customerId || 'U001',
+        customerId,
         buyerName: orderData.buyerName || '',
         buyerPhone: orderData.buyerPhone || '',
         buyerEmail: orderData.buyerEmail || '',

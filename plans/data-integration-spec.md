@@ -18,7 +18,7 @@
 | **更新日期** | 2026-07-22                                |
 | **不負責**   | PostgreSQL Seed 載入順序、交易與執行方式  |
 
-> **簡單說**：本文件回答「前端 Mock 資料怎麼維持一致」；[`docs/seed/README.md`](../docs/seed/README.md) 回答「PostgreSQL 本機展示資料怎麼建立」。兩者可以使用相同的固定 ID 與業務語意，但不會自動互相同步。
+> **簡單說**：本文件回答「前端 Mock 資料怎麼維持一致」；[`docs/seed/README.md`](../docs/seed/README.md) 回答「PostgreSQL 本機展示資料怎麼建立」。已搬移的資料以 Schema／Seed 為準，Mock JSON 是同一案例的前端契約投影，但目前不會自動產檔。
 
 商品、商城規格、品牌、營區、zone、標籤、門市、租借 SKU 與租借規格的 canonical ID 統一記錄於 [`json-seed-id-mapping.md`](../docs/data/json-seed-id-mapping.md)。品牌、營區、zone、門市與租借資料已對齊 SQL Seed；其他 Mock 若仍使用舊 ID，必須先依對照表轉換，不得直接把 `v-P...` 寫入商城或租借 FK。
 
@@ -51,22 +51,49 @@
 | 訂單付款            | `payment`＝方式（ecpay-credit/ecpay-atm/ecpay-cvs/ecpay-other/cod）；`paymentStatus`＝狀態（unpaid/paid/refunded）；**勿**把 `cod` 寫進 status；預約禁止 COD |
 | 商品上下架          | `active` / `inactive`（勿用 `disabled`；`disabled` 僅折價券停用）                                                                                            |
 | 會員登入            | 僅 OAuth，**無 `password`**                                                                                                                                  |
+| 會員周邊資料        | 地址、偏好選項／指派、會員標籤／指派已搬至 `020-identity.sql`；不作為訂單／預訂成立條件                                                                    |
 | 部落格              | `productId` 統一 `P001` 格式、camelCase                                                                                                                      |
 | 靜態內容（不進 DB） | FAQ、夥伴營地 `PARTNER_DATA`、`rental-guide.html`                                                                                                            |
+| 庫存保留          | 435 訂單明細與 40 租借明細已建立 Seed 保留；Mock 庫存必須與後端扣除 active 保留後的可用量一致                                               |
+| 評論                  | 38 筆 Mock 已使用 canonical variant／SKU；只有明確 orderId 且可唯一對到 order item 的評論才可寫入 DB                                                     |
+| 庫存異動            | `movement.json` 缺 variant、單一表頭語意與員工主檔對照，目前不搬移                                                                                      |
 
 ## 目錄結構
 
 ```text
 frontend/data/catalog/          products.json, campgrounds.json, camp-equipment.json
 frontend/data/commerce/         orders.json, camp-bookings.json
-frontend/data/customers/        customers.json
+frontend/data/customers/        customers.json, preference-options.json, customer-preferences.json,
+                                customer-shipping-addresses.json, customer-tags.json,
+                                customer-tag-assignments.json
 frontend/data/marketing/        articles.json, branches.json, brands.json
 frontend/data/promotions/       coupons.json
 frontend/data/admin/            reviews.json, movement.json, min-stock.json, rental-skus.json,
                                 booking-policy.json, zone-blocks.json, campground-closures.json
 ```
 
-磁碟來源位於 `frontend/data/**`；Vite 以 `frontend/` 為網站根目錄，因此瀏覽器執行期使用 `/data/**`。這些 JSON 不是 PostgreSQL Seed，也不可直接複製成 SQL。
+磁碟來源位於 `frontend/data/**`；Vite 以 `frontend/` 為網站根目錄，因此瀏覽器執行期使用 `/data/**`。這些 JSON 是前端契約投影，不可在忽略 Schema 欄位與限制的情況下直接複製成 SQL。
+
+## 會員周邊資料
+
+`020-identity.sql` 現為會員周邊展示資料的 canonical Seed；以下 Mock 必須維持同一組固定 ID 與關聯：
+
+| Mock JSON | Schema | 筆數 | 規則 |
+| --- | --- | ---: | --- |
+| `preference-options.json` | `preference_options` | 18 | ID 1～8 為 `style`，9～18 為 `equipment` |
+| `customer-preferences.json` | `customer_preferences` | 200 | U001～U050 各 4 筆；每人 2 種風格、2 種裝備 |
+| `customer-shipping-addresses.json` | `customer_shipping_addresses` | 50 | U001～U050 各 1 筆預設地址；`email` 由 `customers.email` 投影 |
+| `customer-tags.json` | `customer_tags` | 3 | 固定 ID 1～3，color 保留前端 badge class |
+| `customer-tag-assignments.json` | `customer_tag_assignments` | 56 | 複合鍵為 `customerId + tagId` |
+
+這些資料不參與 Checkout 或 Booking 建立；訂單與預訂仍保存各自的收件／營區快照。Seed 變更後應同步上述 JSON，並驗證會員、偏好選項與標籤沒有孤兒、每位會員至多一筆預設地址。
+
+## 庫存、保留與評論投影
+
+- `products.json > variants[].availableQuantity` 是 28 個 active 商品在四個固定商城據點的可用量合計，目前總計 399。資料庫 on-hand 包含 active 保留；API 扣除 `product_stock_reservations.status=active` 後才是這個值。
+- `rental-skus.json` 是租借實體 on-hand 投影。本輪已將 9 筆庫存提高到 active 預訂區間的最大重疊數，variant total 與營區匯總仍必須相等。
+- `reviews.json` 不得再出現 `v-P...`。Mock 可保留沒有 `orderId` 的展示評論，但後端 `reviews` 只接受可驗證的 `order_item_id`；目前只有 `REV031 → order 208 → item 602081 → V001`。
+- `movement.json` 仍是未搬移 Mock，不可直接視為 API 寫入 payload。只有 productId 不足以建立 variant-level 庫存異動。
 
 > `camp-equipment.json` 的 **stock 為唯讀衍生**，請勿手改；改庫存請改 `rental-skus.json` 後執行 `npm run sync:listings`。  
 > `products.totalStock` / `products.branch` 亦為衍生（由 `variants[].branch` 加總）。
@@ -118,7 +145,9 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 
 預設：`type: "fixed"`、`minOrder: 0`（缺欄時前端 / 腳本補齊）。
 
-`coupons.json` 已對齊 `050-coupons.sql` 的固定 ID 1～7 與顯示名稱。前端 `startDate`／`endDate` 視為 `Asia/Taipei` 本地時間；SQL 寫入 `timestamptz` 時明確使用 `+08:00`。會員與 claim Seed 尚未建立，所以本階段所有 `used` 皆為 `0`；Backend 模式的已領數只採 `coupons.claimed_quantity` 與 claim 流程。
+`coupons.json` 已對齊 `050-coupons.sql` 的固定 ID 1～7 與顯示名稱。前端 `startDate`／`endDate` 視為 `Asia/Taipei` 本地時間；SQL 寫入 `timestamptz` 時明確使用 `+08:00`。目前沒有 claim Seed，所以本階段所有 `used` 皆為 `0`；Backend 模式的已領數只採 `coupons.claimed_quantity` 與 claim 流程。
+
+目前 222 筆 `orders.json` 都沒有 `coupons[]`，`discount` 皆為 `0`；資料庫也沒有 `coupon_claims` 或 `order_coupons`。生日／首購資格、券仍在有效期或會員曾經下單，都不能單獨證明已領券。後續只有來源能同時提供 `customerId`、canonical coupon、`claimedAt`、claim 狀態，以及 consumed claim 的訂單／折扣快照時，才能建立關聯；`claimed_quantity` 由資料庫 Trigger 維護，不得由 Mock `used` 反推。
 
 ## 訂單 / 預約快照（策略 B）
 
@@ -128,6 +157,8 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 - 訂單明細：`name`、`specLabel`、`productId`、`variantId`、`sku`
 - 預約：`bookingInfo.campgroundName` / `region`；`selectedRentals[].specLabel` 等
 - 券：`order.coupons[]` 快照（code / type / discount / amount）
+
+目前固定展示訂單沒有券快照；上列欄位只適用於未來真正帶有可追溯 `couponClaimId` 的新訂單，不能替舊訂單補造。
 
 `specLabel` 統一分隔符：`/`（非 `、`）。
 

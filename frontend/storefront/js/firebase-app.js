@@ -15,6 +15,7 @@ import {
   OAuthProvider,
   signInWithPopup,
   signOut,
+  onAuthStateChanged,
 } from 'firebase/auth';
 
 /**
@@ -61,6 +62,7 @@ var app = null;
 var auth = null;
 var ready = false;
 var initError = null;
+var authStateReadyPromise = null;
 
 if (missing.length > 0) {
   console.warn(
@@ -166,6 +168,31 @@ window.YuruiFirebase = {
   },
   getInitError: function getInitError() {
     return initError;
+  },
+
+  /** 等待 Firebase 從 IndexedDB 還原登入者，避免 Dashboard 太早判定未登入。 */
+  waitForAuthState: function waitForAuthState() {
+    if (!ready || !auth) return Promise.resolve(null);
+
+    // 同一個分頁只建立一次等待流程，讓商城、Booking 與後台共用相同結果。
+    if (authStateReadyPromise) return authStateReadyPromise;
+
+    if (typeof auth.authStateReady === 'function') {
+      authStateReadyPromise = auth.authStateReady().then(function () {
+        return auth.currentUser || null;
+      });
+
+      return authStateReadyPromise;
+    }
+
+    authStateReadyPromise = new Promise(function (resolve) {
+      var unsubscribe = onAuthStateChanged(auth, function (user) {
+        unsubscribe();
+        resolve(user || null);
+      });
+    });
+
+    return authStateReadyPromise;
   },
 
   /**

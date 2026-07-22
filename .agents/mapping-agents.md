@@ -4,11 +4,12 @@
 - /docs/api/README.md
 - /docs/seed/README.md
 - README.md
-- \plans\frontend-folder-migration-spec.md
-- \plans\frontend-root-absolute-path-and-api-contract-spec.md
+- \plans\backend-schema-change-checklist.md
+- \plans\schema-migration-checklist.md
 
 
 # 限制條件:
+- 如果有在cmd, powershell 出現過中文破壞的情況直接跳過那段改動，避免破壞專案。
 - 執行完任務將所有相關文件更新。
 - 根目錄的README.md 也要更新。
 - 不要產生因為錯誤紀錄的log 檔案。
