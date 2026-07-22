@@ -191,8 +191,26 @@ const _getNextOrderId = (orders = []) => {
 
 const _normalizeOrder = (order) => {
   if (!order) return order;
+
+  // 後端 Order 契約保留正式欄位，並補上會員中心既有的顯示欄位。
+  const items = Array.isArray(order.items)
+    ? order.items.map((item) => ({
+        ...item,
+        orderItemId: item.orderItemId ?? item.id,
+        name: item.name || item.productName || '',
+        image: item.image || item.imageUrl || '',
+        price: Number(item.price ?? item.unitPrice ?? 0),
+        specLabel: item.specLabel || item.specification || '',
+      }))
+    : [];
+
   return {
     ...order,
+    items,
+    createdAt: order.createdAt || order.placedAt || '',
+    payment: order.payment || order.paymentMethod || '',
+    address: order.address || order.shippingAddress || '',
+    buyerPhone: order.buyerPhone || order.shippingPhone || '',
     displayId: window.formatOrderDisplayId(order.id),
   };
 };
@@ -868,7 +886,14 @@ const checkoutMockAdapter = {
       shippingInput.recipientName || user.name || user.displayName || MOCK_CHECKOUT_PENDING
     ).trim();
     const phone = String(shippingInput.phone || user.phone || MOCK_CHECKOUT_PENDING).trim();
-    const address = String(shippingInput.address || MOCK_CHECKOUT_PENDING).trim();
+    const shippingMethod = shippingInput.method === 'pickup' ? 'pickup' : 'delivery';
+    const pickupBranchId = shippingMethod === 'pickup'
+      ? String(shippingInput.pickupBranchId || '').trim()
+      : null;
+    const branch = pickupBranchId
+      ? (await window.API.branches.getAll()).find(item => item.id === pickupBranchId)
+      : null;
+    const address = String(branch?.address || shippingInput.address || MOCK_CHECKOUT_PENDING).trim();
     const checkoutItems = await _buildMockCheckoutItems(items);
     const subtotal = (checkoutItems.subtotalCents / 100).toFixed(2);
     const ready = [recipientName, phone, address]
@@ -886,7 +911,14 @@ const checkoutMockAdapter = {
         total: subtotal,
       },
       items: checkoutItems.snapshots,
-      shipping: { recipientName, phone, address },
+      shipping: {
+        method: shippingMethod,
+        recipientName,
+        phone,
+        address,
+        pickupBranchId,
+        pickupBranchName: branch?.name || null,
+      },
       couponClaimId: null,
       checkoutStep: ready ? 'ready_to_pay' : 'draft',
     };
@@ -951,7 +983,7 @@ const checkoutMockAdapter = {
       });
     }
 
-    next.checkoutStep = Object.values(next.shipping)
+    next.checkoutStep = ['recipientName', 'phone', 'address'].map(field => next.shipping[field])
       .every((value) => value && value !== MOCK_CHECKOUT_PENDING)
       ? 'ready_to_pay'
       : 'draft';
@@ -978,12 +1010,19 @@ const checkoutMockAdapter = {
     return _copyCheckoutSession(next);
   },
 
-  confirmCod: async () => {
-    throw _checkoutMockError(
-      'PAYMENT_NOT_IMPLEMENTED',
-      'COD confirmation waits for Payment line D',
-      501
-    );
+  confirmCod: async (orderId) => {
+    const result = _findMockCheckoutRecord(orderId);
+    _assertMockCheckoutActive(result.record);
+    if (result.record.session.paymentMethod !== 'cod') {
+      throw _checkoutMockError('CONFLICT', 'Only COD checkout can be confirmed here', 409);
+    }
+    const next = {
+      ...result.record.session,
+      checkoutExpiresAt: null,
+      checkoutStep: 'completed',
+    };
+    _replaceMockCheckoutRecord(result.records, { ...result.record, session: next });
+    return _copyCheckoutSession(next);
   },
 
   createEcpayForm: async () => {
@@ -1161,13 +1200,25 @@ window.API = {
 
   orders: {
     getAll: async () => {
+      if (!_useMockApi()) {
+        const orders = await window.ApiClient._restRequest('/me/orders', {
+          auth: 'required',
+        });
+
+        return (orders || []).map(_normalizeOrder);
+      }
+
       const seed = await _loadOrdersSeed();
       return _mergeOrders(seed, _getStoredOrders()).map(_normalizeOrder);
     },
 
     getByCustomerId: async (customerId, status = null) => {
       let orders = await window.API.orders.getAll();
-      orders = orders.filter((o) => o.customerId === customerId);
+
+      // Backend 的會員身分由 Firebase Principal 決定，不信任前端傳入的 customerId。
+      if (_useMockApi()) {
+        orders = orders.filter((o) => o.customerId === customerId);
+      }
       if (status) orders = orders.filter((o) => o.status === status);
       return orders;
     },
@@ -1244,6 +1295,8 @@ window.API = {
     },
 
     awardPointsIfCompleted: async (order) => {
+      // 正式模式的點數與訂單狀態只能由後端交易處理。
+      if (!_useMockApi()) return;
       if (!order || order.status !== 'completed' || order.pointsAwarded) return;
       if (order.points > 0 && order.customerId) {
         await customersApi.addPoints(order.customerId, order.points);

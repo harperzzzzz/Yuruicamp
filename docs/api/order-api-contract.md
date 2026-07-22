@@ -1,10 +1,10 @@
-# Order API Contract（v0.1）
+# Order API Contract（v0.2）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（線 C 待實作） |
+| **狀態** | Implemented（會員列表與詳情已完成） |
 | **日期** | 2026-07-20 |
-| **版本** | 0.1 |
+| **版本** | 0.2 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **相關** | [`checkout-api-contract.md`](./checkout-api-contract.md) |
 | **DB** | `orders`、`order_items`、`order_coupons`、`order_status_history` |
@@ -159,3 +159,4 @@
 | 版本 | 日期 | 說明 |
 |------|------|------|
 | 0.1 | 2026-07-20 | 會員唯讀訂單；對齊 orders／order_items 快照 |
+| 0.2 | 2026-07-22 | 完成會員本人列表、詳情、統一 404 與 PostgreSQL 驗收 |

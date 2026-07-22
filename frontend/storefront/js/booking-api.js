@@ -541,6 +541,21 @@
       return createMockBooking(request, mockCart);
     },
 
+    // 取得後端簽好的 ECPay 表單；前端不得自行產生付款簽章。
+    createEcpayForm: function (bookingId) {
+      if (useMockApi()) {
+        return Promise.reject(new Error('ECPay form is unavailable in Mock mode'));
+      }
+
+      return restRequest(
+        '/booking/checkout/sessions/' + encodeURIComponent(bookingId) + '/ecpay',
+        {
+          method: 'POST',
+          auth: 'required',
+        }
+      );
+    },
+
     cancelBooking: function (bookingId) {
       if (!useMockApi()) {
         return restRequest('/booking/checkout/sessions/' + encodeURIComponent(bookingId) + '/cancel', {

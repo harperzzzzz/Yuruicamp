@@ -88,6 +88,7 @@ class CouponPostgreSqlIntegrationTest {
 		Order order = new Order();
 		order.initialize("OF99004", "CF001", "coupon-order", "coupon-hash",
 				"Coupon Tester", "coupon-f1@example.com", "Tester", "Taipei", "0900000000",
+				com.yuruicamp.backend.order.domain.ShippingMethod.delivery, null,
 				PaymentMethod.ecpay_credit, Instant.now(), Instant.now().plusSeconds(900));
 		order.setPricing(new BigDecimal("1000.00"), BigDecimal.ZERO, BigDecimal.ZERO);
 		orders.saveAndFlush(order);
@@ -120,6 +121,7 @@ class CouponPostgreSqlIntegrationTest {
 		Order order = new Order();
 		order.initialize("OF99006", "CF001", "coupon-cancel", "coupon-cancel-hash",
 				"Coupon Tester", "coupon-f1@example.com", "Tester", "Taipei", "0900000000",
+				com.yuruicamp.backend.order.domain.ShippingMethod.delivery, null,
 				PaymentMethod.ecpay_credit, Instant.now(), Instant.now().plusSeconds(900));
 		order.setPricing(new BigDecimal("500.00"), BigDecimal.ZERO, BigDecimal.ZERO);
 		orders.saveAndFlush(order);

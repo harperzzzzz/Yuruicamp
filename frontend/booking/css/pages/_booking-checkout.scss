@@ -148,60 +148,8 @@
   margin-top: 0.2rem;
 }
 
-.creditCardSectionBooking {
-  margin-top: 0.75rem;
-  padding: 1.1rem;
-  background: var(--yc-bg);
-  border-radius: var(--yc-radius-card);
-  border: 1px solid var(--yc-border);
-}
-
-.ccLabel {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--yc-sage-action);
-  margin-bottom: 0.3rem;
-}
-
-.ccInput {
-  width: 100%;
-  padding: 0.55rem 0.8rem;
-  border: 1.5px solid var(--yc-border);
-  border-radius: var(--yc-radius-control);
-  font-size: 0.9rem;
-  color: var(--yc-text);
-  background: var(--yc-surface);
-  outline: 3px solid transparent;
-  outline-offset: 2px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  font-family: inherit;
-  letter-spacing: 0.03em;
-}
-
-.ccInput:focus {
-  border-color: var(--yc-sage-action);
-  box-shadow: var(--yc-focus-ring);
-}
-
-.formControl.isInvalid,
-.ccInput.isInvalid {
+.formControl.isInvalid {
   border-color: var(--yc-error);
-}
-
-.ccField {
-  margin: 0;
-}
-
-.ccField + .ccField {
-  margin-top: 0.75rem;
-}
-
-.ccRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 .checkoutConfirmAreaBooking {

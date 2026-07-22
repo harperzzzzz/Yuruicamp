@@ -2,8 +2,9 @@ package com.yuruicamp.backend.checkout.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -129,6 +130,38 @@ class CheckoutPostgreSqlIntegrationTest {
 		assertThat(reservation.get("variant_id")).isEqualTo(VARIANT_ID);
 		assertThat(reservation.get("quantity")).isEqualTo(2);
 		assertThat(reservation.get("status")).isEqualTo("active");
+	}
+
+	@Test
+	void getReturnsOnlyTheAuthenticatedCustomersCheckout() throws Exception {
+		CheckoutSessionResponse created = checkoutService.create(
+				CUSTOMER_A,
+				request("get-owned-" + UUID.randomUUID(), 1));
+
+		mockMvc.perform(get("/api/checkout/sessions/{orderId}", created.orderId())
+					.header("Authorization", bearerA()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.orderId").value(created.orderId()))
+				.andExpect(jsonPath("$.data.paymentStatus").value("unpaid"))
+				.andExpect(jsonPath("$.data.pricing.total").value("1234.56"))
+				.andExpect(jsonPath("$.data.items[0].variantId").value(VARIANT_ID));
+
+		mockMvc.perform(get("/api/checkout/sessions/{orderId}", created.orderId())
+					.header("Authorization", bearerB()))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error.code").value("FORBIDDEN"));
+	}
+
+	@Test
+	void getRequiresAuthenticationAndRejectsUnknownCheckout() throws Exception {
+		mockMvc.perform(get("/api/checkout/sessions/UNKNOWN"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error.code").value("UNAUTHORIZED"));
+
+		mockMvc.perform(get("/api/checkout/sessions/UNKNOWN")
+					.header("Authorization", bearerA()))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error.code").value("FORBIDDEN"));
 	}
 
 	@Test
@@ -473,12 +506,20 @@ class CheckoutPostgreSqlIntegrationTest {
 				customerId);
 	}
 
+	private String bearerA() {
+		return "Bearer dev:checkout-it-a:checkout-it-a@example.com:google:Tester";
+	}
+
+	private String bearerB() {
+		return "Bearer dev:checkout-it-b:checkout-it-b@example.com:google:Tester";
+	}
+
 	// 建立只含後端允許欄位的 Checkout 請求。
 	private CheckoutCreateRequest request(String idempotencyKey, int quantity) {
 		return new CheckoutCreateRequest(
 				List.of(new CheckoutCreateRequest.Item(VARIANT_ID, quantity)),
 				"ecpay-credit",
-				new CheckoutCreateRequest.Shipping("測試收件人", "0912345678", "台北市測試路 1 號"),
+				new CheckoutCreateRequest.Shipping("delivery", "測試收件人", "0912345678", "台北市測試路 1 號", null),
 				idempotencyKey);
 	}
 

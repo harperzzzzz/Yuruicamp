@@ -35,6 +35,7 @@ public record CheckoutSessionResponse(
 	}
 
 	// 表示 Checkout 的收件資料。
-	public record Shipping(String recipientName, String phone, String address) {
+	public record Shipping(String method, String recipientName, String phone, String address,
+			String pickupBranchId, String pickupBranchName) {
 	}
 }

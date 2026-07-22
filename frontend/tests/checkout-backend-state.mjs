@@ -100,8 +100,6 @@ assert.equal(elements.get('checkoutShipping').textContent, 'NT$100.00');
 assert.equal(elements.get('checkoutDiscount').textContent, '-NT$200.00');
 assert.equal(elements.get('checkoutTotal').textContent, 'NT$3100.00');
 assert.equal(elements.get('checkoutDiscountRow').hidden, false);
-assert.equal(elements.get('checkoutPricingSource').classList.contains('isConfirmed'), true);
-assert.match(elements.get('checkoutPricingSource').textContent, /Spring Boot/);
 
 sessionStorage.set('checkoutCompletedOrderId', 'O001');
 sessionStorage.set('lastCheckoutSession', JSON.stringify({
@@ -131,6 +129,19 @@ context._syncPaymentNoticeState();
 assert.equal(elements.get('ecpayPaymentNotice').hidden, true);
 assert.equal(elements.get('codPaymentNotice').hidden, false);
 
+assert.equal(context._shouldConfirmCodImmediately({
+  paymentMethod: 'cod',
+  checkoutStep: 'ready_to_pay',
+}), true);
+assert.equal(context._shouldConfirmCodImmediately({
+  paymentMethod: 'cod',
+  checkoutStep: 'draft',
+}), false);
+assert.equal(context._shouldConfirmCodImmediately({
+  paymentMethod: 'ecpay-credit',
+  checkoutStep: 'ready_to_pay',
+}), false);
+
 const confirmButton = element();
 context._showCheckoutSessionReady(
   {
@@ -147,14 +158,10 @@ context._showCheckoutSessionReady(
   },
   confirmButton,
 );
-assert.equal(confirmButton.disabled, true);
-assert.equal(confirmButton.textContent, '等待 ECPay 串接');
-assert.match(elements.get('checkoutActionStatus').textContent, /O001/);
+assert.equal(confirmButton.disabled, false);
+assert.equal(confirmButton.textContent, '前往 ECPay');
 
 context._showCheckoutEstimateState();
-assert.equal(elements.get('checkoutPricingSource').classList.contains('isConfirmed'), false);
-assert.match(elements.get('checkoutPricingSource').textContent, /預估金額/);
-assert.equal(elements.get('checkoutActionStatus').hidden, true);
 assert.equal(elements.get('confirmOrderBtn').disabled, false);
 assert.equal(elements.get('confirmOrderBtn').textContent, '確認結帳');
 
@@ -162,6 +169,8 @@ assert(!checkoutHtml.includes('id="cardNumber"'));
 assert(!checkoutHtml.includes('id="cardExpiry"'));
 assert(!checkoutHtml.includes('id="cardCvv"'));
 assert(checkoutHtml.includes('下一步將前往 ECPay'));
+assert(!checkoutHtml.includes('id="checkoutPricingSource"'));
+assert(!checkoutHtml.includes('id="checkoutActionStatus"'));
 assert(!checkoutSource.includes('lastCheckoutOrder'));
 assert(!checkoutSource.includes('markFirstPurchaseUsed'));
 assert(!checkoutSource.includes('API.orders.create'));

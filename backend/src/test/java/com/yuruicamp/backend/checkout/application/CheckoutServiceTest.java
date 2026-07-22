@@ -39,6 +39,7 @@ import com.yuruicamp.backend.order.infrastructure.OrderStatusHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
+import com.yuruicamp.backend.branch.infrastructure.BranchRepository;
 
 // 驗證建立結帳的冪等與空值處理。
 class CheckoutServiceTest {
@@ -51,6 +52,7 @@ class CheckoutServiceTest {
 	private OrderStatusHistoryRepository histories;
 	private EquipmentImageRepository images;
 	private CouponService couponService;
+	private BranchRepository branches;
 	private CheckoutService service;
 
 	// 每個測試開始前建立乾淨的模擬元件。
@@ -64,9 +66,10 @@ class CheckoutServiceTest {
 		histories = mock(OrderStatusHistoryRepository.class);
 		images = mock(EquipmentImageRepository.class);
 		couponService = mock(CouponService.class);
+		branches = mock(BranchRepository.class);
 		when(couponService.appliedClaimId(any())).thenReturn(null);
 		service = new CheckoutService(customers, products, stocks, reservations, orders, histories, images,
-				couponService);
+				couponService, branches);
 	}
 
 	// 相同請求重送時應回傳原本的訂單。
@@ -93,7 +96,7 @@ class CheckoutServiceTest {
 		service.create("C001", request("checkout-key-002", null));
 
 		CheckoutCreateRequest changed = request("checkout-key-002",
-				new CheckoutCreateRequest.Shipping("Amy", "0912345678", "台北市"));
+				new CheckoutCreateRequest.Shipping("delivery", "Amy", "0912345678", "台北市", null));
 
 		assertThatThrownBy(() -> service.create("C001", changed))
 				.isInstanceOfSatisfying(BusinessException.class, ex ->
@@ -118,7 +121,7 @@ class CheckoutServiceTest {
 		when(orders.findForCustomerForUpdate("O-C4", "C001"))
 				.thenReturn(Optional.of(order));
 		CheckoutUpdateRequest request = new CheckoutUpdateRequest(
-				new CheckoutUpdateRequest.Shipping(" 王小明 ", " 0912345678 ", " 台北市信義區 "),
+				new CheckoutUpdateRequest.Shipping("delivery", " 王小明 ", " 0912345678 ", " 台北市信義區 ", null),
 				"cod",
 				null);
 
@@ -202,6 +205,41 @@ class CheckoutServiceTest {
 				org.mockito.ArgumentMatchers.any(Instant.class));
 	}
 
+	// 本人讀取 Checkout 時應回傳同一份訂單與商品快照。
+	@Test
+	void getReturnsOwnedCheckoutSnapshot() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		when(orders.findForCustomer("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+
+		CheckoutSessionResponse response = service.get("C001", " O-C4 ");
+
+		assertThat(response.orderId()).isEqualTo("O-C4");
+		assertThat(response.paymentStatus()).isEqualTo("unpaid");
+		assertThat(response.checkoutStep()).isEqualTo("draft");
+	}
+
+	// 他人的 Checkout 不可由目前會員讀取。
+	@Test
+	void getRejectsOrderOwnedByAnotherCustomer() {
+		when(orders.findForCustomer("O-OTHER", "C001"))
+				.thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> service.get("C001", "O-OTHER"))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN));
+	}
+
+	// 空白訂單 ID 應在查詢資料庫前被拒絕。
+	@Test
+	void getRejectsBlankOrderId() {
+		assertThatThrownBy(() -> service.get("C001", " "))
+				.isInstanceOfSatisfying(BusinessException.class, ex ->
+						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR));
+
+		verify(orders, never()).findForCustomer(any(), any());
+	}
+
 	// 不支援的付款方式應回傳驗證錯誤。
 	@Test
 	void updateRejectsUnsupportedPaymentMethod() {
@@ -269,7 +307,8 @@ class CheckoutServiceTest {
 		Order order = new Order();
 		order.initialize("O-C4", "C001", "c4-key", "c4-request-hash",
 				"Buyer", "buyer@example.com", "PENDING_CHECKOUT", "PENDING_CHECKOUT",
-				"PENDING_CHECKOUT", com.yuruicamp.backend.order.domain.PaymentMethod.ecpay_credit,
+				"PENDING_CHECKOUT", com.yuruicamp.backend.order.domain.ShippingMethod.delivery, null,
+				com.yuruicamp.backend.order.domain.PaymentMethod.ecpay_credit,
 				Instant.now(), expiresAt);
 
 		return order;

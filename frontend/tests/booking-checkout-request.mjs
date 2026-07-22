@@ -6,6 +6,7 @@ import vm from 'node:vm';
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const source = readFileSync(join(rootDir, 'booking/js/booking-checkout.js'), 'utf8');
+const pageSource = readFileSync(join(rootDir, 'booking/pages/booking-checkout.html'), 'utf8');
 const sessionValues = new Map();
 let createCalls = 0;
 
@@ -126,5 +127,18 @@ const [first, second] = await Promise.all([
 ]);
 assert.equal(createCalls, 1);
 assert.equal(first.bookingId, second.bookingId);
+
+assert(!pageSource.includes('id="creditCardSection"'));
+assert(!pageSource.includes('id="cardNumber"'));
+assert(!pageSource.includes('id="cardExpiry"'));
+assert(!pageSource.includes('id="cardCvv"'));
+assert(pageSource.includes('id="confirmPayBtn"'));
+assert(pageSource.includes('前往 ECPay'));
+assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelDetails"/);
+assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelContact"/);
+assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelPayment"/);
+assert(!source.includes('tryAutoFillContactFields'));
+assert(source.includes('BookingAPI.createEcpayForm'));
+assert(source.includes('submitEcpayForm'));
 
 console.log('Booking Checkout Request checks passed');

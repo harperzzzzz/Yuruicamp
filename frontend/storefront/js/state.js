@@ -39,7 +39,7 @@ window.AppState = {
   isLoggedIn: _resolveStoredLoginState(localStorage.getItem('isLoggedIn'), _storedAuthUser),
   currentUser: _storedAuthUser,
   cart: window.YuruiStorage.readJson('cart', []),
-  preferences: window.YuruiStorage.readJson('preferences', {}),
+  preferences: window.YuruiStorage.readJson('preferences', null),
   theme: localStorage.getItem('theme') || 'light',
 };
 
@@ -55,7 +55,10 @@ window.saveAppState = () => {
     localStorage.removeItem('yuruiUser');
   }
   window.YuruiStorage.writeJson('cart', window.AppState.cart || []);
-  window.YuruiStorage.writeJson('preferences', window.AppState.preferences || {});
+  window.YuruiStorage.writeJson(
+    'preferences',
+    window.AppState.preferences == null ? null : window.AppState.preferences
+  );
   localStorage.setItem('theme', window.AppState.theme || 'light');
 };
 
@@ -73,9 +76,11 @@ window.logout = () => {
   localStorage.setItem('isLoggedIn', 'false');
   localStorage.removeItem('currentUser');
   localStorage.removeItem('yuruiUser');
-  window.dispatchEvent(new CustomEvent('yurui:auth-changed', {
-    detail: { type: 'logout', user: null },
-  }));
+  window.dispatchEvent(
+    new CustomEvent('yurui:auth-changed', {
+      detail: { type: 'logout', user: null },
+    })
+  );
 };
 
 /**
@@ -87,7 +92,7 @@ window.resetAppState = () => {
     isLoggedIn: false,
     currentUser: null,
     cart: [],
-    preferences: {},
+    preferences: null,
     theme: 'light',
   };
   window.YuruiStorage.removeKeys(APP_RESET_STORAGE_KEYS);

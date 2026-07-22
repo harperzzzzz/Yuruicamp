@@ -107,6 +107,7 @@ psql -U postgres -d yuruicamp -f docs/seed/002-dev-seed.sql
 ### 維護規則
 
 - `latest_schema.sql` 只放 DDL；展示資料只放在本目錄。
+- Checkout 門市取貨使用既有 `branches` Seed；`orders.pickup_branch_id` 只保存外鍵，不新增另一份門市資料。
 - 片段不可包含 `BEGIN`、`COMMIT` 或 `\set ON_ERROR_STOP`，交易與錯誤處理由入口統一管理。
 - 檔名數字就是相依順序。新增片段後，必須明確加入 `002-dev-seed.sql`。
 - 使用固定、可辨識的開發 ID；可重跑的寫入應使用適當的 `ON CONFLICT`。

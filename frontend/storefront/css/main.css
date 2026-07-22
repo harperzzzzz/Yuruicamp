@@ -733,8 +733,7 @@ a:focus-visible,
 .siteCartItemImage {
   width: 88px;
   aspect-ratio: 1;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   border-radius: var(--yc-radius-button);
 }
 
@@ -1125,8 +1124,7 @@ body.shippingAddressModalOpen {
 .cardGallery img {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -1233,10 +1231,8 @@ body.shippingAddressModalOpen {
   max-height: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  -o-object-fit: contain !important;
-     object-fit: contain !important;
-  -o-object-position: center !important;
-     object-position: center !important;
+  object-fit: contain !important;
+  object-position: center !important;
   width: 100% !important;
 }
 
@@ -1255,10 +1251,8 @@ body.shippingAddressModalOpen {
   height: 100% !important;
   max-height: 100% !important;
   max-width: 100% !important;
-  -o-object-fit: contain !important;
-     object-fit: contain !important;
-  -o-object-position: center !important;
-     object-position: center !important;
+  object-fit: contain !important;
+  object-position: center !important;
   width: 100% !important;
 }
 
@@ -1776,8 +1770,7 @@ body.shippingAddressModalOpen {
 .bookingBrandImage {
   width: clamp(48px, 5vw, 70px);
   height: clamp(48px, 5vw, 70px);
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 
 .siteBrandText,
@@ -2149,8 +2142,7 @@ body.shippingAddressModalOpen {
   border-radius: var(--yc-radius-card, 12px);
   box-shadow: var(--yc-shadow-soft, 0 4px 12px rgba(36, 77, 77, 0.1));
   display: block;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -2257,8 +2249,7 @@ body.shippingAddressModalOpen {
 .blogInlineProductImage {
   aspect-ratio: 1;
   border-radius: var(--yc-radius-button, 8px);
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -2340,8 +2331,7 @@ body.shippingAddressModalOpen {
 .blogRelatedImage {
   aspect-ratio: 16/9;
   display: block;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -2534,8 +2524,7 @@ body.shippingAddressModalOpen {
 .blogFeaturedImage {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   position: absolute;
   width: 100%;
 }
@@ -2569,7 +2558,6 @@ body.shippingAddressModalOpen {
   justify-content: center;
   min-height: 28px;
   padding: 0.25rem 0.75rem;
-  width: -moz-fit-content;
   width: fit-content;
 }
 
@@ -2689,8 +2677,7 @@ body.shippingAddressModalOpen {
 .blogArticleImage {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -3173,8 +3160,7 @@ body.shippingAddressModalOpen {
   display: block;
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .partnerCardContent {
@@ -3392,6 +3378,18 @@ body.shippingAddressModalOpen {
   border-color: color-mix(in srgb, var(--yc-error) 36%, var(--yc-border));
 }
 
+.checkoutSuccess.isPending .successIconWrap,
+.checkoutSuccess.isLoading .successIconWrap {
+  background: var(--yc-sage-action);
+}
+
+.checkoutSuccess.isCancelled .successIconWrap,
+.checkoutSuccess.isExpired .successIconWrap,
+.checkoutSuccess.isError .successIconWrap {
+  background: var(--yc-error);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--yc-error) 26%, transparent);
+}
+
 .checkoutSuccessDecoration {
   border-radius: 50%;
   pointer-events: none;
@@ -3442,6 +3440,21 @@ body.shippingAddressModalOpen {
   z-index: 1;
 }
 
+.checkoutStatusBadge {
+  color: var(--yc-sage-action);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+}
+
+.isCancelled .checkoutStatusBadge,
+.isExpired .checkoutStatusBadge,
+.isError .checkoutStatusBadge {
+  color: var(--yc-error);
+}
+
 .successTitle {
   color: var(--yc-text);
   font-size: clamp(1.75rem, 4vw, 2.25rem);
@@ -3486,6 +3499,40 @@ body.shippingAddressModalOpen {
 
 .orderNumberValue.isLoading {
   color: var(--yc-text-muted);
+}
+
+.checkoutStatusDetails {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 0 1.75rem;
+}
+
+.checkoutStatusDetails[hidden] {
+  display: none;
+}
+
+.checkoutStatusDetail {
+  background: var(--yc-surface-soft);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  min-width: 0;
+  padding: 0.875rem 0.625rem;
+}
+
+.checkoutStatusDetail dt {
+  color: var(--yc-text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.checkoutStatusDetail dd {
+  color: var(--yc-text);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .shippingTimeline {
@@ -3678,6 +3725,7 @@ body.shippingAddressModalOpen {
     padding: 2rem 1rem;
   }
   .shippingTimeline,
+  .checkoutStatusDetails,
   .successActions {
     grid-template-columns: 1fr;
   }
@@ -4065,6 +4113,16 @@ body.shippingAddressModalOpen {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-error) 24%, transparent);
 }
 
+.checkoutPickupField {
+  margin-top: 1rem;
+}
+
+.checkoutFieldHint {
+  color: var(--yc-text-muted);
+  font-size: 0.8125rem;
+  margin: 0.45rem 0 0;
+}
+
 .checkoutSecondaryAction {
   margin-top: 0.25rem;
   background: var(--yc-cta);
@@ -4251,8 +4309,7 @@ body.shippingAddressModalOpen {
   border-radius: 6px;
   display: block;
   height: 56px;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 56px;
 }
 
@@ -5032,8 +5089,7 @@ body.shippingAddressModalOpen {
   block-size: 100%;
   inline-size: 100%;
   inset: 0;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   position: absolute;
   z-index: 0;
 }
@@ -5144,8 +5200,7 @@ body.shippingAddressModalOpen {
 }
 
 .brandMarquee {
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
-          mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
   overflow: hidden;
   width: 100%;
 }
@@ -5154,7 +5209,6 @@ body.shippingAddressModalOpen {
   animation: brand-marquee-scroll 25s linear infinite;
   display: flex;
   gap: var(--yc-space-8);
-  width: -moz-max-content;
   width: max-content;
 }
 
@@ -5175,9 +5229,7 @@ body.shippingAddressModalOpen {
   min-block-size: 44px;
   padding-inline: var(--yc-space-4);
   transition: border-color var(--yc-transition-fast), color var(--yc-transition-fast), background-color var(--yc-transition-fast);
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   white-space: nowrap;
 }
 
@@ -5369,8 +5421,7 @@ body.shippingAddressModalOpen {
 .homeProductImage img {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -5750,7 +5801,6 @@ body.shippingAddressModalOpen {
   font-size: 0.8125rem;
   font-weight: 700;
   padding: var(--yc-space-1) var(--yc-space-2);
-  width: -moz-fit-content;
   width: fit-content;
 }
 
@@ -6936,8 +6986,7 @@ body.shippingAddressModalOpen {
 }
 
 .memberOrderThumb {
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .memberOrderMore {
@@ -7258,8 +7307,7 @@ body.shippingAddressModalOpen {
   border: 1px solid color-mix(in srgb, var(--yc-sage-action) 10%, var(--yc-border));
   border-radius: var(--yc-radius-button, 8px);
   display: block;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 56px;
 }
 
@@ -7680,8 +7728,7 @@ main.productDetailContainer {
   border-radius: 12px;
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   opacity: 1;
   transition: opacity 200ms ease, transform 250ms ease;
   width: 100%;
@@ -7725,8 +7772,7 @@ main.productDetailContainer {
 .galleryThumbImage {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -7948,9 +7994,7 @@ main.productDetailContainer {
 }
 .shippingProgressBar {
   --shipping-progress-value: 0%;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   block-size: 10px;
   border: 0;
   border-radius: 999px;
@@ -8621,8 +8665,7 @@ main.productDetailContainer {
 .ratingImage {
   border-radius: 8px;
   height: 100px;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100px;
 }
 
@@ -8841,7 +8884,6 @@ main.productDetailContainer {
   font-weight: 700;
   letter-spacing: 0.04em;
   padding: 0.35rem 0.75rem;
-  width: -moz-fit-content;
   width: fit-content;
 }
 
@@ -8870,8 +8912,7 @@ main.productDetailContainer {
   aspect-ratio: 1;
   border-radius: 8px;
   height: 200px;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   opacity: 0.9;
   width: 200px;
   z-index: 1;
@@ -8985,8 +9026,7 @@ main.productDetailContainer {
 .productCardImageWrap img {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -9343,7 +9383,6 @@ main.productDetailContainer {
   font-size: 0.72rem;
   font-weight: 700;
   padding: 0.1rem 0.35rem;
-  width: -moz-fit-content;
   width: fit-content;
 }
 
@@ -9809,4 +9848,6 @@ main.productDetailContainer {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     transform: scale(0.98);
   }
-}/*# sourceMappingURL=main.css.map */
+}
+
+/*# sourceMappingURL=main.css.map */

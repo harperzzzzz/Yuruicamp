@@ -1419,6 +1419,8 @@ CREATE TABLE public.orders (
     recipient_name_snapshot character varying(100) NOT NULL,
     shipping_address_snapshot text NOT NULL,
     shipping_phone_snapshot character varying(32) NOT NULL,
+    shipping_method public.shipping_method DEFAULT 'delivery'::public.shipping_method NOT NULL,
+    pickup_branch_id character varying(32),
     subtotal numeric(14,2) NOT NULL,
     shipping_fee numeric(12,2) NOT NULL,
     discount numeric(14,2) NOT NULL,
@@ -1437,7 +1439,10 @@ CREATE TABLE public.orders (
     CONSTRAINT pk_orders PRIMARY KEY (id),
     CONSTRAINT uq_orders_customer_checkout_idempotency UNIQUE (customer_id, checkout_idempotency_key),
 
-    CONSTRAINT fk_orders_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT ck_orders_shipping_target CHECK ((((shipping_method = 'delivery'::public.shipping_method) AND (pickup_branch_id IS NULL)) OR ((shipping_method = 'pickup'::public.shipping_method) AND (pickup_branch_id IS NOT NULL)))),
+
+    CONSTRAINT fk_orders_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_orders_pickup_branch_id FOREIGN KEY (pickup_branch_id) REFERENCES public.branches(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 

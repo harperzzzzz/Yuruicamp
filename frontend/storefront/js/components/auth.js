@@ -15,7 +15,7 @@
     isLoggedIn: 'isLoggedIn',
     currentUser: 'currentUser',
     bookingUser: 'yuruiUser',
-    idToken: 'yuruiFirebaseIdToken'
+    idToken: 'yuruiFirebaseIdToken',
   };
 
   function readJsonStorage(key, fallback) {
@@ -79,14 +79,15 @@
   }
 
   function emitAuthChanged(type, user) {
-    window.dispatchEvent(new CustomEvent('yurui:auth-changed', {
-      detail: { type: type, user: user || null }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('yurui:auth-changed', {
+        detail: { type: type, user: user || null },
+      })
+    );
   }
 
   function readStoredUser() {
-    return readJsonStorage(STORAGE_KEYS.currentUser, null)
-      || readJsonStorage(STORAGE_KEYS.bookingUser, null);
+    return readJsonStorage(STORAGE_KEYS.currentUser, null) || readJsonStorage(STORAGE_KEYS.bookingUser, null);
   }
 
   function getUser() {
@@ -102,15 +103,29 @@
     return Boolean(getUser());
   }
 
+  function initializeNewMemberPreferences(user) {
+    user.preferences = null;
+    if (window.AppState) window.AppState.preferences = null;
+    localStorage.setItem('preferences', 'null');
+    var profile = readJsonStorage('yurui_profile', {});
+    profile.preferences = null;
+    localStorage.setItem('yurui_profile', JSON.stringify(profile));
+  }
+
   function finishLogin(user, options, label) {
     options = options || {};
+    if (user.isNewCustomer) initializeNewMemberPreferences(user);
     persistUser(user);
     emitAuthChanged('login', user);
     if (typeof options.close === 'function') options.close();
     if (options.showToast !== false && typeof window.showToast === 'function') {
       window.showToast('已使用 ' + label + ' 登入（' + user.name + '）', 'success');
     }
-    if (options.openSurvey !== false && typeof window.openPersonalizationModal === 'function') {
+    if (
+      user.isNewCustomer &&
+      options.openSurvey !== false &&
+      typeof window.openPersonalizationModal === 'function'
+    ) {
       setTimeout(window.openPersonalizationModal, 300);
     }
     return user;
@@ -129,7 +144,10 @@
       provider: normalizeProvider(data.authProvider || 'google'),
       firebaseUid: data.firebaseUid || null,
       status: data.status || null,
-      avatarUrl: String(name).charAt(0)
+      registeredAt: data.registeredAt || null,
+      isNewCustomer: data.created === true,
+      preferences: data.created === true ? null : undefined,
+      avatarUrl: String(name).charAt(0),
     };
   }
 
@@ -179,10 +197,7 @@
         return me;
       })
       .catch(function (error) {
-        console.warn(
-          '✗ GET /api/me 失敗（登入 UI 仍可用）:',
-          error && error.message ? error.message : error
-        );
+        console.warn('✗ GET /api/me 失敗（登入 UI 仍可用）:', error && error.message ? error.message : error);
         return null;
       });
   }
@@ -197,10 +212,12 @@
     var normalized = normalizeProvider(provider);
     var label = getProviderLabel(normalized);
 
-    if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function' || !window.YuruiFirebase.isReady()) {
-      return Promise.reject(
-        new Error('Firebase 尚未就緒。請確認 frontend/.env.local 並重啟 npm run dev。')
-      );
+    if (
+      !window.YuruiFirebase ||
+      typeof window.YuruiFirebase.isReady !== 'function' ||
+      !window.YuruiFirebase.isReady()
+    ) {
+      return Promise.reject(new Error('Firebase 尚未就緒。請確認 frontend/.env.local 並重啟 npm run dev。'));
     }
     if (typeof window.YuruiFirebase.signInWithProvider !== 'function') {
       return Promise.reject(new Error('YuruiFirebase.signInWithProvider 不可用，請硬刷頁面'));
@@ -220,7 +237,7 @@
         return window.ApiClient._restRequest('/auth/firebase/session', {
           method: 'POST',
           auth: 'none',
-          body: { idToken: firebaseResult.idToken }
+          body: { idToken: firebaseResult.idToken },
         }).then(function (data) {
           return { data: data, idToken: firebaseResult.idToken };
         });
@@ -282,7 +299,7 @@
       if (window.AppAuth && typeof window.AppAuth.getIdToken === 'function') {
         return window.AppAuth.getIdToken({
           required: false,
-          forceRefresh: Boolean(forceRefresh)
+          forceRefresh: Boolean(forceRefresh),
         }).catch(function () {
           return getIdToken();
         });
@@ -303,6 +320,6 @@
     logout: logout,
     sync: function () {
       emitAuthChanged('sync', getUser());
-    }
+    },
   };
-}());
+})();

@@ -170,7 +170,7 @@
                     class="checkoutRadio"
                     type="radio"
                     name="shippingMethod"
-                    value="store"
+                    value="pickup"
                     id="shippingStore"
                   />
                   <span class="checkoutChoiceBody">
@@ -199,6 +199,18 @@
                     </button>
                   </div>
                 </div>
+              </div>
+
+              <div class="checkoutField checkoutPickupField" id="pickupBranchSection" hidden>
+                <label class="checkoutLabel" for="checkoutPickupBranch">
+                  取貨門市 <span class="requiredMark">*</span>
+                </label>
+                <select class="checkoutInput checkoutSelect" id="checkoutPickupBranch" disabled>
+                  <option value="">門市載入中</option>
+                </select>
+                <p class="checkoutFieldHint" id="checkoutPickupBranchHint" aria-live="polite">
+                  選擇門市取貨後，訂單會保存門市資料快照。
+                </p>
               </div>
             </div>
           </section>
@@ -255,7 +267,7 @@
                 <i class="bi bi-cash-coin" aria-hidden="true"></i>
                 <span>
                   <strong>貨到付款</strong>
-                  <span>付款確認功能將於 Payment 線完成後開放。</span>
+                  <span>確認後訂單成立，收到商品時再以現金付款。</span>
                 </span>
               </div>
             </div>
@@ -265,7 +277,6 @@
             <button id="confirmOrderBtn" type="button" class="btn btnPrimary btnBlock checkoutConfirmBtn">
               確認結帳
             </button>
-            <p class="checkoutActionStatus" id="checkoutActionStatus" aria-live="polite" hidden></p>
             <p class="checkoutTermsText">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
           </div>
         </div>
@@ -317,9 +328,6 @@
               <span>合計</span>
               <span class="checkoutTotal" id="checkoutTotal">NT$0</span>
             </div>
-            <p class="checkoutPricingSource" id="checkoutPricingSource" aria-live="polite">
-              送出前為預估金額，成交金額以後端回傳為準。
-            </p>
 
             <div class="checkoutTrustNote">
               <p class="checkoutTrustText">SSL 加密保護，安全付款</p>

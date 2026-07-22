@@ -13,11 +13,15 @@ public record CheckoutUpdateRequest(
 
 	// 表示可個別更新的收件資料欄位，null 代表保留原值。
 	public record Shipping(
+			@Size(max = 16)
+			String method,
 			@Size(max = 100)
 			String recipientName,
 			@Size(max = 32)
 			String phone,
 			@Size(max = 500)
-			String address) {
+			String address,
+			@Size(max = 32)
+			String pickupBranchId) {
 	}
 }

@@ -1,10 +1,10 @@
-# Checkout API Contract（v0.5）
+# Checkout API Contract（v0.7）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（C-2、C-4、C-6 已實作） |
+| **狀態** | Implemented（Prepare、Read、Update、COD Confirm、Cancel）；ECPay 待實作 |
 | **日期** | 2026-07-21 |
-| **版本** | 0.5 |
+| **版本** | 0.7 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **相關** | [`order-api-contract.md`](./order-api-contract.md)、[`payment-api-contract.md`](./payment-api-contract.md)、[`coupon-api-contract.md`](./coupon-api-contract.md) |
 | **實作說明** | [`../backend-specs/checkout/README.md`](../backend-specs/checkout/README.md) |
@@ -46,9 +46,11 @@
 | `couponClaimId` | number \| null | 否 | 要用的 `coupon_claims.id` |
 | `paymentMethod` | string \| null | 否 | 初值可後 PATCH；見 ENUM |
 | `shipping` | object \| null | 否 | 未填可用佔位，PATCH 後再送出付款 |
+| `shipping.method` | string | 否 | `delivery`（預設）或 `pickup` |
 | `shipping.recipientName` | string | 條件 | |
 | `shipping.phone` | string | 條件 | |
 | `shipping.address` | string | 條件 | |
+| `shipping.pickupBranchId` | string \| null | 條件 | `pickup` 必填，後端依 `branches` 主檔取得地址 |
 | `idempotencyKey` | string | 是 | 1～128 字元；防重複建單 |
 
 **忽略（不可當真相）：** 前端傳的 `unitPrice`／`total`／`discount`（可選帶入僅供對照；不符 → `CONFLICT`）。
@@ -80,12 +82,12 @@
 | `paymentStatus` | string | `unpaid`（建立時） |
 | `paymentMethod` | string \| null | `orders.payment_method` |
 | `status` | string | `orders.status` |
-| `checkoutExpiresAt` | string | ISO-8601；`orders.checkout_expires_at` |
+| `checkoutExpiresAt` | string \| null | ISO-8601；COD 確認成立後為 `null` |
 | `pricing` | object | **後端重算**（見下） |
 | `items` | array | 見 Order 契約精簡版 |
 | `shipping` | object \| null | 收件快照 |
 | `couponClaimId` | number \| null | 已套用的領券 id |
-| `checkoutStep` | string | `draft` \| `ready_to_pay`（收件與付款方式齊備才可 `ready_to_pay`） |
+| `checkoutStep` | string | `draft` \| `ready_to_pay` \| `completed`；COD 確認後為 `completed` |
 
 #### `pricing`（寫死）
 
@@ -153,7 +155,7 @@ Request 範例：
 
 | 動作 | 條件 | 結果 |
 |------|------|------|
-| `confirm-cod` | `paymentMethod=cod`，`checkoutStep=ready_to_pay` | 確認下單；**仍 unpaid** 直到履約；保留帳維持至履約規則（見 Payment／Order） |
+| `confirm-cod` | `paymentMethod=cod`，`checkoutStep=ready_to_pay` | 確認下單；**仍 unpaid**，清除 Checkout 與 active 保留帳期限，直到履約或取消 |
 | `ecpay` | 非 `cod`，`ready_to_pay` | 回傳綠界表單欄位（見 Payment 契約）；不代表已付款 |
 | `cancel` | unpaid | 訂單取消、保留帳 `released`／`expired` |
 
@@ -205,6 +207,8 @@ Request 範例：
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.6 | 2026-07-22 | 完成會員本人 Checkout Session 讀取、Bearer 與 PostgreSQL 驗收 |
+| 0.7 | 2026-07-22 | 新增配送方式／取貨門市契約與 COD 確認，ECPay 維持待實作 |
 | 0.5 | 2026-07-21 | F-2：建立／更新 Checkout 可套用會員 claim，後端重算折扣並保存 `order_coupons` 快照 |
 | 0.4 | 2026-07-21 | C-4：完成收件資料與付款方式 PATCH；優惠券套用明確延後至 F-2 |
 | 0.3 | 2026-07-21 | C-6：鎖定自動逾時條件、`expired` 保留帳、狀態歷程與冪等規則 |

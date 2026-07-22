@@ -5,7 +5,7 @@
  *   ② 渲染住宿明細、裝備明細、費用加總
  *   ③ 聯絡資訊表單驗證
  *   ④ 建立 pending、unpaid 的 Booking Checkout
- *   ⑤ 顯示後端價格與付款期限，付款確認留給線 D
+ *   ⑤ 取得後端簽好的 ECPay 表單並導向付款頁
  */
 
 const BOOKING_IDEMPOTENCY_KEY = 'bookingCheckoutIdempotencyKey';
@@ -147,13 +147,7 @@ function fillContactFields(user) {
   if (user.email) $('#contactEmail').val(user.email);
 }
 
-/** 已登入時自動帶入；未登入則略過 */
-function tryAutoFillContactFields() {
-  var user = getLoggedInUser();
-  if (user) fillContactFields(user);
-}
-
-/** 綁定「帶入會員資料」按鈕與登入後自動填入 */
+/** 綁定「帶入會員資料」按鈕；進頁與登入完成時都不自動填入 */
 function initFillProfileBtn() {
   $('#fillProfileBtn').on('click', function () {
     var user = getLoggedInUser();
@@ -168,11 +162,6 @@ function initFillProfileBtn() {
     showToast('已帶入會員資料', 'success');
   });
 
-  window.addEventListener('yurui:auth-changed', function (e) {
-    if (e.detail && e.detail.type === 'login' && e.detail.user) {
-      fillContactFields(e.detail.user);
-    }
-  });
 }
 
 // ============================================================
@@ -181,7 +170,6 @@ function initFillProfileBtn() {
 
 window.onBookingHeaderReady = function () {
   initLoginGuard();
-  tryAutoFillContactFields();
 };
 
 function initLoginGuard() {
@@ -283,25 +271,70 @@ function handleCheckout(cart) {
 
   const payload = buildBookingPayload(cart, paymentMethod);
 
-  $('#confirmPayBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> 送出中...');
+  $('#confirmPayBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> 正在前往 ECPay...');
 
   if (!window.BookingAPI) {
     showToast('BookingAPI 未載入，請重新整理頁面。', 'error');
-    $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 建立待付款預約');
+    resetConfirmPayButton();
     return;
   }
 
-  // Backend 模式只送精簡契約；Mock 才會使用第二個參數產生顯示快照。
+  // 先建立後端待付款預約，再取得後端簽好的 ECPay 表單。
   createBookingOnce(payload, cart)
     .then(function (booking) {
-      console.log('[booking-checkout] 預約成功 / Booking created:', booking);
-      onCheckoutSuccess(booking);
+      return launchEcpayPayment(booking);
     })
     .catch(function (err) {
       console.error('[booking-checkout] 預約失敗 / Failed:', err);
-      showToast(err && err.message ? err.message : '預約送出失敗，請稍後再試。', 'error');
-      $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 建立待付款預約');
+      showToast(err && err.message ? err.message : 'ECPay 尚未啟用，請稍後再試。', 'error');
+      resetConfirmPayButton();
     });
+}
+
+// 將按鈕恢復為可再次嘗試的 ECPay 導向狀態。
+function resetConfirmPayButton() {
+  $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 前往 ECPay');
+}
+
+// 保存待付款預約並向後端取得 ECPay 導向表單。
+function launchEcpayPayment(booking) {
+  var bookingId = booking && (booking.bookingId || booking.id);
+  if (!bookingId) {
+    return Promise.reject(new Error('預約已建立，但後端未回傳 bookingId'));
+  }
+  if (!window.BookingAPI || typeof window.BookingAPI.createEcpayForm !== 'function') {
+    return Promise.reject(new Error('ECPay 導向功能尚未載入'));
+  }
+
+  sessionStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
+
+  return window.BookingAPI.createEcpayForm(bookingId)
+    .then(function (launch) {
+      submitEcpayForm(launch);
+    });
+}
+
+// 只提交後端產生的 ECPay 欄位，前端不保存金鑰或產生 CheckMacValue。
+function submitEcpayForm(launch) {
+  if (!launch || !launch.actionUrl || !launch.fields || typeof launch.fields !== 'object') {
+    throw new Error('ECPay 導向資料格式不完整');
+  }
+
+  var form = document.createElement('form');
+  form.method = 'POST';
+  form.action = launch.actionUrl;
+  form.hidden = true;
+
+  Object.entries(launch.fields).forEach(function (entry) {
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = entry[0];
+    input.value = String(entry[1]);
+    form.appendChild(input);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
 }
 
 // ============================================================
@@ -369,49 +402,6 @@ function getBookingIdempotencyKey(cart) {
   }
 
   return key;
-}
-
-// ============================================================
-// 結帳成功後處理
-// ============================================================
-
-/**
- * 將 booking id 轉成顯示用編號，格式化失敗時回退原始 id
- * Format booking id for display; fall back to raw id when formatter returns empty
- */
-function toBookingDisplayNum(id) {
-  if (id == null || id === '') return '';
-  var formatted = window.formatBookingDisplayId ? window.formatBookingDisplayId(id) : '';
-  return formatted || String(id);
-}
-
-/**
- * 清除預約背包並跳轉成功頁（對應商城 checkout-success 流程）
- * Clear booking cart and redirect to booking success page
- */
-function onCheckoutSuccess(booking) {
-  var bookingId = booking && (booking.bookingId || booking.id);
-  if (!bookingId) {
-    console.error('[booking-checkout] 缺少 bookingId / Missing bookingId:', booking);
-    showToast('預約已送出，但編號異常，請至會員中心查看', 'warning');
-    localStorage.removeItem('bookingCart');
-    window.location.href = './member-center.html';
-    return;
-  }
-
-  localStorage.removeItem('bookingCart');
-  sessionStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
-
-  // 真後端模式不把 Booking 當成本機業務資料；Mock 才保留 localStorage 備援。
-  if (window.BookingAPI && window.BookingAPI.isMockMode()) {
-    localStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
-  } else {
-    localStorage.removeItem('lastCheckoutBooking');
-  }
-
-  var bookingNum = toBookingDisplayNum(bookingId) || String(bookingId);
-
-  window.location.href = './booking-success.html?bookingNum=' + encodeURIComponent(bookingNum);
 }
 
 // ============================================================

@@ -8,7 +8,7 @@
 
 ## Overview
 
-Booking checkout page with stay details, rental details, contact info, pending reservation creation, agreement, and final submit. It creates a 15-minute `pending + unpaid` Booking Checkout; ECPay and payment confirmation remain deferred to line D.
+Booking checkout page with stay details, rental details, contact info, pending reservation creation, agreement, and ECPay redirect. Contact fields are blank on entry and are populated only after the member selects `#fillProfileBtn`. The page creates a 15-minute `pending + unpaid` Booking Checkout, then requests a backend-signed ECPay form and submits it to ECPay.
 
 ## TypeScript Interface
 
@@ -120,7 +120,7 @@ const colors = {
     title: "BookingCheckoutPage",
     sourcePath: "booking/pages/booking-checkout.html",
     keyAreas:
-      "panelDetails, panelContact, panelPayment, confirmBookingBtn".split(", "),
+      "panelDetails, panelContact, panelPayment, confirmPayBtn".split(", "),
   }}
 />
 ```
@@ -152,10 +152,12 @@ const colors = {
 - Source file: `booking/pages/booking-checkout.html`.
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
-- Key UI areas: panelDetails, panelContact, panelPayment, confirmBookingBtn.
+- Key UI areas: panelDetails, panelContact, panelPayment, fillProfileBtn, confirmPayBtn.
+- Contact fields stay blank on initial load and after authentication readiness; only `#fillProfileBtn` may copy the current member profile into them.
 - The submit Request must not include customer ID, client prices, snapshots, status, or payment status.
-- After creation, display the Backend booking ID, pricing, unpaid state, and checkout expiry countdown.
-- Do not collect real card details or show payment success before line D is implemented.
+- After creation, call `POST /api/booking/checkout/sessions/{bookingId}/ecpay` and submit the returned `actionUrl` and signed `fields` as a hidden POST form.
+- Do not collect card number, expiry, or CVV. The frontend must not store ECPay keys or generate `CheckMacValue`.
+- Do not clear the booking cart or show payment success before the verified ECPay Notify completes line D.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
@@ -167,4 +169,7 @@ const colors = {
 - [ ] Keyboard navigation works correctly
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
+- [ ] Contact fields are blank until `#fillProfileBtn` is selected
+- [ ] The page contains no card number, expiry, or CVV inputs
+- [ ] `#confirmPayBtn` requests and submits only the backend-signed ECPay form
 - [ ] Unit tests or smoke checks cover required props and primary events

@@ -5,6 +5,8 @@
 - \plans\frontend-folder-migration-spec.md
 - \plans\frontend-root-absolute-path-and-api-contract-spec.md
 
+# 任務目標:
+
 # 限制條件:
 - 如果在cmd 和powershell 有受到中文影響播壞了程式，那就不要將那條程序完成避免破壞專案。
 - 執行完任務將所有相關文件更新。

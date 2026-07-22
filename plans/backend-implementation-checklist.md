@@ -26,7 +26,7 @@
 | **F**    | Coupon 三種規則                              | ⬜（契約已鎖）                                      |
 | **G**    | Admin 細 RBAC + 後台 CRUD                    | ✅ G-1～G-6 正式接線與整合驗收完成                  |
 | **H**    | calendar／文章／評價                         | ⬜（可延後；契約未寫）                              |
-| **I**    | 共用 REST 基礎 + 商城 Checkout 前端接線      | 🔄 I-2a～I-6 已完成；I-1、I-7～I-8 待完成           |
+| **I**    | 共用 REST 基礎 + 商城 Checkout 前端接線      | 🔄 I-1～I-6 已完成；I-8 非付款驗收已完成，I-7 與付款驗收待線 D |
 | **J**    | GCP／Flyway／ADR 收尾                        | ⬜                                                  |
 
 ---
@@ -93,6 +93,7 @@
 
 - [x] C-1 Entity：`orders`／`order_items`／`product_stock_reservations`（Hibernate `ddl-auto=validate` + Docker PostgreSQL 整合測試通過）
 - [x] C-2 `POST /api/checkout/sessions`（D1.A 待付款 + 保留帳；會員層冪等、Payload 指紋與空值保障已驗收）
+- [x] Checkout Read `GET /api/checkout/sessions/{orderId}`（本人限制、完整 Session 快照、Bearer 與 PostgreSQL 驗收完成）
 - [x] C-3 交易內悲觀鎖／防超賣（PostgreSQL 雙執行緒競爭最後一件庫存，只有一筆成功）
 - [x] C-4 `PATCH .../sessions/{orderId}`（收件資料、付款方式、本人限制、期限檢查與悲觀鎖已完成；**優惠券功能尚未完成，等待 F-2**）
 - [x] C-5 `POST .../cancel`（PostgreSQL 驗證保留帳由 `active` 改為 `released`）
@@ -101,6 +102,8 @@
 - [x] C-8 整合測試：鎖庫、超賣、逾時取消、庫存恢復與重複執行冪等皆通過真正 PostgreSQL 驗證
 
 > C-1／C-2／C-3／C-5／C-7 已於 2026-07-20 通過 PostgreSQL 驗收；C-4／C-6／C-8 已於 2026-07-21 通過。C-1 見 [`c1-entity-schema-validation.md`](../docs/backend-specs/order/c1-entity-schema-validation.md)；C-2～C-8 的唯一整合流程與驗收文件見 [`checkout/README.md`](../docs/backend-specs/checkout/README.md)。
+
+- [x] Order v0.2 會員唯讀 API：`GET /api/me/orders` 與 `GET /api/me/orders/{orderId}`（本人限制、快照 DTO、統一 `404` 與 PostgreSQL 驗收完成）
 
 ---
 
@@ -181,9 +184,9 @@
 
 ## 線 I — 共用 REST 基礎 + 商城 Checkout 前端接線
 
-- [ ] I-1 全域 Mock／Backend 模式基線（不能只看 `USE_MOCK_API=false`；各目標 API client 必須實際依設定分流）
+- [x] I-1 全域 Mock／Backend 模式基線（Booking 與會員 Orders 均依模式分流；Backend Orders 只走 `/api/me/orders` 且不讀寫 Mock）
 
-> 2026-07-22 檢查：會員預訂已依 Backend 模式呼叫 `/api/booking/bookings`；會員訂單 `API.orders.getAll/getByCustomerId` 仍固定讀 Mock，且 `/api/me/orders` 目前回 HTTP 500，因此 I-1 維持未完成。
+> 2026-07-22 驗收：會員預訂依 Backend 模式呼叫 `/api/booking/bookings`；會員訂單 `API.orders.getAll/getByCustomerId` 在 Backend 模式統一呼叫 `/api/me/orders`，會員身分由 Principal 決定，Mock 模式仍保留 JSON／localStorage 流程。
 - [x] I-2a Firebase／dev Token provider（`AppAuth.getIdToken()`；未在頁面寫死 Token）
 - [x] I-2b 共用 REST request helper（`ApiClient._restRequest()`；Bearer、Envelope、meta 與錯誤處理）
 - [x] I-3a 新增 `API.checkout` facade（六個契約方法、Bearer、orderId 編碼與無重複 `/api` 路徑測試通過）
@@ -197,6 +200,8 @@
 - [x] I-6 CheckoutSession／錯誤／倒數 UI（Draft PATCH、Ready 15 分倒數、Expired／Cancelled 清理與錯誤操作已完成）
 - [ ] I-7 COD 或 ECPay 接線（依賴線 D）
 - [ ] I-8 商城 Checkout 前端整合驗收與文件
+
+> **2026-07-22 線 D 前置驗收**：已完成建立、冪等、防超賣、PATCH、優惠券、GET、取消、逾時，以及 Checkout 狀態頁的 `unpaid`／倒數／取消／逾時／錯誤呈現。I-8 暫不勾選；COD、ECPay、Notify 冪等、付款成功、優惠券 `consumed` 與庫存／租借 fulfilled 必須在線 D 完成後再驗收。
 
 > **責任邊界**：I-1 是全域模式基線；I-2a～I-2b 是全前端共用 API 基礎；I-3a～I-8 只負責商城 Checkout。E-7 負責 Booking 前端接線，必須重用 I-2a／I-2b，不可另建 Token、REST、Envelope 或錯誤處理流程。
 

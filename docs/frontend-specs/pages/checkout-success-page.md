@@ -1,169 +1,54 @@
-﻿# CheckoutSuccessPage 結帳成功頁規格
+# Checkout 狀態頁規格
 
-**狀態：** 草稿
-**類別：** 頁面
-**設計參考：** 無－依據既有原始檔 `pages/checkout-success.html` 整理
+**狀態：** COD 狀態已完成；ECPay 線 D 待完成
+**原始檔：** `frontend/storefront/pages/checkout-success.html`
 
----
+## 目的與責任邊界
 
-## 概覽
+此頁是 Checkout Session 狀態確認頁，不是付款成功頁。頁面以 `API.checkout.getSession(orderId)` 讀取後端 `GET /api/checkout/sessions/{orderId}`，不得根據 ECPay Return query string、`localStorage` 或前端推測宣告付款成功。
 
-訂單成立確認頁面，用於顯示已保存的結帳訂單編號。
+目前：
 
-此頁會在商品結帳成功後使用。必須讓訂單編號清楚醒目，並提供使用者下一步可直接執行的操作。
+- 可顯示訂單已建立、`unpaid`、金額、保留倒數、取消、逾時與讀取錯誤。
+- COD `checkoutStep=completed` 可顯示訂單成立，但 `paymentStatus` 仍為 `unpaid`。
+- ECPay 不可由返回參數宣稱已付款；仍等待後端 Notify 驗簽與付款後資源落帳。
 
-## TypeScript 介面
+## 資料來源
 
-```typescript
-export type PageShellVariant = 'main' | 'booking' | 'admin';
+訂單 ID 依序取自：
 
-export interface NavigationPayload {
-  href: string;
-  label: string;
-  source: 'CheckoutSuccessPage';
-}
+1. query string `orderId`，並相容舊 `orderNum`。
+2. `sessionStorage.checkoutCompletedOrderId`。
+3. `sessionStorage.lastCheckoutSession.orderId`。
 
-export interface UserSummary {
-  id: string;
-  displayName: string;
-  email?: string;
-  avatarUrl?: string;
-}
+ID 只用來發出讀取請求；畫面狀態與價格一律採後端回應。正式 HTTP 經既有 `API.checkout` facade、`ApiClient` 與 `AppAuth`，不可新增原生 `fetch()` 或 Bearer 包裝。
 
-export interface ContentBlock {
-  id: string;
-  title: string;
-  description?: string;
-  imageUrl?: string;
-  href?: string;
-}
+## 顯示狀態
 
-export interface CheckoutSuccessPageData {
-  title: string;
-  sourcePath: 'pages/checkout-success.html';
-  keyAreas: string[];
-  blocks?: ContentBlock[];
-}
+| 狀態      | 判斷                              | 標題                 |
+| --------- | --------------------------------- | -------------------- |
+| Loading   | API 尚未完成                      | 正在確認訂單狀態     |
+| Pending   | `unpaid` 且未取消、未逾時         | 訂單已建立，等待付款 |
+| Paid      | 後端明確回傳 `paymentStatus=paid` | 付款狀態已由後端確認 |
+| COD confirmed | `paymentMethod=cod` 且 `checkoutStep=completed` | 貨到付款訂單已成立 |
+| Cancelled | `status=cancelled` 且期限未過     | 此訂單已取消         |
+| Expired   | `checkoutExpiresAt <= now`        | 結帳保留已逾時       |
+| Error     | 無 ID、`404` 或 API 失敗          | 無法確認訂單狀態     |
 
-export interface CheckoutSuccessPageProps {
-  // 必填 Props
-  shell: 'main'; // 此原始頁面所使用的頁面外殼類型。
-  data: CheckoutSuccessPageData; // 初始頁面內容、資料紀錄或掛載區塊的中繼資料。
+## UI 與無障礙
 
-  // 選填 Props
-  currentUser?: UserSummary | null; // 已登入使用者資訊。預設值：null
-  loading?: boolean; // 顯示 Skeleton 或載入狀態。預設值：false
-  errorMessage?: string | null; // 顯示給使用者的錯誤訊息。預設值：null
-
-  // 事件處理函式
-  onNavigate?: (payload: NavigationPayload) => void;
-  onRefresh?: (sourcePath: 'pages/checkout-success.html') => void;
-
-  // Render Props／插槽
-  headerSlot?: React.ReactNode;
-  footerSlot?: React.ReactNode;
-  actionSlot?: React.ReactNode;
-}
-```
-
-## 版本狀態
-
-| 版本  | Props                | 說明                                             |
-| --- | -------------------- | ---------------------------------------------- |
-| 預設  | `shell="main"`       | 符合目前 `pages/checkout-success.html` 的版面與共用 CSS。 |
-| 載入中 | `loading={true}`     | 當資料或 partial 內容載入時，保持頁面 Skeleton 穩定。           |
-| 空狀態 | `data.blocks=[]`     | 顯示有幫助的空狀態畫面，但不可讓頁面框架塌陷。                        |
-| 錯誤  | `errorMessage="..."` | 顯示已在地化的錯誤訊息與重試途徑。                              |
-
-## 互動狀態
-
-| 狀態       | 觸發條件                  | 視覺變化                                               |
-| -------- | --------------------- | -------------------------------------------------- |
-| 預設       | 頁面已載入                 | 主要內容區以 Yuruicamp 綠色 Token 與既有間距呈現。                 |
-| Hover    | 卡片、資料列、分頁標籤或按鈕被滑鼠移入   | 改變邊框、陰影或背景，不可造成版面位移。                               |
-| Active   | 已選取的分頁標籤、篩選器、導覽項目或表格列 | 使用 `--yc-sage-action` 或 `--yc-sage-soft`，並搭配文字標示。 |
-| Disabled | 無法使用的操作或未完成的表單        | 降低透明度、禁止指標操作、保留元素尺寸。                               |
-| 載入中      | `loading={true}`      | 使用 Skeleton 列、停用送出按鈕或穩定的預留區塊。                      |
-| 錯誤       | 存在 `errorMessage`     | 在失敗區域附近顯示行內警示，並在可行時提供重試操作。                         |
-
-## 設計 Token
-
-```typescript
-const spacing = {
-  pagePadding: 'clamp(24px, 5vw, 64px)',
-  sectionGap: '24px',
-  controlGap: '8px',
-};
-
-const typography = {
-  bodyFontSize: '16px',
-  bodyLineHeight: '1.5',
-  headingWeight: '700',
-};
-
-const colors = {
-  background: 'var(--yc-bg)',
-  surface: 'var(--yc-surface)',
-  text: 'var(--yc-text)',
-  mutedText: 'var(--yc-text-muted)',
-  border: 'var(--yc-border)',
-  focus: 'var(--yc-sage-action)',
-};
-```
-
-## 使用範例
-
-### 基本用法
-
-```tsx
-<CheckoutSuccessPage
-  shell="main"
-  data={{
-    title: 'CheckoutSuccessPage',
-    sourcePath: 'pages/checkout-success.html',
-    keyAreas: 'successIcon, orderNumberDisplay, nextActions'.split(', '),
-  }}
-/>
-```
-
-### 搭配選填 Props
-
-```tsx
-<CheckoutSuccessPage
-  shell="main"
-  data={checkoutsuccesspageData}
-  currentUser={currentUser}
-  loading={isLoading}
-  errorMessage={errorMessage}
-  onNavigate={(payload) => router.push(payload.href)}
-  onRefresh={(sourcePath) => reloadPageData(sourcePath)}
-/>
-```
-
-## 無障礙設計
-
-* **角色：** 主要內容區使用 `main`；巢狀控制項應優先採用原生語意化 HTML 元素。
-* **鍵盤操作：** Tab 順序必須符合視覺順序。Enter／Space 可觸發按鈕、分頁標籤、手風琴標題與資料列操作。
-* **ARIA 屬性：** 目前導覽項目使用 `aria-current`；可收合面板使用 `aria-expanded`；錯誤訊息使用 `aria-describedby`。
-* **焦點管理：** Modal 與 Offcanvas 面板開啟時必須鎖定焦點；關閉後必須將焦點返回原本的觸發元素。
-* **螢幕閱讀器：** 必須以文字宣告頁面標題、載入／錯誤狀態、已選取篩選條件與狀態標籤。
-
-## 實作說明
-
-* 原始檔：`pages/checkout-success.html`。
-* 共用 CSS 來源：`css/main.css`。
-* 共用元件：`components/header.partial`、`components/footer.partial`。
-* 關鍵 UI 區域：`successIcon`、`orderNumberDisplay`、`nextActions`。
-* 訂單編號讀取 `sessionStorage.lastCheckoutSession.orderId`；I-7 完成導向前，此頁不會由新 Checkout 建立流程直接開啟。
-* 產生新 UI 前，必須先閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`。
-* 未解決問題：沒有提供 Figma 設計稿，因此既有程式碼是設計上的唯一依據。
-* 實作本規格時，**不得**替換既有頁面外殼、storage key、mock data 資料契約，或 partial loader 的載入模式。
+- 沿用既有 `--yc-*` Token、卡片與按鈕樣式，不建立第二套 Design System。
+- `aria-busy` 表達讀取狀態；主要描述與訂單編號使用 live region。
+- 狀態不能只靠顏色辨識，必須同時顯示文字 Badge、標題與說明。
+- 手機版金額、付款狀態與倒數改為單欄，不產生水平捲動。
+- 未付款頁不播放成功彩帶效果。
 
 ## 驗收標準
 
-* [ ] 所有版本狀態都可正常渲染，且不會發生錯誤。
-* [ ] 所有互動狀態在視覺上都有明確區別。
-* [ ] 鍵盤導覽可正常使用。
-* [ ] 螢幕閱讀器能正確宣告內容。
-* [ ] 設計 Token 符合 Yuruicamp AI 樣式規範。
-* [ ] 單元測試或 smoke test 已涵蓋必填 Props 與主要事件。
+- [x] 透過 Checkout facade 讀取 Session，沒有第二套 HTTP 封裝。
+- [x] Pending、Paid、Cancelled、Expired 與 Error 有不同文字與視覺狀態。
+- [x] 顯示後端訂單編號、付款狀態、總額與保留倒數。
+- [x] 不以返回參數或前端快取宣告付款成功。
+- [x] 單元測試涵蓋狀態解析與訂單 ID 來源。
+- [x] COD 確認後顯示訂單成立與「未付款」，期限顯示不適用。
+- [ ] 線 D：完成 ECPay／Notify 後，驗證付款返回與付款後狀態輪詢。

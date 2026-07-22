@@ -35,7 +35,6 @@
 | `#dateSummary` | `.dateSummary` | 是 | 是 | 日期摘要樣式改用 class。 |
 | `#priceSummary` | `.bookingPriceSummary` | 是 | 是 | 價格摘要樣式改用 class。 |
 | `#loginNotice` | `.loginNoticeBooking` | 是 | 是 | 登入提示樣式改用 class。 |
-| `#creditCardSection` | `.creditCardSectionBooking` | 是 | 是 | 信用卡欄位區塊樣式改用 class。 |
 | `#confirmPayBtn` | `.confirmPayButtonBooking` | 是 | 是 | 結帳送出 CTA 樣式改用 class。 |
 | `#upsellSection` | `.checkoutUpsellSection` | 是 | 是 | Checkout 加購區塊樣式改用 class。 |
 | `#upsellBanner` | `.checkoutUpsellBannerBooking` | 是 | 是 | Checkout 加購提示樣式改用 class。 |

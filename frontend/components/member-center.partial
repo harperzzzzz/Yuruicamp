@@ -117,8 +117,8 @@
                 <label class="memberFormLabel" for="profilePhone">手機 <span class="requiredMark">*</span></label
                 ><input class="memberFormInput" type="tel" id="profilePhone" name="phone" minlength="10" maxlength="10" inputmode="numeric" pattern="09\d{8}" autocomplete="tel" title="手機須為 09 開頭的 10 碼數字" placeholder="0988744144" required />
               </div>
-              <div class="memberFormGroup"><label class="memberFormLabel" for="profileEmail">電子郵件</label><input class="memberFormInput" type="email" id="profileEmail" name="email" placeholder="your@email.com" readonly aria-readonly="true" /></div>
-              <div class="memberFormGroup"><label class="memberFormLabel" for="profileBirthday">生日</label><input class="memberFormInput" type="date" id="profileBirthday" name="birthday" readonly aria-readonly="true" /></div>
+              <div class="memberFormGroup"><label class="memberFormLabel" for="profileEmail">電子郵件</label><input class="memberFormInput" type="email" id="profileEmail" name="email" autocomplete="email" placeholder="your@email.com" required /></div>
+              <div class="memberFormGroup"><label class="memberFormLabel" for="profileBirthday">生日</label><input class="memberFormInput" type="date" id="profileBirthday" name="birthday" autocomplete="bday" /></div>
               <div class="memberFormGroup memberFormGroupFull shippingAddressFieldGroup">
                 <div class="shippingAddressBlock">
                   <span class="shippingAddressLabel">配送地址</span>

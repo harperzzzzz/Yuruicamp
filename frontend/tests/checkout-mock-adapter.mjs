@@ -118,7 +118,7 @@ assert.deepEqual(
 );
 assert.deepEqual(
   Object.keys(session.shipping).sort(),
-  ['recipientName', 'phone', 'address'].sort(),
+  ['method', 'recipientName', 'phone', 'address', 'pickupBranchId', 'pickupBranchName'].sort(),
 );
 assert.equal(session.status, 'unshipped');
 assert.equal(session.paymentStatus, 'unpaid');
@@ -185,8 +185,15 @@ assert.equal(checkoutIdempotencyClears, 2);
 
 await assert.rejects(
   window.API.checkout.confirmCod(session.orderId),
-  (error) => error.code === 'PAYMENT_NOT_IMPLEMENTED',
+  (error) => error.code === 'CONFLICT',
 );
+const codSession = await window.API.checkout.createSession({
+  ...request,
+  idempotencyKey: 'mock-checkout-cod-confirm-1',
+});
+const codConfirmed = await window.API.checkout.confirmCod(codSession.orderId);
+assert.equal(codConfirmed.checkoutStep, 'completed');
+assert.equal(codConfirmed.checkoutExpiresAt, null);
 await assert.rejects(
   window.API.checkout.createEcpayForm(session.orderId),
   (error) => error.code === 'PAYMENT_NOT_IMPLEMENTED',

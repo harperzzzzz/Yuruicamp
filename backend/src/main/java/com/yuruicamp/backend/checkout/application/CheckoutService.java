@@ -18,6 +18,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.yuruicamp.backend.branch.domain.Branch;
+import com.yuruicamp.backend.branch.infrastructure.BranchRepository;
 import com.yuruicamp.backend.catalog.domain.EquipmentImage;
 import com.yuruicamp.backend.catalog.domain.EquipmentItem;
 import com.yuruicamp.backend.catalog.domain.ProductVariant;
@@ -28,6 +30,7 @@ import com.yuruicamp.backend.checkout.api.CheckoutUpdateRequest;
 import com.yuruicamp.backend.checkout.infrastructure.CheckoutProductRepository;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
+import com.yuruicamp.backend.common.api.ApiErrorBody.ErrorDetail;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
 import com.yuruicamp.backend.coupon.application.CouponService;
@@ -41,6 +44,7 @@ import com.yuruicamp.backend.order.domain.OrderStatus;
 import com.yuruicamp.backend.order.domain.OrderStatusHistory;
 import com.yuruicamp.backend.order.domain.PaymentMethod;
 import com.yuruicamp.backend.order.domain.PaymentStatus;
+import com.yuruicamp.backend.order.domain.ShippingMethod;
 import com.yuruicamp.backend.order.infrastructure.OrderRepository;
 import com.yuruicamp.backend.order.infrastructure.OrderStatusHistoryRepository;
 
@@ -57,12 +61,14 @@ public class CheckoutService {
 	private final OrderStatusHistoryRepository histories;
 	private final EquipmentImageRepository images;
 	private final CouponService couponService;
+	private final BranchRepository branches;
 
 	// 準備 Checkout 流程需要使用的資料庫元件。
 	public CheckoutService(CustomerRepository customers, CheckoutProductRepository products,
 			InventoryStockRepository stocks, ProductStockReservationRepository reservations,
 			OrderRepository orders, OrderStatusHistoryRepository histories,
-			EquipmentImageRepository images, CouponService couponService) {
+			EquipmentImageRepository images, CouponService couponService,
+			BranchRepository branches) {
 		this.customers = customers;
 		this.products = products;
 		this.stocks = stocks;
@@ -71,6 +77,7 @@ public class CheckoutService {
 		this.histories = histories;
 		this.images = images;
 		this.couponService = couponService;
+		this.branches = branches;
 	}
 
 	// 建立待付款訂單，並保留商品庫存 15 分鐘。
@@ -97,13 +104,14 @@ public class CheckoutService {
 		Instant now = Instant.now();
 		Instant expires = now.plus(HOLD);
 		CheckoutCreateRequest.Shipping shipping = request.shipping();
+		ShippingSnapshot shippingSnapshot = resolveCreateShipping(shipping);
 		String recipient = firstNonBlank(shipping == null ? null : shipping.recipientName(), customer.getName(), PENDING);
 		String phone = firstNonBlank(shipping == null ? null : shipping.phone(), customer.getPhone(), PENDING);
-		String address = firstNonBlank(shipping == null ? null : shipping.address(), PENDING);
 		Order order = new Order();
 		order.initialize(newOrderId(), customerId, idempotencyKey, requestHash,
 				firstNonBlank(customer.getName(), PENDING), firstNonBlank(customer.getEmail(), PENDING),
-				recipient, address, phone, paymentMethod, now, expires);
+				recipient, shippingSnapshot.address(), phone, shippingSnapshot.method(),
+				shippingSnapshot.pickupBranchId(), paymentMethod, now, expires);
 		BigDecimal subtotal = BigDecimal.ZERO;
 		List<ReservationDraft> reserveDrafts = new ArrayList<>();
 
@@ -145,6 +153,19 @@ public class CheckoutService {
 		return toResponse(saved);
 	}
 
+	// 讀取會員自己的 Checkout，不修改訂單或庫存保留狀態。
+	@Transactional(readOnly = true)
+	public CheckoutSessionResponse get(String customerId, String orderId) {
+		validateCheckoutIdentity(customerId, orderId);
+
+		Order order = orders.findForCustomer(orderId.trim(), customerId)
+				.orElseThrow(() -> new BusinessException(
+						ErrorCode.FORBIDDEN,
+						"Order not found or not owned by customer"));
+
+		return toResponse(order);
+	}
+
 	// 更新會員自己的未付款 Checkout 收件資料與付款方式。
 	@Transactional
 	public CheckoutSessionResponse update(String customerId, String orderId,
@@ -166,10 +187,11 @@ public class CheckoutService {
 
 		CheckoutUpdateRequest.Shipping shipping = request.shipping();
 		if (shipping != null) {
+			ShippingSnapshot shippingSnapshot = resolveUpdateShipping(shipping, order);
 			order.updateShipping(
 					updatedValue(shipping.recipientName(), order.getRecipientName()),
 					updatedValue(shipping.phone(), order.getShippingPhone()),
-					updatedValue(shipping.address(), order.getShippingAddress()));
+					shippingSnapshot.address(), shippingSnapshot.method(), shippingSnapshot.pickupBranchId());
 		}
 		if (request.paymentMethod() != null) {
 			order.changePaymentMethod(parsePaymentMethod(request.paymentMethod()));
@@ -181,6 +203,28 @@ public class CheckoutService {
 			couponService.applyToOrder(order, customerId, null, now);
 		}
 
+		return toResponse(order);
+	}
+
+	// 確認貨到付款成立，移除 Checkout 與庫存保留的倒數期限。
+	@Transactional
+	public CheckoutSessionResponse confirmCod(String customerId, String orderId) {
+		validateCheckoutIdentity(customerId, orderId);
+		Order order = orders.findForCustomerForUpdate(orderId.trim(), customerId)
+				.orElseThrow(() -> new BusinessException(ErrorCode.FORBIDDEN,
+						"Order not found or not owned by customer"));
+		Instant now = Instant.now();
+		if (order.getPaymentMethod() != PaymentMethod.cod) {
+			throw new BusinessException(ErrorCode.CONFLICT, "Only COD checkout can be confirmed here");
+		}
+		if (!order.isCheckoutEditable(now) || !hasCompleteShipping(order)) {
+			throw new BusinessException(ErrorCode.CHECKOUT_EXPIRED,
+					"Checkout is incomplete, cancelled or expired");
+		}
+		order.confirmCod();
+		reservations.findActiveByOrderItemIdIn(order.getItems().stream().map(OrderItem::getId).toList())
+				.forEach(ProductStockReservation::confirmWithoutExpiry);
+		histories.save(OrderStatusHistory.of(orderId, OrderStatus.unshipped, now, "COD order confirmed"));
 		return toResponse(order);
 	}
 
@@ -206,14 +250,21 @@ public class CheckoutService {
 
 	// 找出庫存足夠的門市庫位。
 	private InventoryStock selectAvailableStock(String variantId, int requested) {
+		int available = 0;
 		for (InventoryStock stock : stocks.lockStoreStocksByVariantId(variantId)) {
-			if (stock.getOnHandQuantity() - reservations.activeQuantity(variantId, stock.getLocationId()) >= requested) {
+			int locationAvailable = Math.max(0,
+					stock.getOnHandQuantity() - reservations.activeQuantity(variantId, stock.getLocationId()));
+			available = Math.max(available, locationAvailable);
+			if (locationAvailable >= requested) {
 				return stock;
 			}
 		}
 
 		throw new BusinessException(ErrorCode.STOCK_INSUFFICIENT,
-				"Insufficient stock for variant: " + variantId);
+				"商品庫存不足",
+				List.of(new ErrorDetail("variantId", variantId),
+						new ErrorDetail("requested", String.valueOf(requested)),
+						new ErrorDetail("available", String.valueOf(available))));
 	}
 
 	// 檢查會員、商品與冪等鍵是否有填寫。
@@ -247,7 +298,9 @@ public class CheckoutService {
 		boolean hasShippingUpdate = request.shipping() != null
 				&& (request.shipping().recipientName() != null
 						|| request.shipping().phone() != null
-						|| request.shipping().address() != null);
+						|| request.shipping().address() != null
+						|| request.shipping().method() != null
+						|| request.shipping().pickupBranchId() != null);
 		boolean hasPaymentUpdate = request.paymentMethod() != null;
 		// 空的更新內容視為清除目前優惠券，讓 couponClaimId=null 能完成清除操作。
 		if (hasPaymentUpdate && request.paymentMethod().isBlank()) {
@@ -260,6 +313,16 @@ public class CheckoutService {
 				"phone");
 		validateShippingValue(request.shipping() == null ? null : request.shipping().address(),
 				"address");
+	}
+
+	// 檢查 Checkout 讀取需要的會員與訂單 ID。
+	private static void validateCheckoutIdentity(String customerId, String orderId) {
+		if (customerId == null || customerId.isBlank()
+				|| orderId == null || orderId.isBlank()) {
+			throw new BusinessException(
+					ErrorCode.VALIDATION_ERROR,
+					"customerId and orderId are required");
+		}
 	}
 
 	// 已提供的收件欄位不可只包含空白。
@@ -307,6 +370,8 @@ public class CheckoutService {
 		appendCanonical(canonical, shipping == null ? null : shipping.recipientName());
 		appendCanonical(canonical, shipping == null ? null : shipping.phone());
 		appendCanonical(canonical, shipping == null ? null : shipping.address());
+		appendCanonical(canonical, shipping == null ? null : shipping.method());
+		appendCanonical(canonical, shipping == null ? null : shipping.pickupBranchId());
 		appendCanonical(canonical, couponClaimId == null ? null : couponClaimId.toString());
 		items.forEach((variantId, quantity) -> {
 			appendCanonical(canonical, variantId);
@@ -359,20 +424,78 @@ public class CheckoutService {
 						item.getBrandName(), item.getImageUrl(), money(item.getUnitPrice()), item.getQuantity(),
 						money(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))))
 				.toList();
-		var shipping = new CheckoutSessionResponse.Shipping(order.getRecipientName(),
-				order.getShippingPhone(), order.getShippingAddress());
+		String branchName = order.getPickupBranchId() == null ? null
+				: branches.findById(order.getPickupBranchId()).map(Branch::getName).orElse(null);
+		var shipping = new CheckoutSessionResponse.Shipping(order.getShippingMethod().name(),
+				order.getRecipientName(), order.getShippingPhone(), order.getShippingAddress(),
+				order.getPickupBranchId(), branchName);
 		var pricing = new CheckoutSessionResponse.Pricing(money(order.getSubtotal()),
 				money(order.getShippingFee()), money(order.getDiscount()), money(order.getTotal()));
-		boolean ready = !PENDING.equals(order.getRecipientName())
-				&& !PENDING.equals(order.getShippingPhone())
-				&& !PENDING.equals(order.getShippingAddress());
+		boolean ready = hasCompleteShipping(order);
+		boolean codConfirmed = order.getPaymentMethod() == PaymentMethod.cod
+				&& order.getCheckoutExpiresAt() == null
+				&& order.getStatus() != OrderStatus.cancelled;
 		return new CheckoutSessionResponse(order.getId(), order.getPaymentStatus().name(),
 				order.getPaymentMethod().name().replace('_', '-'), order.getStatus().name(),
-				order.getCheckoutExpiresAt().toString(), pricing, items, shipping,
-				couponService.appliedClaimId(order.getId()), ready ? "ready_to_pay" : "draft");
+				order.getCheckoutExpiresAt() == null ? null : order.getCheckoutExpiresAt().toString(),
+				pricing, items, shipping, couponService.appliedClaimId(order.getId()),
+				codConfirmed ? "completed" : ready ? "ready_to_pay" : "draft");
+	}
+
+	// 建立時依配送方式解析並驗證地址來源。
+	private ShippingSnapshot resolveCreateShipping(CheckoutCreateRequest.Shipping shipping) {
+		ShippingMethod method = parseShippingMethod(shipping == null ? null : shipping.method());
+		if (method == ShippingMethod.pickup) {
+			return pickupSnapshot(shipping == null ? null : shipping.pickupBranchId());
+		}
+		return new ShippingSnapshot(method,
+				firstNonBlank(shipping == null ? null : shipping.address(), PENDING), null);
+	}
+
+	// 更新時未提供配送欄位就沿用原值；改為門市取貨時由門市主檔取得地址。
+	private ShippingSnapshot resolveUpdateShipping(CheckoutUpdateRequest.Shipping shipping, Order order) {
+		ShippingMethod method = shipping.method() == null
+				? order.getShippingMethod() : parseShippingMethod(shipping.method());
+		if (method == ShippingMethod.pickup) {
+			String branchId = shipping.pickupBranchId() == null
+					? order.getPickupBranchId() : shipping.pickupBranchId();
+			return pickupSnapshot(branchId);
+		}
+		return new ShippingSnapshot(method,
+				updatedValue(shipping.address(), order.getShippingAddress()), null);
+	}
+
+	private ShippingSnapshot pickupSnapshot(String branchId) {
+		if (branchId == null || branchId.isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
+					"pickupBranchId is required for pickup shipping");
+		}
+		Branch branch = branches.findById(branchId.trim())
+				.orElseThrow(() -> new BusinessException(ErrorCode.VALIDATION_ERROR,
+						"Pickup branch not found: " + branchId));
+		return new ShippingSnapshot(ShippingMethod.pickup, branch.getAddress(), branch.getId());
+	}
+
+	private static ShippingMethod parseShippingMethod(String raw) {
+		if (raw == null || raw.isBlank()) return ShippingMethod.delivery;
+		try {
+			return ShippingMethod.valueOf(raw.trim());
+		}
+		catch (IllegalArgumentException ex) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "Unsupported shipping method: " + raw);
+		}
+	}
+
+	private static boolean hasCompleteShipping(Order order) {
+		return !PENDING.equals(order.getRecipientName())
+				&& !PENDING.equals(order.getShippingPhone())
+				&& !PENDING.equals(order.getShippingAddress());
 	}
 
 	// 暫存建立庫存保留紀錄需要的資料。
 	private record ReservationDraft(String variantId, String locationId, int quantity) {
+	}
+
+	private record ShippingSnapshot(ShippingMethod method, String address, String pickupBranchId) {
 	}
 }

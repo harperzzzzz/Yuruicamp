@@ -58,13 +58,11 @@ const elementIds = [
   'cancelCheckoutBtn',
   'returnToCartBtn',
   'confirmOrderBtn',
-  'checkoutActionStatus',
   'checkoutSubtotal',
   'checkoutShipping',
   'checkoutDiscountRow',
   'checkoutDiscount',
   'checkoutTotal',
-  'checkoutPricingSource',
   'buyerName',
   'buyerPhone',
   'checkoutShippingAddressDisplay',
@@ -82,6 +80,8 @@ const sessionStorage = {
 let openedCart = 0;
 let openedModal = '';
 let cancelledOrderId = '';
+let clearedCart = 0;
+let assignedLocation = '';
 const window = {
   AppConfig: { USE_MOCK_API: false },
   AppState: { cart: [{ variantId: 'V001', quantity: 1 }] },
@@ -91,7 +91,16 @@ const window = {
         cancelledOrderId = orderId;
         return { orderId, status: 'cancelled' };
       },
+      confirmCod: async orderId => ({
+        orderId,
+        paymentMethod: 'cod',
+        checkoutStep: 'completed',
+      }),
     },
+  },
+  clearCart: () => {
+    clearedCart += 1;
+    window.AppState.cart = [];
   },
   clearInterval() {},
   formatCurrency: value => `NT$${Number(value).toFixed(2)}`,
@@ -100,6 +109,11 @@ const window = {
   },
   openModal: modalId => {
     openedModal = modalId;
+  },
+  location: {
+    assign: url => {
+      assignedLocation = url;
+    },
   },
   setInterval: () => 7,
 };
@@ -159,9 +173,27 @@ context._renderCheckoutSessionState({
 assert.equal(elements.get('checkoutSessionPanel').dataset.state, 'isReady');
 assert.equal(elements.get('checkoutSessionTimer').hidden, false);
 assert.match(elements.get('checkoutCountdown').textContent, /^1[45]:[0-5][0-9]$/);
-assert.equal(confirmButton.disabled, true);
+assert.equal(confirmButton.disabled, false);
+assert.equal(confirmButton.textContent, '前往 ECPay');
 assert.equal(elements.get('checkoutTotal').textContent, 'NT$3200.00');
 
+storageValues.set('checkoutIdempotencyKey', 'COD-KEY');
+storageValues.set('checkoutCompletedOrderId', 'O-COD');
+storageValues.set('lastCheckoutSession', JSON.stringify({ orderId: 'O-COD' }));
+window.AppState.cart = [{ variantId: 'V001', quantity: 1 }];
+await context._continueReadyCheckout({
+  orderId: 'O-COD',
+  paymentMethod: 'cod',
+  checkoutStep: 'ready_to_pay',
+}, confirmButton);
+assert.equal(clearedCart, 1);
+assert.equal(window.AppState.cart.length, 0);
+assert.equal(storageValues.has('checkoutIdempotencyKey'), false);
+assert.equal(storageValues.has('checkoutCompletedOrderId'), false);
+assert.equal(storageValues.has('lastCheckoutSession'), false);
+assert.equal(assignedLocation, '/storefront/pages/checkout-success.html?orderId=O-COD');
+
+window.AppState.cart = [{ variantId: 'V001', quantity: 1 }];
 storageValues.set('checkoutIdempotencyKey', 'KEY-1');
 storageValues.set('checkoutCompletedOrderId', 'O-READY');
 storageValues.set('lastCheckoutSession', '{}');

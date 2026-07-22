@@ -84,6 +84,13 @@ public class ProductStockReservation {
         return finish("expired", now);
     }
 
+    // 貨到付款成立後保留庫存，不再套用 Checkout 到期時間。
+    public void confirmWithoutExpiry() {
+        if ("active".equals(status)) {
+            expiresAt = null;
+        }
+    }
+
     // 保留帳只能由 active 進入一個終止狀態。
     private boolean finish(String nextStatus, Instant now) {
         if (!"active".equals(status)) {

@@ -122,9 +122,11 @@ assert.deepEqual(
 assert.deepEqual(
   JSON.parse(JSON.stringify(request.shipping)),
   {
+    method: 'delivery',
     recipientName: 'Amy',
     phone: '0912345678',
     address: '台北市信義區測試路 1 號',
+    pickupBranchId: null,
   },
 );
 assert.equal(request.paymentMethod, 'cod');

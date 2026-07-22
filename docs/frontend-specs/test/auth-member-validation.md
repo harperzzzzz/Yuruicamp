@@ -87,7 +87,7 @@ ApiClient.notifySessionExpired();
 - Booking 列表必須呼叫 `GET /api/booking/bookings?page=0&size=20`，不能傳 `customerId`。
 - 第二位會員讀取第一位會員的 Booking 詳情，預期 `404 NOT_FOUND`，不得以 `403` 洩漏資料存在。
 - Coupon 列表使用 `GET /api/me/coupons`；領券使用 `POST /api/me/coupons/claims`。
-- 目前沒有會員訂單 Controller。若畫面仍從 `orders.json` 顯示資料，只能標記為 Mock，不得列為 Backend 驗收成功。
+- 會員訂單 Controller 與 `API.orders` Backend 分流已完成；驗收時必須確認 Network 呼叫 `/api/me/orders`，若仍從 `orders.json` 顯示資料只能標記為 Mock。
 
 ## 5. 通過標準
 
@@ -97,3 +97,13 @@ ApiClient.notifySessionExpired();
 - 站內導頁後，頁面 API 即使早於 Firebase 注入也會等待 Auth Ready，不會清除既有登入。
 - Token 過期只刷新重試一次，第二次失敗回登入。
 - 會員只能讀自己的資料，前端無 `U001` 或固定會員 fallback。
+
+## 6. 首次登入與會員資料
+
+1. 使用尚未建立 `customers` 資料的 Firebase 帳號，分別從商城與 Booking 登入。
+2. `POST /api/auth/firebase/session` 回傳 `created=true` 時才應開啟 `#personalizationModal`；登出後再次登入同一帳號，回傳 `created=false`，不得再次開啟。
+3. 首次登入若關閉偏好問卷，`AppState.preferences`、`localStorage.preferences` 與 `yurui_profile.preferences` 都應為 `null`，不得自動選擇任何風格或裝備。
+4. 完成兩步偏好設定後，頁面應導向 `/storefront/pages/member-center.html?onboarding=profile`，自動開啟「會員資料」並提示先完成資料。
+5. `#profileEmail` 與 `#profileBirthday` 必須可編輯；儲存時 Email 必須通過格式驗證，生日不得晚於今天往前 18 年的日期。
+6. `#cardSince` 必須顯示後端 Session 的 `registeredAt` 日期，且既有會員重新登入時不得改成當天日期。
+7. 在 `frontend/` 執行 `npm run test:first-login`，預期 exit code 為 `0`。

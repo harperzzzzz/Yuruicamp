@@ -70,8 +70,8 @@ npm run build
 
 ## 4. 目前不可宣稱通過的範圍
 
-- ECPay Gateway、Notify、Return 與完整 COD Payment 尚未實作，前端只能驗證「待付款」與導向提示。
-- 會員訂單 `GET /api/me/orders`／詳情 Controller 尚未存在；Backend 模式的會員訂單不可列為完成。
+- COD 建單確認已可驗證；ECPay Gateway、Notify 與 Return 尚未實作，線上付款只能驗證待付款與導向介面。
+- 會員訂單 `GET /api/me/orders` 與前端 `API.orders` Backend 分流已完成；網頁驗證依 [`member-orders-backend-validation.md`](./member-orders-backend-validation.md) 執行。
 - Reviews、Admin tag pool、seller note、租借商品寫入沒有正式 Admin API，必須由 readiness 阻擋。
 - 完整部署包、production API URL 與正式環境 secrets 另需部署驗證，不能用本機 Vite dev server 代替。
 
@@ -86,3 +86,6 @@ npm run build
 | `npm run validate:data` | 未通過：文章 `art-001` 兩處引用未出現在公開商品資料的 `P010` |
 
 因此目前不能標記前端 Release Gate 通過；修正後必須重新執行第 2 節全部指令。
+# Checkout 線 D 前置驗證
+
+- [`checkout-pre-payment-validation.md`](checkout-pre-payment-validation.md)：商城 Checkout 等待付款狀態頁、倒數、取消、逾時與非付款驗收。

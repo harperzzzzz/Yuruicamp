@@ -23,10 +23,11 @@
 - Mock 金額只讀商品契約價格，忽略 Request 內的價格與總額。
 - Mock Checkout 使用獨立 `mockCheckoutSessions`，不寫入 Legacy `mockOrders`。
 - 相同會員與冪等鍵的相同 Request 會回放；內容不同會回 `CONFLICT`。
-- 後端已實作：建立、更新、取消。
-- 後端尚未實作：讀取 Session。
-- 等待 Payment 線 D：確認 COD、建立 ECPay 表單。
-- Mock 的 COD／ECPay 會明確回 `PAYMENT_NOT_IMPLEMENTED`，不模擬付款成功。
+- 後端已實作：建立、讀取、更新、COD 確認、取消。
+- `getSession()` 可供重新整理、跨頁導向與付款返回後恢復最新 Session，不延長 Checkout 期限。
+- `confirmCod()` 成功回傳 `checkoutStep=completed` 與 `checkoutExpiresAt=null`；付款狀態仍是 `unpaid`。
+- 等待 Payment 線 D：建立 ECPay 表單、Notify 驗簽與付款落帳。
+- Mock 支援 COD 成立狀態；ECPay 仍明確回 `PAYMENT_NOT_IMPLEMENTED`。
 - Checkout 頁面已改用 `API.checkout.createSession()`，不再呼叫 Legacy `orders.create()`。
 
 ## 建立 Request
@@ -37,9 +38,11 @@ Checkout 頁面只送後端允許的欄位：
 {
   "items": [{ "variantId": "V001", "quantity": 1 }],
   "shipping": {
+    "method": "delivery",
     "recipientName": "Amy",
     "phone": "0912345678",
-    "address": "台北市信義區測試路 1 號"
+    "address": "台北市信義區測試路 1 號",
+    "pickupBranchId": null
   },
   "paymentMethod": "cod",
   "idempotencyKey": "瀏覽器產生的唯一值"
@@ -76,6 +79,8 @@ Legacy `API.orders.create()` 暫時保留給尚未遷移的 Mock 頁面；`USE_M
 
 - `checkoutStep=draft`：頁面保留購物車，讓使用者補資料後呼叫 `updateSession()`。
 - `checkoutStep=ready_to_pay`：頁面顯示後端 pricing，並依 `checkoutExpiresAt` 顯示倒數。
+- COD 建立或更新後若回傳 `ready_to_pay`，頁面會在同一次「確認結帳」操作中立即呼叫 `confirmCod()`；使用者不需要再次確認。
+- `checkoutStep=completed`：目前表示 COD 已確認成立；成功頁顯示貨到付款，不宣稱已付款。
 - 主動取消：呼叫 `cancelSession()`，清除 Session 後開啟共用購物車 Drawer。
 - `CHECKOUT_EXPIRED`：停止倒數、清除冪等鍵與 orderId，保留購物車供重新建立。
 - `UNAUTHORIZED`、`STOCK_INSUFFICIENT`、`VALIDATION_ERROR`、`IDEMPOTENCY_CONFLICT`、`CHECKOUT_EXPIRED`、`INTERNAL_ERROR` 都由頁面轉為明確操作。

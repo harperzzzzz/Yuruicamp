@@ -82,8 +82,8 @@
             </div>
           </div>
 
-          <!-- ── Panel 2：訂購人資訊 ── -->
-          <div class="checkoutPanel checkoutPanelBooking" id="panelContact">
+          <!-- ── Panel 2：訂購人資訊（預設展開）── -->
+          <div class="checkoutPanel checkoutPanelBooking isOpen" id="panelContact">
             <div class="checkoutPanelHeader checkoutPanelHeaderBooking" data-panel="panelContact">
               <div class="checkoutPanelTitle checkoutPanelTitleBooking">
                 <span class="checkoutPanelNumber checkoutPanelNumberBooking">2</span>
@@ -109,8 +109,8 @@
             </div>
           </div>
 
-          <!-- ── Panel 3：付款方式 ── -->
-          <div class="checkoutPanel checkoutPanelBooking" id="panelPayment">
+          <!-- ── Panel 3：付款方式（預設展開）── -->
+          <div class="checkoutPanel checkoutPanelBooking isOpen" id="panelPayment">
             <div class="checkoutPanelHeader checkoutPanelHeaderBooking" data-panel="panelPayment">
               <div class="checkoutPanelTitle checkoutPanelTitleBooking">
                 <span class="checkoutPanelNumber checkoutPanelNumberBooking">3</span>
@@ -120,52 +120,13 @@
             </div>
             <div class="checkoutPanelBody checkoutPanelBodyBooking">
               <!-- 線上付款（綠界；預約不提供 COD） -->
-              <label class="bookingPaymentOption isSelected" id="payOptCredit">
-                <input type="radio" name="paymentMethod" value="credit" id="payCredit" checked />
+              <label class="bookingPaymentOption isSelected" id="payOptEcpay">
+                <input type="radio" name="paymentMethod" value="ecpay-credit" id="payCredit" checked />
                 <div>
                   <div class="bookingPaymentOptionTitle">線上付款（綠界）</div>
-                  <div class="bookingPaymentOptionDesc">預約須線上付款；正式環境導向 ECPay</div>
+                  <div class="bookingPaymentOptionDesc">確認預約後將前往 ECPay；本站不收集或保存卡片資料</div>
                 </div>
               </label>
-
-              <!-- 信用卡資訊欄位（選信用卡時顯示）-->
-              <div id="creditCardSection" class="creditCardSectionBooking">
-                <div class="ccField">
-                  <label class="ccLabel" for="cardNumber">卡號</label>
-                  <input
-                    type="text"
-                    class="ccInput"
-                    id="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    maxlength="19"
-                    inputmode="numeric"
-                  />
-                </div>
-                <div class="ccRow">
-                  <div class="ccField">
-                    <label class="ccLabel" for="cardExpiry">到期日</label>
-                    <input
-                      type="text"
-                      class="ccInput"
-                      id="cardExpiry"
-                      placeholder="MM / YY"
-                      maxlength="7"
-                      inputmode="numeric"
-                    />
-                  </div>
-                  <div class="ccField">
-                    <label class="ccLabel" for="cardCvv">CVV</label>
-                    <input
-                      type="text"
-                      class="ccInput"
-                      id="cardCvv"
-                      placeholder="123"
-                      maxlength="4"
-                      inputmode="numeric"
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -181,7 +142,7 @@
             </div>
 
             <button class="btn btnPrimary btnFull confirmPayButtonBooking" id="confirmPayBtn">
-              <i class="bi bi-lock-fill"></i> 確認預約並送出
+              <i class="bi bi-lock-fill"></i> 前往 ECPay
             </button>
             <p class="termsNote termsNoteBooking">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
             <p class="sslNote"><i class="bi bi-shield-lock"></i> SSL 加密保護，安全付款</p>

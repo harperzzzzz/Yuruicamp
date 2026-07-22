@@ -108,7 +108,7 @@ GET /api/booking/bookings/{bookingId}
 
 ## 7. 已知缺口
 
-- `/api/me/orders` 與 `/api/me/orders/{id}` 尚無 Controller；不可執行會員訂單驗收。
+- `/api/me/orders` 與 `/api/me/orders/{id}` 已完成；會員訂單驗收改依 [`member-order-api-validation.md`](./member-order-api-validation.md) 執行。
 - ECPay、付款確認與 Booking confirmed 不在目前 API 可驗證範圍。
 - Articles／Reviews 公開 API 尚未實作。
 

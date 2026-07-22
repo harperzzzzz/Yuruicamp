@@ -80,6 +80,10 @@
     window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: preferences }));
   }
 
+  function redirectToMemberProfile() {
+    window.location.href = '/storefront/pages/member-center.html?onboarding=profile';
+  }
+
   function handleLoginSuccess(provider) {
     if (window.YuruiAuth && typeof window.YuruiAuth.loginWithProvider === 'function') {
       // 處理 Google／FB／LINE 取消／後端錯誤等 Promise reject
@@ -169,7 +173,7 @@
         syncProfilePreferenceStorage(surveyAnswers);
         personalizationCompleted = true;
         window.closeModal('personalizationModal', { force: true });
-        window.showToast && window.showToast('偏好設定已儲存', 'success');
+        redirectToMemberProfile();
       }
     });
   };
@@ -178,12 +182,14 @@
     var loginModal = document.getElementById('loginModal');
     if (!loginModal || loginModal.dataset.loginBound === 'true') return;
     loginModal.dataset.loginBound = 'true';
-    loginModal.querySelectorAll('.btnGoogleLogin, .btnFacebookLogin, .btnLineLogin').forEach(function (button) {
-      button.addEventListener('click', function (event) {
-        event.preventDefault();
-        handleLoginSuccess(getLoginProvider(button));
+    loginModal
+      .querySelectorAll('.btnGoogleLogin, .btnFacebookLogin, .btnLineLogin')
+      .forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          handleLoginSuccess(getLoginProvider(button));
+        });
       });
-    });
   }
 
   function initSurveyCloseConfirmModal() {
@@ -232,4 +238,4 @@
       });
     }
   };
-}());
+})();

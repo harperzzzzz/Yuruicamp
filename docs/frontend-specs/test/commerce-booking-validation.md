@@ -10,6 +10,7 @@ npm run test:checkout-mock
 npm run test:checkout-request
 npm run test:checkout-backend
 npm run test:checkout-session-ui
+npm run test:checkout-success
 npm run test:booking-facade
 npm run test:booking-request
 ```
@@ -22,7 +23,7 @@ npm run test:booking-request
 
 1. 開啟 `/storefront/pages/checkout.html` 並完成登入。
 2. 確認買家資訊、物流選擇與付款方式三個面板進入畫面時預設全部展開，且各標題按鈕仍可個別收合／展開。
-3. 確認送出前金額標示為預估；頁面沒有卡號、有效期或 CVV 欄位。
+3. 確認姓名、手機與 Email 初始為空白，按「帶入會員資料」後才填入；頁面沒有卡號、有效期或 CVV 欄位。
 4. 送出後 Network 應呼叫 `POST /api/checkout/sessions`。
 5. Request 只包含 `items[].variantId`、`quantity`、`shipping`、`paymentMethod`、`couponClaimId`（適用時）與 `idempotencyKey`。
 6. Request 不得包含 `customerId`、商品名稱、單價、總額、狀態或付款狀態。
@@ -30,16 +31,19 @@ npm run test:booking-request
 8. 重整後不得再建立新訂單；相同 payload 與冪等鍵回放同一 `orderId`，不同 payload 預期 `409 IDEMPOTENCY_CONFLICT`。
 9. Draft 修改呼叫 `PATCH /api/checkout/sessions/{orderId}`；取消呼叫 `POST .../{orderId}/cancel`。
 10. Backend 模式不得新增 `mockOrders` 或 Legacy Order。
+11. 門市取貨必須呼叫 `GET /api/branches` 並送出 `shipping.method=pickup`、`pickupBranchId`；後端回傳門市名稱與地址快照。
+12. 選擇 COD 並按一次「確認結帳」後，前端應先建立 Session，收到 `ready_to_pay` 後立即呼叫 `POST .../{orderId}/confirm-cod`；成功後清空 `AppState.cart`、`localStorage.cart` 與舊 Checkout 暫存，再以 query string 的 `orderId` 進入成功頁。
+13. 從成功頁切換到其他頁面時購物車必須為空；再次開啟 Checkout 不得因上一筆 completed Session 重導成功頁。
 
 狀態預期：
 
-| 情境 | 預期 |
-| --- | --- |
-| 待付款 | `ready_to_pay`，依 `checkoutExpiresAt` 倒數 |
-| 主動取消 | `cancelled`／closed，購物車不因取消被清空 |
-| 逾時 | `expired` 或後端取消結果，清除 Session 暫存 |
-| ECPay | 只顯示下一步提示；目前不可驗證實際付款 |
-| COD | Payment 線完成前不可宣稱端到端通過 |
+| 情境     | 預期                                        |
+| -------- | ------------------------------------------- |
+| 待付款   | `ready_to_pay`，依 `checkoutExpiresAt` 倒數 |
+| 主動取消 | `cancelled`／closed，購物車不因取消被清空   |
+| 逾時     | `expired` 或後端取消結果，清除 Session 暫存 |
+| ECPay    | 呼叫建立表單端點；後端尚未實作時不可宣稱實際付款 |
+| COD      | `completed`、`unpaid`、期限為 `null`，可在會員中心查詢 |
 
 ## 3. Coupon 邊界
 
@@ -55,12 +59,15 @@ npm run test:booking-request
    - 查日期時 `POST /api/booking/check-availability`
 2. 不應下載 `campgrounds.json`、`camp-bookings.json` 或 `booking-policy.json`。
 3. 營區詳情呼叫 `GET /api/booking/campgrounds/{id}` 與 `GET /api/booking/equipment?campgroundId=...`。
-4. 進入 Checkout 後建立 `POST /api/booking/checkout/sessions`，Request 只送營區／zone／租借 ID、數量、日期、人數、付款方式與冪等鍵。
-5. 回應必須是 `pending + unpaid`，金額、快照、`bookingId` 與 15 分鐘期限由後端決定。
-6. 成功頁不得顯示已付款或 confirmed；Payment 線尚未完成。
-7. 會員中心呼叫 `GET /api/booking/bookings` 與詳情 API，只顯示本人資料。
-8. 取消呼叫 `POST /api/booking/checkout/sessions/{bookingId}/cancel`，重送仍保持 cancelled。
-9. 比較前後 `localStorage.mockBookings`，Backend 流程不得修改；`bookingCart` 只允許作為送出前暫存。
+4. 進入 Checkout 時訂購人姓名、手機與 Email 必須保持空白；點擊「帶入會員資料」後才可填入。頁面不得有卡號、有效期或 CVV 欄位。
+5. 點擊「前往 ECPay」後建立 `POST /api/booking/checkout/sessions`，Request 只送營區／zone／租借 ID、數量、日期、人數、付款方式與冪等鍵。
+6. 建單回應必須是 `pending + unpaid`，金額、快照、`bookingId` 與 15 分鐘期限由後端決定。
+7. 前端接著呼叫 `POST /api/booking/checkout/sessions/{bookingId}/ecpay`，並以隱藏 POST 表單提交後端回傳的 `actionUrl` 與簽章欄位；前端不得自行產生 `CheckMacValue`。
+8. 後端 ECPay 端點尚未導入時應顯示錯誤並保留預約背包，不得導向成功頁或宣稱付款完成。
+9. 成功頁不得顯示已付款或 confirmed；付款結果只以完成驗證的 ECPay Notify 為準。
+10. 會員中心呼叫 `GET /api/booking/bookings` 與詳情 API，只顯示本人資料。
+11. 取消呼叫 `POST /api/booking/checkout/sessions/{bookingId}/cancel`，重送仍保持 cancelled。
+12. 比較前後 `localStorage.mockBookings`，Backend 流程不得修改；`bookingCart` 在付款完成前必須保留。
 
 遇到建單失敗，先記錄 Request URL、HTTP status、`error.code`、`message`、是否剛重建 DB、是否已重新登入。`400`／`404`／`409`、`STOCK_*`、`ZONE_*`、`VARIANT_*` 通常是業務或 Seed，不要先改 Firebase。
 
@@ -79,4 +86,4 @@ npm run test:booking-request
 - ID、金額、狀態、逾時與取消皆以後端回應為準。
 - 冪等重送不重複建立或扣庫存。
 - Backend 模式不讀／寫成交 Mock。
-- 已知未完成的 Payment、Booking Coupon 與會員訂單明確標記為未通過。
+- 已知未完成的 Payment 與 Booking Coupon 明確標記為未通過；會員訂單依 Backend facade 與會員中心專用驗證流程判定。

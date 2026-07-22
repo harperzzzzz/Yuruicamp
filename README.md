@@ -20,8 +20,11 @@
 - B-5 商品規格已隨 Product API v0.3 落地：`variants[]` 只回 active variant，並以商城庫存扣除 active 保留帳後回傳 `availableQuantity` 與 `inStock`。
 - B-5 範圍與資料來源見 [`docs/backend-specs/catalog/b5-product-variants-stock-status.md`](./docs/backend-specs/catalog/b5-product-variants-stock-status.md)。
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
+- 會員 Order API 已完成：`GET /api/me/orders` 與 `GET /api/me/orders/{orderId}` 只使用 Firebase Principal 查詢本人資料，回傳訂單／商品快照；他人與不存在訂單統一回 `404`，PostgreSQL 整合測試 `4` 項全數通過。
+- 前端會員 Order 接線已完成：`API.orders.getAll/getByCustomerId` 在 Backend 模式只透過 `ApiClient` 呼叫 `/api/me/orders`，不讀寫 `mockOrders`；後端契約欄位會正規化為會員中心既有顯示欄位。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
 - Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
+- Checkout Session Read 已完成：`GET /api/checkout/sessions/{orderId}` 只讀取 Firebase Principal 本人的最新快照，不延長期限或修改庫存；未登入回 `401`，他人與不存在統一回 `403`。
 - Checkout C-2～C-8 的完整流程、規則與驗收入口見 [`docs/backend-specs/checkout/README.md`](./docs/backend-specs/checkout/README.md)。
 - Checkout 線 C 的 C-4 與 Coupon 線 F 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料、付款方式及 `couponClaimId`，折扣由後端重算並保存 `order_coupons` 快照。
 - Coupon 線 F 的 F-1、F-3、F-4 與商城 F-2 已完成：公開券、我的券、領券、三種資格、名額 Trigger、重複領券與取消規則已通過 PostgreSQL 驗證；Booking 因缺少 Coupon 關聯 Schema 尚未開放，付款後 `consumed` 由線 D 接續。
@@ -34,7 +37,8 @@
 - Booking 線 E 的 E-4 已完成：同一個 Checkout 交易會鎖定租借實體庫存、扣除住宿日期重疊的 active 保留、建立租借快照與保留帳；不同日期可共用庫存，重疊日期不可超租。
 - Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
 - Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
-- Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。線 E 定義為 Booking Prepare／Reservation 完成，ECPay 與付款確認延後線 D。
+- Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。Booking Checkout 的訂購人欄位預設空白且只由「帶入會員資料」填入，頁面不收集卡號、有效期或 CVV；「前往 ECPay」已接妥後端簽章表單契約，實際端點、Notify 與付款確認仍待線 D。
+- 商城 Checkout 已完成宅配／資料庫門市取貨與 COD 確認：使用者按一次「確認結帳」後，前端會依序建立 Session 並自動呼叫 `confirm-cod`；COD 成立後仍為 `unpaid`，但不再受 `15` 分鐘 Checkout 期限限制，並由 `checkout-success.html` 顯示成立狀態。ECPay、Notify 與付款後資源落帳仍待線 D 完成。
 - Booking 線 E 的後端與前端人工驗證已整合至 [`公開／會員 API 驗證`](./docs/backend-specs/test/public-member-api-validation.md) 與 [`商城 Checkout 與 Booking 驗證`](./docs/frontend-specs/test/commerce-booking-validation.md)。
 - Admin 線 G 的 G-1、G-5 已完成：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已接入正式 Admin Session。
 - Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
@@ -47,12 +51,14 @@
 - Admin RBAC、Customers、Orders、Bookings、Products 與 Inventory Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
 - 前台跨分頁與站內導頁共用 `AppAuth` readiness：頁面 API 會等待 Firebase 注入並從 IndexedDB 還原 `currentUser`，再取得 Token；初始化期間不會誤判成登入失效並清除會員狀態。
+- Firebase Session 只有在後端回傳 `created=true` 的首次登入才開啟共用 `#personalizationModal`；未完成問卷時偏好維持 `null`，完成後直接進入會員中心的會員資料頁，Email 與生日可由使用者編輯。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
 - Checkout 頁面已改呼叫 `API.checkout.createSession()`；Request 不再傳會員 ID、商品快照、前端價格、總額、狀態或點數，會員由 Firebase principal 決定，金額由 Spring Boot 從 PostgreSQL 重算。
 - Checkout 冪等鍵由 `crypto.randomUUID()` 產生並暫存在 sessionStorage；網路重試與連點沿用同一 key，成功保存後端 `orderId`，購物車變更、取消或逾時才清除。
 - Checkout I-5 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order、不消耗前端優惠券，ECPay 也不在本站收集卡號、到期日或 CVV。
 - Checkout I-6 已完成：Draft 可 PATCH 補資料，Ready 顯示後端金額與 15 分鐘倒數；逾時／取消會清除 Session、保留購物車，並依後端錯誤碼提供重新登入、調整庫存或重建 Checkout 操作。
+- COD 確認成功後才清空共用購物車與本次 Checkout 暫存；成功頁以 URL 的 `orderId` 重新向後端讀取，因此下一次 Checkout 不會還原上一筆 completed Session。
 - 開發 Seed 已建立 `main`、`branch-001`～`branch-003` 四個商城庫位與 156 筆 variant 庫存；扣除 98 件 active 訂單保留後，active catalog 可用量總計 399，可直接從 Swagger 驗證 Checkout。
 - Reference Seed 已對齊前端展示資料：12 個公開品牌、8 個 active 營區、13 個 active zone、營區標籤與 3 個門市；品牌 JSON 已改用後端 canonical slug，詳見 [`JSON／Seed 固定 ID 對照`](./docs/data/json-seed-id-mapping.md)。
 - 租借 Seed 已建立 28 SKU、37 canonical 規格、9 個固定租借庫位、16 筆有明確定價的 listing 與 333 筆規格庫存；租借 Mock 與預約快照也已改用 `RSV-Rxxx-xx`。
@@ -947,7 +953,7 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 - Admin 訂單／預訂真實 API 已分別驗證 222／90 筆，抽查詳情與 `frontend/data` JSON Mock 的核心欄位一致。
 - 會員 U001 的預訂 API 可查到 `25`、`55`，列表／詳情契約測試通過。
-- 尚未全數完成：Admin 已由 `AdminRuntime` 統一設定 Backend 模式並以 readiness 阻擋未接功能；會員訂單 Controller 仍不存在，前端 Backend 模式也尚未完成會員訂單 REST 分流。
+- 會員訂單與預訂均已完成 Backend 模式 REST 分流；Payment、Booking Coupon 與其他 readiness 後續功能仍依各自契約推進。
 - 目前可驗證範圍與未完成邊界統一記錄於 [`前端實際驗證總覽`](./docs/frontend-specs/test/README.md)。
 
 > 以下指令請先 `cd frontend` 再執行（`package.json` 已不在 repo 根）。

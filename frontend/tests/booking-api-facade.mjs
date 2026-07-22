@@ -94,6 +94,14 @@ const responses = new Map([
   ],
   ['/booking/checkout/sessions/B001', { bookingId: 'B001', status: 'pending' }],
   ['/booking/checkout/sessions/B001/cancel', { bookingId: 'B001', status: 'cancelled' }],
+  [
+    '/booking/checkout/sessions/B001/ecpay',
+    {
+      bookingId: 'B001',
+      actionUrl: 'https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5',
+      fields: { MerchantTradeNo: 'BOOKING-B001', CheckMacValue: 'SIGNED-BY-BACKEND' },
+    },
+  ],
 ]);
 
 const window = {
@@ -165,6 +173,7 @@ await api.createBooking({
   idempotencyKey: 'booking-test-key',
 });
 await api.cancelBooking('B001');
+const ecpayLaunch = await api.createEcpayForm('B001');
 
 assert.equal(campgrounds[0].campgroundId, 'C002');
 assert.equal(campgrounds[0].zones[0].zoneId, 'Z001');
@@ -175,6 +184,7 @@ assert.equal(equipment[0].stock, null);
 assert.equal(bookings[0].id, 'B001');
 assert.deepEqual(bookings.meta, { page: 0, size: 20, totalElements: 1, totalPages: 1 });
 assert.equal(writes.length, 0, 'Backend mode must not write mockBookings');
+assert.equal(ecpayLaunch.bookingId, 'B001');
 
 const availabilityCall = calls.find((call) => call.path === '/booking/check-availability');
 assert.equal(availabilityCall.options.method, 'POST');
@@ -188,5 +198,8 @@ assert(memberCalls.every((call) => call.options.auth === 'required'));
 assert(calls.every((call) => !call.path.startsWith('/api/')));
 assert(!calls.some((call) => call.path.includes('customerId=')));
 assert(!calls.some((call) => call.path.includes('zone-blocks')));
+const ecpayCall = calls.find((call) => call.path === '/booking/checkout/sessions/B001/ecpay');
+assert.equal(ecpayCall.options.method, 'POST');
+assert.equal(ecpayCall.options.auth, 'required');
 
 console.log('Booking API facade checks passed');

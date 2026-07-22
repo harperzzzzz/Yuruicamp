@@ -118,6 +118,7 @@ class CheckoutExpirationServiceTest {
 		Order order = new Order();
 		order.initialize("O-EXPIRY-TEST", "C001", "expiry-key", "request-hash",
 				"Buyer", "buyer@example.com", "Recipient", "Address", "0912345678",
+				com.yuruicamp.backend.order.domain.ShippingMethod.delivery, null,
 				PaymentMethod.ecpay_credit, NOW.minusSeconds(900), expiresAt);
 
 		return order;

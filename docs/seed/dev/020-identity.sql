@@ -59,6 +59,62 @@ SELECT setval(
     true
 );
 
+-- 目前正式 Firebase Google 登入會員；保留真實 UID，讓重建開發資料庫後仍綁定同一帳號。
+INSERT INTO public.customers (
+    id,
+    name,
+    phone,
+    email,
+    birthday,
+    registered_at,
+    tier,
+    tier_name,
+    points,
+    first_purchase_used,
+    auth_provider,
+    firebase_uid,
+    created_at,
+    updated_at,
+    avatar_url,
+    deleted_at,
+    status
+)
+VALUES (
+    '99eeb41d1cc948ff98bca94d90ddfa93',
+    '粉紅雞',
+    NULL,
+    'pinkchickstarburstc8763@gmail.com',
+    NULL,
+    TIMESTAMPTZ '2026-07-22T12:02:12.881906+00:00',
+    NULL,
+    NULL,
+    0,
+    false,
+    'google',
+    'FLE7Yl1bB5QwmuSZEANeUd5PyKe2',
+    TIMESTAMPTZ '2026-07-22T12:02:12.881906+00:00',
+    TIMESTAMPTZ '2026-07-22T12:02:12.881906+00:00',
+    'https://lh3.googleusercontent.com/a/ACg8ocLomWN6fwbkaMm8Dkp6jT6ZJi_pn0-9-FnfXDgEaDi5HusY5xw=s96-c',
+    NULL,
+    'active'
+)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    phone = EXCLUDED.phone,
+    email = EXCLUDED.email,
+    birthday = EXCLUDED.birthday,
+    registered_at = EXCLUDED.registered_at,
+    tier = EXCLUDED.tier,
+    tier_name = EXCLUDED.tier_name,
+    points = EXCLUDED.points,
+    first_purchase_used = EXCLUDED.first_purchase_used,
+    auth_provider = EXCLUDED.auth_provider,
+    firebase_uid = EXCLUDED.firebase_uid,
+    avatar_url = EXCLUDED.avatar_url,
+    deleted_at = EXCLUDED.deleted_at,
+    status = EXCLUDED.status,
+    updated_at = EXCLUDED.updated_at;
+
 -- frontend customers begin
 -- 訂單與預訂的固定開發會員；皆為 example.com 假資料。
 INSERT INTO public.customers (id, name, phone, email, birthday, registered_at, tier, tier_name, points, first_purchase_used, auth_provider, avatar_url, status)

@@ -52,6 +52,14 @@ public class Order {
 	@Column(name = "shipping_phone_snapshot", nullable = false)
 	private String shippingPhone;
 
+	@Enumerated(EnumType.STRING)
+	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Column(name = "shipping_method", nullable = false, columnDefinition = "shipping_method")
+	private ShippingMethod shippingMethod;
+
+	@Column(name = "pickup_branch_id", length = 32)
+	private String pickupBranchId;
+
 	@Column(nullable = false)
 	private BigDecimal subtotal;
 
@@ -153,6 +161,14 @@ public class Order {
 		return shippingPhone;
 	}
 
+	public ShippingMethod getShippingMethod() {
+		return shippingMethod;
+	}
+
+	public String getPickupBranchId() {
+		return pickupBranchId;
+	}
+
 	public BigDecimal getSubtotal() {
 		return subtotal;
 	}
@@ -192,6 +208,8 @@ public class Order {
 			String recipientName,
 			String shippingAddress,
 			String shippingPhone,
+			ShippingMethod shippingMethod,
+			String pickupBranchId,
 			PaymentMethod paymentMethod,
 			Instant now,
 			Instant expiresAt) {
@@ -204,6 +222,8 @@ public class Order {
 		this.recipientName = recipientName;
 		this.shippingAddress = shippingAddress;
 		this.shippingPhone = shippingPhone;
+		this.shippingMethod = shippingMethod;
+		this.pickupBranchId = pickupBranchId;
 		this.paymentMethod = paymentMethod;
 		this.paymentStatus = PaymentStatus.unpaid;
 		this.refundStatus = RefundStatus.none;
@@ -260,10 +280,18 @@ public class Order {
 	}
 
 	// 更新 Checkout 的收件快照。
-	public void updateShipping(String recipientName, String phone, String address) {
+	public void updateShipping(String recipientName, String phone, String address,
+			ShippingMethod shippingMethod, String pickupBranchId) {
 		this.recipientName = recipientName;
 		this.shippingPhone = phone;
 		this.shippingAddress = address;
+		this.shippingMethod = shippingMethod;
+		this.pickupBranchId = pickupBranchId;
+	}
+
+	// 貨到付款確認後取消 Checkout 倒數，但訂單仍維持未付款。
+	public void confirmCod() {
+		this.checkoutExpiresAt = null;
 	}
 
 	// 更新 Checkout 的付款方式。

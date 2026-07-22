@@ -362,6 +362,16 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   box-shadow: 0 0 0 3px color-mix(in srgb, $checkout-danger 24%, transparent);
 }
 
+.checkoutPickupField {
+  margin-top: 1rem;
+}
+
+.checkoutFieldHint {
+  color: $checkout-muted;
+  font-size: 0.8125rem;
+  margin: 0.45rem 0 0;
+}
+
 .checkoutSecondaryAction {
   margin-top: 0.25rem;
   background: var(--yc-cta);

@@ -212,8 +212,7 @@ textarea {
 .zoomBox img {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   transform: scale(1.18);
   transition: transform var(--transition-slow);
 }
@@ -1031,8 +1030,7 @@ main {
 .cardGallery img {
   display: block;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   width: 100%;
 }
 
@@ -1139,10 +1137,8 @@ main {
   max-height: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
-  -o-object-fit: contain !important;
-     object-fit: contain !important;
-  -o-object-position: center !important;
-     object-position: center !important;
+  object-fit: contain !important;
+  object-position: center !important;
   width: 100% !important;
 }
 
@@ -1161,10 +1157,8 @@ main {
   height: 100% !important;
   max-height: 100% !important;
   max-width: 100% !important;
-  -o-object-fit: contain !important;
-     object-fit: contain !important;
-  -o-object-position: center !important;
-     object-position: center !important;
+  object-fit: contain !important;
+  object-position: center !important;
   width: 100% !important;
 }
 
@@ -1873,8 +1867,7 @@ main {
 .bookingBrandImage {
   width: clamp(48px, 5vw, 70px);
   height: clamp(48px, 5vw, 70px);
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 
 .siteBrandText,
@@ -2430,8 +2423,7 @@ main {
 .siteCartItemImage {
   width: 88px;
   aspect-ratio: 1;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   border-radius: var(--yc-radius-button);
 }
 
@@ -2944,8 +2936,7 @@ main {
   z-index: 0;
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .heroBanner::after {
@@ -3038,9 +3029,7 @@ main {
   height: 6px;
   background: transparent;
   pointer-events: none;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  appearance: none;
   margin: 0;
   padding: 0;
   outline: 3px solid transparent;
@@ -3060,8 +3049,7 @@ main {
 }
 
 .priceRangeTrackWrap input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -3129,10 +3117,6 @@ main {
   outline: 3px solid transparent;
   outline-offset: 2px;
   transition: var(--yc-transition);
-}
-
-.searchBarInput::-moz-placeholder {
-  color: color-mix(in srgb, var(--yc-on-dark) 70%, transparent);
 }
 
 .searchBarInput::placeholder {
@@ -3264,8 +3248,7 @@ main {
 .campCardImageBooking img {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .campCardImageBooking:not(.cardGallery) img {
@@ -3487,8 +3470,7 @@ main {
 .galleryImg {
   width: 100%;
   aspect-ratio: 4/3;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   transition: transform 0.3s ease;
   display: block;
 }
@@ -3747,8 +3729,7 @@ main {
 .rentalItemCardImageBooking {
   width: 100%;
   aspect-ratio: 4/3;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .rentalItemCardBodyBooking {
@@ -4521,9 +4502,7 @@ main {
   border: 1px solid var(--yc-border);
   border-radius: var(--yc-radius-card);
   transition: background 0.15s;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .checkoutPanelHeaderBooking:hover {
@@ -4646,60 +4625,8 @@ main {
   margin-top: 0.2rem;
 }
 
-.creditCardSectionBooking {
-  margin-top: 0.75rem;
-  padding: 1.1rem;
-  background: var(--yc-bg);
-  border-radius: var(--yc-radius-card);
-  border: 1px solid var(--yc-border);
-}
-
-.ccLabel {
-  display: block;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--yc-sage-action);
-  margin-bottom: 0.3rem;
-}
-
-.ccInput {
-  width: 100%;
-  padding: 0.55rem 0.8rem;
-  border: 1.5px solid var(--yc-border);
-  border-radius: var(--yc-radius-control);
-  font-size: 0.9rem;
-  color: var(--yc-text);
-  background: var(--yc-surface);
-  outline: 3px solid transparent;
-  outline-offset: 2px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  font-family: inherit;
-  letter-spacing: 0.03em;
-}
-
-.ccInput:focus {
-  border-color: var(--yc-sage-action);
-  box-shadow: var(--yc-focus-ring);
-}
-
-.formControl.isInvalid,
-.ccInput.isInvalid {
+.formControl.isInvalid {
   border-color: var(--yc-error);
-}
-
-.ccField {
-  margin: 0;
-}
-
-.ccField + .ccField {
-  margin-top: 0.75rem;
-}
-
-.ccRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 .checkoutConfirmAreaBooking {
@@ -5090,4 +5017,6 @@ main {
   .faqHeroTitle {
     font-size: 1.75rem;
   }
-}/*# sourceMappingURL=booking-main.css.map */
+}
+
+/*# sourceMappingURL=booking-main.css.map */

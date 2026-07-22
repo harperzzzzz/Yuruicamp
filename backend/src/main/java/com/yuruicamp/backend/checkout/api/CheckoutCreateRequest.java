@@ -39,11 +39,15 @@ public record CheckoutCreateRequest(
 
 	// 表示訂單的收件資料。
 	public record Shipping(
+			@Size(max = 16)
+			String method,
 			@Size(max = 100)
 			String recipientName,
 			@Size(max = 32)
 			String phone,
 			@Size(max = 500)
-			String address) {
+			String address,
+			@Size(max = 32)
+			String pickupBranchId) {
 	}
 }

@@ -96,6 +96,19 @@
     var el = document.getElementById(id);
     if (el) el.value = value == null ? '' : String(value);
   }
+
+  function minimumAdultBirthday() {
+    var cutoff = new Date();
+    cutoff.setFullYear(cutoff.getFullYear() - 18);
+    var year = cutoff.getFullYear();
+    var month = String(cutoff.getMonth() + 1).padStart(2, '0');
+    var day = String(cutoff.getDate()).padStart(2, '0');
+    return year + '-' + month + '-' + day;
+  }
+
+  function registeredDate(value) {
+    return value ? String(value).slice(0, 10) : '--';
+  }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function money(value) {
     return 'NT$ ' + Number(value || 0).toLocaleString('zh-TW');
@@ -343,12 +356,14 @@
     renderAvatarElement(document.getElementById('mcAvatar'), state.user, name);
     text('cardName', name);
     text('cardTier', state.user.tierName || 'Explorer');
-    text('cardSince', '加入日期：' + (state.user.registeredAt || '--'));
+    text('cardSince', '加入日期：' + registeredDate(state.user.registeredAt));
     text('cardPoints', '回饋點數：' + Number(state.user.points || 0).toLocaleString('zh-TW'));
     input('profileName', name);
     input('profilePhone', s.phone || state.user.phone || '');
     input('profileEmail', email);
     input('profileBirthday', s.birthday || state.user.birthday || '');
+    var birthdayInput = document.getElementById('profileBirthday');
+    if (birthdayInput) birthdayInput.max = minimumAdultBirthday();
     initProfileShippingAddress();
     renderProgress();
     syncPrefs(selectedPrefs());
@@ -1108,7 +1123,7 @@
       if (typeof window.saveAppState === 'function') window.saveAppState();
     }
 
-    // 各領域獨立載入；尚未實作的 Orders／Coupon 不得連帶清空已完成的 Booking API。
+    // 各領域獨立載入；單一 API 失敗不得連帶清空其他已完成的會員資料。
     var results = await Promise.allSettled([
       window.API.orders.getByCustomerId
         ? window.API.orders.getByCustomerId(uid)
@@ -1312,7 +1327,11 @@
       form.addEventListener('submit', function (e) {
         e.preventDefault();
         clearMemberFieldError('profilePhone');
+        clearMemberFieldError('profileEmail');
+        clearMemberFieldError('profileBirthday');
         var phoneRaw = document.getElementById('profilePhone').value.trim();
+        var emailRaw = document.getElementById('profileEmail').value.trim();
+        var birthdayRaw = document.getElementById('profileBirthday').value;
         if (!phoneRaw) {
           showMemberFieldError('profilePhone', '請填寫手機');
           return;
@@ -1321,12 +1340,21 @@
           showMemberFieldError('profilePhone', '手機須為 09 開頭的 10 碼數字（例：0988744144）');
           return;
         }
+        if (!emailRaw || (window.isValidEmail && !window.isValidEmail(emailRaw))) {
+          showMemberFieldError('profileEmail', '請填寫有效的電子郵件');
+          return;
+        }
+        if (birthdayRaw && birthdayRaw > minimumAdultBirthday()) {
+          showMemberFieldError('profileBirthday', '會員年齡必須滿 18 歲');
+          return;
+        }
         var s = savedProfile();
         s.name = document.getElementById('profileName').value.trim();
         s.phone = window.normalizeMobile
           ? window.normalizeMobile(phoneRaw)
           : phoneRaw.replace(/[\s\-()]/g, '');
-        s.birthday = document.getElementById('profileBirthday').value;
+        s.birthday = birthdayRaw;
+        s.email = emailRaw;
         s.preferences = prefObject(
           Array.from(document.querySelectorAll('#prefTags .memberPreferenceTag.isSelected')).map(
             function (t) {
@@ -1335,9 +1363,15 @@
           )
         );
         localStorage.setItem('yurui_profile', JSON.stringify(s));
-        if (state.user) state.user.phone = s.phone;
+        if (state.user) {
+          state.user.phone = s.phone;
+          state.user.email = s.email;
+          state.user.birthday = s.birthday || null;
+        }
         if (window.AppState && window.AppState.currentUser) {
           window.AppState.currentUser.phone = s.phone;
+          window.AppState.currentUser.email = s.email;
+          window.AppState.currentUser.birthday = s.birthday || null;
           window.saveAppState && window.saveAppState();
         }
         if (
@@ -1347,9 +1381,17 @@
           state.user &&
           state.user.id
         ) {
-          window.API.customers.update(state.user.id, { phone: s.phone }).catch(function (err) {
-            console.warn('Sync profile phone failed', err);
-          });
+          window.API.customers
+            .update(state.user.id, {
+              name: s.name,
+              phone: s.phone,
+              email: s.email,
+              birthday: s.birthday || null,
+              preferences: s.preferences,
+            })
+            .catch(function (err) {
+              console.warn('Sync member profile failed', err);
+            });
         }
         toast('會員資料已更新', 'success');
         applyProfile();
@@ -1562,6 +1604,14 @@
     bindGlobal();
     bindModals();
     bindNotifications();
+    var onboarding = new URLSearchParams(window.location.search).get('onboarding');
+    if (onboarding === 'profile') {
+      switchPanel('profile');
+      setTimeout(function () {
+        toast('先填寫會員資料，完成後即可使用完整會員功能', 'info');
+        document.getElementById('profileName')?.focus({ preventScroll: true });
+      }, 0);
+    }
     var login = document.getElementById('guardLoginBtn');
     if (login && !login.dataset.bound) {
       login.dataset.bound = 'true';

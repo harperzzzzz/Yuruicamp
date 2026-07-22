@@ -78,8 +78,8 @@ $env:DB_PASSWORD = '<測試資料庫密碼>'
 
 ## 5. 目前未完成邊界
 
-- Payment 線 D：ECPay Gateway、付款表單、Notify 驗簽／冪等、Return 與完整 COD 尚未實作。
-- `GET /api/me/orders` 與會員訂單詳情 Controller 尚不存在。
+- Payment 線 D：COD 建單確認已實作；ECPay Gateway、付款表單、Notify 驗簽／冪等與 Return 尚未實作。
+- `GET /api/me/orders` 與會員訂單詳情 Controller 已完成；驗證流程見 [`member-order-api-validation.md`](./member-order-api-validation.md)。
 - Booking Coupon 關聯尚未完成。
 - Articles、Reviews、calendar_dates API 尚未完成。
 - 正式上線仍需 Flyway、部署、Secret Manager、備份／還原及 production profile 驗證。
