@@ -1,9 +1,11 @@
 [
   {
+    "id": 1,
     "code": "YURUIKAMP20",
+    "name": "悠露營活動折抵 200",
     "discount": 200,
     "quantity": 50,
-    "used": 12,
+    "used": 0,
     "startDate": "2026-06-01T00:00",
     "endDate": "2026-08-31T23:59",
     "status": "active",
@@ -12,10 +14,12 @@
     "minOrder": 0
   },
   {
+    "id": 2,
     "code": "CAMPFUN50",
+    "name": "露營同樂折抵 50",
     "discount": 50,
     "quantity": 100,
-    "used": 87,
+    "used": 0,
     "startDate": "2026-06-01T00:00",
     "endDate": "2026-07-15T23:59",
     "status": "active",
@@ -24,10 +28,12 @@
     "minOrder": 0
   },
   {
+    "id": 3,
     "code": "SUMMER100",
+    "name": "夏日露營折抵 100",
     "discount": 100,
     "quantity": 80,
-    "used": 23,
+    "used": 0,
     "startDate": "2026-07-01T00:00",
     "endDate": "2026-09-30T23:59",
     "status": "active",
@@ -36,10 +42,12 @@
     "minOrder": 0
   },
   {
+    "id": 4,
     "code": "NEWCAMP300",
+    "name": "新營區開幕折抵 300",
     "discount": 300,
     "quantity": 20,
-    "used": 5,
+    "used": 0,
     "startDate": "2026-09-01T00:00",
     "endDate": "2026-10-01T23:59",
     "status": "active",
@@ -48,10 +56,12 @@
     "minOrder": 0
   },
   {
+    "id": 5,
     "code": "OLDCAMP10",
+    "name": "舊營區活動折抵 100",
     "discount": 100,
     "quantity": 30,
-    "used": 30,
+    "used": 0,
     "startDate": "2026-01-01T00:00",
     "endDate": "2026-05-01T23:59",
     "status": "disabled",
@@ -60,7 +70,9 @@
     "minOrder": 0
   },
   {
+    "id": 6,
     "code": "YURUIHBD",
+    "name": "生日禮折抵 200",
     "discount": 200,
     "type": "fixed",
     "minOrder": 500,
@@ -72,7 +84,9 @@
     "category": "birthday"
   },
   {
+    "id": 7,
     "code": "YRUIFIRST",
+    "name": "首購禮折抵 300",
     "discount": 300,
     "type": "fixed",
     "minOrder": 1000,

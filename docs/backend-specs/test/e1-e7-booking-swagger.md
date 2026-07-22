@@ -9,7 +9,7 @@
 - `FIREBASE_ENABLED=false`，本機才能使用 `dev:` Token。
 - Swagger 位於 `http://localhost:8080/swagger-ui.html`。
 - 測試日期必須落在 `Asia/Taipei` 今天起算的可預約窗口內，預設為提前 `1` 天、未來 `90` 天內、最多 `7` 晚。
-- Dev Seed 的 `C002`、`C002-Z-A`、`RL-DEV-C002-001` 與 `RSV-DEV-001` 已存在。
+- Dev Seed 的 `C002`、`Z001`、`RL-DEV-C002-001` 與 `RSV-DEV-001` 已存在。
 - 每次建立新的 Booking Checkout 時使用未重複的 `idempotencyKey`。
 
 #### 1. E-1：驗證營區公開列表
@@ -27,7 +27,7 @@ GET /api/booking/campgrounds
 - HTTP `200`。
 - `success=true`。
 - `data` 包含啟用中的營區 `C002`。
-- `data` 不包含停用的營區 `C009`。
+- `data` 不包含停用的營區 `DEV-CAMP-INACTIVE`。
 - 列表回應包含單頁 `meta`。
 
 #### 2. E-1：驗證營區詳情與停用資料過濾
@@ -42,9 +42,9 @@ GET /api/booking/campgrounds/C002
 
 - HTTP `200`。
 - `data.id="C002"`。
-- `zones` 包含 `C002-Z-A`。
-- `C002-Z-A` 的平日價格為 `"1200.00"`。
-- `C002-Z-A` 的假日價格為 `"1500.00"`。
+- `zones` 包含 `Z001`。
+- `Z001` 的平日價格為 `"1000.00"`。
+- `Z001` 的假日價格為 `"1500.00"`。
 - 金額使用固定兩位小數字串。
 
 再執行：
@@ -94,7 +94,7 @@ Request Body：
   "checkOut": "2026-08-03",
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 2
     }
   ]
@@ -109,7 +109,7 @@ Request Body：
 - `data.available=true`。
 - `data.reasons` 為空陣列。
 - `data.zones[0].requested=2`。
-- 沒有其他 Booking 占用時，`availableQuantity=8`。
+- 沒有其他 Booking 占用時，`availableQuantity=10`。
 - 查詢不會新增 `bookings` 或租借保留資料。
 
 #### 5. E-2：驗證日期與政策錯誤
@@ -141,7 +141,7 @@ Request Body：
   "checkOut": "2026-09-02",
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ]
@@ -201,7 +201,7 @@ Request Body：
   "guestCount": 2,
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ],
@@ -237,10 +237,10 @@ Request Body：
     "paymentMethod": "ecpay-credit",
     "checkoutStep": "ready_to_pay",
     "pricing": {
-      "zoneTotal": "2400.00",
+      "zoneTotal": "2000.00",
       "rentalTotal": "0.00",
       "discount": "0.00",
-      "finalAmount": "2400.00"
+      "finalAmount": "2000.00"
     },
     "rentals": []
   }
@@ -278,7 +278,7 @@ Request Body：
   "guestCount": 2,
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ],
@@ -313,7 +313,7 @@ Request Body：
   "guestCount": 2,
   "zones": [
     {
-      "zoneId": "C002-Z-A",
+      "zoneId": "Z001",
       "quantity": 1
     }
   ],

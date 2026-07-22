@@ -45,15 +45,43 @@ public class Product {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getStatus() {
 		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	public EquipmentItem getItem() {
 		return item;
 	}
 
+	public void setItem(EquipmentItem item) {
+		this.item = item;
+	}
+
 	public List<ProductVariant> getVariants() {
 		return variants;
+	}
+
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Instant createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Instant updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 }

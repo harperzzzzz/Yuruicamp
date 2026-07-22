@@ -3,7 +3,7 @@
 | 欄位         | 內容                                                                                           |
 | ------------ | ---------------------------------------------------------------------------------------------- |
 | **狀態**     | Active                                                                                         |
-| **日期**     | 2026-07-21                                                                                     |
+| **日期**     | 2026-07-22                                                                                     |
 | **欄位策略** | **甲**：對齊 DB／架構決策的精簡契約；舊 Mock 胖欄位不當真相                                    |
 | **實作清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) |
 | **ENUM**     | [`docs/schema-enums.md`](../schema-enums.md)                                                   |
@@ -28,7 +28,7 @@
 | P0   | [`payment-api-contract.md`](./payment-api-contract.md)     | D    | Locked v0.1（待實作）                                                                           |
 | P1   | [`booking-api-contract.md`](./booking-api-contract.md)     | E    | Locked v0.9（E-1～E-7 已實作；Booking Prepare／Reservation 完成，ECPay、優惠券分別延後至 D、F） |
 | P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)       | F    | Partially Implemented v0.2（商城完成；Booking 關聯 Schema 待決定）                                |
-| P1   | [`admin-api-contract.md`](./admin-api-contract.md)         | G    | Locked v0.4（G-1、G-2a、G-2b、G-5 已實作；其餘 G-2～G-4 待做）                                  |
+| P1   | [`admin-api-contract.md`](./admin-api-contract.md)         | G    | Locked v0.5（G-1、G-2a～G-2c、G-5 已實作；G-3、G-4、G-6 待做）                                 |
 
 ### 刻意延後（P2，本輪不寫死）
 

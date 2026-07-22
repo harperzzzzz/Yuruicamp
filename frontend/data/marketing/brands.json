@@ -1,72 +1,72 @@
 [
   {
-    "id": "brand-001",
+    "id": "snow-peak",
     "name": "Snow Peak",
     "logoUrl": null,
     "sortOrder": 1
   },
   {
-    "id": "brand-002",
+    "id": "osprey",
     "name": "Osprey",
     "logoUrl": null,
     "sortOrder": 2
   },
   {
-    "id": "brand-003",
+    "id": "msr",
     "name": "MSR",
     "logoUrl": null,
     "sortOrder": 3
   },
   {
-    "id": "brand-004",
+    "id": "coleman",
     "name": "Coleman",
     "logoUrl": null,
     "sortOrder": 4
   },
   {
-    "id": "brand-005",
+    "id": "patagonia",
     "name": "Patagonia",
     "logoUrl": null,
     "sortOrder": 5
   },
   {
-    "id": "brand-006",
+    "id": "deuter",
     "name": "Deuter",
     "logoUrl": null,
     "sortOrder": 6
   },
   {
-    "id": "brand-007",
+    "id": "sawyer",
     "name": "Sawyer",
     "logoUrl": null,
     "sortOrder": 7
   },
   {
-    "id": "brand-008",
+    "id": "black-diamond",
     "name": "Black Diamond",
     "logoUrl": null,
     "sortOrder": 8
   },
   {
-    "id": "brand-009",
+    "id": "helinox",
     "name": "Helinox",
     "logoUrl": null,
     "sortOrder": 9
   },
   {
-    "id": "brand-010",
+    "id": "columbia",
     "name": "Columbia",
     "logoUrl": null,
     "sortOrder": 10
   },
   {
-    "id": "brand-011",
+    "id": "ogawa",
     "name": "Ogawa",
     "logoUrl": null,
     "sortOrder": 11
   },
   {
-    "id": "brand-012",
+    "id": "therm-a-rest",
     "name": "Therm-a-Rest",
     "logoUrl": null,
     "sortOrder": 12

@@ -1,8 +1,10 @@
 ﻿# AdminProductsPage Spec
 
-**Status:** Draft
+**Status:** Implemented for G-2c Backend integration; legacy page spec retained
 **Category:** Page
 **Design Ref:** N/A - derived from existing source file `admin/partials/products.html`
+
+> G-2c 已在現有 Bootstrap Admin shell 內完成 Mock／Backend 雙模式。Backend 模式以分類／品牌 ID、圖片 URL 與規格 DTO 寫入，庫存只讀，租借操作隱藏；API 成功前不更新 cache。互動驗收見 [`../test/g2c-admin-products.md`](../test/g2c-admin-products.md)，API 契約見 [`../../api/admin-api-contract.md`](../../api/admin-api-contract.md)。
 
 ---
 

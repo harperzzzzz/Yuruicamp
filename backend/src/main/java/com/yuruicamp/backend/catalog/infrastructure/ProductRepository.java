@@ -8,15 +8,22 @@ import com.yuruicamp.backend.catalog.domain.Product;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.query.Param;
+
+import jakarta.persistence.LockModeType;
 
 /**
  * Product reads for public catalog.
  * 公開商品讀取；用 JOIN FETCH 避免 open-in-view=false 時 Lazy 爆炸。
  */
 public interface ProductRepository extends JpaRepository<Product, String> {
+
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("select p from Product p join fetch p.item where p.id = :id")
+	Optional<Product> findByIdForUpdate(@Param("id") String id);
 
 	/**
 	 * Pagination phase 1: page only IDs. Fetch-joining variants here would

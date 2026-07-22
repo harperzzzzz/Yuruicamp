@@ -792,9 +792,17 @@
               <label class="form-label fw-semibold" for="newProductImages">商品圖片</label>
               <input type="file" class="form-control" id="newProductImages"
                      accept="image/*" multiple>
-              <small class="text-muted d-block mt-1">
+              <small class="text-muted d-block mt-1" id="newProductImagesHelp">
                 可一次選多張；第一張為主圖，拖曳握把調整順序
               </small>
+              <!-- 正式後端目前只儲存圖片 URL，不在瀏覽器上傳本機檔案。 -->
+              <div class="input-group mt-2 d-none" id="backendProductImageUrlRow">
+                <input type="url" class="form-control" id="backendProductImageUrl"
+                       placeholder="/assets/images/products/example.jpg 或 https://...">
+                <button type="button" class="btn btn-outline-secondary" id="addBackendProductImageUrl">
+                  <i class="fas fa-link me-1"></i>加入圖片
+                </button>
+              </div>
               <div id="newProductImagesPreview" class="product-image-preview-box mt-2"></div>
             </div>
 
@@ -837,6 +845,15 @@
                   進貨先到主倉；建立後可透過「編輯」將庫存分配至各分店
                 </div>
               </div>
+            </div>
+
+            <!-- 商品上下架狀態由後端驗證，停用後公開商品 API 不再顯示。 -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold" for="newProductStatus">商品狀態</label>
+              <select class="form-select" id="newProductStatus">
+                <option value="active">上架</option>
+                <option value="inactive">下架</option>
+              </select>
             </div>
 
             <!-- 規格與庫存：每個規格可獨立設定各分店數量 / Variant stock cards -->

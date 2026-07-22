@@ -15,6 +15,7 @@ INSERT INTO public.equipment_specifications (item_id, spec_key, value) VALUES ('
 INSERT INTO public.equipment_specifications (item_id, spec_key, value) VALUES ('E001', 'waterproof', '3000mm') ON CONFLICT (item_id, spec_key) DO NOTHING;
 INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V001', 'P001', 'TENT-OLIVE', '深橄欖綠', NULL, 3200.00, '深橄欖綠', 'active') ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V002', 'P001', 'TENT-SAND', '沙漠棕', NULL, 3300.00, '沙漠棕', 'active') ON CONFLICT (id) DO NOTHING;
+INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V003', 'P001', 'TENT-GRAY', '太空灰', NULL, 3200.00, '太空灰', 'active') ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.equipment_items (id, category_id, brand_id, name, description, active) VALUES ('E002', 1, 'msr', 'MSR 超輕量帳篷', '<p><strong>MSR 超輕量帳篷</strong> 為 Yuruicamp 精選的帳篷商品，規格：<em>沙漠卡其</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>', true) ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.products (id, status, item_id) VALUES ('P002', 'active', 'E002') ON CONFLICT (id) DO NOTHING;
@@ -355,6 +356,98 @@ VALUES (
 )
 ON CONFLICT (id) DO UPDATE SET
     rental_sku_id = EXCLUDED.rental_sku_id,
+    color = EXCLUDED.color,
+    size = EXCLUDED.size,
+    specification = EXCLUDED.specification,
+    status = EXCLUDED.status,
+    updated_at = now();
+
+-- 前端 rental-skus.json 的完整租借主檔；ID 以 json-seed-id-mapping.md 為準。
+INSERT INTO public.rental_skus (id, item_id, status)
+VALUES
+    ('R001', 'E001', 'active'),
+    ('R002', 'E002', 'active'),
+    ('R018', 'E003', 'active'),
+    ('R005', 'E004', 'active'),
+    ('R006', 'E005', 'active'),
+    ('R007', 'E006', 'active'),
+    ('R011', 'E007', 'active'),
+    ('R013', 'E008', 'active'),
+    ('R008', 'E009', 'active'),
+    ('R003', 'E011', 'active'),
+    ('R004', 'E012', 'active'),
+    ('R009', 'E013', 'active'),
+    ('R010', 'E014', 'active'),
+    ('R012', 'E015', 'active'),
+    ('R014', 'E016', 'active'),
+    ('R015', 'E017', 'active'),
+    ('R016', 'E018', 'active'),
+    ('R017', 'E019', 'active'),
+    ('R019', 'E020', 'active'),
+    ('R020', 'E021', 'active'),
+    ('R021', 'E022', 'active'),
+    ('R022', 'E023', 'active'),
+    ('R023', 'E024', 'active'),
+    ('R024', 'E025', 'active'),
+    ('R025', 'E026', 'active'),
+    ('R026', 'E027', 'active'),
+    ('R027', 'E028', 'active'),
+    ('R028', 'E029', 'active')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    status = EXCLUDED.status,
+    updated_at = now();
+
+INSERT INTO public.rental_sku_variants (
+    id,
+    rental_sku_id,
+    sku,
+    color,
+    size,
+    specification,
+    status
+)
+VALUES
+    ('RSV-R001-01', 'R001', 'RSV-R001-01', '深橄欖綠', NULL, '深橄欖綠', 'active'),
+    ('RSV-R001-02', 'R001', 'RSV-R001-02', '沙漠棕', NULL, '沙漠棕', 'active'),
+    ('RSV-R001-03', 'R001', 'RSV-R001-03', '太空灰', NULL, '太空灰', 'active'),
+    ('RSV-R002-01', 'R002', 'RSV-R002-01', '沙漠卡其', NULL, '沙漠卡其', 'active'),
+    ('RSV-R018-01', 'R018', 'RSV-R018-01', NULL, 'S', 'S', 'active'),
+    ('RSV-R018-02', 'R018', 'RSV-R018-02', NULL, 'M', 'M', 'active'),
+    ('RSV-R018-03', 'R018', 'RSV-R018-03', NULL, 'L', 'L', 'active'),
+    ('RSV-R005-01', 'R005', 'RSV-R005-01', NULL, '-10°C', '-10°C', 'active'),
+    ('RSV-R005-02', 'R005', 'RSV-R005-02', NULL, '-5°C', '-5°C', 'active'),
+    ('RSV-R005-03', 'R005', 'RSV-R005-03', NULL, '0°C', '0°C', 'active'),
+    ('RSV-R006-01', 'R006', 'RSV-R006-01', '標準版', NULL, '標準版', 'active'),
+    ('RSV-R007-01', 'R007', 'RSV-R007-01', '鈦金屬原色', NULL, '鈦金屬原色', 'active'),
+    ('RSV-R011-01', 'R011', 'RSV-R011-01', '暖白光', NULL, '暖白光', 'active'),
+    ('RSV-R011-02', 'R011', 'RSV-R011-02', '冷白光', NULL, '冷白光', 'active'),
+    ('RSV-R013-01', 'R013', 'RSV-R013-01', '森林綠', '35L', '森林綠 / 35L', 'active'),
+    ('RSV-R013-02', 'R013', 'RSV-R013-02', '森林綠', '45L', '森林綠 / 45L', 'active'),
+    ('RSV-R008-01', 'R008', 'RSV-R008-01', '鋁合金輕量版', NULL, '鋁合金輕量版', 'active'),
+    ('RSV-R003-01', 'R003', 'RSV-R003-01', '象牙白', NULL, '象牙白', 'active'),
+    ('RSV-R004-01', 'R004', 'RSV-R004-01', '深藍', 'M', '深藍 / M', 'active'),
+    ('RSV-R004-02', 'R004', 'RSV-R004-02', '深藍', 'L', '深藍 / L', 'active'),
+    ('RSV-R009-01', 'R009', 'RSV-R009-01', '胡桃木紋', NULL, '胡桃木紋', 'active'),
+    ('RSV-R010-01', 'R010', 'RSV-R010-01', '軍綠', NULL, '軍綠', 'active'),
+    ('RSV-R012-01', 'R012', 'RSV-R012-01', 'USB-C', NULL, 'USB-C', 'active'),
+    ('RSV-R014-01', 'R014', 'RSV-R014-01', '岩石灰', NULL, '岩石灰', 'active'),
+    ('RSV-R015-01', 'R015', 'RSV-R015-01', '折疊式', NULL, '折疊式', 'active'),
+    ('RSV-R016-01', 'R016', 'RSV-R016-01', '4x4m', NULL, '4x4m', 'active'),
+    ('RSV-R017-01', 'R017', 'RSV-R017-01', '標準套組', NULL, '標準套組', 'active'),
+    ('RSV-R019-01', 'R019', 'RSV-R019-01', '500Wh', NULL, '500Wh', 'active'),
+    ('RSV-R020-01', 'R020', 'RSV-R020-01', '深藍', NULL, '深藍', 'active'),
+    ('RSV-R021-01', 'R021', 'RSV-R021-01', 'L號', NULL, 'L號', 'active'),
+    ('RSV-R022-01', 'R022', 'RSV-R022-01', '不鏽鋼', NULL, '不鏽鋼', 'active'),
+    ('RSV-R023-01', 'R023', 'RSV-R023-01', '一對', NULL, '一對', 'active'),
+    ('RSV-R024-01', 'R024', 'RSV-R024-01', 'GPS版', NULL, 'GPS版', 'active'),
+    ('RSV-R025-01', 'R025', 'RSV-R025-01', '雙人', NULL, '雙人', 'active'),
+    ('RSV-R026-01', 'R026', 'RSV-R026-01', '20L', NULL, '20L', 'active'),
+    ('RSV-R027-01', 'R027', 'RSV-R027-01', '不鏽鋼', NULL, '不鏽鋼', 'active'),
+    ('RSV-R028-01', 'R028', 'RSV-R028-01', '通用型', NULL, '通用型', 'active')
+ON CONFLICT (id) DO UPDATE SET
+    rental_sku_id = EXCLUDED.rental_sku_id,
+    sku = EXCLUDED.sku,
     color = EXCLUDED.color,
     size = EXCLUDED.size,
     specification = EXCLUDED.specification,

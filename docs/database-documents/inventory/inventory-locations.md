@@ -210,6 +210,8 @@ rental_sku_variants
 * `admin/js/products.js` 第 2943–3035 行的 `buildMovementItemsForRentalChange()` 由營地前後數量差建立進貨、損耗或營地互轉的前端異動明細。
 * `admin/js/products.js` 第 5100–5133 行以租借規格與營地的最低庫存值標示低庫存；缺少設定時仍回退預設值 `5`。
 
+* 開發 Seed 已建立 `RENTAL-C001`～`RENTAL-C009`，並將 37 個租借規格在 9 個固定庫位的 333 筆現有量寫入 `rental_sku_variant_stocks`。最低庫存尚未搬移到 `rental_sku_variant_min_stocks`。
+
 
 ### 衍生 JSON 與資料維護腳本
 `data/catalog/products.json`

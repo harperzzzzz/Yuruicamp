@@ -225,8 +225,18 @@
     // ── 商品 / Products ──
     products: {
       /** GET /api/admin/products */
-      list: function () {
-        return request('GET', '/products');
+      list: function (query) {
+        var params = new URLSearchParams(query || { page: 0, size: 100, sort: 'id,asc' });
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/products' + suffix);
+      },
+      /** GET /api/admin/products/:id */
+      getById: function (productId) {
+        return request('GET', '/products/' + encodeURIComponent(productId));
+      },
+      /** GET /api/admin/products/lookups */
+      getLookups: function () {
+        return request('GET', '/products/lookups');
       },
       /** POST /api/admin/products */
       create: function (product) {
@@ -235,6 +245,14 @@
       /** PUT /api/admin/products/:id */
       update: function (productId, product) {
         return request('PUT', '/products/' + encodeURIComponent(productId), product);
+      },
+      /** POST /api/admin/products/:id/activate */
+      activate: function (productId) {
+        return request('POST', '/products/' + encodeURIComponent(productId) + '/activate', {});
+      },
+      /** POST /api/admin/products/:id/deactivate */
+      deactivate: function (productId) {
+        return request('POST', '/products/' + encodeURIComponent(productId) + '/deactivate', {});
       },
       /** PUT /api/admin/rentals/:id — 租借庫存 */
       updateRental: function (rentalId, rental) {

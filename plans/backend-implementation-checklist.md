@@ -144,10 +144,10 @@
 ## 線 G — Admin（P1）
 
 - [x] G-1 細 RBAC（PostgreSQL 整合測試 2 項通過；角色預設、個人覆寫、每次請求授權、UID 一致性與管理員保護）
-- [ ] G-2 customers／orders／bookings／products
+- [x] G-2 customers／orders／bookings／products
   - [x] G-2a Customers（PostgreSQL 整合測試通過；列表、詳情、更新、停權／恢復、RBAC 與前端雙模式完成）
   - [x] G-2b Orders／Bookings（PostgreSQL 整合測試與 Swagger 驗收通過；查詢、詳情、履約狀態、RBAC 與前端雙模式完成）
-  - [ ] G-2c Products
+  - [x] G-2c Products（PostgreSQL 整合測試通過；正規化商品／規格／圖片交易、唯讀庫存、RBAC 與前端雙模式完成）
 - [ ] G-3 庫存異動
 - [ ] G-4 優惠券／營區關閉日
 - [x] G-5 管理員建立／列表／詳情／更新與個別權限覆寫 API（PostgreSQL 整合驗收通過）
@@ -158,6 +158,8 @@
 > G-2a 已完成後台 Customers API、RBAC、兩階段列表查詢、前端 Mock／Backend 分流與 PostgreSQL 整合驗收。流程見 [`customer/g2a-admin-customers.md`](../docs/backend-specs/customer/g2a-admin-customers.md)，Swagger 見 [`g2a-admin-customers-swagger.md`](../docs/backend-specs/test/g2a-admin-customers-swagger.md)。
 
 > G-2b 已完成 Admin Orders／Bookings 查詢、履約狀態命令、RBAC、前端雙模式、`AdminFulfillmentPostgreSqlIntegrationTest` 與 Swagger 驗收。流程見 [`order/g2b-admin-orders.md`](../docs/backend-specs/order/g2b-admin-orders.md) 與 [`booking/g2b-admin-bookings.md`](../docs/backend-specs/booking/g2b-admin-bookings.md)，人工流程見 [`g2b-admin-orders-bookings-swagger.md`](../docs/backend-specs/test/g2b-admin-orders-bookings-swagger.md)。
+
+> G-2c 已完成 Admin Products 分頁／詳情／lookup、商品／規格／圖片交易同步、唯讀庫存、上下架、RBAC 與前端乾淨 Request。流程見 [`catalog/g2c-admin-products.md`](../docs/backend-specs/catalog/g2c-admin-products.md)，人工流程見 [`g2c-admin-products-swagger.md`](../docs/backend-specs/test/g2c-admin-products-swagger.md)。庫存異動仍由 G-3 負責。
 
 ---
 
