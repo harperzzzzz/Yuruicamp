@@ -1,5 +1,5 @@
 // ========================================
-// BookingAPI — 預約前台 Mock API
+// BookingAPI — 預約前台 Mock／Backend facade
 // ========================================
 
 (function (global) {
@@ -7,26 +7,22 @@
 
   var MOCK_BOOKINGS_KEY = 'mockBookings';
   var MOCK_CLOSURES_KEY = 'mockCampgroundClosures';
+  var MOCK_HOLD_MS = 15 * 60 * 1000;
 
-  /** Mock 路徑：優先 MockDataPaths（api-mock.js）；勿再改寫 /assets */
+  // 頁面只呼叫 BookingAPI；此開關決定讀 JSON 或 Spring Boot。
+  function useMockApi() {
+    return !(global.AppConfig && global.AppConfig.USE_MOCK_API === false);
+  }
+
   function path(key) {
     var table = global.MockDataPaths;
     return table && table[key] ? table[key] : '';
   }
 
-  function useMockApi() {
-    return !(global.AppConfig && global.AppConfig.USE_MOCK_API === false);
-  }
-
-  function restUrl(restPath) {
-    var base = String((global.AppConfig && global.AppConfig.API_BASE_URL) || '').replace(/\/$/, '');
-    return base + restPath;
-  }
-
   function readStorage(key, fallback) {
     try {
       return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
-    } catch (e) {
+    } catch {
       return fallback;
     }
   }
@@ -35,225 +31,527 @@
     localStorage.setItem(key, JSON.stringify(value));
   }
 
-  /** 直接 fetch；REST 時帶 Firebase Bearer（步驟 2-5） */
-  function fetchJson(url, options) {
-    options = options || {};
-    if (global.YuruiApiHttp && typeof global.YuruiApiHttp.fetchJson === 'function') {
-      return global.YuruiApiHttp.fetchJson(url, options);
-    }
-    return fetch(url, Object.assign({ cache: 'no-store' }, options)).then(function (res) {
-      if (!res.ok) throw new Error('Fetch failed: ' + url);
-      return res.json();
+  /** Mock JSON 用原生 fetch；真後端 REST 一律走 ApiClient（帶 AppAuth token） */
+  function fetchJson(url) {
+    return fetch(url, { cache: 'no-store' }).then(function (response) {
+      if (!response.ok) {
+        throw new Error('Fetch failed: ' + url);
+      }
+
+      return response.json();
     });
   }
 
-  /** POST／帶自訂 method 的 REST（有 Bearer） */
-  function apiFetch(url, options) {
-    if (global.YuruiApiHttp && typeof global.YuruiApiHttp.apiFetch === 'function') {
-      return global.YuruiApiHttp.apiFetch(url, options);
+  function restRequest(restPath, options) {
+    if (!global.ApiClient || typeof global.ApiClient._restRequest !== 'function') {
+      return Promise.reject(new Error('ApiClient not loaded'));
     }
-    return fetch(url, options);
+
+    return global.ApiClient._restRequest(restPath, options || { auth: 'optional' });
   }
 
-  /** mock 檔或 REST / Mock file or REST endpoint */
-  function loadMockOrRest(mockKey, restPath) {
-    if (useMockApi()) {
-      return fetchJson(path(mockKey));
+  function numberValue(value) {
+    var number = Number(value);
+    return Number.isFinite(number) ? number : 0;
+  }
+
+  // Backend 公開契約較精簡，這裡補成既有 Booking 頁面需要的顯示形狀。
+  function normalizeZone(zone) {
+    return {
+      zoneId: zone.zoneId || zone.id,
+      type: zone.type || '',
+      capacityPerSite: Number(zone.capacityPerSite) || 0,
+      priceWeekday: numberValue(zone.priceWeekday),
+      priceHoliday: numberValue(zone.priceHoliday),
+      totalSites: Number(zone.totalSites) || 0,
+      active: zone.active !== false,
+    };
+  }
+
+  function normalizeCampground(campground) {
+    var id = campground.campgroundId || campground.id;
+
+    return Object.assign({}, campground, {
+      id: id,
+      campgroundId: id,
+      environmentTags: Array.isArray(campground.environmentTags) ? campground.environmentTags : [],
+      facilityTags: Array.isArray(campground.facilityTags) ? campground.facilityTags : [],
+      images: Array.isArray(campground.images) ? campground.images : [],
+      zones: Array.isArray(campground.zones) ? campground.zones.map(normalizeZone) : [],
+    });
+  }
+
+  // Backend 不公開租借即時數量；真正庫存會在建立 Checkout 時鎖定重查。
+  function normalizeEquipment(item) {
+    if (item.rentalListingId || item.pricing) {
+      return item;
     }
-    return fetchJson(restUrl(restPath));
+
+    return {
+      equipmentId: item.id,
+      rentalListingId: item.id,
+      rentalSkuVariantId: item.rentalSkuVariantId,
+      variantId: item.rentalSkuVariantId,
+      campgroundId: item.campgroundId,
+      name: item.name,
+      sku: item.rentalSkuVariantId,
+      specLabel: '',
+      imageUrl: '',
+      terrainTag: '',
+      description: '實際可租數量將在建立預約時由後端確認。',
+      pricing: {
+        pricePerDayWeekday: numberValue(item.pricePerDayWeekday),
+        pricePerDayHoliday: numberValue(item.pricePerDayHoliday),
+        discount: 0,
+      },
+      stock: null,
+    };
   }
 
-  function formatDateTime(date) {
-    date = date || new Date();
-    var yyyy = date.getFullYear();
-    var mm = String(date.getMonth() + 1).padStart(2, '0');
-    var dd = String(date.getDate()).padStart(2, '0');
-    var hh = String(date.getHours()).padStart(2, '0');
-    var mi = String(date.getMinutes()).padStart(2, '0');
-    var ss = String(date.getSeconds()).padStart(2, '0');
-    return yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + mi + ':' + ss;
+  // 會員中心仍使用既有顯示模型，資料內容則完全取自 Backend 快照。
+  function normalizeBooking(booking) {
+    if (booking.bookingInfo) {
+      return booking;
+    }
+
+    var pricing = booking.pricing || {};
+    var finalAmount = pricing.finalAmount != null ? pricing.finalAmount : booking.finalAmount;
+
+    return Object.assign({}, booking, {
+      id: booking.bookingId,
+      bookingId: booking.bookingId,
+      submittedAt: booking.createdAt,
+      payment: booking.paymentMethod,
+      bookingInfo: {
+        campgroundId: booking.campgroundId,
+        campgroundName: booking.campgroundName,
+        region: booking.region,
+        checkIn: booking.checkIn,
+        checkOut: booking.checkOut,
+        totalDays: Number(booking.weekdayCount || 0) + Number(booking.holidayCount || 0),
+        weekdayCount: Number(booking.weekdayCount || 0),
+        holidayCount: Number(booking.holidayCount || 0),
+        guestCount: booking.guestCount,
+      },
+      selectedZones: (booking.zones || []).map(function (zone) {
+        return {
+          zoneId: zone.zoneId,
+          zoneType: zone.type,
+          quantity: zone.quantity,
+          subtotal: numberValue(zone.lineTotal),
+        };
+      }),
+      selectedRentals: (booking.rentals || []).map(function (rental) {
+        return {
+          rentalListingId: rental.rentalListingId,
+          rentalSkuVariantId: rental.rentalSkuVariantId,
+          variantId: rental.rentalSkuVariantId,
+          sku: rental.sku,
+          name: rental.name,
+          specLabel: rental.specification || '',
+          quantity: rental.quantity,
+          subtotal: numberValue(rental.lineTotal),
+        };
+      }),
+      summary: {
+        zoneTotal: numberValue(pricing.zoneTotal),
+        rentalTotal: numberValue(pricing.rentalTotal),
+        appliedDiscount: numberValue(pricing.discount),
+        finalAmount: numberValue(finalAmount),
+      },
+    });
   }
 
-  /** 從預約列表取最大數字 id / Get max numeric booking id from a list */
+  function buildMockMeta(page, size, totalElements) {
+    return {
+      page: page,
+      size: size,
+      totalElements: totalElements,
+      totalPages: totalElements === 0 ? 0 : Math.ceil(totalElements / size),
+    };
+  }
+
+  function loadMockBookings() {
+    return fetchJson(path('campBookings')).then(function (seed) {
+      return (Array.isArray(seed) ? seed : []).concat(readStorage(MOCK_BOOKINGS_KEY, []));
+    });
+  }
+
   function getMaxBookingId(list) {
-    var maxId = 0;
-    (list || []).forEach(function (b) {
-      var n = Number(b && b.id) || 0;
-      if (n > maxId) maxId = n;
-    });
-    return maxId;
+    return (list || []).reduce(function (maximum, booking) {
+      var number = Number(booking && (booking.id || booking.bookingId));
+      return Number.isFinite(number) ? Math.max(maximum, number) : maximum;
+    }, 0);
   }
 
-  /** 載入可用性計算所需完整上下文 / Load availability context */
+  function createMockBooking(request, cart) {
+    return loadMockBookings().then(function (all) {
+      var id = getMaxBookingId(all) + 1;
+      var source = cart || {};
+      var info = source.bookingInfo || {};
+      var summary = source.summary || {};
+      var expiresAt = new Date(Date.now() + MOCK_HOLD_MS).toISOString();
+      var booking = {
+        id: id,
+        bookingId: String(id),
+        submittedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        paymentStatus: 'unpaid',
+        paymentMethod: request.paymentMethod,
+        checkoutExpiresAt: expiresAt,
+        checkoutStep: 'ready_to_pay',
+        bookingInfo: info,
+        selectedZones: source.selectedZones || [],
+        selectedRentals: source.selectedRentals || [],
+        summary: summary,
+        pricing: {
+          zoneTotal: numberValue(summary.zoneTotal).toFixed(2),
+          rentalTotal: numberValue(summary.rentalTotal).toFixed(2),
+          discount: numberValue(summary.appliedDiscount).toFixed(2),
+          finalAmount: numberValue(summary.finalAmount).toFixed(2),
+        },
+      };
+      var stored = readStorage(MOCK_BOOKINGS_KEY, []);
+
+      stored.push(booking);
+      writeStorage(MOCK_BOOKINGS_KEY, stored);
+
+      return booking;
+    });
+  }
+
   function loadAvailabilityContext() {
-    var AV = global.BookingAvailability;
-    if (!AV) {
+    var availability = global.BookingAvailability;
+    if (!availability) {
       return Promise.reject(new Error('BookingAvailability not loaded'));
     }
 
+    // Backend 模式一律呼叫 check-availability，不下載預約與停售資料到瀏覽器計算。
+    if (!useMockApi()) {
+      return Promise.resolve(null);
+    }
+
     return Promise.all([
-      loadMockOrRest('campgrounds', '/booking/campgrounds'),
+      BookingAPI.getCampgrounds(),
       BookingAPI.getBookings(),
-      loadMockOrRest('zoneBlocks', '/booking/zone-blocks').catch(function () { return []; }),
+      fetchJson(path('zoneBlocks')).catch(function () {
+        return [];
+      }),
       BookingAPI.getPolicy(),
       BookingAPI.getClosures(),
     ]).then(function (results) {
-      return AV.buildContext(results[0], results[1], results[2], results[3], null, results[4]);
+      return availability.buildContext(results[0], results[1], results[2], results[3], null, results[4]);
     });
   }
 
   var BookingAPI = {
+    isMockMode: useMockApi,
+
     getCampgrounds: function (filters) {
-      return loadMockOrRest('campgrounds', '/booking/campgrounds').then(function (list) {
-        if (!filters) return list;
-        return list.filter(function (c) {
-          if (filters.region && c.region !== filters.region) return false;
-          return true;
+      var promise;
+      if (useMockApi()) {
+        promise = fetchJson(path('campgrounds')).then(function (list) {
+          return list.map(normalizeCampground);
+        });
+      } else {
+        promise = restRequest('/booking/campgrounds', {
+          auth: 'none',
+        }).then(function (list) {
+          // 列表契約刻意省略 zones；前台卡片需要價格，因此補抓每筆詳情。
+          return Promise.all(
+            (list || []).map(function (item) {
+              return BookingAPI.getCampgroundById(item.id);
+            })
+          );
+        });
+      }
+
+      return promise.then(function (list) {
+        if (!filters) {
+          return list;
+        }
+
+        return list.filter(function (campground) {
+          return !filters.region || campground.region === filters.region;
         });
       });
     },
 
     getCampgroundById: function (campgroundId) {
-      return BookingAPI.getCampgrounds().then(function (list) {
-        var item = list.find(function (c) {
-          return c.campgroundId === campgroundId;
+      if (!useMockApi()) {
+        return restRequest('/booking/campgrounds/' + encodeURIComponent(campgroundId), {
+          auth: 'none',
+        }).then(normalizeCampground);
+      }
+
+      return fetchJson(path('campgrounds')).then(function (list) {
+        var item = list.find(function (campground) {
+          return campground.campgroundId === campgroundId;
         });
-        if (!item) throw new Error('Campground not found');
-        return item;
+        if (!item) {
+          throw new Error('Campground not found');
+        }
+
+        return normalizeCampground(item);
       });
     },
 
     getEquipment: function (campgroundId) {
-      return loadMockOrRest('campEquipment', '/booking/equipment').then(function (list) {
-        return list.filter(function (e) {
-          return e.campgroundId === campgroundId;
+      var promise = useMockApi()
+        ? fetchJson(path('campEquipment'))
+        : restRequest('/booking/equipment?campgroundId=' + encodeURIComponent(campgroundId), {
+            auth: 'none',
+          });
+
+      return promise.then(function (list) {
+        return (list || []).map(normalizeEquipment).filter(function (item) {
+          return item.campgroundId === campgroundId;
         });
       });
     },
 
-    getBookings: function (customerId) {
-      return loadMockOrRest('campBookings', '/booking/bookings').then(function (seed) {
-        var mock = useMockApi() ? readStorage(MOCK_BOOKINGS_KEY, []) : [];
-        var all = seed.concat(mock);
-        if (!customerId) return all;
-        return all.filter(function (b) {
-          return b.customerId === customerId;
-        });
-      });
-    },
-
-    createBooking: function (payload) {
-      if (!useMockApi()) {
-        return apiFetch(restUrl('/booking/bookings'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).then(function (res) {
-          if (!res.ok) throw new Error('Create booking failed');
-          return res.json();
-        });
-      }
-      return loadMockOrRest('campBookings', '/booking/bookings').then(function (seed) {
-        var mock = readStorage(MOCK_BOOKINGS_KEY, []);
-        var all = (Array.isArray(seed) ? seed : []).concat(mock);
-        // 不可把整個陣列傳給 Math.max，多筆時會變成 NaN
-        // Never pass a whole array to Math.max; multiple ids become NaN
-        var maxId = getMaxBookingId(all);
-        var booking = Object.assign({}, payload, {
-          id: maxId + 1,
-          submittedAt: payload.submittedAt || formatDateTime(),
-          status: payload.status || 'pending',
-          paymentStatus: payload.paymentStatus || 'paid',
-        });
-        mock.push(booking);
-        writeStorage(MOCK_BOOKINGS_KEY, mock);
-        return booking;
-      });
-    },
-
-    /** 預約政策（窗口天數、佔用狀態）/ Booking policy */
     getPolicy: function () {
-      var AV = global.BookingAvailability;
-      return loadMockOrRest('bookingPolicy', '/booking/policy').then(function (policy) {
-        return AV ? AV.normalizePolicy(policy) : policy;
-      }).catch(function () {
-        return AV ? AV.normalizePolicy(null) : { bookingWindowDays: 90 };
+      var availability = global.BookingAvailability;
+      var promise = useMockApi()
+        ? fetchJson(path('bookingPolicy'))
+        : restRequest('/booking/policy', { auth: 'none' });
+
+      return promise.then(function (policy) {
+        return availability ? availability.normalizePolicy(policy) : policy;
       });
     },
 
-    /** 營位停售例外 / Zone block overrides */
-    getZoneBlocks: function () {
-      return loadMockOrRest('zoneBlocks', '/booking/zone-blocks').catch(function () { return []; });
-    },
-
-    /** 營區公休（seed + localStorage overlay）/ Campground closures */
     getClosures: function () {
+      if (!useMockApi()) {
+        return restRequest('/booking/closures', { auth: 'none' });
+      }
+
       var merge = global.MockStorageMerge;
-      return loadMockOrRest('campgroundClosures', '/booking/closures').then(function (seed) {
-        if (!merge || !useMockApi()) return seed;
+      return fetchJson(path('campgroundClosures')).then(function (seed) {
+        if (!merge) {
+          return seed;
+        }
+
         var overlay = merge.readJsonStorage(MOCK_CLOSURES_KEY, []);
-        return merge.mergeById(seed, overlay, 'id').filter(function (cl) {
-          return !cl._deleted;
+        return merge.mergeById(seed, overlay, 'id').filter(function (closure) {
+          return !closure._deleted;
         });
-      }).catch(function () {
-        if (global.MockStorageMerge && useMockApi()) {
-          return global.MockStorageMerge.readJsonStorage(MOCK_CLOSURES_KEY, []);
-        }
-        return [];
       });
     },
 
-    /** 寫入公休 overlay（Admin 編輯用）/ Save closure overlay */
     saveClosuresOverlay: function (list) {
+      if (!useMockApi()) {
+        return Promise.reject(new Error('Backend closure writes require Admin API'));
+      }
+
       writeStorage(MOCK_CLOSURES_KEY, list || []);
-      return Promise.resolve(list);
+      return Promise.resolve(list || []);
     },
 
-    /** 可預約日期窗口 { minDate, maxDate } / Bookable date window */
     getBookingWindow: function () {
-      var AV = global.BookingAvailability;
+      var availability = global.BookingAvailability;
       return BookingAPI.getPolicy().then(function (policy) {
-        return AV ? AV.getBookingWindow(policy) : { minDate: null, maxDate: null };
+        return availability ? availability.getBookingWindow(policy) : { minDate: null, maxDate: null };
       });
     },
 
-    /**
-     * Zone 可用性區間 DTO
-     * @param {{ campgroundId?: string, zoneId: string, from: string, to: string }} params
-     */
     getAvailability: function (params) {
-      var AV = global.BookingAvailability;
-      if (!AV) {
-        return Promise.reject(new Error('BookingAvailability not loaded'));
-      }
-      return loadAvailabilityContext().then(function (ctx) {
-        return AV.getAvailabilityRange(params, ctx);
-      });
-    },
+      var zones = Array.isArray(params.zones)
+        ? params.zones
+        : [{ zoneId: params.zoneId, quantity: params.quantity || 1 }];
 
-    /**
-     * 住宿區間最低剩餘（用於 range 驗證）
-     * Min remaining across stay nights for one zone
-     */
-    getMinRemainingForStay: function (zoneId, checkIn, checkOut) {
-      var AV = global.BookingAvailability;
-      if (!AV) {
+      if (!useMockApi()) {
+        return restRequest('/booking/check-availability', {
+          method: 'POST',
+          auth: 'none',
+          body: {
+            campgroundId: params.campgroundId,
+            checkIn: params.checkIn || params.from,
+            checkOut: params.checkOut || params.to,
+            zones: zones,
+          },
+        });
+      }
+
+      var availability = global.BookingAvailability;
+      if (!availability) {
         return Promise.reject(new Error('BookingAvailability not loaded'));
       }
-      return loadAvailabilityContext().then(function (ctx) {
-        if (AV.hasClosedNightInRange(
-          (ctx.zonesById[zoneId] || {}).campgroundId,
-          checkIn,
-          checkOut,
-          ctx
-        )) {
-          return 0;
+
+      return loadAvailabilityContext().then(function (context) {
+        var results = zones.map(function (zone) {
+          var availableQuantity = availability.getMinRemainingInRange(
+            zone.zoneId,
+            params.checkIn || params.from,
+            params.checkOut || params.to,
+            context
+          );
+
+          return {
+            zoneId: zone.zoneId,
+            requested: zone.quantity,
+            availableQuantity: availableQuantity,
+          };
+        });
+        var closed = availability.hasClosedNightInRange(
+          params.campgroundId,
+          params.checkIn || params.from,
+          params.checkOut || params.to,
+          context
+        );
+        var unavailable = results.some(function (zone) {
+          return zone.requested > zone.availableQuantity;
+        });
+        var reasons = [];
+
+        if (closed) {
+          reasons.push('CAMPGROUND_CLOSED');
         }
-        return AV.getMinRemainingInRange(zoneId, checkIn, checkOut, ctx);
+        if (unavailable) {
+          reasons.push('ZONE_UNAVAILABLE');
+        }
+
+        return {
+          available: reasons.length === 0,
+          reasons: reasons,
+          zones: results,
+        };
       });
     },
 
-    /** 載入完整可用性上下文（Admin 日曆用）/ Full context for admin calendar */
+    getMinRemainingForStay: function (zoneId, checkIn, checkOut, campgroundId) {
+      var resolvedCampgroundId = campgroundId;
+      if (!resolvedCampgroundId && useMockApi()) {
+        return loadAvailabilityContext().then(function (context) {
+          var zone = context.zonesById[zoneId] || {};
+          return BookingAPI.getMinRemainingForStay(zoneId, checkIn, checkOut, zone.campgroundId);
+        });
+      }
+
+      return BookingAPI.getAvailability({
+        campgroundId: resolvedCampgroundId,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        zones: [{ zoneId: zoneId, quantity: 1 }],
+      }).then(function (result) {
+        return result.zones && result.zones[0] ? result.zones[0].availableQuantity : 0;
+      });
+    },
+
+    getBookingsPage: function (options) {
+      var settings = options || {};
+      var page = Math.max(0, Number(settings.page) || 0);
+      var size = Math.min(100, Math.max(1, Number(settings.size) || 20));
+
+      if (!useMockApi()) {
+        var query = new URLSearchParams({ page: String(page), size: String(size) });
+        return restRequest('/booking/bookings?' + query.toString(), {
+          auth: 'required',
+          includeMeta: true,
+        }).then(function (result) {
+          return {
+            data: (result.data || []).map(normalizeBooking),
+            meta: result.meta,
+          };
+        });
+      }
+
+      return loadMockBookings().then(function (all) {
+        var filtered = settings.customerId
+          ? all.filter(function (booking) {
+              return booking.customerId === settings.customerId;
+            })
+          : all;
+        var start = page * size;
+
+        return {
+          data: filtered.slice(start, start + size).map(normalizeBooking),
+          meta: buildMockMeta(page, size, filtered.length),
+        };
+      });
+    },
+
+    getBookings: function (customerId, options) {
+      var settings = Object.assign({}, options || {}, { customerId: customerId });
+      return BookingAPI.getBookingsPage(settings).then(function (result) {
+        var list = result.data;
+
+        // 既有會員中心仍接收陣列；meta 以非列舉屬性保留給分頁 UI 使用。
+        Object.defineProperty(list, 'meta', {
+          configurable: true,
+          enumerable: false,
+          value: result.meta,
+        });
+
+        return list;
+      });
+    },
+
+    getBookingById: function (bookingId) {
+      if (!useMockApi()) {
+        return restRequest('/booking/bookings/' + encodeURIComponent(bookingId), {
+          auth: 'required',
+        }).then(normalizeBooking);
+      }
+
+      return loadMockBookings().then(function (all) {
+        var booking = all.find(function (item) {
+          return String(item.id || item.bookingId) === String(bookingId);
+        });
+        if (!booking) {
+          throw new Error('Booking not found');
+        }
+
+        return normalizeBooking(booking);
+      });
+    },
+
+    getCheckoutSession: function (bookingId) {
+      if (!useMockApi()) {
+        return restRequest('/booking/checkout/sessions/' + encodeURIComponent(bookingId), {
+          auth: 'required',
+        });
+      }
+
+      return BookingAPI.getBookingById(bookingId);
+    },
+
+    createBooking: function (request, mockCart) {
+      if (!useMockApi()) {
+        return restRequest('/booking/checkout/sessions', {
+          method: 'POST',
+          auth: 'required',
+          body: request,
+        });
+      }
+
+      return createMockBooking(request, mockCart);
+    },
+
+    cancelBooking: function (bookingId) {
+      if (!useMockApi()) {
+        return restRequest('/booking/checkout/sessions/' + encodeURIComponent(bookingId) + '/cancel', {
+          method: 'POST',
+          auth: 'required',
+        });
+      }
+
+      var stored = readStorage(MOCK_BOOKINGS_KEY, []);
+      var booking = stored.find(function (item) {
+        return String(item.id || item.bookingId) === String(bookingId);
+      });
+      if (!booking) {
+        return Promise.reject(new Error('Booking not found'));
+      }
+
+      booking.status = 'cancelled';
+      booking.checkoutStep = 'closed';
+      writeStorage(MOCK_BOOKINGS_KEY, stored);
+
+      return Promise.resolve(booking);
+    },
+
     loadAvailabilityContext: loadAvailabilityContext,
   };
 

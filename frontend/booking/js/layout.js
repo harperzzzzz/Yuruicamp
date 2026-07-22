@@ -119,6 +119,29 @@ function loadFirebaseAppOnce() {
 }
 
 /**
+ * 把 Firebase Auth 注入 main 的 AppAuth（B 方案最小接線）。
+ * Wire Firebase Auth into AppAuth so ApiClient can attach Bearer tokens.
+ * api-http.js 仍可暫時保留給 auth.js；之後再收斂。
+ */
+function injectFirebaseAuthIntoAppAuth() {
+  if (!window.AppAuth || typeof window.AppAuth.configure !== 'function') {
+    return;
+  }
+  if (!window.YuruiFirebase || typeof window.YuruiFirebase.isReady !== 'function') {
+    return;
+  }
+  if (!window.YuruiFirebase.isReady()) {
+    return;
+  }
+  try {
+    window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
+    console.log('✓ AppAuth 已注入 Firebase Auth');
+  } catch (error) {
+    console.warn('[AppAuth] Firebase 注入略過:', error);
+  }
+}
+
+/**
  * 載入 booking shared auth 與 header 互動腳本。
  * 套用元件：#loginModal、#personalizationModal、.bookingHeader。
  */
@@ -130,7 +153,9 @@ function loadBookingHeaderScript() {
       return loadFirebaseAppOnce();
     })
     .then(function () {
-      // 2-5：Bearer 共用 HTTP
+      // B：Firebase → AppAuth（ApiClient 才能帶 token）
+      injectFirebaseAuthIntoAppAuth();
+      // 過渡期：仍載 api-http，讓現有 auth.js（YuruiApiHttp）先能跑
       return loadScriptOnce('/storefront/js/api-http.js', '__yuruiApiHttpScriptLoaded');
     })
     .then(function () {
@@ -194,13 +219,14 @@ function loadBookingLayoutPartial(targetSelector, url, partSelector, callback) {
 }
 
 /**
- * 載入 booking 全站共用腳本（config／formatters／api-mock／booking-api）。
+ * 載入 booking 全站共用腳本（config／api-client／formatters／api-mock／booking-api）。
  * 與 booking/partials/booking-core-scripts.partial 清單一致；用 loadScriptOnce 當安全網。
  * @returns {Promise<void>}
  */
 function loadBookingCoreScripts() {
   var scripts = [
     ['/storefront/js/config.js', '__bookingCoreConfigLoaded'],
+    ['/storefront/js/api-client.js', '__bookingCoreApiClientLoaded'],
     ['/storefront/js/formatters.js', '__bookingCoreFormattersLoaded'],
     ['/storefront/js/api-mock.js', '__bookingCoreApiMockLoaded'],
     ['/storefront/js/booking-api.js', '__bookingCoreBookingApiLoaded'],

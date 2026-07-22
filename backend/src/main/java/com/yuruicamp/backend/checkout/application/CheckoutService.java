@@ -30,6 +30,7 @@ import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
+import com.yuruicamp.backend.coupon.application.CouponService;
 import com.yuruicamp.backend.inventory.domain.InventoryStock;
 import com.yuruicamp.backend.inventory.domain.ProductStockReservation;
 import com.yuruicamp.backend.inventory.infrastructure.InventoryStockRepository;
@@ -55,12 +56,13 @@ public class CheckoutService {
 	private final OrderRepository orders;
 	private final OrderStatusHistoryRepository histories;
 	private final EquipmentImageRepository images;
+	private final CouponService couponService;
 
 	// 準備 Checkout 流程需要使用的資料庫元件。
 	public CheckoutService(CustomerRepository customers, CheckoutProductRepository products,
 			InventoryStockRepository stocks, ProductStockReservationRepository reservations,
 			OrderRepository orders, OrderStatusHistoryRepository histories,
-			EquipmentImageRepository images) {
+			EquipmentImageRepository images, CouponService couponService) {
 		this.customers = customers;
 		this.products = products;
 		this.stocks = stocks;
@@ -68,6 +70,7 @@ public class CheckoutService {
 		this.orders = orders;
 		this.histories = histories;
 		this.images = images;
+		this.couponService = couponService;
 	}
 
 	// 建立待付款訂單，並保留商品庫存 15 分鐘。
@@ -77,7 +80,7 @@ public class CheckoutService {
 		String idempotencyKey = request.idempotencyKey().trim();
 		Map<String, Integer> requested = mergeRequestedItems(request.items());
 		PaymentMethod paymentMethod = parsePaymentMethod(request.paymentMethod());
-		String requestHash = fingerprint(requested, paymentMethod, request.shipping());
+		String requestHash = fingerprint(requested, paymentMethod, request.shipping(), request.couponClaimId());
 
 		Customer customer = customers.findByIdForCheckout(customerId)
 				.orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED, "Customer not found"));
@@ -125,6 +128,9 @@ public class CheckoutService {
 
 		order.setPricing(subtotal, BigDecimal.ZERO, BigDecimal.ZERO);
 		Order saved = orders.saveAndFlush(order);
+		if (request.couponClaimId() != null) {
+			couponService.applyToOrder(saved, customerId, request.couponClaimId(), now);
+		}
 
 		for (int i = 0; i < saved.getItems().size(); i++) {
 			OrderItem item = saved.getItems().get(i);
@@ -167,6 +173,12 @@ public class CheckoutService {
 		}
 		if (request.paymentMethod() != null) {
 			order.changePaymentMethod(parsePaymentMethod(request.paymentMethod()));
+		}
+		if (request.couponClaimId() != null) {
+			couponService.applyToOrder(order, customerId, request.couponClaimId(), now);
+		}
+		else if (request.shipping() == null && request.paymentMethod() == null) {
+			couponService.applyToOrder(order, customerId, null, now);
 		}
 
 		return toResponse(order);
@@ -223,7 +235,7 @@ public class CheckoutService {
 		}
 	}
 
-	// 檢查更新請求至少包含一個可修改欄位，且暫時不接受優惠券。
+	// 檢查更新請求至少包含收件、付款方式或優惠券操作。
 	private static void validateUpdateInput(String customerId, String orderId,
 			CheckoutUpdateRequest request) {
 		if (customerId == null || customerId.isBlank()
@@ -232,20 +244,12 @@ public class CheckoutService {
 			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
 					"customerId, orderId and request are required");
 		}
-		if (request.couponClaimId() != null) {
-			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
-					"couponClaimId is not supported until the coupon checkout flow is implemented");
-		}
-
 		boolean hasShippingUpdate = request.shipping() != null
 				&& (request.shipping().recipientName() != null
 						|| request.shipping().phone() != null
 						|| request.shipping().address() != null);
 		boolean hasPaymentUpdate = request.paymentMethod() != null;
-		if (!hasShippingUpdate && !hasPaymentUpdate) {
-			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
-					"At least one shipping field or paymentMethod is required");
-		}
+		// 空的更新內容視為清除目前優惠券，讓 couponClaimId=null 能完成清除操作。
 		if (hasPaymentUpdate && request.paymentMethod().isBlank()) {
 			throw new BusinessException(ErrorCode.VALIDATION_ERROR,
 					"paymentMethod must not be blank");
@@ -297,12 +301,13 @@ public class CheckoutService {
 
 	// 產生請求指紋，用來判斷相同冪等鍵的內容是否一致。
 	private static String fingerprint(Map<String, Integer> items, PaymentMethod paymentMethod,
-			CheckoutCreateRequest.Shipping shipping) {
+			CheckoutCreateRequest.Shipping shipping, Long couponClaimId) {
 		StringBuilder canonical = new StringBuilder();
 		appendCanonical(canonical, paymentMethod.name());
 		appendCanonical(canonical, shipping == null ? null : shipping.recipientName());
 		appendCanonical(canonical, shipping == null ? null : shipping.phone());
 		appendCanonical(canonical, shipping == null ? null : shipping.address());
+		appendCanonical(canonical, couponClaimId == null ? null : couponClaimId.toString());
 		items.forEach((variantId, quantity) -> {
 			appendCanonical(canonical, variantId);
 			appendCanonical(canonical, String.valueOf(quantity));
@@ -347,7 +352,7 @@ public class CheckoutService {
 	}
 
 	// 將訂單資料轉成前端需要的結帳回應。
-	private static CheckoutSessionResponse toResponse(Order order) {
+	private CheckoutSessionResponse toResponse(Order order) {
 		var items = order.getItems().stream()
 				.map(item -> new CheckoutSessionResponse.Item(item.getId(), item.getProductId(),
 						item.getVariantId(), item.getSku(), item.getProductName(), item.getSpecification(),
@@ -364,7 +369,7 @@ public class CheckoutService {
 		return new CheckoutSessionResponse(order.getId(), order.getPaymentStatus().name(),
 				order.getPaymentMethod().name().replace('_', '-'), order.getStatus().name(),
 				order.getCheckoutExpiresAt().toString(), pricing, items, shipping,
-				null, ready ? "ready_to_pay" : "draft");
+				couponService.appliedClaimId(order.getId()), ready ? "ready_to_pay" : "draft");
 	}
 
 	// 暫存建立庫存保留紀錄需要的資料。

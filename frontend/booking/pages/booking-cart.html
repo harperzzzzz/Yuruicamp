@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#73816E" />
     <link rel="icon" href="/assets/icons/camping_icon.png" type="image/png" />
-    <title>確認背包 | Yuruicamp 露營選物</title>
+    <title>確�??��? | Yuruicamp ?��??�物</title>
 
     <link rel="stylesheet" href="/booking/css/booking-main.css" />
     <link
@@ -17,54 +17,54 @@
     <div id="bookingHeader" class="bookingHeaderMount"></div>
 
     <main class="bookingCartPage">
-      <!-- 步驟進度列 -->
+      <!-- 步�??�度??-->
       <div class="bookingStepProgress">
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          選擇營區
+          ?��??��?
         </div>
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          選擇日期
+          ?��??��?
         </div>
         <div class="bookingStep isCompleted">
           <span><i class="bi bi-check-lg"></i></span>
-          租借裝備
+          租借�???
         </div>
         <div class="bookingStep isSelected">
           <span>4</span>
-          確認背包
+          確�??��?
         </div>
         <div class="bookingStep">
           <span>5</span>
-          確認結帳
+          確�?結帳
         </div>
       </div>
 
-      <!-- 頁面標題：共用 cartPage* 語意，booking 變體只負責預約流程差異。 -->
+      <!-- ?�面標�?：共??cartPage* 語�?，booking 變�??��?責�?約�?程差?��?-->
       <div class="cartPageHeader cartPageHeaderBooking">
-        <h1 class="cartPageTitle cartPageTitleBooking"><i class="bi bi-bag-heart"></i> 我的預約背包</h1>
+        <h1 class="cartPageTitle cartPageTitleBooking"><i class="bi bi-bag-heart"></i> ?��??��??��?</h1>
         <p id="bookingCartCount" class="cartCountText cartCountTextBooking"></p>
       </div>
 
-      <!-- 空背包狀態：共用 cartEmpty* 語意，保留 booking 變體供本流程覆寫。 -->
+      <!-- 空�??��??��??�用 cartEmpty* 語�?，�???booking 變�?供本流�?覆寫??-->
       <div id="bookingCartEmpty" class="cartEmpty cartEmptyBooking bookingCartEmptyState">
         <div class="cartEmptyIcon cartEmptyIconBooking"><i class="bi bi-bag-x"></i></div>
-        <div class="cartEmptyTitle cartEmptyTitleBooking">背包是空的</div>
-        <p class="cartEmptyText cartEmptyTextBooking">還沒有選擇任何營區或裝備，去探索看看吧！</p>
-        <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> 探索營區 </a>
+        <div class="cartEmptyTitle cartEmptyTitleBooking">?��??�空??/div>
+        <p class="cartEmptyText cartEmptyTextBooking">?��??�選?�任何�??�?��??��??�探索�??�吧�?/p>
+        <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> ?�索?��? </a>
       </div>
 
-      <!-- 有內容時的兩欄佈局：cartLayout 是功能語意，cartLayoutBooking 是 booking 專屬尺寸。 -->
+      <!-- ?�內容�??�兩欄�?局：cartLayout ?��??��??��?cartLayoutBooking ??booking 專屬尺寸??-->
       <div id="bookingCartContent" class="cartLayout cartLayoutBooking bookingCartContent">
-        <!-- ══ 左側：項目列表 ══ -->
+        <!-- ?��? 左側：�??��?�??��? -->
         <div>
-          <!-- 住宿卡 -->
+          <!-- 住宿??-->
           <div class="cartCard cartCardBooking" id="bookingCartStayCard">
             <div class="cartCardHeader cartCardHeaderBooking">
               <span class="cartCardTitle cartCardTitleBooking"> <i class="bi bi-house-door"></i> 住宿 </span>
               <a href="#" id="bookingCartEditDateLink" class="cartEditLink cartEditLinkBooking">
-                <i class="bi bi-pencil"></i> 修改日期
+                <i class="bi bi-pencil"></i> 修改?��?
               </a>
             </div>
             <div class="cartCardBody cartCardBodyBooking" id="bookingCartStayBody">
@@ -72,12 +72,12 @@
             </div>
           </div>
 
-          <!-- 裝備租借卡 -->
+          <!-- 裝�?租借卡 -->
           <div class="cartCard cartCardBooking" id="bookingCartRentalCard">
             <div class="cartCardHeader cartCardHeaderBooking">
-              <span class="cartCardTitle cartCardTitleBooking"> <i class="bi bi-bag"></i> 裝備租借 </span>
+              <span class="cartCardTitle cartCardTitleBooking"> <i class="bi bi-bag"></i> 裝�?租�?</span>
               <a href="./camp-rental.html" class="cartEditLink cartEditLinkBooking">
-                <i class="bi bi-pencil"></i> 修改裝備
+                <i class="bi bi-pencil"></i> 修改裝�?
               </a>
             </div>
             <div class="cartCardBody cartCardBodyBooking" id="bookingCartRentalBody">
@@ -85,46 +85,46 @@
             </div>
           </div>
 
-          <!-- 清除背包 -->
+          <!-- 清除?��? -->
           <div class="cartClearAction cartClearActionBooking">
             <button id="bookingCartClearButton" class="cartClearButton cartClearButtonBooking">
-              <i class="bi bi-trash3"></i> 清除背包
+              <i class="bi bi-trash3"></i> 清除?��?
             </button>
           </div>
         </div>
 
-        <!-- ══ 右側：費用摘要 ══ -->
+        <!-- ?��? ?�側：費?��?�??��? -->
         <div class="cartSummaryColumn cartSummaryColumnBooking">
           <div class="cartSummaryCard cartSummaryCardBooking">
-            <h3>費用摘要</h3>
+            <h3>費用?��?</h3>
 
-            <!-- 費用逐項 -->
+            <!-- 費用?��? -->
             <div id="bookingCartCostRows" class="bookingCartCostRows"></div>
 
             <hr />
 
-            <!-- 合計 -->
+            <!-- ?��? -->
             <div class="costTotal">
-              <span>應付總金額</span>
+              <span>?��?總�?�?/span>
               <strong class="costTotalAmount" id="bookingCartFinalAmount">NT$0</strong>
             </div>
 
-            <!-- 前往結帳 -->
+            <!-- ?��?結帳 -->
             <a
               href="./booking-checkout.html"
               class="btn btnPrimary btnFull cartCheckoutButton cartCheckoutButtonBooking bookingCartCheckoutButton"
               id="bookingCartCheckoutButton"
             >
-              <i class="bi bi-arrow-right-circle"></i> 前往結帳
+              <i class="bi bi-arrow-right-circle"></i> ?��?結帳
             </a>
 
-            <!-- 繼續修改 -->
-            <a href="./camp-rental.html"> ← 返回修改裝備 </a>
+            <!-- 繼�?修改 -->
+            <a href="./camp-rental.html"> ??返�?修改裝�? </a>
 
-            <!-- 安全保障 -->
+            <!-- 安全保�? -->
             <div class="cartSummaryNotice cartSummaryNoticeBooking">
-              <p class="cartSummaryNoticeLine">🔒 SSL 加密保護，安全付款</p>
-              <p class="cartSummaryNoticeLine">📋 預約確認信將寄送至您的信箱</p>
+              <p class="cartSummaryNoticeLine">?? SSL ?��?保護，�??��?�?/p>
+              <p class="cartSummaryNoticeLine">?? ?��?確�?信�?寄送至?��?信箱</p>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@
     <div id="bookingFooter"></div>
 
     <script src="/booking/js/layout.js"></script>
-    <!-- 共用：config／formatters／api-mock／booking-api（見 booking/partials/booking-core-scripts.partial） -->
+    <!-- ?�用：config／formatters／api-mock／booking-api（�? booking/partials/booking-core-scripts.partial�?-->
     <script src="/booking/js/booking-core-scripts.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>

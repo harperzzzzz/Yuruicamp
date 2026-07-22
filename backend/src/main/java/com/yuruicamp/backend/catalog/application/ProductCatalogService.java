@@ -1,5 +1,6 @@
 package com.yuruicamp.backend.catalog.application;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,8 @@ import com.yuruicamp.backend.catalog.domain.EquipmentImage;
 import com.yuruicamp.backend.catalog.domain.Product;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.catalog.infrastructure.ProductRepository;
+import com.yuruicamp.backend.catalog.infrastructure.VariantAvailabilityProjection;
+import com.yuruicamp.backend.catalog.infrastructure.VariantAvailabilityRepository;
 import com.yuruicamp.backend.common.api.PageMeta;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
@@ -50,19 +53,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ProductCatalogService {
 
+	private static final BigDecimal MIN_CATALOG_PRICE = BigDecimal.ZERO;
+
+	private static final BigDecimal MAX_CATALOG_PRICE = new BigDecimal("9999999999.99");
+
 	private final ProductRepository productRepository;
 	private final EquipmentImageRepository equipmentImageRepository;
 	private final ProductCatalogAssembler assembler;
+	private final VariantAvailabilityRepository variantAvailabilityRepository;
 
 	public ProductCatalogService(
 			ProductRepository productRepository,
 			EquipmentImageRepository equipmentImageRepository,
-			ProductCatalogAssembler assembler) {
+			ProductCatalogAssembler assembler,
+			VariantAvailabilityRepository variantAvailabilityRepository) {
 		// 用途：透過建構式注入商品、圖片 Repository 與 DTO 組裝器。
 		// 核心重點：所有相依物件均為必要依賴，交由 Spring 建立並管理此 Service。
 		this.productRepository = productRepository;
 		this.equipmentImageRepository = equipmentImageRepository;
 		this.assembler = assembler;
+		this.variantAvailabilityRepository = variantAvailabilityRepository;
 	}
 
 	/**
@@ -74,20 +84,38 @@ public class ProductCatalogService {
 		// 核心重點：批次載入主圖、排除沒有 active 規格的商品，最後依商品 ID 穩定排序。
 		List<Product> products = productRepository.findAllActiveForCatalog();
 		Map<String, String> images = loadMainImages(products);
+		Map<String, Long> availability = loadAvailability(products);
 
 		return products.stream()
-				.map(p -> assembler.toResponse(p, images))
+				.map(product -> assembler.toResponse(product, images, availability))
 				.filter(dto -> !dto.variants().isEmpty())
 				.sorted(Comparator.comparing(ProductResponse::id))
 				.toList();
 	}
 
-	/** B-3: GET /api/products?page=&size=&sort= (Contract v0.2). */
+	/** B-3／B-4: GET /api/products with pagination, sorting and filters (Contract v0.3). */
 	@Transactional(readOnly = true)
-	public PagedProducts listProducts(int page, int size, String sort) {
+	public PagedProducts listProducts(
+			int page,
+			int size,
+			String sort,
+			String category,
+			String brand,
+			BigDecimal minPrice,
+			BigDecimal maxPrice) {
 		// 用途：依頁碼、筆數及排序條件取得公開商品清單與分頁資訊。
-		// 核心重點：先分頁查 ID，再一次載入完整關聯資料，並依 ID 頁面的順序還原結果。
-		Page<String> idPage = productRepository.findActiveIdsForCatalog(PageRequest.of(page, size, toSort(sort)));
+		// 核心重點：先驗證原始價格，再把未指定條件轉成明確型別，避免 PostgreSQL 將 null 誤判為 bytea。
+		validatePriceRange(minPrice, maxPrice);
+
+		BigDecimal normalizedMinPrice = minPrice == null ? MIN_CATALOG_PRICE : minPrice;
+		BigDecimal normalizedMaxPrice = maxPrice == null ? MAX_CATALOG_PRICE : maxPrice;
+
+		Page<String> idPage = productRepository.findActiveIdsForCatalog(
+				normalizeFilter(category),
+				normalizeFilter(brand),
+				normalizedMinPrice,
+				normalizedMaxPrice,
+				PageRequest.of(page, size, toSort(sort)));
 		if (idPage.isEmpty()) {
 			return new PagedProducts(List.of(), toMeta(idPage));
 		}
@@ -99,11 +127,32 @@ public class ProductCatalogService {
 				.filter(Objects::nonNull)
 				.toList();
 		Map<String, String> images = loadMainImages(productsInPageOrder);
+		Map<String, Long> availability = loadAvailability(productsInPageOrder);
 		List<ProductResponse> data = productsInPageOrder.stream()
-				.map(product -> assembler.toResponse(product, images))
+				.map(product -> assembler.toResponse(product, images, availability))
 				.filter(dto -> !dto.variants().isEmpty())
 				.toList();
 		return new PagedProducts(data, toMeta(idPage));
+	}
+
+	private void validatePriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+		if ((minPrice != null && minPrice.signum() < 0)
+				|| (maxPrice != null && maxPrice.signum() < 0)
+				|| (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0)) {
+			throw new BusinessException(
+					ErrorCode.VALIDATION_ERROR,
+					"Price range must be non-negative and minPrice must not exceed maxPrice");
+		}
+	}
+
+	private String normalizeFilter(String value) {
+		// 用途：空字串代表不套用文字篩選，非空值則去除首尾空白。
+		// 核心重點：Repository 不再接收無法穩定推斷 SQL 型別的 null 字串參數。
+		if (value == null || value.isBlank()) {
+			return "";
+		}
+
+		return value.trim();
 	}
 
 	private Sort toSort(String sort) {
@@ -160,11 +209,30 @@ public class ProductCatalogService {
 				.map(EquipmentImage::getUrl)
 				.orElse(null);
 
-		ProductResponse dto = assembler.toResponse(product, image);
+		Map<String, Long> availability = loadAvailability(List.of(product));
+		ProductResponse dto = assembler.toResponse(product, image, availability);
 		if (dto.variants().isEmpty()) {
 			throw new BusinessException(ErrorCode.NOT_FOUND, "Product not found: " + id);
 		}
 		return dto;
+	}
+
+	private Map<String, Long> loadAvailability(List<Product> products) {
+		Set<String> variantIds = products.stream()
+				.flatMap(product -> product.getVariants().stream())
+				.filter(variant -> "active".equals(variant.getStatus()))
+				.map(variant -> variant.getId())
+				.collect(Collectors.toSet());
+		if (variantIds.isEmpty()) {
+			return Map.of();
+		}
+
+		return variantAvailabilityRepository.findAvailabilityByVariantIds(variantIds).stream()
+				.collect(Collectors.toMap(
+						VariantAvailabilityProjection::getVariantId,
+						projection -> projection.getAvailableQuantity() == null
+								? 0L
+								: projection.getAvailableQuantity()));
 	}
 
 	private Map<String, String> loadMainImages(List<Product> products) {

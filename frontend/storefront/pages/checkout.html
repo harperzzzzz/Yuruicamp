@@ -32,6 +32,32 @@
 
       <div class="checkoutLayout">
         <div class="checkoutFormColumn">
+          <section
+            class="checkoutSessionPanel"
+            id="checkoutSessionPanel"
+            aria-labelledby="checkoutSessionTitle"
+            aria-live="polite"
+            hidden
+          >
+            <div class="checkoutSessionMain">
+              <i class="bi bi-hourglass-split checkoutSessionIcon" id="checkoutSessionIcon" aria-hidden="true"></i>
+              <div>
+                <span class="checkoutSessionBadge" id="checkoutSessionBadge">結帳狀態</span>
+                <h2 class="checkoutSessionTitle" id="checkoutSessionTitle">Checkout Session</h2>
+                <p class="checkoutSessionMessage" id="checkoutSessionMessage"></p>
+                <ul class="checkoutSessionDetails" id="checkoutSessionDetails" hidden></ul>
+              </div>
+            </div>
+            <div class="checkoutSessionTimer" id="checkoutSessionTimer" hidden>
+              <span>庫存保留剩餘時間</span>
+              <strong id="checkoutCountdown" role="timer" aria-live="off">15:00</strong>
+            </div>
+            <div class="checkoutSessionActions">
+              <button class="btn btnSecondary" id="cancelCheckoutBtn" type="button" hidden>取消 Checkout</button>
+              <button class="btn btnSecondary" id="returnToCartBtn" type="button" hidden>返回購物車</button>
+            </div>
+          </section>
+
           <section class="checkoutPanel isOpen" id="panelBuyer" aria-labelledby="panelBuyerTitle">
             <button
               class="checkoutPanelTrigger"
@@ -218,51 +244,20 @@
                 </label>
               </fieldset>
 
-              <fieldset class="creditCardBox" id="creditCardSection">
-                <legend class="creditCardTitle">信用卡資訊</legend>
-                <div class="checkoutField">
-                  <label class="checkoutLabel" for="cardNumber">卡號</label>
-                  <input
-                    class="checkoutInput"
-                    type="text"
-                    id="cardNumber"
-                    name="cardNumber"
-                    placeholder="1234 5678 9012 3456"
-                    maxlength="19"
-                    inputmode="numeric"
-                    required
-                  />
-                </div>
-                <div class="checkoutFormGrid">
-                  <div class="checkoutField">
-                    <label class="checkoutLabel" for="cardExpiry">到期日</label>
-                    <input
-                      class="checkoutInput"
-                      type="text"
-                      id="cardExpiry"
-                      name="cardExpiry"
-                      placeholder="MM / YY"
-                      maxlength="7"
-                      inputmode="numeric"
-                      required
-                    />
-                  </div>
-                  <div class="checkoutField">
-                    <label class="checkoutLabel" for="cardCvv">CVV</label>
-                    <input
-                      class="checkoutInput"
-                      type="text"
-                      id="cardCvv"
-                      name="cardCvv"
-                      placeholder="123"
-                      minlength="3"
-                      maxlength="4"
-                      inputmode="numeric"
-                      required
-                    />
-                  </div>
-                </div>
-              </fieldset>
+              <div class="checkoutPaymentNotice" id="ecpayPaymentNotice" role="status">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                <span>
+                  <strong>下一步將前往 ECPay</strong>
+                  <span>本站不會收集或保存卡號、到期日與 CVV。</span>
+                </span>
+              </div>
+              <div class="checkoutPaymentNotice" id="codPaymentNotice" role="status" hidden>
+                <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                <span>
+                  <strong>貨到付款</strong>
+                  <span>付款確認功能將於 Payment 線完成後開放。</span>
+                </span>
+              </div>
             </div>
           </section>
 
@@ -270,6 +265,7 @@
             <button id="confirmOrderBtn" type="button" class="btn btnPrimary btnBlock checkoutConfirmBtn">
               確認結帳
             </button>
+            <p class="checkoutActionStatus" id="checkoutActionStatus" aria-live="polite" hidden></p>
             <p class="checkoutTermsText">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
           </div>
         </div>
@@ -321,6 +317,9 @@
               <span>合計</span>
               <span class="checkoutTotal" id="checkoutTotal">NT$0</span>
             </div>
+            <p class="checkoutPricingSource" id="checkoutPricingSource" aria-live="polite">
+              送出前為預估金額，成交金額以後端回傳為準。
+            </p>
 
             <div class="checkoutTrustNote">
               <p class="checkoutTrustText">SSL 加密保護，安全付款</p>
@@ -335,6 +334,7 @@
     <div id="shippingAddressModalMount"></div>
 
     <script src="/storefront/js/config.js" defer></script>
+    <script src="/storefront/js/api-client.js" defer></script>
     <script src="/storefront/js/storage.js" defer></script>
     <script src="/storefront/js/state.js" defer></script>
     <script src="/storefront/js/formatters.js" defer></script>

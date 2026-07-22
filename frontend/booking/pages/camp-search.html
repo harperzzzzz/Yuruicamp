@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#73816E" />
-    <meta name="description" content="搜尋並篩選台灣最美露營區，選擇最適合你的營地。" />
+    <meta name="description" content="?��?並篩?�台???美露?��?，選?��??��?你�??�地?? />
     <link rel="icon" href="/assets/icons/camping_icon.png" type="image/png" />
-    <title>搜尋營區 | Yuruicamp 露營選物</title>
+    <title>?��??��? | Yuruicamp ?��??�物</title>
 
     <link rel="stylesheet" href="/booking/css/booking-main.css" />
 
@@ -29,8 +29,8 @@
       </video>
 
       <div class="heroContent">
-        <h1 class="heroTitle">尋找你的山林棲所</h1>
-        <p class="heroSubtitle">在這裡，選擇屬於你的季節與寧靜</p>
+        <h1 class="heroTitle">尋找你�?山�?棲�?</h1>
+        <p class="heroSubtitle">?�這裡，選?�屬?��??�季節?�寧??/p>
 
         <section class="searchBarSection">
           <div class="searchBar">
@@ -38,26 +38,26 @@
               type="text"
               id="dateRange"
               class="searchBarInput dateRangeSearchInput"
-              placeholder="入住日期 → 退房日期"
+              placeholder="?��??��? ???�?�日??
               readonly
-              aria-label="預約日期範圍"
+              aria-label="?��??��?範�?"
             />
 
             <select id="guestCount" class="searchBarSelect searchGuestSelect" title="人數">
               <option value="">人數</option>
-              <option value="1">1 人</option>
-              <option value="2">2 人</option>
-              <option value="4">4 人</option>
-              <option value="6">6 人以上</option>
+              <option value="1">1 �?/option>
+              <option value="2">2 �?/option>
+              <option value="4">4 �?/option>
+              <option value="6">6 人以�?/option>
             </select>
-            <select id="regionFilter" class="searchBarSelect searchRegionSelect" title="地區">
-              <option value="">所有地區</option>
-              <option value="北部">北部</option>
+            <select id="regionFilter" class="searchBarSelect searchRegionSelect" title="?��?">
+              <option value="">?�?�地?�</option>
+              <option value="?�部">?�部</option>
               <option value="中部">中部</option>
-              <option value="南部">南部</option>
-              <option value="東部">東部</option>
+              <option value="?�部">?�部</option>
+              <option value="?�部">?�部</option>
             </select>
-            <button id="searchBtn" class="btn btnPrimary"><i class="bi bi-search"></i> 搜尋</button>
+            <button id="searchBtn" class="btn btnPrimary"><i class="bi bi-search"></i> ?��?</button>
           </div>
         </section>
       </div>
@@ -72,27 +72,27 @@
 
           <div class="filterSidebarBody" id="filterBody">
             <div class="filterGroup">
-              <h4 class="filterGroupTitle">環境特徵</h4>
-              <label><input type="checkbox" name="env" value="高海拔" /> 高海拔</label>
-              <label><input type="checkbox" name="env" value="低海拔" /> 低海拔</label>
-              <label><input type="checkbox" name="env" value="有雲海" /> 有雲海</label>
-              <label><input type="checkbox" name="env" value="有溪流" /> 有溪流</label>
-              <label><input type="checkbox" name="env" value="森林系" /> 森林系</label>
+              <h4 class="filterGroupTitle">?��??�徵</h4>
+              <label><input type="checkbox" name="env" value="高海?? /> 高海??/label>
+              <label><input type="checkbox" name="env" value="低海?? /> 低海??/label>
+              <label><input type="checkbox" name="env" value="?�雲�? /> ?�雲�?/label>
+              <label><input type="checkbox" name="env" value="?�溪�? /> ?�溪�?/label>
+              <label><input type="checkbox" name="env" value="森�?�? /> 森�?�?/label>
             </div>
 
             <div class="filterGroup">
-              <h4 class="filterGroupTitle">營區設施</h4>
-              <label><input type="checkbox" name="facility" value="有雨棚" />有雨棚</label>
-              <label><input type="checkbox" name="facility" value="裝備租借" />裝備租借</label>
-              <label><input type="checkbox" name="facility" value="小木屋" />小木屋</label>
-              <label><input type="checkbox" name="facility" value="寵物友善" /> 寵物友善</label>
-              <label><input type="checkbox" name="facility" value="兒童遊樂設施" />兒童遊樂設施</label>
-              <label><input type="checkbox" name="facility" value="獨立衛浴" />獨立衛浴</label>
-              <label><input type="checkbox" name="facility" value="可包區" /> 可包區</label>
+              <h4 class="filterGroupTitle">?��?設施</h4>
+              <label><input type="checkbox" name="facility" value="?�雨�? />?�雨�?/label>
+              <label><input type="checkbox" name="facility" value="裝�?租�? />裝�?租�?/label>
+              <label><input type="checkbox" name="facility" value="小木�? />小木�?/label>
+              <label><input type="checkbox" name="facility" value="寵物?��?" /> 寵物?��?</label>
+              <label><input type="checkbox" name="facility" value="?�童?��?設施" />?�童?��?設施</label>
+              <label><input type="checkbox" name="facility" value="?��?衛浴" />?��?衛浴</label>
+              <label><input type="checkbox" name="facility" value="?��??�" /> ?��??�</label>
             </div>
 
             <div class="filterGroup">
-              <h4 class="filterGroupTitle">每晚預算（平日）</h4>
+              <h4 class="filterGroupTitle">每�??��?（平?��?</h4>
               <div class="priceRangeSlider">
                 <div class="priceRangeDisplay" id="priceRangeDisplay">NT$500 - NT$5,000+</div>
                 <div class="priceRangeTrackWrap">
@@ -124,19 +124,19 @@
             </div>
 
             <button id="resetFilterBtn" class="btn btnOutline resetFilterButtonBooking">
-              <i class="bi bi-arrow-counterclockwise"></i> 重設篩選
+              <i class="bi bi-arrow-counterclockwise"></i> ?�設篩選
             </button>
           </div>
         </aside>
 
         <section class="searchResults">
           <div class="searchResultsHeader">
-            <p id="resultCount">載入中...</p>
+            <p id="resultCount">載入�?..</p>
           </div>
 
           <div class="campCardGrid" id="campCardGrid">
             <div class="loadingSkeleton" id="loadingSkeleton">
-              <i class="bi bi-hourglass-split"></i> 載入營區資料中...
+              <i class="bi bi-hourglass-split"></i> 載入?��?資�?�?..
             </div>
           </div>
         </section>
@@ -146,7 +146,7 @@
     <div id="bookingFooter"></div>
 
     <script src="/booking/js/layout.js"></script>
-    <!-- 共用：config／formatters／api-mock／booking-api（見 booking/partials/booking-core-scripts.partial） -->
+    <!-- ?�用：config／formatters／api-mock／booking-api（�? booking/partials/booking-core-scripts.partial�?-->
     <script src="/booking/js/booking-core-scripts.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -156,10 +156,10 @@
     <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 
     <script>
-      // 載入共用的 Header / Footer
+      // 載入?�用??Header / Footer
       // Load shared header and footer components
       $(function () {
-        // 載入預約系統專屬 Header / Footer（非買家端的 ../components/）
+        // 載入?��?系統專屬 Header / Footer（�?買家端�? ../components/�?
         window.loadBookingSharedLayout();
       });
     </script>

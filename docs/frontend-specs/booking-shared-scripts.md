@@ -29,9 +29,18 @@ Booking 各頁 HTML **各自列出 script**，不會像 React 那樣自動共用
 ### 目前注入順序（不可亂）
 
 1. `/storefront/js/config.js` → `window.AppConfig`
-2. `/storefront/js/formatters.js`
-3. `/storefront/js/api-mock.js` → `window.API`
-4. `/storefront/js/booking-api.js` → `BookingAPI`
+2. `/storefront/js/api-client.js` → `window.AppAuth`／`window.ApiClient`（須在 api-mock／booking-api 之前）
+3. `/storefront/js/formatters.js`
+4. `/storefront/js/api-mock.js` → `window.API`
+5. `/storefront/js/booking-api.js` → `BookingAPI`
+
+Firebase 就緒後由 `layout.js`／`main.js` 呼叫：
+
+```javascript
+window.AppAuth.configure({ auth: window.YuruiFirebase.getAuth() });
+```
+
+讓 `ApiClient` 自動帶 Bearer；`api-http.js` 暫留作登入 UI 過渡。
 
 ---
 
@@ -41,7 +50,7 @@ Booking 各頁 HTML **各自列出 script**，不會像 React 那樣自動共用
 
 ```html
 <script src="/booking/js/layout.js"></script>
-<!-- 共用：config／formatters／api-mock／booking-api（見 booking/partials/booking-core-scripts.partial） -->
+<!-- 共用：config／api-client／formatters／api-mock／booking-api（見 booking/partials/booking-core-scripts.partial） -->
 <script src="/booking/js/booking-core-scripts.js"></script>
 <!-- … jquery／CDN／頁面 JS … -->
 ```

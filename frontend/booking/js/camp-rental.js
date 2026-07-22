@@ -23,10 +23,7 @@ let selectedRentals = {}; // 已選裝備：{ equipmentId: { ...item, quantity }
 // ============================================================
 $(document).ready(function () {
   // 步驟 1：讀取並正規化 bookingCart（相容舊 snake_case）
-  bookingCart =
-    typeof window.readBookingCart === 'function'
-      ? window.readBookingCart()
-      : null;
+  bookingCart = typeof window.readBookingCart === 'function' ? window.readBookingCart() : null;
 
   // 防呆：若 LocalStorage 無資料，代表使用者跳過了前面的流程
   if (!bookingCart || !bookingCart.bookingInfo) {
@@ -93,7 +90,9 @@ function loadRentals(campId) {
   // Load campground equipment via BookingAPI
   if (!window.BookingAPI) {
     console.error('[camp-rental] BookingAPI 未載入');
-    $('#rentalGrid').html('<div class="errorMsg"><i class="bi bi-exclamation-triangle"></i> API 未載入。</div>');
+    $('#rentalGrid').html(
+      '<div class="errorMsg"><i class="bi bi-exclamation-triangle"></i> API 未載入。</div>'
+    );
     return;
   }
 
@@ -224,6 +223,12 @@ function renderRentalItems(rentals) {
       ? `<p class="rentalItemCardSpec rentalItemCardSpecBooking">${item.specLabel}</p>`
       : '';
 
+    // Backend 公開契約不曝露租借數量，實際庫存會在建立 Checkout 時鎖定確認。
+    const hasVisibleStock = item.stock != null && Number.isFinite(Number(item.stock));
+    const stockHTML = hasVisibleStock
+      ? `<i class="bi bi-box-seam"></i> 庫存：${item.stock} 件`
+      : '<i class="bi bi-shield-check"></i> 結帳時確認可租數量';
+
     // 租借卡片使用 base + Booking variant 雙 class；base 表示功能語意，variant 承接 booking 頁面視覺。
     const imageSrc = item.imageUrl || '';
     const card = `
@@ -245,7 +250,7 @@ function renderRentalItems(rentals) {
             本次預估：<strong>NT$${estimated.toLocaleString()}</strong>${discHTML}
           </p>
           <p class="rentalItemCardStock rentalItemCardStockBooking">
-            <i class="bi bi-box-seam"></i> 庫存：${item.stock} 件
+            ${stockHTML}
           </p>
         </div>
         <div class="rentalItemCardActions rentalItemCardActionsBooking">
@@ -287,14 +292,19 @@ function addRentalItem(equipmentId) {
   if (!item) return;
 
   if (selectedRentals[equipmentId]) {
-    // 已存在：數量 +1（不超過庫存）/ Increment, not exceeding stock
-    if (selectedRentals[equipmentId].quantity < item.stock) {
+    // Mock 有顯示庫存時先限制數量；Backend 由建立 Checkout 的交易做最終判斷。
+    if (item.stock == null || selectedRentals[equipmentId].quantity < item.stock) {
       selectedRentals[equipmentId].quantity++;
     } else {
       showToast(`庫存不足，最多可租借 ${item.stock} 件。`, 'warning');
       return;
     }
   } else {
+    if (item.stock != null && Number(item.stock) < 1) {
+      showToast('此裝備目前沒有可租庫存。', 'warning');
+      return;
+    }
+
     // 新增 / New entry
     selectedRentals[equipmentId] = { ...item, quantity: 1 };
   }
@@ -392,6 +402,8 @@ function saveRentalsAndNext() {
     );
     return {
       equipmentId: item.equipmentId,
+      rentalListingId: item.rentalListingId || item.equipmentId,
+      rentalSkuVariantId: item.rentalSkuVariantId || item.variantId,
       rentalSkuId: item.rentalSkuId,
       productId: item.productId,
       variantId: item.variantId,

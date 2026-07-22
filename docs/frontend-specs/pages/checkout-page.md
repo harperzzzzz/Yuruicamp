@@ -1,4 +1,4 @@
-﻿# CheckoutPage 結帳頁規格
+# CheckoutPage 結帳頁規格
 
 **狀態：** 草稿
 **類別：** 頁面
@@ -10,7 +10,7 @@
 
 買家結帳流程頁面，包含買家資訊、物流、付款、折扣碼、購物車摘要與訂單確認功能。
 
-此頁用於完成商品訂購。必須保留欄位驗證、折扣碼計算、購物車摘要，以及最終金額的清楚呈現。
+此頁用於建立商品 Checkout Session。送出前顯示購物車預估金額；建立成功後只以後端 `CheckoutSession.pricing` 顯示成交金額。
 
 ## TypeScript 介面
 
@@ -74,6 +74,10 @@ export interface CheckoutPageProps {
 | 載入中 | `loading={true}`     | 當資料或 partial 內容載入時，保持頁面 Skeleton 穩定。   |
 | 空狀態 | `data.blocks=[]`     | 顯示有幫助的空狀態畫面，但不可讓頁面框架塌陷。                |
 | 錯誤  | `errorMessage="..."` | 顯示已在地化的錯誤訊息與重試途徑。                      |
+| Draft | `checkoutStep="draft"` | 顯示資料不足，保留購物車並允許 PATCH 更新。              |
+| Ready | `checkoutStep="ready_to_pay"` | 顯示後端 pricing、15 分倒數與取消操作。              |
+| Expired | `CHECKOUT_EXPIRED` | 停止倒數、清除 Session、顯示庫存已釋放並允許重建。       |
+| Cancelled | 取消成功 | 清除 Session、保留購物車並開啟共用購物車 Drawer。             |
 
 ## 互動狀態
 
@@ -154,6 +158,18 @@ const colors = {
 * 共用 CSS 來源：`css/main.css`。
 * 共用元件：`components/header.partial`、`components/footer.partial`。
 * 關鍵 UI 區域：`buyerPanel`、`shippingPanel`、`paymentPanel`、`couponPanel`、`orderSummary`。
+* 送出只呼叫 `API.checkout.createSession()`，頁面不直接呼叫 REST 或 Legacy `orders.create()`。
+* 建立 Request 只含規格 ID、數量、收件資料、付款方式與冪等鍵；會員由 Bearer principal 決定，價格與快照由後端建立。
+* `idempotencyKey` 使用 `crypto.randomUUID()`；網路重試與連點沿用同一 key，購物車變更、取消或逾時才清除。
+* 頁面金額在送出前只是預估；建立成功後以 `CheckoutSession.pricing.subtotal`、`shippingFee`、`discount`、`total` 覆蓋摘要。
+* Backend 模式不寫 `mockOrders`、不產生前端訂單 ID、不標記付款、不消耗優惠券，也不把 CheckoutSession 當成 Legacy Order。
+* 完整 Session 只暫存在 `sessionStorage.lastCheckoutSession`，供目前分頁重新整理時還原。
+* `ecpay-credit` 不收集或傳送卡號、到期日與 CVV，只顯示「下一步將前往 ECPay」；實際導向等待 I-7。
+* 線 F 完成前，Backend 模式停用優惠券控制並顯示「優惠券功能開發中」，前端折扣不得覆蓋後端 pricing。
+* Draft 的主要按鈕改為「更新結帳資料」，只 PATCH 收件資料與付款方式；不重新建立訂單。
+* Ready to pay 依後端 `checkoutExpiresAt` 每秒顯示 `mm:ss`，倒數歸零切換 Expired 並清除舊 Session。
+* 主動取消呼叫 `API.checkout.cancelSession()`；不清空購物車，取消後開啟共用購物車 Drawer。
+* 後端錯誤以行內狀態面板呈現；驗證錯誤依 `error.details[].field` 標記對應欄位。
 * 產生新 UI 前，必須先閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`。
 * 未解決問題：沒有提供 Figma 設計稿，因此既有程式碼是設計上的唯一依據。
 * 實作本規格時，**不得**替換既有頁面外殼、storage key、mock data 資料契約，或 partial loader 的載入模式。

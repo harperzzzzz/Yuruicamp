@@ -23,13 +23,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductCatalogAssembler {
 
-	public ProductResponse toResponse(Product product, String imageUrl) {
+	public ProductResponse toResponse(Product product, String imageUrl, Map<String, Long> availabilityByVariantId) {
 		// 用途：把商品實體及指定圖片網址組裝成對外的商品回應 DTO。
 		// 核心重點：只公開 active 規格、固定規格排序，並集中處理最低價與關聯資料的 null 值。
 		List<ProductVariantResponse> variants = product.getVariants().stream()
 				.filter(v -> "active".equals(v.getStatus()))
 				.sorted(Comparator.comparing(ProductVariant::getId))
-				.map(this::toVariant)
+				.map(variant -> toVariant(variant, availabilityByVariantId))
 				.toList();
 
 		EquipmentItem item = product.getItem();
@@ -49,6 +49,10 @@ public class ProductCatalogAssembler {
 				variants);
 	}
 
+	public ProductResponse toResponse(Product product, String imageUrl) {
+		return toResponse(product, imageUrl, Map.of());
+	}
+
 	public ProductResponse toResponse(Product product, Map<String, String> imageByItemId) {
 		// 用途：從「器材 ID → 圖片網址」對照表取得商品主圖，再沿用主要組裝流程。
 		// 核心重點：以 EquipmentItem ID 查圖，避免清單中的每項商品各自再查一次資料庫。
@@ -56,16 +60,29 @@ public class ProductCatalogAssembler {
 		return toResponse(product, image);
 	}
 
-	private ProductVariantResponse toVariant(ProductVariant variant) {
+	public ProductResponse toResponse(
+			Product product,
+			Map<String, String> imageByItemId,
+			Map<String, Long> availabilityByVariantId) {
+		String image = imageByItemId.get(product.getItem().getId());
+
+		return toResponse(product, image, availabilityByVariantId);
+	}
+
+	private ProductVariantResponse toVariant(ProductVariant variant, Map<String, Long> availabilityByVariantId) {
 		// 用途：把商品規格實體轉成 API 使用的規格 DTO。
 		// 核心重點：價格必須透過 money 統一輸出為兩位小數字串。
+		long availableQuantity = availabilityByVariantId.getOrDefault(variant.getId(), 0L);
+
 		return new ProductVariantResponse(
 				variant.getId(),
 				variant.getSku(),
 				variant.getColor(),
 				variant.getSize(),
 				variant.getSpecification(),
-				money(variant.getPrice()));
+				money(variant.getPrice()),
+				availableQuantity,
+				availableQuantity > 0);
 	}
 
 	/**

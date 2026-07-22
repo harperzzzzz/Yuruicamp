@@ -4,14 +4,17 @@
  *   ① 讀取 LocalStorage 取得完整 bookingCart
  *   ② 渲染住宿明細、裝備明細、費用加總
  *   ③ 聯絡資訊表單驗證
- *   ④ 模擬送出結帳（未來對接 Java 後端）
- *   ⑤ 結帳成功後清除 LocalStorage，跳轉預約成功頁
+ *   ④ 建立 pending、unpaid 的 Booking Checkout
+ *   ⑤ 顯示後端價格與付款期限，付款確認留給線 D
  */
+
+const BOOKING_IDEMPOTENCY_KEY = 'bookingCheckoutIdempotencyKey';
+const BOOKING_FINGERPRINT_KEY = 'bookingCheckoutFingerprint';
+let bookingCreationPromise = null;
 
 $(document).ready(function () {
   // 讀取並正規化 bookingCart（camelCase；相容舊 snake_case）
-  const bookingCart =
-    typeof window.readBookingCart === 'function' ? window.readBookingCart() : null;
+  const bookingCart = typeof window.readBookingCart === 'function' ? window.readBookingCart() : null;
 
   if (!bookingCart || !bookingCart.bookingInfo) {
     showToast('購物車資料為空，請重新選擇。', 'warning');
@@ -240,34 +243,7 @@ function initAccordionPanels() {
 // ============================================================
 
 function initPaymentMethod() {
-  $('input[name="paymentMethod"]').on('change', function () {
-    const val = $(this).val();
-
-    $('#payOptCredit').toggleClass('isSelected', val === 'credit');
-    $('#payOptLine').toggleClass('isSelected', val === 'linepay');
-
-    if (val === 'credit') {
-      $('#creditCardSection').slideDown(200);
-    } else {
-      $('#creditCardSection').slideUp(200);
-    }
-  });
-
-  $('#cardNumber').on('input', function () {
-    let v = $(this).val().replace(/\D/g, '').substring(0, 16);
-    v = v.replace(/(.{4})/g, '$1 ').trim();
-    $(this).val(v);
-  });
-
-  $('#cardExpiry').on('input', function () {
-    let v = $(this).val().replace(/\D/g, '').substring(0, 4);
-    if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2);
-    $(this).val(v);
-  });
-
-  $('#cardCvv').on('input', function () {
-    $(this).val($(this).val().replace(/\D/g, '').substring(0, 4));
-  });
+  $('#payOptEcpay').addClass('isSelected');
 }
 
 // ============================================================
@@ -299,47 +275,27 @@ function handleCheckout(cart) {
   }
 
   const paymentMethod = $('input[name="paymentMethod"]:checked').val();
-  if (paymentMethod === 'credit') {
-    const cardNum = $('#cardNumber').val().replace(/\s/g, '');
-    const cardExpiry = $('#cardExpiry').val().trim();
-    const cardCvv = $('#cardCvv').val().trim();
-    if (cardNum.length < 16) {
-      highlightError('#cardNumber', '請填寫完整的信用卡卡號（16 位）');
-      return;
-    }
-    if (!/^\d{2} \/ \d{2}$/.test(cardExpiry)) {
-      highlightError('#cardExpiry', '請填寫正確的到期日格式（MM / YY）');
-      return;
-    }
-    if (cardCvv.length < 3) {
-      highlightError('#cardCvv', '請填寫 CVV（3-4 位數字）');
-      return;
-    }
-  }
 
-  const payload = buildBookingPayload(cart, { name: name, phone: phone, email: email }, u, paymentMethod);
+  const payload = buildBookingPayload(cart, paymentMethod);
 
   $('#confirmPayBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> 送出中...');
 
   if (!window.BookingAPI) {
     showToast('BookingAPI 未載入，請重新整理頁面。', 'error');
-    $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 確認預約並送出');
+    $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 建立待付款預約');
     return;
   }
 
-  // 透過 BookingAPI 寫入 mockBookings（localStorage）並合併 seed 資料
-  // Persist booking via BookingAPI → localStorage mockBookings
-  window.BookingAPI.createBooking(payload)
+  // Backend 模式只送精簡契約；Mock 才會使用第二個參數產生顯示快照。
+  createBookingOnce(payload, cart)
     .then(function (booking) {
       console.log('[booking-checkout] 預約成功 / Booking created:', booking);
       onCheckoutSuccess(booking);
     })
     .catch(function (err) {
       console.error('[booking-checkout] 預約失敗 / Failed:', err);
-      showToast('預約送出失敗，請稍後再試。', 'error');
-      $('#confirmPayBtn')
-        .prop('disabled', false)
-        .html('<i class="bi bi-lock-fill"></i> 確認預約並送出');
+      showToast(err && err.message ? err.message : '預約送出失敗，請稍後再試。', 'error');
+      $('#confirmPayBtn').prop('disabled', false).html('<i class="bi bi-lock-fill"></i> 建立待付款預約');
     });
 }
 
@@ -348,78 +304,66 @@ function handleCheckout(cart) {
 // ============================================================
 
 /**
- * 將 localStorage bookingCart（camelCase）組成 createBooking 需要的 payload
- * 只補結帳當下才有的欄位：contact / paymentMethod / history / customerNote
- * （3-13：不再做 snake_case → camelCase 轉換）
+ * 將 bookingCart 組成 Booking API Contract 的精簡 Request。
+ * 會員、價格、快照、付款狀態與聯絡資料都不交給前端決定。
  */
-function buildBookingPayload(cart, contact, user, paymentMethod) {
+function buildBookingPayload(cart, paymentMethod) {
   var info = cart.bookingInfo || {};
-  var summary = cart.summary || {};
-  var now = new Date();
-  var timeStr =
-    now.getFullYear() +
-    '-' +
-    String(now.getMonth() + 1).padStart(2, '0') +
-    '-' +
-    String(now.getDate()).padStart(2, '0') +
-    ' ' +
-    String(now.getHours()).padStart(2, '0') +
-    ':' +
-    String(now.getMinutes()).padStart(2, '0') +
-    ':' +
-    String(now.getSeconds()).padStart(2, '0');
-
-  var paidLabel = paymentMethod === 'cod' ? '現場付款（待確認）' : '已付款';
 
   return {
-    customerId: user.id || user.customerId || 'U001',
-    bookingInfo: {
-      campgroundId: info.campgroundId,
-      campgroundName: info.campgroundName,
-      region: info.region,
-      checkIn: info.checkIn,
-      checkOut: info.checkOut,
-      totalDays: info.totalDays,
-      weekdayCount: info.weekdayCount,
-      holidayCount: info.holidayCount,
-      guestCount: info.guestCount,
-    },
-    selectedZones: (cart.selectedZones || []).map(function (z) {
+    campgroundId: info.campgroundId,
+    checkIn: info.checkIn,
+    checkOut: info.checkOut,
+    guestCount: Number(info.guestCount) || 1,
+    zones: (cart.selectedZones || []).map(function (zone) {
       return {
-        zoneId: z.zoneId,
-        zoneType: z.zoneType,
-        quantity: z.quantity,
-        subtotal: z.subtotal,
+        zoneId: zone.zoneId,
+        quantity: Number(zone.quantity) || 1,
       };
     }),
-    selectedRentals: (cart.selectedRentals || []).map(function (r) {
+    rentals: (cart.selectedRentals || []).map(function (rental) {
       return {
-        equipmentId: r.equipmentId,
-        rentalSkuId: r.rentalSkuId,
-        productId: r.productId,
-        variantId: r.variantId,
-        sku: r.sku,
-        name: r.name,
-        specLabel: r.specLabel || '',
-        quantity: r.quantity,
-        subtotal: r.subtotal,
+        rentalListingId: rental.rentalListingId || rental.equipmentId,
+        rentalSkuVariantId: rental.rentalSkuVariantId || rental.variantId,
+        quantity: Number(rental.quantity) || 1,
       };
     }),
-    summary: {
-      zoneTotal: summary.zoneTotal || 0,
-      rentalTotal: summary.rentalTotal || 0,
-      appliedDiscount: summary.appliedDiscount || 0,
-      finalAmount: summary.finalAmount || 0,
-    },
-    contact: contact,
-    customerNote: $('#buyerNote').val().trim() || '',
-    paymentMethod: paymentMethod,
-    equipmentReturned: false,
-    history: [
-      { time: timeStr, action: '預約單已送出' },
-      { time: timeStr, action: paidLabel },
-    ],
+    couponClaimId: null,
+    paymentMethod: paymentMethod === 'ecpay-credit' ? paymentMethod : 'ecpay-credit',
+    idempotencyKey: getBookingIdempotencyKey(cart),
   };
+}
+
+// 同一次送出與網路重試共用 Promise／冪等鍵，避免連點建立兩筆預約。
+function createBookingOnce(request, cart) {
+  if (!bookingCreationPromise) {
+    bookingCreationPromise = window.BookingAPI.createBooking(request, cart).finally(function () {
+      bookingCreationPromise = null;
+    });
+  }
+
+  return bookingCreationPromise;
+}
+
+function getBookingIdempotencyKey(cart) {
+  var fingerprint = JSON.stringify({
+    bookingInfo: cart.bookingInfo,
+    selectedZones: cart.selectedZones,
+    selectedRentals: cart.selectedRentals,
+  });
+  var previousFingerprint = sessionStorage.getItem(BOOKING_FINGERPRINT_KEY);
+  var key = sessionStorage.getItem(BOOKING_IDEMPOTENCY_KEY);
+
+  if (!key || previousFingerprint !== fingerprint) {
+    key =
+      window.crypto && typeof window.crypto.randomUUID === 'function'
+        ? window.crypto.randomUUID()
+        : 'booking-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    sessionStorage.setItem(BOOKING_IDEMPOTENCY_KEY, key);
+    sessionStorage.setItem(BOOKING_FINGERPRINT_KEY, fingerprint);
+  }
+
+  return key;
 }
 
 // ============================================================
@@ -441,10 +385,9 @@ function toBookingDisplayNum(id) {
  * Clear booking cart and redirect to booking success page
  */
 function onCheckoutSuccess(booking) {
-  // 防呆：確保 booking.id 是有效數字（NaN 也會被攔下）
-  // Guard: ensure booking.id is a finite number (NaN is rejected too)
-  if (!booking || booking.id == null || !Number.isFinite(Number(booking.id))) {
-    console.error('[booking-checkout] 缺少有效 booking.id / Invalid booking.id:', booking);
+  var bookingId = booking && (booking.bookingId || booking.id);
+  if (!bookingId) {
+    console.error('[booking-checkout] 缺少 bookingId / Missing bookingId:', booking);
     showToast('預約已送出，但編號異常，請至會員中心查看', 'warning');
     localStorage.removeItem('bookingCart');
     window.location.href = './member-center.html';
@@ -452,15 +395,18 @@ function onCheckoutSuccess(booking) {
   }
 
   localStorage.removeItem('bookingCart');
-  localStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
-  // 同分頁跳轉備援，比 localStorage 更可靠
-  // Same-tab handoff fallback; more reliable than localStorage alone
   sessionStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
 
-  var bookingNum = toBookingDisplayNum(booking.id) || String(booking.id);
+  // 真後端模式不把 Booking 當成本機業務資料；Mock 才保留 localStorage 備援。
+  if (window.BookingAPI && window.BookingAPI.isMockMode()) {
+    localStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
+  } else {
+    localStorage.removeItem('lastCheckoutBooking');
+  }
 
-  window.location.href =
-    './booking-success.html?bookingNum=' + encodeURIComponent(bookingNum);
+  var bookingNum = toBookingDisplayNum(bookingId) || String(bookingId);
+
+  window.location.href = './booking-success.html?bookingNum=' + encodeURIComponent(bookingNum);
 }
 
 // ============================================================

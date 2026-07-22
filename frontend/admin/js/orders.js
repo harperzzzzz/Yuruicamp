@@ -50,6 +50,45 @@ var filterState = {
  */
 var orderDateState = { days: 30, startDate: null, endDate: null };
 
+function isOrderBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled();
+}
+
+function normalizeBackendOrder(order) {
+  var detail = order || {};
+  return Object.assign({}, detail, {
+    buyerName: detail.customerName || (detail.buyer && detail.buyer.name) || '',
+    createdAt: detail.placedAt || '',
+    total: Number(detail.total || (detail.pricing && detail.pricing.total) || 0),
+    payment: detail.paymentMethod,
+    address: detail.shipping ? detail.shipping.address : '',
+    items: (detail.items || []).map(function (item) {
+      return Object.assign({}, item, {
+        name: item.productName,
+        specLabel: item.specification,
+        price: Number(item.unitPrice || 0)
+      });
+    }),
+    history: (detail.history || []).map(function (entry) {
+      return { time: entry.occurredAt || '', action: entry.note || entry.status };
+    }),
+    backendDetailLoaded: Array.isArray(detail.items)
+  });
+}
+
+function loadBackendOrderDetail(order) {
+  if (!isOrderBackendEnabled() || order.backendDetailLoaded) {
+    window.showOrderModal(order);
+    return;
+  }
+  AdminAPI.orders.getById(order.id)
+    .then(function (result) {
+      Object.assign(order, normalizeBackendOrder(result.data));
+      window.showOrderModal(order);
+    })
+    .catch(function (err) { AdminAPI.handleError(err, '載入訂單詳情失敗'); });
+}
+
 // ─────────────────────────────────────────────
 // 初始化
 // ─────────────────────────────────────────────
@@ -182,7 +221,7 @@ window.initOrders = function () {
     var orderId = $(this).data('order-id');
     var order = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (!order) return;
-    showOrderModal(order);
+    loadBackendOrderDetail(order);
   });
 
   // ── 顧客名稱連結 → 切換至客戶管理並展開該顧客 ───────────────
@@ -201,9 +240,18 @@ window.initOrders = function () {
     var order   = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
     if (!order) return;
 
-    // 二次防護：COD（貨到付款）訂單不允許完成（看 payment，不是 paymentStatus）
-    // Guard: COD orders cannot be marked completed (check payment method, not status)
-    if (order.payment === 'cod') return;
+    if (isOrderBackendEnabled()) {
+      var $button = $(this).prop('disabled', true);
+      AdminAPI.orders.complete(orderId, {})
+        .then(function (result) {
+          Object.assign(order, normalizeBackendOrder(result.data));
+          window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 已標記為「已完成」');
+          applyFiltersAndSort();
+        })
+        .catch(function (err) { AdminAPI.handleError(err, '訂單完成失敗'); })
+        .finally(function () { $button.prop('disabled', false); });
+      return;
+    }
 
     order.status = 'completed';
 
@@ -240,6 +288,20 @@ window.initOrders = function () {
     var $btn    = $(this);
     var $row    = $btn.closest('tr');
     var orderId = $row.data('order-id');
+
+    if (isOrderBackendEnabled()) {
+      $btn.prop('disabled', true);
+      AdminAPI.orders.ship(orderId, {})
+        .then(function (result) {
+          var target = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
+          if (target) Object.assign(target, normalizeBackendOrder(result.data));
+          window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 已更新為「已出貨」');
+          applyFiltersAndSort();
+        })
+        .catch(function (err) { AdminAPI.handleError(err, '訂單出貨失敗'); })
+        .finally(function () { $btn.prop('disabled', false); });
+      return;
+    }
 
     // 更新記憶體中的快取資料
     var order = (window.ordersCache || []).find(function (o) { return window.sameId(o.id, orderId); });
@@ -721,13 +783,13 @@ function renderOrdersTable(orders) {
     if (order.status === 'unshipped') {
       actionBtn = '<button class="btn btn-sm btn-outline-success btn-ship-order" title="確認出貨">' +
                   '<i class="fas fa-truck me-1"></i>出貨</button>';
-    } else if (order.status === 'shipped' && order.payment !== 'cod') {
+    } else if (order.status === 'shipped') {
       actionBtn = '<button class="btn btn-sm btn-outline-primary btn-complete-order" title="確認送達完成">' +
                   '<i class="fas fa-check-circle me-1"></i>完成</button>';
     }
 
     // 只取日期部分（YYYY-MM-DD），不顯示時間
-    var date = order.createdAt.split(' ')[0] || '';
+    var date = (order.createdAt || '').split(/[ T]/)[0] || '';
 
     // 訂單編號：可點擊連結樣式
     var idLink = '<span class="admin-cell-link order-id-link" ' +
@@ -880,6 +942,11 @@ function saveSellerNote() {
   });
   if (!order) return;
 
+  if (isOrderBackendEnabled()) {
+    window.showAdminToast('正式後端目前不提供訂單備註修改', 'warning');
+    return;
+  }
+
   var sellerNote = $('#modalSellerNote').val().trim();
   order.sellerNote = sellerNote;
   $('#modalSellerNote').val(sellerNote);
@@ -929,9 +996,10 @@ function loadOrdersData() {
   }
 
   if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
-    AdminAPI.orders.list()
+    AdminAPI.orders.list({ page: 0, size: 100, sort: 'placedAt,desc' })
       .then(function (res) {
-        onLoaded((res && res.data) || []);
+        var payload = res && res.data;
+        onLoaded(((payload && payload.data) || []).map(normalizeBackendOrder));
       })
       .catch(function (err) {
         AdminAPI.handleError(err, '載入訂單失敗');

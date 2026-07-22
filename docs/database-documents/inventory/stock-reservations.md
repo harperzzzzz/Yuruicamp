@@ -153,16 +153,16 @@ fulfilled	可為 NULL	必填	         租借已完成，保留帳結案
         ↓
 `localStorage.mockOrders`
 
-* 商城結帳目前使用 mock API 與 `localStorage`；未找到 `product_stock_reservations` 的前端或後端正式寫入流程。
-* 租借預約目前由前端 JSON／mock 流程處理；未找到 `rental_stock_reservations` 的前端或後端正式寫入流程。
-* `backend/src/main/java` 目前沒有兩種保留帳的 Controller、Service、Repository 或 Entity。
+* 商城線 C 已由 Checkout Service 寫入與釋放 `product_stock_reservations`。
+* Booking 線 E-4 已由 Booking Checkout Service 寫入 `rental_stock_reservations`，並依 `[check_in, check_out)` 重疊條件計算可租量。
+* Booking 線 E-6 已在主動取消與逾時排程中，將該預約的 active 租借保留改為 `released` 並填入 `released_at`。
 * `tools/database-validation/validation/validate_inventory.sql` 第 24–36 行檢查保留帳是否仍有對應實體庫存列。
 * `tools/database-validation/validation/p5-data.sql` 第 204–207 行檢查兩張表的 `inventory_domain` 是否固定為正確領域。
 
 
 ## 可能的問題
-* 高風險：兩種保留帳目前缺少後端執行期寫入與狀態轉換實作；前端結帳或預約不會同步 PostgreSQL 保留帳。
-* 高風險：保留、扣庫存、釋放與到期清理必須在同一交易中鎖定對應實體庫存，否則併發請求可能超賣。
+* 已處理：商城線 C 與 Booking E-4 都會在建立保留前鎖定對應實體庫存，並於同一交易寫入表頭、明細及保留帳。
+* 已處理：Booking E-6 會鎖定 Booking，並在取消／逾時時將租借 active 保留改為 released，與預約狀態及歷程同交易提交。
 * 中風險：商城保留帳允許 `expires_at` 為 NULL；服務層必須定義無到期時間的有效使用情境，避免永久 `active` 保留。
 * 中風險：租借可用性依日期區間重疊計算，必須固定使用 `[check_in, check_out)` 語意，否則相鄰租期可能被錯誤判定為衝突。
 * 低風險：`inventory_locations.active` 不會自動阻止既有保留帳或新建保留帳；服務層應禁止對停用地點建立新的保留。

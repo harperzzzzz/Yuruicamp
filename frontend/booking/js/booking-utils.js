@@ -64,6 +64,8 @@
       selectedRentals: (cart.selected_rentals || []).map(function (r) {
         return {
           equipmentId: r.equipment_id,
+          rentalListingId: r.rental_listing_id || r.equipment_id,
+          rentalSkuVariantId: r.rental_sku_variant_id || r.variant_id,
           rentalSkuId: r.rental_sku_id,
           productId: r.product_id,
           variantId: r.variant_id,

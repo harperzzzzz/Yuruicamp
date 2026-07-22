@@ -169,8 +169,7 @@
     var avatar = user.avatarUrl;
     // 路徑改寫後會變 ../assets/...，不可只認「以 / 開頭」
     if (isAvatarImageUrl(avatar)) {
-      var src =
-        avatar;
+      var src = avatar;
       el.innerHTML = '<img src="' + html(src) + '" alt="" loading="lazy" />';
     } else {
       el.textContent = String(avatar || (fallbackName || 'U').charAt(0)).toUpperCase();
@@ -446,9 +445,12 @@
 
   function itemIsReviewed(item) {
     var orderItemId = Number(item && item.orderItemId);
-    return Number.isInteger(orderItemId) && state.reviews.some(function (review) {
-      return Number(review.orderItemId) === orderItemId;
-    });
+    return (
+      Number.isInteger(orderItemId) &&
+      state.reviews.some(function (review) {
+        return Number(review.orderItemId) === orderItemId;
+      })
+    );
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function renderOrders() {
@@ -790,6 +792,12 @@
           '</p>'
       );
     }
+    var cancelBookingAction =
+      type === 'rental' && order.status === 'pending' && order.paymentStatus === 'unpaid'
+        ? '<button class="memberDetailLineButton" type="button" data-cancel-booking="' +
+          html(order.id) +
+          '"><i class="bi bi-x-circle" aria-hidden="true"></i><span>取消待付款預約</span></button>'
+        : '';
     return (
       '<div class="memberDetailSummary">' +
       '<div class="memberDetailDate">' +
@@ -882,6 +890,7 @@
       '<section class="memberDetailSection memberDetailInfo" aria-label="訂單資訊">' +
       infoRows.join('') +
       '</section>' +
+      cancelBookingAction +
       '<a class="memberDetailLineButton" href="https://line.me/R/ti/p/@yuruicamp" target="_blank" rel="noopener">' +
       '<i class="bi bi-chat-dots" aria-hidden="true"></i>' +
       '<span>使用 LINE 詢問' +
@@ -923,24 +932,57 @@
     openModal('orderDetailOverlay');
   };
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
-  window.openRentalOrderDetail = function (id) {
+  window.openRentalOrderDetail = async function (id) {
     var o = state.rentalOrders.find(function (x) {
       return window.sameId ? window.sameId(x.id, id) : String(x.id) === String(id);
     });
     if (!o) return;
+
+    // 列表是精簡契約；開啟明細時再向後端讀取完整快照。
+    if (window.BookingAPI && window.BookingAPI.getBookingById) {
+      try {
+        o = await window.BookingAPI.getBookingById(id);
+        var index = state.rentalOrders.findIndex(function (item) {
+          return window.sameId ? window.sameId(item.id, id) : String(item.id) === String(id);
+        });
+        if (index >= 0) state.rentalOrders[index] = o;
+      } catch (error) {
+        console.error('Booking detail load failed', error);
+        toast(error && error.message ? error.message : '預約明細載入失敗', 'error');
+        return;
+      }
+    }
+
     text('orderDetailTitle', '露營預約詳情 ' + bookingDisplayId(o));
     var b = document.getElementById('orderDetailBody');
     if (b) b.innerHTML = detailRows(o, meta('rental', o.status), 'rental');
     openModal('orderDetailOverlay');
+  };
+
+  // 主動取消一律交給 Booking API，前端不自行改成 cancelled。
+  window.cancelRentalBooking = async function (id) {
+    if (!window.BookingAPI || !window.BookingAPI.cancelBooking) return;
+
+    try {
+      await window.BookingAPI.cancelBooking(id);
+      toast('待付款預約已取消', 'success');
+      closeModal('orderDetailOverlay');
+      await loadData();
+    } catch (error) {
+      console.error('Booking cancellation failed', error);
+      toast(error && error.message ? error.message : '取消預約失敗', 'error');
+    }
   };
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   window.openReviewModal = function (id, orderItemId, name) {
     var order = state.orders.find(function (candidate) {
       return String(candidate.id) === String(id);
     });
-    var item = order && (order.items || []).find(function (candidate) {
-      return Number(candidate.orderItemId) === Number(orderItemId);
-    });
+    var item =
+      order &&
+      (order.items || []).find(function (candidate) {
+        return Number(candidate.orderItemId) === Number(orderItemId);
+      });
     if (!order || !item || !canReview(order) || itemIsReviewed(item)) {
       toast('此商品目前無法評價', 'warning');
       return;
@@ -1045,32 +1087,45 @@
     }
     try {
       state.user = await window.API.customers.getById(uid);
-      if (window.AppState) {
-        window.AppState.isLoggedIn = true;
-        window.AppState.currentUser = state.user;
-        if (typeof window.saveAppState === 'function') window.saveAppState();
+    } catch (error) {
+      console.warn('Member profile load failed; keeping current login profile', error);
+      state.user = loginUser();
+    }
+    if (state.user && window.AppState) {
+      window.AppState.isLoggedIn = true;
+      window.AppState.currentUser = state.user;
+      if (typeof window.saveAppState === 'function') window.saveAppState();
+    }
+
+    // 各領域獨立載入；尚未實作的 Orders／Coupon 不得連帶清空已完成的 Booking API。
+    var results = await Promise.allSettled([
+      window.API.orders.getByCustomerId
+        ? window.API.orders.getByCustomerId(uid)
+        : window.API.orders.getAll().then(function (allOrders) {
+            return (allOrders || []).filter(function (order) {
+              return order && order.customerId === uid;
+            });
+          }),
+      window.API.customers.getNotifications(uid),
+      window.API.coupons.getAvailable(uid),
+      window.API.reviews && window.API.reviews.getAll ? window.API.reviews.getAll() : Promise.resolve([]),
+      window.BookingAPI && window.BookingAPI.getBookings
+        ? window.BookingAPI.getBookings(uid)
+        : Promise.resolve([]),
+    ]);
+    state.orders = results[0].status === 'fulfilled' ? results[0].value : [];
+    state.notifications = results[1].status === 'fulfilled' ? results[1].value : [];
+    state.availableCoupons = results[2].status === 'fulfilled' ? results[2].value : [];
+    state.reviews = results[3].status === 'fulfilled' ? results[3].value : [];
+    state.rentalOrders = results[4].status === 'fulfilled' ? results[4].value : [];
+
+    results.forEach(function (result) {
+      if (result.status === 'rejected') {
+        console.warn('Member center domain load skipped', result.reason);
       }
-      // 訂單 / 預約一律用 customerId FK 篩選（不再依賴 customers.orders[] / rentals[] 白名單）
-      // Orders & bookings filtered by customerId FK (no whitelist arrays on customer)
-      if (window.API.orders.getByCustomerId) {
-        state.orders = await window.API.orders.getByCustomerId(uid);
-      } else {
-        var allOrders = await window.API.orders.getAll();
-        state.orders = (allOrders || []).filter(function (o) {
-          return o && o.customerId === uid;
-        });
-      }
-      state.notifications = await window.API.customers.getNotifications(uid);
-      state.availableCoupons = await window.API.coupons.getAvailable(uid);
-      state.reviews = window.API.reviews && window.API.reviews.getAll
-        ? await window.API.reviews.getAll()
-        : [];
-      if (window.BookingAPI && window.BookingAPI.getBookings) {
-        // getBookings(uid) 內部已依 customerId 篩選
-        state.rentalOrders = await window.BookingAPI.getBookings(uid);
-      } else {
-        state.rentalOrders = [];
-      }
+    });
+
+    try {
       state.orders.forEach(function (o) {
         if (o.status === 'completed' && window.API.orders.awardPointsIfCompleted) {
           window.API.orders.awardPointsIfCompleted(o);
@@ -1078,13 +1133,7 @@
       });
       state.user = await window.API.customers.getById(uid);
     } catch (error) {
-      console.error('Member center data load failed', error);
-      state.user = null;
-      state.orders = [];
-      state.rentalOrders = [];
-      state.availableCoupons = [];
-      state.notifications = [];
-      state.reviews = [];
+      console.warn('Member profile refresh skipped', error);
     }
     applyProfile();
     renderFilters('purchase', state.orders);
@@ -1305,6 +1354,8 @@
       if (o) return window.openOrderDetail(o.dataset.orderDetail);
       var r = e.target.closest('[data-rental-detail]');
       if (r) return window.openRentalOrderDetail(r.dataset.rentalDetail);
+      var cancelBooking = e.target.closest('[data-cancel-booking]');
+      if (cancelBooking) return window.cancelRentalBooking(cancelBooking.dataset.cancelBooking);
       var rv = e.target.closest('[data-review-order]');
       if (rv)
         return window.openReviewModal(

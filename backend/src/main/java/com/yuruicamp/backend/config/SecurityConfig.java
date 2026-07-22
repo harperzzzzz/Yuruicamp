@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	/**
@@ -53,7 +55,20 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/admin/auth/firebase/session").permitAll()
 						// 線 B：商品公開讀（Product API Contract v0.1）— 不必登入
 						.requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
-						// Skeleton A: other /api/admin/** require ROLE_ADMIN (whitelist resolved in filter)
+						.requestMatchers(HttpMethod.GET, "/api/branches").permitAll()
+						// 線 F：只公開有效優惠券主檔，會員 claim 仍需登入。
+						.requestMatchers(HttpMethod.GET, "/api/coupons").permitAll()
+						// 線 E-1：只開放明確的營區、裝備、政策與公休讀取端點。
+						.requestMatchers(HttpMethod.GET,
+								"/api/booking/campgrounds",
+								"/api/booking/campgrounds/**",
+								"/api/booking/equipment",
+								"/api/booking/policy",
+								"/api/booking/closures")
+						.permitAll()
+						// 線 E-2：可用性只查詢，不建立預約或鎖位，因此允許公開呼叫。
+						.requestMatchers(HttpMethod.POST, "/api/booking/check-availability").permitAll()
+						// 管理員先通過白名單身分，再由 Controller 的方法權限檢查細項權限。
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						// Other /api/** still require customer auth until more public GETs are added
 						.requestMatchers("/api/**").hasRole("CUSTOMER")

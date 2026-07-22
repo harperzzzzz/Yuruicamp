@@ -2,6 +2,13 @@
 
 ## Changed
 
+### E-7 Booking Backend integration
+
+- Backend mode now uses `/api/booking/**` through `BookingAPI` and the shared Bearer／Envelope client.
+- Camp availability, checkout pricing, booking ID, member reads, cancellation, and the 15-minute countdown use Backend responses.
+- Booking Checkout creates only `pending + unpaid`; ECPay and payment confirmation remain deferred to line D.
+- Backend mode no longer persists `mockBookings` or sends client-calculated prices, customer IDs, or payment status.
+
 ### Booking CSS semantic convergence
 
 - Consolidated booking page and component selectors around camelCase semantic names.

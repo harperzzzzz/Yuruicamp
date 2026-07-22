@@ -12,6 +12,11 @@ $checkout-border: var(--yc-border);
 $checkout-border-strong: var(--yc-sage-action);
 $checkout-success: var(--yc-success);
 $checkout-danger: var(--yc-error);
+$checkout-warning: var(--yc-warning);
+$checkout-warning-soft: var(--yc-warning-soft);
+$checkout-warning-text: var(--yc-warning-text);
+$checkout-danger-soft: var(--yc-error-soft);
+$checkout-danger-text: var(--yc-error-text);
 $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 // 結帳頁外層：控制頁面上下留白，內部表單與摘要區塊維持頁面範圍。
@@ -72,6 +77,124 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 .checkoutFormColumn,
 .checkoutSummaryColumn {
   min-width: 0;
+}
+
+.checkoutSessionPanel {
+  background: $checkout-primary-soft;
+  border: 1px solid $checkout-border-strong;
+  border-radius: 12px;
+  color: $checkout-text;
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+}
+
+.checkoutSessionPanel[hidden],
+.checkoutSessionDetails[hidden],
+.checkoutSessionTimer[hidden],
+.checkoutSessionActions button[hidden] {
+  display: none;
+}
+
+.checkoutSessionMain {
+  align-items: flex-start;
+  display: flex;
+  gap: 0.875rem;
+}
+
+.checkoutSessionIcon {
+  color: $checkout-primary;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.checkoutSessionBadge {
+  color: $checkout-primary;
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+}
+
+.checkoutSessionTitle {
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.checkoutSessionMessage {
+  color: inherit;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0.35rem 0 0;
+}
+
+.checkoutSessionDetails {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.checkoutSessionTimer {
+  align-items: center;
+  border-top: 1px solid $checkout-border;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+}
+
+.checkoutSessionTimer span {
+  color: $checkout-muted;
+  font-size: 0.8rem;
+}
+
+.checkoutSessionTimer strong {
+  color: $checkout-primary;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.checkoutSessionActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.checkoutSessionPanel.isDraft {
+  background: $checkout-warning-soft;
+  border-color: $checkout-warning;
+  color: $checkout-warning-text;
+}
+
+.checkoutSessionPanel.isDraft .checkoutSessionBadge,
+.checkoutSessionPanel.isDraft .checkoutSessionIcon {
+  color: $checkout-warning;
+}
+
+.checkoutSessionPanel.isError,
+.checkoutSessionPanel.isExpired {
+  background: $checkout-danger-soft;
+  border-color: $checkout-danger;
+  color: $checkout-danger-text;
+}
+
+.checkoutSessionPanel.isError .checkoutSessionBadge,
+.checkoutSessionPanel.isError .checkoutSessionIcon,
+.checkoutSessionPanel.isExpired .checkoutSessionBadge,
+.checkoutSessionPanel.isExpired .checkoutSessionIcon {
+  color: $checkout-danger;
+}
+
+.shippingAddressDisplay.isInvalid,
+.checkoutPanel.isInvalid {
+  border-color: $checkout-danger;
+  box-shadow: 0 0 0 3px var(--yc-error-soft);
 }
 
 .checkoutPanel {
@@ -155,7 +278,8 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutPanelBody[hidden],
 .checkoutAddressField[hidden],
-.creditCardBox[hidden],
+.checkoutPaymentNotice[hidden],
+.checkoutActionStatus[hidden],
 .checkoutDiscountRow[hidden],
 .couponAppliedList[hidden],
 .couponMessage[hidden] {
@@ -317,24 +441,47 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   margin-top: 1rem;
 }
 
-.creditCardBox {
-  background: $checkout-surface-muted;
-  border: 1px solid $checkout-border;
+// 付款提示沿用既有柔和底色，清楚說明本站不收集信用卡資料。
+.checkoutPaymentNotice {
+  align-items: flex-start;
+  background: $checkout-primary-soft;
+  border: 1px solid $checkout-border-strong;
   border-radius: 8px;
-  margin: 1.25rem 0 0;
-  padding: 1.25rem;
+  color: $checkout-text;
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding: 1rem;
 }
 
-.creditCardTitle {
-  color: $checkout-text;
-  font-size: 0.875rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  padding: 0;
+.checkoutPaymentNotice > i {
+  color: $checkout-primary;
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+.checkoutPaymentNotice strong,
+.checkoutPaymentNotice span span {
+  display: block;
+}
+
+.checkoutPaymentNotice span span {
+  color: $checkout-muted;
+  font-size: 0.85rem;
+  margin-top: 0.2rem;
 }
 
 .checkoutActions {
   margin-top: 1.5rem;
+}
+
+.checkoutActionStatus {
+  color: $checkout-primary;
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1.5;
+  margin: 0.75rem 0 0;
+  text-align: center;
 }
 
 .checkoutConfirmBtn {
@@ -487,6 +634,10 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   color: $checkout-danger;
 }
 
+.couponMessage.isInfo {
+  color: $checkout-muted;
+}
+
 .checkoutSummaryRows {
   border-bottom: 2px solid $checkout-border;
   border-top: 1px solid $checkout-border;
@@ -529,6 +680,18 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   color: $checkout-primary;
   font-size: 1.4rem;
   font-weight: 800;
+}
+
+.checkoutPricingSource {
+  color: $checkout-muted;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: -0.75rem 0 1.25rem;
+}
+
+.checkoutPricingSource.isConfirmed {
+  color: $checkout-success;
+  font-weight: 700;
 }
 
 .checkoutTrustNote {

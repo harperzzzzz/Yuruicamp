@@ -22,6 +22,7 @@ let weekdayCount = 0; // 平日天數 / Weekday nights count
 let holidayCount = 0; // 假日天數 / Holiday nights count
 let bookingWindow = { minDate: null, maxDate: null }; // 可預約窗口 / Bookable window
 let availabilityCtx = null; // 可用性計算上下文 / Availability context
+let backendAvailability = null; // 真後端最近一次跨晚可用性結果
 
 // ============================================================
 // 頁面初始化 / Page Initialization
@@ -124,9 +125,7 @@ function renderCampDetail(camp) {
   const campImages =
     Array.isArray(camp.images) && camp.images.length > 0
       ? camp.images.filter(Boolean)
-      : [0, 1, 2].map(
-          (i) => `https://picsum.photos/seed/${camp.campgroundId}_${i}/1200/800`
-        );
+      : [0, 1, 2].map((i) => `https://picsum.photos/seed/${camp.campgroundId}_${i}/1200/800`);
 
   const galleryHTML = campImages
     .map((src, i) => {
@@ -276,10 +275,39 @@ function initDatePicker() {
  */
 function updateZoneAvailability() {
   const AV = window.BookingAvailability;
-  if (!AV || !availabilityCtx || !checkInDate || !checkOutDate) return;
+  if (!checkInDate || !checkOutDate) return;
 
   const checkIn = formatDateISO(checkInDate);
   const checkOut = formatDateISO(checkOutDate);
+
+  // Backend 模式直接查詢跨晚最低量，不下載全部預約到瀏覽器自行計算。
+  if (!availabilityCtx) {
+    const zones = currentCamp.zones.map(function (zone) {
+      return { zoneId: zone.zoneId, quantity: 1 };
+    });
+
+    window.BookingAPI.getAvailability({
+      campgroundId: currentCamp.campgroundId,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      zones: zones,
+    })
+      .then(function (result) {
+        backendAvailability = result;
+        applyBackendZoneAvailability(result);
+        if (selectedZoneId) {
+          updatePriceSummary();
+        }
+      })
+      .catch(function (error) {
+        console.error('[camp-detail] 可用性查詢失敗:', error);
+        showToast('無法確認營位數量，請稍後再試。', 'error');
+        $('#confirmBookingBtn').prop('disabled', true);
+      });
+    return;
+  }
+
+  if (!AV) return;
 
   $('.zoneCardBooking').each(function () {
     const $card = $(this);
@@ -291,12 +319,7 @@ function updateZoneAvailability() {
     const capacity = zone ? zone.totalSites : 0;
 
     // 區分「公休」與「已滿」/ Distinguish closed vs fully booked
-    const isClosed = AV.hasClosedNightInRange(
-      currentCamp.campgroundId,
-      checkIn,
-      checkOut,
-      availabilityCtx
-    );
+    const isClosed = AV.hasClosedNightInRange(currentCamp.campgroundId, checkIn, checkOut, availabilityCtx);
     const closureReason = isClosed
       ? AV.getClosureReason(currentCamp.campgroundId, checkIn, availabilityCtx.closures)
       : '';
@@ -310,16 +333,16 @@ function updateZoneAvailability() {
         $card.addClass('isClosed');
         $btn.prop('disabled', true);
         $btn.html('<i class="bi bi-calendar-x"></i> 公休');
-        $card.find('[data-zone-stock]').html(
-          '<i class="bi bi-calendar-x"></i> ' + (closureReason || '此區間含公休日')
-        );
+        $card
+          .find('[data-zone-stock]')
+          .html('<i class="bi bi-calendar-x"></i> ' + (closureReason || '此區間含公休日'));
       } else {
         $card.removeClass('isClosed');
         $btn.prop('disabled', true);
         $btn.html('<i class="bi bi-x-circle"></i> 已滿');
-        $card.find('[data-zone-stock]').html(
-          '<i class="bi bi-tent"></i> 剩餘 <strong data-remaining>0</strong> 個營位'
-        );
+        $card
+          .find('[data-zone-stock]')
+          .html('<i class="bi bi-tent"></i> 剩餘 <strong data-remaining>0</strong> 個營位');
       }
       if (selectedZoneId === zoneId) {
         selectedZoneId = null;
@@ -333,17 +356,63 @@ function updateZoneAvailability() {
       if (!$card.hasClass('isSelected')) {
         $btn.html('<i class="bi bi-check-circle"></i> 選擇此類型');
       }
-      $card.find('[data-zone-stock]').html(
-        '<i class="bi bi-tent"></i> 剩餘 <strong data-remaining>' + minRemaining + '</strong> 個營位'
-      );
+      $card
+        .find('[data-zone-stock]')
+        .html('<i class="bi bi-tent"></i> 剩餘 <strong data-remaining>' + minRemaining + '</strong> 個營位');
     }
 
-    $card.find('[data-zone-stock]').attr(
-      'title',
-      isClosed
-        ? (closureReason || '此區間含公休日，無法預約')
-        : ('此區間每晚最少剩餘 ' + minRemaining + ' 帳（總容量 ' + capacity + '）')
-    );
+    $card
+      .find('[data-zone-stock]')
+      .attr(
+        'title',
+        isClosed
+          ? closureReason || '此區間含公休日，無法預約'
+          : '此區間每晚最少剩餘 ' + minRemaining + ' 帳（總容量 ' + capacity + '）'
+      );
+  });
+}
+
+// 將 Backend 回傳的最低剩餘量套回營位卡片。
+function applyBackendZoneAvailability(result) {
+  const byZone = new Map(
+    (result.zones || []).map(function (zone) {
+      return [zone.zoneId, zone.availableQuantity];
+    })
+  );
+  const isClosed = (result.reasons || []).includes('CAMPGROUND_CLOSED');
+
+  $('.zoneCardBooking').each(function () {
+    const $card = $(this);
+    const zoneId = $card.data('zone-id');
+    const remaining = Number(byZone.get(zoneId)) || 0;
+    const $button = $card.find('[data-zone-select]');
+
+    $card.find('[data-remaining]').text(remaining);
+    $card.toggleClass('isFull', remaining <= 0);
+    $card.toggleClass('isClosed', isClosed);
+    $button.prop('disabled', remaining <= 0);
+
+    if (remaining <= 0) {
+      $button.html(
+        isClosed ? '<i class="bi bi-calendar-x"></i> 公休' : '<i class="bi bi-x-circle"></i> 已滿'
+      );
+      if (selectedZoneId === zoneId) {
+        selectedZoneId = null;
+        $card.removeClass('isSelected');
+        $('#confirmBookingBtn').prop('disabled', true);
+        $('#priceSummary').removeClass('isVisible');
+      }
+    } else if (!$card.hasClass('isSelected')) {
+      $button.html('<i class="bi bi-check-circle"></i> 選擇此類型');
+    }
+
+    $card
+      .find('[data-zone-stock]')
+      .html(
+        isClosed
+          ? '<i class="bi bi-calendar-x"></i> 此區間含公休日'
+          : '<i class="bi bi-tent"></i> 剩餘 <strong data-remaining>' + remaining + '</strong> 個營位'
+      );
   });
 }
 
@@ -413,6 +482,17 @@ function updatePriceSummary() {
   const zone = currentCamp.zones.find((z) => z.zoneId === selectedZoneId);
   if (!zone) return;
 
+  if (!availabilityCtx && backendAvailability) {
+    const availableZone = (backendAvailability.zones || []).find(function (item) {
+      return item.zoneId === selectedZoneId;
+    });
+    if (!availableZone || availableZone.availableQuantity < 1) {
+      showToast('所選日期目前無可用營位，請更換日期或類型。', 'warning');
+      $('#confirmBookingBtn').prop('disabled', true);
+      return;
+    }
+  }
+
   const AV = window.BookingAvailability;
   if (AV && availabilityCtx && checkInDate && checkOutDate) {
     const minRemaining = AV.getMinRemainingInRange(
@@ -473,16 +553,13 @@ function saveToLocalStorageAndNext() {
   const checkIn = formatDateISO(checkInDate);
   const checkOut = formatDateISO(checkOutDate);
 
-  window.BookingAPI.getMinRemainingForStay(selectedZoneId, checkIn, checkOut)
+  window.BookingAPI.getMinRemainingForStay(selectedZoneId, checkIn, checkOut, currentCamp.campgroundId)
     .then(function (minRemaining) {
       if (minRemaining < 1) {
         const AV = window.BookingAvailability;
-        const isClosed = AV && availabilityCtx && AV.hasClosedNightInRange(
-          currentCamp.campgroundId,
-          checkIn,
-          checkOut,
-          availabilityCtx
-        );
+        const isClosed = availabilityCtx
+          ? AV && AV.hasClosedNightInRange(currentCamp.campgroundId, checkIn, checkOut, availabilityCtx)
+          : backendAvailability && (backendAvailability.reasons || []).includes('CAMPGROUND_CLOSED');
         showToast(
           isClosed ? '所選日期含公休日，無法預約。' : '所選日期該營位類型已滿，請更換日期或類型。',
           'error'
@@ -491,8 +568,9 @@ function saveToLocalStorageAndNext() {
       }
       proceedSaveBooking(zone, checkIn, checkOut);
     })
-    .catch(function () {
-      proceedSaveBooking(zone, checkIn, checkOut);
+    .catch(function (error) {
+      console.error('[camp-detail] 送出前可用性查詢失敗:', error);
+      showToast('無法確認營位數量，請稍後再試。', 'error');
     });
 }
 

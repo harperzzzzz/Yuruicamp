@@ -8,17 +8,17 @@
 
 ## Overview
 
-Booking checkout page with stay details, rental details, contact info, payment, agreement, and final submit. Use to confirm reservation and rental order. Preserve validation and final total.
+Booking checkout page with stay details, rental details, contact info, pending reservation creation, agreement, and final submit. It creates a 15-minute `pending + unpaid` Booking Checkout; ECPay and payment confirmation remain deferred to line D.
 
 ## TypeScript Interface
 
 ```typescript
-export type PageShellVariant = 'main' | 'booking' | 'admin';
+export type PageShellVariant = "main" | "booking" | "admin";
 
 export interface NavigationPayload {
   href: string;
   label: string;
-  source: 'BookingCheckoutPage';
+  source: "BookingCheckoutPage";
 }
 
 export interface UserSummary {
@@ -38,14 +38,14 @@ export interface ContentBlock {
 
 export interface BookingCheckoutPageData {
   title: string;
-  sourcePath: 'booking/pages/booking-checkout.html';
+  sourcePath: "booking/pages/booking-checkout.html";
   keyAreas: string[];
   blocks?: ContentBlock[];
 }
 
 export interface BookingCheckoutPageProps {
   // Required props
-  shell: 'booking'; // Page shell variant used by this source page.
+  shell: "booking"; // Page shell variant used by this source page.
   data: BookingCheckoutPageData; // Initial page content, records, or mounted section metadata.
 
   // Optional props
@@ -55,7 +55,7 @@ export interface BookingCheckoutPageProps {
 
   // Event handlers
   onNavigate?: (payload: NavigationPayload) => void;
-  onRefresh?: (sourcePath: 'booking/pages/booking-checkout.html') => void;
+  onRefresh?: (sourcePath: "booking/pages/booking-checkout.html") => void;
 
   // Render props / slots
   headerSlot?: React.ReactNode;
@@ -66,46 +66,46 @@ export interface BookingCheckoutPageProps {
 
 ## Variants
 
-| Variant | Props | Description |
-|---------|-------|-------------|
-| Default | `shell="booking"` | Matches the current `booking/pages/booking-checkout.html` layout and shared CSS. |
-| Loading | `loading={true}` | Keeps the page skeleton stable while data or partial content loads. |
-| Empty | `data.blocks=[]` | Shows a helpful empty state without collapsing the page frame. |
-| Error | `errorMessage="..."` | Shows a localized error message and a retry path. |
+| Variant | Props                | Description                                                                      |
+| ------- | -------------------- | -------------------------------------------------------------------------------- |
+| Default | `shell="booking"`    | Matches the current `booking/pages/booking-checkout.html` layout and shared CSS. |
+| Loading | `loading={true}`     | Keeps the page skeleton stable while data or partial content loads.              |
+| Empty   | `data.blocks=[]`     | Shows a helpful empty state without collapsing the page frame.                   |
+| Error   | `errorMessage="..."` | Shows a localized error message and a retry path.                                |
 
 ## States
 
-| State | Trigger | Visual Change |
-|-------|---------|---------------|
-| Default | Page loaded | Primary content areas render with Yuruicamp green tokens and existing spacing. |
-| Hover | Interactive card, row, tab, or button hover | Border, shadow, or background changes without layout shift. |
-| Active | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label. |
-| Disabled | Unavailable action or incomplete form | Lower opacity, blocked pointer, preserved element dimensions. |
-| Loading | `loading={true}` | Skeleton rows, disabled submit buttons, or stable placeholder blocks. |
-| Error | `errorMessage` exists | Inline alert near the failed area and retry action when possible. |
+| State    | Trigger                                      | Visual Change                                                                  |
+| -------- | -------------------------------------------- | ------------------------------------------------------------------------------ |
+| Default  | Page loaded                                  | Primary content areas render with Yuruicamp green tokens and existing spacing. |
+| Hover    | Interactive card, row, tab, or button hover  | Border, shadow, or background changes without layout shift.                    |
+| Active   | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label.                   |
+| Disabled | Unavailable action or incomplete form        | Lower opacity, blocked pointer, preserved element dimensions.                  |
+| Loading  | `loading={true}`                             | Skeleton rows, disabled submit buttons, or stable placeholder blocks.          |
+| Error    | `errorMessage` exists                        | Inline alert near the failed area and retry action when possible.              |
 
 ## Design Tokens
 
 ```typescript
 const spacing = {
-  pagePadding: 'clamp(24px, 5vw, 64px)',
-  sectionGap: '24px',
-  controlGap: '8px',
+  pagePadding: "clamp(24px, 5vw, 64px)",
+  sectionGap: "24px",
+  controlGap: "8px",
 };
 
 const typography = {
-  bodyFontSize: '16px',
-  bodyLineHeight: '1.5',
-  headingWeight: '700',
+  bodyFontSize: "16px",
+  bodyLineHeight: "1.5",
+  headingWeight: "700",
 };
 
 const colors = {
-  background: 'var(--yc-bg)',
-  surface: 'var(--yc-surface)',
-  text: 'var(--yc-text)',
-  mutedText: 'var(--yc-text-muted)',
-  border: 'var(--yc-border)',
-  focus: 'var(--yc-sage-action)',
+  background: "var(--yc-bg)",
+  surface: "var(--yc-surface)",
+  text: "var(--yc-text)",
+  mutedText: "var(--yc-text-muted)",
+  border: "var(--yc-border)",
+  focus: "var(--yc-sage-action)",
 };
 ```
 
@@ -117,9 +117,10 @@ const colors = {
 <BookingCheckoutPage
   shell="booking"
   data={{
-    title: 'BookingCheckoutPage',
-    sourcePath: 'booking/pages/booking-checkout.html',
-    keyAreas: 'panelDetails, panelContact, panelPayment, confirmBookingBtn'.split(', '),
+    title: "BookingCheckoutPage",
+    sourcePath: "booking/pages/booking-checkout.html",
+    keyAreas:
+      "panelDetails, panelContact, panelPayment, confirmBookingBtn".split(", "),
   }}
 />
 ```
@@ -152,6 +153,9 @@ const colors = {
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
 - Key UI areas: panelDetails, panelContact, panelPayment, confirmBookingBtn.
+- The submit Request must not include customer ID, client prices, snapshots, status, or payment status.
+- After creation, display the Backend booking ID, pricing, unpaid state, and checkout expiry countdown.
+- Do not collect real card details or show payment success before line D is implemented.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.

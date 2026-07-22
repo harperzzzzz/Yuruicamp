@@ -7,6 +7,7 @@
 
 # 依賴相關（前端依賴安裝於 frontend/）
 node_modules/
+.pnpm-store/
 yarn.lock
 
 # IDE 相關

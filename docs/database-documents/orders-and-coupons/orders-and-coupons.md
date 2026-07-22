@@ -291,40 +291,33 @@ coupons
     將套用中的券碼保存到 localStorage
     `[js/components/coupons.js 第 140 行]`
 
-    * 確認訂單後：
+    * 建立 Checkout Session 後：
     confirmOrderBtn
-    `[pages/checkout.html 第 263 行]`
             ↓
     _handleConfirmOrder()
-    `[js/pages/checkout.js 第 472 行]`
             ↓
-    _buildOrderData()
-    `[js/pages/checkout.js 第 545 行]`
+    _buildCheckoutRequest()
             ↓
-    建立 items、coupons、discount、total、status 快照物件
-    `[js/pages/checkout.js 第 552～573 行]`
+    只建立 variantId、quantity、shipping、paymentMethod、idempotencyKey
             ↓
-    API.orders.create(orderData)
-    `[js/pages/checkout.js 第 479 行]`
+    API.checkout.createSession(request)
             ↓
-    寫入 localStorage.mockOrders
-    `[js/api-mock.js 第 418～458 行]`
+    Spring Boot 從 PostgreSQL 建立快照並重算 pricing
             ↓
-    寫入 localStorage.lastCheckoutOrder
-    `[js/pages/checkout.js 第 483 行]`
+    暫存 sessionStorage.lastCheckoutSession
             ↓
-    清空購物車並前往 checkout-success.html
-    `[js/pages/checkout.js 第 594～600 行]`
+    以 CheckoutSession.pricing 覆蓋摘要，等待 I-7 付款下一步
 
-    * 目前實際執行時：
-    - 不寫 orders。
-    - 不寫 order_items。
-    - 不寫 order_status_history。
-    - 不寫 order_coupons。
-    - 不建立或消耗 coupon_claims。
-    - 不更新 coupons.claimed_quantity。
-    - 只讀 `[coupons.json (line 1)]`
-    - 只將新訂單寫入瀏覽器的 localStorage.mockOrders。
+    * I-6 前端狀態：
+    - `draft` 可 PATCH 收件資料與付款方式，不清空購物車。
+    - `ready_to_pay` 顯示後端金額與 `checkout_expires_at` 倒數。
+    - 主動取消或逾時會清除前端 Session；訂單取消與庫存釋放仍由後端交易負責。
+
+    * Backend 模式目前實際執行時：
+    - 後端建立 `orders`、`order_items` 與庫存保留，前端不建立訂單 ID 或交易快照。
+    - 線 F 完成前不建立或消耗 `coupon_claims`，也不讓前端折扣覆蓋後端 pricing。
+    - 不寫 `localStorage.mockOrders`，不把 CheckoutSession 當成 Legacy Order。
+    - ECPay 不在本站收集卡號、到期日或 CVV；實際導向等待 I-7。
 
 * 會員中心讀取訂單
     `pages/member-center.html`
@@ -425,3 +418,8 @@ coupons
 
 * 低風險：actor_id 可空會降低人工操作的稽核完整性
     - 系統自動事件可為空；人工操作應由後端統一寫入 actor_id。
+## G-2b 後台訂單履約
+
+後台使用 `/api/admin/orders` 查詢訂單，列表先對 order ID 分頁，再載入表頭摘要；商品與狀態歷程只在詳情讀取。這可避免 `order_items` 或 `order_status_history` 將列表資料列放大。
+
+履約狀態固定為 `unshipped → shipped → completed`。線上付款必須先由可信付款流程標記 paid；COD 可以 unpaid 出貨，完成時於同一交易標記 paid。Admin 不提供任意 payment、refund 或 status PATCH。

@@ -26,6 +26,7 @@ import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
+import com.yuruicamp.backend.coupon.application.CouponService;
 import com.yuruicamp.backend.inventory.domain.InventoryStock;
 import com.yuruicamp.backend.inventory.infrastructure.InventoryStockRepository;
 import com.yuruicamp.backend.inventory.infrastructure.ProductStockReservationRepository;
@@ -49,6 +50,7 @@ class CheckoutServiceTest {
 	private OrderRepository orders;
 	private OrderStatusHistoryRepository histories;
 	private EquipmentImageRepository images;
+	private CouponService couponService;
 	private CheckoutService service;
 
 	// 每個測試開始前建立乾淨的模擬元件。
@@ -61,7 +63,10 @@ class CheckoutServiceTest {
 		orders = mock(OrderRepository.class);
 		histories = mock(OrderStatusHistoryRepository.class);
 		images = mock(EquipmentImageRepository.class);
-		service = new CheckoutService(customers, products, stocks, reservations, orders, histories, images);
+		couponService = mock(CouponService.class);
+		when(couponService.appliedClaimId(any())).thenReturn(null);
+		service = new CheckoutService(customers, products, stocks, reservations, orders, histories, images,
+				couponService);
 	}
 
 	// 相同請求重送時應回傳原本的訂單。
@@ -172,15 +177,29 @@ class CheckoutServiceTest {
 		assertThat(cancelled.getStatus()).isEqualTo(OrderStatus.cancelled);
 	}
 
-	// C-4 尚未支援優惠券，非空 couponClaimId 必須明確拒絕。
+	// F-2 支援在既有 Checkout 套用會員優惠券。
 	@Test
-	void updateRejectsCouponUntilCouponFlowIsImplemented() {
+	void updateAppliesCouponClaim() {
+		Order order = editableOrder(Instant.now().plusSeconds(300));
+		when(orders.findForCustomerForUpdate("O-C4", "C001"))
+				.thenReturn(Optional.of(order));
+		when(couponService.applyToOrder(
+				org.mockito.ArgumentMatchers.eq(order),
+				org.mockito.ArgumentMatchers.eq("C001"),
+				org.mockito.ArgumentMatchers.eq(99L),
+				org.mockito.ArgumentMatchers.any(Instant.class)))
+				.thenReturn(99L);
+		when(couponService.appliedClaimId("O-C4")).thenReturn(99L);
 		CheckoutUpdateRequest request = new CheckoutUpdateRequest(null, "cod", 99L);
 
-		assertThatThrownBy(() -> service.update("C001", "O-C4", request))
-				.isInstanceOfSatisfying(BusinessException.class, ex ->
-						assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.VALIDATION_ERROR));
-		verify(orders, never()).findForCustomerForUpdate(any(), any());
+		CheckoutSessionResponse response = service.update("C001", "O-C4", request);
+
+		assertThat(response.couponClaimId()).isEqualTo(99L);
+		verify(couponService).applyToOrder(
+				org.mockito.ArgumentMatchers.eq(order),
+				org.mockito.ArgumentMatchers.eq("C001"),
+				org.mockito.ArgumentMatchers.eq(99L),
+				org.mockito.ArgumentMatchers.any(Instant.class));
 	}
 
 	// 不支援的付款方式應回傳驗證錯誤。

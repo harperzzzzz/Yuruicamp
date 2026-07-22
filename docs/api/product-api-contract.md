@@ -1,10 +1,10 @@
-# Product API Contract（v0.2）
+# Product API Contract（v0.3）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（B-1～B-3 真相來源） |
+| **狀態** | Locked（B-1～B-5b 真相來源） |
 | **日期** | 2026-07-20 |
-| **版本** | 0.2 |
+| **版本** | 0.3 |
 | **誰要遵守** | Spring 後端、前端 Mock、OpenAPI／Swagger |
 | **相關清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) 線 B |
 | **共用慣例** | [`common-api-conventions.md`](./common-api-conventions.md) |
@@ -32,7 +32,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | DB `equipment_items` + brand／category／images | 名稱、說明、品牌、分類、圖 | 契約的展示欄位 |
 | DB `product_variants` | SKU、規格、**真正售價** | 契約的 `variants[]` |
 | View `sellable_product_variants` | 可賣 variant 扁平列 | 結帳重算時可用；列表先組 SPU |
-| 前端舊 Mock `products.json` | 另有 `rentalId`、`branch`、`totalStock`、`interestTags`… | **不在 v0.2**；UI 衍生欄位另算 |
+| 前端舊 Mock `products.json` | 另有 `rentalId`、`branch`、`totalStock`、`interestTags`… | **不在 v0.3**；UI 衍生欄位另算 |
 
 **結論：** 舊 Mock ≠ DB ≠ 本契約。接線時以**本文件**為準，不要再以 `products.json` 的胖欄位當 API 真相。
 
@@ -68,8 +68,19 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | `sort` | `id,asc` | 格式 `field,asc\|desc`；僅允許 `id` 或 `name` |
 
 - 非法 `page`、`size` 或 `sort` → HTTP `400`，錯誤碼 `VALIDATION_ERROR`。
-- `name` 排序依 `equipment_items.name`；`price` 是 active variants 最低價的衍生欄位，**v0.2 不支援**排序。
+- `name` 排序依 `equipment_items.name`；`price` 是 active variants 最低價的衍生欄位，**v0.3 不支援**排序。
 - 列表回應一定帶 `meta`：
+
+### B-4 篩選規則
+
+| 參數 | 規則 |
+|------|------|
+| `category` | 分類完整名稱，忽略大小寫；空白視為未指定 |
+| `brand` | 品牌完整名稱，忽略大小寫；空白視為未指定 |
+| `minPrice` | active variant 價格下限，包含邊界且不得為負數 |
+| `maxPrice` | active variant 價格上限，包含邊界且不得為負數 |
+
+多個條件採 AND。商品至少一個 active variant 同時落在價格區間內才符合；`minPrice > maxPrice` 回傳 `400 VALIDATION_ERROR`。
 
 ```json
 {
@@ -85,7 +96,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 ## 3. Envelope
 
 成功／錯誤格式見 [`common-api-conventions.md`](./common-api-conventions.md)。  
-本資源：`data` 列表＝`Product[]` 且 v0.2 必帶分頁 `meta`；詳情＝`Product` 且不帶 `meta`。
+本資源：`data` 列表＝`Product[]` 且 v0.3 必帶分頁 `meta`；詳情＝`Product` 且不帶 `meta`。
 
 錯誤範例：`NOT_FOUND` — `"Product not found: P999"`。
 
@@ -123,6 +134,8 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | `size` | string \| null | 是* | `product_variants.size` | 可空 |
 | `specification` | string | 是 | `product_variants.specification` | 規格文字（DB NOT NULL） |
 | `price` | string | 是 | `product_variants.price` | **字串金額**，兩位小數，如 `"3200.00"` |
+| `availableQuantity` | integer | 是 | 商城庫存合計減 active 保留量，最低為 0 | 目前可售數量 |
+| `inStock` | boolean | 是 | `availableQuantity > 0` | 是否仍可販售 |
 
 ### 4.3 金額規則（寫死）
 
@@ -154,7 +167,9 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
           "color": "深橄欖綠",
           "size": null,
           "specification": "深橄欖綠",
-          "price": "3200.00"
+          "price": "3200.00",
+          "availableQuantity": 8,
+          "inStock": true
         },
         {
           "id": "V002",
@@ -162,7 +177,9 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
           "color": "沙漠棕",
           "size": null,
           "specification": "沙漠棕",
-          "price": "3300.00"
+          "price": "3300.00",
+          "availableQuantity": 0,
+          "inStock": false
         }
       ]
     }
@@ -192,7 +209,9 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
         "color": "深橄欖綠",
         "size": null,
         "specification": "深橄欖綠",
-        "price": "3200.00"
+        "price": "3200.00",
+        "availableQuantity": 8,
+        "inStock": true
       }
     ]
   }
@@ -203,16 +222,16 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 ## 5. B-5 範圍與目前狀態
 
-| 子項 | 狀態 | v0.2 行為 |
+| 子項 | 狀態 | v0.3 行為 |
 |------|------|-----------|
 | B-5a 基本商品規格 | 已完成 | `variants[]` 只回 active variant，包含 `id`、`sku`、`color`、`size`、`specification`、`price` |
-| B-5b 規格層級可售庫存 | 未實作 | v0.2 不回傳 `availableQuantity`／`inStock`；實作前必須先升版契約 |
+| B-5b 規格層級可售庫存 | 已完成 | v0.3 回傳 `availableQuantity`／`inStock` |
 
-`sellable_product_variants` 只代表商品、器材與 variant 狀態可販售，不包含實際庫存。規格可售量應以 `variant_id` 為粒度，計算 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity`；現有以 `product_id` 聚合的 `product_stock_summary` 不足以判斷單一顏色／尺寸是否缺貨。
+`sellable_product_variants` 只代表商品、器材與 variant 狀態可販售。後端另以 `variant_id` 為粒度，計算 `inventory_stocks.on_hand_quantity` 扣除 active `product_stock_reservations.quantity`；終止狀態不扣庫存，結果最低為 0。
 
 ---
 
-## 6. v0.2 **明確不做**（之後版本再談）
+## 6. v0.3 **明確不做**（之後版本再談）
 
 以下舊 Mock／頁面欄位**不得**出現在本契約回應裡（避免前後端各寫各的）：
 
@@ -220,14 +239,13 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 |------------|------|
 | `rentalId`／`rentalEnabled` | 租借領域，另 API |
 | `interestTags`／`tags`／`specifications` 物件 | 附屬表；不屬於 B-5a 基本 variant 契約，之後可升版擴充 |
-| `images[]`（多圖） | v0.2 只主圖 `image` |
-| `totalStock`／`branch`／`variants[].branch` | 庫存讀模型；進結帳再嚴謹查 |
+| `images[]`（多圖） | v0.3 只主圖 `image` |
+| `totalStock`／`branch`／`variants[].branch` | v0.3 只提供 variant 可售量，不公開庫位分布 |
 | `rating`／`reviewCount`／`salesCount` | 評價／訂單衍生；前端可另算 |
 | `variants[].label` | 用 `specification` 或前端組合 color／size |
 | `price` 排序 | 需以 active variants 最低價做聚合，之後版本再談 |
-| 篩選 query | B-4 |
 
-若要加欄位：**先改本文件版本號（v0.2…）→ 再改後端 → 再改 Mock**，禁止只改一邊。
+若要加欄位：**先改本文件版本號（v0.3…）→ 再改後端 → 再改 Mock**，禁止只改一邊。
 
 ---
 
@@ -235,7 +253,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 模式 | 行為 |
 |------|------|
-| `USE_MOCK_API = true` | 讀取已是 **v0.2 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
+| `USE_MOCK_API = true` | 讀取已是 **v0.3 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
 | `USE_MOCK_API = false` | `GET /api/products`；必須先 **解開 Envelope**（取 `data`） |
 
 參考實作：
@@ -267,6 +285,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.3 | 2026-07-21 | B-4 商品篩選與 B-5b variant 可售量已實作；加入 `availableQuantity`、`inStock` |
 | 0.2 | 2026-07-20 | 文件釐清 B-5：基本 `variants[]` 已隨 B-1／B-2 完成；規格層級可售庫存尚未實作，需升版後才能加入 |
 | 0.2 | 2026-07-20 | B-3 驗收：非空跨頁、PostgreSQL `id`／`name` 雙向排序、非法參數 Envelope、超頁 meta 與 Controller HTTP 整合測試通過 |
 | 0.2 | 2026-07-20 | B-3：列表支援 page／size／id、name 白名單排序，並回傳分頁 meta |

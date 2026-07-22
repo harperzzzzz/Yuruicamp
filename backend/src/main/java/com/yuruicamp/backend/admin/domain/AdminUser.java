@@ -4,6 +4,8 @@ import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -22,7 +24,8 @@ public class AdminUser {
 	private String email;
 
 	@Column(nullable = false, length = 32)
-	private String role;
+	@Enumerated(EnumType.STRING)
+	private AdminRole role;
 
 	@Column(nullable = false)
 	private boolean active;
@@ -60,11 +63,11 @@ public class AdminUser {
 		this.email = email;
 	}
 
-	public String getRole() {
+	public AdminRole getRole() {
 		return role;
 	}
 
-	public void setRole(String role) {
+	public void setRole(AdminRole role) {
 		this.role = role;
 	}
 

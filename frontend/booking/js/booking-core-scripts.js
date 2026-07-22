@@ -1,5 +1,5 @@
 /**
- * Booking 共用腳本同步注入器（步驟：補齊 AppConfig 等）
+ * Booking 共用腳本同步注入器（步驟：補齊 AppConfig／ApiClient 等）
  * Sync injector for booking core scripts.
  *
  * 用法（放在頁面專屬 JS 之前）：
@@ -21,9 +21,13 @@
   /**
    * 與 layout.js loadBookingCoreScripts 的 flag 對齊，避免 DOMContentLoaded 時重複載入。
    * Align flags with layout.js so loadScriptOnce skips already-injected files.
+   *
+   * 順序：config → api-client → formatters → api-mock → booking-api
+   * （api-mock／booking-api 依賴 window.ApiClient）
    */
   var BOOKING_CORE_SCRIPTS = [
     { src: '/storefront/js/config.js', flag: '__bookingCoreConfigLoaded' },
+    { src: '/storefront/js/api-client.js', flag: '__bookingCoreApiClientLoaded' },
     { src: '/storefront/js/formatters.js', flag: '__bookingCoreFormattersLoaded' },
     { src: '/storefront/js/api-mock.js', flag: '__bookingCoreApiMockLoaded' },
     { src: '/storefront/js/booking-api.js', flag: '__bookingCoreBookingApiLoaded' },

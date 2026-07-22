@@ -56,6 +56,66 @@ var bookingFilterState = {
  */
 var bookingDateState = { days: 30, startDate: null, endDate: null };
 
+function isBookingBackendEnabled() {
+  return typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled();
+}
+
+function normalizeBackendBooking(booking) {
+  var detail = booking || {};
+  var nights = detail.checkIn && detail.checkOut
+    ? Math.max(0, Math.round((new Date(detail.checkOut) - new Date(detail.checkIn)) / 86400000))
+    : 0;
+  return Object.assign({}, detail, {
+    submittedAt: detail.createdAt || '',
+    bookingInfo: {
+      campgroundId: detail.campgroundId,
+      campgroundName: detail.campgroundName,
+      region: detail.region,
+      checkIn: detail.checkIn,
+      checkOut: detail.checkOut,
+      guestCount: detail.guestCount,
+      totalDays: nights,
+      weekdayCount: detail.weekdayCount || 0,
+      holidayCount: detail.holidayCount || 0
+    },
+    selectedZones: (detail.zones || []).map(function (zone) {
+      return Object.assign({}, zone, {
+        zoneType: zone.type,
+        subtotal: Number(zone.lineTotal || 0)
+      });
+    }),
+    selectedRentals: (detail.rentals || (detail.hasRental ? [{ name: '租借裝備', quantity: 1, subtotal: 0 }] : [])).map(function (rental) {
+      return Object.assign({}, rental, {
+        specLabel: rental.specification,
+        subtotal: Number(rental.lineTotal || 0)
+      });
+    }),
+    summary: {
+      zoneTotal: Number(detail.pricing ? detail.pricing.zoneTotal : 0),
+      rentalTotal: Number(detail.pricing ? detail.pricing.rentalTotal : 0),
+      appliedDiscount: Number(detail.pricing ? detail.pricing.discount : 0),
+      finalAmount: Number(detail.finalAmount || (detail.pricing && detail.pricing.finalAmount) || 0)
+    },
+    history: (detail.history || []).map(function (entry) {
+      return { time: entry.occurredAt || '', action: entry.note || entry.status };
+    }),
+    backendDetailLoaded: Array.isArray(detail.zones)
+  });
+}
+
+function loadBackendBookingDetail(booking) {
+  if (!isBookingBackendEnabled() || booking.backendDetailLoaded) {
+    showBookingModal(booking);
+    return;
+  }
+  AdminAPI.bookings.getById(booking.id)
+    .then(function (result) {
+      Object.assign(booking, normalizeBackendBooking(result.data));
+      showBookingModal(booking);
+    })
+    .catch(function (err) { AdminAPI.handleError(err, '載入預約詳情失敗'); });
+}
+
 // ─────────────────────────────────────────────
 // 初始化
 // ─────────────────────────────────────────────
@@ -193,7 +253,7 @@ window.initBookings = function () {
       return window.sameId(b.id, bookingId);
     });
     if (!booking) return;
-    showBookingModal(booking);
+    loadBackendBookingDetail(booking);
   });
 
   // ── 確認預約按鈕 ──────────────────────────────────────────────
@@ -207,6 +267,19 @@ window.initBookings = function () {
       return window.sameId(b.id, bookingId);
     });
     if (!booking) return;
+
+    if (isBookingBackendEnabled()) {
+      $btn.prop('disabled', true);
+      AdminAPI.bookings.confirm(bookingId, {})
+        .then(function (result) {
+          Object.assign(booking, normalizeBackendBooking(result.data));
+          window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 已確認');
+          applyBookingFiltersAndSort();
+        })
+        .catch(function (err) { AdminAPI.handleError(err, '確認預約失敗'); })
+        .finally(function () { $btn.prop('disabled', false); });
+      return;
+    }
 
     // 更新記憶體快取
     booking.status = 'confirmed';
@@ -229,6 +302,10 @@ window.initBookings = function () {
 
   // ── 取消按鈕 → 開啟取消確認 Modal ───────────────────────────
   $(document).on('click.bookings', '.btn-cancel-booking', function () {
+    if (isBookingBackendEnabled()) {
+      window.showAdminToast('正式後端取消流程將由線 D 處理', 'warning');
+      return;
+    }
     var $row = $(this).closest('tr');
     // 暫存目標 booking id，供 #confirmCancelBtn click 讀取
     window._cancelTargetId = $row.data('booking-id');
@@ -296,6 +373,20 @@ window.initBookings = function () {
     });
     if (!booking) return;
 
+    if (isBookingBackendEnabled()) {
+      var $button = $(this).prop('disabled', true);
+      AdminAPI.bookings.complete(bookingId, {})
+        .then(function (result) {
+          Object.assign(booking, normalizeBackendBooking(result.data));
+          bootstrap.Modal.getInstance(document.getElementById('bookingDetailModal')).hide();
+          window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 已標記為完成');
+          applyBookingFiltersAndSort();
+        })
+        .catch(function (err) { AdminAPI.handleError(err, '完成預約失敗'); })
+        .finally(function () { $button.prop('disabled', false); });
+      return;
+    }
+
     booking.status = 'completed';
     booking.equipmentReturned = true;
     var timeStr = getCurrentTimeStr();
@@ -334,6 +425,20 @@ window.initBookings = function () {
 function loadBookingsData() {
   if (window.bookingsCache && window.bookingsCache.length > 0) {
     applyBookingFiltersAndSort();
+    return;
+  }
+
+  if (isBookingBackendEnabled()) {
+    AdminAPI.bookings.list({ page: 0, size: 100, sort: 'createdAt,desc' })
+      .then(function (result) {
+        var payload = result && result.data;
+        window.bookingsCache = ((payload && payload.data) || []).map(normalizeBackendBooking);
+        applyBookingFiltersAndSort();
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '載入預約失敗');
+        $('#bookingsTableBody').html('<tr><td colspan="10" class="text-center text-danger py-4">載入預約數據失敗</td></tr>');
+      });
     return;
   }
 
@@ -807,7 +912,7 @@ function renderBookingsTable(bookings) {
       '<span class="admin-cell-link booking-customer-link" ' +
       'data-customer-id="' + booking.customerId + '" ' +
       'title="查看顧客檔案">' +
-      getCustomerName(booking.customerId) +
+      (booking.customerName || getCustomerName(booking.customerId)) +
       '</span>';
 
     // ── <tr> 包含新增的 data-region 和 data-has-rental 屬性 ──
@@ -863,7 +968,7 @@ function showBookingModal(booking) {
   $('#bkModalStatus').html(statusLabelMap[booking.status] || '');
 
   // ── 訂購人資訊（需查詢 customersCache 取得電話/Email）──
-  var customerName  = getCustomerName(booking.customerId);
+  var customerName  = booking.customerName || getCustomerName(booking.customerId);
   var customerPhone = getCustomerField(booking.customerId, 'phone');
   var customerEmail = getCustomerField(booking.customerId, 'email');
   $('#bkModalName').text(customerName);
@@ -1033,6 +1138,11 @@ function saveBookingSellerNote() {
     return window.sameId(b.id, bookingId);
   });
   if (!booking) return;
+
+  if (isBookingBackendEnabled()) {
+    window.showAdminToast('正式後端目前不提供預約備註修改', 'warning');
+    return;
+  }
 
   var sellerNote = $('#bkModalSellerNote').val().trim();
   booking.sellerNote = sellerNote;

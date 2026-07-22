@@ -12,6 +12,7 @@ const APP_RESET_STORAGE_KEYS = [
   'memberProfile',
   'bookingCart',
   'mockOrders',
+  'mockCheckoutSessions',
   'mockBookings',
   'mockReviews',
   'mockCustomerOverlay',

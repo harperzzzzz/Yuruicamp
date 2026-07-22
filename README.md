@@ -2,29 +2,51 @@
 
 接 Spring Boot 前已將前端整包收進 `frontend/`，根目錄邊界如下：
 
-| 路徑 | 放什麼 | 你要改…時來這裡 |
-|------|--------|-----------------|
-| [`frontend/`](./frontend/) | 主站、booking、admin、mock `data/`、Vite／npm | 網頁、樣式、假資料、前端腳本 |
-| [`backend/`](./backend/) | Spring Boot | Java API（線 A 骨架：Firebase ID Token；見 [`backend/README.md`](./backend/README.md)） |
-| [`docs/`](./docs/) | Schema、前端規格、資料表說明 | DB／規格文件 |
-| [`plans/`](./plans/) | 規劃與遷移規格 | 例如 [`plans/frontend-folder-migration-spec.md`](./plans/frontend-folder-migration-spec.md) |
-| [`docker-compose.yml`](./docker-compose.yml) + [`.env.example`](./.env.example) | 本機 PostgreSQL | 資料庫基礎設施 |
+| 路徑                                                                            | 放什麼                                        | 你要改…時來這裡                                                                             |
+| ------------------------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`frontend/`](./frontend/)                                                      | 主站、booking、admin、mock `data/`、Vite／npm | 網頁、樣式、假資料、前端腳本                                                                |
+| [`backend/`](./backend/)                                                        | Spring Boot                                   | Java API（線 A 骨架：Firebase ID Token；見 [`backend/README.md`](./backend/README.md)）     |
+| [`docs/`](./docs/)                                                              | Schema、前端規格、資料表說明                  | DB／規格文件                                                                                |
+| [`plans/`](./plans/)                                                            | 規劃與遷移規格                                | 例如 [`plans/frontend-folder-migration-spec.md`](./plans/frontend-folder-migration-spec.md) |
+| [`docker-compose.yml`](./docker-compose.yml) + [`.env.example`](./.env.example) | 本機 PostgreSQL                               | 資料庫基礎設施                                                                              |
 
 ### 後端實作狀態
 
 後端程式使用簡短中文註解；流程文件集中在 `docs/backend-specs/`，只保留用途、主要流程與驗證結果。
 
-- Catalog `GET /api/products` 與 `GET /api/products/{id}` 已完成；B-3 PostgreSQL 分頁、`id`／`name` 排序、參數錯誤 Envelope 與實際 Controller 驗收已通過。
+- Catalog 線 B 已完成：商品列表／詳情支援分頁、排序、分類／品牌／價格篩選，variant 回傳可售數量，並提供公開門市 `GET /api/branches`。
+- B-4 未指定篩選條件時會使用明確的文字與價格預設值，避免 PostgreSQL 將 `null` 文字參數推斷成 `bytea` 而中斷商品載入。
 - B-3 驗收範圍與執行方式見 [`docs/backend-specs/catalog/b3-product-pagination-validation.md`](./docs/backend-specs/catalog/b3-product-pagination-validation.md)。
-- B-5 基本商品規格已隨商品 API 落地：`variants[]` 只回 active variant；規格層級可售庫存尚未實作，需先升版契約並建立 variant 庫存讀模型。
+- B-5 商品規格已隨 Product API v0.3 落地：`variants[]` 只回 active variant，並以商城庫存扣除 active 保留帳後回傳 `availableQuantity` 與 `inStock`。
 - B-5 範圍與資料來源見 [`docs/backend-specs/catalog/b5-product-variants-stock-status.md`](./docs/backend-specs/catalog/b5-product-variants-stock-status.md)。
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
 - Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
 - Checkout C-2～C-8 的完整流程、規則與驗收入口見 [`docs/backend-specs/checkout/README.md`](./docs/backend-specs/checkout/README.md)。
-- Checkout 線 C 的 C-4 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料與付款方式，並以悲觀鎖避免和逾時排程互相覆蓋；優惠券套用尚未完成，等待 F-2。
+- Checkout 線 C 的 C-4 與 Coupon 線 F 已完成：會員可 PATCH 自己尚未到期的 Checkout 收件資料、付款方式及 `couponClaimId`，折扣由後端重算並保存 `order_coupons` 快照。
+- Coupon 線 F 的 F-1、F-3、F-4 與商城 F-2 已完成：公開券、我的券、領券、三種資格、名額 Trigger、重複領券與取消規則已通過 PostgreSQL 驗證；Booking 因缺少 Coupon 關聯 Schema 尚未開放，付款後 `consumed` 由線 D 接續。
 - Checkout 線 C 的 C-3、C-5、C-7 已完成：PostgreSQL 併發防超賣、取消釋放保留帳及後端價格重算均已通過整合測試。
 - Checkout 線 C 的 C-6、C-8 已完成：每分鐘掃描滿 15 分鐘的未付款訂單，交易內取消訂單、將保留帳改為 `expired` 並釋放庫存；PostgreSQL 逾時與冪等驗收已通過。
+- Booking 線 E 的 E-0 已完成：`bookings` 加入 Checkout 冪等 key、request hash 與會員範圍唯一約束。
+- Booking 線 E 的 E-1 已完成：公開營區、有效營位、租借裝備、policy 與 closures API 已通過 PostgreSQL／Controller 整合測試。
+- Booking 線 E 的 E-2 已完成：`POST /api/booking/check-availability` 依 Asia/Taipei 政策驗證日期，並計算公休、停售及既有預約占用後的跨晚最低剩餘量。
+- Booking 線 E 的 E-3 已完成：`POST /api/booking/checkout/sessions` 會以固定順序鎖位、重查可用量、後端計價，並建立 15 分鐘的 `pending`／`unpaid` 預約；冪等與並發防超賣已通過 PostgreSQL 測試。
+- Booking 線 E 的 E-4 已完成：同一個 Checkout 交易會鎖定租借實體庫存、扣除住宿日期重疊的 active 保留、建立租借快照與保留帳；不同日期可共用庫存，重疊日期不可超租。
+- Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
+- Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
+- Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。線 E 定義為 Booking Prepare／Reservation 完成，ECPay 與付款確認延後線 D。
+- Booking 線 E 的完整人工驗證已整合至 [`E-1～E-7 Booking Swagger 流程`](./docs/backend-specs/test/e1-e7-booking-swagger.md)。
+- Admin 線 G 的 G-1、G-5 已完成程式與非 DB 測試：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已完成，權限頁保留 Mock／Backend 雙模式。PostgreSQL 驗收待以正確 `DB_PASSWORD` 重跑後勾選 checklist。
+- Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
+- Admin 線 G 的 G-2b Orders／Bookings 已完成並通過 PostgreSQL 整合測試與 Swagger 驗收：提供分頁查詢、詳情、狀態歷程、訂單出貨／完成及預約確認／完成；Admin 不得人工改寫 ECPay 付款或退款結果。
+- Admin RBAC、Customers、Orders 與 Bookings Controller 已統一宣告 OpenAPI `firebaseBearer`，Swagger `Authorize` 會將 Firebase ID Token 加入受保護請求；正式授權仍由 Firebase Filter 與細權限 RBAC 執行。
+- 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
+- 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
+- Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
+- Checkout 頁面已改呼叫 `API.checkout.createSession()`；Request 不再傳會員 ID、商品快照、前端價格、總額、狀態或點數，會員由 Firebase principal 決定，金額由 Spring Boot 從 PostgreSQL 重算。
+- Checkout 冪等鍵由 `crypto.randomUUID()` 產生並暫存在 sessionStorage；網路重試與連點沿用同一 key，成功保存後端 `orderId`，購物車變更、取消或逾時才清除。
+- Checkout I-5 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order、不消耗前端優惠券，ECPay 也不在本站收集卡號、到期日或 CVV。
+- Checkout I-6 已完成：Draft 可 PATCH 補資料，Ready 顯示後端金額與 15 分鐘倒數；逾時／取消會清除 Session、保留購物車，並依後端錯誤碼提供重新登入、調整庫存或重建 Checkout 操作。
 - 開發 Seed 已提供 `DEV-STORE-MAIN` 與 `V001` 的 `10` 件庫存，可直接從 Swagger 驗證 Checkout。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
@@ -41,13 +63,13 @@ npm run dev          # 啟動 Vite 開發伺服器
 
 終端機出現類似 `http://127.0.0.1:5173` 後，用瀏覽器開啟：
 
-| 要看什麼 | 網址 |
-|----------|------|
-| 品牌入口（會導向首頁） | http://127.0.0.1:5173/ |
-| 主站首頁 | http://127.0.0.1:5173/storefront/pages/home.html |
-| 商品列表 | http://127.0.0.1:5173/storefront/pages/products.html |
-| 營地預約 | http://127.0.0.1:5173/booking/pages/camp-search.html |
-| 賣家後台 | http://127.0.0.1:5173/admin/login.html |
+| 要看什麼               | 網址                                                 |
+| ---------------------- | ---------------------------------------------------- |
+| 品牌入口（會導向首頁） | http://127.0.0.1:5173/                               |
+| 主站首頁               | http://127.0.0.1:5173/storefront/pages/home.html     |
+| 商品列表               | http://127.0.0.1:5173/storefront/pages/products.html |
+| 營地預約               | http://127.0.0.1:5173/booking/pages/camp-search.html |
+| 賣家後台               | http://127.0.0.1:5173/admin/login.html               |
 
 停止伺服器：在該終端機按 `Ctrl + C`。
 
@@ -70,11 +92,11 @@ Spring Boot 仍建議在本機 IDE 執行（除錯比較方便）。
 
 相關檔案：
 
-| 檔案 | 說明 |
-|------|------|
-| [`docker-compose.yml`](./docker-compose.yml) | 只啟動 Postgres（不包前端／後端） |
-| [`.env.example`](./.env.example) | 環境變數範本（可進 Git） |
-| `.env` | 每人本機密碼（**不要** commit；已在 `.gitignore`） |
+| 檔案                                         | 說明                                               |
+| -------------------------------------------- | -------------------------------------------------- |
+| [`docker-compose.yml`](./docker-compose.yml) | 只啟動 Postgres（不包前端／後端）                  |
+| [`.env.example`](./.env.example)             | 環境變數範本（可進 Git）                           |
+| `.env`                                       | 每人本機密碼（**不要** commit；已在 `.gitignore`） |
 
 ### 你需要先安裝
 
@@ -107,13 +129,13 @@ Spring Boot 仍建議在本機 IDE 執行（除錯比較方便）。
 
 ### 連線資訊（給 Spring Boot / DBeaver / pgAdmin）
 
-| 項目 | 值 |
-|------|-----|
-| Host | `localhost` |
-| Port | `5433`（不是 5432） |
-| Database | `yuruicamp` |
+| 項目     | 值                                             |
+| -------- | ---------------------------------------------- |
+| Host     | `localhost`                                    |
+| Port     | `5433`（不是 5432）                            |
+| Database | `yuruicamp`                                    |
 | Username | `.env` 裡的 `POSTGRES_USER`（預設 `postgres`） |
-| Password | `.env` 裡的 `POSTGRES_PASSWORD` |
+| Password | `.env` 裡的 `POSTGRES_PASSWORD`                |
 
 Spring Boot 範例（之後放在本機設定，勿把真密碼推進 Git）：
 
@@ -178,15 +200,15 @@ A: 不行。請用 `.env`（已在 `.gitignore`），範本用 `.env.example`。
 
 ## Schema / 假資料
 
-| 文件 | 說明 |
-|------|------|
-| [`docs/latest_schema.sql`](./docs/latest_schema.sql) | PostgreSQL 現行 DDL（建庫真相來源） |
-| [`docs/database-schema-guide.md`](./docs/database-schema-guide.md) | ER 圖、函式／Trigger、資料字典 |
-| [`docs/schema-enums.md`](./docs/schema-enums.md) | status / category 等 ENUM 允許值 |
-| [`docs/database-documents/`](./docs/database-documents/) | 各業務表領域說明 |
-| [`docs/seed/README.md`](./docs/seed/README.md) | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
-| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md) | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則 |
-| [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準） |
+| 文件                                                                           | 說明                                                         |
+| ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| [`docs/latest_schema.sql`](./docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（建庫真相來源）                          |
+| [`docs/database-schema-guide.md`](./docs/database-schema-guide.md)             | ER 圖、函式／Trigger、資料字典                               |
+| [`docs/schema-enums.md`](./docs/schema-enums.md)                               | status / category 等 ENUM 允許值                             |
+| [`docs/database-documents/`](./docs/database-documents/)                       | 各業務表領域說明                                             |
+| [`docs/seed/README.md`](./docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
+| [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準）   |
 
 ```powershell
 cd frontend
@@ -452,15 +474,15 @@ npm run normalize:data
 
 假資料已整合至 `/data/**`（多在 `frontend/data/**`）；PostgreSQL 以 `docs/latest_schema.sql` 為準（給 Java bootcamp 銜接用，前端仍可走 Mock）：
 
-| 文件 | 說明 |
-|------|------|
-| [docs/latest_schema.sql](docs/latest_schema.sql) | PostgreSQL 現行 DDL（ENUM + 主表 PK/FK + View／Trigger） |
-| [docs/database-schema-guide.md](docs/database-schema-guide.md) | ER 圖與資料字典導覽 |
-| [docs/schema-enums.md](docs/schema-enums.md) | 狀態／分類枚舉允許值 |
-| [docs/database-documents/](docs/database-documents/) | 各業務表領域說明（含快照欄位語意） |
-| [docs/seed/README.md](docs/seed/README.md) | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
-| [plans/data-integration-spec.md](plans/data-integration-spec.md) | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則 |
-| [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史） |
+| 文件                                                                       | 說明                                                         |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [docs/latest_schema.sql](docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（ENUM + 主表 PK/FK + View／Trigger）     |
+| [docs/database-schema-guide.md](docs/database-schema-guide.md)             | ER 圖與資料字典導覽                                          |
+| [docs/schema-enums.md](docs/schema-enums.md)                               | 狀態／分類枚舉允許值                                         |
+| [docs/database-documents/](docs/database-documents/)                       | 各業務表領域說明（含快照欄位語意）                           |
+| [docs/seed/README.md](docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| [plans/data-integration-spec.md](plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
+| [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史）                              |
 
 ## 📋 專案概述
 
@@ -753,10 +775,10 @@ window.renderCartDrawer(); // 依 AppState.cart 重繪 Drawer
 
 ```javascript
 window.formatCurrency(3500); // → 'NT$3,500'
-window.formatDate('2026-06-03'); // → '2026/06/03'
+window.formatDate("2026-06-03"); // → '2026/06/03'
 window.generateId(); // → 'id-1748922345-abc123xyz'
-window.isValidEmail('a@b.com'); // → true / false
-window.isValidPhone('0912345678'); // → true / false
+window.isValidEmail("a@b.com"); // → true / false
+window.isValidPhone("0912345678"); // → true / false
 window.calculateCartTotal(); // → Number（購物車總金額）
 window.calculateShippingFee(total); // → 0 或 60（依免運門檻）
 window.debounce(fn, 300); // 防抖（搜尋框使用）
@@ -767,22 +789,33 @@ window.throttle(fn, 100); // 節流（滾動事件使用）
 
 ## 🗄️ localStorage 結構
 
-| 鍵               | 型別          | 說明                                                                      |
-| ---------------- | ------------- | ------------------------------------------------------------------------- |
-| `isLoggedIn`     | Boolean       | 登入狀態                                                                  |
-| `currentUser`    | Object / null | 當前用戶資料                                                              |
-| `cart`           | Array         | 電商購物車商品（`[{id, name, price, quantity, ...}]`）                    |
-| `preferences`    | Object        | 個人化問卷結果（風格偏好、裝備需求）                                      |
-| `theme`          | String        | 主題（預留，目前固定 `'light'`）                                          |
-| `memberProfile`  | Object        | 會員中心儲存的個人資料                                                    |
-| `bookingCart`    | Object        | 預約購物車（`{booking_info, selected_zones, selected_rentals, summary}`） |
-| `adminEmployees` | Array         | 後台員工清單與逐頁權限（`permissions.js` 種子初始化）                     |
+| 鍵                     | 型別          | 說明                                                                      |
+| ---------------------- | ------------- | ------------------------------------------------------------------------- |
+| `isLoggedIn`           | Boolean       | 登入狀態                                                                  |
+| `currentUser`          | Object / null | 當前用戶資料                                                              |
+| `cart`                 | Array         | 電商購物車商品（`[{id, name, price, quantity, ...}]`）                    |
+| `preferences`          | Object        | 個人化問卷結果（風格偏好、裝備需求）                                      |
+| `theme`                | String        | 主題（預留，目前固定 `'light'`）                                          |
+| `memberProfile`        | Object        | 會員中心儲存的個人資料                                                    |
+| `bookingCart`          | Object        | 預約購物車（`{booking_info, selected_zones, selected_rentals, summary}`） |
+| `mockCheckoutSessions` | Array         | 契約化 Checkout Mock Session 與內部冪等資料                               |
+| `adminEmployees`       | Array         | 後台員工清單與逐頁權限（`permissions.js` 種子初始化）                     |
 
 > ⚠️ `cart`（電商）與 `bookingCart`（預約）是兩個**完全獨立**的 localStorage key，互不干擾。
 
-> `resetAppState()` 現在只移除 `isLoggedIn`、`currentUser`、`yuruiUser`、`cart`、`preferences`、`theme`、`memberProfile`、`bookingCart`、`mockOrders`、`mockUserPointDeltas`，不再使用 `localStorage.clear()`，避免誤刪同網域其他專案或未來功能資料。
+> `resetAppState()` 只移除 Yuruicamp 已知狀態，包含 `mockOrders` 與 `mockCheckoutSessions`；不使用 `localStorage.clear()`，避免誤刪同網域其他專案資料。
 
-### sessionStorage 結構（後台）
+### sessionStorage 結構
+
+商城 Checkout：
+
+| 鍵                         | 型別   | 說明                      |
+| -------------------------- | ------ | ------------------------- |
+| `checkoutIdempotencyKey`   | String | 建立 Checkout 使用的 UUID |
+| `checkoutCartFingerprint`  | String | 購物車規格與數量指紋      |
+| `checkoutCompletedOrderId` | String | 建立成功的後端訂單 ID     |
+
+後台：
 
 | 鍵                 | 型別   | 說明                                      |
 | ------------------ | ------ | ----------------------------------------- |
@@ -831,39 +864,45 @@ window.throttle(fn, 100); // 節流（滾動事件使用）
 
 ## 🔐 後端接入指南
 
-Mock API 採用適配器模式設計，日後切換真實後端只需改動一個檔案：
+Mock API 採用適配器模式。切換真後端時，頁面仍呼叫 `window.API`／`BookingAPI`／`AdminAPI`，Token 與 REST 細節統一交給 `api-client.js`。
 
 **目前（Mock）**：
 
 ```javascript
 // js/api-mock.js 內部從 JSON 檔讀取
 window.API.products.getAll = async (filters) => {
-  const data = await fetch('../data/products.json').then((r) => r.json());
+  const data = await fetch("../data/products.json").then((r) => r.json());
   return data.filter(/* ... */);
 };
 ```
 
-**日後（真實 API）**：
+**真實 API facade**：
 
 ```javascript
-// 只需修改 api-mock.js，pages/*.js 的呼叫方式完全不變
+// facade 呼叫共用 REST 層，pages/*.js 不自行 fetch
 window.API.products.getAll = async (filters) => {
-  const res = await fetch(`${window.AppConfig.API_BASE_URL}/products`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+  return window.ApiClient._restRequest("/products", {
+    auth: "optional",
   });
-  return await res.json();
 };
 ```
 
-API Base URL 設定在 `frontend/storefront/js/config.js`（`window.AppConfig.API_BASE_URL`）。
-
-- 商城頁：各 HTML 直接載入 `config.js`。
-- 預約頁：一律透過 `booking/js/booking-core-scripts.js`（清單見 `booking/partials/booking-core-scripts.partial`）；說明文件：`docs/frontend-specs/booking-shared-scripts.md`。
+Firebase 初始化後注入 Auth：
 
 ```javascript
-window.AppConfig.API_BASE_URL = 'http://localhost:8080/api'; // 修改 storefront/js/config.js
+window.AppAuth.configure({ auth: firebaseAuth });
 ```
+
+本機 `dev:` Token 只能透過開發認證設定或 `AppAuth.configure()` 提供，不可寫死在 Checkout 頁面。API Base URL 設定在 `storefront/js/config.js`：
+
+```javascript
+window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
+```
+
+- 商城頁：各 HTML 直接載入 `config.js`。
+- 預約頁：一律透過 `booking/js/booking-core-scripts.js`（清單見 `booking/partials/booking-core-scripts.partial`）；說明文件：[`docs/frontend-specs/booking-shared-scripts.md`](./docs/frontend-specs/booking-shared-scripts.md)。
+
+詳細規則與驗證步驟見 [`docs/frontend-specs/api/auth-rest-client.md`](./docs/frontend-specs/api/auth-rest-client.md)。
 
 ---
 
@@ -922,7 +961,6 @@ window.AppConfig.API_BASE_URL = 'http://localhost:8080/api'; // 修改 storefron
 ---
 
 **版本**：1.3.76  
-**最後更新**：2026/07/06  
+**最後更新**：2026/07/06
 
 > 完整更新紀錄請見 [changelog.md](changelog.md)
-

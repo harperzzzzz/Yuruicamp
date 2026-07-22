@@ -4,6 +4,7 @@
 BEGIN;
 
 \ir dev/010-reference.sql
+\ir dev/020-identity.sql
 \ir dev/030-catalog.sql
 \ir dev/040-inventory.sql
 

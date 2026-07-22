@@ -7,6 +7,8 @@
 
 
 ## 關聯與資料流
+
+G-1 已實作角色預設與個人覆寫合併。後端將最終權限碼放入 Spring Security authorities，Controller 以 `@PreAuthorize` 檢查；`permissions.view`／`permissions.edit` 負責管理員帳號與權限頁。
 admin_users
 ├─ N:1 角色預設權限
 │     └─ 透過 admin_role_permissions

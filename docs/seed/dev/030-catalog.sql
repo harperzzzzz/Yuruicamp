@@ -303,3 +303,61 @@ INSERT INTO public.equipment_interest_tags (item_id, tag) VALUES ('E030', 'safet
 INSERT INTO public.equipment_tags (item_id, tag) VALUES ('E030', '其他') ON CONFLICT (item_id, tag) DO NOTHING;
 INSERT INTO public.product_variants (id, product_id, sku, color, size, price, specification, status) VALUES ('V030-01', 'P030', 'P030-01', '50入', NULL, 199.00, '50入', 'inactive') ON CONFLICT (id) DO NOTHING;
 
+-- Booking E-1：最小租借主檔與規格；上架資料需等待 040 的營區租借庫位。
+INSERT INTO public.equipment_items (
+    id,
+    category_id,
+    brand_id,
+    name,
+    description,
+    active
+)
+VALUES (
+    'E-RENTAL-DEV-001',
+    6,
+    'yuruicamp',
+    '露營折疊椅租借',
+    'E-1 Swagger 租借裝備範例。',
+    true
+)
+ON CONFLICT (id) DO UPDATE SET
+    category_id = EXCLUDED.category_id,
+    brand_id = EXCLUDED.brand_id,
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    active = EXCLUDED.active,
+    updated_at = now();
+
+INSERT INTO public.rental_skus (id, item_id, status)
+VALUES ('RS-DEV-001', 'E-RENTAL-DEV-001', 'active')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    status = EXCLUDED.status,
+    updated_at = now();
+
+INSERT INTO public.rental_sku_variants (
+    id,
+    rental_sku_id,
+    sku,
+    color,
+    size,
+    specification,
+    status
+)
+VALUES (
+    'RSV-DEV-001',
+    'RS-DEV-001',
+    'RENTAL-CHAIR-DEV',
+    '森林綠',
+    NULL,
+    '森林綠 / 單人',
+    'active'
+)
+ON CONFLICT (id) DO UPDATE SET
+    rental_sku_id = EXCLUDED.rental_sku_id,
+    color = EXCLUDED.color,
+    size = EXCLUDED.size,
+    specification = EXCLUDED.specification,
+    status = EXCLUDED.status,
+    updated_at = now();
+
