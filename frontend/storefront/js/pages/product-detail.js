@@ -100,7 +100,9 @@ function _renderReviews(reviews) {
     container.innerHTML = '<p class="productReviewEmpty">目前尚無評價</p>';
     return;
   }
-  container.innerHTML = reviews.map((review) => `
+  container.innerHTML = reviews
+    .map(
+      (review) => `
     <div class="reviewCard">
       <div class="reviewHeader">
         <div class="reviewAvatar">${(review.buyerName || '?').charAt(0)}</div>
@@ -112,7 +114,9 @@ function _renderReviews(reviews) {
       </div>
       <p class="reviewText">${review.comment || ''}</p>
     </div>
-  `).join('');
+  `
+    )
+    .join('');
 }
 
 /** 更新 Tab 上的評價數量（依 API 實際筆數）/ Update review count on tab label */
@@ -157,9 +161,7 @@ function _renderGallery(product) {
   // Resolve image paths the same way as product cards (relative to /pages/)
   const images = window.getItemImages
     ? window.getItemImages(product)
-    : [product.image]
-        .filter(Boolean)
-        .map((src) => src);
+    : [product.image].filter(Boolean).map((src) => src);
   const galleryMain = document.getElementById('galleryMain');
   const thumbs = document.getElementById('galleryThumbs');
   if (!galleryMain || !thumbs || images.length === 0) return;
@@ -395,19 +397,34 @@ function _initActionButtons(product) {
     _addSelectedProductToCart(product);
   });
   document.getElementById('buyNowBtn')?.addEventListener('click', () => {
-    _addSelectedProductToCart(product);
+    // 立即購買遇到同一商品規格時沿用購物車原數量，不重複累加。
+    _addSelectedProductToCart(product, true);
     window.setTimeout(() => {
-      window.location.href = 'checkout.html';
+      window.location.href = 'cart.html';
     }, 500);
   });
 }
 
 // Add the current product and selected specs to cart.
-function _addSelectedProductToCart(product) {
+function _addSelectedProductToCart(product, skipIfPresent = false) {
   const qty = parseInt(document.getElementById('qtyInput')?.value || '1', 10);
   const specs = _getSelectedSpecs();
   const variant = window.findProductVariant(product, specs.color, specs.size);
-  window.addToCart(window.buildCartLineFromProduct(product, variant), qty);
+  const cartLine = window.buildCartLineFromProduct(product, variant);
+
+  if (skipIfPresent && _hasMatchingCartLine(cartLine)) return false;
+
+  window.addToCart(cartLine, qty);
+  return true;
+}
+
+// 購物車品項以商品 ID 與規格 ID 判斷是否為同一項。
+function _hasMatchingCartLine(cartLine) {
+  const cart = Array.isArray(window.AppState?.cart) ? window.AppState.cart : [];
+
+  return cart.some(
+    (item) => item.id === cartLine.id && String(item.variantId || '') === String(cartLine.variantId || '')
+  );
 }
 
 // Get currently selected color and size.

@@ -27,6 +27,10 @@ class BookingPublicIntegrationTest {
 	private static final String ACTIVE_ZONE_ID = "Z-BOOKING-E1-A";
 	private static final String RENTAL_LISTING_ID = "RL-BOOKING-E1-IT";
 	private static final String RENTAL_VARIANT_ID = "RSV-BOOKING-E1-IT";
+	private static final long ENVIRONMENT_TAG_ID = 910_001L;
+	private static final long INACTIVE_ENVIRONMENT_TAG_ID = 910_002L;
+	private static final long FACILITY_TAG_ID = 910_001L;
+	private static final long INACTIVE_FACILITY_TAG_ID = 910_002L;
 	private static final long CLOSURE_ID = 990_001L;
 
 	@Autowired
@@ -56,6 +60,26 @@ class BookingPublicIntegrationTest {
 				values (?, ?, '草地區', 4, 1200.00, 1500.00, 8, true),
 				       ('Z-BOOKING-E1-I', ?, '停用區', 2, 900.00, 1100.00, 2, false)
 				""", ACTIVE_ZONE_ID, ACTIVE_CAMPGROUND_ID, ACTIVE_CAMPGROUND_ID);
+		jdbcTemplate.update("""
+				insert into environment_tags (id, code, label, sort_order, active)
+				values (?, 'booking-e1-high-altitude', 'E1 高海拔測試', 0, true),
+				       (?, 'booking-e1-hidden-environment', '停用環境標籤', 1, false)
+				""", ENVIRONMENT_TAG_ID, INACTIVE_ENVIRONMENT_TAG_ID);
+		jdbcTemplate.update("""
+				insert into facility_tags (id, code, label, sort_order, active)
+				values (?, 'booking-e1-rain-shelter', 'E1 有雨棚測試', 0, true),
+				       (?, 'booking-e1-hidden-facility', '停用設施標籤', 1, false)
+				""", FACILITY_TAG_ID, INACTIVE_FACILITY_TAG_ID);
+		jdbcTemplate.update("""
+				insert into campground_environment_tags (campground_id, tag_id)
+				values (?, ?), (?, ?)
+				""", ACTIVE_CAMPGROUND_ID, ENVIRONMENT_TAG_ID,
+				ACTIVE_CAMPGROUND_ID, INACTIVE_ENVIRONMENT_TAG_ID);
+		jdbcTemplate.update("""
+				insert into campground_facility_tags (campground_id, tag_id)
+				values (?, ?), (?, ?)
+				""", ACTIVE_CAMPGROUND_ID, FACILITY_TAG_ID,
+				ACTIVE_CAMPGROUND_ID, INACTIVE_FACILITY_TAG_ID);
 
 		jdbcTemplate.update("""
 				insert into booking_policies
@@ -142,6 +166,10 @@ class BookingPublicIntegrationTest {
 				.andExpect(jsonPath("$.success").value(true))
 				.andExpect(jsonPath("$.data[?(@.id == 'C-BOOKING-E1-IT')]").exists())
 				.andExpect(jsonPath("$.data[?(@.id == 'C-BOOKING-E1-OFF')]").doesNotExist())
+				.andExpect(jsonPath("$.data[?(@.id == 'C-BOOKING-E1-IT')].environmentTags[0]")
+						.value("E1 高海拔測試"))
+				.andExpect(jsonPath("$.data[?(@.id == 'C-BOOKING-E1-IT')].facilityTags[0]")
+						.value("E1 有雨棚測試"))
 				.andExpect(jsonPath("$.meta.totalElements").isNumber());
 	}
 
@@ -150,6 +178,10 @@ class BookingPublicIntegrationTest {
 		mockMvc.perform(get("/api/booking/campgrounds/{id}", ACTIVE_CAMPGROUND_ID))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.id").value(ACTIVE_CAMPGROUND_ID))
+				.andExpect(jsonPath("$.data.environmentTags.length()").value(1))
+				.andExpect(jsonPath("$.data.environmentTags[0]").value("E1 高海拔測試"))
+				.andExpect(jsonPath("$.data.facilityTags.length()").value(1))
+				.andExpect(jsonPath("$.data.facilityTags[0]").value("E1 有雨棚測試"))
 				.andExpect(jsonPath("$.data.zones.length()").value(1))
 				.andExpect(jsonPath("$.data.zones[0].id").value(ACTIVE_ZONE_ID))
 				.andExpect(jsonPath("$.data.zones[0].priceWeekday").value("1200.00"))
@@ -212,6 +244,8 @@ class BookingPublicIntegrationTest {
 	// 每個測試使用獨立可辨識資料，並依外鍵反向清除，避免依賴開發 Seed。
 	private void removeTestData() {
 		jdbcTemplate.update("delete from campground_closures where id = ?", CLOSURE_ID);
+		jdbcTemplate.update("delete from campground_environment_tags where campground_id = ?", ACTIVE_CAMPGROUND_ID);
+		jdbcTemplate.update("delete from campground_facility_tags where campground_id = ?", ACTIVE_CAMPGROUND_ID);
 		jdbcTemplate.update("delete from rental_sku_variant_stocks where rental_sku_variant_id = ?", RENTAL_VARIANT_ID);
 		jdbcTemplate.update("delete from rental_listings where id = ?", RENTAL_LISTING_ID);
 		jdbcTemplate.update("delete from campground_rental_locations where campground_id = ?", ACTIVE_CAMPGROUND_ID);
@@ -225,6 +259,10 @@ class BookingPublicIntegrationTest {
 				ACTIVE_CAMPGROUND_ID, INACTIVE_CAMPGROUND_ID);
 		jdbcTemplate.update("delete from campgrounds where id in (?, ?)",
 				ACTIVE_CAMPGROUND_ID, INACTIVE_CAMPGROUND_ID);
+		jdbcTemplate.update("delete from environment_tags where id in (?, ?)",
+				ENVIRONMENT_TAG_ID, INACTIVE_ENVIRONMENT_TAG_ID);
+		jdbcTemplate.update("delete from facility_tags where id in (?, ?)",
+				FACILITY_TAG_ID, INACTIVE_FACILITY_TAG_ID);
 		jdbcTemplate.update("delete from admin_users where id = 'ADMIN-BOOKING-E1-IT'");
 	}
 }

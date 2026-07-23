@@ -23,9 +23,18 @@
         <h1 class="checkoutTitle">結帳</h1>
         <nav class="checkoutSteps" aria-label="結帳流程">
           <ol class="checkoutStepsList">
-            <li class="checkoutStepItem">購物車</li>
-            <li class="checkoutStepItem" aria-current="step">結帳</li>
-            <li class="checkoutStepItem">完成</li>
+            <li class="checkoutStepItem isCompleted">
+              <span><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+              確認背包
+            </li>
+            <li class="checkoutStepItem isSelected" aria-current="step">
+              <span>2</span>
+              填寫資料
+            </li>
+            <li class="checkoutStepItem">
+              <span>3</span>
+              完成
+            </li>
           </ol>
         </nav>
       </header>
@@ -40,7 +49,11 @@
             hidden
           >
             <div class="checkoutSessionMain">
-              <i class="bi bi-hourglass-split checkoutSessionIcon" id="checkoutSessionIcon" aria-hidden="true"></i>
+              <i
+                class="bi bi-hourglass-split checkoutSessionIcon"
+                id="checkoutSessionIcon"
+                aria-hidden="true"
+              ></i>
               <div>
                 <span class="checkoutSessionBadge" id="checkoutSessionBadge">結帳狀態</span>
                 <h2 class="checkoutSessionTitle" id="checkoutSessionTitle">Checkout Session</h2>
@@ -53,7 +66,6 @@
               <strong id="checkoutCountdown" role="timer" aria-live="off">15:00</strong>
             </div>
             <div class="checkoutSessionActions">
-              <button class="btn btnSecondary" id="cancelCheckoutBtn" type="button" hidden>取消 Checkout</button>
               <button class="btn btnSecondary" id="returnToCartBtn" type="button" hidden>返回購物車</button>
             </div>
           </section>
@@ -78,7 +90,9 @@
                 <legend class="checkoutLegend">聯絡資訊</legend>
                 <div class="checkoutFormGrid">
                   <div class="checkoutField">
-                    <label class="checkoutLabel" for="buyerName">姓名 <span class="requiredMark">*</span></label>
+                    <label class="checkoutLabel" for="buyerName"
+                      >姓名 <span class="requiredMark">*</span></label
+                    >
                     <input
                       class="checkoutInput"
                       type="text"
@@ -89,7 +103,9 @@
                     />
                   </div>
                   <div class="checkoutField">
-                    <label class="checkoutLabel" for="buyerPhone">手機 <span class="requiredMark">*</span></label>
+                    <label class="checkoutLabel" for="buyerPhone"
+                      >手機 <span class="requiredMark">*</span></label
+                    >
                     <input
                       class="checkoutInput"
                       type="tel"
@@ -105,7 +121,9 @@
                   </div>
                 </div>
                 <div class="checkoutField">
-                  <label class="checkoutLabel" for="buyerEmail">Email <span class="requiredMark">*</span></label>
+                  <label class="checkoutLabel" for="buyerEmail"
+                    >Email <span class="requiredMark">*</span></label
+                  >
                   <input
                     class="checkoutInput"
                     type="email"
@@ -185,7 +203,11 @@
                 <div class="shippingAddressBlock">
                   <span class="shippingAddressLabel">送達地址 <span class="requiredMark">*</span></span>
                   <div class="shippingAddressMain">
-                    <div id="checkoutShippingAddressDisplay" class="shippingAddressDisplay" aria-live="polite">
+                    <div
+                      id="checkoutShippingAddressDisplay"
+                      class="shippingAddressDisplay"
+                      aria-live="polite"
+                    >
                       <span class="shippingAddressEmpty">尚未設定</span>
                     </div>
                     <button
@@ -289,7 +311,7 @@
               <!-- 由 JS 動態渲染 -->
             </div>
 
-            <div class="couponPanel">
+            <div class="couponPanel" id="checkoutCouponPanel" aria-busy="false">
               <label class="couponLabel" for="checkoutCouponInput">折扣碼</label>
               <div class="couponControl">
                 <input
@@ -306,7 +328,14 @@
                 </button>
               </div>
               <div class="couponAppliedList" id="checkoutAppliedCouponTexts" hidden></div>
-              <div class="couponMessage" id="checkoutCouponMsg" aria-live="polite" hidden></div>
+              <div
+                class="couponMessage"
+                id="checkoutCouponMsg"
+                role="status"
+                aria-live="polite"
+                tabindex="-1"
+                hidden
+              ></div>
             </div>
 
             <div class="checkoutSummaryRows" aria-label="金額明細">

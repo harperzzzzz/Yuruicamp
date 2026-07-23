@@ -6,6 +6,7 @@
       fallbackAuthStorageKey: 'yuruiUser',
       homeHref: 'home.html',
       requireLogin: true,
+      lockGoogleEmail: false,
     },
     window.MemberCenterConfig || {}
   );
@@ -17,6 +18,7 @@
       ['shipped', '已出貨', 'isUpcoming'],
       ['completed', '已完成', 'isDone'],
       ['returned', '已退貨', 'isCancelled'],
+      ['cancelled', '已取消', 'isCancelled'],
     ],
     rental: [
       ['all', '全部', ''],
@@ -109,6 +111,45 @@
   function registeredDate(value) {
     return value ? String(value).slice(0, 10) : '--';
   }
+
+  // 依 Firebase 或會員資料判斷目前登入管道，沒有資料時保持欄位可編輯。
+  function currentAuthProvider() {
+    var firebaseUser = window.YuruiFirebase?.getAuth?.()?.currentUser;
+    var firebaseProvider =
+      firebaseUser &&
+      Array.isArray(firebaseUser.providerData) &&
+      firebaseUser.providerData.find(function (item) {
+        return item && item.providerId;
+      });
+    var currentUser = loginUser();
+    var provider =
+      (currentUser && (currentUser.provider || currentUser.authProvider)) ||
+      (state.user && (state.user.provider || state.user.authProvider)) ||
+      (firebaseProvider && firebaseProvider.providerId) ||
+      '';
+
+    return String(provider).trim().toLowerCase();
+  }
+
+  // Booking 會員中心的 Google 信箱由登入帳號管理，不允許在個人資料表單修改。
+  function isGoogleProfileEmailLocked() {
+    var provider = currentAuthProvider();
+    return cfg.lockGoogleEmail === true && (provider === 'google' || provider === 'google.com');
+  }
+
+  // 同步 Email 欄位的唯讀狀態與無障礙說明。
+  function applyProfileEmailAccess() {
+    var emailInput = document.getElementById('profileEmail');
+    if (!emailInput) return;
+    var locked = isGoogleProfileEmailLocked();
+
+    emailInput.readOnly = locked;
+    emailInput.setAttribute('aria-readonly', String(locked));
+    emailInput.setAttribute('aria-label', locked ? '電子郵件（Google 登入帳號，無法修改）' : '電子郵件');
+    if (locked) emailInput.title = 'Google 登入信箱無法在此修改';
+    else emailInput.removeAttribute('title');
+  }
+
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function money(value) {
     return 'NT$ ' + Number(value || 0).toLocaleString('zh-TW');
@@ -286,6 +327,35 @@
   function savedProfile() {
     return parse(localStorage.getItem('yurui_profile'), {}) || {};
   }
+
+  // 將會員中心姓名同步到共用登入狀態，讓主站與 Booking Header 顯示相同內容。
+  function syncProfileDisplayName(name) {
+    var normalizedName = String(name || '').trim();
+    if (!normalizedName) return;
+    var userId = state.user && state.user.id ? String(state.user.id) : null;
+    var changed = false;
+
+    if (state.user && state.user.name !== normalizedName) {
+      state.user.name = normalizedName;
+      changed = true;
+    }
+    if (
+      window.AppState &&
+      window.AppState.currentUser &&
+      (!userId || String(window.AppState.currentUser.id) === userId) &&
+      window.AppState.currentUser.name !== normalizedName
+    ) {
+      window.AppState.currentUser.name = normalizedName;
+      changed = true;
+    }
+    if (changed && typeof window.saveAppState === 'function') window.saveAppState();
+    window.dispatchEvent(
+      new CustomEvent('yurui:profile-updated', {
+        detail: { userId: userId, name: normalizedName },
+      })
+    );
+  }
+
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   function selectedPrefs() {
     var app = prefValues(window.AppState && window.AppState.preferences);
@@ -320,6 +390,8 @@
         console.warn('Sync normalized customer preferences failed', error);
       });
     }
+    window.syncPersonalizationPreferenceTags?.(obj);
+    window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: obj }));
   }
   // 用途：初始化會員資料頁的配送地址顯示與編輯 Modal。
   function initProfileShippingAddress() {
@@ -349,8 +421,9 @@
   function applyProfile() {
     if (!state.user) return;
     var s = savedProfile();
-    var name = s.name || state.user.name || 'Yurui Camper';
+    var name = state.user.name || s.name || 'Yurui Camper';
     var email = state.user.email || s.email || 'member@yuruicamp.test';
+    syncProfileDisplayName(name);
     text('mcName', name);
     text('mcEmail', email);
     renderAvatarElement(document.getElementById('mcAvatar'), state.user, name);
@@ -362,6 +435,7 @@
     input('profilePhone', s.phone || state.user.phone || '');
     input('profileEmail', email);
     input('profileBirthday', s.birthday || state.user.birthday || '');
+    applyProfileEmailAccess();
     var birthdayInput = document.getElementById('profileBirthday');
     if (birthdayInput) birthdayInput.max = minimumAdultBirthday();
     initProfileShippingAddress();
@@ -824,6 +898,15 @@
           html(order.id) +
           '"><i class="bi bi-x-circle" aria-hidden="true"></i><span>取消待付款預約</span></button>'
         : '';
+    // 商品訂單只在後端允許取消的待出貨、未付款狀態顯示操作。
+    var cancelPurchaseAction =
+      type === 'purchase' &&
+      norm('purchase', order.status) === 'unshipped' &&
+      order.paymentStatus === 'unpaid'
+        ? '<button class="memberDetailLineButton" type="button" data-cancel-order="' +
+          html(order.id) +
+          '"><i class="bi bi-x-circle" aria-hidden="true"></i><span>取消訂單</span></button>'
+        : '';
     return (
       '<div class="memberDetailSummary">' +
       '<div class="memberDetailDate">' +
@@ -922,7 +1005,8 @@
       '<span>使用 LINE 詢問' +
       (type === 'rental' ? '預約' : '訂單') +
       '</span>' +
-      '</a>'
+      '</a>' +
+      cancelPurchaseAction
     );
   }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -997,6 +1081,32 @@
     } catch (error) {
       console.error('Booking cancellation failed', error);
       toast(error && error.message ? error.message : '取消預約失敗', 'error');
+    }
+  };
+
+  // 商品訂單取消交由既有 Checkout API，成功後重新讀取本人訂單。
+  window.cancelPurchaseOrder = async function (id, trigger) {
+    if (!window.API || !window.API.checkout || !window.API.checkout.cancelSession) {
+      toast('取消訂單功能目前不可用', 'error');
+      return;
+    }
+
+    if (trigger) {
+      trigger.disabled = true;
+      trigger.setAttribute('aria-busy', 'true');
+    }
+    try {
+      await window.API.checkout.cancelSession(id);
+      toast('訂單已取消', 'success');
+      closeModal('orderDetailOverlay');
+      await loadData();
+    } catch (error) {
+      console.error('Purchase order cancellation failed', error);
+      toast(error && error.message ? error.message : '取消訂單失敗', 'error');
+      if (trigger) {
+        trigger.disabled = false;
+        trigger.removeAttribute('aria-busy');
+      }
     }
   };
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
@@ -1117,6 +1227,16 @@
       console.warn('Member profile load failed; keeping current login profile', error);
       state.user = loginUser();
     }
+
+    // 正式模式從會員本人 API 載入預設地址；沒有地址時維持空表單。
+    if (state.user && window.API.shippingAddresses?.getDefault) {
+      try {
+        var shippingAddress = await window.API.shippingAddresses.getDefault();
+        if (shippingAddress) state.user.shippingAddress = shippingAddress;
+      } catch (error) {
+        console.warn('Member shipping address load skipped', error);
+      }
+    }
     if (state.user && window.AppState) {
       window.AppState.isLoggedIn = true;
       window.AppState.currentUser = state.user;
@@ -1133,7 +1253,8 @@
             });
           }),
       window.API.customers.getNotifications(uid),
-      window.API.coupons.getAvailable(uid),
+      // 正式模式讀取會員本人 claims；Mock 模式由 facade 保留既有資格展示。
+      window.API.coupons.getMemberCenter(uid),
       window.API.reviews && window.API.reviews.getAll ? window.API.reviews.getAll() : Promise.resolve([]),
       window.BookingAPI && window.BookingAPI.getBookings
         ? window.BookingAPI.getBookings(uid)
@@ -1326,12 +1447,21 @@
       }
       form.addEventListener('submit', function (e) {
         e.preventDefault();
+        clearMemberFieldError('profileName');
         clearMemberFieldError('profilePhone');
         clearMemberFieldError('profileEmail');
         clearMemberFieldError('profileBirthday');
+        var nameRaw = document.getElementById('profileName').value.trim();
         var phoneRaw = document.getElementById('profilePhone').value.trim();
-        var emailRaw = document.getElementById('profileEmail').value.trim();
+        var emailInput = document.getElementById('profileEmail');
+        var emailRaw = isGoogleProfileEmailLocked()
+          ? String((state.user && state.user.email) || '').trim()
+          : emailInput.value.trim();
         var birthdayRaw = document.getElementById('profileBirthday').value;
+        if (!nameRaw) {
+          showMemberFieldError('profileName', '請填寫姓名');
+          return;
+        }
         if (!phoneRaw) {
           showMemberFieldError('profilePhone', '請填寫手機');
           return;
@@ -1349,7 +1479,7 @@
           return;
         }
         var s = savedProfile();
-        s.name = document.getElementById('profileName').value.trim();
+        s.name = nameRaw;
         s.phone = window.normalizeMobile
           ? window.normalizeMobile(phoneRaw)
           : phoneRaw.replace(/[\s\-()]/g, '');
@@ -1363,6 +1493,7 @@
           )
         );
         localStorage.setItem('yurui_profile', JSON.stringify(s));
+        syncProfileDisplayName(s.name);
         if (state.user) {
           state.user.phone = s.phone;
           state.user.email = s.email;
@@ -1381,17 +1512,17 @@
           state.user &&
           state.user.id
         ) {
-          window.API.customers
-            .update(state.user.id, {
-              name: s.name,
-              phone: s.phone,
-              email: s.email,
-              birthday: s.birthday || null,
-              preferences: s.preferences,
-            })
-            .catch(function (err) {
-              console.warn('Sync member profile failed', err);
-            });
+          // Google 信箱不送入會員資料更新，其他登入管道才允許修改。
+          var profileUpdates = {
+            name: s.name,
+            phone: s.phone,
+            birthday: s.birthday || null,
+            preferences: s.preferences,
+          };
+          if (!isGoogleProfileEmailLocked()) profileUpdates.email = s.email;
+          window.API.customers.update(state.user.id, profileUpdates).catch(function (err) {
+            console.warn('Sync member profile failed', err);
+          });
         }
         toast('會員資料已更新', 'success');
         applyProfile();
@@ -1407,6 +1538,8 @@
       if (o) return window.openOrderDetail(o.dataset.orderDetail);
       var r = e.target.closest('[data-rental-detail]');
       if (r) return window.openRentalOrderDetail(r.dataset.rentalDetail);
+      var cancelOrder = e.target.closest('[data-cancel-order]');
+      if (cancelOrder) return window.cancelPurchaseOrder(cancelOrder.dataset.cancelOrder, cancelOrder);
       var cancelBooking = e.target.closest('[data-cancel-booking]');
       if (cancelBooking) return window.cancelRentalBooking(cancelBooking.dataset.cancelBooking);
       var rv = e.target.closest('[data-review-order]');
@@ -1433,6 +1566,7 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
+        closeModal('profileOnboardingOverlay');
         closeModal('orderDetailOverlay');
         closeModal('reviewOverlay');
       }
@@ -1459,6 +1593,7 @@
   // 用途：整理會員中心函式行為
   function bindModals() {
     [
+      ['profileOnboardingOverlay', 'profileOnboardingClose'],
       ['orderDetailOverlay', 'orderDetailClose'],
       ['reviewOverlay', 'reviewClose'],
     ].forEach(function (p) {
@@ -1493,6 +1628,13 @@
         });
       }
     });
+    var onboardingAcknowledge = document.getElementById('profileOnboardingAcknowledge');
+    if (onboardingAcknowledge && !onboardingAcknowledge.dataset.bound) {
+      onboardingAcknowledge.dataset.bound = 'true';
+      onboardingAcknowledge.addEventListener('click', function () {
+        closeModal('profileOnboardingOverlay');
+      });
+    }
     document.querySelectorAll('.memberRatingStar').forEach(function (b) {
       if (b.dataset.bound) return;
       b.dataset.bound = 'true';
@@ -1608,8 +1750,8 @@
     if (onboarding === 'profile') {
       switchPanel('profile');
       setTimeout(function () {
-        toast('先填寫會員資料，完成後即可使用完整會員功能', 'info');
         document.getElementById('profileName')?.focus({ preventScroll: true });
+        openModal('profileOnboardingOverlay');
       }, 0);
     }
     var login = document.getElementById('guardLoginBtn');

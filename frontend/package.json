@@ -22,6 +22,8 @@
     "test:booking-facade": "node tests/booking-api-facade.mjs",
     "test:booking-request": "node tests/booking-checkout-request.mjs",
     "test:member-orders": "node tests/member-orders-facade.mjs",
+    "test:member-address": "node tests/member-shipping-address-facade.mjs",
+    "test:member-coupons": "node tests/member-coupons-facade.mjs",
     "test:first-login": "node tests/first-login-personalization.mjs",
     "test:admin-rbac": "node tests/admin-rbac-facade.mjs",
     "test:admin-customers": "node tests/admin-customers-facade.mjs",

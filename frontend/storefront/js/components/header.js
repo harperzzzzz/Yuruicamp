@@ -259,10 +259,9 @@
   window.handleLogout = function () {
     if (window.YuruiAuth && typeof window.YuruiAuth.logout === 'function') {
       // logout 可能回傳 Promise（Firebase signOut）；完成後再更新 navbar
-      Promise.resolve(window.YuruiAuth.logout({ close: closeUserMenu }))
-        .finally(function () {
-          window.updateNavbarLoginState();
-        });
+      Promise.resolve(window.YuruiAuth.logout({ close: closeUserMenu })).finally(function () {
+        window.updateNavbarLoginState();
+      });
       return;
     }
     if (window.AppState) {
@@ -435,6 +434,8 @@
       if (['isLoggedIn', 'currentUser', 'yuruiUser'].includes(event.key)) window.updateNavbarLoginState();
     });
     window.addEventListener('yurui:auth-changed', window.updateNavbarLoginState);
+    // 會員中心更新姓名後，立即讓同頁 Header 的 .siteUserName 使用新姓名。
+    window.addEventListener('yurui:profile-updated', window.updateNavbarLoginState);
   }
 
   window.initNavbar();

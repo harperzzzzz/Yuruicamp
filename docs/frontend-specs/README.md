@@ -24,6 +24,8 @@
 - [Admin 登入頁（Firebase Google）](pages/admin-login-page.md)
 - [Checkout API facade](api/checkout-facade.md)
 - [商城 Checkout 與 Booking 實際驗證](test/commerce-booking-validation.md)
+- [商城正式優惠券 UI 驗證](test/checkout-coupon-validation.md)
+- [會員中心正式優惠券驗證](test/member-coupon-validation.md)
 - [Booking API facade](api/booking-facade.md)
 - [後台前端實際驗證](test/admin-validation.md)
 
@@ -43,6 +45,7 @@
 - [HomePage](pages/home-page.md)－`pages/home.html`
 - [ProductsPage](pages/products-page.md)－`pages/products.html`
 - [ProductDetailPage](pages/product-detail-page.md)－`pages/product-detail.html`
+- [StorefrontCartPage](pages/storefront-cart-page.md)－`storefront/pages/cart.html`
 - [CheckoutPage](pages/checkout-page.md)－`pages/checkout.html`
 - [CheckoutSuccessPage](pages/checkout-success-page.md)－`pages/checkout-success.html`
 - [MemberCenterPage](pages/member-center-page.md)－`pages/member-center.html`

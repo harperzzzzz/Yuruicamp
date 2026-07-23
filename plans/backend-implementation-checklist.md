@@ -48,6 +48,7 @@
 - [x] `ApiResponse`／錯誤碼／`GlobalExceptionHandler`
 - [x] Firebase ID Token（含 `dev:` stub）
 - [x] Customer／Admin session、`GET /api/me`、`GET /api/health`、Swagger
+- [x] 會員本人預設配送地址 `GET/PUT /api/me/shipping-address`（Principal 隔離、PostgreSQL 保存、前端 Mock／Backend 分流）
 - [x] MapStruct；架構書認證 Mode B（不自簽 JWT）
 
 ---
@@ -121,7 +122,7 @@
 ## 線 E — Booking（P1）
 
 - [x] E-0 Booking Checkout 冪等 Schema（key、request hash、會員範圍唯一約束）
-- [x] E-1 公開讀：營區／裝備／policy／closures（PostgreSQL + Controller 7 項整合測試通過）
+- [x] E-1 公開讀：營區環境／設施標籤、裝備、policy、closures（PostgreSQL + Controller 7 項整合測試通過）
 - [x] E-2 `POST /api/booking/check-availability`（日期／政策驗證、跨晚最低量、公休、zone block、pending／confirmed 占用；PostgreSQL 11 項整合測試通過）
 - [x] E-3 `POST /api/booking/checkout/sessions`（會員冪等、固定順序悲觀鎖、後端日曆計價、pending／unpaid 快照；PostgreSQL 7 項整合測試通過）
 - [x] E-4 租借加購綁預約（營區庫位解析、實體庫存鎖、跨日 active 保留、快照與並發防超租；PostgreSQL 8 項整合測試通過）

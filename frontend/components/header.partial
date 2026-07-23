@@ -143,7 +143,7 @@
           <span>總計</span>
           <strong id="summaryTotal">NT$0</strong>
         </div>
-        <a id="checkoutBtn" class="siteCartCheckoutLink" href="/storefront/pages/checkout.html">前往結帳</a>
+        <a id="checkoutBtn" class="siteCartCheckoutLink" href="/storefront/pages/cart.html">確認購物背包</a>
       </div>
     </aside>
     <div class="siteCartDrawerBackdrop" id="siteCartBackdrop" hidden></div>
@@ -212,11 +212,13 @@
           <p class="surveyHint">至少選擇 2 項，系統會用來推薦商品與營地。</p>
           <div class="surveyTags">
             <button class="surveyTag" type="button" data-value="glamping">Glamping</button>
-            <button class="surveyTag" type="button" data-value="backpacking">登山輕量</button>
-            <button class="surveyTag" type="button" data-value="family">親子露營</button>
-            <button class="surveyTag" type="button" data-value="solo">單人旅行</button>
-            <button class="surveyTag" type="button" data-value="hiking">健行探索</button>
-            <button class="surveyTag" type="button" data-value="car-camping">車宿露營</button>
+            <button class="surveyTag" type="button" data-value="backpacking">背包旅行</button>
+            <button class="surveyTag" type="button" data-value="family">家庭露營</button>
+            <button class="surveyTag" type="button" data-value="solo">獨旅</button>
+            <button class="surveyTag" type="button" data-value="hiking">登山健行</button>
+            <button class="surveyTag" type="button" data-value="car-camping">車宿</button>
+            <button class="surveyTag" type="button" data-value="ultralight">輕量化</button>
+            <button class="surveyTag" type="button" data-value="base-camp">基地營</button>
           </div>
           <button id="surveyNextBtn" class="surveyActionButton" type="button">下一步</button>
         </div>
@@ -230,7 +232,11 @@
             <button class="surveyTag" type="button" data-value="backpack">背包</button>
             <button class="surveyTag" type="button" data-value="cooking">炊具</button>
             <button class="surveyTag" type="button" data-value="lighting">照明</button>
-            <button class="surveyTag" type="button" data-value="chair">桌椅</button>
+            <button class="surveyTag" type="button" data-value="clothing">服飾</button>
+            <button class="surveyTag" type="button" data-value="chair">椅凳</button>
+            <button class="surveyTag" type="button" data-value="navigation">導航</button>
+            <button class="surveyTag" type="button" data-value="safety">安全用品</button>
+            <button class="surveyTag" type="button" data-value="photography">攝影</button>
           </div>
           <button id="surveyFinishBtn" class="surveyActionButton" type="button">完成設定</button>
         </div>

@@ -11,6 +11,8 @@
 
 - [資料庫與完整 Seed 驗證](./database-seed-validation.md)
 - [公開／會員 API 驗證](./public-member-api-validation.md)
+- [Booking 營區標籤篩選驗證](./booking-campground-tag-filter-validation.md)
+- [會員配送地址 API 驗證](./member-shipping-address-api-validation.md)
 - [Admin API 驗證](./admin-api-validation.md)
 - 前端瀏覽器驗證見 [`docs/frontend-specs/test/README.md`](../../frontend-specs/test/README.md)。
 

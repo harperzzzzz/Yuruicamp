@@ -45,4 +45,4 @@ docs/seed/
 
 # 預期目標:
 - 嚴格遵守限制條件完成任務
-- 完成任務後，後端在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，前端在/docs/frontend-specs/test/ 下建立網頁的驗證流程，詳細說明步驟，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。
+- 完成任務後，後端在/docs/backend-specs/test/ 下建立一個給開發者手動在swagger 建立驗證的流程，詳細說明步驟，在文件結尾解說驗證的必要和原因，如果沒有實際完成的線程則不要建立test 文件。

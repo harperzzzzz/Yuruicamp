@@ -1,7 +1,11 @@
 package com.yuruicamp.backend.booking.infrastructure;
 
 import java.math.BigDecimal;
+import java.sql.Array;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,32 +25,89 @@ public class BookingPublicRepository {
 	// 只取得可公開預約的有效營區。
 	public List<CampgroundRow> findActiveCampgrounds() {
 		return jdbcTemplate.query("""
-				select id, name, region, description, active
-				from campgrounds
-				where active = true
-				order by id
-				""", (rs, rowNum) -> new CampgroundRow(
-				rs.getString("id"),
-				rs.getString("name"),
-				rs.getString("region"),
-				rs.getString("description"),
-				rs.getBoolean("active")));
+				select campground.id,
+				       campground.name,
+				       campground.region,
+				       campground.description,
+				       campground.active,
+				       array(
+				           select tag.label
+				           from campground_environment_tags relation
+				           join environment_tags tag on tag.id = relation.tag_id
+				           where relation.campground_id = campground.id
+				             and tag.active = true
+				           order by tag.sort_order, tag.id
+				       ) as environment_tags,
+				       array(
+				           select tag.label
+				           from campground_facility_tags relation
+				           join facility_tags tag on tag.id = relation.tag_id
+				           where relation.campground_id = campground.id
+				             and tag.active = true
+				           order by tag.sort_order, tag.id
+				       ) as facility_tags
+				from campgrounds campground
+				where campground.active = true
+				order by campground.id
+				""", this::mapCampground);
 	}
 
 	// 依 ID 取得有效營區，停用營區對公開 API 等同不存在。
 	public Optional<CampgroundRow> findActiveCampground(String id) {
 		return jdbcTemplate.query("""
-				select id, name, region, description, active
-				from campgrounds
-				where id = ? and active = true
-				""", (rs, rowNum) -> new CampgroundRow(
-				rs.getString("id"),
-				rs.getString("name"),
-				rs.getString("region"),
-				rs.getString("description"),
-				rs.getBoolean("active")), id)
+				select campground.id,
+				       campground.name,
+				       campground.region,
+				       campground.description,
+				       campground.active,
+				       array(
+				           select tag.label
+				           from campground_environment_tags relation
+				           join environment_tags tag on tag.id = relation.tag_id
+				           where relation.campground_id = campground.id
+				             and tag.active = true
+				           order by tag.sort_order, tag.id
+				       ) as environment_tags,
+				       array(
+				           select tag.label
+				           from campground_facility_tags relation
+				           join facility_tags tag on tag.id = relation.tag_id
+				           where relation.campground_id = campground.id
+				             and tag.active = true
+				           order by tag.sort_order, tag.id
+				       ) as facility_tags
+				from campgrounds campground
+				where campground.id = ? and campground.active = true
+				""", this::mapCampground, id)
 				.stream()
 				.findFirst();
+	}
+
+	// 將營區基本資料與兩組標籤整理成公開 API 使用的唯讀資料。
+	private CampgroundRow mapCampground(ResultSet resultSet, int rowNumber) throws SQLException {
+		return new CampgroundRow(
+				resultSet.getString("id"),
+				resultSet.getString("name"),
+				resultSet.getString("region"),
+				resultSet.getString("description"),
+				resultSet.getBoolean("active"),
+				toLabelList(resultSet, "environment_tags"),
+				toLabelList(resultSet, "facility_tags"));
+	}
+
+	// PostgreSQL array 轉為不可變字串清單，避免查無標籤時回傳 null。
+	private List<String> toLabelList(ResultSet resultSet, String columnName) throws SQLException {
+		Array labels = resultSet.getArray(columnName);
+		if (labels == null) {
+			return List.of();
+		}
+		try {
+			String[] values = (String[]) labels.getArray();
+
+			return List.copyOf(Arrays.asList(values));
+		} finally {
+			labels.free();
+		}
 	}
 
 	// 詳情只載入有效營位，並以 ID 維持穩定順序。
@@ -163,7 +224,14 @@ public class BookingPublicRepository {
 				rs.getBoolean("is_closed")), from, toInclusive, campgroundId);
 	}
 
-	public record CampgroundRow(String id, String name, String region, String description, boolean active) {
+	public record CampgroundRow(
+			String id,
+			String name,
+			String region,
+			String description,
+			boolean active,
+			List<String> environmentTags,
+			List<String> facilityTags) {
 	}
 
 	public record ZoneRow(

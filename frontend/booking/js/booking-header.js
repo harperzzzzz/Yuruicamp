@@ -407,6 +407,8 @@
       if (['isLoggedIn', 'currentUser', 'yuruiUser'].indexOf(event.key) !== -1) checkLoginState();
     });
     window.addEventListener('yurui:auth-changed', checkLoginState);
+    // 共用會員中心更新姓名後，立即同步 Booking Header 的 .siteUserName。
+    window.addEventListener('yurui:profile-updated', checkLoginState);
   }
 
   function initBookingHeader() {

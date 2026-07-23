@@ -217,6 +217,8 @@ public class BookingPublicService {
 				row.region(),
 				row.description(),
 				row.active(),
+				row.environmentTags(),
+				row.facilityTags(),
 				zones);
 	}
 

@@ -174,6 +174,31 @@ const _formatLocalDateTime = (date = new Date()) => {
   return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 };
 
+// 將後端 CouponClaimResponse 轉成會員中心既有折價券卡片欄位。
+const _toMemberCouponCard = (claim) => {
+  const coupon = claim?.coupon || {};
+  const claimStatus = String(claim?.status || '').trim();
+  const couponStatus = String(coupon.status || '').trim();
+
+  return {
+    id: claim?.id,
+    couponId: claim?.couponId,
+    claimStatus,
+    code: coupon.code || '',
+    name: coupon.name || '',
+    type: coupon.discountType || 'fixed',
+    discount: Number(coupon.discountValue) || 0,
+    minOrder: Number(coupon.minimumAmount) || 0,
+    category: coupon.category || 'promotion',
+    startDate: coupon.validFrom || '',
+    endDate: coupon.validUntil || '',
+    expiry: coupon.validUntil ? String(coupon.validUntil).slice(0, 10) : '',
+    claimedAt: claim?.claimedAt || '',
+    consumedAt: claim?.consumedAt || null,
+    used: claimStatus !== 'claimed' || couponStatus !== 'active',
+  };
+};
+
 const _getStoredOrders = () => _readJsonStorage(MOCK_ORDERS_KEY, []);
 
 const _mergeOrders = (base = [], persisted = []) => {
@@ -579,6 +604,77 @@ const customersApi = {
     localStorage.removeItem('yuruiUser');
     localStorage.setItem('isLoggedIn', 'false');
     window.dispatchEvent(new CustomEvent('yurui:auth-changed', { detail: { type: 'logout', user: null } }));
+  },
+};
+
+// 將會員中心表單轉為後端既有 customer_shipping_addresses 契約。
+const _toMemberShippingAddressRequest = (address) => {
+  const normalized = window.YuruiShippingAddress?.clone
+    ? window.YuruiShippingAddress.clone(address)
+    : { ...(address || {}) };
+  return {
+    recipientName: `${normalized.lastName || ''}${normalized.firstName || ''}`.trim(),
+    postalCode: String(normalized.postalCode || '').trim(),
+    city: String(normalized.city || '').trim(),
+    district: String(normalized.district || '').trim(),
+    addressLine: [normalized.township, normalized.addressLine1, normalized.addressLine2]
+      .filter(Boolean)
+      .join(' ')
+      .trim(),
+    phone: String(normalized.phone || '').replace(/[\s\-()]/g, ''),
+    email: String(normalized.email || '').trim(),
+  };
+};
+
+// 後端只保存完整收件人姓名；讀回時以首字作為姓，維持既有雙欄表單。
+const _fromMemberShippingAddressResponse = (address) => {
+  if (!address) return null;
+  const recipientName = String(address.recipientName || '').trim();
+  return {
+    lastName: recipientName.slice(0, 1),
+    firstName: recipientName.slice(1),
+    postalCode: address.postalCode || '',
+    city: address.city || '',
+    district: address.district || '',
+    township: '',
+    addressLine1: address.addressLine || '',
+    addressLine2: '',
+    email: address.email || '',
+    phone: address.phone || '',
+  };
+};
+
+const memberShippingAddressesApi = {
+  getDefault: async () => {
+    if (!_useMockApi()) {
+      const response = await window.ApiClient._restRequest('/me/shipping-address', {
+        auth: 'required',
+      });
+      return _fromMemberShippingAddressResponse(response);
+    }
+
+    return window.AppState?.currentUser?.shippingAddress || null;
+  },
+
+  saveDefault: async (address) => {
+    if (!_useMockApi()) {
+      const response = await window.ApiClient._restRequest('/me/shipping-address', {
+        method: 'PUT',
+        auth: 'required',
+        body: _toMemberShippingAddressRequest(address),
+      });
+      return _fromMemberShippingAddressResponse(response);
+    }
+
+    const current = window.AppState?.currentUser;
+    if (!current?.id) throw new Error('Unauthorized');
+    const normalized = window.YuruiShippingAddress?.clone
+      ? window.YuruiShippingAddress.clone(address)
+      : { ...(address || {}) };
+    current.shippingAddress = normalized;
+    _setCustomerRelationOverlay(current.id, { shippingAddress: normalized });
+    window.saveAppState && window.saveAppState();
+    return normalized;
   },
 };
 
@@ -1312,9 +1408,55 @@ window.API = {
 
   customers: customersApi,
   users: customersApi,
+  shippingAddresses: memberShippingAddressesApi,
 
   coupons: {
     getAll: async () => _loadMockOrRest('coupons', '/coupons'),
+
+    // 正式模式讀取登入會員已領取的優惠券；Mock 維持既有前端試算流程。
+    getMine: async () => {
+      if (_useMockApi()) return [];
+
+      return window.ApiClient._restRequest('/me/coupons', {
+        auth: 'required',
+      });
+    },
+
+    // 正式模式依優惠券主檔 ID 領券，取得 Checkout 所需的 couponClaimId。
+    claim: async (couponId) => {
+      const normalizedCouponId = Number(couponId);
+      if (!Number.isInteger(normalizedCouponId) || normalizedCouponId <= 0) {
+        throw new window.ApiRequestError(
+          'VALIDATION_ERROR',
+          'couponId must be a positive integer',
+          [],
+          400
+        );
+      }
+      if (_useMockApi()) {
+        throw new window.ApiRequestError(
+          'COUPON_BACKEND_ONLY',
+          'Coupon claims are only available in Backend mode'
+        );
+      }
+
+      return window.ApiClient._restRequest('/me/coupons/claims', {
+        method: 'POST',
+        auth: 'required',
+        body: { couponId: normalizedCouponId },
+      });
+    },
+
+    // 會員中心正式模式顯示本人 claims；Mock 才沿用前端資格篩選。
+    getMemberCenter: async (customerId) => {
+      if (_useMockApi()) {
+        return window.API.coupons.getAvailable(customerId);
+      }
+
+      const claims = await window.API.coupons.getMine();
+
+      return (claims || []).map(_toMemberCouponCard);
+    },
 
     // 會員中心列表：僅 birthday + firstPurchase（promotion 活動碼只在結帳輸入）
     // Member center list: birthday + firstPurchase only (promotion codes are checkout-entry)

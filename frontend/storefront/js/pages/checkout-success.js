@@ -43,7 +43,8 @@
         badge: 'COD confirmed',
         title: '貨到付款訂單已成立',
         icon: 'bi-check-lg',
-        description: '訂單已進入備貨流程，收到商品時再以現金付款。',
+        description:
+          '訂單已進入備貨流程，收到商品時再以現金付款。取消訂單可以前往會員中心的訂單紀錄取消訂單。',
       };
     }
     if (expired) {
@@ -120,9 +121,10 @@
 
     global.clearInterval(countdownTimer);
     const updateExpiry = () => {
-      setText('checkoutExpiryDisplay', session.checkoutExpiresAt
-        ? formatRemaining(session.checkoutExpiresAt)
-        : '不適用');
+      setText(
+        'checkoutExpiryDisplay',
+        session.checkoutExpiresAt ? formatRemaining(session.checkoutExpiresAt) : '不適用'
+      );
       if (Date.parse(session.checkoutExpiresAt || '') <= Date.now()) global.clearInterval(countdownTimer);
     };
     updateExpiry();

@@ -99,7 +99,10 @@ INSERT INTO public.customers (
     status
 )
 VALUES (
-    '99eeb41d1cc948ff98bca94d90ddfa93',
+    COALESCE(
+        (SELECT id FROM public.customers WHERE lower(email) = lower('pinkchickstarburstc8763@gmail.com')),
+        '99eeb41d1cc948ff98bca94d90ddfa93'
+    ),
     '粉紅雞',
     NULL,
     'pinkchickstarburstc8763@gmail.com',

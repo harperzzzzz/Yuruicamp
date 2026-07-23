@@ -14,5 +14,7 @@ public record CampgroundResponse(
 		@Schema(example = "北部") String region,
 		String description,
 		boolean active,
+		List<String> environmentTags,
+		List<String> facilityTags,
 		List<ZoneResponse> zones) {
 }

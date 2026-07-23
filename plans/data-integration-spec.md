@@ -123,6 +123,10 @@ frontend/data/admin/            reviews.json, movement.json, min-stock.json, ren
 `camp-equipment.campgroundId` 僅能為 C002–C009。  
 `camp-bookings.bookingInfo.campgroundId` 同上。
 
+營區公開 API 的 `environmentTags`、`facilityTags` 分別由
+`campground_environment_tags → environment_tags.label` 與
+`campground_facility_tags → facility_tags.label` 產生；只回 active 標籤，無關聯時固定回 `[]`，供前台搜尋頁篩選。
+
 ## 預約可用性（Zone 級）
 
 | 檔案                         | 對應未來 DB 表                        | 說明                                  |

@@ -158,11 +158,11 @@ INSERT INTO public.campground_facility_tags (campground_id, tag_id) VALUES
 
 -- 前端 marketing/branches.json 的 3 個固定門市。
 INSERT INTO public.branches (
-    id, name, address, phone, latitude, longitude, map_query, business_hours, image_url
+    id, name, address, phone, latitude, longitude, map_query, business_hours, image_url, active
 ) VALUES
-    ('branch-001', 'Yuruicamp 台北旗艦店', '台北市信義區信義路五段100號 B1', '02-8789-1234', 25.033000, 121.565400, '台北市信義區信義路五段100號', '週一至週日 10:00–20:00', 'https://picsum.photos/seed/store1/600/400'),
-    ('branch-002', 'Yuruicamp 台中中港店', '台中市西屯區文心路二段101號', '04-2234-5678', 24.163700, 120.646700, '台中市西屯區文心路二段101號', '週一至週五 11:00–21:00，週六日 10:00–21:00', 'https://picsum.photos/seed/store2/600/400'),
-    ('branch-003', 'Yuruicamp 高雄左營店', '高雄市左營區重聖街199號', '07-5567-8901', 22.697800, 120.299100, '高雄市左營區重聖街199號', '週一至週五 11:00–21:00，週六日 10:00–21:00', 'https://picsum.photos/seed/store3/600/400')
+    ('branch-001', 'Yuruicamp 台北旗艦店', '台北市信義區信義路五段100號 B1', '02-8789-1234', 25.033000, 121.565400, '台北市信義區信義路五段100號', '週一至週日 10:00–20:00', 'https://picsum.photos/seed/store1/600/400', true),
+    ('branch-002', 'Yuruicamp 台中中港店', '台中市西屯區文心路二段101號', '04-2234-5678', 24.163700, 120.646700, '台中市西屯區文心路二段101號', '週一至週五 11:00–21:00，週六日 10:00–21:00', 'https://picsum.photos/seed/store2/600/400', true),
+    ('branch-003', 'Yuruicamp 高雄左營店', '高雄市左營區重聖街199號', '07-5567-8901', 22.697800, 120.299100, '高雄市左營區重聖街199號', '週一至週五 11:00–21:00，週六日 10:00–21:00', 'https://picsum.photos/seed/store3/600/400', true)
 ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     address = EXCLUDED.address,
@@ -172,6 +172,7 @@ ON CONFLICT (id) DO UPDATE SET
     map_query = EXCLUDED.map_query,
     business_hours = EXCLUDED.business_hours,
     image_url = EXCLUDED.image_url,
+    active = EXCLUDED.active,
     updated_at = now();
 
 DELETE FROM public.branch_features

@@ -48,6 +48,15 @@ assert.equal(
   page.resolveViewState({ status: 'pending', paymentStatus: 'paid', checkoutExpiresAt: future }, now).key,
   'paid'
 );
+assert.equal(
+  page.resolveViewState({
+    status: 'unshipped',
+    paymentStatus: 'unpaid',
+    paymentMethod: 'cod',
+    checkoutStep: 'completed',
+  }).description,
+  '訂單已進入備貨流程，收到商品時再以現金付款。取消訂單可以前往會員中心的訂單紀錄取消訂單。'
+);
 
 window.location.search = '?orderId=order-query';
 assert.equal(page.readOrderId(), 'order-query');

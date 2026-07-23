@@ -235,10 +235,10 @@
 3. ✅ 已擴充 `040-inventory.sql`：9 個租借庫位、8 組營區對照、16 筆既有 listing 與 333 筆規格庫存；最低庫存尚未搬移。
 4. ✅ 品牌、租借 SKU、衍生 listing 與預約租借快照已同步 canonical ID。
 5. ✅ 已建立 `050-coupons.sql`：固定優惠券 ID 1～7，尚未建立會員 claim。
-6. ✅ 已在 `020-identity.sql` 建立 U001～U050，以及地址、偏好與會員標籤；另建立 `060-orders.sql`（222 筆）與 `070-bookings.sql`（90 筆），交易商品規格已改為 canonical ID。
+6. ✅ 已在 `020-identity.sql` 建立 U001～U050，以及地址、偏好與會員標籤；另建立 `060-orders.sql`（222 筆 JSON 對照訂單，加上 Firebase 測試會員「粉紅雞」3 筆固定隨機訂單，共 225 筆）與 `070-bookings.sql`（90 筆），交易商品規格已改為 canonical ID。
 7. 後續只有出現可追溯的領券／使用案例時才建立 `coupon_claims` 與必要的 `order_coupons`，並由 Trigger 維護已領數。
 8. ✅ `reviews.json` 的 38 筆 `v-P...` variant／SKU 已全數轉為 canonical ID；只有明確 `orderId=208` 的 `REV031` 建立 Seed verified-purchase 關聯。
-9. ✅ 已建立 435 筆訂單庫存保留與 40 筆租借庫存保留；商城 active 商品可用量為 399，租借 active 區間無重疊超賣。
+9. ✅ 已建立 442 筆訂單庫存保留與 40 筆租借庫存保留；新增的 7 筆商城保留皆為已履約狀態，不影響商城 active 商品可用量 399，租借 active 區間無重疊超賣。
 10. `movement.json` 暫不搬移：141 筆明細都沒有 variantId，24 筆無法由 productId 唯一推導，26 張表頭混合異動語意，員工 01～03 也缺 `admin_users` 對照。
 
 ## 9. 本輪完成標準

@@ -199,6 +199,29 @@
     </div>
   </div>
 
+  <div class="memberModalOverlay" id="profileOnboardingOverlay" aria-hidden="true">
+    <section
+      class="memberModalDialog memberOnboardingDialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profileOnboardingTitle"
+      aria-describedby="profileOnboardingMessage"
+      tabindex="-1"
+    >
+      <header class="memberModalHeader">
+        <h2 class="memberModalTitle" id="profileOnboardingTitle">完善會員資料</h2>
+        <button class="memberModalClose" id="profileOnboardingClose" type="button" aria-label="關閉">&times;</button>
+      </header>
+      <div class="memberModalBody memberOnboardingBody">
+        <span class="memberOnboardingIcon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        <p class="memberOnboardingMessage" id="profileOnboardingMessage">請填寫會員姓名、電話、地址完成後可以讓您的購物體驗更加愉快!!</p>
+        <div class="memberModalFooter memberOnboardingFooter">
+          <button class="memberAction memberActionPrimary memberOnboardingAcknowledge" id="profileOnboardingAcknowledge" type="button">我知道了</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
   <div class="memberModalOverlay" id="orderDetailOverlay" aria-hidden="true">
     <section class="memberModalDialog" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle" tabindex="-1">
       <header class="memberModalHeader">

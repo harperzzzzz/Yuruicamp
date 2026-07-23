@@ -363,6 +363,7 @@ erDiagram
 | `map_query` | `text` | 否 | `—` |
 | `business_hours` | `character varying(200)` | 是 | `—` |
 | `image_url` | `text` | 否 | `—` |
+| `active` | `boolean` | 是 | `true` |
 | `created_at` | `timestamp with time zone` | 是 | `now()` |
 | `updated_at` | `timestamp with time zone` | 是 | `now()` |
 

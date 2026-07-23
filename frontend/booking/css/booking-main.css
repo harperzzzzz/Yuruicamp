@@ -4387,6 +4387,9 @@ main {
 }
 
 .quantityValueBooking {
+  appearance: textfield;
+  background: var(--yc-surface);
+  border: 0;
   min-width: 32px;
   text-align: center;
   font-weight: 700;
@@ -4396,6 +4399,18 @@ main {
   border-right: 1.5px solid var(--yc-border);
   padding: 0 4px;
   line-height: 30px;
+  width: 44px;
+}
+
+.quantityValueBooking:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--yc-sage-action);
+  outline: 0;
+}
+
+.quantityValueBooking::-webkit-inner-spin-button,
+.quantityValueBooking::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
 }
 
 .cartRemoveButtonBooking {
@@ -4449,6 +4464,36 @@ main {
   padding: 0.9rem;
   font-size: 1rem;
   text-align: center;
+}
+
+.bookingCartCheckoutButton[aria-disabled=true] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Booking Checkout Session：進背包頁即鎖位，並在摘要卡顯示處理結果。 */
+.bookingCheckoutSessionStatus {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-control);
+  background: var(--yc-surface-soft);
+  color: var(--yc-text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.bookingCheckoutSessionStatus.isReady {
+  border-color: var(--yc-success);
+  background: var(--yc-success-soft);
+  color: var(--yc-success-text);
+}
+
+.bookingCheckoutSessionStatus.isError {
+  border-color: var(--yc-error);
+  background: var(--yc-error-soft);
+  color: var(--yc-error-text);
 }
 
 .cartSummaryCardBooking > a[href="./camp-rental.html"] {

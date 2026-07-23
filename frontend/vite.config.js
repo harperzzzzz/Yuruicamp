@@ -17,6 +17,7 @@ export default defineConfig({
         home: 'storefront/pages/home.html',
         products: 'storefront/pages/products.html',
         productDetail: 'storefront/pages/product-detail.html',
+        cart: 'storefront/pages/cart.html',
         checkout: 'storefront/pages/checkout.html',
         checkoutSuccess: 'storefront/pages/checkout-success.html',
         bookingSuccess: 'booking/pages/booking-success.html',

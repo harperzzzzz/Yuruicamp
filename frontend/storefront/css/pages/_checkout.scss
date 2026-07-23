@@ -39,13 +39,13 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutSteps {
   color: $checkout-muted;
-  font-size: 0.875rem;
+  margin: 0 auto;
+  max-width: 720px;
+  padding: 0 1.5rem;
 }
 
 .checkoutStepsList {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -53,18 +53,59 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 
 .checkoutStepItem {
   align-items: center;
-  display: inline-flex;
-  font-weight: 600;
+  color: $checkout-muted;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 0.78rem;
+  position: relative;
+  text-align: center;
 }
 
 .checkoutStepItem + .checkoutStepItem::before {
-  color: $checkout-subtle;
-  content: '›';
-  margin-right: 0.5rem;
+  background: $checkout-border;
+  content: '';
+  height: 2px;
+  left: -50%;
+  position: absolute;
+  top: 16px;
+  width: 100%;
+  z-index: 0;
 }
 
-.checkoutStepItem[aria-current='step'] {
+.checkoutStepItem.isCompleted + .checkoutStepItem::before {
+  background: $checkout-primary;
+}
+
+.checkoutStepItem span {
+  align-items: center;
+  background: $checkout-border;
+  border-radius: 50%;
+  color: $checkout-muted;
+  display: flex;
+  font-size: 0.9rem;
+  font-weight: 700;
+  height: 32px;
+  justify-content: center;
+  margin-bottom: 0.3rem;
+  position: relative;
+  width: 32px;
+  z-index: 1;
+}
+
+.checkoutStepItem.isCompleted span,
+.checkoutStepItem.isSelected span {
+  background: $checkout-primary;
+  color: var(--yc-on-dark);
+}
+
+.checkoutStepItem.isSelected {
   color: $checkout-primary;
+  font-weight: 700;
+}
+
+.checkoutStepItem.isSelected span {
+  box-shadow: 0 0 0 4px $checkout-primary-soft;
 }
 
 .checkoutLayout {
@@ -336,7 +377,9 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   outline: 3px solid transparent;
   outline-offset: 2px;
   padding: 0.65rem 0.875rem;
-  transition: border-color 200ms ease, box-shadow 200ms ease;
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease;
   width: 100%;
 }
 
@@ -396,7 +439,10 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   gap: 0.875rem;
   margin-bottom: 0.75rem;
   padding: 1rem;
-  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .checkoutChoice:hover,
@@ -417,7 +463,7 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   margin-top: 0.15rem;
   width: 18px;
 }
- 
+
 .checkoutChoiceBody,
 .checkoutChoiceTitle,
 .checkoutChoiceDesc,
@@ -635,6 +681,36 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
   margin-top: 0.4rem;
 }
 
+.couponAppliedItem {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
+}
+
+.couponRemoveBtn {
+  background: transparent;
+  border: 0;
+  color: $checkout-muted;
+  cursor: pointer;
+  font: inherit;
+  min-height: 32px;
+  padding: 0.25rem 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.couponRemoveBtn:hover,
+.couponRemoveBtn:focus-visible {
+  color: $checkout-danger;
+}
+
+.couponRemoveBtn:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid $checkout-primary;
+  outline-offset: 2px;
+}
+
 .couponAppliedList,
 .couponMessage.isSuccess {
   color: $checkout-success;
@@ -727,6 +803,14 @@ $checkout-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
 }
 
 @media (width <= 768px) {
+  .checkoutSteps {
+    padding: 0;
+  }
+
+  .checkoutStepItem {
+    font-size: 0.7rem;
+  }
+
   .checkoutFormGrid {
     grid-template-columns: 1fr;
   }

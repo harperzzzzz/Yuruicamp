@@ -1,6 +1,8 @@
 # 請先讀取:
 - README.md
 - \docs\seed\README.md
+- \docs\frontend-specs\ai-style-sheet.md
+- \docs\frontend-specs\itcss-architecture.md
 - \docs\latest_schema.sql
 - \plans\frontend-folder-migration-spec.md
 - \plans\frontend-root-absolute-path-and-api-contract-spec.md

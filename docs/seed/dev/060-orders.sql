@@ -1,5 +1,6 @@
--- 來源：frontend/data/commerce/orders.json；訂單明細會建立可追溯的商城庫存保留，但不建立無法還原 variant 與員工的舊庫存異動。
--- 222 筆來源訂單皆為 discount=0，且沒有 coupon claim／券快照來源，因此刻意不建立 order_coupons。
+-- 來源：frontend/data/commerce/orders.json 的 222 筆訂單，加上正式 Firebase 測試會員的 3 筆固定隨機訂單。
+-- 訂單明細會建立可追溯的商城庫存保留，但不建立無法還原 variant 與員工的舊庫存異動。
+-- 225 筆訂單皆為 discount=0，且沒有 coupon claim／券快照來源，因此刻意不建立 order_coupons。
 INSERT INTO public.orders (id, customer_id, buyer_name_snapshot, buyer_email_snapshot, recipient_name_snapshot, shipping_address_snapshot, shipping_phone_snapshot, subtotal, shipping_fee, discount, total, payment_method, payment_status, refund_status, status, placed_at, paid_at, created_at, updated_at)
 VALUES
     ('1', 'U001', 'Amy Chen', 'amy@example.com', 'Amy Chen', '台南市東區長榮路二段200號', '0912345678', 6090.00, 0.00, 0.00, 6090.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-03-02T09:10:29+08:00', TIMESTAMPTZ '2026-03-02T09:19:29+08:00', TIMESTAMPTZ '2026-03-02T09:10:29+08:00', TIMESTAMPTZ '2026-03-04T09:19:29+08:00'),
@@ -223,7 +224,10 @@ VALUES
     ('219', 'U001', 'Amy Chen', 'amy@example.com', 'Amy Chen', '台南市東區長榮路二段200號', '0912345678', 450.00, 0.00, 0.00, 450.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-09-03T09:20:00+08:00', TIMESTAMPTZ '2026-09-03T09:20:00+08:00', TIMESTAMPTZ '2026-09-03T09:20:00+08:00', TIMESTAMPTZ '2026-09-04T10:00:00+08:00'),
     ('220', 'U003', '張志偉', 'chang@example.com', '張志偉', '桃園市中壢區中山路300號', '0934567890', 1900.00, 0.00, 0.00, 1900.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-09-12T11:10:00+08:00', TIMESTAMPTZ '2026-09-12T11:10:00+08:00', TIMESTAMPTZ '2026-09-12T11:10:00+08:00', TIMESTAMPTZ '2026-09-13T10:00:00+08:00'),
     ('221', 'U007', '蔡佳玲', 'tsai@example.com', '蔡佳玲', '新北市板橋區文化路二段100號', '0978901234', 1100.00, 0.00, 0.00, 1100.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-09-25T16:00:00+08:00', TIMESTAMPTZ '2026-09-25T16:00:00+08:00', TIMESTAMPTZ '2026-09-25T16:00:00+08:00', TIMESTAMPTZ '2026-09-26T10:00:00+08:00'),
-    ('222', 'U019', '廖俊傑', 'user019@example.com', '廖俊傑', '嘉義市西區垂楊路200號', '0903247349', 980.00, 0.00, 0.00, 980.00, 'ecpay-credit', 'paid', 'none', 'unshipped', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-16T10:00:00+08:00')
+    ('222', 'U019', '廖俊傑', 'user019@example.com', '廖俊傑', '嘉義市西區垂楊路200號', '0903247349', 980.00, 0.00, 0.00, 980.00, 'ecpay-credit', 'paid', 'none', 'unshipped', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', TIMESTAMPTZ '2026-08-16T10:00:00+08:00'),
+    ('223', (SELECT id FROM public.customers WHERE lower(email) = lower('pinkchickstarburstc8763@gmail.com')), '粉紅雞', 'pinkchickstarburstc8763@gmail.com', '粉紅雞', '台北市信義區松仁路100號', '0900123456', 3180.00, 0.00, 0.00, 3180.00, 'ecpay-credit', 'paid', 'none', 'completed', TIMESTAMPTZ '2026-07-02T10:12:00+08:00', TIMESTAMPTZ '2026-07-02T10:18:00+08:00', TIMESTAMPTZ '2026-07-02T10:12:00+08:00', TIMESTAMPTZ '2026-07-08T14:30:00+08:00'),
+    ('224', (SELECT id FROM public.customers WHERE lower(email) = lower('pinkchickstarburstc8763@gmail.com')), '粉紅雞', 'pinkchickstarburstc8763@gmail.com', '粉紅雞', '新北市板橋區文化路二段100號', '0900123456', 4550.00, 0.00, 0.00, 4550.00, 'ecpay-credit', 'paid', 'none', 'shipped', TIMESTAMPTZ '2026-07-10T16:05:00+08:00', TIMESTAMPTZ '2026-07-10T16:11:00+08:00', TIMESTAMPTZ '2026-07-10T16:05:00+08:00', TIMESTAMPTZ '2026-07-12T09:20:00+08:00'),
+    ('225', (SELECT id FROM public.customers WHERE lower(email) = lower('pinkchickstarburstc8763@gmail.com')), '粉紅雞', 'pinkchickstarburstc8763@gmail.com', '粉紅雞', '桃園市中壢區中山路300號', '0900123456', 6160.00, 0.00, 0.00, 6160.00, 'ecpay-credit', 'refunded', 'refunded', 'returned', TIMESTAMPTZ '2026-07-15T11:25:00+08:00', TIMESTAMPTZ '2026-07-15T11:31:00+08:00', TIMESTAMPTZ '2026-07-15T11:25:00+08:00', TIMESTAMPTZ '2026-07-21T15:40:00+08:00')
 ON CONFLICT (id) DO UPDATE SET
     customer_id = EXCLUDED.customer_id,
     buyer_name_snapshot = EXCLUDED.buyer_name_snapshot,
@@ -679,7 +683,14 @@ VALUES
     (602191, '219', 'P019', 'V019-01', 'P019-01', '營柱與營繩組', '標準套組', 'Yuruicamp', '/assets/images/products/P019-1.jpg', 450.00, 1),
     (602201, '220', 'P021', 'V021-01', 'P021-01', '保冷冰桶 45L', '深藍', 'Yuruicamp', '/assets/images/products/P021-1.jpg', 1900.00, 1),
     (602211, '221', 'P023', 'V023-01', 'P023-01', '快煮鍋 1.5L', '不鏽鋼', 'Yuruicamp', '/assets/images/products/P023-1.jpg', 1100.00, 1),
-    (602221, '222', 'P014', 'V014-01', 'P014-01', '高背月亮椅', '軍綠', 'Yuruicamp', '/assets/images/products/P014-1.jpg', 980.00, 1)
+    (602221, '222', 'P014', 'V014-01', 'P014-01', '高背月亮椅', '軍綠', 'Yuruicamp', '/assets/images/products/P014-1.jpg', 980.00, 1),
+    (602231, '223', 'P024', 'V024-01', 'P024-01', '碳纖維登山杖', '一對', 'Yuruicamp', '/assets/images/products/P024-1.jpg', 1400.00, 1),
+    (602232, '223', 'P026', 'V026-01', 'P026-01', '輕量吊床', '雙人', 'Yuruicamp', '/assets/images/products/P026-1.jpg', 890.00, 2),
+    (602241, '224', 'P021', 'V021-01', 'P021-01', '保冷冰桶 45L', '深藍', 'Yuruicamp', '/assets/images/products/P021-1.jpg', 1900.00, 1),
+    (602242, '224', 'P023', 'V023-01', 'P023-01', '快煮鍋 1.5L', '不鏽鋼', 'Yuruicamp', '/assets/images/products/P023-1.jpg', 1100.00, 2),
+    (602243, '224', 'P019', 'V019-01', 'P019-01', '營柱與營繩組', '標準套組', 'Yuruicamp', '/assets/images/products/P019-1.jpg', 450.00, 1),
+    (602251, '225', 'P016', 'V016-01', 'P016-01', '65L 重裝背包', '岩石灰', 'Yuruicamp', '/assets/images/products/P016-1.jpg', 4200.00, 1),
+    (602252, '225', 'P014', 'V014-01', 'P014-01', '高背月亮椅', '軍綠', 'Yuruicamp', '/assets/images/products/P014-1.jpg', 980.00, 2)
 ON CONFLICT (id) DO UPDATE SET
     order_id = EXCLUDED.order_id,
     product_id = EXCLUDED.product_id,
@@ -1124,7 +1135,15 @@ VALUES
     (612203, '220', 'shipped', TIMESTAMPTZ '2026-09-13T10:00:00+08:00', NULL, '已出貨'),
     (612213, '221', 'shipped', TIMESTAMPTZ '2026-09-26T10:00:00+08:00', NULL, '已出貨'),
     (612223, '222', 'shipped', TIMESTAMPTZ '2026-08-16T10:00:00+08:00', NULL, '已出貨'),
-    (612229, '222', 'unshipped', TIMESTAMPTZ '2026-08-16T10:00:00+08:00', NULL, '前端快照目前狀態')
+    (612229, '222', 'unshipped', TIMESTAMPTZ '2026-08-16T10:00:00+08:00', NULL, '前端快照目前狀態'),
+    (612234, '223', 'unshipped', TIMESTAMPTZ '2026-07-02T10:18:00+08:00', NULL, '待出貨'),
+    (612235, '223', 'shipped', TIMESTAMPTZ '2026-07-04T09:10:00+08:00', NULL, '已出貨'),
+    (612236, '223', 'completed', TIMESTAMPTZ '2026-07-08T14:30:00+08:00', NULL, '已完成'),
+    (612244, '224', 'unshipped', TIMESTAMPTZ '2026-07-10T16:11:00+08:00', NULL, '待出貨'),
+    (612245, '224', 'shipped', TIMESTAMPTZ '2026-07-12T09:20:00+08:00', NULL, '已出貨'),
+    (612254, '225', 'unshipped', TIMESTAMPTZ '2026-07-15T11:31:00+08:00', NULL, '待出貨'),
+    (612255, '225', 'shipped', TIMESTAMPTZ '2026-07-17T10:15:00+08:00', NULL, '已出貨'),
+    (612256, '225', 'returned', TIMESTAMPTZ '2026-07-21T15:40:00+08:00', NULL, '已退貨')
 ON CONFLICT (id) DO UPDATE SET
     order_id = EXCLUDED.order_id,
     status = EXCLUDED.status,
@@ -1740,7 +1759,14 @@ VALUES
     (622211, 622211, '221', 'legacy', TIMESTAMPTZ '2026-09-25T16:00:00+08:00', NULL, '訂單產生'),
     (622212, 622212, '221', 'legacy', TIMESTAMPTZ '2026-09-25T16:00:00+08:00', NULL, '已付款'),
     (622221, 622221, '222', 'legacy', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', NULL, '訂單產生'),
-    (622222, 622222, '222', 'legacy', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', NULL, '已付款')
+    (622222, 622222, '222', 'legacy', TIMESTAMPTZ '2026-08-15T13:00:00+08:00', NULL, '已付款'),
+    (622231, 622231, '223', 'seed', TIMESTAMPTZ '2026-07-02T10:12:00+08:00', NULL, '訂單產生'),
+    (622232, 622232, '223', 'payment', TIMESTAMPTZ '2026-07-02T10:18:00+08:00', NULL, '已付款'),
+    (622241, 622241, '224', 'seed', TIMESTAMPTZ '2026-07-10T16:05:00+08:00', NULL, '訂單產生'),
+    (622242, 622242, '224', 'payment', TIMESTAMPTZ '2026-07-10T16:11:00+08:00', NULL, '已付款'),
+    (622251, 622251, '225', 'seed', TIMESTAMPTZ '2026-07-15T11:25:00+08:00', NULL, '訂單產生'),
+    (622252, 622252, '225', 'payment', TIMESTAMPTZ '2026-07-15T11:31:00+08:00', NULL, '已付款'),
+    (622253, 622253, '225', 'refund', TIMESTAMPTZ '2026-07-21T15:40:00+08:00', NULL, '退款完成')
 ON CONFLICT (id) DO UPDATE SET
     source_history_id = EXCLUDED.source_history_id,
     order_id = EXCLUDED.order_id,
@@ -1810,7 +1836,7 @@ SELECT
 FROM public.order_items item
 JOIN public.orders order_header ON order_header.id = item.order_id
 WHERE order_header.id ~ '^[0-9]+$'
-  AND order_header.id::integer BETWEEN 1 AND 222
+  AND order_header.id::integer BETWEEN 1 AND 225
 ON CONFLICT (id) DO UPDATE SET
     order_item_id = EXCLUDED.order_item_id,
     variant_id = EXCLUDED.variant_id,

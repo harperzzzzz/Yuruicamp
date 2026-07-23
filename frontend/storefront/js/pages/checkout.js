@@ -2,9 +2,11 @@
 let checkoutDiscount = 0;
 let checkoutCouponCatalogPromise = null;
 let checkoutCouponCatalog = [];
+let checkoutCouponClaimsPromise = null;
+let checkoutCouponClaims = [];
+let selectedCheckoutCouponClaim = null;
 let appliedCheckoutCouponCodes = [];
 let selectedShippingMethod = 'delivery';
-let checkoutCreatePromise = null;
 let checkoutCountdownTimer = null;
 let checkoutBranches = [];
 
@@ -71,7 +73,9 @@ function _getCheckoutShippingAddress() {
 window.initCheckoutPage = async () => {
   if (!window.AppState.cart || window.AppState.cart.length === 0) {
     window.showToast('購物車是空的，請先選購商品', 'warning');
-    window.setTimeout(() => { window.location.href = 'products.html'; }, 1500);
+    window.setTimeout(() => {
+      window.location.href = 'products.html';
+    }, 1500);
     return;
   }
 
@@ -93,7 +97,6 @@ window.initCheckoutPage = async () => {
   _initCheckoutSessionActions();
   _initCheckoutCoupon();
   _initSharedComponents();
-
 };
 
 // Initialize shared header, modal, cart, and personalization components.
@@ -145,12 +148,12 @@ function _getCheckoutUserId() {
 async function _loadCheckoutCouponCatalog() {
   if (!checkoutCouponCatalogPromise) {
     checkoutCouponCatalogPromise = window.YuruiCoupons.loadCoupons()
-      .then(coupons => {
+      .then((coupons) => {
         checkoutCouponCatalog = coupons;
         window.YuruiCoupons.renderCouponOptions('checkoutCouponCodeOptions', coupons);
         return coupons;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Failed to load checkout coupon catalog', error);
         return [];
       });
@@ -161,19 +164,22 @@ async function _loadCheckoutCouponCatalog() {
 // Recalculate applied coupons and sync localStorage.
 function _syncCheckoutAppliedCoupons() {
   if (_isBackendCheckoutMode()) {
-    checkoutDiscount = 0;
-    appliedCheckoutCouponCodes = [];
-    _renderAppliedCoupons([]);
+    _renderBackendSelectedCoupon();
     return;
   }
 
   const subtotal = window.calculateCartTotal(window.AppState.cart);
-  const applied = window.YuruiCoupons.calculateAppliedCoupons(checkoutCouponCatalog, appliedCheckoutCouponCodes, subtotal);
+  const applied = window.YuruiCoupons.calculateAppliedCoupons(
+    checkoutCouponCatalog,
+    appliedCheckoutCouponCodes,
+    subtotal
+  );
   checkoutDiscount = applied.totalDiscount;
-  appliedCheckoutCouponCodes = applied.items.map(item => item.code);
+  appliedCheckoutCouponCodes = applied.items.map((item) => item.code);
   _renderAppliedCoupons(applied.items);
 
-  if (appliedCheckoutCouponCodes.length > 0) window.YuruiCoupons.saveAppliedCouponCodes(appliedCheckoutCouponCodes);
+  if (appliedCheckoutCouponCodes.length > 0)
+    window.YuruiCoupons.saveAppliedCouponCodes(appliedCheckoutCouponCodes);
   else window.YuruiCoupons.clearAppliedCouponCode();
 }
 
@@ -181,7 +187,7 @@ function _syncCheckoutAppliedCoupons() {
 function _renderCheckoutItems() {
   const listEl = document.getElementById('checkoutItemsList');
   if (!listEl) return;
-  listEl.innerHTML = window.AppState.cart.map(item => _buildCheckoutItem(item)).join('');
+  listEl.innerHTML = window.AppState.cart.map((item) => _buildCheckoutItem(item)).join('');
 }
 
 // Build one checkout summary item.
@@ -209,9 +215,7 @@ function _buildCheckoutItem(item) {
 // Update price summary values and state classes.
 function _updateCheckoutSummary() {
   const completedOrderId = sessionStorage.getItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
-  const completedSession = completedOrderId
-    ? _readCompletedCheckoutSession(completedOrderId)
-    : null;
+  const completedSession = completedOrderId ? _readCompletedCheckoutSession(completedOrderId) : null;
   if (completedSession?.pricing) {
     _applyCheckoutSessionPricing(completedSession.pricing);
     return;
@@ -253,9 +257,11 @@ function _setText(id, value) {
 
 // Initialize accordion panel toggles.
 function _initAccordionPanels() {
-  document.querySelectorAll('[data-panel-trigger]').forEach(trigger => {
-    trigger.addEventListener('click', () => _setPanelOpen(trigger, trigger.getAttribute('aria-expanded') !== 'true'));
-    trigger.addEventListener('keydown', event => _handlePanelKeydown(event, trigger));
+  document.querySelectorAll('[data-panel-trigger]').forEach((trigger) => {
+    trigger.addEventListener('click', () =>
+      _setPanelOpen(trigger, trigger.getAttribute('aria-expanded') !== 'true')
+    );
+    trigger.addEventListener('keydown', (event) => _handlePanelKeydown(event, trigger));
   });
 }
 
@@ -278,7 +284,7 @@ function _handlePanelKeydown(event, trigger) {
 // Initialize shipping method radios.
 function _initShippingMethodChange() {
   const radios = document.querySelectorAll('input[name="shippingMethod"]');
-  radios.forEach(radio => {
+  radios.forEach((radio) => {
     radio.addEventListener('change', () => {
       selectedShippingMethod = radio.value;
       _updateCheckoutSummary();
@@ -293,7 +299,7 @@ function _initShippingMethodChange() {
 // Initialize payment method radios.
 function _initPaymentMethodChange() {
   const radios = document.querySelectorAll('input[name="paymentMethod"]');
-  radios.forEach(radio => {
+  radios.forEach((radio) => {
     radio.addEventListener('change', () => {
       _syncRadioGroupState('paymentMethod');
       _syncPaymentNoticeState();
@@ -305,7 +311,7 @@ function _initPaymentMethodChange() {
 
 // Update selected state for radio option labels.
 function _syncRadioGroupState(name) {
-  document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+  document.querySelectorAll(`input[name="${name}"]`).forEach((input) => {
     input.closest('.checkoutChoice')?.classList.toggle('isSelected', input.checked);
   });
 }
@@ -327,9 +333,9 @@ async function _loadCheckoutBranches() {
   try {
     checkoutBranches = await window.API.branches.getAll();
     select.replaceChildren(new Option('選擇取貨門市', ''));
-    checkoutBranches.forEach(branch => select.add(
-      new Option(`${branch.name}｜${branch.address}`, branch.id)
-    ));
+    checkoutBranches.forEach((branch) =>
+      select.add(new Option(`${branch.name}｜${branch.address}`, branch.id))
+    );
     select.disabled = checkoutBranches.length === 0;
     if (pickupRadio) pickupRadio.disabled = checkoutBranches.length === 0;
     if (hint && checkoutBranches.length === 0) hint.textContent = '目前沒有可選門市，門市取貨暫停使用。';
@@ -384,11 +390,20 @@ function _initCheckoutCoupon() {
   const couponInput = document.getElementById('checkoutCouponInput');
   if (!applyBtn || !couponInput) return;
 
+  applyBtn.addEventListener('click', () => _applyCheckoutCouponCode());
+  couponInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter') return;
+    event.preventDefault();
+    applyBtn.click();
+  });
+  document.getElementById('checkoutAppliedCouponTexts')?.addEventListener('click', (event) => {
+    if (!event.target.closest('[data-remove-checkout-coupon]')) return;
+    _removeBackendCheckoutCoupon();
+  });
+
   if (_isBackendCheckoutMode()) {
-    couponInput.disabled = true;
-    couponInput.placeholder = '優惠券功能開發中';
-    applyBtn.disabled = true;
-    _showCouponMessage('優惠券功能開發中，成交金額不會套用前端折扣。', 'info');
+    couponInput.placeholder = '輸入或選擇一組折扣碼';
+    _initBackendCheckoutCoupon();
     return;
   }
 
@@ -399,13 +414,6 @@ function _initCheckoutCoupon() {
     _syncCheckoutAppliedCoupons();
     _updateCheckoutSummary();
   });
-
-  applyBtn.addEventListener('click', () => _applyCheckoutCouponCode());
-  couponInput.addEventListener('keydown', event => {
-    if (event.key !== 'Enter') return;
-    event.preventDefault();
-    applyBtn.click();
-  });
 }
 
 // Validate and apply one coupon code.
@@ -414,7 +422,7 @@ async function _applyCheckoutCouponCode({ showToast = true } = {}) {
   if (!couponInput) return;
 
   if (_isBackendCheckoutMode()) {
-    _showCouponMessage('優惠券功能開發中，請稍後再試。', 'info');
+    await _applyBackendCheckoutCouponCode(couponInput, showToast);
     return;
   }
 
@@ -444,6 +452,245 @@ async function _applyCheckoutCouponCode({ showToast = true } = {}) {
   _completeCouponApply(result, couponInput, showToast);
 }
 
+// 正式模式預載公開券與會員 claims，讓重新整理後可還原已套用券碼。
+async function _initBackendCheckoutCoupon() {
+  try {
+    const tasks = [_loadCheckoutCouponCatalog()];
+    if (_getCheckoutUserId()) tasks.push(_loadCheckoutCouponClaims());
+    await Promise.all(tasks);
+    _restoreBackendCheckoutCouponSelection();
+  } catch (error) {
+    _showBackendCouponError(error);
+  }
+}
+
+// 正式模式讀取會員自己的領券紀錄；需要處理競態時可強制刷新。
+async function _loadCheckoutCouponClaims({ refresh = false } = {}) {
+  if (refresh) {
+    checkoutCouponClaimsPromise = null;
+  }
+  if (!checkoutCouponClaimsPromise) {
+    checkoutCouponClaimsPromise = window.API.coupons
+      .getMine()
+      .then((claims) => {
+        checkoutCouponClaims = Array.isArray(claims) ? claims : [];
+        return checkoutCouponClaims;
+      })
+      .catch((error) => {
+        checkoutCouponClaimsPromise = null;
+        throw error;
+      });
+  }
+
+  return checkoutCouponClaimsPromise;
+}
+
+// 依券碼尋找會員 claim，正式 Checkout 只允許一張券。
+function _findCheckoutCouponClaimByCode(code) {
+  return (
+    checkoutCouponClaims.find((claim) => String(claim?.coupon?.code || '').toUpperCase() === code) || null
+  );
+}
+
+// 重新整理頁面時以 CheckoutSession.couponClaimId 還原後端套券狀態。
+function _restoreBackendCheckoutCouponSelection() {
+  const checkoutSession = _getStoredCheckoutSession();
+  if (!checkoutSession?.couponClaimId) {
+    selectedCheckoutCouponClaim = null;
+    _renderBackendSelectedCoupon();
+    return;
+  }
+
+  selectedCheckoutCouponClaim = checkoutCouponClaims.find(
+    (claim) => Number(claim.id) === Number(checkoutSession.couponClaimId)
+  ) || {
+    id: checkoutSession.couponClaimId,
+    status: 'claimed',
+    coupon: { code: `優惠券 #${checkoutSession.couponClaimId}` },
+  };
+  _renderBackendSelectedCoupon();
+}
+
+// 正式模式將折扣碼轉成 couponClaimId，再 PATCH 既有 Checkout Session。
+async function _applyBackendCheckoutCouponCode(couponInput, showToast) {
+  const code = couponInput.value.trim().toUpperCase();
+  const checkoutSession = _getStoredCheckoutSession();
+
+  if (!_getCheckoutUserId()) {
+    _showCouponMessage('請先登入後再使用優惠券', 'error');
+    window.openModal?.('loginModal');
+    return;
+  }
+  if (!code) {
+    _showCouponMessage('請輸入折扣碼', 'error');
+    couponInput.focus();
+    return;
+  }
+  if (!_isEditableCheckoutSession(checkoutSession)) {
+    _showCouponMessage('請先返回確認背包，建立可編輯的 Checkout 後再套用優惠券', 'error');
+    return;
+  }
+
+  _setCheckoutCouponBusy(true);
+  try {
+    await Promise.all([_loadCheckoutCouponCatalog(), _loadCheckoutCouponClaims()]);
+    let claim = _findCheckoutCouponClaimByCode(code);
+
+    if (claim && claim.status !== 'claimed') {
+      _showCouponMessage('此優惠券已使用或目前無法使用', 'error');
+      return;
+    }
+    if (!claim) {
+      const coupon = window.YuruiCoupons.findCouponByCode(checkoutCouponCatalog, code);
+      if (!coupon) {
+        _showCouponMessage('折扣碼無效，請確認後再試', 'error');
+        return;
+      }
+      claim = await _claimCheckoutCoupon(coupon.id, code);
+    }
+
+    const updatedSession = await window.API.checkout.updateSession(checkoutSession.orderId, {
+      couponClaimId: claim.id,
+    });
+    selectedCheckoutCouponClaim = claim;
+    _saveCheckoutSession(updatedSession);
+    _renderCheckoutSessionState(updatedSession, document.getElementById('confirmOrderBtn'));
+    _renderBackendSelectedCoupon();
+    couponInput.value = '';
+
+    const discount = Number(updatedSession.pricing?.discount || 0);
+    _showCouponMessage(`折扣碼「${code}」已套用，折抵 ${window.formatCurrency(discount)}`, 'success');
+    if (showToast) {
+      window.showToast?.(`優惠券已套用，折抵 ${window.formatCurrency(discount)}`, 'success');
+    }
+  } catch (error) {
+    _showBackendCouponError(error);
+  } finally {
+    _setCheckoutCouponBusy(false);
+  }
+}
+
+// 領券發生重複請求時刷新會員 claims，使用後端既有紀錄繼續套用。
+async function _claimCheckoutCoupon(couponId, code) {
+  try {
+    const claim = await window.API.coupons.claim(couponId);
+    checkoutCouponClaims = [claim, ...checkoutCouponClaims];
+    return claim;
+  } catch (error) {
+    if (error?.code !== 'COUPON_ALREADY_CLAIMED') throw error;
+
+    await _loadCheckoutCouponClaims({ refresh: true });
+    const existingClaim = _findCheckoutCouponClaimByCode(code);
+    if (!existingClaim || existingClaim.status !== 'claimed') throw error;
+
+    return existingClaim;
+  }
+}
+
+// 已建立 Session 時送空 PATCH 清除套券；claim 仍保留在會員帳戶。
+async function _removeBackendCheckoutCoupon() {
+  if (!_isBackendCheckoutMode()) return;
+  const checkoutSession = _getStoredCheckoutSession();
+  if (!_isEditableCheckoutSession(checkoutSession)) {
+    _showCouponMessage('目前的 Checkout 無法移除優惠券', 'error');
+    return;
+  }
+
+  _setCheckoutCouponBusy(true);
+  try {
+    const updatedSession = await window.API.checkout.updateSession(checkoutSession.orderId, {});
+    selectedCheckoutCouponClaim = null;
+    _saveCheckoutSession(updatedSession);
+    _renderCheckoutSessionState(updatedSession, document.getElementById('confirmOrderBtn'));
+    _renderBackendSelectedCoupon();
+    _showCouponMessage('已移除本次訂單的優惠券，領券紀錄仍保留在會員帳戶', 'info');
+  } catch (error) {
+    _showBackendCouponError(error);
+  } finally {
+    _setCheckoutCouponBusy(false);
+  }
+}
+
+// 只有未付款且仍在 Checkout 流程中的 Session 可以切換優惠券。
+function _isEditableCheckoutSession(checkoutSession) {
+  return Boolean(
+    checkoutSession?.orderId &&
+    ['draft', 'ready_to_pay'].includes(checkoutSession.checkoutStep) &&
+    checkoutSession.status !== 'cancelled'
+  );
+}
+
+// 呈現正式模式的單張優惠券與移除操作。
+function _renderBackendSelectedCoupon() {
+  if (!_isBackendCheckoutMode()) return;
+  const container = document.getElementById('checkoutAppliedCouponTexts');
+  if (!container) return;
+
+  if (!selectedCheckoutCouponClaim) {
+    container.hidden = true;
+    container.innerHTML = '';
+    return;
+  }
+
+  const code = _escapeCheckoutText(selectedCheckoutCouponClaim.coupon?.code || '已套用優惠券');
+  container.hidden = false;
+  container.innerHTML = `
+    <div class="couponAppliedItem">
+      <span><i class="bi bi-ticket-perforated" aria-hidden="true"></i> 已套用：${code}</span>
+      <button
+        type="button"
+        class="couponRemoveBtn"
+        data-remove-checkout-coupon
+        aria-label="移除優惠券 ${code}"
+      >移除</button>
+    </div>
+  `;
+}
+
+// 優惠券操作期間鎖定控制，避免重複領券或重複 PATCH。
+function _setCheckoutCouponBusy(isBusy) {
+  const panel = document.getElementById('checkoutCouponPanel');
+  const input = document.getElementById('checkoutCouponInput');
+  const button = document.getElementById('checkoutApplyCouponBtn');
+  panel?.setAttribute('aria-busy', String(isBusy));
+  if (input) input.disabled = isBusy;
+  if (button) {
+    button.disabled = isBusy;
+    button.textContent = isBusy ? '套用中…' : '套用';
+  }
+}
+
+// 將後端優惠券錯誤轉成買家可理解的訊息。
+function _showBackendCouponError(error) {
+  const messages = {
+    COUPON_SOLD_OUT: '此優惠券已領完',
+    COUPON_NOT_ELIGIBLE: '目前不符合此優惠券的使用資格',
+    COUPON_NOT_APPLICABLE: '此優惠券不適用於目前訂單',
+    COUPON_ALREADY_USED: '此優惠券已套用於其他訂單',
+    CHECKOUT_EXPIRED: 'Checkout 已逾時，請返回確認背包重新建立',
+    UNAUTHORIZED: '請重新登入後使用優惠券',
+  };
+  const message = messages[error?.code] || '優惠券套用失敗，請稍後再試';
+  _showCouponMessage(message, 'error');
+
+  if (error?.code === 'UNAUTHORIZED') {
+    window.openModal?.('loginModal');
+  }
+  if (error?.code === 'CHECKOUT_EXPIRED') {
+    _handleCheckoutExpired();
+  }
+}
+
+// 優惠券代碼進入 HTML 前先跳脫，避免把後端文字當成標籤執行。
+function _escapeCheckoutText(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 // Complete successful coupon apply flow.
 function _completeCouponApply(result, couponInput, showToast) {
   appliedCheckoutCouponCodes.push(result.code);
@@ -452,7 +699,10 @@ function _completeCouponApply(result, couponInput, showToast) {
   couponInput.value = '';
   _updateCheckoutSummary();
   if (showToast && window.showToast) {
-    window.showToast(`\u6298\u6263\u78bc\u5df2\u5957\u7528\uff0c\u6298\u62b5 NT$${result.discount.toLocaleString('zh-TW')}`, 'success');
+    window.showToast(
+      `\u6298\u6263\u78bc\u5df2\u5957\u7528\uff0c\u6298\u62b5 NT$${result.discount.toLocaleString('zh-TW')}`,
+      'success'
+    );
   }
 }
 
@@ -461,9 +711,12 @@ function _renderAppliedCoupons(items) {
   const container = document.getElementById('checkoutAppliedCouponTexts');
   if (!container) return;
   container.hidden = !items || items.length === 0;
-  container.innerHTML = (items || []).map(item => (
-    `<div class="couponAppliedItem">${item.code}: -NT$ ${Number(item.discount || 0).toLocaleString('zh-TW')}</div>`
-  )).join('');
+  container.innerHTML = (items || [])
+    .map(
+      (item) =>
+        `<div class="couponAppliedItem">${item.code}: -NT$ ${Number(item.discount || 0).toLocaleString('zh-TW')}</div>`
+    )
+    .join('');
 }
 
 // Render coupon message state.
@@ -475,6 +728,7 @@ function _showCouponMessage(message, type) {
   messageEl.classList.toggle('isSuccess', type === 'success');
   messageEl.classList.toggle('isError', type === 'error');
   messageEl.classList.toggle('isInfo', type === 'info');
+  if (type === 'error') messageEl.focus?.();
 }
 
 // Initialize confirm order button.
@@ -484,7 +738,7 @@ function _initConfirmOrderBtn() {
   confirmBtn.addEventListener('click', () => _handleConfirmOrder(confirmBtn));
 }
 
-// 驗證表單後建立 Session；草稿則 PATCH 補齊資料。
+// 驗證表單後只更新確認背包頁已建立的 Session，不在此頁重新建單。
 async function _handleConfirmOrder(confirmBtn) {
   // 後端 Checkout 依 Bearer 辨識會員；未登入不要送出
   if (!_getCheckoutUserId()) {
@@ -503,12 +757,14 @@ async function _handleConfirmOrder(confirmBtn) {
       await _continueReadyCheckout(currentSession, confirmBtn);
       return;
     }
-    const checkoutSession = currentSession?.checkoutStep === 'draft'
-      ? await window.API.checkout.updateSession(
-        currentSession.orderId,
-        _buildCheckoutUpdateRequest(formData)
-      )
-      : await _createCheckoutSession(_buildCheckoutRequest(formData));
+    if (currentSession?.checkoutStep !== 'draft' || !currentSession.orderId) {
+      _showCheckoutSessionMissing(confirmBtn);
+      return;
+    }
+    const checkoutSession = await window.API.checkout.updateSession(
+      currentSession.orderId,
+      _buildCheckoutUpdateRequest(formData)
+    );
 
     _saveCheckoutSession(checkoutSession);
 
@@ -525,8 +781,7 @@ async function _handleConfirmOrder(confirmBtn) {
 }
 
 function _shouldConfirmCodImmediately(checkoutSession) {
-  return checkoutSession?.paymentMethod === 'cod'
-    && checkoutSession?.checkoutStep === 'ready_to_pay';
+  return checkoutSession?.paymentMethod === 'cod' && checkoutSession?.checkoutStep === 'ready_to_pay';
 }
 
 // 接續處理 Ready Session：COD 成立或 ECPay 導轉。
@@ -538,7 +793,7 @@ async function _continueReadyCheckout(checkoutSession, confirmBtn) {
   }
   const launch = await window.API.checkout.createEcpayForm(checkoutSession.orderId);
   _submitEcpayForm(launch);
-  _resetCheckoutConfirmButton(confirmBtn, '前往 ECPay');
+  _resetCheckoutConfirmButton(confirmBtn);
 }
 
 // 後端確認訂單成立後，清空購物車與舊 Checkout 暫存，再以訂單 ID 開啟狀態頁。
@@ -579,34 +834,12 @@ function _submitEcpayForm(launch) {
   form.submit();
 }
 
-// 綁定取消與返回購物車操作。
+// 綁定返回確認背包操作。
 function _initCheckoutSessionActions() {
-  document.getElementById('cancelCheckoutBtn')?.addEventListener('click', event => {
-    _cancelCheckoutSession(event.currentTarget);
-  });
   document.getElementById('returnToCartBtn')?.addEventListener('click', () => {
-    window.openCartDrawer?.();
+    window.location.href = '/storefront/pages/cart.html';
   });
   window.addEventListener?.('beforeunload', _stopCheckoutCountdown);
-}
-
-// 主動取消後保留購物車，清除 Session 並開啟共用購物車 Drawer。
-async function _cancelCheckoutSession(cancelBtn) {
-  const checkoutSession = _getStoredCheckoutSession();
-  if (!checkoutSession?.orderId) return;
-
-  cancelBtn.disabled = true;
-  cancelBtn.textContent = '取消中...';
-
-  try {
-    await window.API.checkout.cancelSession(checkoutSession.orderId);
-    _renderCheckoutCancelledState();
-    window.openCartDrawer?.();
-  } catch (error) {
-    cancelBtn.disabled = false;
-    cancelBtn.textContent = '取消 Checkout';
-    _handleCheckoutError(error, document.getElementById('confirmOrderBtn'));
-  }
 }
 
 // Read checkout form field values.
@@ -622,20 +855,27 @@ function _readCheckoutFormData() {
       : '',
     userNote: document.getElementById('buyerNote')?.value.trim() || '',
     pickupBranchId: document.getElementById('checkoutPickupBranch')?.value || '',
+    paymentMethod: document.querySelector('input[name="paymentMethod"]:checked')?.value || '',
   };
 }
 
 function _initCheckoutInputValidation() {
-  document.querySelectorAll('input.checkoutInput').forEach(input => {
+  document.querySelectorAll('input.checkoutInput').forEach((input) => {
     input.addEventListener('input', () => {
       input.classList.remove('isInvalid');
       input.removeAttribute('aria-invalid');
     });
   });
   document.getElementById('checkoutShippingAddressEditBtn')?.addEventListener('click', () => {
-    document.getElementById('checkoutShippingAddressDisplay')?.classList.remove('isInvalid');
+    const display = document.getElementById('checkoutShippingAddressDisplay');
+    display?.classList.remove('isInvalid');
+    display?.removeAttribute('aria-invalid');
   });
-  document.querySelectorAll('input[name="paymentMethod"]').forEach(input => {
+  document.getElementById('checkoutPickupBranch')?.addEventListener('change', (event) => {
+    event.currentTarget.classList.remove('isInvalid');
+    event.currentTarget.removeAttribute('aria-invalid');
+  });
+  document.querySelectorAll('input[name="paymentMethod"]').forEach((input) => {
     input.addEventListener('change', () => {
       document.getElementById('panelPayment')?.classList.remove('isInvalid');
     });
@@ -644,16 +884,25 @@ function _initCheckoutInputValidation() {
 
 // Validate checkout form and focus the first invalid field.
 function _validateCheckoutForm(data) {
-  document.querySelectorAll('input.checkoutInput.isInvalid').forEach(input => {
+  document.querySelectorAll('input.checkoutInput.isInvalid').forEach((input) => {
     input.classList.remove('isInvalid');
     input.removeAttribute('aria-invalid');
   });
+  const shippingAddressDisplay = document.getElementById('checkoutShippingAddressDisplay');
+  shippingAddressDisplay?.classList.remove('isInvalid');
+  shippingAddressDisplay?.removeAttribute('aria-invalid');
+  const pickupBranch = document.getElementById('checkoutPickupBranch');
+  pickupBranch?.classList.remove('isInvalid');
+  pickupBranch?.removeAttribute('aria-invalid');
+  document.getElementById('panelPayment')?.classList.remove('isInvalid');
 
   const buyerRules = [
     { valid: data.buyerName, field: 'buyerName', message: '請輸入姓名' },
     { valid: data.buyerPhone, field: 'buyerPhone', message: '請輸入手機' },
     {
-      valid: window.isValidMobile ? window.isValidMobile(data.buyerPhone) : window.isValidPhone(data.buyerPhone),
+      valid: window.isValidMobile
+        ? window.isValidMobile(data.buyerPhone)
+        : window.isValidPhone(data.buyerPhone),
       field: 'buyerPhone',
       message: '手機須為 09 開頭的 10 碼數字（例：0988744144）',
     },
@@ -661,16 +910,16 @@ function _validateCheckoutForm(data) {
     { valid: window.isValidEmail(data.buyerEmail), field: 'buyerEmail', message: 'Email 格式不正確' },
   ];
 
-  const failedBuyerRules = buyerRules.filter(rule => !rule.valid);
-  failedBuyerRules.forEach(rule => {
-      const input = document.getElementById(rule.field);
-      input?.classList.add('isInvalid');
-      input?.setAttribute('aria-invalid', 'true');
+  const failedBuyerRules = buyerRules.filter((rule) => !rule.valid);
+  failedBuyerRules.forEach((rule) => {
+    const input = document.getElementById(rule.field);
+    input?.classList.add('isInvalid');
+    input?.setAttribute('aria-invalid', 'true');
   });
 
   if (failedBuyerRules.length > 0) {
     _openCheckoutPanel('panelBuyer');
-    window.showToast('會員資料格式不符', 'error');
+    window.showToast('請完成紅色標記的必填資料', 'error');
     document.getElementById(failedBuyerRules[0].field)?.focus();
     return false;
   }
@@ -678,16 +927,27 @@ function _validateCheckoutForm(data) {
   if (selectedShippingMethod === 'delivery') {
     const addrResult = window.YuruiShippingAddress?.validate(data.shippingAddress);
     if (!addrResult?.ok) {
+      shippingAddressDisplay?.classList.add('isInvalid');
+      shippingAddressDisplay?.setAttribute('aria-invalid', 'true');
       _openCheckoutPanel('panelShipping');
-      window.showToast('運送地址格式不符', 'error');
+      window.showToast('請完成紅色標記的必填資料', 'error');
       document.getElementById('checkoutShippingAddressEditBtn')?.focus();
       return false;
     }
   }
   if (selectedShippingMethod === 'pickup' && !data.pickupBranchId) {
+    pickupBranch?.classList.add('isInvalid');
+    pickupBranch?.setAttribute('aria-invalid', 'true');
     _openCheckoutPanel('panelShipping');
-    window.showToast('選擇取貨門市', 'error');
-    document.getElementById('checkoutPickupBranch')?.focus();
+    window.showToast('請完成紅色標記的必填資料', 'error');
+    pickupBranch?.focus();
+    return false;
+  }
+  if (!data.paymentMethod) {
+    document.getElementById('panelPayment')?.classList.add('isInvalid');
+    _openCheckoutPanel('panelPayment');
+    window.showToast('請完成紅色標記的必填資料', 'error');
+    document.querySelector('input[name="paymentMethod"]')?.focus();
     return false;
   }
 
@@ -707,30 +967,9 @@ function _setConfirmButtonLoading(button, isLoading) {
   button.textContent = isLoading ? 'Checkout 處理中...' : '確認結帳';
 }
 
-// 建立後端允許的 Checkout Request，不送會員、價格或訂單快照。
-function _buildCheckoutRequest(formData) {
-  const cart = window.AppState.cart;
-  const request = {
-    items: _buildCheckoutRequestItems(cart),
-    shipping: {
-      method: selectedShippingMethod,
-      recipientName: formData.buyerName,
-      phone: formData.buyerPhone,
-      address: selectedShippingMethod === 'delivery' ? formData.deliveryAddress : null,
-      pickupBranchId: selectedShippingMethod === 'pickup' ? formData.pickupBranchId : null,
-    },
-    paymentMethod: _getSelectedPaymentCode(),
-  };
-
-  return {
-    ...request,
-    idempotencyKey: _getCheckoutIdempotencyKey(cart),
-  };
-}
-
 // 草稿 PATCH 只送後端允許修改的收件資料與付款方式。
 function _buildCheckoutUpdateRequest(formData) {
-  return {
+  const request = {
     shipping: {
       method: selectedShippingMethod,
       recipientName: formData.buyerName,
@@ -740,13 +979,22 @@ function _buildCheckoutUpdateRequest(formData) {
     },
     paymentMethod: _getSelectedPaymentCode(),
   };
+
+  // 正式模式已有選券時一併送 claim ID，後端仍是折扣與成交金額真相。
+  if (_isBackendCheckoutMode() && selectedCheckoutCouponClaim?.id) {
+    request.couponClaimId = selectedCheckoutCouponClaim.id;
+  }
+
+  return request;
 }
 
 // 使用 CheckoutSession.pricing 覆蓋前端預估金額。
 function _applyCheckoutSessionPricing(pricing) {
-  const values = ['subtotal', 'shippingFee', 'discount', 'total']
-    .reduce((result, field) => ({ ...result, [field]: Number(pricing?.[field]) }), {});
-  if (Object.values(values).some(value => !Number.isFinite(value) || value < 0)) {
+  const values = ['subtotal', 'shippingFee', 'discount', 'total'].reduce(
+    (result, field) => ({ ...result, [field]: Number(pricing?.[field]) }),
+    {}
+  );
+  if (Object.values(values).some((value) => !Number.isFinite(value) || value < 0)) {
     throw new Error('CHECKOUT_PRICING_INVALID');
   }
 
@@ -755,7 +1003,6 @@ function _applyCheckoutSessionPricing(pricing) {
   _renderShippingFee(values.shippingFee);
   _renderDiscountRow();
   _setText('checkoutTotal', window.formatCurrency(values.total));
-
 }
 
 // 相容既有測試入口，實際狀態統一交給 Session renderer。
@@ -766,10 +1013,16 @@ function _showCheckoutSessionReady(checkoutSession, confirmBtn) {
 // 重新整理頁面時還原已建立 Session 的後端金額與狀態。
 function _restoreCheckoutSession() {
   const completedOrderId = sessionStorage.getItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
-  if (!completedOrderId) return;
+  if (!completedOrderId) {
+    _showCheckoutSessionMissing(document.getElementById('confirmOrderBtn'));
+    return;
+  }
 
   const checkoutSession = _readCompletedCheckoutSession(completedOrderId);
-  if (!checkoutSession.pricing) return;
+  if (!checkoutSession.pricing) {
+    _showCheckoutSessionMissing(document.getElementById('confirmOrderBtn'));
+    return;
+  }
 
   const confirmBtn = document.getElementById('confirmOrderBtn');
   if (confirmBtn) _renderCheckoutSessionState(checkoutSession, confirmBtn);
@@ -777,10 +1030,7 @@ function _restoreCheckoutSession() {
 
 // 保存完整 Session，讓重新整理後能還原狀態與後端金額。
 function _saveCheckoutSession(checkoutSession) {
-  sessionStorage.setItem(
-    CHECKOUT_LAST_SESSION_STORAGE_KEY,
-    JSON.stringify(checkoutSession)
-  );
+  sessionStorage.setItem(CHECKOUT_LAST_SESSION_STORAGE_KEY, JSON.stringify(checkoutSession));
   sessionStorage.setItem(CHECKOUT_COMPLETED_ORDER_ID_KEY, checkoutSession.orderId);
 }
 
@@ -796,21 +1046,16 @@ function _getStoredCheckoutSession() {
 // 依後端 checkoutStep 呈現 Draft 或 Ready to pay。
 function _renderCheckoutSessionState(checkoutSession, confirmBtn) {
   _applyCheckoutSessionPricing(checkoutSession.pricing);
-  _toggleCheckoutSessionButtons({ cancel: true, cart: false });
+  _toggleCheckoutSessionButtons({ cart: false });
 
   if (checkoutSession.checkoutStep === 'draft') {
     _stopCheckoutCountdown();
-    _setCheckoutSessionPanel({
-      state: 'isDraft',
-      icon: 'bi-exclamation-circle',
-      badge: 'Draft',
-      title: '結帳資料尚未完整',
-      message: '庫存已暫時保留，請補齊收件資料與付款方式後更新 Checkout。',
-    });
+    // Draft 是正常填表階段，不用額外顯示資料不完整的錯誤面板。
+    _hideCheckoutSessionPanel();
     _setCheckoutTimerVisible(false);
     confirmBtn.disabled = false;
     confirmBtn.classList.remove('isLoading');
-    confirmBtn.textContent = '更新結帳資料';
+    confirmBtn.textContent = '確認結帳';
     return;
   }
 
@@ -829,7 +1074,7 @@ function _renderCheckoutSessionState(checkoutSession, confirmBtn) {
     _startCheckoutCountdown(checkoutSession.checkoutExpiresAt);
     confirmBtn.disabled = false;
     confirmBtn.classList.remove('isLoading');
-    confirmBtn.textContent = isEcpay ? '前往 ECPay' : '確認貨到付款';
+    confirmBtn.textContent = '確認結帳';
     return;
   }
 
@@ -840,7 +1085,7 @@ function _renderCheckoutSessionState(checkoutSession, confirmBtn) {
 
   _showCheckoutErrorPanel('Checkout 狀態無法辨識', '請重新建立 Checkout。');
   _clearCheckoutIdempotencyState();
-  _resetCheckoutConfirmButton(confirmBtn, '重新建立 Checkout');
+  _showCheckoutSessionMissing(confirmBtn);
 }
 
 // 統一切換狀態面板文字、圖示與色彩狀態。
@@ -861,6 +1106,17 @@ function _setCheckoutSessionPanel({ state, icon, badge, title, message, details 
   _renderCheckoutErrorDetails(details);
 }
 
+// 正常填表期間隱藏 Session 面板，真正的庫存、逾時或系統錯誤才顯示。
+function _hideCheckoutSessionPanel() {
+  const panel = document.getElementById('checkoutSessionPanel');
+  if (!panel) return;
+
+  panel.hidden = true;
+  panel.classList.remove('isDraft', 'isReady', 'isExpired', 'isCancelled', 'isError');
+  panel.dataset.state = '';
+  _renderCheckoutErrorDetails([]);
+}
+
 // 錯誤明細只用 textContent 寫入，避免後端文字成為 HTML。
 function _renderCheckoutErrorDetails(details) {
   const list = document.getElementById('checkoutSessionDetails');
@@ -868,9 +1124,9 @@ function _renderCheckoutErrorDetails(details) {
 
   list.replaceChildren();
   const messages = (Array.isArray(details) ? details : [])
-    .map(detail => detail?.reason || detail?.message || detail?.field)
+    .map((detail) => detail?.reason || detail?.message || detail?.field)
     .filter(Boolean);
-  messages.forEach(message => {
+  messages.forEach((message) => {
     const item = document.createElement('li');
     item.textContent = message;
     list.appendChild(item);
@@ -932,36 +1188,16 @@ function _handleCheckoutExpired() {
     icon: 'bi-clock-history',
     badge: 'Expired',
     title: 'Checkout 已逾時',
-    message: '保留庫存已釋放，購物車仍保留，可重新建立 Checkout。',
+    message: '保留庫存已釋放，購物車仍保留，請返回確認背包重新鎖庫。',
   });
-  _toggleCheckoutSessionButtons({ cancel: false, cart: true });
-  _resetCheckoutConfirmButton(document.getElementById('confirmOrderBtn'), '重新建立 Checkout');
+  _toggleCheckoutSessionButtons({ cart: true });
+  _disableCheckoutConfirmButton(document.getElementById('confirmOrderBtn'));
 }
 
-// 主動取消成功後清除 Session，並保留購物車供後續修改。
-function _renderCheckoutCancelledState() {
-  _clearCheckoutIdempotencyState();
-  _setCheckoutTimerVisible(false);
-  _setCheckoutSessionPanel({
-    state: 'isCancelled',
-    icon: 'bi-cart-check',
-    badge: 'Cancelled',
-    title: 'Checkout 已取消',
-    message: '庫存保留已取消，購物車內容仍保留。',
-  });
-  _toggleCheckoutSessionButtons({ cancel: false, cart: true });
-  _resetCheckoutConfirmButton(document.getElementById('confirmOrderBtn'), '重新建立 Checkout');
-}
-
-function _toggleCheckoutSessionButtons({ cancel, cart }) {
-  const cancelBtn = document.getElementById('cancelCheckoutBtn');
+function _toggleCheckoutSessionButtons({ cart }) {
   const cartBtn = document.getElementById('returnToCartBtn');
-  if (cancelBtn) {
-    cancelBtn.hidden = !cancel;
-    cancelBtn.disabled = false;
-    cancelBtn.textContent = '取消 Checkout';
-  }
   if (cartBtn) cartBtn.hidden = !cart;
+  if (cartBtn) cartBtn.textContent = '返回確認背包';
 }
 
 // 將後端錯誤碼轉成可操作的 Checkout UI。
@@ -978,26 +1214,26 @@ function _handleCheckoutError(error, confirmBtn) {
   }
 
   if (code === 'STOCK_INSUFFICIENT') {
-    const stockDetails = details.length > 0
-      ? details
-      : [{ reason: error?.message || '商品庫存不足' }];
+    const stockDetails = details.length > 0 ? details : [{ reason: error?.message || '商品庫存不足' }];
     _showCheckoutErrorPanel('部分商品庫存不足', '請調整購物車數量後再試。', stockDetails);
-    _toggleCheckoutSessionButtons({ cancel: false, cart: true });
-    _resetCheckoutConfirmButton(confirmBtn, '重新檢查庫存');
+    _toggleCheckoutSessionButtons({ cart: true });
+    _disableCheckoutConfirmButton(confirmBtn, '商品剩餘數量不足請重新調整數量');
     return;
   }
 
   if (code === 'VALIDATION_ERROR') {
     _markCheckoutValidationFields(details);
-    _showCheckoutErrorPanel('資料格式不正確', '請檢查標記欄位後重新送出。', details);
+    _hideCheckoutSessionPanel();
+    window.showToast?.('請完成紅色標記的必填資料', 'error');
     _resetCheckoutConfirmButton(confirmBtn);
     return;
   }
 
   if (code === 'IDEMPOTENCY_CONFLICT') {
     _clearCheckoutIdempotencyState();
-    _showCheckoutErrorPanel('Checkout 請求已衝突', '已停止舊請求，請重新建立 Checkout。');
-    _resetCheckoutConfirmButton(confirmBtn, '重新建立 Checkout');
+    _showCheckoutErrorPanel('Checkout 請求已衝突', '請返回確認背包重新建立 Checkout。');
+    _toggleCheckoutSessionButtons({ cart: true });
+    _disableCheckoutConfirmButton(confirmBtn);
     return;
   }
 
@@ -1006,11 +1242,23 @@ function _handleCheckoutError(error, confirmBtn) {
     return;
   }
 
-  const message = code === 'INTERNAL_ERROR'
-    ? '系統暫時無法處理，請稍後再試。'
-    : '無法完成 Checkout，請稍後再試。';
-  _showCheckoutErrorPanel('Checkout 建立失敗', message);
+  const message =
+    code === 'INTERNAL_ERROR' ? '系統暫時無法處理，請稍後再試。' : '無法完成 Checkout，請稍後再試。';
+  _showCheckoutErrorPanel('無法完成 Checkout', message);
   _resetCheckoutConfirmButton(confirmBtn);
+}
+
+function _showCheckoutSessionMissing(confirmBtn) {
+  _showCheckoutErrorPanel('尚未確認購物背包', '請先返回確認背包，完成商品庫存保留後再填寫結帳資料。');
+  _toggleCheckoutSessionButtons({ cart: true });
+  _disableCheckoutConfirmButton(confirmBtn);
+}
+
+function _disableCheckoutConfirmButton(confirmBtn, label = '請先返回確認背包') {
+  if (!confirmBtn) return;
+  confirmBtn.disabled = true;
+  confirmBtn.classList.remove('isLoading');
+  confirmBtn.textContent = label;
 }
 
 // Checkout 後端目前可能以 CONFLICT 回傳冪等衝突，前端兼容兩種代碼。
@@ -1042,7 +1290,7 @@ function _markCheckoutValidationFields(details) {
     'shipping.phone': 'buyerPhone',
   };
 
-  details.forEach(detail => {
+  details.forEach((detail) => {
     const inputId = fieldMap[detail?.field];
     if (inputId) {
       const input = document.getElementById(inputId);
@@ -1071,7 +1319,7 @@ function _resetCheckoutConfirmButton(confirmBtn, label = '確認結帳') {
 
 // 購物車只轉成規格 ID 與數量，商品快照由後端從資料庫建立。
 function _buildCheckoutRequestItems(cart) {
-  return cart.map(item => {
+  return cart.map((item) => {
     const variantId = String(item.variantId || '').trim();
     const quantity = Number(item.quantity);
     if (!variantId || !Number.isInteger(quantity) || quantity < 1) {
@@ -1080,20 +1328,6 @@ function _buildCheckoutRequestItems(cart) {
 
     return { variantId, quantity };
   });
-}
-
-// 同一份購物車沿用 key；購物車變更時先清除上一個 Checkout 狀態。
-function _getCheckoutIdempotencyKey(cart) {
-  _syncCheckoutIdempotencyWithCart(cart);
-
-  const storedKey = sessionStorage.getItem(CHECKOUT_IDEMPOTENCY_KEY);
-  if (storedKey) {
-    return storedKey;
-  }
-
-  const idempotencyKey = _createCheckoutIdempotencyKey();
-  sessionStorage.setItem(CHECKOUT_IDEMPOTENCY_KEY, idempotencyKey);
-  return idempotencyKey;
 }
 
 // 將購物車規格與數量排序後建立穩定指紋。
@@ -1130,7 +1364,7 @@ function _initCheckoutIdempotencyListener() {
   });
 }
 
-// 購物車改變後回到可重新建立 Session 的預估狀態。
+// Checkout 頁不可改商品；購物車變更後要求返回確認背包重新鎖庫。
 function _showCheckoutEstimateState() {
   _stopCheckoutCountdown();
   const panel = document.getElementById('checkoutSessionPanel');
@@ -1138,44 +1372,7 @@ function _showCheckoutEstimateState() {
   _setCheckoutTimerVisible(false);
 
   const confirmBtn = document.getElementById('confirmOrderBtn');
-  if (confirmBtn) {
-    confirmBtn.disabled = false;
-    confirmBtn.classList.remove('isLoading');
-    confirmBtn.textContent = '確認結帳';
-  }
-}
-
-// 第一次送出使用瀏覽器原生 UUID，避免重試建立不同訂單。
-function _createCheckoutIdempotencyKey() {
-  if (!window.crypto?.randomUUID) {
-    throw new Error('CRYPTO_RANDOM_UUID_UNAVAILABLE');
-  }
-
-  return window.crypto.randomUUID();
-}
-
-// 連點共用同一個 Promise；成功後保存 orderId，避免再次建立。
-async function _createCheckoutSession(request) {
-  const completedOrderId = sessionStorage.getItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
-  if (completedOrderId) {
-    const completedSession = _readCompletedCheckoutSession(completedOrderId);
-    if (completedSession.pricing) return completedSession;
-
-    // 舊版只保存 orderId 時，保留原 idempotencyKey 向後端安全回放完整 Session。
-    sessionStorage.removeItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
-  }
-  if (checkoutCreatePromise) {
-    return checkoutCreatePromise;
-  }
-
-  checkoutCreatePromise = window.API.checkout.createSession(request);
-  try {
-    const checkoutSession = await checkoutCreatePromise;
-    sessionStorage.setItem(CHECKOUT_COMPLETED_ORDER_ID_KEY, checkoutSession.orderId);
-    return checkoutSession;
-  } finally {
-    checkoutCreatePromise = null;
-  }
+  _showCheckoutSessionMissing(confirmBtn);
 }
 
 // 優先回傳已保存的完整 Session；缺少時由建立流程用同一 key 安全回放。
@@ -1197,7 +1394,6 @@ function _clearCheckoutIdempotencyState() {
   sessionStorage.removeItem(CHECKOUT_CART_FINGERPRINT_KEY);
   sessionStorage.removeItem(CHECKOUT_COMPLETED_ORDER_ID_KEY);
   sessionStorage.removeItem(CHECKOUT_LAST_SESSION_STORAGE_KEY);
-  checkoutCreatePromise = null;
 }
 
 // 提供 facade 在取消成功或收到逾時錯誤時清除 Checkout 狀態。

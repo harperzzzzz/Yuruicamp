@@ -114,6 +114,31 @@ class CheckoutServiceTest {
 		verify(customers, never()).findByIdForCheckout(any());
 	}
 
+	// 庫存不足時應顯示商品名稱與剩餘數量，不顯示內部規格 ID。
+	@Test
+	void insufficientStockReturnsProductNameAndAvailableQuantity() {
+		arrangeSuccessfulCreation();
+		InventoryStock stock = mock(InventoryStock.class);
+		when(stock.getLocationId()).thenReturn("L001");
+		when(stock.getOnHandQuantity()).thenReturn(2);
+		when(stocks.lockStoreStocksByVariantId("V001")).thenReturn(List.of(stock));
+		when(reservations.activeQuantity("V001", "L001")).thenReturn(0);
+		CheckoutCreateRequest request = new CheckoutCreateRequest(
+				List.of(new CheckoutCreateRequest.Item("V001", 3)),
+				"ecpay-credit",
+				null,
+				"checkout-stock-insufficient");
+
+		assertThatThrownBy(() -> service.create("C001", request))
+				.isInstanceOfSatisfying(BusinessException.class, ex -> {
+					assertThat(ex.getErrorCode()).isEqualTo(ErrorCode.STOCK_INSUFFICIENT);
+					assertThat(ex.getDetails()).hasSize(1);
+					assertThat(ex.getDetails().getFirst().field()).isEqualTo("stock");
+					assertThat(ex.getDetails().getFirst().reason())
+							.isEqualTo("測試商品商品數量剩餘: 2");
+				});
+	}
+
 	// 更新完整收件資料後應進入可付款狀態並保存付款方式。
 	@Test
 	void updateCompletesDraftAndChangesPaymentMethod() {

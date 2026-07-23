@@ -1,10 +1,10 @@
-# Booking API Contract（v0.9）
+# Booking API Contract（v1.0）
 
 | 欄位         | 內容                                                                                                          |
 | ------------ | ------------------------------------------------------------------------------------------------------------- |
 | **狀態**     | Locked（E-1～E-7 已實作；Booking Prepare／Reservation 完成，Payment Confirmation 延後至線 D）                 |
-| **日期**     | 2026-07-21                                                                                                    |
-| **版本**     | 0.9                                                                                                           |
+| **日期**     | 2026-07-23                                                                                                    |
+| **版本**     | 1.0                                                                                                           |
 | **共用**     | [`common-api-conventions.md`](./common-api-conventions.md)                                                    |
 | **相關**     | [`payment-api-contract.md`](./payment-api-contract.md)、[`coupon-api-contract.md`](./coupon-api-contract.md)  |
 | **路徑前綴** | 對外統一 **`/api/booking/...`**；前端 facade 因 `API_BASE_URL` 已含 `/api`，內部資源路徑固定寫 `/booking/...` |
@@ -49,14 +49,16 @@
 
 ### 2.1 `Campground`
 
-| JSON          | 型別           | DB                         |
-| ------------- | -------------- | -------------------------- |
-| `id`          | string         | `campgrounds.id`           |
-| `name`        | string         | `name`                     |
-| `region`      | string         | `region`                   |
-| `description` | string \| null | `description`              |
-| `active`      | boolean        | `active`                   |
-| `zones`       | array          | 詳情必含；列表可省略或精簡 |
+| JSON              | 型別           | DB                                                                                 |
+| ----------------- | -------------- | ---------------------------------------------------------------------------------- |
+| `id`              | string         | `campgrounds.id`                                                                   |
+| `name`            | string         | `name`                                                                             |
+| `region`          | string         | `region`                                                                           |
+| `description`     | string \| null | `description`                                                                      |
+| `active`          | boolean        | `active`                                                                           |
+| `environmentTags` | string[]       | `campground_environment_tags` → active `environment_tags.label`，依 `sort_order`、`id` 排序 |
+| `facilityTags`    | string[]       | `campground_facility_tags` → active `facility_tags.label`，依 `sort_order`、`id` 排序       |
+| `zones`           | array          | 詳情必含；列表可省略或精簡                                                         |
 
 ### 2.2 `Zone`（嵌在營區詳情）
 
@@ -335,7 +337,7 @@ rental_sku_variant_stocks.on_hand_quantity
 
 ---
 
-## 7. v0.9 暫不提供
+## 7. v1.0 暫不提供
 
 | 項目                                         | 原因                                                 |
 | -------------------------------------------- | ---------------------------------------------------- |
@@ -354,6 +356,7 @@ rental_sku_variant_stocks.on_hand_quantity
 
 | 版本 | 日期       | 說明                                                                                                                   |
 | ---- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1.0  | 2026-07-23 | 公開營區列表與詳情補回 `environmentTags`、`facilityTags`，供前台環境特徵與設施篩選使用                                 |
 | 0.9  | 2026-07-21 | E-7 前端接線完成；統一 facade 路徑、Bearer／Envelope／meta、後端可用性與價格、Booking ID、倒數及 Payment Deferred 邊界 |
 | 0.8  | 2026-07-21 | E-6 主動取消與 15 分鐘逾時釋放已實作；鎖定狀態競爭、租借 released 與歷程冪等                                           |
 | 0.7  | 2026-07-21 | E-5 會員預約列表、詳情與 Checkout 讀取已實作；鎖定本人限制、404 隔離與分頁欄位                                         |

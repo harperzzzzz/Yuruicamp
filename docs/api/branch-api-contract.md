@@ -10,6 +10,8 @@
 
 `GET /api/branches` 為公開端點，不需要 Token。成功時回傳共用 Envelope，`data` 為依 `id` 遞增排序的門市陣列。
 
+公開查詢只回傳 `branches.active = true` 的門市。`active` 是後台軟停用欄位，不暴露在本公開 API 的回應中。
+
 ## Branch 欄位
 
 | JSON | 型別 | DB |

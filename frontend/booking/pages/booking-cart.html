@@ -50,9 +50,9 @@
       <!-- 空背包狀態：共用 cartEmpty* 語意，保留 booking 變體供本流程覆寫。 -->
       <div id="bookingCartEmpty" class="cartEmpty cartEmptyBooking bookingCartEmptyState">
         <div class="cartEmptyIcon cartEmptyIconBooking"><i class="bi bi-bag-x"></i></div>
-        <div class="cartEmptyTitle cartEmptyTitleBooking">背包是空的</div>
-        <p class="cartEmptyText cartEmptyTextBooking">還沒有選擇任何營區或裝備，去探索看看吧！</p>
-        <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> 探索營區 </a>
+        <div class="cartEmptyTitle cartEmptyTitleBooking">預約背包目前是空的</div>
+        <p class="cartEmptyText cartEmptyTextBooking">沒有預約營地、租賃裝備請前往預約首頁預約。</p>
+        <a href="./camp-search.html" class="btn btnPrimary"> <i class="bi bi-search"></i> 前往預約首頁 </a>
       </div>
 
       <!-- 有內容時的兩欄佈局：cartLayout 是功能語意，cartLayoutBooking 是 booking 專屬尺寸。 -->
@@ -114,9 +114,20 @@
               href="./booking-checkout.html"
               class="btn btnPrimary btnFull cartCheckoutButton cartCheckoutButtonBooking bookingCartCheckoutButton"
               id="bookingCartCheckoutButton"
+              aria-disabled="true"
             >
-              <i class="bi bi-arrow-right-circle"></i> 前往結帳
+              <i class="bi bi-hourglass-split"></i> 正在確認庫存
             </a>
+
+            <!-- 建立 Booking Checkout Session 的狀態與庫存錯誤。 -->
+            <div
+              id="bookingCheckoutSessionStatus"
+              class="bookingCheckoutSessionStatus"
+              role="status"
+              aria-live="polite"
+            >
+              正在確認營位與租借商品庫存…
+            </div>
 
             <!-- 繼續修改 -->
             <a href="./camp-rental.html"> ← 返回修改裝備 </a>

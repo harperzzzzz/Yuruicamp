@@ -5,15 +5,13 @@
 -->
 
 <div class="card shadow-sm border-0">
-
   <!-- 卡片頂部：日期篩選 + 清除條件按鈕 -->
   <!-- 舊的 #orderStatusFilter select 已移除，篩選功能改由欄位標頭的漏斗 icon 負責 -->
-  <div class="card-header bg-white border-0
-              d-flex justify-content-start align-items-center flex-wrap gap-2 py-3">
-
+  <div
+    class="card-header bg-white border-0 d-flex justify-content-start align-items-center flex-wrap gap-2 py-3"
+  >
     <!-- 工具列：日期篩選 + 清除條件按鈕 -->
     <div class="d-flex align-items-center flex-nowrap gap-2">
-
       <!-- 日期篩選器：快速選鈕 + flatpickr 自定義 + 期間文字 -->
       <!-- 與分析報表頁風格一致；由 orders.js setupOrderPeriodFilter / initOrderFlatpickr 驅動 -->
       <div class="d-flex align-items-center flex-nowrap gap-2">
@@ -27,10 +25,14 @@
           </button>
         </div>
         <!-- flatpickr input：預設 hidden，點「自定義」才顯示 -->
-        <input type="text" id="orderDateRangePicker"
-               class="form-control form-control-sm flex-shrink-0"
-               style="width: 176px; display: none; white-space: nowrap;"
-               placeholder="開始日期 ~ 結束日期" readonly>
+        <input
+          type="text"
+          id="orderDateRangePicker"
+          class="form-control form-control-sm flex-shrink-0"
+          style="width: 176px; display: none; white-space: nowrap"
+          placeholder="開始日期 ~ 結束日期"
+          readonly
+        />
         <!-- 期間文字：由 updateOrderPeriodLabel() 動態更新 -->
         <span class="text-muted small" id="orderPeriodLabel"></span>
       </div>
@@ -39,7 +41,6 @@
       <button id="btnClearSort" class="btn btn-sm btn-outline-secondary d-none">
         <i class="fas fa-rotate-left me-1"></i>清除條件
       </button>
-
     </div>
   </div>
 
@@ -79,9 +80,9 @@
               <span class="filter-dot d-none"></span>
               <div class="filter-dropdown d-none">
                 <!-- paid/unpaid → paymentStatus；cod → payment==='cod'（見 admin/js/orders.js） -->
-                <label><input type="checkbox" value="paid"> 已付款</label>
-                <label><input type="checkbox" value="unpaid"> 未付款</label>
-                <label><input type="checkbox" value="cod"> 貨到付款</label>
+                <label><input type="checkbox" value="paid" /> 已付款</label>
+                <label><input type="checkbox" value="unpaid" /> 未付款</label>
+                <label><input type="checkbox" value="cod" /> 貨到付款</label>
               </div>
             </th>
 
@@ -91,10 +92,11 @@
               <i class="fas fa-filter filter-icon ms-1"></i>
               <span class="filter-dot d-none"></span>
               <div class="filter-dropdown d-none">
-                <label><input type="checkbox" value="unshipped"> 未出貨</label>
-                <label><input type="checkbox" value="shipped"> 已出貨</label>
-                <label><input type="checkbox" value="returned"> 已退貨</label>
-                <label><input type="checkbox" value="completed"> 已完成</label>
+                <label><input type="checkbox" value="unshipped" /> 未出貨</label>
+                <label><input type="checkbox" value="shipped" /> 已出貨</label>
+                <label><input type="checkbox" value="returned" /> 已退貨</label>
+                <label><input type="checkbox" value="completed" /> 已完成</label>
+                <label><input type="checkbox" value="cancelled" /> 已取消</label>
               </div>
             </th>
 
@@ -106,14 +108,17 @@
           <!-- 初始顯示 Loading 提示 -->
           <tr>
             <td colspan="7" class="text-center py-4">
-              <div class="spinner-border spinner-border-sm me-2"
-                   style="color: var(--admin-brand-accent);"></div>
+              <div
+                class="spinner-border spinner-border-sm me-2"
+                style="color: var(--admin-brand-accent)"
+              ></div>
               <span class="text-muted">載入訂單中...</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  </div><!-- end card-body -->
-
-</div><!-- end card -->
+  </div>
+  <!-- end card-body -->
+</div>
+<!-- end card -->

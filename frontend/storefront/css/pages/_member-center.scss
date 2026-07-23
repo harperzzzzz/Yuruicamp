@@ -797,6 +797,45 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   padding: 0 1rem 1.25rem;
 }
 
+.memberOnboardingDialog {
+  max-width: 480px;
+}
+
+.memberOnboardingBody {
+  align-items: center;
+  justify-items: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.memberOnboardingIcon {
+  align-items: center;
+  background: $member-primary-soft;
+  border-radius: 50%;
+  color: $member-primary;
+  display: inline-flex;
+  font-size: 1.75rem;
+  height: 64px;
+  justify-content: center;
+  width: 64px;
+}
+
+.memberOnboardingMessage {
+  color: $member-text;
+  line-height: 1.75;
+  margin: 0;
+  max-width: 360px;
+}
+
+.memberOnboardingFooter {
+  justify-content: center;
+  width: 100%;
+}
+
+.memberOnboardingAcknowledge {
+  min-width: 144px;
+}
+
 // 會員訂單明細：套用在 components/member-center.partial 的 orderDetailOverlay。
 .memberDetailRow {
   align-items: center;
@@ -902,7 +941,10 @@ $member-transition: var(--yc-transition-fast, 150ms ease);
   cursor: pointer;
   font: inherit;
   font-weight: 800;
-  transition: border-color $member-transition, background-color $member-transition, color $member-transition;
+  transition:
+    border-color $member-transition,
+    background-color $member-transition,
+    color $member-transition;
 }
 
 .memberItemReviewButton:hover {

@@ -156,6 +156,8 @@ const colors = {
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
+- Rental quantity supports both stepper buttons and direct integer input from 1 to 20; either path recalculates totals, persists the cart, and rebuilds the Booking Checkout Session.
+- Clearing the cart removes `bookingCart` and its prepared session, then shows「沒有預約營地、租賃裝備請前往預約首頁預約。」with a link to the booking home.
 
 ## Acceptance Criteria
 
@@ -165,3 +167,5 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] Rental quantity can be entered directly and invalid values are restored.
+- [ ] Clear cart removes all booking cart data and displays the specified empty-state guidance.

@@ -74,12 +74,18 @@
   function renderCartItem(item) {
     var itemTotal = Number(item.price || 0) * Number(item.quantity || 0);
     var detailUrl = getMainPageUrl('product-detail.html') + '?id=' + encodeURIComponent(item.id);
-    var specHtml = window.renderSpecLabelHtml ? window.renderSpecLabelHtml(item.specLabel, 'siteCartItemSpec') : '';
+    var specHtml = window.renderSpecLabelHtml
+      ? window.renderSpecLabelHtml(item.specLabel, 'siteCartItemSpec')
+      : '';
     var variantId = item.variantId || '';
     var imageSrc = resolveCartImageSrc(item.image);
 
     return [
-      '<article class="siteCartItem" data-product-id="' + escapeCartHtml(item.id) + '" data-variant-id="' + escapeCartHtml(variantId) + '">',
+      '<article class="siteCartItem" data-product-id="' +
+        escapeCartHtml(item.id) +
+        '" data-variant-id="' +
+        escapeCartHtml(variantId) +
+        '">',
       '  <a class="siteCartItemImageLink" href="' + detailUrl + '">',
       '    <img class="siteCartItemImage" src="' +
         escapeCartHtml(imageSrc) +
@@ -95,17 +101,20 @@
       '    <div class="siteCartItemActions">',
       '      <button class="siteCartQuantityDecrease" data-product-id="' +
         escapeCartHtml(item.id) +
-        '" data-variant-id="' + escapeCartHtml(variantId) +
+        '" data-variant-id="' +
+        escapeCartHtml(variantId) +
         '" type="button" aria-label="減少數量">−</button>',
       '      <span class="siteCartItemQuantity">' + Number(item.quantity || 0) + '</span>',
       '      <button class="siteCartQuantityIncrease" data-product-id="' +
         escapeCartHtml(item.id) +
-        '" data-variant-id="' + escapeCartHtml(variantId) +
+        '" data-variant-id="' +
+        escapeCartHtml(variantId) +
         '" type="button" aria-label="增加數量">+</button>',
       '      <strong class="siteCartItemSubtotal">' + window.formatCurrency(itemTotal) + '</strong>',
       '      <button class="siteCartRemoveButton" data-product-id="' +
         escapeCartHtml(item.id) +
-        '" data-variant-id="' + escapeCartHtml(variantId) +
+        '" data-variant-id="' +
+        escapeCartHtml(variantId) +
         '" type="button" aria-label="移除商品">',
       '        <svg class="siteCartRemoveIcon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">',
       '          <path fill="currentColor" d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>',
@@ -259,7 +268,7 @@
       window.showToast && window.showToast('購物車沒有商品', 'warning');
       return;
     }
-    window.location.href = getMainPageUrl('checkout.html');
+    window.location.href = getMainPageUrl('cart.html');
   }
 
   function initCartDrawer() {

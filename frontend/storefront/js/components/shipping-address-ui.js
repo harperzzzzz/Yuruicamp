@@ -221,17 +221,13 @@
       (window.YuruiStorage && window.YuruiStorage.readAuthUser && window.YuruiStorage.readAuthUser());
     if (!user || !user.id) return addr;
 
-    if (window.API && window.API.customers && window.API.customers.update) {
+    if (window.API?.shippingAddresses?.saveDefault) {
       if (window.AppState && !window.AppState.currentUser) {
         window.AppState.currentUser = user;
         window.AppState.isLoggedIn = true;
       }
-      await window.API.customers.update(user.id, { shippingAddress: addr });
-      var refreshed = await window.API.customers.getById(user.id);
-      if (refreshed) {
-        window.AppState.currentUser = Object.assign({}, window.AppState.currentUser, refreshed);
-        window.saveAppState && window.saveAppState();
-      }
+      var savedAddress = await window.API.shippingAddresses.saveDefault(addr);
+      if (savedAddress) addr = savedAddress;
     } else {
       window.AppState.currentUser = Object.assign({}, user, { shippingAddress: addr });
       window.saveAppState && window.saveAppState();
@@ -240,7 +236,7 @@
     var profile = {};
     try {
       profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}');
-    } catch (e) {
+    } catch {
       profile = {};
     }
     profile.shippingAddress = addr;

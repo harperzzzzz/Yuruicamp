@@ -112,6 +112,38 @@
     return false;
   }
 
+  function preferenceValues(preferences) {
+    if (Array.isArray(preferences)) return preferences.filter(Boolean);
+    if (typeof preferences === 'string' && preferences) return [preferences];
+    if (!preferences || typeof preferences !== 'object') return [];
+    return []
+      .concat(preferences.styles || [])
+      .concat(preferences.equipment || [])
+      .filter(Boolean);
+  }
+
+  function readStoredPreferences() {
+    var appPreferences = preferenceValues(window.AppState && window.AppState.preferences);
+    if (appPreferences.length) return appPreferences;
+    try {
+      var profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}');
+      var profilePreferences = preferenceValues(profile.preferences);
+      if (profilePreferences.length) return profilePreferences;
+      return preferenceValues(JSON.parse(localStorage.getItem('preferences') || 'null'));
+    } catch {
+      return [];
+    }
+  }
+
+  window.syncPersonalizationPreferenceTags = function (preferences) {
+    var selected = new Set(preferenceValues(preferences));
+    document.querySelectorAll('#personalizationModal .surveyTag').forEach(function (tag) {
+      var isSelected = selected.has(tag.dataset.value);
+      tag.classList.toggle('isSelected', isSelected);
+      tag.setAttribute('aria-pressed', String(isSelected));
+    });
+  };
+
   function goToSurveyStep(step) {
     var modal = document.getElementById('personalizationModal');
     if (!modal) return;
@@ -128,9 +160,7 @@
   window.openPersonalizationModal = function () {
     surveyAnswers = { styles: [], equipment: [] };
     personalizationCompleted = false;
-    document.querySelectorAll('#personalizationModal .surveyTag.isSelected').forEach(function (tag) {
-      tag.classList.remove('isSelected');
-    });
+    window.syncPersonalizationPreferenceTags(readStoredPreferences());
     goToSurveyStep(1);
     window.openModal('personalizationModal');
   };
@@ -144,6 +174,7 @@
       var tag = event.target.closest('.surveyTag');
       if (tag) {
         tag.classList.toggle('isSelected');
+        tag.setAttribute('aria-pressed', String(tag.classList.contains('isSelected')));
         return;
       }
       if (event.target.id === 'surveyNextBtn') {
@@ -202,6 +233,7 @@
     confirmModal.querySelector('[data-survey-close-confirm]')?.addEventListener('click', function () {
       window.closeModal('surveyCloseConfirmModal', { force: true });
       window.closeModal('personalizationModal', { force: true });
+      redirectToMemberProfile();
     });
   }
 

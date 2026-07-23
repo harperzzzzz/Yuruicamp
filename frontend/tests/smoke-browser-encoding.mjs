@@ -73,7 +73,9 @@ function fail(label, detail = '') {
 }
 
 function scanMojibake(text, context) {
-  const sample = String(text || '').replace(/\s+/g, ' ').slice(0, 500);
+  const sample = String(text || '')
+    .replace(/\s+/g, ' ')
+    .slice(0, 500);
   for (const re of MOJIBAKE_RE) {
     if (re.test(text)) {
       const hit = text.match(re)?.[0];
@@ -103,8 +105,7 @@ async function waitForText(page, text, timeoutMs = 15000) {
 
 async function checkStaticHtml(relativePath, mustInclude) {
   const html = readFileSync(join(rootDir, relativePath), 'utf8');
-  const isPartial =
-    relativePath.endsWith('.partial') || relativePath.includes('/partials/');
+  const isPartial = relativePath.endsWith('.partial') || relativePath.includes('/partials/');
   if (!isPartial) {
     const charsetOk = /<meta[^>]+charset\s*=\s*["']?utf-8/i.test(html);
     if (charsetOk) pass(`${relativePath} charset=UTF-8`);
@@ -148,7 +149,7 @@ async function checkPage(browser, path, options = {}) {
       }));
       fail(
         `${path} 載入逾時`,
-        `等待「${waitFor}」 title=${JSON.stringify(diagnostic.title)} body=${JSON.stringify(diagnostic.body)} errors=${JSON.stringify(runtimeErrors.slice(0, 5))}`,
+        `等待「${waitFor}」 title=${JSON.stringify(diagnostic.title)} body=${JSON.stringify(diagnostic.body)} errors=${JSON.stringify(runtimeErrors.slice(0, 5))}`
       );
       await page.close();
       return;
@@ -212,6 +213,7 @@ console.log('\n=== 靜態檔 UTF-8 檢查 ===');
 await checkStaticHtml('storefront/pages/home.html', ['首頁', '露營選物']);
 await checkStaticHtml('storefront/pages/products.html', ['所有商品', '露營選物']);
 await checkStaticHtml('storefront/pages/checkout.html', ['結帳', '手機']);
+await checkStaticHtml('storefront/pages/cart.html', ['確認購物背包', '商品庫存']);
 await checkStaticHtml('storefront/pages/member-center.html', ['會員中心']);
 await checkStaticHtml('components/shipping-address-modal.partial', ['編輯配送地址', '手機']);
 await checkStaticHtml('booking/pages/camp-rental.html', ['選擇租借裝備']);
@@ -256,9 +258,7 @@ try {
     waitFor: '羽絨睡袋',
     mustInclude: ['羽絨睡袋', '加入購物車'],
     extra: async (page) => {
-      const chipCount = await page.evaluate(() =>
-        document.querySelectorAll('.productCardSpecChip').length
-      );
+      const chipCount = await page.evaluate(() => document.querySelectorAll('.productCardSpecChip').length);
       if (chipCount > 0) pass('/pages/products.html 規格 chip', `${chipCount} 個`);
       else fail('/pages/products.html 規格 chip', '未找到 .productCardSpecChip');
     },
@@ -296,9 +296,7 @@ try {
     waitFor: '雲海仙境露營區',
     mustInclude: ['雲海仙境露營區', '草皮區', '選擇此類型'],
     extra: async (page) => {
-      const hasZoneStock = await page.evaluate(() =>
-        Boolean(document.querySelector('[data-zone-stock]'))
-      );
+      const hasZoneStock = await page.evaluate(() => Boolean(document.querySelector('[data-zone-stock]')));
       if (hasZoneStock) pass('/booking camp-detail 營位剩餘區塊');
       else fail('/booking camp-detail 營位剩餘區塊', '找不到 [data-zone-stock]');
     },
@@ -323,13 +321,10 @@ try {
         await waitForText(page, '剩', 15000);
         pass('/admin/dashboard 預約排程面板', 'section 已載入');
       } catch (err) {
-        const diagnostic = await page.evaluate(() =>
-          document.body?.innerText?.replace(/\s+/g, ' ').slice(0, 240) || ''
+        const diagnostic = await page.evaluate(
+          () => document.body?.innerText?.replace(/\s+/g, ' ').slice(0, 240) || ''
         );
-        fail(
-          '/admin/dashboard 預約排程面板',
-          `切換後未出現日曆內容 body=${JSON.stringify(diagnostic)}`,
-        );
+        fail('/admin/dashboard 預約排程面板', `切換後未出現日曆內容 body=${JSON.stringify(diagnostic)}`);
         return;
       }
       const bodyText = await page.evaluate(() => document.body.innerText);
@@ -356,9 +351,15 @@ try {
         if (!canvas || typeof Chart === 'undefined') return null;
         const chart = Chart.getChart(canvas);
         if (!chart) return null;
-        return (chart.data.datasets || []).map(function (ds) { return ds.label; });
+        return (chart.data.datasets || []).map(function (ds) {
+          return ds.label;
+        });
       });
-      if (chartDualLine && chartDualLine.indexOf('本期銷售額') >= 0 && chartDualLine.indexOf('上期銷售額') >= 0) {
+      if (
+        chartDualLine &&
+        chartDualLine.indexOf('本期銷售額') >= 0 &&
+        chartDualLine.indexOf('上期銷售額') >= 0
+      ) {
         pass('/admin/dashboard 分析報表雙線圖例', chartDualLine.join(' / '));
       } else {
         fail('/admin/dashboard 分析報表雙線圖例', JSON.stringify(chartDualLine));

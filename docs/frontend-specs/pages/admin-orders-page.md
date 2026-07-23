@@ -148,6 +148,8 @@ const colors = {
 
 ## Implementation Notes
 
+- 商品訂單 `cancelled` 必須與預約訂單一致顯示「已取消」，並可由訂單狀態篩選器選取；列表與詳情 Modal 使用相同狀態文字。
+
 - Source file: `admin/partials/orders.html`.
 - Shared CSS source: `admin/css/admin.css`.
 - Shared components: admin/dashboard.html shell and admin partial loader.

@@ -43,11 +43,13 @@
   }
 
   function describeCoupon(coupon) {
-    const type = coupon.type || 'fixed';
+    const type = coupon.discountType || coupon.type || 'fixed';
+    const discount = Number(coupon.discountValue ?? coupon.discount ?? 0);
+    const minimumAmount = Number(coupon.minimumAmount ?? coupon.minOrder ?? 0);
     const discountText = type === 'percent'
-      ? `${coupon.discount}% OFF`
-      : `折 NT$ ${coupon.discount}`;
-    const minOrderText = coupon.minOrder ? ` / 滿 NT$ ${_formatMoney(coupon.minOrder)}` : '';
+      ? `${discount}% OFF`
+      : `折 NT$ ${_formatMoney(discount)}`;
+    const minOrderText = minimumAmount ? ` / 滿 NT$ ${_formatMoney(minimumAmount)}` : '';
     return `${coupon.code} - ${discountText}${minOrderText}`;
   }
 
@@ -67,10 +69,11 @@
 
   function calculateDiscount(coupon, subtotal) {
     if (!coupon) return 0;
-    const type = coupon.type || 'fixed';
+    const type = coupon.discountType || coupon.type || 'fixed';
+    const discountValue = Number(coupon.discountValue ?? coupon.discount ?? 0);
     const discount = type === 'percent'
-      ? Math.round(Number(subtotal || 0) * Number(coupon.discount || 0) / 100)
-      : Number(coupon.discount || 0);
+      ? Math.round(Number(subtotal || 0) * discountValue / 100)
+      : discountValue;
     return Math.min(discount, Number(subtotal || 0));
   }
 
@@ -125,8 +128,9 @@
       }
     }
 
-    if (coupon.minOrder && Number(subtotal) < Number(coupon.minOrder)) {
-      return { valid: false, message: `需滿 NT$ ${_formatMoney(coupon.minOrder)} 才可使用` };
+    const minimumAmount = Number(coupon.minimumAmount ?? coupon.minOrder ?? 0);
+    if (minimumAmount && Number(subtotal) < minimumAmount) {
+      return { valid: false, message: `需滿 NT$ ${_formatMoney(minimumAmount)} 才可使用` };
     }
 
     return {
@@ -156,7 +160,7 @@
     if (!raw) return [];
     try {
       return normalizeCouponCodes(JSON.parse(raw));
-    } catch (error) {
+    } catch {
       return normalizeCouponCodes(raw);
     }
   }

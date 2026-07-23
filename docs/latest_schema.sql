@@ -1054,6 +1054,7 @@ CREATE TABLE public.branches (
     map_query text,
     business_hours character varying(200) NOT NULL,
     image_url text,
+    active boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_branches_latitude CHECK (((latitude IS NULL) OR ((latitude >= ('-90'::integer)::numeric) AND (latitude <= (90)::numeric)))),

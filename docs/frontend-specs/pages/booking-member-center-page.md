@@ -152,6 +152,7 @@ const colors = {
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
 - Key UI areas: memberCenterMount, bookingHeader, bookingFooter.
+- The shared profile form emits `yurui:profile-updated` after saving `#profileName`; Booking Header must immediately refresh `.siteUserName` from the shared current user state.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
@@ -164,3 +165,4 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] Saving `#profileName` immediately updates Booking Header `.siteUserName`

@@ -119,7 +119,7 @@ public class CheckoutService {
 			ProductVariant variant = products.findSellableById(entry.getKey())
 					.orElseThrow(() -> new BusinessException(ErrorCode.VARIANT_NOT_SELLABLE,
 							"Variant not sellable: " + entry.getKey()));
-			InventoryStock stock = selectAvailableStock(variant.getId(), entry.getValue());
+			InventoryStock stock = selectAvailableStock(variant, entry.getValue());
 			EquipmentItem equipment = variant.getProduct().getItem();
 			String brand = equipment.getBrand() == null ? "" : equipment.getBrand().getName();
 			String image = images.findByItemIdAndSortOrder(equipment.getId(), 0)
@@ -249,8 +249,10 @@ public class CheckoutService {
 	}
 
 	// 找出庫存足夠的門市庫位。
-	private InventoryStock selectAvailableStock(String variantId, int requested) {
+	private InventoryStock selectAvailableStock(ProductVariant variant, int requested) {
+		String variantId = variant.getId();
 		int available = 0;
+
 		for (InventoryStock stock : stocks.lockStoreStocksByVariantId(variantId)) {
 			int locationAvailable = Math.max(0,
 					stock.getOnHandQuantity() - reservations.activeQuantity(variantId, stock.getLocationId()));
@@ -260,11 +262,11 @@ public class CheckoutService {
 			}
 		}
 
+		// 缺貨明細顯示商品名稱與目前可用數量，避免把內部 variantId 顯示給買家。
+		String productName = variant.getProduct().getItem().getName();
 		throw new BusinessException(ErrorCode.STOCK_INSUFFICIENT,
 				"商品庫存不足",
-				List.of(new ErrorDetail("variantId", variantId),
-						new ErrorDetail("requested", String.valueOf(requested)),
-						new ErrorDetail("available", String.valueOf(available))));
+				List.of(new ErrorDetail("stock", productName + "商品數量剩餘: " + available)));
 	}
 
 	// 檢查會員、商品與冪等鍵是否有填寫。

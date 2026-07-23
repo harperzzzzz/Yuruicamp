@@ -251,6 +251,7 @@ POST /api/checkout/sessions
 ```
 
 若回 HTTP 409 且 `error.code=STOCK_INSUFFICIENT`，表示 `V001` 沒有足夠的可用庫存，或有其他 Checkout 正在保留庫存。
+錯誤明細會以 `equipment_items.name + "商品數量剩餘: " + availableQuantity` 顯示商品名稱與目前可用數量，不顯示內部 `variantId`。
 
 #### 3. C-2：驗證冪等重送
 

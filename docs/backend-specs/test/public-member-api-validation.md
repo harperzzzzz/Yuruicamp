@@ -86,6 +86,8 @@ POST /api/booking/check-availability
 
 ID 與日期必須從當前 Seed／API 取得。驗證 active 過濾、兩位小數價格、日期窗口、公休、zone block 與剩餘量；不可用是 `200` 搭配 `available=false`，非法日期才是 4xx。可用性查詢不得建立 Booking 或保留帳。
 
+營區列表與詳情必須回傳 `environmentTags`、`facilityTags`；前台依這兩個陣列執行「環境特徵」與「營區設施」篩選。詳細步驟見 [`booking-campground-tag-filter-validation.md`](./booking-campground-tag-filter-validation.md)。
+
 ## 6. Booking Checkout／會員讀取
 
 ```http

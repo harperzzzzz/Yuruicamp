@@ -2,6 +2,9 @@
 .siteCartDrawer {
   display: grid;
   grid-template-rows: auto 1fr auto;
+
+  // 購物車開啟時需高於全站 Toast，避免提示遮住抽屜操作。
+  z-index: calc(var(--yc-z-toast) + 1);
 }
 
 .siteCartDrawerBody {

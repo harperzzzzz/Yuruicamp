@@ -5,8 +5,10 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
-const source = readFileSync(join(rootDir, 'booking/js/booking-checkout.js'), 'utf8');
-const pageSource = readFileSync(join(rootDir, 'booking/pages/booking-checkout.html'), 'utf8');
+const cartSource = readFileSync(join(rootDir, 'booking/js/booking-cart.js'), 'utf8');
+const checkoutSource = readFileSync(join(rootDir, 'booking/js/booking-checkout.js'), 'utf8');
+const cartPageSource = readFileSync(join(rootDir, 'booking/pages/booking-cart.html'), 'utf8');
+const checkoutPageSource = readFileSync(join(rootDir, 'booking/pages/booking-checkout.html'), 'utf8');
 const sessionValues = new Map();
 let createCalls = 0;
 
@@ -22,6 +24,7 @@ jquery.fn = {};
 const sessionStorage = {
   getItem: (key) => sessionValues.get(key) || null,
   setItem: (key, value) => sessionValues.set(key, value),
+  removeItem: (key) => sessionValues.delete(key),
 };
 
 const window = {
@@ -33,6 +36,7 @@ const window = {
       createCalls += 1;
       return { bookingId: 'B001', request };
     },
+    cancelBooking: async () => ({}),
   },
   addEventListener: () => {},
 };
@@ -52,7 +56,7 @@ const context = vm.createContext({
   Promise,
 });
 
-vm.runInContext(source, context, { filename: 'booking-checkout.js' });
+vm.runInContext(cartSource, context, { filename: 'booking-cart.js' });
 
 const cart = {
   bookingInfo: {
@@ -121,24 +125,42 @@ for (const field of forbiddenFields) {
   assert(!requestText.includes(`"${field}"`), `Booking Request must not contain ${field}`);
 }
 
-const [first, second] = await Promise.all([
-  context.createBookingOnce(request, cart),
-  context.createBookingOnce(request, cart),
-]);
+context.bookingCart = cart;
+await context.prepareBookingCheckoutSession(false);
 assert.equal(createCalls, 1);
-assert.equal(first.bookingId, second.bookingId);
+assert.equal(JSON.parse(sessionStorage.getItem('lastCheckoutBooking')).bookingId, 'B001');
+assert.equal(
+  sessionStorage.getItem('lastCheckoutBookingFingerprint'),
+  context.getBookingCartFingerprint(cart)
+);
+assert.equal(
+  context.getBookingSessionErrorMessage({ code: 'RENTAL_STOCK_INSUFFICIENT' }),
+  '商品剩餘數量不足請重新調整數量'
+);
+assert.equal(context.isBookingSessionExpired({ checkoutExpiresAt: '2000-01-01T00:00:00Z' }), true);
 
-assert(!pageSource.includes('id="creditCardSection"'));
-assert(!pageSource.includes('id="cardNumber"'));
-assert(!pageSource.includes('id="cardExpiry"'));
-assert(!pageSource.includes('id="cardCvv"'));
-assert(pageSource.includes('id="confirmPayBtn"'));
-assert(pageSource.includes('前往 ECPay'));
-assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelDetails"/);
-assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelContact"/);
-assert.match(pageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelPayment"/);
-assert(!source.includes('tryAutoFillContactFields'));
-assert(source.includes('BookingAPI.createEcpayForm'));
-assert(source.includes('submitEcpayForm'));
+assert(cartPageSource.includes('id="bookingCheckoutSessionStatus"'));
+assert(cartPageSource.includes('aria-live="polite"'));
+assert(cartPageSource.includes('沒有預約營地、租賃裝備請前往預約首頁預約。'));
+assert(cartSource.includes('BookingAPI.createBooking'));
+assert(cartSource.includes('prepareBookingCheckoutSession(false)'));
+assert(cartSource.includes('class="quantityValue quantityValueBooking quantityInputBooking"'));
+assert(cartSource.includes("on('change', '.quantityInputBooking'"));
+assert.match(cartSource, /localStorage\.removeItem\('bookingCart'\)[\s\S]*clearBookingIdempotencyKey\(\)/);
+assert(!checkoutSource.includes('BookingAPI.createBooking'));
+
+assert(!checkoutPageSource.includes('id="creditCardSection"'));
+assert(!checkoutPageSource.includes('id="cardNumber"'));
+assert(!checkoutPageSource.includes('id="cardExpiry"'));
+assert(!checkoutPageSource.includes('id="cardCvv"'));
+assert(checkoutPageSource.includes('id="confirmPayBtn"'));
+assert(checkoutPageSource.includes('前往 ECPay'));
+assert.match(checkoutPageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelDetails"/);
+assert.match(checkoutPageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelContact"/);
+assert.match(checkoutPageSource, /class="checkoutPanel checkoutPanelBooking isOpen" id="panelPayment"/);
+assert(!checkoutSource.includes('tryAutoFillContactFields'));
+assert(checkoutSource.includes('BookingAPI.createEcpayForm'));
+assert(checkoutSource.includes('submitEcpayForm'));
+assert(checkoutSource.includes('readPreparedBookingSession'));
 
 console.log('Booking Checkout Request checks passed');

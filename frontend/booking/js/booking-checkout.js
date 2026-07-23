@@ -4,13 +4,12 @@
  *   ① 讀取 LocalStorage 取得完整 bookingCart
  *   ② 渲染住宿明細、裝備明細、費用加總
  *   ③ 聯絡資訊表單驗證
- *   ④ 建立 pending、unpaid 的 Booking Checkout
- *   ⑤ 取得後端簽好的 ECPay 表單並導向付款頁
+ *   ④ 讀取預約背包頁已建立的 Booking Checkout Session
+ *   ⑤ 只取得後端簽好的 ECPay 表單並導向付款頁
  */
 
-const BOOKING_IDEMPOTENCY_KEY = 'bookingCheckoutIdempotencyKey';
-const BOOKING_FINGERPRINT_KEY = 'bookingCheckoutFingerprint';
-let bookingCreationPromise = null;
+const BOOKING_SESSION_KEY = 'lastCheckoutBooking';
+const BOOKING_SESSION_FINGERPRINT_KEY = 'lastCheckoutBookingFingerprint';
 
 $(document).ready(function () {
   // 讀取並正規化 bookingCart（camelCase；相容舊 snake_case）
@@ -31,6 +30,7 @@ $(document).ready(function () {
   initAccordionPanels();
   initPaymentMethod();
   initFillProfileBtn();
+  initPreparedBookingSession(bookingCart);
 
   $('#confirmPayBtn').on('click', function () {
     handleCheckout(bookingCart);
@@ -161,7 +161,6 @@ function initFillProfileBtn() {
     fillContactFields(user);
     showToast('已帶入會員資料', 'success');
   });
-
 }
 
 // ============================================================
@@ -243,6 +242,13 @@ function initPaymentMethod() {
 // 送出結帳
 // ============================================================
 
+function initPreparedBookingSession(cart) {
+  if (readPreparedBookingSession(cart)) return;
+
+  $('#confirmPayBtn').prop('disabled', true);
+  showToast('預約保留尚未建立，請返回預約背包重新確認庫存。', 'warning');
+}
+
 function handleCheckout(cart) {
   var u = getLoggedInUser();
   if (!u) {
@@ -267,9 +273,11 @@ function handleCheckout(cart) {
     return;
   }
 
-  const paymentMethod = $('input[name="paymentMethod"]:checked').val();
-
-  const payload = buildBookingPayload(cart, paymentMethod);
+  var booking = readPreparedBookingSession(cart);
+  if (!booking) {
+    showToast('預約保留尚未建立，請返回預約背包重新確認庫存。', 'warning');
+    return;
+  }
 
   $('#confirmPayBtn').prop('disabled', true).html('<i class="bi bi-hourglass-split"></i> 正在前往 ECPay...');
 
@@ -279,16 +287,12 @@ function handleCheckout(cart) {
     return;
   }
 
-  // 先建立後端待付款預約，再取得後端簽好的 ECPay 表單。
-  createBookingOnce(payload, cart)
-    .then(function (booking) {
-      return launchEcpayPayment(booking);
-    })
-    .catch(function (err) {
-      console.error('[booking-checkout] 預約失敗 / Failed:', err);
-      showToast(err && err.message ? err.message : 'ECPay 尚未啟用，請稍後再試。', 'error');
-      resetConfirmPayButton();
-    });
+  // 待付款預約已在 booking-cart.html 建立；此按鈕只取得 ECPay 表單。
+  launchEcpayPayment(booking).catch(function (err) {
+    console.error('[booking-checkout] ECPay 導向失敗 / Failed:', err);
+    showToast(err && err.message ? err.message : 'ECPay 尚未啟用，請稍後再試。', 'error');
+    resetConfirmPayButton();
+  });
 }
 
 // 將按鈕恢復為可再次嘗試的 ECPay 導向狀態。
@@ -306,12 +310,9 @@ function launchEcpayPayment(booking) {
     return Promise.reject(new Error('ECPay 導向功能尚未載入'));
   }
 
-  sessionStorage.setItem('lastCheckoutBooking', JSON.stringify(booking));
-
-  return window.BookingAPI.createEcpayForm(bookingId)
-    .then(function (launch) {
-      submitEcpayForm(launch);
-    });
+  return window.BookingAPI.createEcpayForm(bookingId).then(function (launch) {
+    submitEcpayForm(launch);
+  });
 }
 
 // 只提交後端產生的 ECPay 欄位，前端不保存金鑰或產生 CheckMacValue。
@@ -338,70 +339,28 @@ function submitEcpayForm(launch) {
 }
 
 // ============================================================
-// 組裝 createBooking payload（bookingCart 已是 camelCase，幾乎直接沿用）
+// 讀取預約背包頁建立的 Checkout Session
 // ============================================================
 
-/**
- * 將 bookingCart 組成 Booking API Contract 的精簡 Request。
- * 會員、價格、快照、付款狀態與聯絡資料都不交給前端決定。
- */
-function buildBookingPayload(cart, paymentMethod) {
-  var info = cart.bookingInfo || {};
-
-  return {
-    campgroundId: info.campgroundId,
-    checkIn: info.checkIn,
-    checkOut: info.checkOut,
-    guestCount: Number(info.guestCount) || 1,
-    zones: (cart.selectedZones || []).map(function (zone) {
-      return {
-        zoneId: zone.zoneId,
-        quantity: Number(zone.quantity) || 1,
-      };
-    }),
-    rentals: (cart.selectedRentals || []).map(function (rental) {
-      return {
-        rentalListingId: rental.rentalListingId || rental.equipmentId,
-        rentalSkuVariantId: rental.rentalSkuVariantId || rental.variantId,
-        quantity: Number(rental.quantity) || 1,
-      };
-    }),
-    couponClaimId: null,
-    paymentMethod: paymentMethod === 'ecpay-credit' ? paymentMethod : 'ecpay-credit',
-    idempotencyKey: getBookingIdempotencyKey(cart),
-  };
-}
-
-// 同一次送出與網路重試共用 Promise／冪等鍵，避免連點建立兩筆預約。
-function createBookingOnce(request, cart) {
-  if (!bookingCreationPromise) {
-    bookingCreationPromise = window.BookingAPI.createBooking(request, cart).finally(function () {
-      bookingCreationPromise = null;
+function readPreparedBookingSession(cart) {
+  try {
+    var booking = JSON.parse(sessionStorage.getItem(BOOKING_SESSION_KEY) || 'null');
+    var savedFingerprint = sessionStorage.getItem(BOOKING_SESSION_FINGERPRINT_KEY);
+    var expiresAt = booking && booking.checkoutExpiresAt;
+    var currentFingerprint = JSON.stringify({
+      bookingInfo: cart.bookingInfo,
+      selectedZones: cart.selectedZones,
+      selectedRentals: cart.selectedRentals,
     });
+
+    return booking &&
+      (!expiresAt || Date.parse(expiresAt) > Date.now()) &&
+      savedFingerprint === currentFingerprint
+      ? booking
+      : null;
+  } catch {
+    return null;
   }
-
-  return bookingCreationPromise;
-}
-
-function getBookingIdempotencyKey(cart) {
-  var fingerprint = JSON.stringify({
-    bookingInfo: cart.bookingInfo,
-    selectedZones: cart.selectedZones,
-    selectedRentals: cart.selectedRentals,
-  });
-  var previousFingerprint = sessionStorage.getItem(BOOKING_FINGERPRINT_KEY);
-  var key = sessionStorage.getItem(BOOKING_IDEMPOTENCY_KEY);
-
-  if (!key || previousFingerprint !== fingerprint) {
-    key =
-      window.crypto && typeof window.crypto.randomUUID === 'function'
-        ? window.crypto.randomUUID()
-        : 'booking-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-    sessionStorage.setItem(BOOKING_IDEMPOTENCY_KEY, key);
-    sessionStorage.setItem(BOOKING_FINGERPRINT_KEY, fingerprint);
-  }
-
-  return key;
 }
 
 // ============================================================

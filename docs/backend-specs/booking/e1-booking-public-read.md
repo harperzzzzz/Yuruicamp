@@ -2,7 +2,7 @@
 
 ## 用途
 
-提供前台讀取有效營區、營位、租借裝備、預約政策與公休規則，不需要登入。
+提供前台讀取有效營區、環境／設施標籤、營位、租借裝備、預約政策與公休規則，不需要登入。
 
 ## 流程
 
@@ -11,12 +11,13 @@ GET /api/booking/**
 → BookingPublicController
 → BookingPublicService
 → PostgreSQL read query
-→ Contract v0.3 DTO + Envelope
+→ Contract v1.0 DTO + Envelope
 ```
 
 ## 規則
 
 - 營區只回 `active=true`；詳情只含 active zones。
+- 營區列表與詳情都由關聯表取得 active 的 `environmentTags`、`facilityTags`，依標籤 `sort_order`、`id` 固定排序；無標籤時回空陣列。
 - 租借裝備以 `active_rental_listing_view` 為起點，並確認營區與 rental location 有效。
 - 不輸出前端 Mock `stock`；租借庫存以 PostgreSQL 為真相。
 - 金額以 `BigDecimal` 處理，輸出固定兩位字串。
@@ -27,5 +28,7 @@ GET /api/booking/**
 
 - 完整 schema + dev seed 在獨立 PostgreSQL 初始化成功。
 - `BookingPublicIntegrationTest` 共 7 項，0 失敗、0 略過。
-- 已驗證公開 Security、active 過濾、金額格式、404、必填參數、policy 與 closures。
+- 已驗證公開 Security、active 過濾、列表／詳情標籤、停用標籤排除、金額格式、404、必填參數、policy 與 closures。
 - 暫存 PostgreSQL 已移除，未修改既有開發資料卷。
+
+Swagger 與前台篩選的人工驗證步驟見 [`booking-campground-tag-filter-validation.md`](../test/booking-campground-tag-filter-validation.md)。

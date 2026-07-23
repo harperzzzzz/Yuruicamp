@@ -50,6 +50,7 @@ vm.runInNewContext(facadeSource, {
 }, { filename: 'api-mock.js' });
 
 const checkout = window.API.checkout;
+const coupons = window.API.coupons;
 const createRequest = { items: [{ variantId: 'V001', quantity: 1 }] };
 const updateRequest = { paymentMethod: 'cod' };
 
@@ -59,13 +60,17 @@ await checkout.updateSession('ORD-001', updateRequest);
 await checkout.cancelSession('ORD-001');
 await checkout.confirmCod('ORD-001');
 await checkout.createEcpayForm('ORD-001');
+await coupons.getMine();
+await coupons.claim(7);
 
 assert.deepEqual(
   calls.map((call) => ({
     path: call.path,
     method: call.options.method,
     auth: call.options.auth,
-    body: call.options.body,
+    body: call.options.body === undefined
+      ? undefined
+      : JSON.parse(JSON.stringify(call.options.body)),
   })),
   [
     {
@@ -104,11 +109,27 @@ assert.deepEqual(
       auth: 'required',
       body: undefined,
     },
+    {
+      path: '/me/coupons',
+      method: undefined,
+      auth: 'required',
+      body: undefined,
+    },
+    {
+      path: '/me/coupons/claims',
+      method: 'POST',
+      auth: 'required',
+      body: { couponId: 7 },
+    },
   ],
 );
 
 await assert.rejects(
   checkout.getSession(''),
+  (error) => error.code === 'VALIDATION_ERROR',
+);
+await assert.rejects(
+  coupons.claim(0),
   (error) => error.code === 'VALIDATION_ERROR',
 );
 

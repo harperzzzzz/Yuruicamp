@@ -22,6 +22,7 @@
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
 - 會員 Order API 已完成：`GET /api/me/orders` 與 `GET /api/me/orders/{orderId}` 只使用 Firebase Principal 查詢本人資料，回傳訂單／商品快照；他人與不存在訂單統一回 `404`，PostgreSQL 整合測試 `4` 項全數通過。
 - 前端會員 Order 接線已完成：`API.orders.getAll/getByCustomerId` 在 Backend 模式只透過 `ApiClient` 呼叫 `/api/me/orders`，不讀寫 `mockOrders`；後端契約欄位會正規化為會員中心既有顯示欄位。
+- 會員預設配送地址已完成正式接線：`GET/PUT /api/me/shipping-address` 只依 Firebase Principal 讀寫本人資料；新 Firebase 會員不再因靜態 Mock 清單缺少 ID 而出現 `Customer not found`，流程與驗證見 [`會員配送地址文件`](./docs/backend-specs/customer/member-shipping-address.md)。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
 - Checkout 線 C 的 C-2 已完成：建立結帳要求冪等鍵，相同請求重送會回放原訂單，同鍵異內容回傳衝突，空配送資料安全建立草稿。
 - Checkout Session Read 已完成：`GET /api/checkout/sessions/{orderId}` 只讀取 Firebase Principal 本人的最新快照，不延長期限或修改庫存；未登入回 `401`，他人與不存在統一回 `403`。
@@ -31,14 +32,17 @@
 - Checkout 線 C 的 C-3、C-5、C-7 已完成：PostgreSQL 併發防超賣、取消釋放保留帳及後端價格重算均已通過整合測試。
 - Checkout 線 C 的 C-6、C-8 已完成：每分鐘掃描滿 15 分鐘的未付款訂單，交易內取消訂單、將保留帳改為 `expired` 並釋放庫存；PostgreSQL 逾時與冪等驗收已通過。
 - Booking 線 E 的 E-0 已完成：`bookings` 加入 Checkout 冪等 key、request hash 與會員範圍唯一約束。
-- Booking 線 E 的 E-1 已完成：公開營區、有效營位、租借裝備、policy 與 closures API 已通過 PostgreSQL／Controller 整合測試。
+- Booking 線 E 的 E-1 已完成：公開營區列表／詳情包含環境與設施標籤，可供前台篩選；有效營位、租借裝備、policy 與 closures API 已通過 PostgreSQL／Controller 整合測試。
 - Booking 線 E 的 E-2 已完成：`POST /api/booking/check-availability` 依 Asia/Taipei 政策驗證日期，並計算公休、停售及既有預約占用後的跨晚最低剩餘量。
 - Booking 線 E 的 E-3 已完成：`POST /api/booking/checkout/sessions` 會以固定順序鎖位、重查可用量、後端計價，並建立 15 分鐘的 `pending`／`unpaid` 預約；冪等與並發防超賣已通過 PostgreSQL 測試。
 - Booking 線 E 的 E-4 已完成：同一個 Checkout 交易會鎖定租借實體庫存、扣除住宿日期重疊的 active 保留、建立租借快照與保留帳；不同日期可共用庫存，重疊日期不可超租。
 - Booking 線 E 的 E-5 已完成：會員可分頁查看自己的預約列表、完整詳情與 Checkout 快照；後端不接受任意 customerId，讀取他人與不存在的預約都回 404。
 - Booking 線 E 的 E-6 已完成：會員可主動取消 pending／unpaid 預約；排程每分鐘處理逾時 Checkout，同交易恢復營位占用、釋放 active 租借保留並寫入狀態歷程，E-1～E-6 共 46 項 PostgreSQL 回歸測試通過。
-- Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。Booking Checkout 的訂購人欄位預設空白且只由「帶入會員資料」填入，頁面不收集卡號、有效期或 CVV；「前往 ECPay」已接妥後端簽章表單契約，實際端點、Notify 與付款確認仍待線 D。
-- 商城 Checkout 已完成宅配／資料庫門市取貨與 COD 確認：使用者按一次「確認結帳」後，前端會依序建立 Session 並自動呼叫 `confirm-cod`；COD 成立後仍為 `unpaid`，但不再受 `15` 分鐘 Checkout 期限限制，並由 `checkout-success.html` 顯示成立狀態。ECPay、Notify 與付款後資源落帳仍待線 D 完成。
+- Booking 線 E 的 E-7 已完成：`BookingAPI` 在 Backend 模式統一呼叫 `/api/booking/**`，可用性、價格、Booking ID、本人列表／詳情／取消與 15 分鐘倒數都使用後端結果；不再寫入 `mockBookings` 或自行標記 paid。進入 `booking-cart.html` 即建立 Checkout Session 並顯示庫存不足提示，數量變更會重新鎖位；`booking-checkout.html` 的「前往 ECPay」只使用已建立的 `bookingId` 取得後端簽章表單，不再建立第二筆 Session。訂購人欄位預設空白且只由「帶入會員資料」填入，實際 ECPay 端點、Notify 與付款確認仍待線 D。
+- 商城 Checkout 已完成確認背包、宅配／資料庫門市取貨與 COD 確認：進入 `storefront/pages/cart.html` 即建立 Draft Session 並鎖庫 15 分鐘；確認背包與結帳頁採節點式流程列，商品數量支援按鈕與直接輸入；`checkout.html` 的主要按鈕固定顯示「確認結帳」，資料不完整時只以 toast 與紅色欄位提示，送出時只 PATCH 既有 Session，再接續 `confirm-cod` 或 ECPay，不重複建單。COD 成立後仍為 `unpaid` 且不再受 Checkout 期限限制。
+- 商城取消訂單入口已移至會員中心：待出貨且未付款的商品訂單可在訂單明細最下方取消；COD 成立頁會提示前往會員中心，購物車 Drawer 的圖層亦高於 Toast，避免提示遮住操作。
+- 商品詳情頁的「立即購買」會以商品 ID 與 variant ID 檢查購物車；相同品項已存在時保留原數量並直接前往確認背包，只有「加入購物車」會繼續累加數量。
+- 商品訂單的 canonical `cancelled` 狀態已與預約訂單對齊，會員中心及後台商品訂單列表、詳情與篩選器統一顯示「已取消」。
 - Booking 線 E 的後端與前端人工驗證已整合至 [`公開／會員 API 驗證`](./docs/backend-specs/test/public-member-api-validation.md) 與 [`商城 Checkout 與 Booking 驗證`](./docs/frontend-specs/test/commerce-booking-validation.md)。
 - Admin 線 G 的 G-1、G-5 已完成：後端依角色預設與個人覆寫計算細權限，每次 Admin API 都重新驗證啟用狀態、Firebase UID 與 authority；管理員建立、列表、詳情、更新及權限覆寫 API 已接入正式 Admin Session。
 - Admin 線 G 的 G-2a Customers 已完成並通過 PostgreSQL 整合驗收：提供後台會員分頁查詢、篩選、詳情、基本資料更新、停權／恢復與 `customers.view`／`customers.edit`；消費總額與等級採資料庫 View，Customers 頁保留 Mock／Backend 雙模式。
@@ -52,18 +56,24 @@
 - 前端真後端請求基礎已建立：`AppAuth.getIdToken()` 統一取得 Firebase／開發 Token，`ApiClient._restRequest()` 統一處理 Bearer、Envelope、meta 與後端錯誤。
 - 前台跨分頁與站內導頁共用 `AppAuth` readiness：頁面 API 會等待 Firebase 注入並從 IndexedDB 還原 `currentUser`，再取得 Token；初始化期間不會誤判成登入失效並清除會員狀態。
 - Firebase Session 只有在後端回傳 `created=true` 的首次登入才開啟共用 `#personalizationModal`；未完成問卷時偏好維持 `null`，完成後直接進入會員中心的會員資料頁，Email 與生日可由使用者編輯。
+- 會員中心儲存 `#profileName` 後會同步共用登入狀態與跨分頁 storage，主站及 Booking Header 的 `.siteUserName` 會立即顯示相同姓名。
+- Booking 會員中心會依登入管道控制 `#profileEmail`：Google 登入使用唯讀信箱且不送入會員更新，其他登入管道仍可編輯。
 - 前端 `window.API.checkout` 已提供建立、讀取、更新、取消、COD 與 ECPay 六個契約方法；adapter 路徑不重複加入 `/api`。
+- 前端正式優惠券已接線：`API.coupons.getMine/claim` 只透過 `ApiClient` 呼叫會員 API；Checkout 輸入活動碼後會取得 `couponClaimId`、PATCH 既有 Session，套用與移除都只採後端 `pricing`，一單限用一張券。
+- 會員中心正式優惠券已接線：Backend 模式以 `GET /api/me/coupons` 顯示會員本人 claims，包含 Checkout 領取的 `promotion` 券；`claimed` 顯示為可用，`consumed/revoked/expired` 顯示為不可用，不再依前端靜態會員資料推算資格。
 - Checkout Mock 與 Backend 共用 `CheckoutSession`：Mock 由商品契約重算價格、支援冪等並寫入獨立 `mockCheckoutSessions`；Backend 模式禁止 Legacy `orders.create()`。
-- Checkout 頁面已改呼叫 `API.checkout.createSession()`；Request 不再傳會員 ID、商品快照、前端價格、總額、狀態或點數，會員由 Firebase principal 決定，金額由 Spring Boot 從 PostgreSQL 重算。
+- Storefront 確認背包頁呼叫 `API.checkout.createSession()`；Request 只含規格 ID、數量與冪等鍵，不傳會員 ID、商品快照、前端價格、總額、狀態或點數。正式 Checkout 頁只 PATCH 配送與付款資料。
 - Checkout 冪等鍵由 `crypto.randomUUID()` 產生並暫存在 sessionStorage；網路重試與連點沿用同一 key，成功保存後端 `orderId`，購物車變更、取消或逾時才清除。
-- Checkout I-5 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order、不消耗前端優惠券，ECPay 也不在本站收集卡號、到期日或 CVV。
+- Checkout I-5／CK-4 已完成：建立成功後摘要只採用後端 `CheckoutSession.pricing`；Backend 模式不建立 Legacy Order，優惠券以會員 claim 套用，ECPay 也不在本站收集卡號、到期日或 CVV。
 - Checkout I-6 已完成：Draft 可 PATCH 補資料，Ready 顯示後端金額與 15 分鐘倒數；逾時／取消會清除 Session、保留購物車，並依後端錯誤碼提供重新登入、調整庫存或重建 Checkout 操作。
+- Checkout 庫存不足明細會顯示 `equipment_items.name` 與目前可用數量，不向買家顯示內部 `variantId`；操作按鈕顯示「商品剩餘數量不足請重新調整數量」。
 - COD 確認成功後才清空共用購物車與本次 Checkout 暫存；成功頁以 URL 的 `orderId` 重新向後端讀取，因此下一次 Checkout 不會還原上一筆 completed Session。
 - 開發 Seed 已建立 `main`、`branch-001`～`branch-003` 四個商城庫位與 156 筆 variant 庫存；扣除 98 件 active 訂單保留後，active catalog 可用量總計 399，可直接從 Swagger 驗證 Checkout。
 - Reference Seed 已對齊前端展示資料：12 個公開品牌、8 個 active 營區、13 個 active zone、營區標籤與 3 個門市；品牌 JSON 已改用後端 canonical slug，詳見 [`JSON／Seed 固定 ID 對照`](./docs/data/json-seed-id-mapping.md)。
+- 門市 Entity、正式 Schema 與 Reference Seed 已統一使用 `branches.active boolean DEFAULT true NOT NULL`；公開門市 API 只回傳啟用門市，既有資料庫可用非破壞性 `ALTER TABLE` 補欄位。
 - 租借 Seed 已建立 28 SKU、37 canonical 規格、9 個固定租借庫位、16 筆有明確定價的 listing 與 333 筆規格庫存；租借 Mock 與預約快照也已改用 `RSV-Rxxx-xx`。
-- 優惠券 Seed 已建立固定 ID 1～7 的 7 張券；目前 222 筆訂單都沒有可追溯 claim、券快照或折扣，因此 `coupon_claims`／`order_coupons` 維持空集合、已領數維持 `0`。只有確認會員、券、領券時間／狀態及 consumed 訂單後才可補建，不從資格或金額反推。
-- 交易 Seed 已加入 U001～U050、222 筆訂單、90 筆預訂、435 筆商城保留與 40 筆租借保留；租借 active 區間重疊超賣數為 0。
+- 優惠券 Seed 已建立固定 ID 1～7 的 7 張券；目前 225 筆訂單都沒有可追溯 claim、券快照或折扣，因此 `coupon_claims`／`order_coupons` 維持空集合、已領數維持 `0`。只有確認會員、券、領券時間／狀態及 consumed 訂單後才可補建，不從資格或金額反推。
+- 交易 Seed 已加入 U001～U050、Firebase 測試會員「粉紅雞」、225 筆訂單（含該會員已完成／已出貨／已退貨各 1 筆）、90 筆預訂、442 筆商城保留與 40 筆租借保留；租借 active 區間重疊超賣數為 0。
 - 38 筆評論 Mock 的舊 `v-P...` 已全數轉為 canonical variant／SKU；Seed 只建立有明確 orderId 與 order item 的 `REV031`。舊庫存異動因缺 variant、單一表頭語意與員工主檔對照，維持不搬移。
 - 會員周邊 Seed 已獨立補入 `020-identity.sql`：18 個偏好選項、200 筆會員偏好、50 筆預設地址、3 個會員標籤與 56 筆標籤指派；逐筆對齊 `frontend/data/customers/*.json`，不影響訂單／預訂成立條件。
 - 完整 Seed 已於 2026-07-22 使用 PostgreSQL 16 全新獨立資料庫實灌，`latest_schema.sql` 與 `010`～`070` 一次成功 `COMMIT`；同一版本也已成功套用到目前 `yuruicamp`。可重做的流程與判定標準見 [`資料庫與完整 Seed 實際驗證`](./docs/backend-specs/test/database-seed-validation.md)。
@@ -219,16 +229,16 @@ A: 不行。請用 `.env`（已在 `.gitignore`），範本用 `.env.example`。
 
 ## Schema / 假資料
 
-| 文件                                                                           | 說明                                                         |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| [`docs/latest_schema.sql`](./docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（建庫真相來源）                          |
-| [`docs/database-schema-guide.md`](./docs/database-schema-guide.md)             | ER 圖、函式／Trigger、資料字典                               |
-| [`docs/schema-enums.md`](./docs/schema-enums.md)                               | status / category 等 ENUM 允許值                             |
-| [`docs/database-documents/`](./docs/database-documents/)                       | 各業務表領域說明                                             |
-| [`docs/seed/README.md`](./docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| 文件                                                                           | 說明                                                                   |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [`docs/latest_schema.sql`](./docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（建庫真相來源）                                    |
+| [`docs/database-schema-guide.md`](./docs/database-schema-guide.md)             | ER 圖、函式／Trigger、資料字典                                         |
+| [`docs/schema-enums.md`](./docs/schema-enums.md)                               | status / category 等 ENUM 允許值                                       |
+| [`docs/database-documents/`](./docs/database-documents/)                       | 各業務表領域說明                                                       |
+| [`docs/seed/README.md`](./docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則           |
 | [`docs/data/json-seed-id-mapping.md`](./docs/data/json-seed-id-mapping.md)     | JSON／Seed 固定 ID：商品、規格、品牌、營區、zone、標籤、門市、租借 SKU |
-| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
-| [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準）   |
+| [`plans/data-integration-spec.md`](./plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則                     |
+| [`plans/schema-migration-checklist.md`](./plans/schema-migration-checklist.md) | Schema 整合任務清單（歷史勾選；DDL 以 latest_schema 為準）             |
 
 ```powershell
 cd frontend
@@ -494,16 +504,16 @@ npm run normalize:data
 
 假資料已整合至 `/data/**`（多在 `frontend/data/**`）；PostgreSQL 以 `docs/latest_schema.sql` 為準（給 Java bootcamp 銜接用，前端仍可走 Mock）：
 
-| 文件                                                                       | 說明                                                         |
-| -------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| [docs/latest_schema.sql](docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（ENUM + 主表 PK/FK + View／Trigger）     |
-| [docs/database-schema-guide.md](docs/database-schema-guide.md)             | ER 圖與資料字典導覽                                          |
-| [docs/schema-enums.md](docs/schema-enums.md)                               | 狀態／分類枚舉允許值                                         |
-| [docs/database-documents/](docs/database-documents/)                       | 各業務表領域說明（含快照欄位語意）                           |
-| [docs/seed/README.md](docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則 |
+| 文件                                                                       | 說明                                                                   |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| [docs/latest_schema.sql](docs/latest_schema.sql)                           | PostgreSQL 現行 DDL（ENUM + 主表 PK/FK + View／Trigger）               |
+| [docs/database-schema-guide.md](docs/database-schema-guide.md)             | ER 圖與資料字典導覽                                                    |
+| [docs/schema-enums.md](docs/schema-enums.md)                               | 狀態／分類枚舉允許值                                                   |
+| [docs/database-documents/](docs/database-documents/)                       | 各業務表領域說明（含快照欄位語意）                                     |
+| [docs/seed/README.md](docs/seed/README.md)                                 | PostgreSQL 開發 Seed：SQL 結構、載入順序、執行方式與維護規則           |
 | [docs/data/json-seed-id-mapping.md](docs/data/json-seed-id-mapping.md)     | JSON／Seed 固定 ID：商品、規格、品牌、營區、zone、標籤、門市、租借 SKU |
-| [plans/data-integration-spec.md](plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則           |
-| [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史）                              |
+| [plans/data-integration-spec.md](plans/data-integration-spec.md)           | 前端 Mock JSON：資料語意、關聯、衍生資料與維護規則                     |
+| [plans/schema-migration-checklist.md](plans/schema-migration-checklist.md) | Schema 整合任務勾選清單（歷史）                                        |
 
 ## 📋 專案概述
 
@@ -513,16 +523,16 @@ Yuruicamp 是一個露營選物電商專案，包含 `storefront/pages/` 下 **1
 
 **技術棧**：
 
-| 技術                                             | 用途                                 |
-| ------------------------------------------------ | ------------------------------------ |
-| HTML5                                            | 語義化頁面結構                       |
-| SCSS / CSS3                                      | 買家前台樣式系統、約 4900 行完整 CSS |
-| Vanilla JavaScript                               | 買家前台頁面互動邏輯（無框架依賴）   |
-| Vite + Sass                                      | SCSS 編譯、多頁面建置、資產壓縮      |
-| ESLint + Prettier + Stylelint                    | JS / HTML / CSS / SCSS 基礎品質檢查  |
-| Bootstrap 5 + jQuery 3 + Chart.js                | 賣家後台 UI 框架、圖表視覺化         |
-| REST API + Mock facade                           | 正式模式以 Spring Boot 為真相，Mock 僅供離線開發    |
-| Git                                              | 版本控制                             |
+| 技術                              | 用途                                             |
+| --------------------------------- | ------------------------------------------------ |
+| HTML5                             | 語義化頁面結構                                   |
+| SCSS / CSS3                       | 買家前台樣式系統、約 4900 行完整 CSS             |
+| Vanilla JavaScript                | 買家前台頁面互動邏輯（無框架依賴）               |
+| Vite + Sass                       | SCSS 編譯、多頁面建置、資產壓縮                  |
+| ESLint + Prettier + Stylelint     | JS / HTML / CSS / SCSS 基礎品質檢查              |
+| Bootstrap 5 + jQuery 3 + Chart.js | 賣家後台 UI 框架、圖表視覺化                     |
+| REST API + Mock facade            | 正式模式以 Spring Boot 為真相，Mock 僅供離線開發 |
+| Git                               | 版本控制                                         |
 
 **建置狀態**：✅ 買家前台 14 階段完成 + 賣家後台 9 模組完成（2026/06/15，含租借多營地庫存與異動員工 ID）+ 預約子系統 6 頁面完成（2026/06/12）
 
@@ -647,7 +657,7 @@ npx http-server -p 8000
 入口頁 → index.html
 首頁   → storefront/pages/home.html
 商品   → storefront/pages/products.html → storefront/pages/product-detail.html
-購物   → 任一主站頁右上角購物車 Drawer → storefront/pages/checkout.html → storefront/pages/checkout-success.html
+購物   → 商品詳情／購物車 Drawer → storefront/pages/cart.html（確認背包並鎖庫）→ storefront/pages/checkout.html → storefront/pages/checkout-success.html
 會員   → storefront/pages/member-center.html
 內容   → storefront/pages/blog.html → storefront/pages/blog-detail.html
 分店   → storefront/pages/branches.html
@@ -679,7 +689,8 @@ npx http-server -p 8000
 搜尋   → booking/pages/camp-search.html（篩選地區、環境、設施）
 詳情   → booking/pages/camp-detail.html（選日期、選營位類型，寫入 localStorage.bookingCart）
 租借   → booking/pages/camp-rental.html（加選裝備，更新 bookingCart）
-結帳   → booking/pages/booking-cart.html（確認明細、填聯絡資訊、送出預約）
+背包   → booking/pages/booking-cart.html（確認明細並建立 15 分鐘 Checkout Session）
+結帳   → booking/pages/booking-checkout.html（填聯絡資訊並使用既有 Session 前往 ECPay）
 說明   → booking/pages/rental-guide.html（租借流程圖文說明）
 FAQ    → booking/pages/booking-faq.html（預約與退款常見問題）
 ```
@@ -820,7 +831,7 @@ window.throttle(fn, 100); // 節流（滾動事件使用）
 | `memberProfile`        | Object        | 會員中心儲存的個人資料                                                    |
 | `bookingCart`          | Object        | 預約購物車（`{booking_info, selected_zones, selected_rentals, summary}`） |
 | `mockCheckoutSessions` | Array         | 契約化 Checkout Mock Session 與內部冪等資料                               |
-| `adminEmployees`       | Array         | 僅 Mock 後台使用的員工與逐頁權限種子；正式 Backend 模式不讀取              |
+| `adminEmployees`       | Array         | 僅 Mock 後台使用的員工與逐頁權限種子；正式 Backend 模式不讀取             |
 
 > ⚠️ `cart`（電商）與 `bookingCart`（預約）是兩個**完全獨立**的 localStorage key，互不干擾。
 
@@ -951,7 +962,7 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 ### 訂單／預訂 Backend 顯示驗證（2026-07-22）
 
-- Admin 訂單／預訂真實 API 已分別驗證 222／90 筆，抽查詳情與 `frontend/data` JSON Mock 的核心欄位一致。
+- Admin 訂單／預訂真實 API 的基準資料為 225／90 筆；訂單 1～222 可抽查與 `frontend/data` JSON Mock 的核心欄位一致，223～225 為 Firebase 測試會員固定訂單。
 - 會員 U001 的預訂 API 可查到 `25`、`55`，列表／詳情契約測試通過。
 - 會員訂單與預訂均已完成 Backend 模式 REST 分流；Payment、Booking Coupon 與其他 readiness 後續功能仍依各自契約推進。
 - 目前可驗證範圍與未完成邊界統一記錄於 [`前端實際驗證總覽`](./docs/frontend-specs/test/README.md)。
@@ -971,16 +982,16 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 
 ## 🗺️ 未來擴展方向
 
-| 方向                    | 說明                                                                                                                 |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| 接入真實後端（前台）    | 修改 `js/api-mock.js` 的各函數實作，頁面邏輯零改動                                                                   |
-| 擴充後台正式契約        | G-6 已正式接線；後續補 Reviews、會員標籤池、seller note 與租借商品寫入後，再解除 readiness gate                    |
-| 後台操作日誌            | Firebase 登入與後端細 RBAC 已完成；跨模組完整審計紀錄與工程收尾見 [`backend-implementation-checklist.md`](./plans/backend-implementation-checklist.md) |
-| 升級至 SPA              | 以 Vue 3 或 React 重構，可直接複用現有 CSS 設計系統與 JSON 資料                                                      |
-| 加入數據分析            | 在 `main.js` 的 `initGlobalListeners()` 接入 GA4 / GTM 事件追蹤                                                      |
-| 自動化測試              | 以 Playwright 或 Cypress 撰寫自動化測試腳本                                                                          |
-| 深色模式                | `main.css` 已預留 `@media (prefers-color-scheme: dark)` 區塊                                                         |
-| PWA                     | 加入 `manifest.json` 與 Service Worker 支援離線瀏覽                                                                  |
+| 方向                 | 說明                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 接入真實後端（前台） | 修改 `js/api-mock.js` 的各函數實作，頁面邏輯零改動                                                                                                     |
+| 擴充後台正式契約     | G-6 已正式接線；後續補 Reviews、會員標籤池、seller note 與租借商品寫入後，再解除 readiness gate                                                        |
+| 後台操作日誌         | Firebase 登入與後端細 RBAC 已完成；跨模組完整審計紀錄與工程收尾見 [`backend-implementation-checklist.md`](./plans/backend-implementation-checklist.md) |
+| 升級至 SPA           | 以 Vue 3 或 React 重構，可直接複用現有 CSS 設計系統與 JSON 資料                                                                                        |
+| 加入數據分析         | 在 `main.js` 的 `initGlobalListeners()` 接入 GA4 / GTM 事件追蹤                                                                                        |
+| 自動化測試           | 以 Playwright 或 Cypress 撰寫自動化測試腳本                                                                                                            |
+| 深色模式             | `main.css` 已預留 `@media (prefers-color-scheme: dark)` 區塊                                                                                           |
+| PWA                  | 加入 `manifest.json` 與 Service Worker 支援離線瀏覽                                                                                                    |
 
 ---
 
