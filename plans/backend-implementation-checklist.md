@@ -71,7 +71,8 @@
 | B-3  | 分頁 `page`／`size`／`sort`           | ✅ PostgreSQL／Controller 整合驗收通過（Product API Contract v0.2）               |
 | B-4  | 篩選 category／brand／價格            | ✅ PostgreSQL 實際端點驗收通過；無篩選、品牌、價格與錯誤區間皆符合契約            |
 | B-5a | 基本商品規格 `variants[]`             | ✅ 已隨 B-1／B-2 落地；只回 active variant，包含 SKU／顏色／尺寸／規格／價格      |
-| B-5b | 規格層級可售庫存（View／Read Model）  | 🔄 Product API Contract v0.3 與程式已完成；待 PostgreSQL 驗收                     |
+| B-5b | 規格層級可售庫存（View／Read Model）  | 🔄 Product API Contract v0.4 與程式已完成；待 PostgreSQL 驗收                     |
+| B-5c | 正式評論評分統計                      | ✅ Product API Contract v0.4 已提供 `rating`、`reviewCount`，列表採批次聚合       |
 | B-6  | Security：`GET /api/products/**` 公開 | ✅                                                                                |
 | B-7  | （作業）`GET /api/branches` 同套路    | 🔄 已實作公開 Envelope、固定排序與 Swagger；待實際端點驗收                        |
 
@@ -183,7 +184,7 @@
 
 - [ ] H-1 `calendar_dates` API
 - [ ] H-2 文章 API
-- [ ] H-3 評價 API
+- [x] H-3 評價 API（會員 `GET／POST /api/me/reviews`、商品公開 `GET /api/products/{productId}/reviews` 已完成）
 
 ---
 

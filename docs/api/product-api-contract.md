@@ -1,10 +1,10 @@
-# Product API Contract（v0.3）
+# Product API Contract（v0.4）
 
 | 欄位 | 內容 |
 |------|------|
 | **狀態** | Locked（B-1～B-5b 真相來源） |
 | **日期** | 2026-07-20 |
-| **版本** | 0.3 |
+| **版本** | 0.4 |
 | **誰要遵守** | Spring 後端、前端 Mock、OpenAPI／Swagger |
 | **相關清單** | [`plans/backend-implementation-checklist.md`](../../plans/backend-implementation-checklist.md) 線 B |
 | **共用慣例** | [`common-api-conventions.md`](./common-api-conventions.md) |
@@ -120,6 +120,8 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | `description` | string \| null | 是* | `equipment_items.description` | 可含 HTML；無則 `null` |
 | `image` | string \| null | 是* | `equipment_images.url`（`sort_order = 0`） | 主圖；路徑如 `/assets/...`；無則 `null` |
 | `price` | string | 是 | **衍生**：active variants 的 **最低** `price` | 列表卡片用；**不是**獨立 DB 欄位 |
+| `rating` | string | 是 | **衍生**：正式 `reviews.rating` 平均值 | 固定一位小數；無評論為 `"0.0"` |
+| `reviewCount` | integer | 是 | **衍生**：正式評論數量 | 無評論為 `0` |
 | `variants` | array | 是 | 見下節 | 至少 1 筆（否則不應出現） |
 
 \*「必填」指鍵一定要出現；值可以是 `null`。
@@ -160,6 +162,8 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
       "description": "<p>適合露營使用。</p>",
       "image": "/assets/images/products/P001-1.jpg",
       "price": "3200.00",
+      "rating": "4.6",
+      "reviewCount": 35,
       "variants": [
         {
           "id": "V001",
@@ -202,6 +206,8 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
     "description": "<p>適合露營使用。</p>",
     "image": "/assets/images/products/P001-1.jpg",
     "price": "3200.00",
+    "rating": "4.6",
+    "reviewCount": 35,
     "variants": [
       {
         "id": "V001",
@@ -241,7 +247,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 | `interestTags`／`tags`／`specifications` 物件 | 附屬表；不屬於 B-5a 基本 variant 契約，之後可升版擴充 |
 | `images[]`（多圖） | v0.3 只主圖 `image` |
 | `totalStock`／`branch`／`variants[].branch` | v0.3 只提供 variant 可售量，不公開庫位分布 |
-| `rating`／`reviewCount`／`salesCount` | 評價／訂單衍生；前端可另算 |
+| `salesCount` | 訂單衍生；前端可另算 |
 | `variants[].label` | 用 `specification` 或前端組合 color／size |
 | `price` 排序 | 需以 active variants 最低價做聚合，之後版本再談 |
 
@@ -253,7 +259,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 模式 | 行為 |
 |------|------|
-| `USE_MOCK_API = true` | 讀取已是 **v0.3 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
+| `USE_MOCK_API = true` | 讀取已是 **v0.4 契約形狀**的本地 JSON；不猜測或補齊缺漏欄位 |
 | `USE_MOCK_API = false` | `GET /api/products`；必須先 **解開 Envelope**（取 `data`） |
 
 參考實作：
@@ -285,6 +291,7 @@ Envelope／錯誤／金額規則見 **common**；本文件只鎖商品欄位。
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.4 | 2026-07-23 | 正式 Product API 加入 `rating` 與 `reviewCount`，統一商品卡與商品詳細頁評分來源 |
 | 0.3 | 2026-07-21 | B-4 商品篩選與 B-5b variant 可售量已實作；加入 `availableQuantity`、`inStock` |
 | 0.2 | 2026-07-20 | 文件釐清 B-5：基本 `variants[]` 已隨 B-1／B-2 完成；規格層級可售庫存尚未實作，需升版後才能加入 |
 | 0.2 | 2026-07-20 | B-3 驗收：非空跨頁、PostgreSQL `id`／`name` 雙向排序、非法參數 Envelope、超頁 meta 與 Controller HTTP 整合測試通過 |

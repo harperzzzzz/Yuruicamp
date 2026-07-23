@@ -31,6 +31,7 @@ $(document).ready(function () {
   // 步驟 1：從 URL 取得 id 參數 / Step 1: Get id from URL
   const params = new URLSearchParams(window.location.search);
   const campId = params.get('id');
+  const searchPrefill = readSearchPrefill(params);
 
   // 防呆：缺少 id 時返回搜尋頁 / Guard: redirect if id missing
   if (!campId) {
@@ -40,7 +41,7 @@ $(document).ready(function () {
   }
 
   // 步驟 2：載入資料 / Step 2: Load data
-  loadCampDetail(campId);
+  loadCampDetail(campId, searchPrefill);
 
   // 步驟 3：確認按鈕綁定 / Step 3: Bind confirm button
   $('#confirmBookingBtn').on('click', saveToLocalStorageAndNext);
@@ -55,8 +56,9 @@ $(document).ready(function () {
  * Load campground data via AJAX, find matching entry by ID
  *
  * @param {string} campId - URL 傳入的 campground_id
+ * @param {Object} searchPrefill - 搜尋頁帶入的日期與人數
  */
-function loadCampDetail(campId) {
+function loadCampDetail(campId, searchPrefill) {
   // 透過 BookingAPI 讀取單一營區（MockDataPaths 在 api-mock.js）
   // Load single campground via BookingAPI
   if (!window.BookingAPI) {
@@ -75,7 +77,7 @@ function loadCampDetail(campId) {
         bookingWindow = results[0] || bookingWindow;
         availabilityCtx = results[1];
         renderCampDetail(currentCamp);
-        initDatePicker();
+        initDatePicker(searchPrefill);
       });
     })
     .catch(function (err) {
@@ -245,7 +247,7 @@ function renderZoneTable(zones) {
  * 初始化 Flatpickr 日期範圍選擇器
  * Initialize Flatpickr date range picker
  */
-function initDatePicker() {
+function initDatePicker(searchPrefill = {}) {
   const pickerOptions = {
     mode: 'range',
     locale: 'zh_tw',
@@ -266,7 +268,69 @@ function initDatePicker() {
     },
   };
 
-  flatpickr('#dateRange', pickerOptions);
+  const picker = flatpickr('#dateRange', pickerOptions);
+
+  if (searchPrefill.guests) {
+    $('#guestNum').val(searchPrefill.guests);
+  }
+
+  if (isPrefillDateRangeBookable(searchPrefill)) {
+    picker.setDate([searchPrefill.checkIn, searchPrefill.checkOut], true);
+  }
+}
+
+/**
+ * 讀取搜尋頁傳入的日期與人數，忽略不合法或不完整的查詢參數。
+ *
+ * @param {URLSearchParams} params - 目前頁面的查詢參數
+ * @returns {{checkIn: string|null, checkOut: string|null, guests: number|null}}
+ */
+function readSearchPrefill(params) {
+  const checkIn = params.get('checkIn');
+  const checkOut = params.get('checkOut');
+  const checkInDateValue = parseISODate(checkIn);
+  const checkOutDateValue = parseISODate(checkOut);
+  const guests = Number.parseInt(params.get('guests'), 10);
+  const hasValidDateRange =
+    checkInDateValue && checkOutDateValue && checkOutDateValue > checkInDateValue;
+
+  return {
+    checkIn: hasValidDateRange ? checkIn : null,
+    checkOut: hasValidDateRange ? checkOut : null,
+    guests: Number.isInteger(guests) && guests >= 1 && guests <= 30 ? guests : null,
+  };
+}
+
+/**
+ * 將 ISO 日期字串轉為本地日期，並排除不存在的日期。
+ *
+ * @param {string|null} value - YYYY-MM-DD
+ * @returns {Date|null}
+ */
+function parseISODate(value) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+  if (!match) return null;
+
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const isSameDate =
+    date.getFullYear() === Number(match[1]) &&
+    date.getMonth() === Number(match[2]) - 1 &&
+    date.getDate() === Number(match[3]);
+
+  return isSameDate ? date : null;
+}
+
+/**
+ * 確認帶入日期仍位於後端提供的可預約區間內。
+ *
+ * @param {Object} searchPrefill - 搜尋頁帶入值
+ * @returns {boolean}
+ */
+function isPrefillDateRangeBookable(searchPrefill) {
+  if (!searchPrefill.checkIn || !searchPrefill.checkOut) return false;
+  if (bookingWindow.minDate && searchPrefill.checkIn < bookingWindow.minDate) return false;
+  if (bookingWindow.maxDate && searchPrefill.checkOut > bookingWindow.maxDate) return false;
+  return true;
 }
 
 /**

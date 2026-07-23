@@ -157,7 +157,7 @@ const colors = {
 - 商品訂單為 `unshipped` 且 `paymentStatus=unpaid` 時，在 `section.memberModalDialog` 的訂單明細最下方顯示「取消訂單」；操作沿用 `API.checkout.cancelSession(orderId)`，成功後關閉明細並重新載入本人訂單。
 - Mock 模式仍使用 `API.coupons.getAvailable(customerId)`，維持生日／首購展示資料。
 - `#profileName` 以後端會員 `name` 為優先來源；儲存姓名後同步 `AppState.currentUser`、`currentUser`／`yuruiUser` storage，並發出 `yurui:profile-updated`，讓主站與 Booking Header 的 `.siteUserName` 立即一致。
-- Booking 會員中心設定 `lockGoogleEmail=true`：Google／`google.com` 登入時 `#profileEmail` 為唯讀且更新 payload 不包含 `email`；Facebook、LINE 與其他登入管道維持可輸入。
+- Storefront 與 Booking 會員中心都設定 `lockGoogleEmail=true`：Google／`google.com` 登入時 `#profileEmail` 為唯讀且更新 payload 不包含 `email`；Facebook、LINE 與其他登入管道維持可輸入。
 
 * 原始檔：`pages/member-center.html`。
 * 共用 CSS 來源：`css/main.css`。

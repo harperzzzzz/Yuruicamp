@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.catalog.infrastructure.ProductRepository;
+import com.yuruicamp.backend.catalog.infrastructure.ProductRatingRepository;
 import com.yuruicamp.backend.catalog.infrastructure.VariantAvailabilityRepository;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
@@ -28,7 +29,8 @@ class ProductCatalogServiceTest {
 				productRepository,
 				mock(EquipmentImageRepository.class),
 				mock(ProductCatalogAssembler.class),
-				mock(VariantAvailabilityRepository.class));
+				mock(VariantAvailabilityRepository.class),
+				mock(ProductRatingRepository.class));
 
 		ProductCatalogService.PagedProducts result = service.listProducts(
 				2, 10, "name,desc", null, null, null, null);
@@ -52,7 +54,8 @@ class ProductCatalogServiceTest {
 				mock(ProductRepository.class),
 				mock(EquipmentImageRepository.class),
 				mock(ProductCatalogAssembler.class),
-				mock(VariantAvailabilityRepository.class));
+				mock(VariantAvailabilityRepository.class),
+				mock(ProductRatingRepository.class));
 
 		BusinessException error = assertThrows(
 				BusinessException.class,

@@ -56,7 +56,8 @@ const _useMockApi = () => window.AppConfig?.USE_MOCK_API !== false;
 const _path = (key) => MOCK_DATA_PATHS[key] || '';
 
 const PRODUCT_CONTRACT_FIELDS = [
-  'id', 'itemId', 'status', 'name', 'category', 'brand', 'description', 'image', 'price', 'variants',
+  'id', 'itemId', 'status', 'name', 'category', 'brand', 'description', 'image', 'price',
+  'rating', 'reviewCount', 'variants',
 ];
 const PRODUCT_VARIANT_CONTRACT_FIELDS = [
   'id', 'sku', 'color', 'size', 'specification', 'price', 'availableQuantity', 'inStock',
@@ -76,7 +77,7 @@ const _assertExactKeys = (value, expected, label) => {
 };
 
 /**
- * Public catalog input must already be Product API Contract v0.3.
+ * Public catalog input must already be Product API Contract v0.4.
  * Do not silently create item IDs, SKUs, prices, or variants from old fixtures.
  */
 const _readProductContract = (product) => {
@@ -86,7 +87,9 @@ const _readProductContract = (product) => {
   _assertExactKeys(product, PRODUCT_CONTRACT_FIELDS, 'product');
   if (typeof product.id !== 'string' || typeof product.itemId !== 'string' || product.status !== 'active'
       || typeof product.name !== 'string' || typeof product.price !== 'string'
-      || !CONTRACT_MONEY.test(product.price) || !Array.isArray(product.variants) || product.variants.length === 0) {
+      || !CONTRACT_MONEY.test(product.price) || !/^\d+\.\d$/.test(product.rating)
+      || !Number.isInteger(product.reviewCount) || product.reviewCount < 0
+      || !Array.isArray(product.variants) || product.variants.length === 0) {
     _contractError(`invalid product: ${product.id || '(missing id)'}`);
   }
   ['category', 'brand', 'description', 'image'].forEach((field) => {
@@ -259,10 +262,16 @@ const _enrichProduct = async (product, reviews, orders) => {
   if (Array.isArray(enriched.variants)) {
     enriched.variants = enriched.variants.map((v) => ({ ...v, price: Number(v.price) }));
   }
-  const ratingInfo = window.aggregateProductRating(enriched.id, reviews);
-  enriched.rating = ratingInfo.rating;
-  enriched.reviewCount = ratingInfo.reviewCount;
-  enriched.ratingDisplay = ratingInfo.ratingDisplay;
+  if (_useMockApi()) {
+    const ratingInfo = window.aggregateProductRating(enriched.id, reviews);
+    enriched.rating = ratingInfo.rating;
+    enriched.reviewCount = ratingInfo.reviewCount;
+    enriched.ratingDisplay = ratingInfo.ratingDisplay;
+  } else {
+    enriched.rating = Number(product.rating);
+    enriched.reviewCount = product.reviewCount;
+    enriched.ratingDisplay = product.rating;
+  }
   enriched.salesCount = window.computeProductSales(enriched.id, orders);
   return enriched;
 };
@@ -1149,7 +1158,7 @@ window.API = {
     getPage: async (options = {}) => {
       const [result, reviews, orders] = await Promise.all([
         _loadProductPage(options),
-        _loadReviews(),
+        _useMockApi() ? _loadReviews() : Promise.resolve([]),
         _loadOrdersSeed(),
       ]);
       return {
@@ -1159,13 +1168,13 @@ window.API = {
     },
 
     /**
-     * 列表：契約 v0.2 欄位 + UI enrich（rating 等，不屬於契約）
-     * Contract fields from mock/REST; enrich adds display-only extras.
+     * 列表：契約 v0.4 欄位 + UI enrich。
+     * rating／reviewCount 是正式契約欄位；ratingDisplay 等仍是展示衍生值。
      */
     getAll: async (filters = {}) => {
       const [raw, reviews, orders] = await Promise.all([
         _loadProductsRaw(),
-        _loadReviews(),
+        _useMockApi() ? _loadReviews() : Promise.resolve([]),
         _loadOrdersSeed(),
       ]);
       let products = raw.filter((p) => p.status === 'active');
@@ -1195,13 +1204,73 @@ window.API = {
         product = raw.find((p) => p.id === productId) || null;
       }
       if (!product) throw new Error('Product not found');
-      const [reviews, orders] = await Promise.all([_loadReviews(), _loadOrdersSeed()]);
+      const [reviews, orders] = await Promise.all([
+        _useMockApi() ? _loadReviews() : Promise.resolve([]),
+        _loadOrdersSeed(),
+      ]);
       return _enrichProduct(product, reviews, orders);
     },
 
-    getReviews: async (productId) => {
+    getReviews: async (productId, options = {}) => {
+      const page = Number.isInteger(options.page) ? options.page : 0;
+      const size = Number.isInteger(options.size) ? options.size : 20;
+      const sort = options.sort || 'latest';
+      const rating = Number.isInteger(options.rating) ? options.rating : null;
+      const hasPhotos = options.hasPhotos === true;
+      if (!_useMockApi()) {
+        const query = new URLSearchParams({ page, size, sort, hasPhotos });
+        if (rating !== null) query.set('rating', rating);
+        const response = await window.ApiClient._restRequest(
+          `/products/${encodeURIComponent(productId)}/reviews?${query}`,
+          { auth: 'none', includeMeta: true }
+        );
+        return {
+          items: response.data?.items || [],
+          summary: response.data?.summary || {
+            totalCount: 0,
+            averageRating: 0,
+            ratingCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+          },
+          meta: response.meta,
+        };
+      }
       const reviews = await _loadReviews();
-      return reviews.filter((r) => r.productId === productId);
+      const matching = reviews.filter((r) => r.productId === productId);
+      const filtered = matching.filter((review) => {
+        if (rating !== null && Number(review.rating) !== rating) return false;
+        if (hasPhotos && (!Array.isArray(review.photos) || review.photos.length === 0)) return false;
+        return true;
+      });
+      const sorted = filtered.slice().sort((a, b) => {
+        if (sort === 'highest' && b.rating !== a.rating) return b.rating - a.rating;
+        if (sort === 'lowest' && a.rating !== b.rating) return a.rating - b.rating;
+        return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
+      });
+      const ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      matching.forEach((review) => {
+        if (ratingCounts[review.rating] !== undefined) ratingCounts[review.rating] += 1;
+      });
+      const totalCount = matching.length;
+      const filteredCount = filtered.length;
+      return {
+        items: sorted.slice(page * size, page * size + size),
+        summary: {
+          totalCount,
+          averageRating:
+            totalCount === 0
+              ? 0
+              : Number(
+                  (matching.reduce((sum, review) => sum + Number(review.rating || 0), 0) / totalCount).toFixed(2)
+                ),
+          ratingCounts,
+        },
+        meta: {
+          page,
+          size,
+          totalElements: filteredCount,
+          totalPages: filteredCount === 0 ? 0 : Math.ceil(filteredCount / size),
+        },
+      };
     },
 
     getNewest: async (limit = 12) => {
@@ -1480,9 +1549,26 @@ window.API = {
   },
 
   reviews: {
-    getAll: async () => _loadReviews(),
+    getAll: async () => {
+      if (!_useMockApi()) {
+        return window.ApiClient._restRequest('/me/reviews', { auth: 'required' });
+      }
+      return _loadReviews();
+    },
 
     create: async (payload) => {
+      if (!_useMockApi()) {
+        return window.ApiClient._restRequest('/me/reviews', {
+          method: 'POST',
+          auth: 'required',
+          body: {
+            orderItemId: payload.orderItemId,
+            rating: payload.rating,
+            comment: payload.comment || null,
+            photoUrls: Array.isArray(payload.photoUrls) ? payload.photoUrls : [],
+          },
+        });
+      }
       const orderItemId = Number(payload.orderItemId);
       if (!Number.isInteger(orderItemId) || orderItemId <= 0) {
         throw new Error('orderItemId is required');
@@ -1513,7 +1599,7 @@ window.API = {
         productName: purchase.item.name,
         rating: payload.rating,
         comment: payload.comment || '',
-        photos: [],
+        photos: Array.isArray(payload.photoUrls) ? payload.photoUrls : [],
         createdAt: _formatLocalDateTime(),
         verifiedPurchase: true,
       };
@@ -1523,6 +1609,61 @@ window.API = {
       reviewsCache = null;
       await window.API.orders.markReviewed(purchase.order.id);
       return review;
+    },
+
+    uploadPhotos: async (orderItemId, files) => {
+      if (_useMockApi()) {
+        return Array.from(files || []).map((file) => URL.createObjectURL(file));
+      }
+      const form = new FormData();
+      Array.from(files || []).forEach((file) => form.append('files', file));
+      const result = await window.ApiClient._restRequest(
+        `/me/reviews/photos?orderItemId=${encodeURIComponent(orderItemId)}`,
+        { method: 'POST', auth: 'required', body: form }
+      );
+      return result?.urls || [];
+    },
+
+    update: async (reviewId, payload) => {
+      if (!_useMockApi()) {
+        return window.ApiClient._restRequest(`/me/reviews/${encodeURIComponent(reviewId)}`, {
+          method: 'PATCH',
+          auth: 'required',
+          body: {
+            rating: payload.rating,
+            comment: payload.comment || null,
+            photoUrls: Array.isArray(payload.photoUrls) ? payload.photoUrls : [],
+          },
+        });
+      }
+      const mock = _readJsonStorage(MOCK_REVIEWS_KEY, []);
+      const index = mock.findIndex((review) => review.id === reviewId);
+      if (index < 0) throw new Error('Review not found');
+      mock[index] = {
+        ...mock[index],
+        rating: payload.rating,
+        comment: payload.comment || '',
+        photos: Array.isArray(payload.photoUrls) ? payload.photoUrls : [],
+      };
+      _writeJsonStorage(MOCK_REVIEWS_KEY, mock);
+      reviewsCache = null;
+      return mock[index];
+    },
+
+    delete: async (reviewId) => {
+      if (!_useMockApi()) {
+        return window.ApiClient._restRequest(`/me/reviews/${encodeURIComponent(reviewId)}`, {
+          method: 'DELETE',
+          auth: 'required',
+        });
+      }
+      const mock = _readJsonStorage(MOCK_REVIEWS_KEY, []);
+      _writeJsonStorage(
+        MOCK_REVIEWS_KEY,
+        mock.filter((review) => review.id !== reviewId)
+      );
+      reviewsCache = null;
+      return null;
     },
   },
 

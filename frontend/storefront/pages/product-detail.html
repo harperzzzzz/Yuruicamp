@@ -216,9 +216,55 @@
 
           <!-- Tab 面板：商品評價 Reviews Panel -->
           <div class="productTabPanel" data-panel="reviews">
-            <div class="ratingContainer2" id="productReviewsList">
-              <!-- 評價由 JS 透過 API.products.getReviews 動態載入 -->
-            </div>
+            <section class="productReviewBrowser" aria-labelledby="productReviewHeading">
+              <h3 class="visually-hidden" id="productReviewHeading">商品評價</h3>
+              <div class="productReviewOverview">
+                <div class="productReviewScore">
+                  <strong id="reviewAverageRating">0.0</strong>
+                  <span class="starStyle" id="reviewAverageStars" aria-hidden="true">☆☆☆☆☆</span>
+                  <span id="reviewTotalCount">共 0 則評價</span>
+                </div>
+                <div class="productReviewDistribution" id="reviewRatingDistribution"
+                     aria-label="評分分布"></div>
+              </div>
+
+              <div class="productReviewToolbar" aria-label="評論篩選與排序">
+                <label>
+                  <span>評分</span>
+                  <select id="reviewRatingFilter">
+                    <option value="">全部評分</option>
+                    <option value="5">5 星</option>
+                    <option value="4">4 星</option>
+                    <option value="3">3 星</option>
+                    <option value="2">2 星</option>
+                    <option value="1">1 星</option>
+                  </select>
+                </label>
+                <label>
+                  <span>排序</span>
+                  <select id="reviewSortSelect">
+                    <option value="latest">最新評論</option>
+                    <option value="highest">評分最高</option>
+                    <option value="lowest">評分最低</option>
+                  </select>
+                </label>
+                <label class="productReviewPhotoFilter">
+                  <input id="reviewPhotoFilter" type="checkbox">
+                  <span>只看有照片</span>
+                </label>
+              </div>
+
+              <div id="productReviewsStatus" class="productReviewsStatus" aria-live="polite"></div>
+              <div class="ratingContainer2" id="productReviewsList">
+                <!-- 評價由 JS 透過 API.products.getReviews 動態載入 -->
+              </div>
+              <div class="productReviewLoadMore">
+                <button class="buttonDefault buttonOutline" id="reviewLoadMoreBtn"
+                        type="button" hidden>
+                  載入更多評價
+                </button>
+              </div>
+            </section>
           </div>
           <!-- /reviews panel -->
         </div>

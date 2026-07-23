@@ -155,6 +155,7 @@ const colors = {
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
+- Accept optional `checkIn`, `checkOut`, and `guests` query parameters from camp search. Apply only valid dates inside the booking window and guest counts from `1` to `30`.
 
 ## Acceptance Criteria
 
@@ -164,3 +165,4 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] Valid camp search conditions prefill `dateRange` and `guestNum`

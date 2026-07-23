@@ -30,7 +30,14 @@
           return isMainPage && !isCurrentPage ? target.pathname.split('/pages/').pop() + target.search + target.hash : fallback;
         } catch (error) { return fallback; }
       }
-      window.MemberCenterConfig = { dataBasePath: '/data', authStorageKey: 'currentUser', fallbackAuthStorageKey: 'yuruiUser', homeHref: resolveMainMemberReturnHref() };
+      window.MemberCenterConfig = {
+        dataBasePath: '/data',
+        authStorageKey: 'currentUser',
+        fallbackAuthStorageKey: 'yuruiUser',
+        homeHref: resolveMainMemberReturnHref(),
+        // Google 信箱由 Firebase 帳號管理，其他登入管道維持可編輯。
+        lockGoogleEmail: true,
+      };
       window.loadMemberCenterComponent = async function () {
         const mount = document.getElementById('memberCenterMount');
         if (!mount) return;

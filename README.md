@@ -21,6 +21,13 @@
 - B-5 範圍與資料來源見 [`docs/backend-specs/catalog/b5-product-variants-stock-status.md`](./docs/backend-specs/catalog/b5-product-variants-stock-status.md)。
 - Checkout 線 C 的 C-1 已完成：`orders`、`order_items`、`product_stock_reservations` Entity 已通過 Docker PostgreSQL 與 Hibernate `ddl-auto=validate`。
 - 會員 Order API 已完成：`GET /api/me/orders` 與 `GET /api/me/orders/{orderId}` 只使用 Firebase Principal 查詢本人資料，回傳訂單／商品快照；他人與不存在訂單統一回 `404`，PostgreSQL 整合測試 `4` 項全數通過。
+- 評論已完成正式接線：會員使用 `GET/POST /api/me/reviews`，商品頁使用公開 `GET /api/products/{productId}/reviews` 取得分頁評論與評分統計。
+- 商品評論以 `textContent` 建立 DOM，買家姓名、評論與日期不進入 `innerHTML`；後端限制評論最多 `1000` 字元。
+- 商品列表、首頁與詳情的 `rating`、`reviewCount` 統一由正式 Product API 評論統計提供。
+- 會員評論支援最多 `5` 張圖片的預覽、移除與正式上傳；商品詳細頁提供安全 URL 篩選及載入失敗狀態。
+- 會員可在已完成訂單中查看、修改或刪除自己的完整評論，並重新管理評論照片。
+- `MemberReviewService` 已明確指定 Spring 正式注入建構子，並以最小 Context 測試防止多建構子造成啟動失敗。
+- Storefront 與 Booking 會員中心會依登入 Provider 控制 Email：Google 登入為唯讀，其他登入管道可編輯。
 - 前端會員 Order 接線已完成：`API.orders.getAll/getByCustomerId` 在 Backend 模式只透過 `ApiClient` 呼叫 `/api/me/orders`，不讀寫 `mockOrders`；後端契約欄位會正規化為會員中心既有顯示欄位。
 - 會員預設配送地址已完成正式接線：`GET/PUT /api/me/shipping-address` 只依 Firebase Principal 讀寫本人資料；新 Firebase 會員不再因靜態 Mock 清單缺少 ID 而出現 `Customer not found`，流程與驗證見 [`會員配送地址文件`](./docs/backend-specs/customer/member-shipping-address.md)。
 - C-1 驗收流程與疑難排除見 [`docs/backend-specs/order/c1-entity-schema-validation.md`](./docs/backend-specs/order/c1-entity-schema-validation.md)。
@@ -695,6 +702,8 @@ npx http-server -p 8000
 FAQ    → booking/pages/booking-faq.html（預約與退款常見問題）
 ```
 
+搜尋頁已選擇的日期區間與入住人數會透過 `checkIn`、`checkOut`、`guests` 查詢參數帶入詳情頁，並預填詳情頁的日期與人數欄位。
+
 > 💡 預約系統使用獨立的 `localStorage.bookingCart` 儲存跨頁資料，與電商購物車的 `localStorage.cart` 完全分離，互不干擾。
 
 ---
@@ -959,6 +968,13 @@ window.AppConfig.API_BASE_URL = "http://localhost:8080/api";
 ---
 
 ## ✅ 品質工具與 Smoke Test
+
+### 商品公開評論瀏覽
+
+- 商品詳情頁支援評分分布、星等／照片篩選、最新／最高／最低排序與載入更多。
+- 評論卡片顯示已購買標章，長內容可展開／收合，載入失敗可在評論區重試。
+- 正式 API 為 `GET /api/products/{productId}/reviews`，分頁總數依目前篩選條件計算。
+- 會員評價 Modal 支援字數提示、欄位驗證、送出中鎖定及重複評價／非本人訂單／訂單未完成的具體錯誤訊息。
 
 ### 訂單／預訂 Backend 顯示驗證（2026-07-22）
 

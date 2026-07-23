@@ -188,7 +188,8 @@ function renderCampCards(camps) {
         </div>
 
         <div class="campCardFooter campCardFooterBooking">
-          <a href="./camp-detail.html?id=${camp.campgroundId}" class="btn btnPrimary">
+          <a href="${buildCampDetailHref(camp.campgroundId)}" class="btn btnPrimary"
+             data-camp-detail-link data-camp-id="${camp.campgroundId}">
             查看詳情 <i class="bi bi-arrow-right"></i>
           </a>
         </div>
@@ -215,6 +216,11 @@ function renderCampCards(camps) {
  * Bind change events for all filter controls
  */
 function bindFilterEvents() {
+  // 點擊詳情時再讀取搜尋列最新值，避免人數變更後沿用舊連結。
+  $(document).on('click', '[data-camp-detail-link]', function () {
+    this.href = buildCampDetailHref($(this).data('camp-id'));
+  });
+
   // Checkbox 變更時觸發篩選 / Trigger filter on checkbox change
   $(document).on('change', 'input[name="env"], input[name="facility"]', filterCampgrounds);
 
@@ -241,6 +247,28 @@ function bindFilterEvents() {
     updatePriceSlider();
     filterCampgrounds();
   });
+}
+
+/**
+ * 建立營區詳情頁連結；只有使用者已填寫的搜尋條件才會被帶入。
+ *
+ * @param {string} campgroundId - 營區 ID
+ * @returns {string} 詳情頁 URL
+ */
+function buildCampDetailHref(campgroundId) {
+  const params = new URLSearchParams({ id: campgroundId });
+
+  if (searchDateRange.checkIn && searchDateRange.checkOut) {
+    params.set('checkIn', searchDateRange.checkIn);
+    params.set('checkOut', searchDateRange.checkOut);
+  }
+
+  const guestCount = Number.parseInt($('#guestCount').val(), 10);
+  if (Number.isInteger(guestCount) && guestCount > 0) {
+    params.set('guests', String(guestCount));
+  }
+
+  return `./camp-detail.html?${params.toString()}`;
 }
 
 /**

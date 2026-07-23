@@ -25,9 +25,11 @@
              autocomplete="off">
       <select id="reviewRatingFilter" class="form-select form-select-sm reviews-filter-select">
         <option value="">全部評分</option>
-        <option value="1-2">1–2 星（需關注）</option>
+        <option value="5">5 星</option>
+        <option value="4">4 星</option>
         <option value="3">3 星</option>
-        <option value="4-5">4–5 星</option>
+        <option value="2">2 星</option>
+        <option value="1">1 星</option>
       </select>
       <select id="reviewSortSelect" class="form-select form-select-sm reviews-filter-select">
         <option value="date-desc">最新優先</option>
@@ -37,6 +39,12 @@
       <button type="button" id="btnClearReviewFilters" class="btn btn-sm btn-outline-secondary d-none">
         <i class="fas fa-rotate-left me-1"></i>清除條件
       </button>
+      <select id="reviewPageSize" class="form-select form-select-sm reviews-filter-select"
+              aria-label="每頁顯示筆數">
+        <option value="10">每頁 10 筆</option>
+        <option value="20" selected>每頁 20 筆</option>
+        <option value="50">每頁 50 筆</option>
+      </select>
     </div>
   </div>
 
@@ -49,5 +57,18 @@
         <span class="text-muted">載入評論中...</span>
       </div>
     </div>
+    <nav id="reviewsPagination" class="d-none mt-4" aria-label="評論分頁">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span id="reviewsPageSummary" class="small text-muted" aria-live="polite"></span>
+        <div class="btn-group btn-group-sm" role="group" aria-label="切換評論頁面">
+          <button type="button" id="reviewsPrevPage" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left me-1"></i>上一頁
+          </button>
+          <button type="button" id="reviewsNextPage" class="btn btn-outline-secondary">
+            下一頁<i class="fas fa-chevron-right ms-1"></i>
+          </button>
+        </div>
+      </div>
+    </nav>
   </div>
 </div>

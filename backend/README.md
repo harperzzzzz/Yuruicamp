@@ -95,6 +95,11 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | Firebase ID Token Security          | ✅ 受保護的會員與 Admin Controller 皆以 `firebaseBearer` 描述 OpenAPI 認證需求，Swagger `Authorize` 會自動加入 Firebase Bearer Token；實際驗證仍由 Spring Security Filter 與 RBAC 負責                                                                 |
 | Customer／Admin session             | ✅                                                                                                                                                                                                                                                       |
 | **會員本人配送地址**                | ✅ `GET/PUT /api/me/shipping-address`，只依 Firebase Principal 讀寫本人預設地址；見 [`流程`](../docs/backend-specs/customer/member-shipping-address.md) 與 [`Swagger 驗證`](../docs/backend-specs/test/member-shipping-address-api-validation.md) |
+| **會員已購商品評論**                | ✅ `GET/POST /api/me/reviews`，只允許本人已完成訂單明細且一項一評；見 [`流程`](../docs/backend-specs/review/h3-member-reviews.md) 與 [`Swagger 驗證`](../docs/backend-specs/test/member-review-api-validation.md) |
+| **商品公開評論**                    | ✅ `GET /api/products/{productId}/reviews`，支援分頁、排序、星等／照片篩選與評分統計；見 [`流程`](../docs/backend-specs/review/h3-public-product-reviews.md) |
+| **商品評分統計**                    | ✅ Product 列表與詳情回傳正式評論衍生的 `rating`、`reviewCount`，列表使用批次聚合 |
+| **會員評論圖片**                    | ✅ Firebase 會員可上傳最多 `5` 張 JPEG／PNG／WebP，後端驗證特徵碼並寫入 `review_photos` |
+| **會員評論管理**                    | ✅ `PATCH/DELETE /api/me/reviews/{reviewId}`，限制本人修改或刪除並支援照片重排 |
 | MapStruct                           | ✅                                                                                                                                                                                                                                                       |
 | **B-1～B-4 商品公開讀**             | ✅ 列表、詳情、分頁、排序及分類／品牌／價格篩選；未指定篩選會使用明確型別預設值，避免 PostgreSQL `lower(bytea)`；見 [`Catalog 文件`](../docs/backend-specs/catalog/b4-b5b-b7-catalog-public-read.md)                                                      |
 | **B-5a 基本商品規格**               | ✅ `variants[]` 已隨商品列表／詳情回傳；只含 active variant 與字串價格                                                                                                                                                                                   |

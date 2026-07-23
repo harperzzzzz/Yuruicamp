@@ -41,7 +41,7 @@ import org.springframework.validation.annotation.Validated;
 @RestController
 @Validated
 @RequestMapping("/api/products")
-@Tag(name = "Catalog", description = "Public product catalog (Contract v0.3)")
+@Tag(name = "Catalog", description = "Public product catalog (Contract v0.4)")
 public class ProductController {
 
 	private final ProductCatalogService productCatalogService;

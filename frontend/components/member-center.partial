@@ -244,9 +244,33 @@
           <p class="memberReviewHint">本次評分與評論只會套用到這項商品。</p>
           <fieldset class="memberReviewFieldset">
             <legend class="memberReviewLabel">評分</legend>
-            <div class="memberRatingControl" id="reviewRatingGroup" role="radiogroup" aria-label="評分"><button type="button" class="memberRatingStar" data-review-rating="1" aria-label="1 分">★</button><button type="button" class="memberRatingStar" data-review-rating="2" aria-label="2 分">★</button><button type="button" class="memberRatingStar" data-review-rating="3" aria-label="3 分">★</button><button type="button" class="memberRatingStar" data-review-rating="4" aria-label="4 分">★</button><button type="button" class="memberRatingStar" data-review-rating="5" aria-label="5 分">★</button></div>
+            <div class="memberRatingControl" id="reviewRatingGroup" role="radiogroup" aria-label="評分" aria-describedby="reviewRatingError"><button type="button" class="memberRatingStar" data-review-rating="1" aria-label="1 分">★</button><button type="button" class="memberRatingStar" data-review-rating="2" aria-label="2 分">★</button><button type="button" class="memberRatingStar" data-review-rating="3" aria-label="3 分">★</button><button type="button" class="memberRatingStar" data-review-rating="4" aria-label="4 分">★</button><button type="button" class="memberRatingStar" data-review-rating="5" aria-label="5 分">★</button></div>
+            <p class="memberReviewFieldError" id="reviewRatingError" hidden>必須選擇 1 至 5 星。</p>
           </fieldset>
-          <label class="memberReviewLabel" for="reviewContent">評論內容</label><textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4" maxlength="1000" placeholder="分享這項商品的使用心得"></textarea><button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn" type="submit">送出此商品評價</button>
+          <div class="memberReviewLabelRow">
+            <label class="memberReviewLabel" for="reviewContent">評論內容（選填）</label>
+            <span class="memberReviewCharacterCount" id="reviewCharacterCount">0／1000</span>
+          </div>
+          <textarea class="memberFormInput memberReviewTextarea" id="reviewContent" rows="4"
+                    maxlength="1000" aria-describedby="reviewContentHint reviewContentError"
+                    placeholder="分享這項商品的使用心得"></textarea>
+          <p class="memberReviewHint" id="reviewContentHint">只輸入空白會視為未填寫，內容最多 1000 字。</p>
+          <p class="memberReviewFieldError" id="reviewContentError" hidden>評論內容不可超過 1000 字。</p>
+          <div class="memberReviewPhotos">
+            <div>
+              <label class="memberReviewLabel" for="reviewPhotos">商品照片</label>
+              <p class="memberReviewPhotoHint">最多 5 張，支援 JPEG、PNG、WebP，每張不超過 5 MB。</p>
+            </div>
+            <label class="memberReviewPhotoPicker" for="reviewPhotos"><i class="bi bi-image" aria-hidden="true"></i>選擇圖片</label>
+            <input class="memberReviewPhotoInput" id="reviewPhotos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+            <div class="memberReviewPhotoPreview" id="reviewPhotoPreview" aria-live="polite"></div>
+          </div>
+          <p class="memberReviewSubmitError" id="reviewSubmitError" role="alert" hidden></p>
+          <button class="memberAction memberActionPrimary memberActionBlock" id="submitReviewBtn"
+                  type="submit" data-idle-label="送出此商品評價">
+            <span id="submitReviewBtnLabel">送出此商品評價</span>
+          </button>
+          <button class="memberReviewDelete" id="deleteReviewBtn" type="button" hidden>刪除此評論</button>
         </form>
       </div>
     </section>

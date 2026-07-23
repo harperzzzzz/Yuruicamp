@@ -13,6 +13,7 @@ const headerPartial = readFileSync(join(rootDir, 'components/header.partial'), '
 const headerSource = readFileSync(join(rootDir, 'storefront/js/components/header.js'), 'utf8');
 const bookingHeaderSource = readFileSync(join(rootDir, 'booking/js/booking-header.js'), 'utf8');
 const bookingMemberPage = readFileSync(join(rootDir, 'booking/pages/member-center.html'), 'utf8');
+const storefrontMemberPage = readFileSync(join(rootDir, 'storefront/pages/member-center.html'), 'utf8');
 
 function preferenceValues(source, selectorClass) {
   return Array.from(
@@ -45,6 +46,7 @@ assert(memberPartial.includes('請填寫會員姓名、電話、地址完成後�
 assert(!/id="profileEmail"[^>]*readonly/.test(memberPartial));
 assert(!/id="profileBirthday"[^>]*readonly/.test(memberPartial));
 assert(bookingMemberPage.includes('lockGoogleEmail: true'));
+assert(storefrontMemberPage.includes('lockGoogleEmail: true'));
 assert(memberSource.includes('function isGoogleProfileEmailLocked()'));
 assert(memberSource.includes('emailInput.readOnly = locked'));
 assert(memberSource.includes("provider === 'google' || provider === 'google.com'"));

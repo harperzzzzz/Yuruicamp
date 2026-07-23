@@ -8,7 +8,9 @@
 
 ## Overview
 
-Admin reviews partial with tabs, search, rating filter, sort, review cards/list, and reply modal. Use for review moderation and reply workflow. Keep replied and unreplied states clear.
+Admin reviews partial with server-driven search, exact rating filter, sort, pagination,
+review cards, detail modal, and delete confirmation. The backend response metadata is
+the source of truth for total count and page state.
 
 ## TypeScript Interface
 
@@ -151,7 +153,13 @@ const colors = {
 - Source file: `admin/partials/reviews.html`.
 - Shared CSS source: `admin/css/admin.css`.
 - Shared components: admin/dashboard.html shell and admin partial loader.
-- Key UI areas: reviewsModuleCard, reviewSearchInput, reviewsContainer, reviewReplyModal.
+- Key UI areas: `reviewsModuleCard`, `reviewSearchInput`, `reviewsContainer`,
+  `reviewsPagination`, `reviewDetailModal`, and `reviewDeleteModal`.
+- Backend mode sends `page`, `size`, `q`, `rating`, and `sort` to
+  `GET /api/admin/reviews`; do not filter an already paged response in the browser.
+- Display the total from `meta.totalElements`, not the length of the current page.
+- The detail action loads `GET /api/admin/reviews/{id}` when the modal opens.
+- Mock mode applies the same controls locally and must remain available.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
@@ -164,3 +172,6 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] Search, rating, sort, page size, previous page, and next page reload the requested data
+- [ ] Total count uses `meta.totalElements`
+- [ ] Detail action fetches and renders the selected review

@@ -3,9 +3,9 @@ package com.yuruicamp.backend.catalog.api;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Contract v0.3 variant (SKU) — see docs/api/product-api-contract.md
+ * Contract v0.4 variant (SKU) — see docs/api/product-api-contract.md
  */
-@Schema(description = "Product variant (SKU) per Product API Contract v0.3")
+@Schema(description = "Product variant (SKU) per Product API Contract v0.4")
 public record ProductVariantResponse(
 		@Schema(example = "V001") String id,
 		@Schema(example = "TENT-OLIVE") String sku,

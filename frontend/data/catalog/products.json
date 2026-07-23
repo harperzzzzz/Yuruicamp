@@ -6,9 +6,11 @@
     "name": "Coleman 六人帳篷",
     "category": "帳篷",
     "brand": "Coleman",
-    "description": "\u003cp\u003e適合露營使用。\u003c/p\u003e",
+    "description": "<p>適合露營使用。</p>",
     "image": "/assets/images/products/P001-1.jpg",
     "price": "3200.00",
+    "rating": "5.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V001",
@@ -49,9 +51,11 @@
     "name": "MSR 超輕量帳篷",
     "category": "帳篷",
     "brand": "MSR",
-    "description": "\u003cp\u003e\u003cstrong\u003eMSR 超輕量帳篷\u003c/strong\u003e 為 Yuruicamp 精選的帳篷商品，規格：\u003cem\u003e沙漠卡其\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>MSR 超輕量帳篷</strong> 為 Yuruicamp 精選的帳篷商品，規格：<em>沙漠卡其</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P002-1.jpg",
     "price": "9800.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V002-01",
@@ -72,9 +76,11 @@
     "name": "充氣式睡墊",
     "category": "睡袋",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e充氣式睡墊\u003c/strong\u003e 為 Yuruicamp 精選的睡袋商品，提供 \u003cem\u003eS / M / L\u003c/em\u003e 三種尺寸。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>充氣式睡墊</strong> 為 Yuruicamp 精選的睡袋商品，提供 <em>S / M / L</em> 三種尺寸。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P003-1.jpg",
     "price": "1200.00",
+    "rating": "3.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V003-01",
@@ -115,9 +121,11 @@
     "name": "羽絨睡袋",
     "category": "睡袋",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e羽絨睡袋\u003c/strong\u003e 為 Yuruicamp 精選的睡袋商品，提供 \u003cem\u003e-10°C / -5°C / 0°C\u003c/em\u003e 三種溫標可選。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>羽絨睡袋</strong> 為 Yuruicamp 精選的睡袋商品，提供 <em>-10°C / -5°C / 0°C</em> 三種溫標可選。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P004-1.jpg",
     "price": "2800.00",
+    "rating": "5.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V004-01",
@@ -158,9 +166,11 @@
     "name": "Coleman 氣化爐",
     "category": "炊具",
     "brand": "Coleman",
-    "description": "\u003cp\u003e\u003cstrong\u003eColeman 氣化爐\u003c/strong\u003e 為 Yuruicamp 精選的炊具商品，規格：\u003cem\u003e標準版\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>Coleman 氣化爐</strong> 為 Yuruicamp 精選的炊具商品，規格：<em>標準版</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P005-1.jpg",
     "price": "5000.00",
+    "rating": "2.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V005-01",
@@ -181,9 +191,11 @@
     "name": "Snow Peak 鈦合金杯組",
     "category": "炊具",
     "brand": "Snow Peak",
-    "description": "\u003cp\u003e\u003cstrong\u003eSnow Peak 鈦合金杯組\u003c/strong\u003e 為 Yuruicamp 精選的炊具商品，規格：\u003cem\u003e鈦金屬原色\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>Snow Peak 鈦合金杯組</strong> 為 Yuruicamp 精選的炊具商品，規格：<em>鈦金屬原色</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P006-1.jpg",
     "price": "1800.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V006-01",
@@ -204,9 +216,11 @@
     "name": "LED 露營燈",
     "category": "燈具",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003eLED 露營燈\u003c/strong\u003e 為 Yuruicamp 精選的燈具商品，提供 \u003cem\u003e暖白光\u003c/em\u003e、\u003cem\u003e冷白光\u003c/em\u003e 兩種色溫。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>LED 露營燈</strong> 為 Yuruicamp 精選的燈具商品，提供 <em>暖白光</em>、<em>冷白光</em> 兩種色溫。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P007-1.jpg",
     "price": "800.00",
+    "rating": "1.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V007-01",
@@ -237,9 +251,11 @@
     "name": "防水登山背包",
     "category": "背包",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e防水登山背包\u003c/strong\u003e 為 Yuruicamp 精選的背包商品，提供 \u003cem\u003e35L / 45L\u003c/em\u003e 兩種容量（森林綠）。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>防水登山背包</strong> 為 Yuruicamp 精選的背包商品，提供 <em>35L / 45L</em> 兩種容量（森林綠）。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P008-1.jpg",
     "price": "1600.00",
+    "rating": "4.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V008-01",
@@ -270,9 +286,11 @@
     "name": "折疊桌椅組",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e折疊桌椅組\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e鋁合金輕量版\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>折疊桌椅組</strong> 為 Yuruicamp 精選的其他商品，規格：<em>鋁合金輕量版</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P009-1.jpg",
     "price": "2800.00",
+    "rating": "2.5",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V009-01",
@@ -293,9 +311,11 @@
     "name": "Snow Peak 客廳帳",
     "category": "帳篷",
     "brand": "Snow Peak",
-    "description": "\u003cp\u003e\u003cstrong\u003eSnow Peak 客廳帳\u003c/strong\u003e 為 Yuruicamp 精選的帳篷商品，規格：\u003cem\u003e象牙白\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>Snow Peak 客廳帳</strong> 為 Yuruicamp 精選的帳篷商品，規格：<em>象牙白</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P011-1.jpg",
     "price": "8500.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V011-01",
@@ -316,9 +336,11 @@
     "name": "四季保暖睡袋",
     "category": "睡袋",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e四季保暖睡袋\u003c/strong\u003e 為 Yuruicamp 精選的睡袋商品，提供 \u003cem\u003eM / L\u003c/em\u003e 兩種尺寸（深藍）。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>四季保暖睡袋</strong> 為 Yuruicamp 精選的睡袋商品，提供 <em>M / L</em> 兩種尺寸（深藍）。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P012-1.jpg",
     "price": "2200.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V012-01",
@@ -349,9 +371,11 @@
     "name": "折疊蛋捲桌",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e折疊蛋捲桌\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e胡桃木紋\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>折疊蛋捲桌</strong> 為 Yuruicamp 精選的其他商品，規格：<em>胡桃木紋</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P013-1.jpg",
     "price": "1500.00",
+    "rating": "4.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V013-01",
@@ -372,9 +396,11 @@
     "name": "高背月亮椅",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e高背月亮椅\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e軍綠\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>高背月亮椅</strong> 為 Yuruicamp 精選的其他商品，規格：<em>軍綠</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P014-1.jpg",
     "price": "980.00",
+    "rating": "5.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V014-01",
@@ -395,9 +421,11 @@
     "name": "充電式頭燈",
     "category": "燈具",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e充電式頭燈\u003c/strong\u003e 為 Yuruicamp 精選的燈具商品，規格：\u003cem\u003eUSB-C\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>充電式頭燈</strong> 為 Yuruicamp 精選的燈具商品，規格：<em>USB-C</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P015-1.jpg",
     "price": "650.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V015-01",
@@ -418,9 +446,11 @@
     "name": "65L 重裝背包",
     "category": "背包",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e65L 重裝背包\u003c/strong\u003e 為 Yuruicamp 精選的背包商品，規格：\u003cem\u003e岩石灰\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>65L 重裝背包</strong> 為 Yuruicamp 精選的背包商品，規格：<em>岩石灰</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P016-1.jpg",
     "price": "4200.00",
+    "rating": "3.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V016-01",
@@ -441,9 +471,11 @@
     "name": "露營拖車",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e露營拖車\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e折疊式\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>露營拖車</strong> 為 Yuruicamp 精選的其他商品，規格：<em>折疊式</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P017-1.jpg",
     "price": "3600.00",
+    "rating": "5.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V017-01",
@@ -464,9 +496,11 @@
     "name": "大型天幕",
     "category": "帳篷",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e大型天幕\u003c/strong\u003e 為 Yuruicamp 精選的帳篷商品，規格：\u003cem\u003e4x4m\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>大型天幕</strong> 為 Yuruicamp 精選的帳篷商品，規格：<em>4x4m</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P018-1.jpg",
     "price": "2400.00",
+    "rating": "2.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V018-01",
@@ -487,9 +521,11 @@
     "name": "營柱與營繩組",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e營柱與營繩組\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e標準套組\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>營柱與營繩組</strong> 為 Yuruicamp 精選的其他商品，規格：<em>標準套組</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P019-1.jpg",
     "price": "450.00",
+    "rating": "3.5",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V019-01",
@@ -510,9 +546,11 @@
     "name": "行動電源站",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e行動電源站\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e500Wh\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>行動電源站</strong> 為 Yuruicamp 精選的其他商品，規格：<em>500Wh</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P020-1.jpg",
     "price": "12800.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V020-01",
@@ -533,9 +571,11 @@
     "name": "保冷冰桶 45L",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e保冷冰桶 45L\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e深藍\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>保冷冰桶 45L</strong> 為 Yuruicamp 精選的其他商品，規格：<em>深藍</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P021-1.jpg",
     "price": "1900.00",
+    "rating": "5.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V021-01",
@@ -556,9 +596,11 @@
     "name": "雙層防風外套",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e雙層防風外套\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003eL號\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>雙層防風外套</strong> 為 Yuruicamp 精選的其他商品，規格：<em>L號</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P022-1.jpg",
     "price": "3200.00",
+    "rating": "2.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V022-01",
@@ -579,9 +621,11 @@
     "name": "快煮鍋 1.5L",
     "category": "炊具",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e快煮鍋 1.5L\u003c/strong\u003e 為 Yuruicamp 精選的炊具商品，規格：\u003cem\u003e不鏽鋼\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>快煮鍋 1.5L</strong> 為 Yuruicamp 精選的炊具商品，規格：<em>不鏽鋼</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P023-1.jpg",
     "price": "1100.00",
+    "rating": "5.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V023-01",
@@ -602,9 +646,11 @@
     "name": "碳纖維登山杖",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e碳纖維登山杖\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e一對\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>碳纖維登山杖</strong> 為 Yuruicamp 精選的其他商品，規格：<em>一對</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P024-1.jpg",
     "price": "1400.00",
+    "rating": "5.0",
+    "reviewCount": 2,
     "variants": [
       {
         "id": "V024-01",
@@ -625,9 +671,11 @@
     "name": "防水戶外手錶",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e防水戶外手錶\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003eGPS版\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>防水戶外手錶</strong> 為 Yuruicamp 精選的其他商品，規格：<em>GPS版</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P025-1.jpg",
     "price": "5600.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V025-01",
@@ -648,9 +696,11 @@
     "name": "輕量吊床",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e輕量吊床\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e雙人\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>輕量吊床</strong> 為 Yuruicamp 精選的其他商品，規格：<em>雙人</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P026-1.jpg",
     "price": "890.00",
+    "rating": "4.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V026-01",
@@ -671,9 +721,11 @@
     "name": "戶外淋浴袋",
     "category": "其他",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e戶外淋浴袋\u003c/strong\u003e 為 Yuruicamp 精選的其他商品，規格：\u003cem\u003e20L\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>戶外淋浴袋</strong> 為 Yuruicamp 精選的其他商品，規格：<em>20L</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P027-1.jpg",
     "price": "680.00",
+    "rating": "3.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V027-01",
@@ -694,9 +746,11 @@
     "name": "折疊式焚火台",
     "category": "炊具",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e折疊式焚火台\u003c/strong\u003e 為 Yuruicamp 精選的炊具商品，規格：\u003cem\u003e不鏽鋼\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>折疊式焚火台</strong> 為 Yuruicamp 精選的炊具商品，規格：<em>不鏽鋼</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P028-1.jpg",
     "price": "2100.00",
+    "rating": "3.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V028-01",
@@ -717,9 +771,11 @@
     "name": "防蚊帳篷內帳",
     "category": "帳篷",
     "brand": "Yuruicamp",
-    "description": "\u003cp\u003e\u003cstrong\u003e防蚊帳篷內帳\u003c/strong\u003e 為 Yuruicamp 精選的帳篷商品，規格：\u003cem\u003e通用型\u003c/em\u003e。\u003c/p\u003e\u003cp\u003e適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。\u003c/p\u003e",
+    "description": "<p><strong>防蚊帳篷內帳</strong> 為 Yuruicamp 精選的帳篷商品，規格：<em>通用型</em>。</p><p>適合露營、登山與戶外活動使用，後台可透過 Summernote 編輯器調整此描述。</p>",
     "image": "/assets/images/products/P029-1.jpg",
     "price": "750.00",
+    "rating": "3.0",
+    "reviewCount": 1,
     "variants": [
       {
         "id": "V029-01",

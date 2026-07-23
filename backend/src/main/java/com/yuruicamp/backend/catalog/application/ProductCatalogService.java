@@ -13,6 +13,8 @@ import com.yuruicamp.backend.catalog.domain.EquipmentImage;
 import com.yuruicamp.backend.catalog.domain.Product;
 import com.yuruicamp.backend.catalog.infrastructure.EquipmentImageRepository;
 import com.yuruicamp.backend.catalog.infrastructure.ProductRepository;
+import com.yuruicamp.backend.catalog.infrastructure.ProductRatingRepository;
+import com.yuruicamp.backend.catalog.infrastructure.ProductRatingRepository.ProductRating;
 import com.yuruicamp.backend.catalog.infrastructure.VariantAvailabilityProjection;
 import com.yuruicamp.backend.catalog.infrastructure.VariantAvailabilityRepository;
 import com.yuruicamp.backend.common.api.PageMeta;
@@ -61,18 +63,21 @@ public class ProductCatalogService {
 	private final EquipmentImageRepository equipmentImageRepository;
 	private final ProductCatalogAssembler assembler;
 	private final VariantAvailabilityRepository variantAvailabilityRepository;
+	private final ProductRatingRepository productRatingRepository;
 
 	public ProductCatalogService(
 			ProductRepository productRepository,
 			EquipmentImageRepository equipmentImageRepository,
 			ProductCatalogAssembler assembler,
-			VariantAvailabilityRepository variantAvailabilityRepository) {
+			VariantAvailabilityRepository variantAvailabilityRepository,
+			ProductRatingRepository productRatingRepository) {
 		// 用途：透過建構式注入商品、圖片 Repository 與 DTO 組裝器。
 		// 核心重點：所有相依物件均為必要依賴，交由 Spring 建立並管理此 Service。
 		this.productRepository = productRepository;
 		this.equipmentImageRepository = equipmentImageRepository;
 		this.assembler = assembler;
 		this.variantAvailabilityRepository = variantAvailabilityRepository;
+		this.productRatingRepository = productRatingRepository;
 	}
 
 	/**
@@ -85,15 +90,18 @@ public class ProductCatalogService {
 		List<Product> products = productRepository.findAllActiveForCatalog();
 		Map<String, String> images = loadMainImages(products);
 		Map<String, Long> availability = loadAvailability(products);
+		Map<String, ProductRating> ratings = loadRatings(products);
 
 		return products.stream()
-				.map(product -> assembler.toResponse(product, images, availability))
+				.map(product -> withRating(
+						assembler.toResponse(product, images, availability),
+						ratings.getOrDefault(product.getId(), ProductRating.empty(product.getId()))))
 				.filter(dto -> !dto.variants().isEmpty())
 				.sorted(Comparator.comparing(ProductResponse::id))
 				.toList();
 	}
 
-	/** B-3／B-4: GET /api/products with pagination, sorting and filters (Contract v0.3). */
+	/** B-3／B-4: GET /api/products with pagination, sorting and filters (Contract v0.4). */
 	@Transactional(readOnly = true)
 	public PagedProducts listProducts(
 			int page,
@@ -128,8 +136,11 @@ public class ProductCatalogService {
 				.toList();
 		Map<String, String> images = loadMainImages(productsInPageOrder);
 		Map<String, Long> availability = loadAvailability(productsInPageOrder);
+		Map<String, ProductRating> ratings = loadRatings(productsInPageOrder);
 		List<ProductResponse> data = productsInPageOrder.stream()
-				.map(product -> assembler.toResponse(product, images, availability))
+				.map(product -> withRating(
+						assembler.toResponse(product, images, availability),
+						ratings.getOrDefault(product.getId(), ProductRating.empty(product.getId()))))
 				.filter(dto -> !dto.variants().isEmpty())
 				.toList();
 		return new PagedProducts(data, toMeta(idPage));
@@ -210,11 +221,33 @@ public class ProductCatalogService {
 				.orElse(null);
 
 		Map<String, Long> availability = loadAvailability(List.of(product));
-		ProductResponse dto = assembler.toResponse(product, image, availability);
+		ProductRating rating = productRatingRepository.findByProductIds(List.of(product.getId()))
+				.getOrDefault(product.getId(), ProductRating.empty(product.getId()));
+		ProductResponse dto = withRating(assembler.toResponse(product, image, availability), rating);
 		if (dto.variants().isEmpty()) {
 			throw new BusinessException(ErrorCode.NOT_FOUND, "Product not found: " + id);
 		}
 		return dto;
+	}
+
+	private Map<String, ProductRating> loadRatings(List<Product> products) {
+		return productRatingRepository.findByProductIds(products.stream().map(Product::getId).toList());
+	}
+
+	private ProductResponse withRating(ProductResponse product, ProductRating rating) {
+		return new ProductResponse(
+				product.id(),
+				product.itemId(),
+				product.status(),
+				product.name(),
+				product.category(),
+				product.brand(),
+				product.description(),
+				product.image(),
+				product.price(),
+				rating.rating().setScale(1, java.math.RoundingMode.HALF_UP).toPlainString(),
+				rating.reviewCount(),
+				product.variants());
 	}
 
 	private Map<String, Long> loadAvailability(List<Product> products) {

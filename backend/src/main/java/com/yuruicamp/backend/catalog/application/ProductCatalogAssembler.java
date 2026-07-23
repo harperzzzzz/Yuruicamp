@@ -46,6 +46,8 @@ public class ProductCatalogAssembler {
 				item.getDescription(),
 				imageUrl,
 				minPrice(variants),
+				"0.0",
+				0,
 				variants);
 	}
 

@@ -8,6 +8,8 @@
   "description": "\u003cp\u003e適合露營使用。\u003c/p\u003e",
   "image": "/assets/images/products/P001-1.jpg",
   "price": "3200.00",
+  "rating": "4.6",
+  "reviewCount": 35,
   "variants": [
     {
       "id": "V001",

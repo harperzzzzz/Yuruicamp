@@ -5,10 +5,9 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Contract v0.3 product (SPU) — see docs/api/product-api-contract.md
- * Locked fields only; do not add rentalId / stock / ratings here without bumping the contract.
+ * Contract v0.4 product (SPU) — see docs/api/product-api-contract.md
  */
-@Schema(description = "Storefront product (SPU) per Product API Contract v0.3")
+@Schema(description = "Storefront product (SPU) per Product API Contract v0.4")
 public record ProductResponse(
 		@Schema(example = "P001") String id,
 		@Schema(example = "E001") String itemId,
@@ -19,5 +18,7 @@ public record ProductResponse(
 		@Schema(nullable = true) String description,
 		@Schema(nullable = true, example = "/assets/images/products/P001-1.jpg") String image,
 		@Schema(description = "Min active variant price (string money)", example = "3200.00") String price,
+		@Schema(description = "Average formal review rating, fixed to one decimal", example = "4.6") String rating,
+		@Schema(description = "Formal review count", example = "35") long reviewCount,
 		List<ProductVariantResponse> variants) {
 }

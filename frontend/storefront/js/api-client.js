@@ -350,6 +350,7 @@
     var authMode = settings.auth || 'optional';
     var headers = new Headers(settings.headers || {});
     var body = settings.body;
+    var isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
     var requestOptions = {
       method: settings.method || 'GET',
       headers: headers,
@@ -357,7 +358,7 @@
     };
 
     headers.set('Accept', 'application/json');
-    if (!headers.has('Content-Type')) {
+    if (!isFormData && !headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
     }
 
@@ -381,7 +382,8 @@
     }
 
     if (body !== undefined && body !== null) {
-      requestOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+      requestOptions.body =
+        typeof body === 'string' || isFormData ? body : JSON.stringify(body);
     }
 
     ['credentials', 'signal', 'redirect', 'referrerPolicy'].forEach(function (key) {

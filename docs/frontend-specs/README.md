@@ -27,6 +27,7 @@
 - [商城正式優惠券 UI 驗證](test/checkout-coupon-validation.md)
 - [會員中心正式優惠券驗證](test/member-coupon-validation.md)
 - [Booking API facade](api/booking-facade.md)
+- [會員評論 API facade](api/review-facade.md)
 - [後台前端實際驗證](test/admin-validation.md)
 
 ## 假設條件

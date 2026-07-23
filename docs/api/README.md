@@ -30,12 +30,13 @@
 | P1   | [`booking-api-contract.md`](./booking-api-contract.md)                                 | E    | Locked v1.0（公開營區含環境／設施標籤；E-1～E-7 已實作，ECPay、優惠券分別延後至 D、F）           |
 | P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)                                   | F    | Partially Implemented v0.2（商城完成；Booking 關聯 Schema 待決定）                              |
 | P1   | [`admin-api-contract.md`](./admin-api-contract.md)                                     | G    | Locked v0.8（G-1～G-6 正式接線完成；未就緒子功能依 readiness 停用）                             |
+| P2   | [`member-review-api-contract.md`](./member-review-api-contract.md)、[`product-review-api-contract.md`](./product-review-api-contract.md) | H | Implemented（會員本人 GET／POST、商品公開分頁讀取與評分統計） |
 
 ### 刻意延後（P2，本輪不寫死）
 
 | 領域                | 原因       |
 | ------------------- | ---------- |
-| Articles／Reviews   | MVP 可延後 |
+| Articles／公開 Reviews | 會員讀寫已完成；商品公開讀取仍待辦 |
 | calendar_dates 維護 | P2         |
 
 ---

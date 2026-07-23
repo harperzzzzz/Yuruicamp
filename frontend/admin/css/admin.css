@@ -1013,6 +1013,33 @@ button[data-permission-disabled="true"] {
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
+.review-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.review-detail-field {
+  padding: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.375rem;
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.review-detail-field-wide {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 575.98px) {
+  .review-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .review-detail-field-wide {
+    grid-column: auto;
+  }
+}
+
 /* ===== 商品描述 Summernote 編輯器（addProductModal 內） ===== */
 #addProductModal .note-editor {
   border-color: #dee2e6;

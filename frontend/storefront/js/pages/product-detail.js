@@ -1,6 +1,19 @@
 // Product detail page state and behavior.
 const DEFAULT_PRODUCT_ID = 'P001';
 const FREE_SHIPPING_THRESHOLD = 3000;
+const REVIEW_PAGE_SIZE = 6;
+
+// 公開評論瀏覽狀態，篩選變更時會從第一頁重新載入。
+const _reviewBrowserState = {
+  productId: '',
+  page: 0,
+  sort: 'latest',
+  rating: null,
+  hasPhotos: false,
+  totalPages: 0,
+  loading: false,
+  items: [],
+};
 
 // Initialize product detail page after shared scripts are available.
 window.initProductDetailPage = async () => {
@@ -9,9 +22,10 @@ window.initProductDetailPage = async () => {
 
   try {
     const product = await window.API.products.getById(productId);
-    const reviews = await window.API.products.getReviews(productId);
-    _renderProductPage(product, reviews);
+    _renderProductPage(product);
     _setProductPageState('ready');
+    _initReviewBrowser(productId);
+    await _loadProductReviews(false);
   } catch (error) {
     console.error('Product detail failed to load', error);
     _setProductPageState('error');
@@ -34,13 +48,16 @@ function _setProductPageState(state) {
 }
 
 // Render all product detail sections and bind interactions.
-function _renderProductPage(product, reviews = []) {
+function _renderProductPage(product) {
+  product.rating = Number(product.rating ?? 0);
+  product.ratingDisplay = product.rating.toFixed(1);
+  product.reviewCount = Number(product.reviewCount ?? 0);
   _renderProductInfo(product);
   _renderGallery(product);
   _renderSpecOptions(product, 'color');
   _renderSpecOptions(product, 'size');
   _renderSpecTable(product);
-  _renderReviews(reviews);
+  _renderReviews([], false);
   _renderShippingProgress();
   _initShippingProgressSync();
   _initQtyStepper();
@@ -92,31 +109,251 @@ function _renderPrice(product) {
   document.getElementById('productDiscount')?.toggleAttribute('hidden', true);
 }
 
-function _renderReviews(reviews) {
+function _renderReviews(reviews, append = false) {
   const container = document.getElementById('productReviewsList');
   if (!container) return;
-  _updateReviewsTabCount(reviews ? reviews.length : 0);
+  if (!append) container.replaceChildren();
   if (!reviews || reviews.length === 0) {
-    container.innerHTML = '<p class="productReviewEmpty">目前尚無評價</p>';
+    if (append || container.children.length > 0) return;
+    const empty = document.createElement('p');
+    empty.className = 'productReviewEmpty';
+    empty.textContent = '目前尚無評價';
+    container.appendChild(empty);
     return;
   }
-  container.innerHTML = reviews
-    .map(
-      (review) => `
-    <div class="reviewCard">
-      <div class="reviewHeader">
-        <div class="reviewAvatar">${(review.buyerName || '?').charAt(0)}</div>
-        <div>
-          <div class="reviewAuthorName">${review.buyerName || '會員'}</div>
-          <div class="starStyle">${_renderStars(review.rating)}</div>
-        </div>
-        <div class="ratingDate">${(review.createdAt || '').slice(0, 10)}</div>
-      </div>
-      <p class="reviewText">${review.comment || ''}</p>
-    </div>
-  `
-    )
-    .join('');
+  const fragment = document.createDocumentFragment();
+  reviews.forEach((review) => {
+    const buyerName = String(review.buyerName || '會員');
+    const card = document.createElement('div');
+    card.className = 'reviewCard';
+
+    const header = document.createElement('div');
+    header.className = 'reviewHeader';
+    const avatar = document.createElement('div');
+    avatar.className = 'reviewAvatar';
+    avatar.textContent = buyerName.charAt(0) || '?';
+
+    const identity = document.createElement('div');
+    const author = document.createElement('div');
+    author.className = 'reviewAuthorName';
+    author.textContent = buyerName;
+    if (review.verifiedPurchase) {
+      const verified = document.createElement('span');
+      verified.className = 'reviewVerifiedBadge';
+      verified.textContent = '已購買';
+      author.appendChild(verified);
+    }
+    const stars = document.createElement('div');
+    stars.className = 'starStyle';
+    stars.textContent = _renderStars(review.rating);
+    identity.append(author, stars);
+
+    const date = document.createElement('div');
+    date.className = 'ratingDate';
+    date.textContent = String(review.createdAt || '').slice(0, 10);
+    header.append(avatar, identity, date);
+
+    const comment = document.createElement('p');
+    comment.className = 'reviewText';
+    comment.textContent = String(review.comment || '');
+    card.append(header, comment);
+    if (comment.textContent.length > 160) {
+      comment.classList.add('isCollapsed');
+      const toggle = document.createElement('button');
+      toggle.className = 'reviewTextToggle';
+      toggle.type = 'button';
+      toggle.textContent = '展開全文';
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.addEventListener('click', () => {
+        const collapsed = comment.classList.toggle('isCollapsed');
+        toggle.textContent = collapsed ? '展開全文' : '收合內容';
+        toggle.setAttribute('aria-expanded', String(!collapsed));
+      });
+      card.appendChild(toggle);
+    }
+    const safePhotos = Array.isArray(review.photos)
+      ? review.photos.filter(_isSafeReviewPhotoUrl).slice(0, 5)
+      : [];
+    if (safePhotos.length > 0) {
+      const gallery = document.createElement('div');
+      gallery.className = 'reviewPhotoGallery';
+      safePhotos.forEach((url, photoIndex) => {
+        const frame = document.createElement('div');
+        frame.className = 'reviewPhotoFrame';
+        const image = document.createElement('img');
+        image.src = _resolveReviewPhotoUrl(url);
+        image.alt = `評論圖片 ${photoIndex + 1}`;
+        image.loading = 'lazy';
+        image.addEventListener('error', () => {
+          frame.classList.add('isError');
+          frame.replaceChildren();
+          const fallback = document.createElement('span');
+          fallback.textContent = '圖片載入失敗';
+          frame.appendChild(fallback);
+        });
+        frame.appendChild(image);
+        gallery.appendChild(frame);
+      });
+      card.appendChild(gallery);
+    }
+    fragment.appendChild(card);
+  });
+  container.appendChild(fragment);
+}
+
+// 綁定評論篩選、排序與載入更多事件。
+function _initReviewBrowser(productId) {
+  _reviewBrowserState.productId = productId;
+  document.getElementById('reviewRatingFilter')?.addEventListener('change', (event) => {
+    _reviewBrowserState.rating = event.target.value ? Number(event.target.value) : null;
+    _loadProductReviews(false);
+  });
+  document.getElementById('reviewSortSelect')?.addEventListener('change', (event) => {
+    _reviewBrowserState.sort = event.target.value;
+    _loadProductReviews(false);
+  });
+  document.getElementById('reviewPhotoFilter')?.addEventListener('change', (event) => {
+    _reviewBrowserState.hasPhotos = event.target.checked;
+    _loadProductReviews(false);
+  });
+  document.getElementById('reviewLoadMoreBtn')?.addEventListener('click', () => {
+    _loadProductReviews(true);
+  });
+}
+
+// 從正式 API 載入目前評論條件；失敗時只影響評論區。
+async function _loadProductReviews(loadMore) {
+  if (_reviewBrowserState.loading) return;
+  _reviewBrowserState.loading = true;
+  const targetPage = loadMore ? _reviewBrowserState.page + 1 : 0;
+  if (!loadMore) {
+    document.getElementById('productReviewsList')?.replaceChildren();
+    _reviewBrowserState.items = [];
+  }
+  _setReviewLoadingState(true, loadMore);
+
+  try {
+    const result = await window.API.products.getReviews(_reviewBrowserState.productId, {
+      page: targetPage,
+      size: REVIEW_PAGE_SIZE,
+      sort: _reviewBrowserState.sort,
+      rating: _reviewBrowserState.rating,
+      hasPhotos: _reviewBrowserState.hasPhotos,
+    });
+    const items = result.items || [];
+    _reviewBrowserState.page = targetPage;
+    _reviewBrowserState.totalPages = Number(result.meta?.totalPages) || 0;
+    _reviewBrowserState.items = loadMore
+      ? _reviewBrowserState.items.concat(items)
+      : items;
+    _renderReviewSummary(result.summary || {});
+    _renderReviews(items, loadMore);
+    _renderReviewResultStatus(result.meta || {});
+    _updateReviewLoadMore();
+  } catch (error) {
+    console.error('Product reviews failed to load', error);
+    _renderReviewLoadError(loadMore);
+  } finally {
+    _reviewBrowserState.loading = false;
+    _setReviewLoadingState(false, loadMore);
+  }
+}
+
+function _setReviewLoadingState(loading, loadMore) {
+  const status = document.getElementById('productReviewsStatus');
+  const button = document.getElementById('reviewLoadMoreBtn');
+  const controls = [
+    document.getElementById('reviewRatingFilter'),
+    document.getElementById('reviewSortSelect'),
+    document.getElementById('reviewPhotoFilter'),
+  ];
+  controls.forEach((control) => {
+    if (control) control.disabled = loading;
+  });
+  if (button) button.disabled = loading;
+  if (status && loading) {
+    status.textContent = loadMore ? '正在載入更多評價...' : '正在載入評價...';
+  }
+}
+
+function _renderReviewSummary(summary) {
+  const totalCount = Number(summary.totalCount) || 0;
+  const averageRating = Number(summary.averageRating) || 0;
+  _setText('reviewAverageRating', averageRating.toFixed(1));
+  _setText('reviewAverageStars', _renderStars(averageRating));
+  _setText('reviewTotalCount', `共 ${totalCount} 則評價`);
+  _updateReviewsTabCount(totalCount);
+
+  const distribution = document.getElementById('reviewRatingDistribution');
+  if (!distribution) return;
+  distribution.replaceChildren();
+  for (let rating = 5; rating >= 1; rating -= 1) {
+    const count = Number(summary.ratingCounts?.[rating]) || 0;
+    const row = document.createElement('div');
+    row.className = 'productReviewDistributionRow';
+    const label = document.createElement('span');
+    label.textContent = `${rating} 星`;
+    const progress = document.createElement('progress');
+    progress.className = 'productReviewDistributionBar';
+    progress.max = Math.max(totalCount, 1);
+    progress.value = count;
+    progress.setAttribute('aria-label', `${rating} 星 ${count} 則`);
+    const countText = document.createElement('span');
+    countText.textContent = String(count);
+    row.append(label, progress, countText);
+    distribution.appendChild(row);
+  }
+}
+
+function _renderReviewResultStatus(meta) {
+  const filteredTotal = Number(meta.totalElements) || 0;
+  const status = document.getElementById('productReviewsStatus');
+  if (status) {
+    status.textContent = _hasActiveReviewFilters()
+      ? `符合條件共 ${filteredTotal} 則評價`
+      : `共 ${filteredTotal} 則評價`;
+  }
+}
+
+function _hasActiveReviewFilters() {
+  return _reviewBrowserState.rating !== null || _reviewBrowserState.hasPhotos;
+}
+
+function _updateReviewLoadMore() {
+  const button = document.getElementById('reviewLoadMoreBtn');
+  if (!button) return;
+  button.hidden = _reviewBrowserState.page + 1 >= _reviewBrowserState.totalPages;
+}
+
+function _renderReviewLoadError(loadMore) {
+  const status = document.getElementById('productReviewsStatus');
+  if (!status) return;
+  status.replaceChildren();
+  const message = document.createElement('span');
+  message.textContent = loadMore ? '載入更多評價失敗。' : '評價載入失敗。';
+  const retry = document.createElement('button');
+  retry.className = 'reviewTextToggle';
+  retry.type = 'button';
+  retry.textContent = '重新載入';
+  retry.addEventListener('click', () => _loadProductReviews(loadMore));
+  status.append(message, document.createTextNode(' '), retry);
+}
+
+function _isSafeReviewPhotoUrl(value) {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  if (value.startsWith('/assets/uploads/reviews/')) return true;
+  try {
+    const url = new URL(value, window.location.origin);
+    return url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+function _resolveReviewPhotoUrl(value) {
+  if (!value.startsWith('/assets/uploads/reviews/')) return value;
+  const apiBase = window.AppConfig?.API_BASE_URL || window.location.origin;
+  return new URL(value, new URL(apiBase, window.location.origin).origin).href;
 }
 
 /** 更新 Tab 上的評價數量（依 API 實際筆數）/ Update review count on tab label */
