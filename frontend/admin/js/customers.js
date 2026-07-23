@@ -11,7 +11,7 @@
  *   - 標籤庫：新增 / 刪除標籤（刪除仍用 confirm）
  *   - 新增客戶：Modal 表單一次填完所有欄位，寫入 customersCache 後重渲染列表
  *   - 配送地址：展開區標籤下方顯示，鉛筆開 Modal 編輯（與會員姓名/手機獨立）
- *   - 露營喜好：會員前台填寫的 preferences，僅在展開詳情卡片唯讀顯示（不可編輯）
+ *   - 露營喜好：風格／裝備可勾選編輯（W1-05）；選項來自 preference-options lookup
  * 主列為唯讀摘要（桌面 table / 手機卡片）；展開後才可編輯，儲存後同步更新主列
  * 篩選：會員等級/標籤（欄內 OR，兩欄 AND 疊加）；排序：註冊日期/消費總額（三段式）
  */
@@ -32,6 +32,38 @@ var customerFilterState = {
 /** Customers 頁是否使用正式後端資料。 */
 function isCustomerBackendEnabled() {
   return typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled();
+}
+
+/** 標籤池 CRUD 是否就緒（W1-02）。Mock 模式一律視為可用。 */
+function isCustomerTagPoolReady() {
+  if (!isCustomerBackendEnabled()) return true;
+  return typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('customers.tagPool');
+}
+
+/** 會員身上標籤指派是否就緒（W1-03）。Mock 模式一律視為可用。 */
+function isCustomerTagAssignReady() {
+  if (!isCustomerBackendEnabled()) return true;
+  return typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('customers.tagAssign');
+}
+
+/** 預設收件地址編輯是否就緒（W1-04）。Mock 模式一律視為可用。 */
+function isCustomerDefaultAddressReady() {
+  if (!isCustomerBackendEnabled()) return true;
+  return typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('customers.defaultAddress');
+}
+
+/** 會員偏好編輯是否就緒（W1-05）。Mock 模式一律視為可用。 */
+function isCustomerPreferencesReady() {
+  if (!isCustomerBackendEnabled()) return true;
+  return typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('customers.preferences');
 }
 
 /** 將正式 API DTO 轉成既有 Customers UI 使用的唯讀形狀。 */
@@ -56,15 +88,48 @@ function normalizeBackendCustomer(customer) {
   });
 }
 
+/**
+ * 用標籤池 API 結果重建 window.tagColorMap 與 id 對照表。
+ * Rebuild local tag color / id maps from pool API rows.
+ */
+function applyCustomerTagPool(tags) {
+  window.tagColorMap = {};
+  window.customerTagIdByName = {};
+  (tags || []).forEach(function (tag) {
+    if (!tag || !tag.name) return;
+    window.tagColorMap[tag.name] = tag.color || 'bg-secondary';
+    window.customerTagIdByName[tag.name] = tag.id;
+  });
+  buildCustomerTagsFilterOptions();
+}
+
 /** 載入正式會員列表，Backend 模式不讀取任何 Mock JSON。 */
 function loadBackendCustomers() {
   $('#addCustomerBtn').addClass('d-none');
-  AdminAPI.customers.list({ page: 0, size: 100, sort: 'registeredAt,desc' })
-    .then(function (result) {
-      window.customersCache = (result.data || []).map(normalizeBackendCustomer);
+  var listPromise = AdminAPI.customers.list({ page: 0, size: 100, sort: 'registeredAt,desc' });
+  // 標籤池就緒時一併載入字典，讓篩選色票與新增／刪除有正確 id
+  var poolPromise = isCustomerTagPoolReady()
+    ? AdminAPI.tags.list({ includeInactive: false })
+    : Promise.resolve({ data: null });
+  // 偏好選項 lookup（W1-05）／Preference options for checkbox editor
+  var prefsPromise = isCustomerPreferencesReady()
+    ? AdminAPI.preferenceOptions.list({ includeInactive: false })
+    : Promise.resolve({ data: null });
+
+  Promise.all([listPromise, poolPromise, prefsPromise])
+    .then(function (results) {
+      var customerResult = results[0];
+      var poolResult = results[1];
+      var prefsResult = results[2];
+      window.customersCache = (customerResult.data || []).map(normalizeBackendCustomer);
       window.ordersCache = [];
       window.bookingsCache = [];
-      rebuildBackendTagColors();
+      if (poolResult && poolResult.data) {
+        applyCustomerTagPool(poolResult.data);
+      } else {
+        rebuildBackendTagColors();
+      }
+      applyPreferenceOptionsCache(prefsResult && prefsResult.data ? prefsResult.data : []);
       applyCustomerFiltersAndSort();
     })
     .catch(function (err) {
@@ -75,6 +140,25 @@ function loadBackendCustomers() {
     });
 }
 
+/**
+ * 快取偏好選項（含 code→id），供編輯勾選與送出 optionIds。
+ * Cache preference options including code→id map for replacePreferences.
+ */
+function applyPreferenceOptionsCache(options) {
+  window.preferenceOptionsCache = Array.isArray(options) ? options.slice() : [];
+  window.preferenceOptionIdByCode = {};
+  window.preferenceOptionsCache.forEach(function (option) {
+    if (option && option.code) {
+      window.preferenceOptionIdByCode[option.code] = option.id;
+      // 補齊 label 顯示表（若 CAMPING_PREFERENCE_LABELS 缺 key）
+      if (option.label && !CAMPING_PREFERENCE_LABELS[option.code]) {
+        CAMPING_PREFERENCE_LABELS[option.code] = option.label;
+      }
+    }
+  });
+}
+
+/** 後備：若未載入標籤池，至少從會員身上的標籤補色票。 */
 function rebuildBackendTagColors() {
   (window.customersCache || []).forEach(function (customer) {
     (customer.tags || []).forEach(function (tag) {
@@ -123,6 +207,8 @@ window.hydrateNormalizedCustomerRelations = function (customers) {
     var tags = relations[3], assignments = relations[4], optionById = {}, tagById = {};
     options.forEach(function (option) { optionById[option.id] = option; });
     tags.forEach(function (tag) { tagById[tag.id] = tag; });
+    // Mock 模式也快取選項，讓偏好編輯 UI 能勾選 / Cache options for mock preference editor
+    applyPreferenceOptionsCache(options);
     return customers.filter(function (customer) {
       var status = customer.status || 'active';
       return status === 'active' && !customer.deletedAt;
@@ -190,6 +276,8 @@ window.tagColorMap = window.tagColorMap || {
   '新會員':   'bg-info text-dark',
   '高退貨率': 'bg-danger',
 };
+/** 標籤名稱 → id（Backend 刪除／停用時需要）/ name → id map for backend writes */
+window.customerTagIdByName = window.customerTagIdByName || {};
 
 /**
  * 產生單一標籤的 Bootstrap badge HTML
@@ -234,7 +322,7 @@ function normalizeCustomerPreferences(prefs) {
     .filter(Boolean);
 }
 
-/** 露營喜好 → 唯讀 chip HTML（後台不可編輯）/ Read-only preference chips */
+/** 露營喜好 → chip HTML（唯讀預覽；編輯見 preferences-editor）/ Preference chips */
 function preferencesToHtml(prefs) {
   var values = normalizeCustomerPreferences(prefs);
   if (!values.length) {
@@ -244,6 +332,87 @@ function preferencesToHtml(prefs) {
     var label = CAMPING_PREFERENCE_LABELS[key] || key;
     return '<span class="customer-pref-tag">' + label + '</span>';
   }).join('');
+}
+
+/** 偏好物件深拷貝 / Clone preferences object */
+function cloneCustomerPreferences(prefs) {
+  return {
+    styles: ((prefs && prefs.styles) || []).slice(),
+    equipment: ((prefs && prefs.equipment) || []).slice()
+  };
+}
+
+/** 偏好比對（忽略順序）/ Compare preferences ignoring order */
+function preferencesEqual(a, b) {
+  return tagsEqual(normalizeCustomerPreferences(a), normalizeCustomerPreferences(b));
+}
+
+/**
+ * 依偏好選項 cache 組 checkbox HTML。
+ * Build preference checkbox lists from cached options.
+ */
+function buildPreferencesCheckboxHtml(selectedPrefs) {
+  var selected = {};
+  normalizeCustomerPreferences(selectedPrefs).forEach(function (code) {
+    selected[code] = true;
+  });
+  var options = window.preferenceOptionsCache || [];
+  var styleHtml = '';
+  var equipmentHtml = '';
+  options.forEach(function (option) {
+    if (!option || !option.active) return;
+    var checked = selected[option.code] ? ' checked' : '';
+    var item = (
+      '<label class="d-block small mb-1">' +
+        '<input type="checkbox" class="form-check-input me-1 preference-checkbox" ' +
+               'data-type="' + option.type + '" value="' + option.code + '"' + checked + '>' +
+        (option.label || CAMPING_PREFERENCE_LABELS[option.code] || option.code) +
+      '</label>'
+    );
+    if (option.type === 'style') {
+      styleHtml += item;
+    } else {
+      equipmentHtml += item;
+    }
+  });
+  if (!styleHtml) styleHtml = '<span class="text-muted small">無可用風格選項</span>';
+  if (!equipmentHtml) equipmentHtml = '<span class="text-muted small">無可用裝備選項</span>';
+  return { styles: styleHtml, equipment: equipmentHtml };
+}
+
+/**
+ * 從 checkbox 讀取偏好草稿形狀。
+ * Read preferences draft from checkboxes.
+ */
+function readPreferencesFromCheckboxes($panel) {
+  var styles = [];
+  var equipment = [];
+  $panel.find('.preference-checkbox:checked').each(function () {
+    var type = $(this).data('type');
+    var code = $(this).val();
+    if (type === 'style') styles.push(code);
+    else equipment.push(code);
+  });
+  return { styles: styles, equipment: equipment };
+}
+
+/**
+ * 將 preferences（codes）轉成 optionIds；缺 id 時回 missing。
+ * Map preference codes to optionIds for PUT body.
+ */
+function resolvePreferenceOptionIds(prefs) {
+  var idByCode = window.preferenceOptionIdByCode || {};
+  var ids = [];
+  var missing = [];
+  normalizeCustomerPreferences(prefs).forEach(function (code) {
+    var id = idByCode[code];
+    if (id == null) {
+      missing.push(code);
+    } else {
+      ids.push(Number(id));
+    }
+  });
+  return { ids: ids, missing: missing };
 }
 
 /**
@@ -608,13 +777,22 @@ function validateShippingAddress(addr) {
     return { ok: true, errors: [] };
   }
 
-  if (!a.lastName) { errors.push('請填寫配送收件人「姓」'); }
-  if (!a.firstName) { errors.push('請填寫配送收件人「名字」'); }
+  // Backend 模式：DB 只有單一 recipient_name，姓／名合併即可
+  // Backend mode: DB has one recipient_name field; last+first may be combined
+  var recipientName = (a.lastName + a.firstName).trim();
+  if (isCustomerBackendEnabled()) {
+    if (!recipientName) { errors.push('請填寫收件人姓名'); }
+  } else {
+    if (!a.lastName) { errors.push('請填寫配送收件人「姓」'); }
+    if (!a.firstName) { errors.push('請填寫配送收件人「名字」'); }
+  }
   if (!a.postalCode) { errors.push('請填寫郵遞區號'); }
   if (!a.city) { errors.push('請選擇縣/市'); }
   if (!a.district) { errors.push('請選擇區'); }
   if (!a.addressLine1) { errors.push('請填寫地址'); }
-  if (a.phone && !isValidAdminCustomerPhone(a.phone)) {
+  if (!a.phone) {
+    errors.push('請填寫配送電話');
+  } else if (!isValidAdminCustomerPhone(a.phone)) {
     errors.push('配送電話須為 09 開頭的 10 碼數字');
   }
   if (a.email && typeof window.isValidEmail === 'function' && !window.isValidEmail(a.email)) {
@@ -622,6 +800,23 @@ function validateShippingAddress(addr) {
   }
 
   return { ok: errors.length === 0, errors: errors };
+}
+
+/**
+ * 前端草稿地址 → 正式 API Request body（W1-04）。
+ * Map UI draft address to backend PUT body.
+ */
+function toBackendDefaultShippingAddress(addr) {
+  var a = cloneShippingAddress(addr);
+  var lineParts = [a.addressLine1, a.addressLine2, a.township].filter(Boolean);
+  return {
+    recipientName: (a.lastName + a.firstName).trim(),
+    postalCode: a.postalCode,
+    city: a.city,
+    district: a.district,
+    addressLine: lineParts.join(' '),
+    phone: a.phone
+  };
 }
 
 /** 從 panel 讀取配送地址草稿 / Read shipping address draft from panel */
@@ -759,6 +954,7 @@ var CUSTOMER_FIELD_LABELS = {
   tier: '會員等級',
   points: '點數餘額',
   tags: '標籤',
+  preferences: '露營喜好',
   shippingAddress: '配送地址'
 };
 
@@ -986,6 +1182,7 @@ function captureCustomerSnapshot(customerId) {
     tierName: getCustomerTierDisplay(customer),
     points: customer.points || 0,
     tags: (customer.tags || []).slice(),
+    preferences: cloneCustomerPreferences(customer.preferences),
     shippingAddress: cloneShippingAddress(customer.shippingAddress)
   };
 }
@@ -1017,6 +1214,17 @@ function readTagsFromPanel($panel) {
   return snapshot ? snapshot.tags.slice() : [];
 }
 
+/** 讀取 panel 上偏好草稿（編輯中讀 checkbox，否則讀 draftPreferences 或快照） */
+function readPreferencesFromPanel($panel) {
+  if ($panel.find('.preferences-editor:not(.d-none)').length) {
+    return readPreferencesFromCheckboxes($panel);
+  }
+  var draftPrefs = $panel.data('draftPreferences');
+  if (draftPrefs) { return cloneCustomerPreferences(draftPrefs); }
+  var snapshot = $panel.data('originalSnapshot');
+  return snapshot ? cloneCustomerPreferences(snapshot.preferences) : { styles: [], equipment: [] };
+}
+
 /** 從 panel DOM 讀取目前草稿值 / Read current draft values from panel DOM */
 function readCustomerDraftFromPanel($panel) {
   return {
@@ -1033,6 +1241,7 @@ function readCustomerDraftFromPanel($panel) {
       ? parseInt($panel.find('.points-input').val(), 10) || 0
       : parseInt($panel.find('.points-display').text().trim(), 10) || 0,
     tags: readTagsFromPanel($panel),
+    preferences: readPreferencesFromPanel($panel),
     shippingAddress: readShippingAddressFromPanel($panel)
   };
 }
@@ -1050,6 +1259,9 @@ function diffCustomerDraft(original, draft) {
   if (!tagsEqual(draft.tags, original.tags)) {
     changes.tags = draft.tags.slice();
   }
+  if (!preferencesEqual(draft.preferences, original.preferences)) {
+    changes.preferences = cloneCustomerPreferences(draft.preferences);
+  }
   if (!shippingAddressEqual(draft.shippingAddress, original.shippingAddress)) {
     changes.shippingAddress = cloneShippingAddress(draft.shippingAddress);
   }
@@ -1064,6 +1276,7 @@ function formatFieldForSummary(key, value) {
   if (key === 'tierName') { return value || '探險家'; }
   if (key === 'points') { return String(value); }
   if (key === 'tags') { return tagsToHtml(value || []); }
+  if (key === 'preferences') { return preferencesToHtml(value || { styles: [], equipment: [] }); }
   if (key === 'shippingAddress') { return formatShippingAddressSummaryHtml(value); }
   return String(value || '—');
 }
@@ -1113,6 +1326,26 @@ function closeTagsEditor($panel, tags, persistDraftTags) {
 }
 
 /**
+ * 關閉偏好編輯器並更新預覽（不寫入 cache）
+ * Close preferences editor and refresh chips preview.
+ */
+function closePreferencesEditor($panel, prefs, persistDraft) {
+  if (persistDraft === undefined) { persistDraft = true; }
+  var cloned = cloneCustomerPreferences(prefs);
+
+  $panel.find('.preferences-display').html(preferencesToHtml(cloned)).show();
+  $panel.find('.preferences-editor').addClass('d-none');
+  $panel.find('.preferences-done-btn, .preferences-cancel-btn').addClass('d-none');
+  $panel.find('.preferences-edit-btn').show();
+
+  if (persistDraft) {
+    $panel.data('draftPreferences', cloned);
+  } else {
+    $panel.removeData('draftPreferences');
+  }
+}
+
+/**
  * 還原單一 inline 欄位為唯讀 display（有 input 則移除，無則直接更新 span）
  * Restore one inline field to read-only display
  */
@@ -1158,6 +1391,7 @@ function applyPanelFieldDisplays($panel, draft, options) {
   );
 
   closeTagsEditor($panel, draft.tags, persistDraftTags);
+  closePreferencesEditor($panel, draft.preferences || { styles: [], equipment: [] }, persistDraftTags);
 
   $panel.find('.shipping-address-display').html(formatShippingAddressDisplay(draft.shippingAddress));
   if (!persistDraftTags) {
@@ -1201,6 +1435,7 @@ function initCustomerPanelSnapshots() {
     var customerId = $(this).data('customer-id');
     $(this).data('originalSnapshot', captureCustomerSnapshot(customerId));
     $(this).removeData('draftTags');
+    $(this).removeData('draftPreferences');
     $(this).removeData('draftShippingAddress');
     $(this).find('.customer-edit-actions').addClass('d-none');
   });
@@ -1229,15 +1464,122 @@ function commitCustomerDraft(customerId, draft, changes) {
   ['phone', 'birthday', 'points'].forEach(function (key) {
     if (Object.prototype.hasOwnProperty.call(changes, key)) payload[key] = changes[key];
   });
-  AdminAPI.customers.update(customerId, payload)
+  var hasBasic = Object.keys(payload).length > 0;
+  var hasTags = Object.prototype.hasOwnProperty.call(changes, 'tags');
+  var hasPreferences = Object.prototype.hasOwnProperty.call(changes, 'preferences');
+  var hasAddress = Object.prototype.hasOwnProperty.call(changes, 'shippingAddress');
+
+  // 沒有任何可送後端的變更（例如只改了尚未開放的欄位）
+  if (!hasBasic && !hasTags && !hasPreferences && !hasAddress) {
+    window.showAdminToast('沒有可儲存的變更', 'warning');
+    revertCustomerPanels(customerId);
+    return;
+  }
+
+  if (hasAddress && !isCustomerDefaultAddressReady()) {
+    window.showAdminToast('正式後端尚未提供預設地址編輯', 'warning');
+    revertCustomerPanels(customerId);
+    return;
+  }
+  if (hasAddress && isShippingAddressEmpty(draft.shippingAddress)) {
+    window.showAdminToast('正式後端暫不支援清空預設地址，請填寫完整收件資料', 'error');
+    revertCustomerPanels(customerId);
+    return;
+  }
+  if (hasPreferences && !isCustomerPreferencesReady()) {
+    window.showAdminToast('正式後端尚未提供會員偏好編輯', 'warning');
+    revertCustomerPanels(customerId);
+    return;
+  }
+
+  // 標籤名稱 → tagId（來自標籤池 cache）/ Map tag names to ids
+  function resolveTagIds(tagNames) {
+    var idByName = window.customerTagIdByName || {};
+    var ids = [];
+    var missing = [];
+    (tagNames || []).forEach(function (name) {
+      var id = idByName[name];
+      if (id == null) {
+        missing.push(name);
+      } else {
+        ids.push(Number(id));
+      }
+    });
+    return { ids: ids, missing: missing };
+  }
+
+  // 依序：基本資料 → 標籤 → 偏好 → 地址；最後一筆回應刷新詳情
+  // Sequence: profile → tags → preferences → address
+  var chain = Promise.resolve(null);
+  if (hasBasic) {
+    chain = AdminAPI.customers.update(customerId, payload);
+  }
+  if (hasTags) {
+    if (!isCustomerTagAssignReady()) {
+      window.showAdminToast('正式後端尚未提供會員標籤指派', 'warning');
+      revertCustomerPanels(customerId);
+      return;
+    }
+    var resolved = resolveTagIds(draft.tags);
+    if (resolved.missing.length > 0) {
+      window.showAdminToast('找不到標籤 ID：' + resolved.missing.join('、') + '，請重新整理後再試', 'warning');
+      revertCustomerPanels(customerId);
+      return;
+    }
+    chain = chain.then(function () {
+      return AdminAPI.customers.replaceTags(customerId, resolved.ids);
+    });
+  }
+  if (hasPreferences) {
+    var prefResolved = resolvePreferenceOptionIds(draft.preferences);
+    if (prefResolved.missing.length > 0) {
+      window.showAdminToast(
+        '找不到偏好選項 ID：' + prefResolved.missing.join('、') + '，請重新整理後再試',
+        'warning'
+      );
+      revertCustomerPanels(customerId);
+      return;
+    }
+    chain = chain.then(function () {
+      return AdminAPI.customers.replacePreferences(customerId, prefResolved.ids);
+    });
+  }
+  if (hasAddress) {
+    chain = chain.then(function () {
+      return AdminAPI.customers.updateDefaultShippingAddress(
+        customerId,
+        toBackendDefaultShippingAddress(draft.shippingAddress)
+      );
+    });
+  }
+
+  chain
     .then(function (result) {
+      // 最後一次回應帶回最新詳情 / Last response carries refreshed detail
       var customer = (window.customersCache || []).find(function (item) { return item.id === customerId; });
-      if (customer) Object.assign(customer, normalizeBackendCustomer(result.data), { backendDetailLoaded: true });
-      commitCustomerDraftLocally(customerId, draft, payload);
+      if (customer && result && result.data) {
+        Object.assign(customer, normalizeBackendCustomer(result.data), { backendDetailLoaded: true });
+        draft.tags = (customer.tags || []).slice();
+        draft.preferences = cloneCustomerPreferences(customer.preferences);
+        if (customer.shippingAddress) {
+          draft.shippingAddress = cloneShippingAddress(customer.shippingAddress);
+        }
+      }
+      var applied = Object.assign({}, payload);
+      if (hasTags) {
+        applied.tags = draft.tags.slice();
+      }
+      if (hasPreferences) {
+        applied.preferences = cloneCustomerPreferences(draft.preferences);
+      }
+      if (hasAddress) {
+        applied.shippingAddress = cloneShippingAddress(draft.shippingAddress);
+      }
+      commitCustomerDraftLocally(customerId, draft, applied);
     })
     .catch(function (err) {
       AdminAPI.handleError(err, '更新會員資料失敗');
-      revertCustomerPanels(customerId);
+      // 失敗保留輸入：不還原草稿，讓使用者改完再送 / Keep draft on failure for retry
     });
 }
 
@@ -1251,6 +1593,8 @@ function commitCustomerDraftLocally(customerId, draft, changes) {
       customer.shippingAddress = cloneShippingAddress(draft.shippingAddress);
     } else if (key === 'tags') {
       customer.tags = draft.tags.slice();
+    } else if (key === 'preferences') {
+      customer.preferences = cloneCustomerPreferences(draft.preferences);
     } else {
       customer[key] = draft[key];
     }
@@ -1881,6 +2225,53 @@ window.initCustomers = function () {
   });
 
   // ==========================================================================
+  // 露營喜好 inline 編輯（W1-05）：進入 / 完成選擇 / 取消
+  // ==========================================================================
+
+  $(document).on('click.customers', '.preferences-edit-btn', function () {
+    if (!isCustomerPreferencesReady()) {
+      window.showAdminToast('正式後端尚未提供會員偏好編輯', 'warning');
+      return;
+    }
+    var $wrap = $(this).closest('.preferences-wrap');
+    var $panel = $(this).closest('.customer-detail-panel');
+    var current = readPreferencesFromPanel($panel);
+    var lists = buildPreferencesCheckboxHtml(current);
+
+    $wrap.find('.preferences-style-list').html(lists.styles);
+    $wrap.find('.preferences-equipment-list').html(lists.equipment);
+    $wrap.find('.preferences-display').hide();
+    $(this).hide();
+    $wrap.find('.preferences-editor').removeClass('d-none');
+    $wrap.find('.preferences-done-btn, .preferences-cancel-btn').removeClass('d-none');
+  });
+
+  $(document).on('click.customers', '.preferences-done-btn', function () {
+    var $panel = $(this).closest('.customer-detail-panel');
+    var customerId = $panel.data('customer-id');
+    var newPrefs = readPreferencesFromCheckboxes($panel);
+
+    getCustomerPanels(customerId).each(function () {
+      closePreferencesEditor($(this), newPrefs, true);
+    });
+    updateCustomerEditActions($panel);
+  });
+
+  $(document).on('click.customers', '.preferences-cancel-btn', function () {
+    var $panel = $(this).closest('.customer-detail-panel');
+    var customerId = $panel.data('customer-id');
+    var snapshot = $panel.data('originalSnapshot');
+    var prefs = snapshot
+      ? cloneCustomerPreferences(snapshot.preferences)
+      : { styles: [], equipment: [] };
+
+    getCustomerPanels(customerId).each(function () {
+      closePreferencesEditor($(this), prefs, false);
+    });
+    updateCustomerEditActions(customerId);
+  });
+
+  // ==========================================================================
   // 標籤 inline 編輯：進入 / 完成選擇 / 取消
   // ==========================================================================
 
@@ -1888,12 +2279,21 @@ window.initCustomers = function () {
     var $wrap        = $(this).closest('.tags-wrap');
     var $panel       = $(this).closest('.customer-detail-panel');
     var currentTags  = readTagsFromPanel($panel);
+    // W1-02 只開標籤池；指派（完成勾選）要等 W1-03
+    var assignReady  = isCustomerTagAssignReady();
 
     $wrap.find('.tags-checkbox-list').html(buildTagsDropdown(currentTags));
     $wrap.find('.tags-display').hide();
     $(this).hide();
     $wrap.find('.tags-editor').removeClass('d-none');
-    $wrap.find('.tags-done-btn, .tags-cancel-btn').removeClass('d-none');
+    $wrap.find('.tags-cancel-btn').removeClass('d-none');
+    if (assignReady) {
+      $wrap.find('.tags-done-btn').removeClass('d-none');
+      $wrap.find('.tag-checkbox').prop('disabled', false);
+    } else {
+      $wrap.find('.tags-done-btn').addClass('d-none');
+      $wrap.find('.tag-checkbox').prop('disabled', true);
+    }
   });
 
   // 點下拉觸發按鈕 → 切換（toggle）下拉選單
@@ -1940,11 +2340,11 @@ window.initCustomers = function () {
   });
 
   // ==========================================================================
-  // Step 6 — 新增標籤到標籤庫
+  // Step 6 — 新增標籤到標籤庫（Backend：先 API 成功再改本地 cache）
   // ==========================================================================
   $(document).on('click.customers', '.tag-add-btn', function (e) {
     e.stopPropagation(); // 阻止冒泡，避免觸發外部點擊關閉
-    if (isCustomerBackendEnabled()) {
+    if (isCustomerBackendEnabled() && !isCustomerTagPoolReady()) {
       window.showAdminToast('正式後端尚未提供會員標籤池維護', 'warning');
       return;
     }
@@ -1964,82 +2364,129 @@ window.initCustomers = function () {
       return;
     }
 
-    // 新增到全域標籤池
-    window.tagColorMap[newName] = newColor;
-
-    // 保留目前已勾選的狀態，重建 checkbox 清單
     var checkedTags = [];
     $wrap.find('.tag-checkbox:checked').each(function () {
       checkedTags.push($(this).val());
     });
-    $wrap.find('.tags-checkbox-list').html(buildTagsDropdown(checkedTags));
 
-    // 清空輸入欄位
-    $wrap.find('.new-tag-input').val('');
+    function applyLocalTagCreate(created) {
+      var name = (created && created.name) || newName;
+      var color = (created && created.color) || newColor;
+      window.tagColorMap[name] = color;
+      if (created && created.id != null) {
+        window.customerTagIdByName = window.customerTagIdByName || {};
+        window.customerTagIdByName[name] = created.id;
+      }
+      $wrap.find('.tags-checkbox-list').html(buildTagsDropdown(checkedTags));
+      if (!isCustomerTagAssignReady()) {
+        $wrap.find('.tag-checkbox').prop('disabled', true);
+      }
+      $wrap.find('.new-tag-input').val('');
+      buildCustomerTagsFilterOptions();
+      window.showAdminToast('標籤「' + name + '」已新增');
+    }
 
-    buildCustomerTagsFilterOptions();
+    if (isCustomerBackendEnabled()) {
+      AdminAPI.tags.create({ name: newName, color: newColor, sortOrder: 0, active: true })
+        .then(function (result) {
+          applyLocalTagCreate(result.data);
+        })
+        .catch(function (err) {
+          AdminAPI.handleError(err, '新增標籤失敗');
+        });
+      return;
+    }
 
-    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags) {
+    applyLocalTagCreate({ name: newName, color: newColor });
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags && AdminAPI.tags.savePool) {
       AdminAPI.tags.savePool(window.tagColorMap).catch(function (err) {
         AdminAPI.handleError(err, '同步標籤池失敗');
       });
     }
-
-    window.showAdminToast('標籤「' + newName + '」已新增');
   });
 
   // ==========================================================================
-  // Step 7 — 從標籤庫刪除標籤（同步移除所有客戶身上的此標籤）
+  // Step 7 — 從標籤庫刪除標籤（有指派時後端 409 → 改停用）
   // ==========================================================================
   $(document).on('click.customers', '.tag-delete-btn', function (e) {
     e.stopPropagation(); // 阻止冒泡，避免觸發外部點擊關閉
-    if (isCustomerBackendEnabled()) {
+    if (isCustomerBackendEnabled() && !isCustomerTagPoolReady()) {
       window.showAdminToast('正式後端尚未提供會員標籤池維護', 'warning');
       return;
     }
-    var tagName = $(this).data('tag');
+    var $btn = $(this);
+    var $wrap = $btn.closest('.tags-wrap');
+    var tagName = $btn.data('tag');
 
-    if (!window.confirm('確定要刪除標籤「' + tagName + '」嗎？\n這將移除所有客戶身上的此標籤。')) {
+    if (!window.confirm('確定要刪除標籤「' + tagName + '」嗎？\n若已有會員使用此標籤，將改為停用。')) {
       return;
     }
 
-    // 從全域標籤池刪除
-    delete window.tagColorMap[tagName];
-
-    // 從所有客戶的 tags 陣列移除
-    if (window.customersCache) {
-      window.customersCache.forEach(function (c) {
-        if (c.tags) {
-          c.tags = c.tags.filter(function (t) { return t !== tagName; });
-        }
+    function applyLocalTagRemove(name) {
+      delete window.tagColorMap[name];
+      if (window.customerTagIdByName) {
+        delete window.customerTagIdByName[name];
+      }
+      if (window.customersCache) {
+        window.customersCache.forEach(function (c) {
+          if (c.tags) {
+            c.tags = c.tags.filter(function (t) { return t !== name; });
+          }
+        });
+      }
+      customerFilterState.tags = customerFilterState.tags.filter(function (t) {
+        return t !== name;
       });
+      buildCustomerTagsFilterOptions();
+      var checkedTags = [];
+      $wrap.find('.tag-checkbox:checked').each(function () {
+        var v = $(this).val();
+        if (v !== name) { checkedTags.push(v); }
+      });
+      $wrap.find('.tags-checkbox-list').html(buildTagsDropdown(checkedTags));
+      if (isCustomerBackendEnabled() && !isCustomerTagAssignReady()) {
+        $wrap.find('.tag-checkbox').prop('disabled', true);
+      }
+      applyCustomerFiltersAndSort();
+      window.showAdminToast('標籤「' + name + '」已移除');
     }
 
-    // 從篩選條件移除已刪除的標籤
-    customerFilterState.tags = customerFilterState.tags.filter(function (t) {
-      return t !== tagName;
-    });
+    if (isCustomerBackendEnabled()) {
+      var tagId = window.customerTagIdByName && window.customerTagIdByName[tagName];
+      if (!tagId) {
+        window.showAdminToast('找不到標籤 ID，請重新整理後再試', 'warning');
+        return;
+      }
+      AdminAPI.tags.remove(tagId)
+        .then(function () {
+          applyLocalTagRemove(tagName);
+        })
+        .catch(function (err) {
+          // 有會員仍掛此標籤 → 409：改呼叫停用
+          if (err && (err.status === 409 || err.code === 'CONFLICT')) {
+            if (!window.confirm('標籤「' + tagName + '」仍有會員使用，改為停用？')) {
+              return;
+            }
+            AdminAPI.tags.update(tagId, { active: false })
+              .then(function () {
+                applyLocalTagRemove(tagName);
+              })
+              .catch(function (deactivateErr) {
+                AdminAPI.handleError(deactivateErr, '停用標籤失敗');
+              });
+            return;
+          }
+          AdminAPI.handleError(err, '刪除標籤失敗');
+        });
+      return;
+    }
 
-    buildCustomerTagsFilterOptions();
-
-    // 保留其他已勾選狀態（排除剛刪掉的），重建 checkbox 清單
-    var $wrap = $(this).closest('.tags-wrap');
-    var checkedTags = [];
-    $wrap.find('.tag-checkbox:checked').each(function () {
-      var v = $(this).val();
-      if (v !== tagName) { checkedTags.push(v); }
-    });
-    $wrap.find('.tags-checkbox-list').html(buildTagsDropdown(checkedTags));
-
-    applyCustomerFiltersAndSort();
-
-    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags) {
+    applyLocalTagRemove(tagName);
+    if (typeof AdminAPI !== 'undefined' && AdminAPI.tags && AdminAPI.tags.savePool) {
       AdminAPI.tags.savePool(window.tagColorMap).catch(function (err) {
         AdminAPI.handleError(err, '同步標籤池失敗');
       });
     }
-
-    window.showAdminToast('標籤「' + tagName + '」已刪除');
   });
 
   // === 購買記錄：點擊訂單 ID 開啟訂單明細 Modal ===
@@ -2117,6 +2564,40 @@ window.initCustomers = function () {
 // ==========================================================================
 
 var EDIT_BTN_ICON = '<i class="fas fa-pencil-alt text-secondary"></i>';
+
+/**
+ * 產生露營喜好列 HTML（checkbox 編輯，W1-05）
+ * Preference row with inline checkbox editor.
+ */
+function buildPreferencesRowHtml(preferencesHtml) {
+  return (
+    '<tr>' +
+      '<th class="text-muted">露營喜好</th>' +
+      '<td>' +
+        '<div class="preferences-wrap">' +
+          '<div class="d-flex align-items-start gap-1 flex-wrap">' +
+            '<span class="preferences-display">' + preferencesHtml + '</span>' +
+            '<button type="button" class="btn btn-link btn-sm p-0 preferences-edit-btn" title="編輯露營喜好">' +
+              EDIT_BTN_ICON +
+            '</button>' +
+            '<button type="button" class="btn btn-sm btn-outline-success preferences-done-btn d-none py-0 px-2" title="完成選擇">' +
+              '完成' +
+            '</button>' +
+            '<button type="button" class="btn btn-sm btn-secondary preferences-cancel-btn d-none py-0 px-1" title="取消編輯">' +
+              '<i class="fas fa-times"></i>' +
+            '</button>' +
+          '</div>' +
+          '<div class="preferences-editor d-none border rounded p-2 mt-2 bg-light">' +
+            '<div class="fw-semibold small mb-1">風格</div>' +
+            '<div class="preferences-style-list mb-2"></div>' +
+            '<div class="fw-semibold small mb-1">裝備</div>' +
+            '<div class="preferences-equipment-list"></div>' +
+          '</div>' +
+        '</div>' +
+      '</td>' +
+    '</tr>'
+  );
+}
 
 /**
  * 產生標籤列 HTML（展開區可 inline 編輯）
@@ -2257,10 +2738,7 @@ function buildDetailPanelHtml(c, phoneDisplay, emailDisplay, birthdayDisplay, re
             '</div>' +
           '</td>' +
         '</tr>' +
-        '<tr>' +
-          '<th class="text-muted">露營喜好</th>' +
-          '<td><span class="preferences-display">' + preferencesHtml + '</span></td>' +
-        '</tr>' +
+        buildPreferencesRowHtml(preferencesHtml) +
         buildTagsRowHtml(c.id, tagsHtml) +
         buildShippingAddressRowHtml(shippingAddressHtml) +
       '</tbody></table>' +
@@ -2521,8 +2999,19 @@ function renderCustomersList(customers) {
   }
   if (isCustomerBackendEnabled()) {
     $('#addCustomerBtn').addClass('d-none');
-    $('#contentArea').find('.email-edit-btn, .tags-edit-btn, .shipping-address-edit-btn').addClass('d-none');
-    $('#contentArea').find('.tag-add-btn, .tag-delete-btn').addClass('d-none');
+    $('#contentArea').find('.email-edit-btn').addClass('d-none');
+    // 預設地址就緒才顯示鉛筆；否則維持隱藏避免點了卻 404
+    if (!isCustomerDefaultAddressReady()) {
+      $('#contentArea').find('.shipping-address-edit-btn').addClass('d-none');
+    }
+    // 標籤池就緒才開放鉛筆／新增／刪除；指派（完成勾選）另由 W1-03 控制
+    if (!isCustomerTagPoolReady()) {
+      $('#contentArea').find('.tags-edit-btn, .tag-add-btn, .tag-delete-btn').addClass('d-none');
+    }
+    // 偏好就緒才顯示鉛筆（W1-05）
+    if (!isCustomerPreferencesReady()) {
+      $('#contentArea').find('.preferences-edit-btn').addClass('d-none');
+    }
   } else {
     $('#contentArea').find('.customer-status-toggle-btn').addClass('d-none');
   }

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -65,6 +66,38 @@ public class AdminCustomerController {
 			@PathVariable String id,
 			@Valid @RequestBody AdminCustomerUpdateRequest request) {
 		return ApiResponse.ok(adminCustomerService.update(id, request));
+	}
+
+	// 覆寫會員預設收件地址；不改既有訂單 snapshot（W1-04）。
+	@PutMapping("/{id}/default-shipping-address")
+	@PreAuthorize("hasAuthority('customers.edit')")
+	@Operation(
+			summary = "覆寫會員預設收件地址",
+			description = "RBAC: customers.edit；只寫 customer_shipping_addresses，不改訂單 snapshot")
+	public ApiResponse<AdminCustomerDetailResponse> updateDefaultShippingAddress(
+			@PathVariable String id,
+			@Valid @RequestBody AdminCustomerDefaultShippingAddressRequest request) {
+		return ApiResponse.ok(adminCustomerService.updateDefaultShippingAddress(id, request));
+	}
+
+	// 以完整 tagId 集合取代會員標籤指派（W1-03）。
+	@PutMapping("/{id}/tags")
+	@PreAuthorize("hasAuthority('customers.edit')")
+	@Operation(summary = "取代會員標籤指派", description = "RBAC: customers.edit；只能掛 active 標籤")
+	public ApiResponse<AdminCustomerDetailResponse> replaceTags(
+			@PathVariable String id,
+			@Valid @RequestBody AdminCustomerTagsReplaceRequest request) {
+		return ApiResponse.ok(adminCustomerService.replaceTags(id, request));
+	}
+
+	// 以完整 optionId 集合取代會員偏好（W1-05）。
+	@PutMapping("/{id}/preferences")
+	@PreAuthorize("hasAuthority('customers.edit')")
+	@Operation(summary = "取代會員偏好", description = "RBAC: customers.edit；只能掛 active 偏好選項")
+	public ApiResponse<AdminCustomerDetailResponse> replacePreferences(
+			@PathVariable String id,
+			@Valid @RequestBody AdminCustomerPreferencesReplaceRequest request) {
+		return ApiResponse.ok(adminCustomerService.replacePreferences(id, request));
 	}
 
 	// 停權啟用中的會員，後續會員 API 會立即拒絕原 Token。

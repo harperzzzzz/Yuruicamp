@@ -19,6 +19,7 @@ public record AdminBookingDetailResponse(
 		String paymentStatus,
 		Instant paidAt,
 		String status,
+		String internalNote,
 		PricingSummary pricing,
 		Instant createdAt,
 		Instant updatedAt,

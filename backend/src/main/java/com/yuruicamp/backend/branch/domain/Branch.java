@@ -43,6 +43,10 @@ public class Branch {
 	@Column(name = "image_url")
 	private String imageUrl;
 
+	/** 是否啟用；停用後不再出現在公開列表，但保留給訂單取貨與庫位關聯查詢歷史。 */
+	@Column(nullable = false)
+	private boolean active;
+
 	protected Branch() {
 	}
 
@@ -80,5 +84,9 @@ public class Branch {
 
 	public String getImageUrl() {
 		return imageUrl;
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 }

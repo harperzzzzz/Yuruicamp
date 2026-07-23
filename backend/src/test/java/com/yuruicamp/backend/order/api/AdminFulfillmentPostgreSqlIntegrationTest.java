@@ -1,6 +1,8 @@
 package com.yuruicamp.backend.order.api;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -86,6 +88,34 @@ class AdminFulfillmentPostgreSqlIntegrationTest {
 		mockMvc.perform(post("/api/admin/bookings/G2B-BOOKING/complete").header("Authorization", TOKEN))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.data.status").value("completed"));
+	}
+
+	@Test
+	void internalNoteCanBeUpdatedAndClearedWithoutChangingStatus() throws Exception {
+		mockMvc.perform(patch("/api/admin/orders/G2B-ORDER/internal-note")
+						.header("Authorization", TOKEN)
+						.contentType("application/json")
+						.content("{\"internalNote\":\"已電聯客人\"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.internalNote").value("已電聯客人"))
+				.andExpect(jsonPath("$.data.status").value("unshipped"));
+		mockMvc.perform(patch("/api/admin/orders/G2B-ORDER/internal-note")
+						.header("Authorization", TOKEN)
+						.contentType("application/json")
+						.content("{\"internalNote\":\"  \"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.internalNote").value(nullValue()));
+		mockMvc.perform(get("/api/admin/orders/G2B-ORDER").header("Authorization", TOKEN))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.status").value("unshipped"));
+
+		mockMvc.perform(patch("/api/admin/bookings/G2B-BOOKING/internal-note")
+						.header("Authorization", TOKEN)
+						.contentType("application/json")
+						.content("{\"internalNote\":\"現場備註\"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.data.internalNote").value("現場備註"))
+				.andExpect(jsonPath("$.data.status").value("pending"));
 	}
 
 	private void cleanup() {

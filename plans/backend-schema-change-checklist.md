@@ -77,6 +77,15 @@
 
 ---
 
+## Phase 7 — Admin W1-01 internal_note（2026-07-23）
+
+- [x] **7-1** `orders.internal_note text`（可空）+ COMMENT
+- [x] **7-2** `bookings.internal_note text`（可空）+ COMMENT
+- [x] **7-3** 更新 orders／bookings database-documents
+- [x] **7-4** 本機：`docker compose down -v && up -d` 重建後後端 `ddl-auto=validate` 通過（AdminFulfillment IT）
+
+---
+
 ## Phase 5 — 可選／非本輪
 
 - [ ] **5-1** 草稿訂單佔位（Service 常數，不改 schema）

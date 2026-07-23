@@ -222,7 +222,159 @@ var adminProductLookups = {
   brands: []
 };
 
-/** 判斷商品頁目前是否使用正式後端。 */
+/**
+ * W2-01／02：分類／品牌主檔 Modal（kind = 'categories' | 'brands'）
+ * Catalog master modal for categories / brands.
+ */
+var catalogMasterKind = 'categories';
+
+function bindCatalogMasterUi() {
+  $(document).off('click.catalogMaster', '#btnManageCategories')
+    .on('click.catalogMaster', '#btnManageCategories', function () {
+      openCatalogMasterModal('categories');
+    });
+  $(document).off('click.catalogMaster', '#btnManageBrands')
+    .on('click.catalogMaster', '#btnManageBrands', function () {
+      openCatalogMasterModal('brands');
+    });
+  $(document).off('submit.catalogMaster', '#catalogMasterCreateForm')
+    .on('submit.catalogMaster', '#catalogMasterCreateForm', function (event) {
+      event.preventDefault();
+      submitCatalogMasterCreate();
+    });
+  $(document).off('click.catalogMaster', '.btn-catalog-master-delete')
+    .on('click.catalogMaster', '.btn-catalog-master-delete', function () {
+      var id = $(this).data('id');
+      deleteCatalogMasterItem(id);
+    });
+}
+
+function openCatalogMasterModal(kind) {
+  catalogMasterKind = kind === 'brands' ? 'brands' : 'categories';
+  var isBrand = catalogMasterKind === 'brands';
+  $('#catalogMasterModalLabel').text(isBrand ? '品牌主檔' : '分類主檔');
+  $('#catalogMasterIdFieldWrap').toggleClass('d-none', !isBrand);
+  $('#catalogMasterCodeFieldWrap').toggleClass('d-none', isBrand);
+  $('#catalogMasterId, #catalogMasterCode, #catalogMasterName').val('');
+  $('#catalogMasterSort').val(0);
+  var modalEl = document.getElementById('catalogMasterModal');
+  if (modalEl && typeof bootstrap !== 'undefined') {
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  }
+  refreshCatalogMasterList();
+}
+
+/** 建立成功後重抓 lookups，讓商品表單選單立刻有新項 */
+function refreshAdminProductLookupsFromBackend() {
+  if (!isAdminProductBackendEnabled()) {
+    return $.Deferred().resolve().promise();
+  }
+  return AdminAPI.products.getLookups()
+    .then(function (response) {
+      adminProductLookups = (response && response.data) || { categories: [], brands: [] };
+      loadProductFormComboboxOptions();
+    })
+    .catch(function (error) {
+      AdminAPI.handleError(error, '重新載入分類／品牌選項失敗');
+    });
+}
+
+function refreshCatalogMasterList() {
+  var $list = $('#catalogMasterList').empty()
+    .append('<li class="list-group-item text-muted small">載入中…</li>');
+  var api = catalogMasterKind === 'brands' ? AdminAPI.brands : AdminAPI.categories;
+  api.list()
+    .then(function (response) {
+      var rows = (response && response.data) || [];
+      $list.empty();
+      if (!rows.length) {
+        $list.append('<li class="list-group-item text-muted small">尚無資料</li>');
+        return;
+      }
+      rows.forEach(function (row) {
+        var label = catalogMasterKind === 'brands'
+          ? (row.id + ' — ' + row.name)
+          : (row.code + ' — ' + row.name + ' (#' + row.id + ')');
+        var itemId = catalogMasterKind === 'brands' ? row.id : row.id;
+        $list.append(
+          '<li class="list-group-item d-flex justify-content-between align-items-center px-0">'
+          + '<span class="small">' + $('<div>').text(label).html() + '</span>'
+          + '<button type="button" class="btn btn-sm btn-outline-danger btn-catalog-master-delete"'
+          + ' data-id="' + $('<div>').text(String(itemId)).html() + '">刪除</button>'
+          + '</li>'
+        );
+      });
+    })
+    .catch(function (error) {
+      AdminAPI.handleError(error, '載入主檔失敗');
+      $list.empty().append('<li class="list-group-item text-danger small">載入失敗</li>');
+    });
+}
+
+function submitCatalogMasterCreate() {
+  var name = ($('#catalogMasterName').val() || '').trim();
+  var sortOrder = parseInt($('#catalogMasterSort').val(), 10);
+  if (!name) {
+    window.showAdminToast('請填寫顯示名稱', 'warning');
+    return;
+  }
+  if (isNaN(sortOrder) || sortOrder < 0) {
+    sortOrder = 0;
+  }
+
+  var promise;
+  if (catalogMasterKind === 'brands') {
+    var brandId = ($('#catalogMasterId').val() || '').trim();
+    if (!brandId) {
+      window.showAdminToast('請填寫品牌 ID（slug）', 'warning');
+      return;
+    }
+    promise = AdminAPI.brands.create({ id: brandId, name: name, sortOrder: sortOrder });
+  } else {
+    var code = ($('#catalogMasterCode').val() || '').trim();
+    if (!code) {
+      window.showAdminToast('請填寫分類 code', 'warning');
+      return;
+    }
+    promise = AdminAPI.categories.create({ code: code, name: name, sortOrder: sortOrder });
+  }
+
+  $('#catalogMasterCreateBtn').prop('disabled', true);
+  promise
+    .then(function () {
+      window.showAdminToast('已建立', 'success');
+      $('#catalogMasterId, #catalogMasterCode, #catalogMasterName').val('');
+      $('#catalogMasterSort').val(0);
+      refreshCatalogMasterList();
+      return refreshAdminProductLookupsFromBackend();
+    })
+    .catch(function (error) {
+      AdminAPI.handleError(error, '建立失敗');
+    })
+    .then(function () {
+      $('#catalogMasterCreateBtn').prop('disabled', false);
+    });
+}
+
+function deleteCatalogMasterItem(id) {
+  if (!id) {
+    return;
+  }
+  if (!window.confirm('確定刪除此項目？若已被商品引用將無法刪除。')) {
+    return;
+  }
+  var api = catalogMasterKind === 'brands' ? AdminAPI.brands : AdminAPI.categories;
+  api.remove(id)
+    .then(function () {
+      window.showAdminToast('已刪除', 'warning');
+      refreshCatalogMasterList();
+      return refreshAdminProductLookupsFromBackend();
+    })
+    .catch(function (error) {
+      AdminAPI.handleError(error, '刪除失敗（可能仍被商品引用）');
+    });
+}
+
 function isAdminProductBackendEnabled() {
   return typeof AdminAPI !== 'undefined' &&
     AdminAPI.isBackendEnabled &&
@@ -297,16 +449,39 @@ function findAdminBrandId(brandName) {
 }
 
 /**
- * 正式模式只開放商品主檔、規格、圖片 URL 與上下架。
- * 庫存編輯、租借與調撥等待各自的正式後端線程。
+ * 正式模式只開放商品主檔、規格、圖片 URL、上下架與最低庫存閾值。
+ * on-hand 編輯、租借寫入與調撥仍等待各自後端線程。
+ *
+ * 【刻意延後 UI｜見 plans/admin-post-g6/w2/W2-ui-followups.md】
+ * - 租借整頁（定價／上架）舊資料模型尚未改接 W2-04 listings API
+ * - 「調撥到租借」Modal 仍改前端記憶體，尚未打 W2-05 inventory-conversions
  */
 function syncBackendProductUi() {
   var useBackend = isAdminProductBackendEnabled();
+  // 最低庫存 feature 就緒時，正式模式也顯示「設定最低庫存」按鈕
+  // Show min-stock toggle in backend mode when products.minStock is ready
+  var minStockReady = !useBackend
+    || (typeof AdminRuntime !== 'undefined'
+      && AdminRuntime.isFeatureReady
+      && AdminRuntime.isFeatureReady('products.minStock'));
+  // W2-01／02：分類／品牌主檔按鈕只在正式模式＋ feature ready 顯示
+  var categoryMasterReady = useBackend
+    && typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('products.categoryMaster');
+  var brandMasterReady = useBackend
+    && typeof AdminRuntime !== 'undefined'
+    && AdminRuntime.isFeatureReady
+    && AdminRuntime.isFeatureReady('products.brandMaster');
+
   $('.admin-product-tab[data-products-view="rental"]').toggleClass('d-none', useBackend);
   if (useBackend) {
     $('[data-products-panel="rental"]').addClass('d-none');
   }
-  $('#toggleMinStockMode, #minStockModeHint').toggleClass('d-none', useBackend);
+  // 只控制切換鈕；提示列仍由 updateMinStockModeUI 負責顯示
+  $('#toggleMinStockMode').toggleClass('d-none', useBackend && !minStockReady);
+  $('#btnManageCategories').toggleClass('d-none', !categoryMasterReady);
+  $('#btnManageBrands').toggleClass('d-none', !brandMasterReady);
   $('#newProductIsRentalWrapper, #rentalCampField').toggleClass('d-none', useBackend);
   $('#newProductStockCol').toggleClass('d-none', useBackend);
   $('#newProductImages').toggleClass('d-none', useBackend).prop('disabled', useBackend);
@@ -316,7 +491,9 @@ function syncBackendProductUi() {
     : '可一次選多張；第一張為主圖，拖曳握把調整順序');
   if (useBackend) {
     switchProductView('store');
-    $('.stock-edit-btn, .stock-confirm-btn, .stock-cancel-btn, .transfer-to-rental-btn')
+    // 正式模式：隱藏「調撥到租借」；最低庫存編輯鈕在 min-stock 模式才會渲染，勿整批隱藏
+    // Hide transfer only; min-stock edit buttons appear only in min-stock mode
+    $('.transfer-to-rental-btn')
       .prop('disabled', true)
       .addClass('d-none');
   }
@@ -954,6 +1131,78 @@ var PRODUCT_MIN_STOCK_DEFAULT = 5;
 var pendingRentalMovementItems = [];
 
 /**
+ * 前端營地 ID（C001）→ API 庫位 ID（RENTAL-C001）。
+ * Map UI camp id to inventory_locations.id for rental domain.
+ */
+function toApiMinStockLocationId(inventoryType, locationId) {
+  if (inventoryType === 'rental' && /^C00[1-9]$/.test(String(locationId || ''))) {
+    return 'RENTAL-' + locationId;
+  }
+  return locationId;
+}
+
+/**
+ * API 庫位 ID（RENTAL-C001）→ 前端營地 ID（C001）。
+ * Map inventory_locations.id back to UI camp id.
+ */
+function fromApiMinStockLocationId(inventoryType, locationId) {
+  var id = String(locationId || '');
+  if (inventoryType === 'rental' && id.indexOf('RENTAL-') === 0) {
+    return id.slice('RENTAL-'.length);
+  }
+  return locationId;
+}
+
+/**
+ * 把後端 min-stocks 陣列轉成 adminMinStockCache 形狀。
+ * Convert API items into nested cache: domain → productId → variantId → locationId.
+ *
+ * @param {Array} items
+ * @returns {{ store: Object, rental: Object }}
+ */
+function buildMinStockCacheFromApiItems(items) {
+  var cache = { store: {}, rental: {} };
+  (items || []).forEach(function (item) {
+    if (!item || !item.inventoryDomain || !item.productId || !item.variantId || !item.locationId) {
+      return;
+    }
+    var domain = item.inventoryDomain;
+    if (domain !== 'store' && domain !== 'rental') {
+      return;
+    }
+    var locationId = fromApiMinStockLocationId(domain, item.locationId);
+    if (!cache[domain][item.productId]) {
+      cache[domain][item.productId] = {};
+    }
+    if (!cache[domain][item.productId][item.variantId]) {
+      cache[domain][item.productId][item.variantId] = {};
+    }
+    cache[domain][item.productId][item.variantId][locationId] = normalizeStockValue(item.minimumQuantity);
+  });
+  return cache;
+}
+
+/**
+ * 正式模式載入 store（＋若之後開放租借）最低庫存。
+ * Load min-stocks from backend for the products page.
+ *
+ * @returns {Promise<{store: Object, rental: Object}>}
+ */
+function loadAdminMinStockCacheFromBackend() {
+  // 目前正式模式只顯示商店頁；仍預先載入 store 閾值
+  // Backend mode currently shows store only; preload store thresholds
+  return AdminAPI.minStocks.list({ inventoryDomain: 'store' })
+    .then(function (response) {
+      var items = (response && response.data) || [];
+      return buildMinStockCacheFromApiItems(items);
+    })
+    .catch(function (error) {
+      AdminAPI.handleError(error, '載入最低庫存設定失敗');
+      return { store: {}, rental: {} };
+    });
+}
+
+/**
  * 取得指定商品、指定分店 / 營地的最低庫存閾值。
  * 若 adminMinStockCache 裡找不到對應的值，回傳全域預設值 PRODUCT_MIN_STOCK_DEFAULT。
  *
@@ -1040,6 +1289,7 @@ window.initProducts = function () {
   $(document).off('.products');
 
   syncBackendProductUi();
+  bindCatalogMasterUi();
 
   // 每次進入重置分類 / 品牌篩選
   productFilterState = { category: [], brand: [] };
@@ -1092,7 +1342,7 @@ window.initProducts = function () {
   }
 
   var minStockPromise = isAdminProductBackendEnabled()
-    ? $.Deferred().resolve({}).promise()
+    ? loadAdminMinStockCacheFromBackend()
     : $.getJSON(MockDataPaths.minStock).then(null, function () {
       // 靜默降級：min_stock.json 不存在或格式錯誤時，回傳空物件
       return $.Deferred().resolve({}).promise();
@@ -1425,8 +1675,19 @@ window.initProducts = function () {
       return;
     }
 
-    saveMinStockValues($row, productId, inventoryType);
-    exitStockEditMode($row, false);
+    var $confirmBtn = $(this);
+    $confirmBtn.prop('disabled', true);
+    // 正式模式：等 API 成功才離開編輯；失敗保留輸入
+    // Backend: leave edit mode only after API success
+    Promise.resolve(saveMinStockValues($row, productId, inventoryType)).then(function (ok) {
+      if (ok !== false) {
+        exitStockEditMode($row, false);
+      } else {
+        syncStockConfirmState($row);
+      }
+    }).catch(function () {
+      syncStockConfirmState($row);
+    });
   });
 
   // 將商店與租借已通過確定檢查的庫存異動，合併成一筆庫存異動紀錄。
@@ -1837,20 +2098,111 @@ function updateMinStockModeUI() {
 }
 
 /**
- * 儲存最低庫存設定：讀取該列所有分店 / 營地的步進器數值，
- * 寫入 adminMinStockCache，顯示 Toast，並重新計算該列紅色 / 橘色標示。
+ * 儲存最低庫存設定：讀取該列所有分店 / 營地的步進器數值。
+ * Mock：寫入 adminMinStockCache；正式模式：PUT /api/admin/min-stocks，成功後才更新 cache。
  * 不產生庫存異動紀錄（pendingMovementItems 不受影響）。
  *
- * Saves minimum stock values from the row inputs into adminMinStockCache.
- * Shows a Toast confirmation. Does NOT create any movement record.
+ * Saves minimum stock values. Backend mode persists via AdminAPI.minStocks.upsert.
  *
  * @param {jQuery} $row          - 目標 <tr>
  * @param {string} productId     - 商品 ID
  * @param {string} inventoryType - 'store' 或 'rental'
+ * @returns {boolean|Promise<boolean>} 是否儲存成功
  */
 function saveMinStockValues($row, productId, inventoryType) {
-  if (!productId || !inventoryType) { return; }
+  if (!productId || !inventoryType) { return false; }
 
+  var $allRows = $row.add(getVariantDetailRowsForMainRow($row));
+  var collected = [];
+  var fallbackVariantId = resolveSingleVariantIdForMinStock(productId, inventoryType);
+
+  $allRows.find('.stock-input[data-min-stock-field]').each(function () {
+    var $input = $(this);
+    var fieldId = $input.data('min-stock-field');
+    var variantId = $input.data('variant-id') || fallbackVariantId;
+    var val = normalizeStockValue($input.val());
+    collected.push({
+      fieldId: fieldId,
+      variantId: variantId ? String(variantId) : '',
+      value: val,
+      $input: $input
+    });
+  });
+
+  // 正式模式必須有 variantId（DB 以 variant × location 為 PK）
+  // Backend requires variantId because DB PK is (variant, location)
+  if (isAdminProductBackendEnabled()) {
+    var missingVariant = collected.some(function (item) { return !item.variantId; });
+    if (missingVariant) {
+      window.showAdminToast('找不到規格 ID，無法儲存最低庫存', 'danger');
+      return false;
+    }
+
+    var payload = {
+      inventoryDomain: inventoryType,
+      items: collected.map(function (item) {
+        return {
+          variantId: item.variantId,
+          locationId: toApiMinStockLocationId(inventoryType, item.fieldId),
+          minimumQuantity: item.value
+        };
+      })
+    };
+
+    return AdminAPI.minStocks.upsert(payload).then(function (response) {
+      applyMinStockValuesToCache(productId, inventoryType, collected);
+      // 若後端回傳最新值，再覆蓋一次（保持與 GET 一致）
+      var items = (response && response.data) || [];
+      if (items.length) {
+        var merged = buildMinStockCacheFromApiItems(items);
+        if (!adminMinStockCache[inventoryType]) {
+          adminMinStockCache[inventoryType] = {};
+        }
+        Object.keys(merged[inventoryType] || {}).forEach(function (pid) {
+          adminMinStockCache[inventoryType][pid] = Object.assign(
+            {},
+            adminMinStockCache[inventoryType][pid] || {},
+            merged[inventoryType][pid]
+          );
+        });
+      }
+      syncStockDisplayFromInputs($row);
+      window.showAdminToast('商品 ' + productId + ' 最低庫存已儲存');
+      return true;
+    }).catch(function (error) {
+      AdminAPI.handleError(error, '儲存最低庫存失敗');
+      return false;
+    });
+  }
+
+  applyMinStockValuesToCache(productId, inventoryType, collected);
+  syncStockDisplayFromInputs($row);
+  window.showAdminToast('商品 ' + productId + ' 最低庫存已儲存');
+  return true;
+}
+
+/**
+ * 單規格商品：從 cache 取出唯一 variant.id，供主列 input 補齊。
+ * Resolve the only variant id for a single-variant product/rental.
+ */
+function resolveSingleVariantIdForMinStock(productId, inventoryType) {
+  if (inventoryType === 'rental') {
+    var rental = findAdminRentalById(productId);
+    var rentalVariants = normalizeRentalVariants(normalizeRentalItem(rental || {}));
+    return rentalVariants.length === 1 ? (rentalVariants[0].id || '') : '';
+  }
+  var product = (adminProductsCache || []).find(function (item) {
+    return item && item.id === productId;
+  });
+  var variants = normalizeProductVariants(product || {});
+  return variants.length === 1 ? (variants[0].id || '') : '';
+}
+
+/**
+ * 把收集到的欄位寫入 adminMinStockCache（記憶體）。
+ * Write collected min-stock fields into the in-memory cache.
+ */
+function applyMinStockValuesToCache(productId, inventoryType, collected) {
   if (!adminMinStockCache[inventoryType]) {
     adminMinStockCache[inventoryType] = {};
   }
@@ -1858,31 +2210,19 @@ function saveMinStockValues($row, productId, inventoryType) {
     adminMinStockCache[inventoryType][productId] = {};
   }
 
-  // 主列 + 規格子列：支援商品層級與 variant 層級兩種格式
-  // Main row + variant detail rows: product-level and per-variant thresholds
-  var $allRows = $row.add(getVariantDetailRowsForMainRow($row));
-  $allRows.find('.stock-input[data-min-stock-field]').each(function () {
-    var $input = $(this);
-    var fieldId = $input.data('min-stock-field');
-    var variantId = $input.data('variant-id');
-    var val = normalizeStockValue($input.val());
-
-    if (variantId) {
-      if (!adminMinStockCache[inventoryType][productId][variantId]) {
-        adminMinStockCache[inventoryType][productId][variantId] = {};
+  collected.forEach(function (item) {
+    if (item.variantId) {
+      if (!adminMinStockCache[inventoryType][productId][item.variantId]) {
+        adminMinStockCache[inventoryType][productId][item.variantId] = {};
       }
-      adminMinStockCache[inventoryType][productId][variantId][fieldId] = val;
+      adminMinStockCache[inventoryType][productId][item.variantId][item.fieldId] = item.value;
     } else {
-      adminMinStockCache[inventoryType][productId][fieldId] = val;
+      adminMinStockCache[inventoryType][productId][item.fieldId] = item.value;
     }
-
-    $input
-      .attr('data-original-qty', val)
-      .data('original-qty', val);
+    item.$input
+      .attr('data-original-qty', item.value)
+      .data('original-qty', item.value);
   });
-
-  syncStockDisplayFromInputs($row);
-  window.showAdminToast('商品 ' + productId + ' 最低庫存已儲存');
 }
 
 function bindProductViewTabs() {
@@ -3006,9 +3346,10 @@ function buildStoreStockCell(product, branchId, label, lowBranchIds) {
       return '<td class="stock-cell text-center text-muted">—</td>';
     }
 
-    var minVal = getMinStockValue('store', product.id, branchId);
+    var singleVariantId = variants[0] && variants[0].id ? variants[0].id : '';
+    var minVal = getMinStockValue('store', product.id, branchId, singleVariantId);
     return '<td class="stock-cell">' +
-      buildMinStockCellContent(branchId, minVal, label) +
+      buildMinStockCellContent(branchId, minVal, label, singleVariantId) +
       '</td>';
   }
 
@@ -3048,9 +3389,10 @@ function buildRentalStockCell(rental, campKey, label, campByKey, lowCampKeys) {
       return '<td class="stock-cell text-center text-muted">—</td>';
     }
 
-    var minVal = getMinStockValue('rental', normalizedRental.id, campKey);
+    var singleRentalVariantId = variants[0] && variants[0].id ? variants[0].id : '';
+    var minVal = getMinStockValue('rental', normalizedRental.id, campKey, singleRentalVariantId);
     return '<td class="stock-cell">' +
-      buildMinStockCellContent(campKey, minVal, label) +
+      buildMinStockCellContent(campKey, minVal, label, singleRentalVariantId) +
       '</td>';
   }
 
@@ -5429,6 +5771,10 @@ function syncTransferDeltaCounter() {
 /**
  * 調撥入口：依目前選取的來源分店判斷模式，分派到對應提交函式。
  * Dispatch function: routes to Mode 1 or Mode 2 based on source branch selection.
+ *
+ * 【刻意延後｜W2-ui-followups.md 延後項 B】
+ * 此路徑目前仍只改前端 memory cache，不會呼叫 /api/admin/inventory-conversions。
+ * Backend 正式轉換請用 AdminAPI.inventoryConversions（createDraft → post）。
  */
 function submitTransferToRental() {
   var mode = $('#transferSourceBranch').val();

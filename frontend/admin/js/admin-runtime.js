@@ -18,24 +18,34 @@
   /** 每個模組是否可以在 Backend 模式安全使用；未就緒功能不得發出不存在的 API。 */
   var READINESS = {
     analytics: { ready: true, level: 'read', note: '由正式訂單、商品與預約列表聚合' },
-    orders: { ready: true, level: 'partial', note: '查詢與履約完成；seller note 尚未提供端點' },
+    orders: { ready: true, level: 'partial', note: '查詢、履約與內部備註可用；取消／退款待 W3' },
     movement: { ready: true, level: 'full', note: '正式庫存異動完整可用' },
-    products: { ready: true, level: 'partial', note: '商城商品可用；租借商品寫入尚未提供端點' },
-    customers: { ready: true, level: 'partial', note: '查詢、基本更新與停權可用；新增與標籤池尚未提供端點' },
+    products: { ready: true, level: 'partial', note: '商城商品與最低庫存閾值可用；租借商品寫入尚未提供端點' },
+    customers: { ready: true, level: 'partial', note: '查詢、基本更新、停權、標籤池／指派與預設地址可用；新增會員尚未提供端點' },
     discounts: { ready: true, level: 'full', note: '優惠券正式 CRUD 可用' },
-    reviews: { ready: false, level: 'none', note: '評論管理尚未提供正式後端端點' },
+    reviews: { ready: true, level: 'partial', note: '列表／詳情／硬刪可用；不做回覆與軟隱藏' },
     'booking-calendar': { ready: true, level: 'partial', note: '公休規則可用；月份容量仍由既有 Booking API 呈現' },
-    bookings: { ready: true, level: 'partial', note: '查詢與履約完成；seller note 尚未提供端點' },
+    bookings: { ready: true, level: 'partial', note: '查詢、履約與內部備註可用；已付款取消待 W3' },
     permissions: { ready: true, level: 'full', note: '管理員與有效權限正式可用' },
   };
 
   var FEATURE_READINESS = {
     'customers.create': false,
-    'customers.tagPool': false,
-    'orders.sellerNote': false,
-    'bookings.sellerNote': false,
+    /** 標籤字典 CRUD（W1-02）已就緒 / Tag pool CRUD ready */
+    'customers.tagPool': true,
+    /** 會員身上指派（W1-03）已就緒 / Assign tags to customer ready */
+    'customers.tagAssign': true,
+    /** 預設收件地址可編（W1-04）/ Default shipping address editable */
+    'customers.defaultAddress': true,
+    /** 會員偏好可編（W1-05）/ Customer preferences editable */
+    'customers.preferences': true,
+    'orders.sellerNote': true,
+    'bookings.sellerNote': true,
+    /** 最低庫存閾值讀寫（W1-07）；on-hand 仍唯讀 / Min-stock ready; on-hand still read-only */
+    'products.minStock': true,
     'products.rentalWrite': false,
-    'reviews.manage': false,
+    /** 評論列表／硬刪（W1-06）；不做回覆／軟隱藏 */
+    'reviews.manage': true,
   };
 
   function isBackendMode() {

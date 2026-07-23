@@ -43,7 +43,7 @@ window.initReviews = function () {
  */
 function loadReviews(callback) {
   if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
-    AdminAPI.reviews.list()
+    AdminAPI.reviews.list({ page: 0, size: 100, sort: 'createdAt,desc' })
       .then(function (res) {
         callback((res && res.data) || []);
       })
@@ -390,9 +390,20 @@ function closeReviewDeleteModal() {
  */
 function deleteReview(reviewId) {
   if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
-    AdminAPI.reviews.remove(reviewId).catch(function (err) {
-      AdminAPI.handleError(err, '評論管理尚未提供正式後端端點');
-    });
+    // Backend：先等 API 成功，再關 Modal 並刷新列表（成功後才改 UI）
+    AdminAPI.reviews.remove(reviewId)
+      .then(function () {
+        reviewsState.allReviews = reviewsState.allReviews.filter(function (r) {
+          return r.id !== reviewId;
+        });
+        closeReviewDeleteModal();
+        updateReviewCount();
+        applyFiltersAndRender();
+        window.showAdminToast('評論 ' + reviewId + ' 已刪除', 'warning');
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '刪除評論失敗');
+      });
     return;
   }
   var updated = reviewsState.allReviews.filter(function (r) {

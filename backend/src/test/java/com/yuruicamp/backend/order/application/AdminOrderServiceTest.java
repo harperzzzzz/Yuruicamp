@@ -61,6 +61,6 @@ class AdminOrderServiceTest {
 				"O1", "C1", "Customer", "active", "Buyer", "buyer@example.test",
 				"Recipient", "0900", "Address", java.math.BigDecimal.ZERO,
 				java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO,
-				"ecpay-credit", "paid", "none", status, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH);
+				"ecpay-credit", "paid", "none", status, null, Instant.EPOCH, Instant.EPOCH, Instant.EPOCH);
 	}
 }

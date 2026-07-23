@@ -24,7 +24,8 @@ public class BranchCatalogService {
 
 	@Transactional(readOnly = true)
 	public List<BranchResponse> listBranches() {
-		return branchRepository.findAllByOrderByIdAsc().stream()
+		// 公開 API 只回啟用門市；停用門市改由 /api/admin/branches 查看（ADM-W2-07）。
+		return branchRepository.findAllByActiveTrueOrderByIdAsc().stream()
 				.map(this::toResponse)
 				.toList();
 	}

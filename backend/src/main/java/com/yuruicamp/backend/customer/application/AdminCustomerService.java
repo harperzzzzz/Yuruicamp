@@ -12,13 +12,20 @@ import java.util.Set;
 import com.yuruicamp.backend.common.api.PageMeta;
 import com.yuruicamp.backend.common.exception.BusinessException;
 import com.yuruicamp.backend.common.exception.ErrorCode;
+import com.yuruicamp.backend.customer.api.AdminCustomerDefaultShippingAddressRequest;
 import com.yuruicamp.backend.customer.api.AdminCustomerDetailResponse;
 import com.yuruicamp.backend.customer.api.AdminCustomerListResponse;
+import com.yuruicamp.backend.customer.api.AdminCustomerPreferencesReplaceRequest;
+import com.yuruicamp.backend.customer.api.AdminCustomerTagsReplaceRequest;
 import com.yuruicamp.backend.customer.api.AdminCustomerUpdateRequest;
+import com.yuruicamp.backend.customer.api.AdminPreferenceOptionResponse;
 import com.yuruicamp.backend.customer.domain.Customer;
 import com.yuruicamp.backend.customer.domain.CustomerStatus;
+import com.yuruicamp.backend.customer.infrastructure.AdminCustomerPreferenceRepository;
 import com.yuruicamp.backend.customer.infrastructure.AdminCustomerReadRepository;
 import com.yuruicamp.backend.customer.infrastructure.AdminCustomerRow;
+import com.yuruicamp.backend.customer.infrastructure.AdminCustomerShippingAddressRepository;
+import com.yuruicamp.backend.customer.infrastructure.AdminCustomerTagRepository;
 import com.yuruicamp.backend.customer.infrastructure.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,12 +42,21 @@ public class AdminCustomerService {
 
 	private final CustomerRepository customerRepository;
 	private final AdminCustomerReadRepository readRepository;
+	private final AdminCustomerTagRepository tagRepository;
+	private final AdminCustomerShippingAddressRepository shippingAddressRepository;
+	private final AdminCustomerPreferenceRepository preferenceRepository;
 
 	public AdminCustomerService(
 			CustomerRepository customerRepository,
-			AdminCustomerReadRepository readRepository) {
+			AdminCustomerReadRepository readRepository,
+			AdminCustomerTagRepository tagRepository,
+			AdminCustomerShippingAddressRepository shippingAddressRepository,
+			AdminCustomerPreferenceRepository preferenceRepository) {
 		this.customerRepository = customerRepository;
 		this.readRepository = readRepository;
+		this.tagRepository = tagRepository;
+		this.shippingAddressRepository = shippingAddressRepository;
+		this.preferenceRepository = preferenceRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -141,6 +157,125 @@ public class AdminCustomerService {
 		return get(id);
 	}
 
+	/**
+	 * 覆寫會員預設收件地址（W1-04）。
+	 * Overwrite the customer's default shipping address.
+	 *
+	 * 只更新 customer_shipping_addresses；絕不改訂單 snapshot。
+	 * Updates customer_shipping_addresses only; never order snapshots.
+	 */
+	@Transactional
+	public AdminCustomerDetailResponse updateDefaultShippingAddress(
+			String id,
+			AdminCustomerDefaultShippingAddressRequest request) {
+		Customer customer = findCustomerForUpdate(id);
+		if (customer.getStatus() == CustomerStatus.deleted) {
+			throw new BusinessException(ErrorCode.CONFLICT, "Deleted customer cannot be updated");
+		}
+
+		String recipientName = requireTrimmed(request.recipientName(), "recipientName");
+		String postalCode = requireTrimmed(request.postalCode(), "postalCode");
+		String city = requireTrimmed(request.city(), "city");
+		String district = requireTrimmed(request.district(), "district");
+		String addressLine = requireTrimmed(request.addressLine(), "addressLine");
+		String phone = requireTrimmed(request.phone(), "phone");
+
+		Instant now = Instant.now();
+		Long addressId = shippingAddressRepository.lockDefaultAddressId(id);
+		if (addressId == null) {
+			shippingAddressRepository.insertDefault(
+					id, recipientName, postalCode, city, district, addressLine, phone, now);
+		}
+		else {
+			shippingAddressRepository.updateDefault(
+					addressId, recipientName, postalCode, city, district, addressLine, phone, now);
+		}
+
+		customer.setUpdatedAt(now);
+		customerRepository.save(customer);
+
+		return get(id);
+	}
+
+	/**
+	 * 以完整 tagId 集合取代會員標籤（W1-03）。
+	 * Replace the customer's tag assignments with the provided active tag ids.
+	 */
+	@Transactional
+	public AdminCustomerDetailResponse replaceTags(String id, AdminCustomerTagsReplaceRequest request) {
+		Customer customer = findCustomerForUpdate(id);
+		if (customer.getStatus() == CustomerStatus.deleted) {
+			throw new BusinessException(ErrorCode.CONFLICT, "Deleted customer cannot be updated");
+		}
+		if (request == null || request.tagIds() == null) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "tagIds is required");
+		}
+
+		// 去重並拒絕 null／非正整數 id / Deduplicate and reject invalid ids
+		if (request.tagIds().stream().anyMatch(tagId -> tagId == null || tagId <= 0)) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "tagIds must be positive integers");
+		}
+		List<Long> desired = request.tagIds().stream().distinct().sorted().toList();
+		List<Long> activeIds = tagRepository.findActiveIds(desired);
+		if (activeIds.size() != desired.size()) {
+			throw new BusinessException(
+					ErrorCode.VALIDATION_ERROR,
+					"All tagIds must exist and be active");
+		}
+
+		tagRepository.deleteAssignmentsNotIn(id, desired);
+		tagRepository.insertMissingAssignments(id, desired);
+		customer.setUpdatedAt(Instant.now());
+		customerRepository.save(customer);
+
+		return get(id);
+	}
+
+	/**
+	 * 以完整 optionId 集合取代會員偏好（W1-05）。
+	 * Replace the customer's preference links with the provided active option ids.
+	 */
+	@Transactional
+	public AdminCustomerDetailResponse replacePreferences(
+			String id,
+			AdminCustomerPreferencesReplaceRequest request) {
+		Customer customer = findCustomerForUpdate(id);
+		if (customer.getStatus() == CustomerStatus.deleted) {
+			throw new BusinessException(ErrorCode.CONFLICT, "Deleted customer cannot be updated");
+		}
+		if (request == null || request.optionIds() == null) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "optionIds is required");
+		}
+
+		// 去重並拒絕 null／非正整數 id / Deduplicate and reject invalid ids
+		if (request.optionIds().stream().anyMatch(optionId -> optionId == null || optionId <= 0)) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, "optionIds must be positive integers");
+		}
+		List<Long> desired = request.optionIds().stream().distinct().sorted().toList();
+		List<Long> activeIds = preferenceRepository.findActiveIds(desired);
+		if (activeIds.size() != desired.size()) {
+			throw new BusinessException(
+					ErrorCode.VALIDATION_ERROR,
+					"All optionIds must exist and be active");
+		}
+
+		preferenceRepository.deletePreferencesNotIn(id, desired);
+		preferenceRepository.insertMissingPreferences(id, desired);
+		customer.setUpdatedAt(Instant.now());
+		customerRepository.save(customer);
+
+		return get(id);
+	}
+
+	/** 偏好選項 lookup（唯讀；本季不做 CRUD）。 / Preference option lookup. */
+	@Transactional(readOnly = true)
+	public List<AdminPreferenceOptionResponse> listPreferenceOptions(boolean includeInactive) {
+		return preferenceRepository.findAllOptions(includeInactive).stream()
+				.map(row -> new AdminPreferenceOptionResponse(
+						row.id(), row.type(), row.code(), row.label(), row.sortOrder(), row.active()))
+				.toList();
+	}
+
 	private SortSpec validateListParameters(
 			int page,
 			int size,
@@ -199,6 +334,15 @@ public class AdminCustomerService {
 
 	private String normalize(String value) {
 		return value == null ? "" : value.trim();
+	}
+
+	/** trim 後不可空白；Bean Validation 已擋 null，這裡再擋純空白。 */
+	private String requireTrimmed(String value, String field) {
+		String trimmed = value == null ? "" : value.trim();
+		if (trimmed.isBlank()) {
+			throw new BusinessException(ErrorCode.VALIDATION_ERROR, field + " cannot be blank");
+		}
+		return trimmed;
 	}
 
 	private String money(BigDecimal value) {

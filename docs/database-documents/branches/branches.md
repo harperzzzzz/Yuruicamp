@@ -55,6 +55,7 @@ longitude           經度，null，限制在 -180 至 180
 map_query           地圖搜尋文字，null
 * business_hours    營業時間
 image_url           null
+* active             是否啟用，預設 `true`（ADM-W2-07 新增，軟停用旗標）
 * created_at        建立時間，now()
 * updated_at        最後更新時間，now()，沒有自動更新機制
 
@@ -89,6 +90,7 @@ image_url           null
     FROM branches branch
     LEFT JOIN branch_features feature
         ON feature.branch_id = branch.id
+    WHERE branch.active = true  -- 公開 API 只回啟用門市（ADM-W2-07）
     GROUP BY branch.id;
 
 
@@ -167,13 +169,12 @@ admin_users 沒有：
 
 * 中風險：feature 使用自由文字 (只有顯示用可以接受)
 
-* 中風險：刪除 branches.active 後無法軟停用分店
-無法表達：
-    暫停營業
-    尚未公開
-    永久停業但仍需保留歷史
-    只保留庫存關聯、不顯示於前台
-如果未來確實需要停用機制，應使用獨立生命週期欄位
+* ~~中風險：刪除 branches.active 後無法軟停用分店~~（ADM-W2-07 已解決）
+    2026-07-23 補回 `branches.active boolean DEFAULT true NOT NULL`：
+    - 停用門市：`PATCH /api/admin/branches/{id}` body `{"active": false}`
+    - 公開 `GET /api/branches` 只回 `active=true`；後台 `GET /api/admin/branches` 仍看得到全部（含停用）
+    - 有 `orders.pickup_branch_id` 或 `inventory_locations.branch_id` 引用時，`DELETE` 禁止硬刪（回 `409`），
+      引導改用上面的軟停用；無引用才允許硬刪
 
 * 中風險：business_hours 是非結構化文字 (只用於顯示，文字欄位可以接受)
 

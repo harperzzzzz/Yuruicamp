@@ -108,6 +108,7 @@ public class AdminOrderReadRepository {
 				rs.getBigDecimal("discount"), rs.getBigDecimal("total"),
 				rs.getString("payment_method"), rs.getString("payment_status"),
 				rs.getString("refund_status"), rs.getString("status"),
+				rs.getString("internal_note"),
 				instant(rs, "placed_at"), nullableInstant(rs, "paid_at"), instant(rs, "updated_at")))
 				.stream()
 				.findFirst();
@@ -168,6 +169,7 @@ public class AdminOrderReadRepository {
 			String buyerName, String buyerEmail, String recipientName, String shippingPhone,
 			String shippingAddress, BigDecimal subtotal, BigDecimal shippingFee,
 			BigDecimal discount, BigDecimal total, String paymentMethod, String paymentStatus,
-			String refundStatus, String status, Instant placedAt, Instant paidAt, Instant updatedAt) {
+			String refundStatus, String status, String internalNote,
+			Instant placedAt, Instant paidAt, Instant updatedAt) {
 	}
 }

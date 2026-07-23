@@ -14,6 +14,8 @@ Admin Token → RBAC → ID 分頁 → 載入預約摘要
 
 只有 `paid + pending` 可以確認。只有已到退房日的 `paid + confirmed` 可以完成；完成時將 active `rental_stock_reservations` 改為 fulfilled。Admin 不得把 unpaid 改成 paid，已付款取消與退款留給線 D。
 
+W1-01：`PATCH /api/admin/bookings/{id}/internal-note` 覆寫內部備註；詳情回 `internalNote`；不改履約／付款狀態。
+
 `hasRental` 使用 EXISTS 篩選，不直接 JOIN 租借明細後分頁。
 
 `AdminBookingController` 使用 `firebaseBearer` OpenAPI Security Requirement，讓 Swagger `Authorize` 保存的 Firebase ID Token 自動加入 `Authorization: Bearer` Header。這項宣告只描述 API 認證需求，實際安全邊界仍由 Firebase Filter 與 `bookings.view`／`bookings.edit` RBAC 負責。

@@ -541,14 +541,7 @@ ON CONFLICT (id) DO UPDATE SET
     fulfilled_at = EXCLUDED.fulfilled_at,
     inventory_domain = EXCLUDED.inventory_domain;
 
--- frontend/data/admin/reviews.json 只有 REV031 明確提供 orderId=208，並可唯一對到訂單明細 602081；其餘評論不猜測交易關聯。
-INSERT INTO public.reviews (id, order_item_id, rating, comment, created_at)
-VALUES ('REV031', 602081, 5, '暑假出貨很快，帳篷品質很棒！', TIMESTAMPTZ '2026-07-10T10:00:00+08:00')
-ON CONFLICT (id) DO UPDATE SET
-    order_item_id = EXCLUDED.order_item_id,
-    rating = EXCLUDED.rating,
-    comment = EXCLUDED.comment,
-    created_at = EXCLUDED.created_at;
+-- 評論改由 080-reviews.sql 統一載入（含 REV031 與照片）。
 
 SELECT setval('public.booking_selected_zones_id_seq', GREATEST((SELECT max(id) FROM public.booking_selected_zones), 1), true);
 SELECT setval('public.booking_selected_rentals_id_seq', GREATEST((SELECT max(id) FROM public.booking_selected_rentals), 1), true);

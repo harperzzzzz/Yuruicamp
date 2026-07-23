@@ -99,6 +99,7 @@ coupons
 
 * status                     訂單履約狀態，
                              (unshipped, shipped, completed, cancelled, returned)
+* internal_note              後台內部備註，可空；非履約狀態欄位。空白寫入時存 null。
 
 * placed_at                  正式下單時間
   paid_at                    實際付款時間，可空

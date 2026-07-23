@@ -3,7 +3,8 @@
  * 預約/租借管理模組
  *
  * 設計重點：
- *   1. 從 /data/commerce/camp-bookings.json 載入後存入 window.bookingsCache，避免重複 fetch
+ *   1. Backend：進頁重抓 AdminAPI.bookings.list（不沿用舊 cache、不 merge mockBookings）
+ *      Mock：camp-bookings.json + 可選 overlay；快取命中可跳過 fetch
  *   2. 付款狀態 2 種：已付款 / 已退款（顧客結帳即付款，取消時自動退款）
  *   3. 訂單狀態 4 種：待確認 / 已確認 / 已完成 / 已取消
  *   4. 點擊預約單號開啟明細 Modal（#bookingDetailModal）
@@ -66,6 +67,7 @@ function normalizeBackendBooking(booking) {
     ? Math.max(0, Math.round((new Date(detail.checkOut) - new Date(detail.checkIn)) / 86400000))
     : 0;
   return Object.assign({}, detail, {
+    sellerNote: detail.internalNote != null ? detail.internalNote : (detail.sellerNote || ''),
     submittedAt: detail.createdAt || '',
     bookingInfo: {
       campgroundId: detail.campgroundId,
@@ -419,20 +421,32 @@ window.initBookings = function () {
 // ─────────────────────────────────────────────
 
 /**
- * 載入 camp-bookings.json（若快取已存在則不重新 fetch），載入後觸發管線
- * 需在 customersCache 確認後呼叫
+ * 從 AdminAPI.list(includeMeta) 取出列陣列（與 orders.js 同規則）。
+ * Extract row array from AdminAPI paged list response.
+ */
+function extractAdminListRows(res) {
+  var payload = res && res.data;
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (payload && Array.isArray(payload.data)) {
+    return payload.data;
+  }
+  return [];
+}
+
+/**
+ * 載入預約資料。
+ * Backend：每次進頁重抓，不 merge localStorage mock。
+ * Mock：快取命中可跳過；可與 mockBookings overlay 合併。
+ * Load bookings — always refresh in backend mode; mock may reuse cache + overlay.
  */
 function loadBookingsData() {
-  if (window.bookingsCache && window.bookingsCache.length > 0) {
-    applyBookingFiltersAndSort();
-    return;
-  }
-
   if (isBookingBackendEnabled()) {
+    // size 上限 100（與訂單相同契約）
     AdminAPI.bookings.list({ page: 0, size: 100, sort: 'createdAt,desc' })
       .then(function (result) {
-        var payload = result && result.data;
-        window.bookingsCache = ((payload && payload.data) || []).map(normalizeBackendBooking);
+        window.bookingsCache = extractAdminListRows(result).map(normalizeBackendBooking);
         applyBookingFiltersAndSort();
       })
       .catch(function (err) {
@@ -442,8 +456,14 @@ function loadBookingsData() {
     return;
   }
 
+  // Mock 模式才用記憶體快取
+  if (window.bookingsCache && window.bookingsCache.length > 0) {
+    applyBookingFiltersAndSort();
+    return;
+  }
+
   loadAdminJsonResource({
-    adminList: AdminAPI && AdminAPI.bookings && AdminAPI.bookings.list,
+    adminList: null,
     jsonPath: MockDataPaths.campBookings,
     emptyValue: [],
     errorMessage: '載入預約失敗',
@@ -1104,10 +1124,7 @@ function showBookingModal(booking) {
     window.applyEditPermission('bookings', $('#bookingDetailModal'));
   }
   if (isBookingBackendEnabled()) {
-    $('#bkModalSellerNote')
-      .prop('disabled', true)
-      .attr('placeholder', '正式後端尚未提供賣家備註端點');
-    $('#btnSaveBookingSellerNote').addClass('d-none');
+    $('#bkModalSellerNote').attr('placeholder', '輸入內部備註（僅後台可見）');
   }
   updateBookingSellerNoteSaveButton();
 
@@ -1120,10 +1137,6 @@ function showBookingModal(booking) {
  * Compare booking seller note with saved baseline; toggle save button
  */
 function updateBookingSellerNoteSaveButton() {
-  if (isBookingBackendEnabled()) {
-    $('#btnSaveBookingSellerNote').addClass('d-none');
-    return;
-  }
   if (typeof window.canEdit === 'function' && !window.canEdit('bookings')) {
     $('#btnSaveBookingSellerNote').addClass('d-none');
     return;
@@ -1149,12 +1162,35 @@ function saveBookingSellerNote() {
   });
   if (!booking) return;
 
-  if (isBookingBackendEnabled()) {
-    window.showAdminToast('正式後端目前不提供預約備註修改', 'warning');
+  if (typeof window.canEdit === 'function' && !window.canEdit('bookings')) {
+    window.showAdminToast('沒有預約編輯權限', 'warning');
     return;
   }
 
   var sellerNote = $('#bkModalSellerNote').val().trim();
+
+  if (isBookingBackendEnabled()) {
+    $('#btnSaveBookingSellerNote').prop('disabled', true);
+    AdminAPI.bookings.updateInternalNote(bookingId, sellerNote)
+      .then(function (result) {
+        var saved = (result.data && result.data.internalNote) || '';
+        booking.sellerNote = saved;
+        booking.internalNote = saved;
+        $('#bkModalSellerNote').val(saved);
+        $('#bookingDetailModal').data('seller-note-saved', saved);
+        updateBookingSellerNoteSaveButton();
+        window.showAdminToast('預約 ' + window.formatBookingId(bookingId) + ' 內部備註已儲存');
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '同步內部備註失敗');
+      })
+      .finally(function () {
+        $('#btnSaveBookingSellerNote').prop('disabled', false);
+        updateBookingSellerNoteSaveButton();
+      });
+    return;
+  }
+
   booking.sellerNote = sellerNote;
   $('#bkModalSellerNote').val(sellerNote);
   $('#bookingDetailModal').data('seller-note-saved', sellerNote);

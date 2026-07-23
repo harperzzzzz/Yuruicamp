@@ -63,6 +63,6 @@ class AdminBookingServiceTest {
 				LocalDate.of(2026, 7, 18), LocalDate.of(2026, 7, 20), 2, 2, 0,
 				java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO,
 				java.math.BigDecimal.ZERO, "ecpay-credit", "paid", Instant.EPOCH,
-				"completed", Instant.EPOCH, Instant.EPOCH);
+				"completed", null, Instant.EPOCH, Instant.EPOCH);
 	}
 }

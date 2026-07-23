@@ -961,6 +961,7 @@ CREATE TABLE public.bookings (
     paid_at timestamp with time zone,
     checkout_expires_at timestamp with time zone,
     status public.booking_status NOT NULL,
+    internal_note text,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT ck_bookings_dates CHECK ((check_out > check_in)),
@@ -974,6 +975,13 @@ CREATE TABLE public.bookings (
 
     CONSTRAINT fk_bookings_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+
+--
+-- Name: COLUMN bookings.internal_note; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.bookings.internal_note IS 'Admin-only internal note; not a fulfillment status field.';
 
 
 --
@@ -1429,6 +1437,7 @@ CREATE TABLE public.orders (
     payment_status public.payment_status NOT NULL,
     refund_status public.refund_status DEFAULT 'none'::public.refund_status NOT NULL,
     status public.order_status NOT NULL,
+    internal_note text,
     placed_at timestamp with time zone NOT NULL,
     paid_at timestamp with time zone,
     checkout_expires_at timestamp with time zone,
@@ -1444,6 +1453,13 @@ CREATE TABLE public.orders (
     CONSTRAINT fk_orders_customer_id FOREIGN KEY (customer_id) REFERENCES public.customers(id) ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_orders_pickup_branch_id FOREIGN KEY (pickup_branch_id) REFERENCES public.branches(id) ON UPDATE CASCADE ON DELETE RESTRICT
 );
+
+
+--
+-- Name: COLUMN orders.internal_note; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.orders.internal_note IS 'Admin-only internal note; not a fulfillment status field.';
 
 
 --

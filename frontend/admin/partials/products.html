@@ -51,6 +51,19 @@
               id="toggleMinStockMode">
         <i class="fas fa-sliders-h me-1"></i>設定最低庫存
       </button>
+      <!-- W2-01／02：分類／品牌主檔（Backend 就緒時顯示） -->
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary d-none"
+              id="btnManageCategories"
+              title="維護商品分類主檔">
+        <i class="fas fa-folder-tree me-1"></i>分類
+      </button>
+      <button type="button"
+              class="btn btn-sm btn-outline-secondary d-none"
+              id="btnManageBrands"
+              title="維護品牌主檔">
+        <i class="fas fa-tags me-1"></i>品牌
+      </button>
       <button class="btn btn-sm text-white"
               style="background-color: var(--admin-brand-accent);"
               data-bs-toggle="modal"
@@ -240,3 +253,47 @@
     </div><!-- end modal-content -->
   </div><!-- end modal-dialog -->
 </div><!-- end #transferToRentalModal -->
+
+<!-- W2-01／02：分類／品牌主檔維護 Modal（極簡列表＋建立） -->
+<div class="modal fade" id="catalogMasterModal" tabindex="-1" aria-labelledby="catalogMasterModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="catalogMasterModalLabel">主檔維護</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="關閉"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-muted mb-3" id="catalogMasterHint">
+          已被商品引用的項目無法刪除（後端回 409）。新建後會自動出現在商品表單選單。
+        </p>
+        <form id="catalogMasterCreateForm" class="row g-2 mb-3">
+          <div class="col-12" id="catalogMasterIdFieldWrap">
+            <label class="form-label small mb-0" for="catalogMasterId">ID（slug）</label>
+            <input type="text" class="form-control form-control-sm" id="catalogMasterId"
+                   placeholder="例如 naturehike" autocomplete="off">
+          </div>
+          <div class="col-12" id="catalogMasterCodeFieldWrap">
+            <label class="form-label small mb-0" for="catalogMasterCode">代碼 code</label>
+            <input type="text" class="form-control form-control-sm" id="catalogMasterCode"
+                   placeholder="例如 camp-chair" autocomplete="off">
+          </div>
+          <div class="col-8">
+            <label class="form-label small mb-0" for="catalogMasterName">顯示名稱</label>
+            <input type="text" class="form-control form-control-sm" id="catalogMasterName" required autocomplete="off">
+          </div>
+          <div class="col-4">
+            <label class="form-label small mb-0" for="catalogMasterSort">排序</label>
+            <input type="number" class="form-control form-control-sm" id="catalogMasterSort" min="0" value="0">
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-sm btn-primary" id="catalogMasterCreateBtn">
+              <i class="fas fa-plus me-1"></i>新增
+            </button>
+          </div>
+        </form>
+        <ul class="list-group list-group-flush" id="catalogMasterList"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -176,14 +176,86 @@
       /** POST /api/admin/customers/:id/reactivate */
       reactivate: function (customerId) {
         return request('POST', '/customers/' + encodeURIComponent(customerId) + '/reactivate');
+      },
+      /**
+       * PUT /api/admin/customers/:id/tags — 完整集合取代標籤指派（W1-03）
+       * @param {string} customerId
+       * @param {number[]} tagIds
+       */
+      replaceTags: function (customerId, tagIds) {
+        return request('PUT', '/customers/' + encodeURIComponent(customerId) + '/tags', {
+          tagIds: Array.isArray(tagIds) ? tagIds : []
+        });
+      },
+      /**
+       * PUT /api/admin/customers/:id/default-shipping-address — 覆寫預設收件地址（W1-04）
+       * Overwrite default shipping address; never touches order snapshots.
+       */
+      updateDefaultShippingAddress: function (customerId, address) {
+        return request(
+          'PUT',
+          '/customers/' + encodeURIComponent(customerId) + '/default-shipping-address',
+          address
+        );
+      },
+      /**
+       * PUT /api/admin/customers/:id/preferences — 完整集合取代偏好（W1-05）
+       * @param {string} customerId
+       * @param {number[]} optionIds
+       */
+      replacePreferences: function (customerId, optionIds) {
+        return request('PUT', '/customers/' + encodeURIComponent(customerId) + '/preferences', {
+          optionIds: Array.isArray(optionIds) ? optionIds : []
+        });
       }
     },
 
-    // ── 標籤池 / Tag pool ──
+    // ── 偏好選項 lookup（W1-05：唯讀；本季不做 CRUD）──
+    preferenceOptions: {
+      /** GET /api/admin/preference-options */
+      list: function (query) {
+        var params = new URLSearchParams();
+        if (query && query.includeInactive) {
+          params.set('includeInactive', 'true');
+        }
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/preference-options' + suffix);
+      }
+    },
+
+    // ── 標籤池 / Tag pool（W1-02：/customer-tags；指派見 W1-03）──
     tags: {
-      /** PUT /api/admin/tag-pool */
+      /** GET /api/admin/customer-tags */
+      list: function (query) {
+        var params = new URLSearchParams();
+        if (query && query.includeInactive) {
+          params.set('includeInactive', 'true');
+        }
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/customer-tags' + suffix);
+      },
+      /** GET /api/admin/customer-tags/:id */
+      getById: function (tagId) {
+        return request('GET', '/customer-tags/' + encodeURIComponent(tagId));
+      },
+      /** POST /api/admin/customer-tags */
+      create: function (payload) {
+        return request('POST', '/customer-tags', payload);
+      },
+      /** PATCH /api/admin/customer-tags/:id */
+      update: function (tagId, payload) {
+        return request('PATCH', '/customer-tags/' + encodeURIComponent(tagId), payload);
+      },
+      /** DELETE /api/admin/customer-tags/:id — 有指派時後端回 409 */
+      remove: function (tagId) {
+        return request('DELETE', '/customer-tags/' + encodeURIComponent(tagId));
+      },
+      /**
+       * @deprecated Mock 整包覆寫；正式模式請改用 list／create／update／remove
+       * Deprecated mock bulk save; use CRUD in backend mode.
+       */
       savePool: function (tagColorMap) {
-        return unsupported('customers.tagPool', '正式後端尚未提供會員標籤池維護', function () {
+        return unsupported('customers.tagPool', '正式後端請改用 tags.create／update／remove', function () {
           return request('PUT', '/tag-pool', { tagColorMap: tagColorMap });
         });
       }
@@ -207,10 +279,22 @@
       getById: function (orderId) {
         return request('GET', '/orders/' + encodeURIComponent(orderId));
       },
-      /** PATCH /api/admin/orders/:id — 狀態、history 等 */
+      /** PATCH /api/admin/orders/:id/internal-note — 內部備註覆寫 */
+      updateInternalNote: function (orderId, internalNote) {
+        return request('PATCH', '/orders/' + encodeURIComponent(orderId) + '/internal-note', {
+          internalNote: internalNote == null ? '' : String(internalNote)
+        });
+      },
+      /** @deprecated 請改用 updateInternalNote；Mock 模式仍接受 sellerNote payload */
       update: function (orderId, payload) {
-        return unsupported('orders.sellerNote', '正式後端尚未提供訂單備註修改', function () {
+        if (!config.useBackend) {
           return request('PATCH', '/orders/' + encodeURIComponent(orderId), payload);
+        }
+        var note = payload && Object.prototype.hasOwnProperty.call(payload, 'internalNote')
+          ? payload.internalNote
+          : (payload && payload.sellerNote);
+        return request('PATCH', '/orders/' + encodeURIComponent(orderId) + '/internal-note', {
+          internalNote: note == null ? '' : String(note)
         });
       },
       /** 語意化捷徑：出貨 */
@@ -241,10 +325,22 @@
       getById: function (bookingId) {
         return request('GET', '/bookings/' + encodeURIComponent(bookingId));
       },
-      /** PATCH /api/admin/bookings/:id — 狀態、備註等 */
+      /** PATCH /api/admin/bookings/:id/internal-note — 內部備註覆寫 */
+      updateInternalNote: function (bookingId, internalNote) {
+        return request('PATCH', '/bookings/' + encodeURIComponent(bookingId) + '/internal-note', {
+          internalNote: internalNote == null ? '' : String(internalNote)
+        });
+      },
+      /** @deprecated 請改用 updateInternalNote；Mock 模式仍接受 sellerNote payload */
       update: function (bookingId, payload) {
-        return unsupported('bookings.sellerNote', '正式後端尚未提供預約備註修改', function () {
+        if (!config.useBackend) {
           return request('PATCH', '/bookings/' + encodeURIComponent(bookingId), payload);
+        }
+        var note = payload && Object.prototype.hasOwnProperty.call(payload, 'internalNote')
+          ? payload.internalNote
+          : (payload && payload.sellerNote);
+        return request('PATCH', '/bookings/' + encodeURIComponent(bookingId) + '/internal-note', {
+          internalNote: note == null ? '' : String(note)
         });
       },
       /** POST /api/admin/bookings/:id/confirm */
@@ -297,19 +393,47 @@
       }
     },
 
-    // ── 評論 / Reviews ──
+    // ── 最低庫存閾值 / Min-stocks（W1-07）──
+    minStocks: {
+      /**
+       * GET /api/admin/min-stocks?inventoryDomain=store|rental
+       * 查詢閾值；不回傳 on_hand。
+       */
+      list: function (query) {
+        var params = new URLSearchParams(query || {});
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/min-stocks' + suffix);
+      },
+      /**
+       * PUT /api/admin/min-stocks — 批次 upsert 閾值（不改 on_hand）
+       * @param {{ inventoryDomain: string, items: Array }} payload
+       */
+      upsert: function (payload) {
+        return request('PUT', '/min-stocks', payload);
+      }
+    },
+
+    // ── 評論 / Reviews（W1-06：列表／詳情／硬刪）──
     reviews: {
       /** GET /api/admin/reviews */
-      list: function () {
-        return unsupported('reviews.manage', '評論管理尚未提供正式後端端點', function () {
-          return request('GET', '/reviews');
+      list: function (query) {
+        var params = new URLSearchParams();
+        Object.keys(query || {}).forEach(function (key) {
+          var value = query[key];
+          if (value !== undefined && value !== null && value !== '') {
+            params.set(key, value);
+          }
         });
+        var suffix = params.toString() ? '?' + params.toString() : '';
+        return request('GET', '/reviews' + suffix, null, true);
       },
-      /** DELETE /api/admin/reviews/:id — 刪除整則評論 */
+      /** GET /api/admin/reviews/:id */
+      getById: function (reviewId) {
+        return request('GET', '/reviews/' + encodeURIComponent(reviewId));
+      },
+      /** DELETE /api/admin/reviews/:id — 硬刪整則（photos CASCADE） */
       remove: function (reviewId) {
-        return unsupported('reviews.manage', '評論管理尚未提供正式後端端點', function () {
-          return request('DELETE', '/reviews/' + encodeURIComponent(reviewId));
-        });
+        return request('DELETE', '/reviews/' + encodeURIComponent(reviewId));
       }
     },
 
