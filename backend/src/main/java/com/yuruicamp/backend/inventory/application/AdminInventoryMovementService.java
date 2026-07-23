@@ -132,6 +132,7 @@ public class AdminInventoryMovementService {
 			long id,
 			AdminInventoryMovementItemRequest request) {
 		MovementState movement = requireLockedMovement(id);
+		requireNotConversion(movement, "Conversion movement items must be managed via /api/admin/inventory-conversions");
 		requireDraft(movement, "Only draft movement can add items");
 		String variantId = request.variantId().trim();
 		VariantSnapshot variant = repository.findVariant(movement.inventoryDomain(), variantId);
@@ -152,6 +153,7 @@ public class AdminInventoryMovementService {
 	@Transactional
 	public AdminInventoryMovementResponse post(long id, String actorId) {
 		MovementState movement = requireLockedMovement(id);
+		requireNotConversion(movement, "Conversion movement must be posted via /api/admin/inventory-conversions");
 		if ("posted".equals(movement.status())) {
 			return get(id);
 		}
@@ -210,6 +212,7 @@ public class AdminInventoryMovementService {
 	@Transactional
 	public AdminInventoryMovementResponse cancel(long id, String actorId) {
 		MovementState movement = requireLockedMovement(id);
+		requireNotConversion(movement, "Conversion movement must be cancelled via /api/admin/inventory-conversions");
 		if ("cancelled".equals(movement.status())) {
 			return get(id);
 		}
@@ -316,6 +319,14 @@ public class AdminInventoryMovementService {
 
 	private void requireDraft(MovementState movement, String message) {
 		if (!"draft".equals(movement.status())) {
+			throw conflict(message);
+		}
+	}
+
+	// ADM-W2-05：conversion_out／conversion_in 一律成對處理，禁止透過本通用端點單邊
+	// 新增明細／過帳／作廢，避免產生「單邊假轉換」（商城扣了但租借沒加，或反之）。
+	private void requireNotConversion(MovementState movement, String message) {
+		if ("conversion_out".equals(movement.movementType()) || "conversion_in".equals(movement.movementType())) {
 			throw conflict(message);
 		}
 	}

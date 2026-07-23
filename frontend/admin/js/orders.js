@@ -3,7 +3,8 @@
  * 訂單管理模組
  *
  * 設計重點：
- *   1. 從 orders.json 載入後存入 window.ordersCache，避免重複 fetch
+ *   1. Backend：進頁重抓 AdminAPI.orders.list（不沿用舊 cache、不 merge mockOrders）
+ *      Mock：orders.json + 可選 localStorage overlay；快取命中可跳過 fetch
  *   2. 訂單含 customerId；items 含 productId（可從 customers.orders 反查）
  *   2. 付款狀態：已付款 / 未付款 / 已退款；貨到付款看 payment==='cod'（不是 paymentStatus）
  *   3. 訂單狀態：未出貨 / 已出貨 / 已退貨 / 已完成
@@ -57,6 +58,8 @@ function isOrderBackendEnabled() {
 function normalizeBackendOrder(order) {
   var detail = order || {};
   return Object.assign({}, detail, {
+    // 後端欄位 internalNote；UI 仍用 sellerNote 顯示
+    sellerNote: detail.internalNote != null ? detail.internalNote : (detail.sellerNote || ''),
     buyerName: detail.customerName || (detail.buyer && detail.buyer.name) || '',
     createdAt: detail.placedAt || '',
     total: Number(detail.total || (detail.pricing && detail.pricing.total) || 0),
@@ -905,10 +908,7 @@ window.showOrderModal = function (order) {
     window.applyEditPermission('orders', $('#orderDetailModal'));
   }
   if (isOrderBackendEnabled()) {
-    $('#modalSellerNote')
-      .prop('disabled', true)
-      .attr('placeholder', '正式後端尚未提供賣家備註端點');
-    $('#btnSaveSellerNote').addClass('d-none');
+    $('#modalSellerNote').attr('placeholder', '輸入內部備註（僅後台可見）');
   }
 
   // 開啟時無未儲存變更 → 隱藏「儲存」按鈕
@@ -923,10 +923,6 @@ window.showOrderModal = function (order) {
  * Compare current textarea with saved baseline; toggle save button visibility
  */
 function updateSellerNoteSaveButton() {
-  if (isOrderBackendEnabled()) {
-    $('#btnSaveSellerNote').addClass('d-none');
-    return;
-  }
   if (typeof window.canEdit === 'function' && !window.canEdit('orders')) {
     $('#btnSaveSellerNote').addClass('d-none');
     return;
@@ -952,19 +948,40 @@ function saveSellerNote() {
   });
   if (!order) return;
 
-  if (isOrderBackendEnabled()) {
-    window.showAdminToast('正式後端目前不提供訂單備註修改', 'warning');
+  if (typeof window.canEdit === 'function' && !window.canEdit('orders')) {
+    window.showAdminToast('沒有訂單編輯權限', 'warning');
     return;
   }
 
   var sellerNote = $('#modalSellerNote').val().trim();
+
+  // Backend：先打 API，成功才更新畫面；失敗保留輸入
+  if (isOrderBackendEnabled()) {
+    $('#btnSaveSellerNote').prop('disabled', true);
+    AdminAPI.orders.updateInternalNote(orderId, sellerNote)
+      .then(function (result) {
+        var saved = (result.data && result.data.internalNote) || '';
+        order.sellerNote = saved;
+        order.internalNote = saved;
+        $('#modalSellerNote').val(saved);
+        $('#orderDetailModal').data('seller-note-saved', saved);
+        updateSellerNoteSaveButton();
+        window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 內部備註已儲存');
+      })
+      .catch(function (err) {
+        AdminAPI.handleError(err, '同步內部備註失敗');
+      })
+      .finally(function () {
+        $('#btnSaveSellerNote').prop('disabled', false);
+        updateSellerNoteSaveButton();
+      });
+    return;
+  }
+
   order.sellerNote = sellerNote;
   $('#modalSellerNote').val(sellerNote);
-
-  // 更新 baseline，儲存成功後隱藏按鈕
   $('#orderDetailModal').data('seller-note-saved', sellerNote);
   updateSellerNoteSaveButton();
-
   window.showAdminToast('訂單 ' + window.formatOrderId(orderId) + ' 賣家備註已儲存');
 
   if (typeof AdminAPI !== 'undefined' && AdminAPI.orders) {
@@ -985,11 +1002,29 @@ $(document).on('click', '#btnSaveSellerNote', saveSellerNote);
 // ─────────────────────────────────────────────
 
 /**
- * 載入訂單資料（若快取已存在則不重新 fetch）
- * Load orders data after customers cache is ready
+ * 從 AdminAPI.list(includeMeta) 取出列陣列。
+ * 正確形狀：{ data: [...], meta }；相容誤包一層 { data: { data: [...] } }。
+ * Extract row array from AdminAPI paged list response.
+ */
+function extractAdminListRows(res) {
+  var payload = res && res.data;
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  if (payload && Array.isArray(payload.data)) {
+    return payload.data;
+  }
+  return [];
+}
+
+/**
+ * 載入訂單資料。
+ * Backend：每次進頁都重抓（不沿用可能混到 mock 的舊 cache、也不 merge localStorage）。
+ * Mock：快取命中可跳過；並可與 mockOrders overlay 合併。
+ * Load orders — always refresh in backend mode; mock may reuse cache + overlay.
  */
 function loadOrdersData() {
-  function onLoaded(orders) {
+  function onLoadedMock(orders) {
     var seed = orders || [];
     if (typeof MockStorageMerge !== 'undefined') {
       var overlay = MockStorageMerge.readJsonStorage(MockStorageMerge.MOCK_ORDERS_KEY, []);
@@ -1000,16 +1035,12 @@ function loadOrdersData() {
     applyFiltersAndSort();
   }
 
-  if (window.ordersCache && window.ordersCache.length) {
-    applyFiltersAndSort();
-    return;
-  }
-
   if (typeof AdminAPI !== 'undefined' && AdminAPI.isBackendEnabled && AdminAPI.isBackendEnabled()) {
+    // size 上限 100（契約／後端 validate）；超過會 400
     AdminAPI.orders.list({ page: 0, size: 100, sort: 'placedAt,desc' })
       .then(function (res) {
-        var payload = res && res.data;
-        onLoaded(((payload && payload.data) || []).map(normalizeBackendOrder));
+        window.ordersCache = extractAdminListRows(res).map(normalizeBackendOrder);
+        applyFiltersAndSort();
       })
       .catch(function (err) {
         AdminAPI.handleError(err, '載入訂單失敗');
@@ -1022,8 +1053,14 @@ function loadOrdersData() {
     return;
   }
 
+  // Mock 模式才用記憶體快取（Backend 已在上方強制重抓）
+  if (window.ordersCache && window.ordersCache.length) {
+    applyFiltersAndSort();
+    return;
+  }
+
   $.getJSON(MockDataPaths.orders, function (orders) {
-    onLoaded(orders);
+    onLoadedMock(orders);
   }).fail(function () {
     $('#ordersTableBody').html(
       '<tr><td colspan="7" class="text-center text-danger py-4">' +

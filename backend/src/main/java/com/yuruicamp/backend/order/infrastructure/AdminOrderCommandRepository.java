@@ -51,6 +51,15 @@ public class AdminOrderCommandRepository {
 				""", id, status, databaseTime(now), actorId, note);
 	}
 
+	// 覆寫內部備註；空白已由 Service 轉成 null。
+	public void updateInternalNote(String id, String internalNote, Instant now) {
+		jdbc.update("""
+				update orders
+				set internal_note = ?, updated_at = ?
+				where id = ?
+				""", internalNote, databaseTime(now), id);
+	}
+
 	// PostgreSQL JDBC 可明確識別 OffsetDateTime，並保存為 timestamptz。
 	private static OffsetDateTime databaseTime(Instant value) {
 		return OffsetDateTime.ofInstant(value, ZoneOffset.UTC);

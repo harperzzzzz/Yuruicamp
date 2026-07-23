@@ -180,7 +180,8 @@ rental_sku_variants
 商城低庫存判斷與最低庫存設定模式
 
 * `admin/js/products.js` 第 1036–1069 行會平行讀取商品 JSON 與最低庫存 JSON；最低庫存 JSON 讀取失敗時回退為空物件。
-* `admin/js/products.js` 第 1816–1855 行的 `saveMinStockValues()` 僅更新記憶體中的 `adminMinStockCache`，不建立庫存異動、不寫回 JSON，也不寫入 `product_variant_min_stocks`。
+* `admin/js/products.js` 正式模式會呼叫 `AdminAPI.minStocks`（`GET`／`PUT /api/admin/min-stocks`）讀寫 `product_variant_min_stocks`；成功後才更新 `adminMinStockCache`。Mock 模式仍可讀 `min-stock.json`。
+* `admin/js/products.js` 的 `saveMinStockValues()` **不**建立庫存異動、**不**改 `on_hand`。
 * `admin/js/products.js` 第 5335–5399 行以規格的 `branch` map 取得來源分店庫存並建立調撥來源選項。
 * `admin/js/products.js` 第 5799–5874 行的商城→租借調撥會先扣減商城規格的 `branch[branchId]`，再增加租借規格的 `camp[campKey]`；現行是前端快取操作，非資料庫交易。
 

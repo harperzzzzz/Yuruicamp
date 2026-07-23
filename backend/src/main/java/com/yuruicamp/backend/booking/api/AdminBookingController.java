@@ -15,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -86,6 +87,16 @@ public class AdminBookingController {
 			@AuthenticationPrincipal AdminPrincipal principal,
 			@Valid @RequestBody(required = false) AdminBookingTransitionRequest request) {
 		return ApiResponse.ok(service.complete(id, principal.adminUserId(), request == null ? null : request.note()));
+	}
+
+	// 覆寫預約內部備註；不改履約或付款狀態。
+	@PatchMapping("/{id}/internal-note")
+	@PreAuthorize("hasAuthority('bookings.edit')")
+	@Operation(summary = "更新預約內部備註", description = "RBAC: bookings.edit")
+	public ApiResponse<AdminBookingDetailResponse> updateInternalNote(
+			@PathVariable String id,
+			@Valid @RequestBody AdminInternalNoteRequest request) {
+		return ApiResponse.ok(service.updateInternalNote(id, request.internalNote()));
 	}
 
 	private static List<String> empty(List<String> values) {

@@ -46,7 +46,9 @@ docs/seed/
     ├── 040-inventory.sql  # 商城／租借庫位、listing 與庫存
     ├── 050-coupons.sql    # 優惠券主檔（claim 尚未建立）
     ├── 060-orders.sql     # 222 筆展示訂單、435 筆明細與歷程
-    └── 070-bookings.sql   # 90 筆展示預訂、zone／租借快照與歷程
+    ├── 070-bookings.sql   # 90 筆展示預訂、zone／租借快照與歷程
+    ├── 080-reviews.sql    # 已購評價（綁 order_items；含照片）
+    └── 090-w1-manual-fixtures.sql  # W1 手動驗收固定單（W1-ORD-*／W1-BK-*／W1-REV-DEL／min-stock）
 ```
 
 ### 後台 Google 白名單（本機）
@@ -69,7 +71,7 @@ docs/seed/
 
 `060-orders.sql` 已包含訂單 1～222、435 筆商品快照、431 筆狀態歷程、607 筆舊付款／建立事件與 435 筆商城庫存保留；商品 FK／SKU 已轉為 canonical variant。`070-bookings.sql` 已包含預訂 1～90、90 筆 zone、40 筆租借快照、190 筆狀態歷程與 40 筆租借庫存保留。訂單保留以固定主倉 `main` 履約；商城庫存的 on-hand 已加回 active 保留量，扣除後 active 商品可用量維持 JSON 的 399。
 
-`frontend/data/admin/reviews.json` 的 38 筆舊 `v-P...` variant／SKU 已全數轉為 canonical ID。但只有 `REV031` 明確提供 `orderId=208`，且可唯一對到 order item 602081，所以 Seed 只建立這 1 筆 verified-purchase 評論。其餘 37 筆不從會員、日期或商品碰巧反推交易。`movement.json` 仍不搬移：141 筆明細全部缺 variantId，其中 24 筆對到多規格商品，26 張表頭混合異動語意，員工 01～03 也沒有可追溯的 `admin_users` 主檔。
+`frontend/data/admin/reviews.json` 的評價已盡量對到真實 `order_items`，由 `080-reviews.sql` 載入；另有 `090-w1-manual-fixtures.sql` 提供 W1 手動驗收固定 ID（`W1-ORD-NOTE`／`W1-BK-NOTE`／`W1-REV-DEL` 等）。步驟見 [`../../plans/admin-post-g6/w1/W1-manual-qa.md`](../../plans/admin-post-g6/w1/W1-manual-qa.md)。`movement.json` 仍不搬移：141 筆明細全部缺 variantId，其中 24 筆對到多規格商品，26 張表頭混合異動語意，員工 01～03 也沒有可追溯的 `admin_users` 主檔。
 
 ### 全新資料庫實灌結果（2026-07-22）
 

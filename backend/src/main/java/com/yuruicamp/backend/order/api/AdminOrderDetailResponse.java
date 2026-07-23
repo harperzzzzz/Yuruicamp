@@ -13,6 +13,7 @@ public record AdminOrderDetailResponse(
 		String paymentStatus,
 		String refundStatus,
 		String status,
+		String internalNote,
 		Instant placedAt,
 		Instant paidAt,
 		Instant updatedAt,

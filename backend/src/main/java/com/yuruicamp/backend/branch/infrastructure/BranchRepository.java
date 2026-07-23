@@ -13,4 +13,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BranchRepository extends JpaRepository<Branch, String> {
 
 	List<Branch> findAllByOrderByIdAsc();
+
+	/** 公開 API 只回啟用門市（ADM-W2-07）。 / Public API only returns active branches. */
+	List<Branch> findAllByActiveTrueOrderByIdAsc();
 }

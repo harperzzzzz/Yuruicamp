@@ -61,8 +61,13 @@ vm.runInNewContext(runtimeSource, context, { filename: 'admin-runtime.js' });
 
 assert.equal(window.AdminAPI.isBackendEnabled(), true);
 assert.equal(window.AdminRuntime.isSectionReady('orders'), true);
-assert.equal(window.AdminRuntime.isSectionReady('reviews'), false);
-assert.equal(window.AdminRuntime.isFeatureReady('customers.tagPool'), false);
+assert.equal(window.AdminRuntime.isSectionReady('reviews'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('reviews.manage'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('customers.tagPool'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('customers.tagAssign'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('customers.preferences'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('products.minStock'), true);
+assert.equal(window.AdminRuntime.isFeatureReady('customers.defaultAddress'), true);
 
 const matrix = window.AdminRuntime.buildPermissionMatrix([
   'orders.view',
@@ -82,11 +87,13 @@ const orderResult = await window.AdminAPI.orders.list({ page: 0, size: 20 });
 assert.equal(orderResult.data[0].id, 1);
 assert.equal(orderResult.meta.totalElements, 1);
 
+// Reviews 已就緒：應發出正式 GET（W1-06）
+await window.AdminAPI.reviews.list({ page: 0, size: 20, sort: 'createdAt,desc' });
+assert.equal(calls[calls.length - 1].path, '/reviews?page=0&size=20&sort=createdAt%2Cdesc');
+assert.equal(calls[calls.length - 1].options.method, 'GET');
+
 const callCountBeforeUnsupported = calls.length;
-await assert.rejects(
-  window.AdminAPI.reviews.list(),
-  error => error.code === 'ADMIN_FEATURE_NOT_READY' && error.status === 501,
-);
+// 舊整包 savePool 在正式模式仍拒絕；請改用 tags.create／update／remove
 await assert.rejects(
   window.AdminAPI.tags.savePool({ VIP: 'bg-success' }),
   error => error.code === 'ADMIN_FEATURE_NOT_READY',
@@ -96,6 +103,17 @@ await assert.rejects(
   error => error.code === 'ADMIN_FEATURE_NOT_READY',
 );
 assert.equal(calls.length, callCountBeforeUnsupported);
+
+// 標籤池 CRUD 應可發出正式請求
+await window.AdminAPI.tags.list();
+assert.equal(calls[calls.length - 1].path, '/customer-tags');
+assert.equal(calls[calls.length - 1].options.method, 'GET');
+
+// 最低庫存閾值應可發出正式請求
+await window.AdminAPI.minStocks.list({ inventoryDomain: 'store' });
+assert.equal(calls[calls.length - 1].path, '/min-stocks?inventoryDomain=store');
+assert.equal(calls[calls.length - 1].options.method, 'GET');
+
 
 assert.match(loginHtml, /googleLoginBtn/);
 assert.match(loginHtml, /firebaseLoginStatus/);

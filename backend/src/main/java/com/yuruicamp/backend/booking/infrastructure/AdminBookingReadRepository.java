@@ -115,6 +115,7 @@ public class AdminBookingReadRepository {
 				rs.getBigDecimal("applied_discount"), rs.getBigDecimal("final_amount"),
 				rs.getString("payment_method"), rs.getString("payment_status"),
 				nullableInstant(rs, "paid_at"), rs.getString("status"),
+				rs.getString("internal_note"),
 				instant(rs, "created_at"), instant(rs, "updated_at")))
 				.stream()
 				.findFirst();
@@ -189,6 +190,6 @@ public class AdminBookingReadRepository {
 			LocalDate checkOut, int guestCount, int weekdayCount, int holidayCount,
 			BigDecimal zoneTotal, BigDecimal rentalTotal, BigDecimal discount, BigDecimal finalAmount,
 			String paymentMethod, String paymentStatus, Instant paidAt, String status,
-			Instant createdAt, Instant updatedAt) {
+			String internalNote, Instant createdAt, Instant updatedAt) {
 	}
 }

@@ -14,6 +14,8 @@ Admin Token → RBAC → ID 分頁 → 載入表頭摘要
 
 線上付款必須是 `paid` 且 `refundStatus=none` 才能出貨。COD 可在 unpaid 時出貨，完成時於同一交易標記 paid 與 `paidAt`。重複命令採冪等回放，不重複新增歷程。
 
+W1-01：`PATCH /api/admin/orders/{id}/internal-note` 覆寫 `orders.internal_note`；詳情回傳 `internalNote`；列表省略；空白清成 null。
+
 列表不直接 JOIN 商品與歷程，避免一對多資料放大分頁。完整地址、商品和歷程只在詳情回傳。
 
 `AdminOrderController` 使用 `firebaseBearer` OpenAPI Security Requirement，讓 Swagger `Authorize` 保存的 Firebase ID Token 自動加入 `Authorization: Bearer` Header。這項宣告只描述 API 認證需求，實際安全邊界仍由 Firebase Filter 與 `orders.view`／`orders.edit` RBAC 負責。

@@ -116,6 +116,19 @@ public class AdminOrderService {
 		return get(id);
 	}
 
+	/**
+	 * 覆寫訂單內部備註；不變更履約或付款狀態。
+	 * Overwrite order internal note without changing fulfillment/payment state.
+	 */
+	@Transactional
+	public AdminOrderDetailResponse updateInternalNote(String id, String internalNote) {
+		lock(id);
+		Instant now = Instant.now();
+		commandRepository.updateInternalNote(id, normalizeInternalNote(internalNote), now);
+
+		return get(id);
+	}
+
 	private SortSpec validate(
 			int page,
 			int size,
@@ -151,6 +164,7 @@ public class AdminOrderService {
 				new AdminOrderDetailResponse.PricingSummary(
 						money(row.subtotal()), money(row.shippingFee()), money(row.discount()), money(row.total())),
 				row.paymentMethod(), row.paymentStatus(), row.refundStatus(), row.status(),
+				row.internalNote(),
 				row.placedAt(), row.paidAt(), row.updatedAt(),
 				readRepository.findItems(row.id()), readRepository.findHistory(row.id()));
 	}
@@ -178,6 +192,15 @@ public class AdminOrderService {
 
 	private static String cleanNote(String note, String fallback) {
 		return note == null || note.isBlank() ? fallback : note.trim();
+	}
+
+	/** 空白字串清成 null，與契約一致。 / Blank strings become null per contract. */
+	private static String normalizeInternalNote(String note) {
+		if (note == null || note.isBlank()) {
+			return null;
+		}
+
+		return note.trim();
 	}
 
 	private static String money(java.math.BigDecimal value) {

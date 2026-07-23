@@ -1,6 +1,5 @@
 -- Booking E-1：公休資料需要一位固定的開發管理員作為建立者。
--- 真 Firebase Google 後台登入：請在本機另加白名單（勿把真實 email 寫進本檔）
--- → 見 021-admin-google-whitelist.example.sql
+-- （這筆是「種子資料用的假管理員」，不是給人 Google 登入的帳號）
 INSERT INTO public.admin_users (id, name, email, role, active)
 VALUES (
     'DEV-BOOKING-ADMIN',
@@ -14,6 +13,26 @@ ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
     role = EXCLUDED.role,
     active = EXCLUDED.active,
+    updated_at = now();
+
+-- 開發用 Firebase Google 後台登入白名單（email 必須與 Google 帳號完全一致）。
+-- firebase_uid 刻意設 NULL：首次登入時後端會自動綁定 UID；
+-- 若曾綁錯帳號，重建 seed 也會清掉舊 UID，方便重新綁定。
+-- 其他協作者若要用自己的 Google：可改這筆，或參考 021-admin-google-whitelist.example.sql 本機另加。
+INSERT INTO public.admin_users (id, name, email, role, active)
+VALUES (
+    '05',
+    '王老闆',
+    'kobi0401@gmail.com',
+    'admin',
+    true
+)
+ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    name = EXCLUDED.name,
+    role = EXCLUDED.role,
+    active = EXCLUDED.active,
+    firebase_uid = NULL,
     updated_at = now();
 
 INSERT INTO public.campground_closures (

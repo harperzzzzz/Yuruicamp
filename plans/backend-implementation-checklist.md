@@ -146,6 +146,10 @@
 
 ## 線 G — Admin（P1）
 
+> G-6 之後擴充 backlog（備註／標籤／Reviews／租借寫入／轉換／取消退款／主檔等）：  
+> - 規劃總覽：[`admin-post-g6-task-list.md`](./admin-post-g6-task-list.md)  
+> - 細實作 checklist：[`admin-post-g6/README.md`](./admin-post-g6/README.md)
+
 - [x] G-1 細 RBAC（PostgreSQL 整合測試 2 項通過；角色預設、個人覆寫、每次請求授權、UID 一致性與管理員保護）
 - [x] G-2 customers／orders／bookings／products
   - [x] G-2a Customers（PostgreSQL 整合測試通過；列表、詳情、更新、停權／恢復、RBAC 與前端雙模式完成）
