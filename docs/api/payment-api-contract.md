@@ -1,10 +1,10 @@
-# Payment API Contract（v0.1）
+# Payment API Contract（v0.2）
 
 | 欄位 | 內容 |
 |------|------|
-| **狀態** | Locked（線 D 待實作） |
-| **日期** | 2026-07-20 |
-| **版本** | 0.1 |
+| **狀態** | Partially Implemented（COD claim 消耗完成；ECPay 線 D 待實作） |
+| **日期** | 2026-07-24 |
+| **版本** | 0.2 |
 | **共用** | [`common-api-conventions.md`](./common-api-conventions.md) |
 | **DB** | `payment_method`／`payment_status` ENUM、`payment_notifications`、`orders`、`bookings` |
 | **ENUM** | [`schema-enums.md`](../schema-enums.md) |
@@ -68,7 +68,10 @@
    - 重複：`result=ignored_duplicate`，**不**改狀態兩次  
    - 失敗：`result=failed`  
 4. 商城：相關 `product_stock_reservations` → `fulfilled`（規則在 Service）  
-5. 回給綠界的 body／狀態碼依綠界文件（實作時鎖死一種）
+5. 商城有套券時呼叫 `CouponService.consumeAppliedClaim`；重複通知不得覆寫第一次 `consumed_at`
+6. 回給綠界的 body／狀態碼依綠界文件（實作時鎖死一種）
+
+目前尚未建立 ECPay Notify endpoint；上述步驟仍屬線 D 待實作，不得以未驗簽的測試通知直接消耗 claim。
 
 ### 4.2 `payment_notifications` 對照（內部，可不直接曝 API）
 
@@ -98,6 +101,8 @@
 | `confirm-cod` 後 | `unpaid` | 已成立訂單，未收款 |
 | 後台履約完成（規則實作時定：出貨或 completed） | `paid` | Service 更新；`paid_at` |
 
+若 COD 訂單有 `order_coupons` 快照，`confirm-cod` 成功時會在同一交易將 claim 改為 `consumed` 並設定 `consumed_at`。這代表優惠券已被本次成立的 COD 訂單占用，與貨款尚未收取是兩個不同狀態。
+
 預約任何嘗試設 `cod` → 400／409（DB 亦有 `ck_bookings_no_cod`）。
 
 ---
@@ -116,4 +121,5 @@
 
 | 版本 | 日期 | 說明 |
 |------|------|------|
+| 0.2 | 2026-07-24 | COD 成立時消耗 claim；鎖定未來 ECPay Notify 共用冪等消耗方法 |
 | 0.1 | 2026-07-20 | ECPay 真相在 Notify；COD 僅商城 |
