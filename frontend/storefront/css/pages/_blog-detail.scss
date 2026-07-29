@@ -1,0 +1,391 @@
+﻿// 部落格詳情頁：管理文章閱讀版面、麵包屑與相關文章卡片的頁面專屬樣式。
+.blogDetailPage {
+  background: var(--yc-bg);
+  color: var(--yc-text);
+  min-height: 100vh;
+}
+
+.blogDetailLayout {
+  margin-inline: auto;
+  padding: clamp(1.5rem, 5vw, 4rem) 0;
+  width: min(860px, calc(100vw - 32px));
+}
+
+.blogDetail {
+  display: grid;
+  gap: var(--yc-space-6, 24px);
+}
+
+.blogDetailBreadcrumb {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.blogDetailBreadcrumbList {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yc-space-2, 8px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blogDetailBreadcrumbItem {
+  align-items: center;
+  display: inline-flex;
+  min-height: 32px;
+}
+
+.blogDetailBreadcrumbLink,
+.blogDetailErrorLink {
+  color: var(--yc-sage-action);
+  font-weight: 800;
+  text-decoration: none;
+  transition: color var(--yc-transition-fast, 150ms ease);
+}
+
+.blogDetailBreadcrumbLink:hover,
+.blogDetailErrorLink:hover {
+  color: var(--yc-sage-dark);
+  text-decoration: underline;
+}
+
+.blogDetailBreadcrumbLink:focus-visible,
+.blogDetailErrorLink:focus-visible,
+.blogInlineProductLink:focus-visible,
+.blogRelatedLink:focus-visible {
+  outline: 3px solid rgb(36 77 77 / 35%);
+  outline-offset: 3px;
+}
+
+.blogDetailBreadcrumbSeparator {
+  color: var(--yc-text-muted);
+}
+
+.blogDetailBreadcrumbCurrent {
+  color: var(--yc-text);
+  font-weight: 700;
+}
+
+.blogDetailHero {
+  margin: 0;
+}
+
+.blogDetailHeroImage {
+  aspect-ratio: 21 / 9;
+  border-radius: var(--yc-radius-card, 12px);
+  box-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.blogDetailMeta {
+  align-items: center;
+  border-bottom: 1px solid var(--yc-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yc-space-4, 16px);
+  padding-bottom: var(--yc-space-5, 20px);
+}
+
+.blogDetailCategory,
+.blogDetailTag,
+.blogRelatedCategory {
+  align-items: center;
+  background: var(--yc-sage-soft);
+  border-radius: var(--yc-radius-pill, 9999px);
+  color: var(--yc-sage-action);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  min-height: 28px;
+  padding: 0.25rem 0.75rem;
+}
+
+.blogDetailPublishedDate {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.blogDetailTitle {
+  color: var(--yc-sage-action);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 800;
+  line-height: 1.18;
+  margin: 0;
+}
+
+.blogDetailBody {
+  color: var(--yc-text);
+  display: grid;
+  font-size: 1rem;
+  gap: var(--yc-space-5, 20px);
+  line-height: 1.8;
+}
+
+.blogDetailBody.isLoading {
+  min-height: 240px;
+}
+
+.blogDetailSectionTitle {
+  color: var(--yc-sage-action);
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: var(--yc-space-4, 16px) 0 0;
+}
+
+.blogDetailParagraph {
+  margin: 0;
+}
+
+.blogDetailTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--yc-space-2, 8px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.blogDetailTags.isEmpty {
+  display: none;
+}
+
+.blogInlineProductCard {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  box-shadow: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
+  margin-block: var(--yc-space-2, 8px);
+  overflow: hidden;
+  transition: border-color var(--yc-transition-fast, 150ms ease), box-shadow var(--yc-transition-fast, 150ms ease);
+}
+
+.blogInlineProductCard:hover,
+.blogInlineProductCard:focus-within {
+  border-color: var(--yc-sage-light);
+  box-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+}
+
+.blogInlineProductLink {
+  align-items: center;
+  color: inherit;
+  display: grid;
+  gap: var(--yc-space-4, 16px);
+  grid-template-columns: 96px minmax(0, 1fr);
+  min-height: 112px;
+  padding: var(--yc-space-4, 16px);
+  text-decoration: none;
+}
+
+.blogInlineProductImage {
+  aspect-ratio: 1;
+  border-radius: var(--yc-radius-button, 8px);
+  object-fit: cover;
+  width: 100%;
+}
+
+.blogInlineProductContent {
+  display: grid;
+  gap: var(--yc-space-1, 4px);
+  min-width: 0;
+}
+
+.blogInlineProductLabel {
+  color: var(--yc-sage-light);
+  font-size: 0.8125rem;
+  font-weight: 800;
+}
+
+.blogInlineProductTitle {
+  color: var(--yc-sage-action);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.blogInlineProductPrice {
+  color: var(--yc-warning);
+  font-weight: 800;
+}
+
+.blogInlineProductHint {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+}
+
+.blogRelatedSection {
+  border-top: 1px solid var(--yc-border);
+  display: grid;
+  gap: var(--yc-space-4, 16px);
+  padding-top: var(--yc-space-6, 24px);
+}
+
+.blogRelatedSection.isEmpty {
+  gap: var(--yc-space-3, 12px);
+}
+
+.blogRelatedTitle {
+  color: var(--yc-sage-action);
+  font-size: 1.375rem;
+  font-weight: 800;
+  margin: 0;
+}
+
+.blogRelatedGrid {
+  display: grid;
+  gap: var(--yc-space-5, 20px);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.blogRelatedCard {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  box-shadow: var(--yc-shadow-soft, 0 1px 2px rgb(0 0 0 / 5%));
+  overflow: hidden;
+  transition: border-color var(--yc-transition-fast, 150ms ease), box-shadow var(--yc-transition-fast, 150ms ease);
+}
+
+.blogRelatedCard:hover,
+.blogRelatedCard:focus-within {
+  border-color: var(--yc-sage-light);
+  box-shadow: var(--yc-shadow-soft, 0 4px 12px rgb(36 77 77 / 10%));
+}
+
+.blogRelatedLink {
+  color: inherit;
+  display: grid;
+  height: 100%;
+  text-decoration: none;
+}
+
+.blogRelatedImage {
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.blogRelatedContent {
+  display: grid;
+  gap: var(--yc-space-2, 8px);
+  padding: var(--yc-space-4, 16px);
+}
+
+.blogRelatedArticleTitle {
+  color: var(--yc-text);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.blogRelatedExcerpt {
+  color: var(--yc-text-muted);
+  display: -webkit-box;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.blogDetailLoadingState,
+.blogDetailEmptyState,
+.blogDetailErrorState {
+  background: var(--yc-surface);
+  border: 1px solid var(--yc-border);
+  border-radius: var(--yc-radius-button, 8px);
+  color: var(--yc-text-muted);
+  display: grid;
+  gap: var(--yc-space-3, 12px);
+  min-height: 160px;
+  padding: var(--yc-space-6, 24px);
+  place-items: center;
+  text-align: center;
+}
+
+.blogDetailLoadingIcon {
+  animation: blog-detail-loading-pulse 1s ease-in-out infinite;
+  background: var(--yc-sage-soft);
+  border-radius: 50%;
+  display: inline-block;
+  height: 44px;
+  width: 44px;
+}
+
+.blogDetailErrorState {
+  border-color: color-mix(in srgb, var(--yc-error) 32%, var(--yc-border));
+  color: var(--yc-error);
+}
+
+@keyframes blog-detail-loading-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (width <= 1024px) {
+  .blogDetailLayout {
+    width: min(900px, calc(100vw - 32px));
+  }
+}
+
+@media (width <= 768px) {
+  .blogDetailLayout {
+    width: min(100% - 24px, 860px);
+  }
+
+  .blogDetailHeroImage {
+    aspect-ratio: 16 / 9;
+  }
+
+  .blogDetailMeta {
+    align-items: flex-start;
+    display: grid;
+  }
+}
+
+@media (width <= 440px) {
+  .blogDetailLayout {
+    padding-block: var(--yc-space-6, 24px);
+  }
+
+  .blogInlineProductLink {
+    grid-template-columns: 1fr;
+  }
+
+  .blogInlineProductImage {
+    max-width: 160px;
+  }
+}
+
+@media (width <= 375px) {
+  .blogDetailBreadcrumbList {
+    gap: var(--yc-space-1, 4px);
+  }
+
+  .blogDetailTitle {
+    font-size: 1.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blogDetailLoadingIcon {
+    animation: none;
+  }
+
+  .blogDetailBreadcrumbLink,
+  .blogDetailErrorLink,
+  .blogInlineProductCard,
+  .blogRelatedCard {
+    transition: none;
+  }
+}

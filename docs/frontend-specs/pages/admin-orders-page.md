@@ -1,4 +1,4 @@
-# AdminOrdersPage Spec
+﻿# AdminOrdersPage Spec
 
 **Status:** Draft
 **Category:** Page
@@ -79,7 +79,7 @@ export interface AdminOrdersPageProps {
 |-------|---------|---------------|
 | Default | Page loaded | Primary content areas render with Yuruicamp green tokens and existing spacing. |
 | Hover | Interactive card, row, tab, or button hover | Border, shadow, or background changes without layout shift. |
-| Active | Selected tab, filter, nav item, or table row | Uses `--yui-primary` or `--yui-primary-soft` plus text label. |
+| Active | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label. |
 | Disabled | Unavailable action or incomplete form | Lower opacity, blocked pointer, preserved element dimensions. |
 | Loading | `loading={true}` | Skeleton rows, disabled submit buttons, or stable placeholder blocks. |
 | Error | `errorMessage` exists | Inline alert near the failed area and retry action when possible. |
@@ -100,12 +100,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 
@@ -147,6 +147,8 @@ const colors = {
 - **Screen reader:** Announces page title, loading/error states, selected filters, and status labels as text.
 
 ## Implementation Notes
+
+- 商品訂單 `cancelled` 必須與預約訂單一致顯示「已取消」，並可由訂單狀態篩選器選取；列表與詳情 Modal 使用相同狀態文字。
 
 - Source file: `admin/partials/orders.html`.
 - Shared CSS source: `admin/css/admin.css`.

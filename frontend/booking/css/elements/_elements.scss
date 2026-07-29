@@ -1,0 +1,54 @@
+/* Elements：booking 子系統 HTML 元素基礎樣式，避免混在 reset 或頁面檔。 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--yc-bg);
+  color: var(--yc-text);
+  font-family: var(--yc-font-body, var(--font-main));
+  line-height: 1.8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--yc-font-heading, 'Noto Serif TC', serif);
+}
+
+body.menuOpen {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--yc-sage-action);
+  outline-offset: 3px;
+}
+
+ul {
+  list-style: none;
+}
+
+img,
+video {
+  display: block;
+  width: 100%;
+}
+
+main {
+  min-height: 60vh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

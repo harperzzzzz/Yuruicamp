@@ -1,0 +1,41 @@
+/* Booking Feedback：共用載入、錯誤與空狀態呈現。 */
+.loadingSkeleton {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: var(--yc-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.errorMsg,
+.noResult {
+  grid-column: 1 / -1;
+  padding: 2.5rem;
+  border-radius: var(--yc-radius-card);
+  background: var(--yc-surface);
+  box-shadow: var(--yc-shadow-soft);
+  color: var(--yc-text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.errorState {
+  padding: 2rem;
+  color: var(--yc-error);
+  text-align: center;
+}
+
+.errorMsg > .bi,
+.noResult > .bi {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.noResult .btn {
+  margin-top: 1rem;
+}

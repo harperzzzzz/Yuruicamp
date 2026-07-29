@@ -1,14 +1,16 @@
 # AdminMovementPage Spec
 
-**Status:** Draft
+**Status:** Implemented for G-3 Backend integration; legacy page spec retained
 **Category:** Page
 **Design Ref:** N/A - derived from existing source file `admin/partials/movement.html`
+
+> G-3 已在現有 Bootstrap Admin shell 完成 Mock／Backend 雙模式。**ADM-W2-08（✅）**：Backend 異動頁為**稽核唯讀**（不建草稿／不過帳改庫存）；詳情可 PATCH 表頭 `reason`、列 `lineReason`（UI「備註」）、列 `lineNature`（異動性質）。**方案 B**：列表**不顯示**異動性質欄；詳情列性質可下拉改（產單依 from／to 帶預設）；改性質不改 from／to。商城 on-hand 由商品頁寫入；`product_stock_update` 僅定稿不定庫存。人工驗收見 [`../test/admin-validation.md`](../test/admin-validation.md)，API 契約見 [`../../api/admin-api-contract.md`](../../api/admin-api-contract.md) **v0.17**。
 
 ---
 
 ## Overview
 
-Admin inventory movement partial with date filters, movement table, and movement detail modal. Use for stock movement audit trails. Keep movement ID and employee ID visible.
+Admin inventory movement partial with date filters, movement table, and movement detail modal. Use for stock movement audit trails. Keep movement ID and employee ID visible. Do **not** show a movement-nature column on the list; show per-line nature only inside the detail modal (editable dropdown: receipt／transfer／stocktake／damage／write_off).
 
 ## TypeScript Interface
 
@@ -79,7 +81,7 @@ export interface AdminMovementPageProps {
 |-------|---------|---------------|
 | Default | Page loaded | Primary content areas render with Yuruicamp green tokens and existing spacing. |
 | Hover | Interactive card, row, tab, or button hover | Border, shadow, or background changes without layout shift. |
-| Active | Selected tab, filter, nav item, or table row | Uses `--yui-primary` or `--yui-primary-soft` plus text label. |
+| Active | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label. |
 | Disabled | Unavailable action or incomplete form | Lower opacity, blocked pointer, preserved element dimensions. |
 | Loading | `loading={true}` | Skeleton rows, disabled submit buttons, or stable placeholder blocks. |
 | Error | `errorMessage` exists | Inline alert near the failed area and retry action when possible. |
@@ -100,12 +102,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 

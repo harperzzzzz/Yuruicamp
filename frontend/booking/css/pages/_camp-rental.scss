@@ -1,0 +1,288 @@
+﻿.rentalPageBooking {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--yc-bg);
+}
+
+.summaryBarBooking {
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.summaryBarBooking strong {
+  color: var(--yc-on-dark);
+}
+
+.summaryBarBooking .summarySeparatorBooking {
+  opacity: 0.5;
+  margin: 0 0.25rem;
+}
+
+.summaryEditLinkBooking {
+  margin-left: auto;
+  color: var(--yc-on-dark);
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.recommendationBannerBooking {
+  max-width: 1200px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1.5rem;
+}
+
+.recommendationBannerBooking {
+  display: none;
+}
+
+.recommendationBannerContentBooking {
+  background: var(--yc-sage-soft);
+  border: 1px solid var(--yc-sage-soft);
+  border-radius: var(--yc-radius-card);
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--yc-text);
+}
+
+.recommendationBannerContentBooking strong {
+  color: var(--yc-sage-action);
+}
+
+.recommendationBannerTitleBooking {
+  margin-bottom: 0.4rem;
+}
+
+.recommendationTagsBooking {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.recommendationTagBooking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border: 1px solid var(--yc-sage-light);
+  border-radius: 20px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.rentalItemsTitleBooking {
+  font-size: 1.15rem;
+  color: var(--yc-sage-action);
+  margin-bottom: 1rem;
+}
+
+.rentalCountBooking {
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.rentalItemCardBooking {
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
+  box-shadow: var(--yc-shadow-soft);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--yc-transition);
+}
+
+.rentalItemCardBooking:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--yc-shadow-hover);
+}
+
+.rentalItemCardImageBooking {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+}
+
+.rentalItemCardBodyBooking {
+  padding: 0.9rem;
+  flex: 1;
+}
+
+.rentalItemCardNameBooking {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--yc-sage-action);
+  margin-bottom: 0.25rem;
+}
+
+.rentalItemCardSpecBooking,
+.rentalCartItemSpecBooking {
+  display: block;
+  color: var(--yc-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.rentalCartItemTextBooking {
+  display: grid;
+  gap: 0.15rem;
+  flex: 1;
+}
+
+.rentalItemCardTagBooking {
+  margin-bottom: 0.4rem;
+}
+
+.rentalItemCardDescriptionBooking {
+  margin-bottom: 0.5rem;
+  color: var(--yc-text-muted);
+  font-size: 0.8rem;
+}
+
+.rentalItemCardPriceBooking {
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.rentalItemCardEstimatedBooking {
+  font-size: 0.85rem;
+  color: var(--yc-text);
+  margin-bottom: 0.25rem;
+}
+
+.rentalItemCardEstimatedBooking strong {
+  color: var(--yc-sage-action);
+  font-size: 1rem;
+}
+
+.rentalItemCardDiscountBooking {
+  color: var(--yc-warning);
+  font-size: 0.78rem;
+}
+
+.rentalItemCardStockBooking {
+  font-size: 0.78rem;
+  color: var(--yc-sage-action);
+  margin-bottom: 0;
+}
+
+.rentalItemCardActionsBooking {
+  padding: 0.75rem 0.9rem;
+  border-top: 1px solid var(--yc-border);
+}
+
+.rentalAddButtonBooking {
+  width: 100%;
+  font-size: 0.875rem;
+  padding: 0.45rem;
+}
+
+.rentalAddButtonBooking.isSelected {
+  color: var(--yc-success);
+}
+
+.rentalCartSidebarBooking {
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
+  box-shadow: var(--yc-shadow-soft);
+  padding: 1.25rem;
+  position: sticky;
+  top: 90px;
+}
+
+.rentalCartTitleBooking {
+  font-size: 1rem;
+  color: var(--yc-sage-action);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--yc-border);
+}
+
+.rentalCartListBooking {
+  min-height: 80px;
+  margin-bottom: 1rem;
+}
+
+.rentalCartEmptyBooking {
+  text-align: center;
+  color: var(--yc-text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
+.rentalCartItemBooking {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--yc-border);
+  font-size: 0.875rem;
+}
+
+.rentalCartItemNameBooking {
+  flex: 1;
+  color: var(--yc-text);
+}
+
+.rentalCartItemPriceBooking {
+  color: var(--yc-sage-action);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rentalRemoveButtonBooking {
+  background: none;
+  border: none;
+  color: var(--yc-error);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.rentalRemoveButtonBooking:hover {
+  background: var(--yc-error-soft);
+}
+
+.rentalCostSummaryBooking {
+  padding: 0.75rem;
+  background: var(--yc-bg);
+  border-radius: var(--yc-radius-control);
+  font-size: 0.9rem;
+  color: var(--yc-sage-action);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.rentalSkipLinkBooking {
+  display: block;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--yc-text-muted);
+  margin-top: 0.75rem;
+  text-decoration: underline;
+}
+
+.rentalSkipLinkBooking:hover {
+  color: var(--yc-sage-action);
+}
+
+@media (width <= 768px) {
+  .rentalCartSidebarBooking {
+    position: static;
+  }
+}

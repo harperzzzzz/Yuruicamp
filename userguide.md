@@ -3,14 +3,23 @@
 > 這份文件是給**開發者**看的工作手冊。  
 > 不管是新加功能、改樣式、修 bug，都可以從這裡快速找到「要動哪個檔案」。
 
+> **重要（2026-07）：** 前端已整包搬進 `frontend/`；主站在 `storefront/`。  
+> 下文路徑若未特別註明，皆**相對 `frontend/`**（例如 `storefront/pages/home.html`）。  
+> 啟動請：`cd frontend` → `npm run dev`。Java 後端在 repo 根的 `backend/`（與前端分開）。  
+>
+> **路徑鐵律：** 瀏覽器載入的 css／js／圖片／導頁請用**網站根絕對路徑**（`/storefront/...`、`/assets/...`、`/booking/...`、`/components/...`）。  
+> 假資料只透過 `window.API` / `BookingAPI` / `AdminAPI`（Mock 時讀 `/data/...`）。  
+> **不要**再使用 `resolveAppUrl` 或依頁面深度算 `../`。  
+> 接 Spring：`storefront/js/config.js` 設 `USE_MOCK_API: false`、`API_BASE_URL: 'http://localhost:8080/api'`。
+
 ---
 
 ## 目錄
 
 1. [專案資料夾全覽](#1-專案資料夾全覽)
-2. [我要改 HTML 頁面 → `pages/`](#2-我要改-html-頁面--pages)
-3. [我要改樣式 CSS → `css/`](#3-我要改樣式-css--css)
-4. [我要改 JavaScript 邏輯 → `js/`](#4-我要改-javascript-邏輯--js)
+2. [我要改 HTML 頁面 → `storefront/pages/`](#2-我要改-html-頁面--storefrontpages)
+3. [我要改樣式 CSS → `storefront/css/`](#3-我要改樣式-css--storefrontcss)
+4. [我要改 JavaScript 邏輯 → `storefront/js/`](#4-我要改-javascript-邏輯--storefrontjs)
 5. [我要改假資料 → `data/`](#5-我要改假資料--data)
 6. [我要改共用 HTML 片段 → `components/`](#6-我要改共用-html-片段--components)
 7. [我要改多媒體資源 → `assets/`](#7-我要改多媒體資源--assets)
@@ -27,87 +36,81 @@
 ## 1. 專案資料夾全覽
 
 ```
-Yuruicamp/                         ← 專案根目錄
+Yuruicamp/                         ← repo 根目錄
 │
-├── index.html                     ← 入口頁（自動跳轉到 pages/home.html）
-├── README.md                      ← 專案說明（給外部人看）
-├── userguide.md                   ← 本文件（給開發者看）
-├── changelog.md                   ← 版本異動紀錄
-├── .gitignore                     ← Git 忽略設定
+├── README.md / userguide.md / changelog.md
+├── backend/                       ← Spring Boot（改 Java API 來這裡）
+├── docs/                          ← Schema、規格文件
+├── plans/ / thoughts/             ← 規劃與筆記
+├── docker-compose.yml / .env*     ← 本機 PostgreSQL
 │
-├── admin/                         ← ⭐ 賣家後台（完全獨立模組，見第 13 節）
-│   ├── login.html                 ← 後台登入頁
-│   ├── dashboard.html             ← 後台主框架（Sidebar + 動態內容區）
-│   ├── css/admin.css              ← 後台專屬樣式
-│   ├── js/                        ← 後台 JS（permissions + core + 9 個功能模組）
-│   ├── partials/                  ← 九個功能模組 HTML 片段
-│   └── data/                      ← 後台專用 Mock JSON（與買家 data/ 分離）
-│
-├── booking/                       ← ⭐ 預約子系統（完全獨立模組，見第 14 節）
-│   ├── camp-search.html           ← 營區搜尋與列表頁
-│   ├── camp-detail.html           ← 營區詳情與預約頁
-│   ├── camp-rental.html           ← 裝備租借頁
-│   ├── booking-cart.html          ← 預約購物車與結帳頁
-│   ├── rental-guide.html          ← 租借體驗說明頁
-│   ├── booking-faq.html           ← 預約系統專屬 FAQ
-│   ├── components/                ← 預約系統專屬 Header/Footer（禁止複用買家端）
-│   │   ├── booking-header.html
-│   │   └── booking-footer.html
-│   ├── css/booking.css            ← 預約系統專屬樣式
-│   ├── js/                        ← 預約系統 JS（5 個模組）
-│   └── data/                      ← 預約系統 Mock JSON（campgrounds + rentals）
-│
-├── pages/                         ← 買家前台 HTML 頁面（共 11 個）
-├── css/                           ← 所有樣式檔案（SCSS 原始碼 + 編譯後 CSS）
-├── js/                            ← 所有 JavaScript 邏輯（買家前台）
-│   ├── components/                ← 跨頁面共用的 UI 元件 JS
-│   └── pages/                    ← 每個頁面專屬的 JS
-├── data/                          ← 買家前台 Mock 假資料（JSON 格式）
-├── components/                    ← 共用 HTML 片段（header、footer）
-├── assets/                        ← 圖片等靜態資源
-│   └── images/
-├── color/                         ← 品牌色彩規範文件
-├── plans/                         ← 開發規劃文件
-└── thoughts/                      ← 開發思考筆記
-```
+└── frontend/                      ← ⭐ npm / Vite 根（以下路徑相對這裡）
+    ├── package.json / vite.config.js
+    ├── index.html                 ← 入口頁（跳轉 storefront/pages/home.html）
+    ├── storefront/                ← ⭐ 主站（裝備商城）
+    │   ├── pages/                 ← 主站 HTML
+    │   ├── js/                    ← 主站 + 目前跨站共用 JS（data-paths、booking-api…）
+    │   └── css/                   ← 主站 ITCSS
+    ├── components/                ← 共用 HTML partial（header/footer；B2 前暫放根）
+    ├── data/                      ← ⭐ 全站唯一 Mock JSON（執行期 /data/**）
+    ├── assets/                    ← 圖片／icon／影片
+    ├── admin/                     ← 賣家後台（login、dashboard、partials、js）
+    │   └── scripts/               ← 資料驗證／同步 Node 腳本
+    ├── booking/                   ← 預約子站
+    │   ├── pages/                 ← 預約 HTML（camp-search、camp-detail…）
+    │   ├── js/ / css/             ← 預約專屬邏輯與樣式
+    │   └── （會引用 ../../storefront/js、../../components、/data）
+    ├── src/                       ← Vite 樣式入口（匯入 storefront/css）
+    ├── tests/                     ← smoke 等
+    └── color/                     ← 色票文件
+
+| 我想改… | 去哪裡 |
+|---------|--------|
+| 商城頁面／樣式／JS | `frontend/storefront/{pages,css,js}` |
+| 預約流程 | `frontend/booking`（共用再看 `frontend/storefront/js`、`components`） |
+| 後台 | `frontend/admin` |
+| 假資料 | **只改** `frontend/data`（不要找 `admin/data` 或 `booking/data`） |
+| Java API | `backend/` |
+| DB schema 文件 | `docs/` |
 
 ---
 
-## 2. 我要改 HTML 頁面 → `pages/`
+## 2. 我要改 HTML 頁面 → `storefront/pages/`
 
 每個 `.html` 對應一個網站頁面。找到對應的頁面改就好。
 
 | 檔案路徑 | 這是什麼頁面 | 對應的 JS |
 |----------|------------|-----------|
-| `pages/home.html` | 首頁（Hero Banner、精選商品） | `js/pages/home.js` |
-| `pages/products.html` | 商品列表（網格、篩選、分頁） | `js/pages/product-list.js` |
-| `pages/product-detail.html` | 商品詳情（圖集、規格、數量） | `js/pages/product-detail.js` |
-| `pages/cart.html` | 購物車（品項增刪改查） | `js/pages/cart.js` |
-| `pages/checkout.html` | 結帳（收件人表單、運費計算） | `js/pages/checkout.js` |
-| `pages/checkout-success.html` | 結帳成功（訂單確認畫面） | —（靜態頁，無專屬 JS）|
-| `pages/member-center.html` | 會員中心（訂單/折價券/通知） | `js/pages/member-center.js` |
-| `pages/blog.html` | 部落格文章列表 | `js/pages/blog.js` |
-| `pages/blog-detail.html` | 單篇文章詳情 + 內嵌商品卡 | `js/pages/blog-detail.js` |
-| `pages/branches.html` | 分店地圖 + 合作店家 | `js/pages/branches.js` |
-| `pages/faq.html` | 常見問題（Accordion + NPS 問卷） | `js/pages/faq.js` |
+| `storefront/pages/home.html` | 首頁（Hero Banner、精選商品） | `storefront/js/pages/home.js` |
+| `storefront/pages/products.html` | 商品列表（網格、篩選、分頁） | `storefront/js/pages/product-list.js` |
+| `storefront/pages/product-detail.html` | 商品詳情（圖集、規格、數量） | `storefront/js/pages/product-detail.js` |
+| `storefront/pages/cart.html` | 購物車（品項增刪改查） | `storefront/js/pages/cart.js` |
+| `storefront/pages/checkout.html` | 結帳（收件人表單、運費計算） | `storefront/js/pages/checkout.js` |
+| `storefront/pages/checkout-success.html` | 結帳成功（訂單確認畫面） | —（靜態頁，無專屬 JS）|
+| `storefront/pages/member-center.html` | 會員中心（訂單/折價券/通知） | `storefront/js/pages/member-center.js` |
+| `storefront/pages/blog.html` | 部落格文章列表 | `storefront/js/pages/blog.js` |
+| `storefront/pages/blog-detail.html` | 單篇文章詳情 + 內嵌商品卡 | `storefront/js/pages/blog-detail.js` |
+| `storefront/pages/branches.html` | 分店地圖 + 合作店家 | `storefront/js/pages/branches.js` |
+| `storefront/pages/faq.html` | 常見問題（Accordion + NPS 問卷） | `storefront/js/pages/faq.js` |
 
 > 💡 **注意**：每個 HTML 頁面底部都用 `<script>` 引入對應的 JS 檔，順序固定為：
-> `config.js` → `api-mock.js` → `main.js` → `components/*.js` → `pages/xxx.js`
+> `config.js` → `api-mock.js` → `main.js` → `components/*.js` → `pages/xxx.js`（皆在 `storefront/js/`）
 
-### 預約子系統頁面（`booking/`）
+### 預約子系統頁面（`booking/pages/`）
 
-預約子系統是**獨立資料夾**，頁面路徑都在 `booking/` 下，不在 `pages/` 裡。
+預約子系統在 `booking/` 資料夾；**HTML 頁面在 `booking/pages/`**，不在主站 `storefront/pages/` 裡。  
+會共用 `storefront/js/`、`components/`、`data/`。
 
 | 檔案路徑 | 這是什麼頁面 | 對應的 JS |
 |----------|------------|-----------|
-| `booking/camp-search.html` | 營區搜尋與列表（篩選地區、環境、設施）| `booking/js/camp-search.js` |
-| `booking/camp-detail.html` | 營區詳情（日期選擇、營位類型、費用計算）| `booking/js/camp-detail.js` |
-| `booking/camp-rental.html` | 裝備租借（加選租借裝備、情境推薦）| `booking/js/camp-rental.js` |
-| `booking/booking-cart.html` | 預約購物車結帳（確認明細、送出預約）| `booking/js/booking-cart.js` |
-| `booking/rental-guide.html` | 租借體驗說明（圖文流程說明）| —（靜態頁，無專屬 JS）|
-| `booking/booking-faq.html` | 預約系統 FAQ（退款、押金等）| —（靜態頁，無專屬 JS）|
+| `booking/pages/camp-search.html` | 營區搜尋與列表（篩選地區、環境、設施）| `booking/js/camp-search.js` |
+| `booking/pages/camp-detail.html` | 營區詳情（日期選擇、營位類型、費用計算）| `booking/js/camp-detail.js` |
+| `booking/pages/camp-rental.html` | 裝備租借（加選租借裝備、情境推薦）| `booking/js/camp-rental.js` |
+| `booking/pages/booking-cart.html` | 預約購物車結帳（確認明細、送出預約）| `booking/js/booking-cart.js` |
+| `booking/pages/rental-guide.html` | 租借體驗說明（圖文流程說明）| —（靜態頁，無專屬 JS）|
+| `booking/pages/booking-faq.html` | 預約系統 FAQ（退款、押金等）| —（靜態頁，無專屬 JS）|
 
-> 💡 預約系統使用 jQuery `$.ajax()` 讀取 JSON，而非買家前台的 `window.API.xxx()` 方式，因為這是獨立技術棧（jQuery + Flatpickr）。
+> 💡 預約資料請走 `storefront/js/booking-api.js` + `storefront/js/data-paths.js`（讀 `/data/**`），不要再新增 `booking/data/`。
 
 ### 入口頁
 
@@ -117,18 +120,18 @@ Yuruicamp/                         ← 專案根目錄
 
 ---
 
-## 3. 我要改樣式 CSS → `css/`
+## 3. 我要改樣式 CSS → `storefront/css/`
 
 ### 檔案分工
 
 | 檔案 | 說明 | 什麼情況改這裡 |
 |------|------|--------------|
-| `css/variables.scss` | **所有設計 Token**：色彩、字體大小、間距、陰影、圓角、斷點 | 改品牌顏色、調整全站字體大小、修改陰影 |
-| `css/base.scss` | CSS Reset + 全局基礎樣式（body、a、img、h1-h6 等） | 改全站預設字體、連結顏色、表格基礎樣式 |
-| `css/components.scss` | **可重用 UI 元件**：按鈕 `.btn`、徽章 `.badge`、卡片 `.card`、Toast、Modal、表單等 | 改按鈕外觀、調整卡片陰影、修 Modal 樣式 |
-| `css/layout.scss` | **佈局系統**：Navbar、Footer、Grid、Sidebar、Hero Section | 改 Navbar 高度/顏色、調整 Grid 欄位數 |
-| `css/main.scss` | SCSS 入口檔，只負責 `@import` 上面四個檔，**不寫任何樣式** | 調整 import 順序時 |
-| `css/main.css` | ⭐ **編譯後的最終 CSS**，瀏覽器實際讀取這個 | 直接在這裡改也可以（但建議改 .scss 後重新編譯）|
+| `storefront/css/variables.scss` | **所有設計 Token**：色彩、字體大小、間距、陰影、圓角、斷點 | 改品牌顏色、調整全站字體大小、修改陰影 |
+| `storefront/css/base.scss` | CSS Reset + 全局基礎樣式（body、a、img、h1-h6 等） | 改全站預設字體、連結顏色、表格基礎樣式 |
+| `storefront/css/components.scss` | **可重用 UI 元件**：按鈕 `.btn`、徽章 `.badge`、卡片 `.card`、Toast、Modal、表單等 | 改按鈕外觀、調整卡片陰影、修 Modal 樣式 |
+| `storefront/css/layout.scss` | **佈局系統**：Navbar、Footer、Grid、Sidebar、Hero Section | 改 Navbar 高度/顏色、調整 Grid 欄位數 |
+| `storefront/css/main.scss` | SCSS 入口檔，只負責 `@import` 上面四個檔，**不寫任何樣式** | 調整 import 順序時 |
+| `storefront/css/main.css` | ⭐ **編譯後的最終 CSS**，瀏覽器實際讀取這個 | 直接在這裡改也可以（但建議改 .scss 後重新編譯）|
 | `booking/css/booking.css` | **預約子系統專屬樣式**（Header `#F2F0EB`、Camp Card、Zone Card、Step Progress 等）| 改預約系統版面、Header/Footer 背景色 |
 
 ### 要改什麼樣式？找這裡
@@ -173,83 +176,92 @@ $spacing-2xl: 2rem         /* 32px */
 
 ---
 
-## 4. 我要改 JavaScript 邏輯 → `js/`
+## 4. 我要改 JavaScript 邏輯 → `storefront/js/`
 
 ### 核心檔案（每頁都會載入）
 
 | 檔案 | 說明 | 什麼情況改這裡 |
 |------|------|--------------|
-| `js/config.js` | **全局狀態（AppState）+ 全局設定（AppConfig）**<br>包含登入狀態、購物車、API 網址、免運門檻等 | 改 API 網址、調整免運門檻金額、修改版本號 |
-| `js/api-mock.js` | **Mock API 層**，所有頁面都透過 `window.API.xxx()` 取得資料，資料來源是 `data/*.json` | 改資料邏輯（篩選/排序）、日後切換真實後端 API |
-| `js/main.js` | **應用初始化**，負責啟動 Navbar、Modal、購物車、Lazy Loading Fallback、Scroll Lock | 加新的全局事件監聽、修初始化順序問題 |
+| `storefront/js/config.js` | **全局狀態（AppState）+ 全局設定（AppConfig）**<br>包含登入狀態、購物車、API 網址、免運門檻等 | 改 API 網址、調整免運門檻金額、修改版本號 |
+| `storefront/js/api-mock.js` | **Mock API 層**，所有頁面都透過 `window.API.xxx()` 取得資料，資料來源是 `data/*.json` | 改資料邏輯（篩選/排序）、日後切換真實後端 API |
+| `storefront/js/main.js` | **應用初始化**，負責啟動 Navbar、Modal、購物車、Lazy Loading Fallback、Scroll Lock | 加新的全局事件監聽、修初始化順序問題 |
 
-### 元件 JS（`js/components/`）跨頁複用
-
-| 檔案 | 說明 | 什麼情況改這裡 |
-|------|------|--------------|
-| `js/components/header.js` | Header 互動（漢堡選單開關、Offcanvas 手機版） | 改 Header 點擊行為、修漢堡選單動畫 |
-| `js/components/modal.js` | Modal 對話框（登入 Modal + 個人化問卷 Stepper） | 修登入流程、改問卷步驟 |
-| `js/components/cart.js` | 購物車 Badge 更新、加入/移除商品邏輯 | 改購物車計算邏輯、修 Badge 不更新的 bug |
-| `js/components/toast.js` | Toast 提示（右下角彈出的成功/錯誤訊息） | 改提示持續時間、修改位置 |
-| `js/components/carousel.js` | 品牌輪播（CSS animation 驅動） | 改輪播速度、新增輪播項目 |
-| `js/components/filter.js` | 商品篩選器（CustomEvent 驅動，解耦合） | 修篩選邏輯、新增篩選條件 |
-
-### 頁面 JS（`js/pages/`）每頁獨立
+### 元件 JS（`storefront/js/components/`）跨頁複用
 
 | 檔案 | 說明 | 什麼情況改這裡 |
 |------|------|--------------|
-| `js/pages/home.js` | 首頁：精選商品渲染、「加入購物車」按鈕 | 改首頁商品顯示數量、修加入購物車 bug |
-| `js/pages/product-list.js` | 商品列表：網格渲染、分頁切換 | 改每頁顯示幾個商品、修分頁 bug |
-| `js/pages/product-detail.js` | 商品詳情：縮圖點擊切換大圖、數量 Stepper | 改圖集互動、修規格選擇 bug |
-| `js/pages/cart.js` | 購物車頁：品項列表渲染、數量增減、刪除 | 改購物車 UI 邏輯、修未登入攔截行為 |
-| `js/pages/checkout.js` | 結帳：手風琴表單、運費即時計算 | 改結帳表單欄位、修運費計算邏輯 |
-| `js/pages/member-center.js` | 會員中心：訂單歷史、評價、折價券、通知 Tab | 改 Tab 切換邏輯、新增會員功能區塊 |
-| `js/pages/blog.js` | 部落格列表：文章卡片動態渲染 | 改文章排版、新增分類篩選 |
-| `js/pages/blog-detail.js` | 文章詳情：內嵌商品導購卡片 | 改文章版面、修相關商品卡片邏輯 |
-| `js/pages/branches.js` | 分店地圖：Google Maps iframe 切換、合作店家 Modal | 改地圖嵌入網址、新增分店 |
-| `js/pages/faq.js` | FAQ：Accordion 開關、NPS 問卷送出 | 改 Accordion 動畫、修 NPS 送出行為 |
+| `storefront/js/components/header.js` | Header 互動（漢堡選單開關、Offcanvas 手機版） | 改 Header 點擊行為、修漢堡選單動畫 |
+| `storefront/js/components/modal.js` | Modal 對話框（登入 Modal + 個人化問卷 Stepper） | 修登入流程、改問卷步驟 |
+| `storefront/js/components/cart.js` | 購物車 Badge 更新、加入/移除商品邏輯 | 改購物車計算邏輯、修 Badge 不更新的 bug |
+| `storefront/js/components/toast.js` | Toast 提示（右下角彈出的成功/錯誤訊息） | 改提示持續時間、修改位置 |
+| `storefront/js/components/carousel.js` | 品牌輪播（CSS animation 驅動） | 改輪播速度、新增輪播項目 |
+| `storefront/js/components/filter.js` | 商品篩選器（CustomEvent 驅動，解耦合） | 修篩選邏輯、新增篩選條件 |
+
+### 頁面 JS（`storefront/js/pages/`）每頁獨立
+
+| 檔案 | 說明 | 什麼情況改這裡 |
+|------|------|--------------|
+| `storefront/js/pages/home.js` | 首頁：精選商品渲染、「加入購物車」按鈕 | 改首頁商品顯示數量、修加入購物車 bug |
+| `storefront/js/pages/product-list.js` | 商品列表：網格渲染、分頁切換 | 改每頁顯示幾個商品、修分頁 bug |
+| `storefront/js/pages/product-detail.js` | 商品詳情：縮圖點擊切換大圖、數量 Stepper | 改圖集互動、修規格選擇 bug |
+| `storefront/js/pages/cart.js` | 購物車頁：品項列表渲染、數量增減、刪除 | 改購物車 UI 邏輯、修未登入攔截行為 |
+| `storefront/js/pages/checkout.js` | 結帳：手風琴表單、運費即時計算 | 改結帳表單欄位、修運費計算邏輯 |
+| `storefront/js/pages/member-center.js` | 會員中心：訂單歷史、評價、折價券、通知 Tab | 改 Tab 切換邏輯、新增會員功能區塊 |
+| `storefront/js/pages/blog.js` | 部落格列表：文章卡片動態渲染 | 改文章排版、新增分類篩選 |
+| `storefront/js/pages/blog-detail.js` | 文章詳情：內嵌商品導購卡片 | 改文章版面、修相關商品卡片邏輯 |
+| `storefront/js/pages/branches.js` | 分店地圖：Google Maps iframe 切換、合作店家 Modal | 改地圖嵌入網址、新增分店 |
+| `storefront/js/pages/faq.js` | FAQ：Accordion 開關、NPS 問卷送出 | 改 Accordion 動畫、修 NPS 送出行為 |
 
 ---
 
-## 5. 我要改假資料 → `data/`
+## 5. 我要改假資料 → `/data/**`
 
-這裡是所有的模擬資料，都是 JSON 格式，可以直接用文字編輯器修改。
+全站（商城、booking、admin）共用 **`storefront/js/data-paths.js`** 定義的路徑；舊的 `admin/data/`、`booking/data/` 已移除，請勿再新增。
 
-> ⚠️ **注意**：專案有**兩套**獨立的 JSON 資料：`data/`（買家前台用）和 `admin/data/`（賣家後台用），互不干擾，分別修改。
+### 目錄對照
 
-### 買家前台假資料（`data/`）
+| 路徑 | 說明 |
+|------|------|
+| `data/catalog/products.json` | 商城商品 + 後台商品管理 |
+| `data/catalog/campgrounds.json` | 可預約營區（**C002–C009**） |
+| `data/catalog/camp-equipment.json` | 各營區可租裝備 catalog |
+| `data/commerce/orders.json` | 商城訂單 + 後台訂單 |
+| `data/commerce/camp-bookings.json` | 露營預約 + 後台預約管理 |
+| `data/customers/customers.json` | 會員主檔 |
+| `data/admin/rental-skus.json` | 後台租借 SKU 各點庫存 |
+| `data/admin/reviews.json` | 評論種子 |
+| `data/admin/movement.json` | 庫存異動 |
+| `data/admin/min-stock.json` | 低庫存閾值 |
+| `data/promotions/coupons.json` | 優惠券 |
+| `data/marketing/*.json` | 文章、分店、品牌 |
 
-| 檔案 | 說明 | 資料結構 |
-|------|------|---------|
-| `data/products.json` | **商品資料**（50+ 筆），包含名稱、價格、圖片、分類、規格 | `[{ id, name, price, category, image, specs, ... }]` |
-| `data/users.json` | **模擬用戶**，用於登入測試 | `[{ id, email, password, name, ... }]` |
-| `data/orders.json` | **訂單資料**，會員中心顯示用 | `[{ id, userId, items, total, status, ... }]` |
-| `data/articles.json` | **部落格文章**（標題、內文、標籤、圖片） | `[{ id, title, content, tags, image, ... }]` |
-| `data/branches.json` | **分店資訊**（店名、地址、Google Maps 連結）+ 合作店家 | `[{ id, name, address, mapUrl, partners: [...] }]` |
+### 營區 / 租借庫存 ID（方案 B）
 
-> 💡 **如何新增商品（前台）？** 打開 `data/products.json`，複製一筆資料，改掉 `id`（要唯一）、`name`、`price`、`image` 等欄位，存檔即可。頁面會自動讀取。
+| ID | 用途 |
+|----|------|
+| **C001** | **租借主倉**（僅 `rental-skus` 庫存，不可預約） |
+| **C002–C009** | 可預約營區（與 `campgrounds.json` 一致） |
 
-### 賣家後台假資料（`admin/data/`）
+`rental-skus.camp[]` 每筆含 `campgroundId`、`name`、`quantity`，名稱須與 `campgrounds.json` 相同。
 
-| 檔案 | 說明 | 主要欄位 |
-|------|------|---------|
-| `admin/data/orders.json` | **後台訂單**（6 筆），含出貨狀態、付款狀態、品項明細、出貨歷程 | `[{ id, createdAt, buyerName, total, paymentStatus, orderStatus, items[], address, history[] }]` |
-| `admin/data/movement.json` | **庫存異動主檔**（20 筆），含異動明細清單 | `[{ id, date, items[] }]` |
-| `admin/data/products.json` | **後台商品**（10 筆），含總庫存與分店庫存 | `[{ id, name, price, category, thumbnail, spec, total-stock, branch, status }]` |
-| `admin/data/reantal.json` | **租借商品**（20 筆），含數量、分類、存放營地 | `[{ id, name, category, quantity, camp }]` |
-| `admin/data/customers.json` | **會員資料**（6 位），含等級、點數、優惠券、消費記錄 | `[{ id, name, email, tier, points, coupons[], tags[], orders[] }]` |
-| `admin/data/coupons.json` | **優惠券**（5 張），含折扣金額、啟用/停用、使用次數 | `[{ id, code, discount, type, status, usedCount, maxUse }]` |
-| `admin/data/reviews.json` | **評論**（5 則），含星等、回覆狀態、回覆內容 | `[{ id, productName, buyerName, rating, content, replied, replyText }]` |
-| `admin/data/bookings.json` | **預約單**（10 筆），含付款/預約狀態、營位與租借明細 | `[{ id, customer_id, status, payment_status, booking_info, selected_zones, selected_rentals, summary, history[] }]` |
+### localStorage overlay（前台操作會寫入，後台已 merge）
 
-> 💡 **員工與權限資料**不在 `admin/data/`，而是存在 **`localStorage.adminEmployees`**（由 `permissions.js` 首次載入時種子初始化）。
+| Key | 用途 |
+|-----|------|
+| `mockOrders` | 結帳新訂單 |
+| `mockBookings` | 預約結帳新單 |
+| `mockReviews` | 會員評價（前後台共用） |
+| `mockCustomerOverlay` | 點數 / 首購狀態 |
 
-> 💡 **後台資料欄位說明**：
-> - `orderStatus`：`"unshipped"`（待出貨）/ `"shipped"`（已出貨）/ `"returned"`（退貨）
-> - `paymentStatus`：`"paid"`（已付款）/ `"unpaid"`（未付款）/ `"cod"`（貨到付款）
-> - 商品 `status`：`"active"`（上架中）/ `"disabled"`（已下架）
-> - 優惠券 `status`：`"active"`（啟用）/ `"disabled"`（停用）
-> - 後台 **低庫存警告** 閾值：`total-stock < 5`（在 `analytics.js`、`products.js` 中定義）
+> 💡 **測試會員 Amy**：`U001`，訂單白名單 `[1,5,3]`，預約 `[25]`（BK-0025 @ C008 礁溪 + E009 睡袋）。
+
+> 💡 **員工與權限**仍在 `localStorage.adminEmployees`（`permissions.js` 初始化）。
+
+### 欄位命名（統一 camelCase）
+
+- 訂單：`status`（unshipped/shipped/returned/completed）、`paymentStatus`、`customerId`
+- 商品：`image`、`totalStock`
+- 預約：`bookingInfo`、`selectedRentals`、`summary.finalAmount`
 
 ---
 
@@ -262,7 +274,7 @@ $spacing-2xl: 2rem         /* 32px */
 | `components/header.html` | Header 的 HTML 結構（含漢堡選單） | 改這裡，所有頁面 Header 都會變 |
 | `components/footer.html` | Footer 的 HTML 結構 | 改這裡，所有頁面 Footer 都會變 |
 
-> ⚠️ **重要**：這兩個檔案是「參考用的靜態範本」，實際上每個 `pages/*.html` 內都有直接內嵌的 Header/Footer HTML。如果要改 Header/Footer，**每個頁面都要同步手動更新**，或改用 JS 動態注入。
+> ⚠️ **重要**：這兩個檔案是「參考用的靜態範本」，實際上每個 `storefront/pages/*.html` 內都有直接內嵌的 Header/Footer HTML。如果要改 Header/Footer，**每個頁面都要同步手動更新**，或改用 JS 動態注入。
 
 ---
 
@@ -285,36 +297,36 @@ $spacing-2xl: 2rem         /* 32px */
 
 | 我想做的事 | 去哪裡改 |
 |-----------|---------|
-| 改品牌主色 | `css/variables.scss` → `$primary` |
-| 改按鈕顏色/圓角 | `css/components.scss` → `.btn-primary` |
-| 改 Navbar 背景色 | `css/layout.scss` → `.navbar` |
-| 改 Navbar 互動行為 | `js/components/header.js` |
-| 首頁精選商品顯示幾個 | `js/pages/home.js` |
-| 商品列表每頁幾筆 | `js/pages/product-list.js` |
-| 新增 / 修改商品資料 | `data/products.json` |
-| 新增 / 修改分店資訊 | `data/branches.json` |
-| 新增 / 修改文章 | `data/articles.json` |
-| 改 Toast 提示樣式 | `css/components.scss` → `.toast` |
-| 改 Toast 提示行為 | `js/components/toast.js` |
-| 改 Modal 樣式 | `css/components.scss` → `.modal` |
-| 改登入 Modal 行為 | `js/components/modal.js` |
-| 改購物車計算邏輯 | `js/components/cart.js` |
-| 改結帳表單欄位 | `pages/checkout.html` + `js/pages/checkout.js` |
-| 改免運費門檻金額 | `js/config.js` → `AppConfig.CART.FREE_SHIPPING_THRESHOLD` |
-| 改 API 伺服器網址 | `js/config.js` → `AppConfig.API_BASE_URL` |
-| 切換真實後端 API | `js/api-mock.js`（把 fetch JSON 改成 fetch 真實 API）|
-| 改 FAQ 內容 | `pages/faq.html`（直接改 HTML 的 Accordion 內容）|
-| 改 Footer 內容 | 每個 `pages/*.html` 裡的 footer 區塊 |
-| 新增一個全新頁面 | 新增 `pages/xxx.html` + `js/pages/xxx.js`，並在 Navbar 加連結 |
-| 改手機版 RWD 斷點 | `css/variables.scss` → `$sm` / `$md` / `$lg` |
-| 改動畫速度 | `css/variables.scss` → `$transition-base` |
+| 改品牌主色 | `storefront/css/variables.scss` → `$primary` |
+| 改按鈕顏色/圓角 | `storefront/css/components.scss` → `.btn-primary` |
+| 改 Navbar 背景色 | `storefront/css/layout.scss` → `.navbar` |
+| 改 Navbar 互動行為 | `storefront/js/components/header.js` |
+| 首頁精選商品顯示幾個 | `storefront/js/pages/home.js` |
+| 商品列表每頁幾筆 | `storefront/js/pages/product-list.js` |
+| 新增 / 修改商品資料 | `data/catalog/products.json` |
+| 新增 / 修改分店資訊 | `data/marketing/branches.json` |
+| 新增 / 修改文章 | `data/marketing/articles.json` |
+| 改 Toast 提示樣式 | `storefront/css/components.scss` → `.toast` |
+| 改 Toast 提示行為 | `storefront/js/components/toast.js` |
+| 改 Modal 樣式 | `storefront/css/components.scss` → `.modal` |
+| 改登入 Modal 行為 | `storefront/js/components/modal.js` |
+| 改購物車計算邏輯 | `storefront/js/components/cart.js` |
+| 改結帳表單欄位 | `storefront/pages/checkout.html` + `storefront/js/pages/checkout.js` |
+| 改免運費門檻金額 | `storefront/js/config.js` → `AppConfig.CART.FREE_SHIPPING_THRESHOLD` |
+| 改 API 伺服器網址 | `storefront/js/config.js` → `AppConfig.API_BASE_URL` |
+| 切換真實後端 API | `storefront/js/api-mock.js`（把 fetch JSON 改成 fetch 真實 API）|
+| 改 FAQ 內容 | `storefront/pages/faq.html`（直接改 HTML 的 Accordion 內容）|
+| 改 Footer 內容 | 每個 `storefront/pages/*.html` 裡的 footer 區塊 |
+| 新增一個全新頁面 | 新增 `storefront/pages/xxx.html` + `storefront/js/pages/xxx.js`，並在 Navbar 加連結 |
+| 改手機版 RWD 斷點 | `storefront/css/variables.scss` → `$sm` / `$md` / `$lg` |
+| 改動畫速度 | `storefront/css/variables.scss` → `$transition-base` |
 
 ### 預約系統
 
 | 我想做的事 | 去哪裡改 |
 |-----------|---------|
-| 新增 / 修改營區資料 | `booking/data/campgrounds.json` |
-| 新增 / 修改租借裝備 | `booking/data/rentals.json` |
+| 新增 / 修改營區資料 | `data/catalog/campgrounds.json` |
+| 新增 / 修改租借裝備 | `data/catalog/camp-equipment.json` |
 | 改預約系統 Header 背景色 | `booking/css/booking.css` → `.booking-header` |
 | 改預約背包 Badge 計算邏輯 | `booking/js/booking-header.js` → `updateBookingBadge()` |
 | 改營區搜尋篩選條件 | `booking/js/camp-search.js` → `filterCampgrounds()` |
@@ -333,14 +345,14 @@ $spacing-2xl: 2rem         /* 32px */
 | 改後台 Toast 行為 | `admin/js/core.js` → `showAdminToast()` |
 | 改登入驗證邏輯 | `admin/login.html` + `admin/js/permissions.js`（員工 ID 查 `adminEmployees`，Demo：`01`/`02`）|
 | 改後台登出行為 | `admin/js/core.js` → `clearAdminSession()` |
-| 修改訂單資料 | `admin/data/orders.json` |
-| 修改庫存異動 | `admin/data/movement.json` + `admin/js/movement.js` |
-| 修改商品庫存 | `admin/data/products.json` → `total-stock` / `branch` 欄位 |
-| 修改租借商品 | `admin/data/reantal.json` + 商品頁「租借」頁籤 |
-| 修改會員等級 / 點數 | `admin/data/customers.json` → `tier` / `points` 欄位 |
-| 新增 / 修改優惠券 | `admin/data/coupons.json` |
-| 新增 / 修改評論 | `admin/data/reviews.json` |
-| 修改預約單 | `admin/data/bookings.json` + `admin/js/bookings.js` |
+| 修改訂單資料 | `data/commerce/orders.json` |
+| 修改庫存異動 | `data/admin/movement.json` + `admin/js/movement.js` |
+| 修改商品庫存 | `data/catalog/products.json` → `totalStock` / `branch` |
+| 修改租借商品 | `data/admin/rental-skus.json` + 商品頁「租借」頁籤 |
+| 修改會員等級 / 點數 | `data/customers/customers.json` → `tier` / `points` |
+| 新增 / 修改優惠券 | `data/promotions/coupons.json` |
+| 新增 / 修改評論 | `data/admin/reviews.json` |
+| 修改預約單 | `data/commerce/camp-bookings.json` + `admin/js/bookings.js` |
 | 管理員工 / 權限 | `admin/js/permissions.js` + `localStorage.adminEmployees` |
 | 改訂單篩選邏輯 | `admin/js/orders.js` → `filterOrders()` |
 | 改低庫存警告閾值 | `admin/js/analytics.js` → `total-stock < 5`（改成需要的數字）|
@@ -354,7 +366,7 @@ $spacing-2xl: 2rem         /* 32px */
 
 以下函數都掛在 `window` 上，任何 JS 檔都可以直接呼叫。
 
-### 應用狀態（定義於 `js/config.js`）
+### 應用狀態（定義於 `storefront/js/config.js`）
 
 ```javascript
 window.AppState.isLoggedIn          // Boolean - 使用者是否已登入
@@ -366,7 +378,7 @@ window.saveAppState()               // 把 AppState 存進 localStorage（記得
 window.resetAppState()              // 清除所有狀態 + localStorage（等同登出並清空購物車）
 ```
 
-### Mock API（定義於 `js/api-mock.js`）
+### Mock API（定義於 `storefront/js/api-mock.js`）
 
 ```javascript
 // 都是 async 函數，要用 await 呼叫
@@ -383,9 +395,10 @@ await window.API.articles.getAll()              // 取得所有文章
 await window.API.articles.getById(articleId)   // 取得單篇文章
 
 await window.API.branches.getAll()              // 取得所有分店資料
+await window.API.marketing.getBrands()           // 取得首頁合作品牌
 ```
 
-### 購物車（定義於 `js/components/cart.js`）
+### 購物車（定義於 `storefront/js/components/cart.js`）
 
 ```javascript
 window.addToCart(product, quantity)         // 加入購物車（product 是商品物件）
@@ -408,7 +421,7 @@ window.closeModal(modalId)        // 關閉 Modal
 // 範例：window.openModal('loginModal')
 ```
 
-### 工具函數（定義於 `js/config.js`）
+### 工具函數（定義於 `storefront/js/config.js`）
 
 ```javascript
 window.formatCurrency(3500)           // → 'NT$3,500'（金額格式化）
@@ -426,7 +439,7 @@ window.throttle(fn, 100)              // 節流：固定間隔最多執行一次
 
 ### 常用 CSS Class 清單
 
-> 這些 class 都已定義在 `css/components.scss` 或 `css/layout.scss`，可以直接在 HTML 裡使用。
+> 這些 class 都已定義在 `storefront/css/components.scss` 或 `storefront/css/layout.scss`，可以直接在 HTML 裡使用。
 
 **按鈕**
 
@@ -468,7 +481,7 @@ window.throttle(fn, 100)              // 節流：固定間隔最多執行一次
 | `.badge` | 徽章基礎（數量標示） |
 | `.badge-primary` | 品牌綠色徽章 |
 
-### 色彩規範（所有顏色定義於 `css/variables.scss`）
+### 色彩規範（所有顏色定義於 `storefront/css/variables.scss`）
 
 | 用途 | SCSS 變數 | 色碼 | 說明 |
 |------|-----------|------|------|
@@ -513,7 +526,7 @@ window.throttle(fn, 100)              // 節流：固定間隔最多執行一次
 
 ### 修改 SCSS 樣式的流程
 
-目前 `css/main.css` 是「已編譯好的 CSS」，瀏覽器讀的是這個：
+目前 `storefront/css/main.css` 是「已編譯好的 CSS」，瀏覽器讀的是這個：
 
 - **方法 A（直接改 main.css）**：快速但不建議長期使用，下次編譯 SCSS 會被覆蓋
 - **方法 B（改 .scss 後編譯）**：正確做法
@@ -532,10 +545,13 @@ window.throttle(fn, 100)              // 節流：固定間隔最多執行一次
 
 ## 12. 常見問題 FAQ
 
-**Q：為什麼 JSON 資料讀不到？出現 CORS 錯誤？**  
-A：不能直接點兩下開 HTML 檔案。要用本機伺服器：
-- VS Code 安裝 Live Server 擴充套件，右鍵 → Open with Live Server
-- 或 `python -m http.server 8000`
+**Q：為什麼 JSON 資料讀不到？出現 CORS 錯誤？圖片／連結也壞掉？**  
+A：不能直接點兩下開 HTML 檔案。要用本機伺服器，且**網站根必須是 `frontend/`**：
+- **推薦：** 在 `frontend/` 執行 `npm run dev`（Vite）
+- Live Server：請在 **`frontend/` 資料夾**上右鍵 → Open with Live Server（不要從 repo 根 `Yuruicamp/` 開）
+- 或：`cd frontend` 後執行 `python -m http.server 8000`
+
+若從 repo 根開啟，瀏覽器會去找 `/data`、`/assets`（根目錄已沒有這些資料夾）→ 假資料與圖片全部 404。
 
 ---
 
@@ -547,24 +563,24 @@ A：按 `Ctrl + Shift + R`（強制清除快取重整），或開 DevTools → N
 **Q：加入購物車沒反應？**  
 A：打開 DevTools → Console，看有沒有錯誤訊息。常見原因：
 1. 商品資料的 `id` 欄位是 undefined → 檢查 `data/products.json` 的 id 欄位
-2. `window.addToCart` 未載入 → 確認 HTML 有引入 `js/components/cart.js`
+2. `window.addToCart` 未載入 → 確認 HTML 有引入 `storefront/js/components/cart.js`
 
 ---
 
 **Q：Header 導覽列在手機上點了沒反應？**  
-A：確認 HTML 有引入 `js/components/header.js`，且 CSS 的 `.navbar-offcanvas` 樣式有正確載入。
+A：確認 HTML 有引入 `storefront/js/components/header.js`，且 CSS 的 `.navbar-offcanvas` 樣式有正確載入。
 
 ---
 
 **Q：要怎麼換掉 Mock 假資料，接真實後端？**  
-A：只需改一個檔案：`js/api-mock.js`。  
+A：只需改一個檔案：`storefront/js/api-mock.js`。  
 把每個函數裡的 `fetch('../data/xxx.json')` 改成 `fetch(AppConfig.API_BASE_URL + '/xxx')`。  
 頁面 JS 完全不需要動，因為它們都是透過 `window.API.xxx()` 呼叫，不管底層怎麼實作。
 
 ---
 
 **Q：新頁面要怎麼設定？**  
-A：複製任一現有的 `pages/*.html`，修改 `<title>` 和 body 內容，並在底部把頁面 JS 換成你的新 JS 檔案。注意 `<script src>` 的相對路徑要用 `../js/` 開頭（因為在 pages/ 子目錄下）。
+A：複製任一現有的 `storefront/pages/*.html`，修改 `<title>` 和 body 內容，並在底部把頁面 JS 換成你的新 JS 檔案。注意 `<script src>` 的相對路徑要用 `../js/` 開頭（因為在 pages/ 子目錄下）。
 
 ---
 
@@ -588,45 +604,35 @@ A：常見原因有三個：
 ---
 
 **Q：後台操作（出貨、庫存修改、回覆評論）重新整理後消失了？**  
-A：這是正常行為。後台目前是**純前端 Mock**，所有操作結果只存在記憶體（JS 變數 `ordersCache` 等），沒有寫回 JSON 檔案，也沒有後端 API。重整後會重新從 `admin/data/*.json` 讀取原始資料。  
+A：後台 Mock 模式下，狀態變更存在 `window.*Cache` 與 localStorage overlay（`mockOrders` / `mockBookings` / `mockReviews`）。重整後 overlay 仍保留；種子資料來自 `/data/**` JSON。  
 若想保留修改，可將資料手動寫入對應的 JSON 檔案，或日後接入真實後端。
 
 ---
 
 **Q：如何新增一張優惠券？**  
 A：有兩種方法：
-- **方法 A（直接改 JSON）**：打開 `admin/data/coupons.json`，複製一筆資料，改 `id`（要唯一）、`code`（優惠碼）、`discount`（折扣金額），存檔後重新整理後台
+- **方法 A（直接改 JSON）**：打開 `data/promotions/coupons.json`，複製一筆資料，改 `code`（優惠碼）、`discount`（折扣金額），存檔後重新整理後台
 - **方法 B（後台 UI）**：在後台「折扣管理」模組填寫表單 → 點「新增優惠券」，這個操作是前端即時新增（存在記憶體，重整消失，同上方說明）
 
 ---
 
-**Q：後台和買家前台的 `data/` 資料夾有什麼不同？**  
-A：
-| 項目 | 買家前台 | 賣家後台 |
-|------|---------|---------|
-| 路徑 | `data/` | `admin/data/` |
-| 讀取方 | `js/api-mock.js` | `admin/js/*.js` 各模組 |
-| 用途 | 頁面展示（商品列表、文章、訂單歷史）| 後台管理（訂單出貨、庫存管理、會員管理）|
-| 共用嗎？ | 兩套完全獨立，互不影響 | 同左 |
+**Q：商城、booking、後台共用同一份資料嗎？**  
+A：是。三者都讀 `/data/**`（`storefront/js/data-paths.js`）。前台結帳/評價/預約會寫入 localStorage overlay，後台載入 seed 後會 merge 顯示。
 
-> 之所以分開，是因為前台展示需求（圖片、詳細描述）和後台管理需求（庫存數、出貨狀態）的資料結構不同。
-
-**Q：員工 02 登入後看不到某些 Sidebar 選項？**  
+---  
 A：這是權限設計的正常行為。Demo 員工 `02` 的 `adminPermissions` 可能沒有某些 section 的 `view: true`，Sidebar 會灰階 disabled。用 `01`（超級管理員）登入可看到全部功能；或在「權限管理」模組調整員工權限。
 
 **Q：`localStorage.adminEmployees` 被清掉了怎麼辦？**  
 A：重新整理 `admin/login.html` 或 `admin/dashboard.html`，`permissions.js` 的 `seedEmployeesIfNeeded()` 會自動重建 Demo 種子（員工 `01`、`02`）。
 
-### 預約子系統假資料（`booking/data/`）
+### 預約子系統資料（共用 `/data/catalog`）
 
-| 檔案 | 說明 | 主要欄位 |
-|------|------|---------|
-| `booking/data/campgrounds.json` | **營區資料**（8 筆），含地區、環境標籤、設施標籤、各營位定價 | `[{ campground_id, name, region, environment_tags[], facility_tags[], zones[] }]` |
-| `booking/data/rentals.json` | **租借裝備**（8 筆），依 `campground_id` 分組，含平假日定價 | `[{ equipment_id, campground_id, name, terrain_tag, pricing, stock }]` |
+| 檔案 | 說明 |
+|------|------|
+| `data/catalog/campgrounds.json` | 可預約營區 C002–C009 |
+| `data/catalog/camp-equipment.json` | 各營區裝備 catalog（camelCase） |
 
-> 💡 **如何新增營區？** 打開 `booking/data/campgrounds.json`，複製一筆資料，改掉 `campground_id`（要唯一）、`name`、`region`，並在 `zones` 陣列中定義營位類型和平假日價格，存檔即可。
->
-> ⚠️ **注意**：`booking/data/` 與買家前台的 `data/`、賣家後台的 `admin/data/` 三套完全獨立，各自有不同的資料結構。
+> 💡 新增營區：編輯 `campgrounds.json`，`campgroundId` 使用 C010 起（勿用 C001，保留給租借主倉）。
 
 ---
 
@@ -634,7 +640,8 @@ A：重新整理 `admin/login.html` 或 `admin/dashboard.html`，`permissions.js
 
 ## 13. 賣家後台 → `admin/`
 
-> 賣家後台是**完全獨立的模組**，有自己的樣式、JS、Mock 資料，不依賴買家前台的任何檔案。  
+> 賣家後台有自己的樣式（`admin/css`）與功能 JS（`admin/js`），但**假資料共用** `frontend/data/`，  
+> 並會載入共用腳本（如 `../js/data-paths.js`、`validators.js`、`booking-api.js`）。  
 > 目前共 **9 個功能模組**，含逐頁 **view / edit 權限**（RBAC Mock）。
 
 ### 後台登入流程
@@ -714,15 +721,15 @@ function loadSection(sectionName) {
 
 | 模組名稱 | Partial HTML | JS 檔案 | 資料來源 | 主要功能 |
 |---------|-------------|---------|---------|---------|
-| 分析報表 | `partials/analytics.html` | `js/analytics.js` | `orders.json` + `products.json` | KPI、待出貨、低庫存預警（`total-stock < 5`）、Chart.js 圖表 |
-| 訂單管理 | `partials/orders.html` | `js/orders.js` | `orders.json` | 訂單表格、狀態篩選、標記出貨、詳情 Modal |
-| 庫存異動紀錄 | `partials/movement.html` | `js/movement.js` | `movement.json` | 異動主檔列表、點 ID 開啟明細 Modal |
-| 商品與庫存 | `partials/products.html` | `js/products.js` | `products.json` + `reantal.json` | 商店/租借雙頁籤、總庫存+分店庫存編輯、生產異動紀錄、新增商品 Modal |
-| 客戶管理 | `partials/customers.html` | `js/customers.js` | `customers.json` | Accordion、等級/點數/優惠券行內編輯 |
-| 折扣管理 | `partials/discounts.html` | `js/discounts.js` | `coupons.json` | 優惠券 CRUD、隨機碼產生 |
-| 評論管理 | `partials/reviews.html` | `js/reviews.js` | `reviews.json` | 評論卡片、星等篩選、回覆 |
-| 預約/租借管理 | `partials/bookings.html` | `js/bookings.js` | `bookings.json` | 預約單表格、確認/取消/完成、裝備歸還勾選 |
-| 權限管理 | `partials/permissions.html` | `js/permissions.js` | `localStorage.adminEmployees` | 員工 CRUD、逐頁 view/edit 勾選、超級管理員 |
+| 分析報表 | `partials/analytics.html` | `storefront/js/analytics.js` | `orders.json` + `products.json` | KPI、待出貨、低庫存預警（`total-stock < 5`）、Chart.js 圖表 |
+| 訂單管理 | `partials/orders.html` | `storefront/js/orders.js` | `orders.json` | 訂單表格、狀態篩選、標記出貨、詳情 Modal |
+| 庫存異動紀錄 | `partials/movement.html` | `storefront/js/movement.js` | `movement.json` | 異動主檔列表、點 ID 開啟明細 Modal |
+| 商品與庫存 | `partials/products.html` | `storefront/js/products.js` | `catalog/products.json` + `admin/rental-skus.json` | 商店/租借雙頁籤、總庫存+分店庫存編輯、生產異動紀錄、新增商品 Modal |
+| 客戶管理 | `partials/customers.html` | `storefront/js/customers.js` | `customers.json` | Accordion、等級/點數/優惠券行內編輯 |
+| 折扣管理 | `partials/discounts.html` | `storefront/js/discounts.js` | `coupons.json` | 優惠券 CRUD、隨機碼產生 |
+| 評論管理 | `partials/reviews.html` | `storefront/js/reviews.js` | `reviews.json` | 評論卡片、星等篩選、回覆 |
+| 預約/租借管理 | `partials/bookings.html` | `storefront/js/bookings.js` | `commerce/camp-bookings.json` | 預約單表格、確認/取消/完成、裝備歸還勾選 |
+| 權限管理 | `partials/permissions.html` | `storefront/js/permissions.js` | `localStorage.adminEmployees` | 員工 CRUD、逐頁 view/edit 勾選、超級管理員 |
 
 > 💡 9 個 section 的順序與標題定義在 `permissions.js` 的 `window.ADMIN_SECTIONS`。
 
@@ -799,23 +806,24 @@ window.initPermissions()               // 權限管理頁初始化
    a. ADMIN_SECTIONS 陣列加入 { key: 'xxx', label: '...' }
    b. EDIT_PERMISSION_SELECTORS 加入 xxx 的編輯按鈕選擇器
 
-6. （可選）在 admin/data/ 新增 xxx.json
+6. （可選）在 `/data/**` 新增 JSON，並於 `storefront/js/data-paths.js` 登錄路徑
 ```
 
 ---
 
 ## 14. 預約子系統 → `booking/`
 
-> 預約子系統是**完全獨立的模組**，有自己的樣式、JS、Mock 資料、Header/Footer，不依賴買家前台的任何 JS 或元件。
+> 預約子系統有自己的 `booking/pages`、`booking/js`、`booking/css`，  
+> 但會共用 `frontend/components`（header/footer partial）、`frontend/js`（data-paths、booking-api、modal…）與 `/data/**`。
 
 ### 與買家前台 / 賣家後台的對照
 
 | 項目 | 買家前台 | 賣家後台 | 預約子系統 |
 |------|---------|---------|---------|
-| HTML 頁面路徑 | `pages/` | `admin/` | `booking/` |
-| JS 路徑 | `js/` | `admin/js/` | `booking/js/` |
-| CSS 路徑 | `css/main.css` | `admin/css/admin.css` | `booking/css/booking.css` |
-| Mock 資料路徑 | `data/` | `admin/data/` | `booking/data/` |
+| HTML 頁面路徑 | `storefront/pages/` | `admin/` | `booking/` |
+| JS 路徑 | `storefront/js/` | `admin/js/` | `booking/js/` |
+| CSS 路徑 | `storefront/css/main.css` | `admin/css/admin.css` | `booking/css/booking.css` |
+| Mock 資料路徑 | `/data/**`（`storefront/js/data-paths.js`） | 同左（AdminAPI） | 同左（BookingAPI） |
 | Header/Footer 元件 | `components/header.html` | 無（Sidebar 取代）| `booking/components/booking-header.html` |
 | 購物車儲存 | `localStorage.cart` | sessionStorage | `localStorage.bookingCart` |
 | 主要技術 | Vanilla JS | jQuery + Bootstrap 5 | jQuery + Flatpickr |
@@ -825,13 +833,13 @@ window.initPermissions()               // 權限管理頁初始化
 ```
 使用者點擊買家端「🏕️ 預約」按鈕
   ↓
-booking/camp-search.html（搜尋 + 篩選營區）
+booking/pages/camp-search.html（搜尋 + 篩選營區）
   ↓ 點擊「查看詳情」
-booking/camp-detail.html（選日期、選營位 → 寫入 localStorage.bookingCart）
+booking/pages/camp-detail.html（選日期、選營位 → 寫入 localStorage.bookingCart）
   ↓ 點擊「下一步：選擇租借裝備」
-booking/camp-rental.html（加選裝備 → 更新 bookingCart.selected_rentals）
+booking/pages/camp-rental.html（加選裝備 → 更新 bookingCart.selected_rentals）
   ↓ 點擊「確認預約結帳」
-booking/booking-cart.html（確認明細 + 填聯絡資訊 → 送出預約 → 清除 bookingCart）
+booking/pages/booking-cart.html（確認明細 + 填聯絡資訊 → 送出預約 → 清除 bookingCart）
   ↓ 結帳成功後
 導購按鈕 → pages/products.html（引導購買裝備）
 ```
@@ -903,16 +911,16 @@ booking/booking-cart.html（確認明細 + 填聯絡資訊 → 送出預約 → 
 
 2. 在 booking/js/ 新增 xxx.js，使用 jQuery $(document).ready() 初始化
 
-3. 如有新的 Mock 資料需求，在 booking/data/ 新增 xxx.json
+3. 如有新的 Mock 資料需求，在 `/data/**` 新增 JSON，並於 `storefront/js/data-paths.js` 登錄（勿再新增 `booking/data/`）
 
 4. 在 booking/components/booking-header.html 的導覽列加入新頁面連結
 
 5. 如有新樣式，在 booking/css/booking.css 末尾新增對應 class
 ```
 
-> 💡 **後台預約管理**：賣家後台的 `admin/data/bookings.json` 是管理端 Mock 資料（由 `bookings.js` 讀取），與前台使用者流程中的 `localStorage.bookingCart` **完全分離**，互不同步。
+> 💡 **後台預約管理**：種子資料為 `data/commerce/camp-bookings.json`（`DataPaths.campBookings`）。前台流程用 `localStorage.bookingCart`；結帳後寫入 `mockBookings` overlay，後台載入時 merge 顯示。
 
 ---
 
-**最後更新**：2026/06/14  
-**對應版本**：v1.3.1
+**最後更新**：2026/07/09  
+**對應版本**：假資料整合後（見 `plans/data-integration-spec.md`）

@@ -1,4 +1,4 @@
-# ProductsPage 商品頁規格
+﻿# ProductsPage 商品頁規格
 
 **狀態：** 草稿
 **類別：** 頁面
@@ -81,7 +81,7 @@ export interface ProductsPageProps {
 | -------- | --------------------- | -------------------------------------------------- |
 | 預設       | 頁面已載入                 | 主要內容區以 Yuruicamp 綠色 Token 與既有間距呈現。                 |
 | Hover    | 卡片、資料列、分頁標籤或按鈕被滑鼠移入   | 改變邊框、陰影或背景，不可造成版面位移。                               |
-| Active   | 已選取的分頁標籤、篩選器、導覽項目或表格列 | 使用 `--yui-primary` 或 `--yui-primary-soft`，並搭配文字標示。 |
+| Active   | 已選取的分頁標籤、篩選器、導覽項目或表格列 | 使用 `--yc-sage-action` 或 `--yc-sage-soft`，並搭配文字標示。 |
 | Disabled | 無法使用的操作或未完成的表單        | 降低透明度、禁止指標操作、保留元素尺寸。                               |
 | 載入中      | `loading={true}`      | 使用 Skeleton 列、停用送出按鈕或穩定的預留區塊。                      |
 | 錯誤       | 存在 `errorMessage`     | 在失敗區域附近顯示行內警示，並在可行時提供重試操作。                         |
@@ -102,12 +102,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 
@@ -154,6 +154,9 @@ const colors = {
 * 共用 CSS 來源：`css/main.css`。
 * 共用元件：`components/header.partial`、`components/footer.partial`。
 * 關鍵 UI 區域：`adCarousel`、`filterSidebar`、`productsGrid`、`pagination`。
+* Backend 模式以公開商品契約的 `tags` 判定 `isNew`、`isBestseller`；`API.products.getNewest(100)` 與 `API.products.getBestsellers(100)` 只提供各分類的排序順位。
+* 開發 Seed 的新品為可售商品 `products.created_at desc, id desc` 前 10 件；熱銷為排除取消／退貨訂單後，依 `order_items.quantity` 合計前 6 件。
+* 新品維持 `created_at` 降序，熱銷維持有效訂單數量降序。商品卡可同時顯示兩種標籤；URL 與側欄篩選不得用列表位置或前端自行推測標籤。
 * 產生新 UI 前，必須先閱讀 `docs/ai-style-sheet.md` 與 `docs/ai-style-tokens.css`。
 * 未解決問題：沒有提供 Figma 設計稿，因此既有程式碼是設計上的唯一依據。
 * 實作本規格時，**不得**替換既有頁面外殼、storage key、mock data 資料契約，或 partial loader 的載入模式。
@@ -166,3 +169,4 @@ const colors = {
 * [ ] 螢幕閱讀器能正確宣告內容。
 * [ ] 設計 Token 符合 Yuruicamp AI 樣式規範。
 * [ ] 單元測試或 smoke test 已涵蓋必填 Props 與主要事件。
+* [ ] 新品與熱銷商品卡有正確標籤，URL 與側欄快速篩選會顯示完整對應清單，不受首頁展示筆數限制。

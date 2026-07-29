@@ -1,4 +1,4 @@
-# CampRentalPage Spec
+﻿# CampRentalPage Spec
 
 **Status:** Draft
 **Category:** Page
@@ -79,7 +79,7 @@ export interface CampRentalPageProps {
 |-------|---------|---------------|
 | Default | Page loaded | Primary content areas render with Yuruicamp green tokens and existing spacing. |
 | Hover | Interactive card, row, tab, or button hover | Border, shadow, or background changes without layout shift. |
-| Active | Selected tab, filter, nav item, or table row | Uses `--yui-primary` or `--yui-primary-soft` plus text label. |
+| Active | Selected tab, filter, nav item, or table row | Uses `--yc-sage-action` or `--yc-sage-soft` plus text label. |
 | Disabled | Unavailable action or incomplete form | Lower opacity, blocked pointer, preserved element dimensions. |
 | Loading | `loading={true}` | Skeleton rows, disabled submit buttons, or stable placeholder blocks. |
 | Error | `errorMessage` exists | Inline alert near the failed area and retry action when possible. |
@@ -100,12 +100,12 @@ const typography = {
 };
 
 const colors = {
-  background: 'var(--yui-bg)',
-  surface: 'var(--yui-surface)',
-  text: 'var(--yui-text)',
-  mutedText: 'var(--yui-text-muted)',
-  border: 'var(--yui-border)',
-  focus: 'var(--yui-primary)',
+  background: 'var(--yc-bg)',
+  surface: 'var(--yc-surface)',
+  text: 'var(--yc-text)',
+  mutedText: 'var(--yc-text-muted)',
+  border: 'var(--yc-border)',
+  focus: 'var(--yc-sage-action)',
 };
 ```
 
@@ -151,6 +151,7 @@ const colors = {
 - Source file: `booking/pages/camp-rental.html`.
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
+- **Shared scripts:** `/booking/js/booking-core-scripts.js`（見 [`booking-shared-scripts.md`](../booking-shared-scripts.md)）。
 - Key UI areas: bookingSummaryBar, recommendationBanner, rentalGrid, rentalCartList.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.

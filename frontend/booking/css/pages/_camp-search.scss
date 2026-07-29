@@ -1,0 +1,459 @@
+.searchPage {
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+  background: var(--yc-bg);
+}
+
+.heroBanner {
+  position: relative;
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--yc-sage-dark) 78%, black) 0%,
+    var(--yc-sage-dark) 42%,
+    var(--yc-sage-action) 70%,
+    var(--yc-sage-light) 100%
+  );
+}
+
+.heroBanner video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgb(30 40 30 / 32%);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  padding: 2rem 1.25rem;
+  color: var(--yc-on-dark);
+  text-align: center;
+}
+
+.heroTitle {
+  margin-bottom: 1.25rem;
+  font-size: clamp(2.25rem, 6vw, 4rem);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
+.heroSubtitle {
+  margin-bottom: 2rem;
+  color: color-mix(in srgb, var(--yc-on-dark) 85%, transparent);
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.heroBanner .searchBar {
+  flex-wrap: nowrap;
+}
+
+.heroBanner .searchBar .searchBarInput,
+.heroBanner .searchBar .searchBarSelect {
+  min-width: 0;
+
+}
+
+.dateRangeSearchInput {
+  flex: 2.5 1 0; }
+
+.searchGuestSelect,
+.searchRegionSelect {
+  flex: 1 1 0; }
+
+.priceRangeDisplay {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--yc-sage-action);
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.priceRangeTrackWrap {
+  position: relative;
+  height: 6px;
+  margin: 0.6rem 0 0.5rem;
+}
+
+.priceRangeTrackWrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--yc-border);
+  border-radius: 3px;
+}
+
+.priceRangeFill {
+  position: absolute;
+  inset: 0;
+  height: 6px;
+  background: var(--yc-sage-action);
+  border-radius: 3px;
+  opacity: 0.38;
+  pointer-events: none;
+}
+
+.priceRangeTrackWrap input[type='range'] {
+  position: absolute;
+  width: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 6px;
+  background: transparent;
+  pointer-events: none;
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+}
+
+.priceRangeThumbMin {
+  z-index: 3;
+}
+
+.priceRangeThumbMin.isRaised {
+  z-index: 5;
+}
+
+.priceRangeThumbMax {
+  z-index: 4;
+}
+
+.priceRangeTrackWrap input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--yc-surface);
+  border: 2px solid var(--yc-sage-action);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.priceRangeTrackWrap input[type='range']::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 6px;
+}
+
+.priceRangeTrackWrap input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--yc-surface);
+  border: 2px solid var(--yc-sage-action);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 18%);
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.priceRangeTrackWrap input[type='range']::-moz-range-track {
+  background: transparent;
+}
+
+.priceRangeLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--yc-text-muted);
+  margin-top: 0.75rem;
+}
+
+.searchBarSection {
+  background: var(--yc-sage-action);
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  border-radius: var(--yc-radius-card, 19px);
+  overflow: hidden;
+}
+
+.searchBar {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.searchBarInput,
+.searchBarSelect {
+  padding: 0.6rem 1rem;
+  border: 2px solid color-mix(in srgb, var(--yc-on-dark) 30%, transparent);
+  border-radius: var(--yc-radius-control);
+  background: color-mix(in srgb, var(--yc-on-dark) 15%, transparent);
+  color: var(--yc-on-dark);
+  font-size: 0.95rem;
+  outline: 3px solid transparent;
+  outline-offset: 2px;
+  transition: var(--yc-transition);
+}
+
+.searchBarInput::placeholder {
+  color: color-mix(in srgb, var(--yc-on-dark) 70%, transparent);
+}
+
+.searchBarInput:focus,
+.searchBarSelect:focus {
+  border-color: var(--yc-on-dark);
+  background: color-mix(in srgb, var(--yc-on-dark) 25%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--yc-on-dark) 24%, transparent);
+}
+
+.searchBarSelect option {
+  color: var(--yc-text);
+  background: var(--yc-surface);
+}
+
+.filterSidebar {
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
+  box-shadow: var(--yc-shadow-soft);
+  overflow: hidden;
+  position: sticky;
+  top: 90px;
+}
+
+.filterSidebarToggle {
+  display: none;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: var(--yc-sage-action);
+  color: var(--yc-on-dark);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+}
+
+.filterSidebarBody {
+  padding: 1.25rem;
+}
+
+.filterGroup {
+  margin-bottom: 1.5rem;
+}
+
+.filterGroupTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--yc-sage-action);
+  border-bottom: 2px solid var(--yc-border);
+  padding-bottom: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.filterGroup label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+  color: var(--yc-text);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.filterGroup label:hover {
+  color: var(--yc-sage-action);
+}
+
+.filterGroup input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--yc-sage-action);
+  cursor: pointer;
+}
+
+.resetFilterButtonBooking {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  background: var(--yc-surface);
+  color: var(--yc-sage-action);
+  border-color: var(--yc-sage-action);
+}
+
+.resetFilterButtonBooking:hover {
+  background: var(--yc-sage-soft);
+  color: var(--yc-sage-dark);
+  border-color: var(--yc-sage-action);
+}
+
+.searchResultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: var(--yc-text-muted);
+  font-size: 0.9rem;
+}
+
+.campCardBooking {
+  background: var(--yc-surface);
+  border-radius: var(--yc-radius-card);
+  box-shadow: var(--yc-shadow-soft);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: var(--yc-transition);
+}
+
+.campCardBooking:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--yc-shadow-hover);
+}
+
+.campCardImageBooking {
+  position: relative;
+  aspect-ratio: 16/10;
+  overflow: hidden;
+}
+
+.campCardImageBooking img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Hover zoom only for plain single-image cards (not Swiper gallery)
+.campCardImageBooking:not(.cardGallery) img {
+  transition: transform 0.4s ease;
+}
+
+.campCardBooking:hover .campCardImageBooking:not(.cardGallery) img {
+  transform: scale(1.05);
+}
+
+.campCardBadgeBooking {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: var(--yc-cta);
+  color: var(--yc-on-cta);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+}
+
+.campCardBadgeFull {
+  inset: auto 0.75rem 0.75rem auto;
+  background: #f8d7da;
+  color: #842029;
+}
+
+.campCardBadgeClosed {
+  inset: auto 0.75rem 0.75rem auto;
+  background: #e2d9f3;
+  color: #5a3d8a;
+}
+
+.campCardBooking.isDateFull,
+.campCardBooking.isDateClosed {
+  opacity: 0.85;
+}
+
+.campCardBodyBooking {
+  padding: 1rem;
+  flex: 1;
+}
+
+.campCardNameBooking {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--yc-text);
+  margin-bottom: 0.4rem;
+}
+
+.campCardPriceBooking {
+  font-size: 0.875rem;
+  color: var(--yc-text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.campCardPriceBooking strong {
+  color: var(--yc-sage-dark);
+}
+
+.campCardTagsBooking {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.campCardFooterBooking {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--yc-border);
+}
+
+.campCardFooterBooking .btn {
+  width: 100%;
+}
+
+@media (width <= 768px) {
+  .heroBanner {
+    min-height: 75vh;
+  }
+
+  .heroTitle {
+    font-size: clamp(1.75rem, 8vw, 2.5rem);
+  }
+
+  .heroSubtitle {
+    font-size: 0.95rem;
+  }
+
+  .searchBar {
+    flex-direction: column;
+  }
+
+  .searchBarInput,
+  .searchBarSelect {
+    flex: 1 1 100%;
+  }
+
+  .filterSidebar {
+    position: static;
+  }
+
+  .filterSidebarToggle {
+    display: flex;
+    align-items: center;
+  }
+
+  .filterSidebarBody {
+    display: none;
+    border-top: 1px solid var(--yc-border);
+  }
+
+  .filterSidebarBody.isOpen {
+    display: block;
+  }
+}
