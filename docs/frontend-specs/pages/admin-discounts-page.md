@@ -152,6 +152,8 @@ const colors = {
 - Shared CSS source: `admin/css/admin.css`.
 - Shared components: admin/dashboard.html shell and admin partial loader.
 - Key UI areas: addCouponForm, discountTypeSwitch, couponsTableBody.
+- G-4 Backend 模式以 `AdminAPI.coupons` 為真相；建立、切換狀態與刪除只有 API 成功後才更新表格與 cache。
+- 表單 Request 只包含正式 Coupon DTO 欄位；`claimedQuantity`／`remainingClaimable` 只讀，已有領取紀錄時刪除操作停用。
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.

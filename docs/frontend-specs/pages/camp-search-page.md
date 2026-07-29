@@ -155,6 +155,7 @@ const colors = {
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
+- When the user opens a result card, append selected `checkIn`, `checkOut`, and `guests` values to the camp detail URL. Omit conditions that were not selected.
 
 ## Acceptance Criteria
 
@@ -164,3 +165,4 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] The detail link carries the latest selected date range and guest count

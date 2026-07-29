@@ -1,0 +1,273 @@
+// Shared modal and personalization runtime.
+(function () {
+  'use strict';
+
+  var surveyAnswers = { styles: [], equipment: [] };
+  var personalizationCompleted = false;
+  var surveyMinOneMessage = '至少選擇 1 個選項';
+  var surveyMinTwoMessage = '至少選擇 2 個選項';
+
+  function getLoginProvider(button) {
+    if (button.classList.contains('btnLineLogin')) return 'LINE';
+    if (button.classList.contains('btnFacebookLogin')) return 'Facebook';
+    return 'Google';
+  }
+
+  function hasOpenModal() {
+    return Boolean(document.querySelector('.modal.isOpen'));
+  }
+
+  /**
+   * 開啟指定 Modal 並避免聚焦時捲動頁面。
+   * 套用元件：#loginModal、#personalizationModal、#partnerModal。
+   */
+  window.openModal = function (modalId) {
+    var modal = document.getElementById(modalId);
+    var focusTarget;
+    if (!modal) return;
+    modal.classList.add('isOpen');
+    document.body.classList.add('isModalOpen');
+    focusTarget = modal.querySelector('button, a, input, [tabindex]:not([tabindex="-1"])');
+    if (focusTarget) focusTarget.focus({ preventScroll: true });
+  };
+
+  function openSurveyCloseConfirmModal() {
+    var confirmModal = document.getElementById('surveyCloseConfirmModal');
+    if (!confirmModal) return false;
+    window.openModal('surveyCloseConfirmModal');
+    return true;
+  }
+
+  function requestPersonalizationClose() {
+    if (personalizationCompleted) {
+      window.closeModal('personalizationModal', { force: true });
+      return;
+    }
+    if (!openSurveyCloseConfirmModal()) {
+      window.showToast && window.showToast('尚未完成偏好設定', 'warning');
+    }
+  }
+
+  window.closeModal = function (modalId, options) {
+    var modal = document.getElementById(modalId);
+    var force = options && options.force;
+    if (!modal) return;
+    if (modalId === 'personalizationModal' && !force && !personalizationCompleted) {
+      requestPersonalizationClose();
+      return;
+    }
+    modal.classList.remove('isOpen');
+    document.body.classList.toggle('isModalOpen', hasOpenModal());
+  };
+
+  function syncProfilePreferenceStorage(preferences) {
+    var profile = {};
+    try {
+      profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}');
+    } catch {
+      profile = {};
+    }
+    profile.preferences = preferences;
+    localStorage.setItem('yurui_profile', JSON.stringify(profile));
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+    window.syncMemberPreferenceTags && window.syncMemberPreferenceTags(preferences);
+    var user = window.AppState && window.AppState.currentUser;
+    if (user && user.id && window.API && window.API.customers && window.API.customers.update) {
+      window.API.customers.update(user.id, { preferences: preferences }).catch(function (error) {
+        console.warn('Sync normalized customer preferences failed', error);
+      });
+    }
+    window.dispatchEvent(new CustomEvent('yurui:preferences-updated', { detail: preferences }));
+  }
+
+  function redirectToMemberProfile() {
+    window.location.href = '/storefront/pages/member-center.html?onboarding=profile';
+  }
+
+  function handleLoginSuccess(provider) {
+    if (window.YuruiAuth && typeof window.YuruiAuth.loginWithProvider === 'function') {
+      // 處理 Google／FB／LINE 取消／後端錯誤等 Promise reject
+      window.YuruiAuth.loginWithProvider(provider, {
+        close: function () {
+          window.closeModal('loginModal');
+        },
+      })
+        .then(function () {
+          window.updateNavbarLoginState?.();
+        })
+        .catch(function (error) {
+          var message = (error && error.message) || '登入失敗';
+          console.error('Login failed:', error);
+          window.showToast && window.showToast(message, 'error');
+        });
+      return;
+    }
+
+    window.showToast && window.showToast('登入模組尚未載入，請重新整理頁面', 'error');
+  }
+
+  function validateSurveySelection(count, minimum) {
+    if (count >= minimum) return true;
+    window.showToast && window.showToast(count === 0 ? surveyMinOneMessage : surveyMinTwoMessage, 'warning');
+    return false;
+  }
+
+  function preferenceValues(preferences) {
+    if (Array.isArray(preferences)) return preferences.filter(Boolean);
+    if (typeof preferences === 'string' && preferences) return [preferences];
+    if (!preferences || typeof preferences !== 'object') return [];
+    return []
+      .concat(preferences.styles || [])
+      .concat(preferences.equipment || [])
+      .filter(Boolean);
+  }
+
+  function readStoredPreferences() {
+    var appPreferences = preferenceValues(window.AppState && window.AppState.preferences);
+    if (appPreferences.length) return appPreferences;
+    try {
+      var profile = JSON.parse(localStorage.getItem('yurui_profile') || '{}');
+      var profilePreferences = preferenceValues(profile.preferences);
+      if (profilePreferences.length) return profilePreferences;
+      return preferenceValues(JSON.parse(localStorage.getItem('preferences') || 'null'));
+    } catch {
+      return [];
+    }
+  }
+
+  window.syncPersonalizationPreferenceTags = function (preferences) {
+    var selected = new Set(preferenceValues(preferences));
+    document.querySelectorAll('#personalizationModal .surveyTag').forEach(function (tag) {
+      var isSelected = selected.has(tag.dataset.value);
+      tag.classList.toggle('isSelected', isSelected);
+      tag.setAttribute('aria-pressed', String(isSelected));
+    });
+  };
+
+  function goToSurveyStep(step) {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal) return;
+    modal.querySelectorAll('.surveyStep').forEach(function (panel) {
+      panel.classList.toggle('isOpen', parseInt(panel.dataset.step, 10) === step);
+    });
+    modal.querySelectorAll('.stepperDot').forEach(function (dot, index) {
+      dot.classList.toggle('isSelected', index + 1 <= step);
+    });
+    var stepIndicator = modal.querySelector('.stepperText');
+    if (stepIndicator) stepIndicator.textContent = step + ' / 2';
+  }
+
+  window.openPersonalizationModal = function () {
+    surveyAnswers = { styles: [], equipment: [] };
+    personalizationCompleted = false;
+    window.syncPersonalizationPreferenceTags(readStoredPreferences());
+    goToSurveyStep(1);
+    window.openModal('personalizationModal');
+  };
+
+  window.initPersonalizationModal = function () {
+    var modal = document.getElementById('personalizationModal');
+    if (!modal || modal.dataset.personalizationBound === 'true') return;
+    modal.dataset.personalizationBound = 'true';
+
+    modal.addEventListener('click', function (event) {
+      var tag = event.target.closest('.surveyTag');
+      if (tag) {
+        tag.classList.toggle('isSelected');
+        tag.setAttribute('aria-pressed', String(tag.classList.contains('isSelected')));
+        return;
+      }
+      if (event.target.id === 'surveyNextBtn') {
+        var stepOneTags = modal.querySelectorAll('[data-step="1"] .surveyTag.isSelected');
+        if (!validateSurveySelection(stepOneTags.length, 2)) return;
+        surveyAnswers.styles = Array.from(stepOneTags).map(function (selectedTag) {
+          return selectedTag.dataset.value;
+        });
+        goToSurveyStep(2);
+      }
+      if (event.target.id === 'surveyFinishBtn') {
+        var styleTags = modal.querySelectorAll('[data-step="1"] .surveyTag.isSelected');
+        var equipmentTags = modal.querySelectorAll('[data-step="2"] .surveyTag.isSelected');
+        if (!validateSurveySelection(styleTags.length, 2)) {
+          goToSurveyStep(1);
+          return;
+        }
+        if (!validateSurveySelection(equipmentTags.length, 2)) return;
+        surveyAnswers.styles = Array.from(styleTags).map(function (selectedTag) {
+          return selectedTag.dataset.value;
+        });
+        surveyAnswers.equipment = Array.from(equipmentTags).map(function (selectedTag) {
+          return selectedTag.dataset.value;
+        });
+        if (window.AppState) window.AppState.preferences = surveyAnswers;
+        window.saveAppState?.();
+        syncProfilePreferenceStorage(surveyAnswers);
+        personalizationCompleted = true;
+        window.closeModal('personalizationModal', { force: true });
+        redirectToMemberProfile();
+      }
+    });
+  };
+
+  function initLoginModal() {
+    var loginModal = document.getElementById('loginModal');
+    if (!loginModal || loginModal.dataset.loginBound === 'true') return;
+    loginModal.dataset.loginBound = 'true';
+    loginModal
+      .querySelectorAll('.btnGoogleLogin, .btnFacebookLogin, .btnLineLogin')
+      .forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.preventDefault();
+          handleLoginSuccess(getLoginProvider(button));
+        });
+      });
+  }
+
+  function initSurveyCloseConfirmModal() {
+    var confirmModal = document.getElementById('surveyCloseConfirmModal');
+    if (!confirmModal || confirmModal.dataset.confirmBound === 'true') return;
+    confirmModal.dataset.confirmBound = 'true';
+    confirmModal.querySelector('[data-survey-close-cancel]')?.addEventListener('click', function () {
+      window.closeModal('surveyCloseConfirmModal', { force: true });
+    });
+    confirmModal.querySelector('[data-survey-close-confirm]')?.addEventListener('click', function () {
+      window.closeModal('surveyCloseConfirmModal', { force: true });
+      window.closeModal('personalizationModal', { force: true });
+      redirectToMemberProfile();
+    });
+  }
+
+  window.initModalListeners = function () {
+    initLoginModal();
+    initPersonalizationModal();
+    initSurveyCloseConfirmModal();
+
+    document.querySelectorAll('.modalClose').forEach(function (button) {
+      if (button.dataset.modalCloseBound === 'true') return;
+      button.dataset.modalCloseBound = 'true';
+      button.addEventListener('click', function () {
+        var modal = button.closest('.modal');
+        if (modal) window.closeModal(modal.id);
+      });
+    });
+
+    if (!document.body.dataset.modalBackdropBound) {
+      document.body.dataset.modalBackdropBound = 'true';
+      document.addEventListener('click', function (event) {
+        if (!event.target.classList.contains('modal')) return;
+        if (event.target.id === 'personalizationModal') return;
+        window.closeModal(event.target.id);
+      });
+    }
+
+    if (!document.body.dataset.modalEscBound) {
+      document.body.dataset.modalEscBound = 'true';
+      document.addEventListener('keydown', function (event) {
+        if (event.key !== 'Escape') return;
+        var openModal = document.querySelector('.modal.isOpen');
+        if (!openModal || openModal.id === 'personalizationModal') return;
+        window.closeModal(openModal.id);
+      });
+    }
+  };
+})();

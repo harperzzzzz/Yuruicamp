@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Yuruicamp 結帳頁面 - 安全快速完成購物" />
+    <meta name="theme-color" content="#244d4d" />
+    <title>結帳 - Yuruicamp 露營選物</title>
+    <link rel="preconnect" href="https://picsum.photos" />
+    <link rel="dns-prefetch" href="https://picsum.photos" />
+    <link rel="stylesheet" href="/storefront/css/main.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="icon" href="/assets/icons/camping_icon.png" type="image/png" />
+  </head>
+  <body>
+    <div id="header"></div>
+
+    <main class="container checkoutPage">
+      <header class="checkoutHeader">
+        <h1 class="checkoutTitle">結帳</h1>
+        <nav class="checkoutSteps" aria-label="結帳流程">
+          <ol class="checkoutStepsList">
+            <li class="checkoutStepItem isCompleted">
+              <span><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+              確認背包
+            </li>
+            <li class="checkoutStepItem isSelected" aria-current="step">
+              <span>2</span>
+              配送與付款
+            </li>
+            <li class="checkoutStepItem">
+              <span>3</span>
+              完成
+            </li>
+          </ol>
+        </nav>
+      </header>
+
+      <div class="checkoutLayout">
+        <div class="checkoutFormColumn">
+          <section
+            class="checkoutSessionPanel"
+            id="checkoutSessionPanel"
+            aria-labelledby="checkoutSessionTitle"
+            aria-live="polite"
+            hidden
+          >
+            <div class="checkoutSessionMain">
+              <i
+                class="bi bi-hourglass-split checkoutSessionIcon"
+                id="checkoutSessionIcon"
+                aria-hidden="true"
+              ></i>
+              <div>
+                <span class="checkoutSessionBadge" id="checkoutSessionBadge">結帳狀態</span>
+                <h2 class="checkoutSessionTitle" id="checkoutSessionTitle">Checkout Session</h2>
+                <p class="checkoutSessionMessage" id="checkoutSessionMessage"></p>
+                <ul class="checkoutSessionDetails" id="checkoutSessionDetails" hidden></ul>
+              </div>
+            </div>
+            <div class="checkoutSessionTimer" id="checkoutSessionTimer" hidden>
+              <span>庫存保留剩餘時間</span>
+              <strong id="checkoutCountdown" role="timer" aria-live="off">15:00</strong>
+            </div>
+            <div class="checkoutSessionActions">
+              <button class="btn btnSecondary" id="returnToCartBtn" type="button" hidden>返回購物車</button>
+            </div>
+          </section>
+
+          <section class="checkoutPanel isOpen" id="panelShipping" aria-labelledby="panelShippingTitle">
+            <button
+              class="checkoutPanelTrigger"
+              type="button"
+              data-panel-trigger
+              aria-expanded="true"
+              aria-controls="panelShippingBody"
+            >
+              <span class="checkoutPanelHeading">
+                <span class="checkoutStepNumber">1</span>
+                <span class="checkoutPanelTitle" id="panelShippingTitle">配送資訊</span>
+              </span>
+              <span class="checkoutPanelArrow" aria-hidden="true"></span>
+            </button>
+
+            <div class="checkoutPanelBody" id="panelShippingBody">
+              <fieldset class="checkoutFieldset">
+                <legend class="checkoutLegend">配送方式</legend>
+                <label class="checkoutChoice isSelected">
+                  <input
+                    class="checkoutRadio"
+                    type="radio"
+                    name="shippingMethod"
+                    value="delivery"
+                    id="shippingDelivery"
+                    checked
+                  />
+                  <span class="checkoutChoiceBody">
+                    <span class="checkoutChoiceTitle">宅配到府</span>
+                    <span class="checkoutChoiceDesc">黑貓宅急便，2-4 個工作天到達</span>
+                    <span class="checkoutChoiceMeta">運費 NT$60（滿 NT$3000 免運）</span>
+                  </span>
+                </label>
+                <label class="checkoutChoice">
+                  <input
+                    class="checkoutRadio"
+                    type="radio"
+                    name="shippingMethod"
+                    value="pickup"
+                    id="shippingStore"
+                  />
+                  <span class="checkoutChoiceBody">
+                    <span class="checkoutChoiceTitle">門市取貨</span>
+                    <span class="checkoutChoiceDesc">全台 Yuruicamp 門市，7-10 個工作天</span>
+                    <span class="checkoutChoiceMeta isFreeShipping">免運費</span>
+                  </span>
+                </label>
+                <label class="checkoutChoice">
+                  <input
+                    class="checkoutRadio"
+                    type="radio"
+                    name="shippingMethod"
+                    value="cvs"
+                    id="shippingCvs"
+                  />
+                  <span class="checkoutChoiceBody">
+                    <span class="checkoutChoiceTitle">超商取貨（全家）</span>
+                    <span class="checkoutChoiceDesc">綠界物流 B2C，選擇全家便利商店取貨</span>
+                    <span class="checkoutChoiceMeta">運費 NT$60（滿 NT$3000 免運）</span>
+                  </span>
+                </label>
+              </fieldset>
+
+              <div class="checkoutField checkoutRecipientField">
+                <div class="shippingAddressBlock">
+                  <span class="shippingAddressLabel">收件人 <span class="requiredMark">*</span></span>
+                  <div class="shippingAddressMain">
+                    <div
+                      id="checkoutRecipientDisplay"
+                      class="shippingAddressDisplay"
+                      aria-live="polite"
+                    >
+                      <span class="shippingAddressEmpty">尚未設定</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="shippingAddressEditBtn"
+                      id="checkoutRecipientEditBtn"
+                      aria-label="編輯收件人"
+                      title="編輯收件人"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkoutField checkoutAddressField" id="deliveryAddressSection">
+                <div class="shippingAddressBlock">
+                  <span class="shippingAddressLabel">送達地址 <span class="requiredMark">*</span></span>
+                  <div class="shippingAddressMain">
+                    <div
+                      id="checkoutShippingAddressDisplay"
+                      class="shippingAddressDisplay"
+                      aria-live="polite"
+                    >
+                      <span class="shippingAddressEmpty">尚未設定</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="shippingAddressEditBtn"
+                      id="checkoutShippingAddressEditBtn"
+                      aria-label="編輯送達地址"
+                      title="編輯送達地址"
+                    >
+                      <i class="bi bi-pencil" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkoutField checkoutPickupField" id="pickupBranchSection" hidden>
+                <label class="checkoutLabel" for="checkoutPickupBranch">
+                  取貨門市 <span class="requiredMark">*</span>
+                </label>
+                <select class="checkoutInput checkoutSelect" id="checkoutPickupBranch" disabled>
+                  <option value="">門市載入中</option>
+                </select>
+                <p class="checkoutFieldHint" id="checkoutPickupBranchHint" aria-live="polite">
+                  選擇門市取貨後，訂單會保存門市資料快照。
+                </p>
+              </div>
+
+              <div class="checkoutField checkoutCvsField" id="cvsStoreSection" hidden>
+                <span class="checkoutLabel">超商取貨門市 <span class="requiredMark">*</span></span>
+                <div id="checkoutCvsStoreDisplay" class="shippingAddressDisplay" aria-live="polite">
+                  <span class="shippingAddressEmpty">尚未選擇門市</span>
+                </div>
+                <button type="button" class="btn btn-outline-primary mt-2" id="checkoutCvsMapBtn">
+                  選擇全家門市
+                </button>
+                <p class="checkoutFieldHint" id="checkoutCvsStoreHint" aria-live="polite">
+                  將開啟綠界電子地圖；選完後會回到本頁並更新門市資訊。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="checkoutPanel isOpen" id="panelPayment" aria-labelledby="panelPaymentTitle">
+            <button
+              class="checkoutPanelTrigger"
+              type="button"
+              data-panel-trigger
+              aria-expanded="true"
+              aria-controls="panelPaymentBody"
+            >
+              <span class="checkoutPanelHeading">
+                <span class="checkoutStepNumber">2</span>
+                <span class="checkoutPanelTitle" id="panelPaymentTitle">付款方式</span>
+              </span>
+              <span class="checkoutPanelArrow" aria-hidden="true"></span>
+            </button>
+
+            <div class="checkoutPanelBody" id="panelPaymentBody">
+              <fieldset class="checkoutFieldset">
+                <legend class="checkoutLegend">付款選項</legend>
+                <label class="checkoutChoice isSelected">
+                  <input
+                    class="checkoutRadio"
+                    type="radio"
+                    name="paymentMethod"
+                    value="credit"
+                    id="payCredit"
+                    checked
+                  />
+                  <span class="checkoutChoiceBody">
+                    <span class="checkoutChoiceTitle">線上付款（綠界）</span>
+                    <span class="checkoutChoiceDesc">信用卡等 ECPay 通道（正式環境導向綠界）</span>
+                  </span>
+                </label>
+                <label class="checkoutChoice">
+                  <input class="checkoutRadio" type="radio" name="paymentMethod" value="cod" id="payCod" />
+                  <span class="checkoutChoiceBody">
+                    <span class="checkoutChoiceTitle">貨到付款</span>
+                    <span class="checkoutChoiceDesc">收到商品時以現金付款（限宅配）</span>
+                  </span>
+                </label>
+              </fieldset>
+
+              <div class="checkoutPaymentNotice" id="ecpayPaymentNotice" role="status">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                <span>
+                  <strong>下一步將前往 ECPay</strong>
+                  <span>本站不會收集或保存卡號、到期日與 CVV。</span>
+                </span>
+              </div>
+              <div class="checkoutPaymentNotice" id="codPaymentNotice" role="status" hidden>
+                <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                <span>
+                  <strong>貨到付款</strong>
+                  <span>確認後訂單成立，收到商品時再以現金付款。</span>
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <div class="checkoutActions">
+            <button id="confirmOrderBtn" type="button" class="btn btnPrimary btnBlock checkoutConfirmBtn">
+              確認結帳
+            </button>
+            <p class="checkoutTermsText">點擊確認即表示您同意 Yuruicamp 的服務條款與隱私政策</p>
+          </div>
+        </div>
+
+        <aside class="checkoutSummaryColumn" aria-labelledby="checkoutSummaryTitle">
+          <section class="checkoutSummary">
+            <h2 class="checkoutSummaryHeader" id="checkoutSummaryTitle">訂單摘要</h2>
+
+            <div class="checkoutItemsList" id="checkoutItemsList">
+              <!-- 由 JS 動態渲染 -->
+            </div>
+
+            <div class="couponPanel" id="checkoutCouponPanel" aria-busy="false">
+              <label class="couponLabel" for="checkoutCouponInput">折扣碼</label>
+              <div class="couponControl">
+                <input
+                  class="couponInput"
+                  type="text"
+                  id="checkoutCouponInput"
+                  name="checkoutCouponCode"
+                  list="checkoutCouponCodeOptions"
+                  autocomplete="off"
+                  autocapitalize="characters"
+                  spellcheck="false"
+                  placeholder="輸入或選擇折扣碼"
+                  maxlength="20"
+                />
+                <datalist id="checkoutCouponCodeOptions"></datalist>
+                <button id="checkoutApplyCouponBtn" type="button" class="btn btnSecondary couponBtn">
+                  套用
+                </button>
+              </div>
+              <div class="couponAppliedList" id="checkoutAppliedCouponTexts" hidden></div>
+              <div
+                class="couponMessage"
+                id="checkoutCouponMsg"
+                role="status"
+                aria-live="polite"
+                tabindex="-1"
+                hidden
+              ></div>
+            </div>
+
+            <div class="checkoutSummaryRows" aria-label="金額明細">
+              <div class="checkoutSummaryRow">
+                <span>商品小計</span>
+                <span class="checkoutSubtotal" id="checkoutSubtotal">NT$0</span>
+              </div>
+              <div class="checkoutSummaryRow checkoutDiscountRow" id="checkoutDiscountRow" hidden>
+                <span>折扣優惠</span>
+                <span class="couponDiscount" id="checkoutDiscount">-NT$0</span>
+              </div>
+              <div class="checkoutSummaryRow">
+                <span>運費</span>
+                <span class="checkoutShipping" id="checkoutShipping">NT$60</span>
+              </div>
+            </div>
+
+            <div class="checkoutTotalRow">
+              <span>合計</span>
+              <span class="checkoutTotal" id="checkoutTotal">NT$0</span>
+            </div>
+
+            <div class="checkoutTrustNote">
+              <p class="checkoutTrustText">7 天無理由退換貨保障</p>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+
+    <div id="footer"></div>
+    <div id="shippingAddressModalMount"></div>
+
+    <script src="/storefront/js/config.js" defer></script>
+    <script src="/storefront/js/api-client.js" defer></script>
+    <script src="/storefront/js/storage.js" defer></script>
+    <script src="/storefront/js/state.js" defer></script>
+    <script src="/storefront/js/formatters.js" defer></script>
+    <script src="/storefront/js/tw-district-zip.js" defer></script>
+    <script src="/storefront/js/shipping-address.js" defer></script>
+    <script src="/storefront/js/validators.js" defer></script>
+    <script src="/storefront/js/cart-service.js" defer></script>
+    <script src="/storefront/js/api-mock.js" defer></script>
+    <script src="/storefront/js/components/toast.js" defer></script>
+    <script src="/storefront/js/components/modal.js" defer></script>
+    <script src="/storefront/js/components/shipping-address-ui.js" defer></script>
+    <script src="/storefront/js/components/header.js" defer></script>
+    <script src="/storefront/js/components/cart.js" defer></script>
+    <script src="/storefront/js/components/coupons.js" defer></script>
+    <script src="/storefront/js/pages/checkout.js" defer></script>
+    <script src="/storefront/js/main.js" defer></script>
+  </body>
+</html>

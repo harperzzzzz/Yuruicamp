@@ -167,6 +167,8 @@
 | `--yc-z-modal`    | `50` | Modal、offcanvas panel       |
 | `--yc-z-toast`    | `60` | Toast、global feedback       |
 
+`aside#siteCartDrawer` 開啟後必須高於 Toast，元件層以 `calc(var(--yc-z-toast) + 1)` 覆寫共用 offcanvas 層級，避免全站提示遮住購物車操作。
+
 ## 版面規則
 
 - 前台網站主容器：`min(1120px, calc(100vw - 32px))`。

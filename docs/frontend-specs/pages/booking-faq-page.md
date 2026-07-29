@@ -151,6 +151,7 @@ const colors = {
 - Source file: `booking/pages/booking-faq.html`.
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
+- **Shared scripts:** must load `/booking/js/booking-core-scripts.js`（見 [`booking-shared-scripts.md`](../booking-shared-scripts.md)），確保 `window.AppConfig` 存在。
 - Key UI areas: payment, cancellation, damage, checkin, delivery.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.

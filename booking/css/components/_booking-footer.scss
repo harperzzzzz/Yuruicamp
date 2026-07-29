@@ -1,7 +1,0 @@
-/* Booking Footer：載入主站 footer 共用骨架，booking 只保留品牌色差異。 */
-@use '../../../css/components/widgets/footer';
-
-/* Booking Footer 差異：預約頁尾使用 booking footer token，不影響主站 footer 內容。 */
-.bookingFooter {
-  background: var(--yc-footer-bg);
-}

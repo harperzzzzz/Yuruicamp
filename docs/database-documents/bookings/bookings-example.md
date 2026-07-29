@@ -111,10 +111,10 @@ id  booking_id  status     occurred_at                 actor_id  note
   ],
   "selectedRentals": [
     {
-      "listingId": "R008",
+      "listingId": "E022",
       "rentalSkuId": "R008",
-      "variantId": "v-P009-0",
-      "sku": "v-P009-0",
+      "variantId": "RSV-R008-01",
+      "sku": "RSV-R008-01",
       "name": "折疊桌椅組",
       "specLabel": "鋁合金輕量版",
       "quantity": 2,

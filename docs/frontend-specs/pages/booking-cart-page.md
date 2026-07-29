@@ -1,6 +1,6 @@
-﻿# BookingCartPage Spec
+# BookingCartPage Spec
 
-**Status:** Draft
+**Status:** Implemented (B3 2026-07-26)
 **Category:** Page
 **Design Ref:** N/A - derived from existing source file `booking/pages/booking-cart.html`
 
@@ -151,10 +151,13 @@ const colors = {
 - Source file: `booking/pages/booking-cart.html`.
 - Shared CSS source: `booking/css/*.css`.
 - Shared components: components/header.partial, components/footer.partial through booking layout loader.
+- **Shared scripts:** must load `/booking/js/booking-core-scripts.js`（見 [`booking-shared-scripts.md`](../booking-shared-scripts.md)），確保 `window.AppConfig` 存在。
 - Key UI areas: cartEmptyBooking, cartStayCardBooking, cartRentalCardBooking, cartCostRowsBooking.
 - Use `docs/ai-style-sheet.md` and `docs/ai-style-tokens.css` before generating new UI.
 - Open question: no Figma reference is present, so existing code is the design source of truth.
 - Do NOT replace the existing shell, storage keys, mock data contracts, or partial loader pattern while implementing this spec.
+- Rental quantity supports both stepper buttons and direct integer input from 1 to 20; either path recalculates totals and persists the cart (**soft validation only**; no Booking Checkout Session on this page — B3).
+- Clearing the cart removes `bookingCart` and its prepared session, then shows「沒有預約營地、租賃裝備請前往預約首頁預約。」with a link to the booking home.
 
 ## Acceptance Criteria
 
@@ -164,3 +167,6 @@ const colors = {
 - [ ] Screen reader announces correctly
 - [ ] Design tokens match the Yuruicamp AI style sheet
 - [ ] Unit tests or smoke checks cover required props and primary events
+- [ ] Rental quantity can be entered directly and invalid values are restored.
+- [ ] Clear cart removes all booking cart data and displays the specified empty-state guidance.
+- [x] Summary sidebar must not show SSL or generic secure-payment trust boilerplate.

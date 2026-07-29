@@ -68,13 +68,19 @@ coupons
     - 可以更新 orders.status、payment_status、refund_status。
     - 已消耗的 coupon_claims 不得回到 claimed。
     - 不會退回優惠券。
+    - 會員主動取消時，已綁定 claim 改為 revoked。
+    - Checkout 自動逾時時，已綁定 claim 改為 expired。
 
 
 
 ## 欄位說明
 ### orders
-* id                         訂單識別碼
+* id                         訂單識別碼（內部 UUID 主鍵）
+* display_no                 人類可讀序號，例 `ORD-0001`；**UNIQUE**；`order_display_no_seq`（Commerce UX spec，planned）
 * customer_id                下單會員 ID
+  checkout_idempotency_key   建立結帳的客戶端冪等鍵，可空；同一會員不可重複。
+                             *UNIQUE (customer_id, checkout_idempotency_key)*
+  checkout_request_hash      正規化建立請求的 SHA-256 指紋，可空；用來拒絕同鍵異內容。
 * buyer_name_snapshot        下單當時的購買人姓名快照
 * buyer_email_snapshot       下單當時的購買人 Email 快照
 * recipient_name_snapshot    收件人姓名快照
@@ -86,16 +92,23 @@ coupons
 * total                      訂單實付總額
                              GREATEST(subtotal + shipping_fee - discount, 0)
 
-* payment_method             付款方式，(online, cod)
+* payment_method             付款方式 ENUM：
+                             ecpay-credit、ecpay-atm、ecpay-cvs、ecpay-other、cod。
+                             線上付走綠界 ECPay；COD 不呼叫 ECPay，建立時 unpaid，
+                             履約完成後再標 paid。
 * payment_status             付款狀態，(unpaid、paid、refunded)
 * refund_status              退款狀態，預設 'none'，
                              (requested、approved、processing、refunded、rejected、failed。)
 
 * status                     訂單履約狀態，
                              (unshipped, shipped, completed, cancelled, returned)
+* internal_note              後台內部備註，可空；非履約狀態欄位。空白寫入時存 null。
 
 * placed_at                  正式下單時間
   paid_at                    實際付款時間，可空
+  checkout_expires_at        待付款結帳逾時（通常 now+15 分鐘），可空。
+                             應與同交易內 `product_stock_reservations.expires_at` 對齊。
+                             *idx_orders_checkout_expiry*（unpaid 且 expires 非空）
 * created_at                 建立時間，預設 now()
 * updated_at                 更新時間，預設 now()
 *idx_orders_customer_placed：(customer_id, placed_at)*
@@ -238,6 +251,12 @@ coupons
     - 使用時將 claim 改成 consumed(消耗)。
     - 設為consumed(消耗) 後不會再回復成 claimed(擁有)。
 
+* 開發 Seed 現況
+    - `050-coupons.sql` 先建立固定 ID 1～7 的優惠券主檔。
+    - 首次載入尚無會員與 `coupon_claims`，所以主檔 `claimed_quantity` 為 0。
+    - 後續會員 Seed 必須建立 claim 明細，由資料庫領券流程維護名額，不可只修改主檔計數。
+    - 重跑 `050-coupons.sql` 會保留既有 `claimed_quantity`，避免破壞後續會員 claim。
+
 
 
 ## 程式碼追蹤
@@ -282,40 +301,33 @@ coupons
     將套用中的券碼保存到 localStorage
     `[js/components/coupons.js 第 140 行]`
 
-    * 確認訂單後：
+    * 建立 Checkout Session 後：
     confirmOrderBtn
-    `[pages/checkout.html 第 263 行]`
             ↓
     _handleConfirmOrder()
-    `[js/pages/checkout.js 第 472 行]`
             ↓
-    _buildOrderData()
-    `[js/pages/checkout.js 第 545 行]`
+    _buildCheckoutRequest()
             ↓
-    建立 items、coupons、discount、total、status 快照物件
-    `[js/pages/checkout.js 第 552～573 行]`
+    只建立 variantId、quantity、shipping、paymentMethod、idempotencyKey
             ↓
-    API.orders.create(orderData)
-    `[js/pages/checkout.js 第 479 行]`
+    API.checkout.createSession(request)
             ↓
-    寫入 localStorage.mockOrders
-    `[js/api-mock.js 第 418～458 行]`
+    Spring Boot 從 PostgreSQL 建立快照並重算 pricing
             ↓
-    寫入 localStorage.lastCheckoutOrder
-    `[js/pages/checkout.js 第 483 行]`
+    暫存 sessionStorage.lastCheckoutSession
             ↓
-    清空購物車並前往 checkout-success.html
-    `[js/pages/checkout.js 第 594～600 行]`
+    以 CheckoutSession.pricing 覆蓋摘要，等待 I-7 付款下一步
 
-    * 目前實際執行時：
-    - 不寫 orders。
-    - 不寫 order_items。
-    - 不寫 order_status_history。
-    - 不寫 order_coupons。
-    - 不建立或消耗 coupon_claims。
-    - 不更新 coupons.claimed_quantity。
-    - 只讀 `[coupons.json (line 1)]`
-    - 只將新訂單寫入瀏覽器的 localStorage.mockOrders。
+    * I-6 前端狀態：
+    - `draft` 可 PATCH 收件資料與付款方式，不清空購物車。
+    - `ready_to_pay` 顯示後端金額與 `checkout_expires_at` 倒數。
+    - 主動取消或逾時會清除前端 Session；訂單取消與庫存釋放仍由後端交易負責。
+
+    * Backend 模式目前實際執行時：
+    - 後端建立 `orders`、`order_items` 與庫存保留，前端不建立訂單 ID 或交易快照。
+    - 線 F 完成前不建立或消耗 `coupon_claims`，也不讓前端折扣覆蓋後端 pricing。
+    - 不寫 `localStorage.mockOrders`，不把 CheckoutSession 當成 Legacy Order。
+    - ECPay 不在本站收集卡號、到期日或 CVV；實際導向等待 I-7。
 
 * 會員中心讀取訂單
     `pages/member-center.html`
@@ -416,3 +428,8 @@ coupons
 
 * 低風險：actor_id 可空會降低人工操作的稽核完整性
     - 系統自動事件可為空；人工操作應由後端統一寫入 actor_id。
+## G-2b 後台訂單履約
+
+後台使用 `/api/admin/orders` 查詢訂單，列表先對 order ID 分頁，再載入表頭摘要；商品與狀態歷程只在詳情讀取。這可避免 `order_items` 或 `order_status_history` 將列表資料列放大。
+
+履約狀態固定為 `unshipped → shipped → completed`。線上付款必須先由可信付款流程標記 paid；COD 可以 unpaid 出貨，完成時於同一交易標記 paid。Admin 不提供任意 payment、refund 或 status PATCH。
