@@ -33,6 +33,7 @@
 | P1   | [`coupon-api-contract.md`](./coupon-api-contract.md)                                   | F    | Partially Implemented v0.4（商城套券、消耗與取消失效完成；Booking Schema 待決定）                 |
 | P1   | [`admin-api-contract.md`](./admin-api-contract.md)                                     | G    | Locked v0.27（G＋W1～W4＋Analytics；`ship` 綠界物流建單）                                       |
 | P2   | [`member-review-api-contract.md`](./member-review-api-contract.md)、[`product-review-api-contract.md`](./product-review-api-contract.md) | H | Implemented（會員本人 GET／POST、商品公開分頁讀取與評分統計） |
+| P2   | [`line-integration-api-contract.md`](./line-integration-api-contract.md) | 客服 | Implemented v0.1（LINE n8n 訂單狀態客服 MVP：綁定碼建立＋internal 查單） |
 
 ### 刻意延後（P2，本輪不寫死）
 

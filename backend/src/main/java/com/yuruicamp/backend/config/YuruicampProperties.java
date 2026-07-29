@@ -16,6 +16,7 @@ public class YuruicampProperties {
 	private final Firebase firebase = new Firebase();
 	private final Ecpay ecpay = new Ecpay();
 	private final EcpayLogistics ecpayLogistics = new EcpayLogistics();
+	private final LineIntegration lineIntegration = new LineIntegration();
 
 	public Cors getCors() {
 		return cors;
@@ -31,6 +32,10 @@ public class YuruicampProperties {
 
 	public EcpayLogistics getEcpayLogistics() {
 		return ecpayLogistics;
+	}
+
+	public LineIntegration getLineIntegration() {
+		return lineIntegration;
 	}
 
 	public static class Cors {
@@ -310,6 +315,42 @@ public class YuruicampProperties {
 
 		public void setGoodsName(String goodsName) {
 			this.goodsName = goodsName;
+		}
+	}
+
+	/**
+	 * LINE n8n 訂單狀態客服 MVP：internal API key 與 n8n webhook 設定。
+	 */
+	public static class LineIntegration {
+		/** n8n 驗證 internal API 呼叫用的固定金鑰；空白時 internal endpoint 一律拒絕。 */
+		private String internalApiKey = "";
+		/** 產生綁定碼後通知 n8n 的 Webhook 網址；空白時視為尚未設定。 */
+		private String bindingCodeWebhookUrl = "";
+		/** 前端提示文案使用的 LINE 官方帳號連結。 */
+		private String officialAccountUrl = "https://lin.ee/NkgGfc4";
+
+		public String getInternalApiKey() {
+			return internalApiKey;
+		}
+
+		public void setInternalApiKey(String internalApiKey) {
+			this.internalApiKey = internalApiKey;
+		}
+
+		public String getBindingCodeWebhookUrl() {
+			return bindingCodeWebhookUrl;
+		}
+
+		public void setBindingCodeWebhookUrl(String bindingCodeWebhookUrl) {
+			this.bindingCodeWebhookUrl = bindingCodeWebhookUrl;
+		}
+
+		public String getOfficialAccountUrl() {
+			return officialAccountUrl;
+		}
+
+		public void setOfficialAccountUrl(String officialAccountUrl) {
+			this.officialAccountUrl = officialAccountUrl;
 		}
 	}
 }

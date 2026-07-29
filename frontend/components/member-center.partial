@@ -231,6 +231,15 @@
       <div class="memberModalBody" id="orderDetailBody"></div>
     </section>
   </div>
+  <div class="memberModalOverlay" id="lineBindOverlay" aria-hidden="true">
+    <section class="memberModalDialog" role="dialog" aria-modal="true" aria-labelledby="lineBindTitle" tabindex="-1">
+      <header class="memberModalHeader">
+        <h2 class="memberModalTitle" id="lineBindTitle">用 LINE 詢問這筆訂單</h2>
+        <button class="memberModalClose" id="lineBindClose" type="button" aria-label="關閉">&times;</button>
+      </header>
+      <div class="memberModalBody" id="lineBindBody"></div>
+    </section>
+  </div>
   <div class="memberModalOverlay" id="reviewOverlay" aria-hidden="true">
     <section class="memberModalDialog" role="dialog" aria-modal="true" aria-labelledby="reviewTitle" tabindex="-1">
       <header class="memberModalHeader">

@@ -81,6 +81,8 @@ public class SecurityConfig {
 						.requestMatchers(HttpMethod.POST, "/api/logistics/ecpay/map-result").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/logistics/ecpay/notify").permitAll()
 						.requestMatchers("/api/logistics/ecpay/stub/**").permitAll()
+						// LINE n8n internal API：無會員 Bearer，改由 Controller 檢查 X-Internal-Api-Key。
+						.requestMatchers("/api/internal/line/**").permitAll()
 						// 管理員先通過白名單身分，再由 Controller 的方法權限檢查細項權限。
 						.requestMatchers("/api/admin/**").hasRole("ADMIN")
 						// Other /api/** still require customer auth until more public GETs are added

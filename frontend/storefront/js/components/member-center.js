@@ -1015,12 +1015,15 @@
       infoRows.join('') +
       '</section>' +
       cancelBookingAction +
-      '<a class="memberDetailLineButton" href="https://line.me/R/ti/p/@yuruicamp" target="_blank" rel="noopener">' +
-      '<i class="bi bi-chat-dots" aria-hidden="true"></i>' +
-      '<span>使用 LINE 詢問' +
-      (type === 'rental' ? '預約' : '訂單') +
-      '</span>' +
-      '</a>' +
+      // 商品訂單改為呼叫後端產生一次性綁定碼；預約（rental）維持原本的官方帳號連結，本輪不處理。
+      (type === 'purchase'
+        ? '<button class="memberDetailLineButton" type="button" data-line-bind-order="' +
+          html(order.id) +
+          '"><i class="bi bi-chat-dots" aria-hidden="true"></i><span>使用 LINE 詢問訂單</span></button>'
+        : '<a class="memberDetailLineButton" href="https://line.me/R/ti/p/@yuruicamp" target="_blank" rel="noopener">' +
+          '<i class="bi bi-chat-dots" aria-hidden="true"></i>' +
+          '<span>使用 LINE 詢問預約</span>' +
+          '</a>') +
       cancelPurchaseAction
     );
   }
@@ -1124,6 +1127,76 @@
       }
     }
   };
+  // 呼叫後端產生一次性 LINE 綁定碼，並在 Modal 顯示提示文字與複製／前往 LINE 動作。
+  window.requestLineBindCode = async function (orderId, trigger) {
+    if (!window.API || !window.API.lineBinding || !window.API.lineBinding.createCode) {
+      toast('LINE 詢問訂單功能目前不可用', 'error');
+      return;
+    }
+
+    if (trigger) {
+      trigger.disabled = true;
+      trigger.setAttribute('aria-busy', 'true');
+    }
+    try {
+      var result = await window.API.lineBinding.createCode(orderId);
+      var bindText = result && result.bindText ? result.bindText : '綁定 ' + (result && result.bindCode);
+      var lineUrl = (result && result.lineUrl) || 'https://lin.ee/NkgGfc4';
+      renderLineBindBody(bindText, lineUrl);
+      text('lineBindTitle', '用 LINE 詢問這筆訂單');
+      openModal('lineBindOverlay');
+    } catch (error) {
+      console.error('LINE binding code request failed', error);
+      toast(error && error.message ? error.message : '掃描無法產生 LINE 綁定碼，請稍後再試。', 'error');
+    } finally {
+      if (trigger) {
+        trigger.disabled = false;
+        trigger.removeAttribute('aria-busy');
+      }
+    }
+  };
+  // 組出綁定碼 Modal 內容；綁定文字一律採用後端回傳的 bindText，前端不可自行寫死綁定碼。
+  function renderLineBindBody(bindText, lineUrl) {
+    var body = document.getElementById('lineBindBody');
+    if (!body) return;
+    body.innerHTML =
+      '<p class="memberReviewHint">為了讓 LINE 客服知道你要詢問哪一筆訂單，請先完成綁定。</p>' +
+      '<p class="memberReviewHint">請到 LINE 官方帳號輸入：</p>' +
+      '<p class="memberDetailRowTotal" id="lineBindText">' +
+      html(bindText) +
+      '</p>' +
+      '<p class="memberReviewHint">完成後可直接輸入「訂單狀態」查詢這筆訂單。</p>' +
+      '<div class="memberModalFooter">' +
+      '<button class="memberAction" type="button" id="lineBindCopy">複製綁定文字</button>' +
+      '<a class="memberAction memberActionPrimary" href="' +
+      html(lineUrl) +
+      '" target="_blank" rel="noopener">前往 LINE</a>' +
+      '</div>';
+    var copyBtn = document.getElementById('lineBindCopy');
+    if (copyBtn) {
+      copyBtn.addEventListener('click', function () {
+        copyLineBindText(bindText);
+      });
+    }
+  }
+  // 複製綁定文字到剪貼簿；內容一律來自後端回傳的 bindText。
+  function copyLineBindText(bindText) {
+    if (!bindText) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(bindText).then(function () {
+        toast('綁定文字已複製', 'success');
+      });
+      return;
+    }
+    var el = document.createElement('textarea');
+    el.className = 'memberClipboardProxy';
+    el.value = bindText;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    el.remove();
+    toast('綁定文字已複製', 'success');
+  }
   // 用途：整理會員中心函式行為，僅說明用途不改變邏輯。
   window.openReviewModal = function (id, orderItemId, name) {
     var order = state.orders.find(function (candidate) {
@@ -1761,6 +1834,8 @@
       if (r) return window.openRentalOrderDetail(r.dataset.rentalDetail);
       var cancelOrder = e.target.closest('[data-cancel-order]');
       if (cancelOrder) return window.cancelPurchaseOrder(cancelOrder.dataset.cancelOrder, cancelOrder);
+      var lineBind = e.target.closest('[data-line-bind-order]');
+      if (lineBind) return window.requestLineBindCode(lineBind.dataset.lineBindOrder, lineBind);
       var cancelBooking = e.target.closest('[data-cancel-booking]');
       if (cancelBooking) return window.cancelRentalBooking(cancelBooking.dataset.cancelBooking);
       var rv = e.target.closest('[data-review-order]');
@@ -1790,6 +1865,7 @@
         closeModal('profileOnboardingOverlay');
         closeModal('orderDetailOverlay');
         closeModal('reviewOverlay');
+        closeModal('lineBindOverlay');
       }
     });
   }
@@ -1817,6 +1893,7 @@
       ['profileOnboardingOverlay', 'profileOnboardingClose'],
       ['orderDetailOverlay', 'orderDetailClose'],
       ['reviewOverlay', 'reviewClose'],
+      ['lineBindOverlay', 'lineBindClose'],
     ].forEach(function (p) {
       var o = document.getElementById(p[0]),
         c = document.getElementById(p[1]);

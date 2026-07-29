@@ -131,6 +131,7 @@ $env:DB_PASSWORD = "你的 POSTGRES_PASSWORD"
 | **G-4 Admin Coupons／Closures**     | ✅ 優惠券與營區公休 CRUD、安全刪除、建立者紀錄、RBAC、前端 backend-first 與 PostgreSQL 整合驗收完成；見 [`Coupon`](../docs/backend-specs/coupon/g4-admin-coupons.md)／[`Closures`](../docs/backend-specs/booking/g4-admin-campground-closures.md) |
 | **G-6 Admin Runtime**               | ✅ Firebase Google／dev Session、有效權限初始化、401 Token 刷新、readiness gate 與全站 Backend 切換完成；見 [`G-6 文件`](../docs/backend-specs/admin/g6-admin-runtime.md)                                                                                |
 | 結帳／ECPay／Admin CRUD             | ✅ 線 C／D／D-L／G post-G6／Commerce UX；商城金流＋物流真沙箱已過；下一步：ENG-1、真實退款 HTTP、Booking Coupon Schema |
+| **LINE n8n 訂單狀態客服 MVP**        | ✅ `POST /api/me/line-binding/code`（本人訂單產生一次性綁定碼）＋ `GET /api/internal/line/orders/{orderId}`（`X-Internal-Api-Key` 供 n8n 查單）；不修改主資料庫 schema，綁定資料存於 n8n／QA PostgreSQL；見 [`流程`](../docs/backend-specs/integration/line-n8n-order-status-mvp.md) 與 [`Swagger 驗證`](../docs/backend-specs/test/line-n8n-order-status-swagger-validation.md) |
 
 ### Schema 整合驗證
 
@@ -171,3 +172,4 @@ curl.exe http://localhost:8080/api/products/P001
 - `YURUICAMP_BOOKING_EXPIRATION_SCAN_MS` 對應 `yuruicamp.booking.expiration-scan-ms`（預設 `60000` 毫秒）
 - `YURUICAMP_BOOKING_EXPIRATION_ENABLED` 對應 `yuruicamp.booking.expiration-enabled`（預設 `true`）
 - `CORS_ALLOWED_ORIGINS`
+- `YURUICAMP_LINE_INTERNAL_API_KEY`／`YURUICAMP_LINE_BINDING_CODE_WEBHOOK_URL`／`YURUICAMP_LINE_OFFICIAL_ACCOUNT_URL`（LINE n8n 訂單狀態客服 MVP）

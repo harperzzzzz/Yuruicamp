@@ -91,6 +91,7 @@
 - 會員周邊 Seed 已獨立補入 `020-identity.sql`：18 個偏好選項、200 筆會員偏好、50 筆預設地址、3 個會員標籤與 56 筆標籤指派；逐筆對齊 `frontend/data/customers/*.json`，不影響訂單／預訂成立條件。
 - 完整 Seed 已於 2026-07-22 使用 PostgreSQL 16 全新獨立資料庫實灌，`latest_schema.sql` 與 `010`～`070` 一次成功 `COMMIT`；同一版本也已成功套用到目前 `yuruicamp`。可重做的流程與判定標準見 [`資料庫與完整 Seed 實際驗證`](./docs/backend-specs/test/database-seed-validation.md)。
 - **Commerce UX（2026-07-26 ✅）**：`orders`／`bookings` 人類可讀 `displayNo`（`ORD-xxxx`／`BK-xxxx`）；後台預約明細 lineTotal、contact 快照、中文狀態時間軸；Analytics `categoryBreakdown` 甜甜圈；會員 Profile API；靜態驗收入口 `frontend/tests/commerce-ux-browser.mjs`。規格見 [`.scratch/commerce-ux-display-checkout/spec.md`](./.scratch/commerce-ux-display-checkout/spec.md)。
+- **LINE n8n 訂單狀態客服 MVP（2026-07-30 ✅）**：會員可在訂單詳情頁點「使用 LINE 詢問訂單」，透過 `POST /api/me/line-binding/code` 產生一次性綁定碼；n8n 以 `GET /api/internal/line/orders/{orderId}`（`X-Internal-Api-Key`）查詢來源訂單狀態回覆 LINE。不修改主資料庫 schema，綁定資料存於 n8n／QA PostgreSQL；見 [`API 契約`](./docs/api/line-integration-api-contract.md) 與 [`流程文件`](./docs/backend-specs/integration/line-n8n-order-status-mvp.md)。
 
 ### 用 npm 開啟前端（推薦／日常開發請用這個）
 
@@ -260,6 +261,12 @@ npm run validate:data
 npm run sync:listings
 npm run normalize:data
 ```
+
+## v1.3.77 - 2026/07/30
+
+- 新增 LINE n8n 訂單狀態客服 MVP：`POST /api/me/line-binding/code`（會員本人訂單產生一次性綁定碼）與 `GET /api/internal/line/orders/{orderId}`（`X-Internal-Api-Key` 供 n8n 查單）。
+- 會員中心訂單詳情的「使用 LINE 詢問訂單」改為呼叫後端產生綁定碼並顯示提示 Modal；預約（rental）維持原本官方帳號連結，本輪不處理。
+- 新增 `docs/api/line-integration-api-contract.md`、`docs/backend-specs/integration/line-n8n-order-status-mvp.md` 與對應 Swagger 人工驗證文件。
 
 ## v1.3.76 - 2026/07/06
 

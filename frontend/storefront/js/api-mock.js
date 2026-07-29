@@ -704,6 +704,17 @@ const memberShippingAddressesApi = {
   },
 };
 
+// LINE n8n 訂單狀態客服 MVP：只走正式後端，綁定碼與 n8n 對照無 Mock 語意可模擬。
+const memberLineBindingApi = {
+  createCode: async (orderId) => {
+    return window.ApiClient._restRequest('/me/line-binding/code', {
+      method: 'POST',
+      auth: 'required',
+      body: { orderId },
+    });
+  },
+};
+
 const memberProfileApi = {
   get: async () => {
     if (!_useMockApi()) {
@@ -1607,6 +1618,7 @@ window.API = {
   users: customersApi,
   memberProfile: memberProfileApi,
   shippingAddresses: memberShippingAddressesApi,
+  lineBinding: memberLineBindingApi,
 
   coupons: {
     getAll: async () => _loadMockOrRest('coupons', '/coupons'),
